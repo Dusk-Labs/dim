@@ -1,0 +1,2 @@
+[global.databases]
+openflix = { url = "openflix.sqlite" }
