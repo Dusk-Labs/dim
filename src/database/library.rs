@@ -1,7 +1,7 @@
 use crate::database::media::*;
 use crate::schema::library;
 use diesel::prelude::*;
-use rocket_contrib::json::Json
+use rocket_contrib::json::Json;
 
 #[derive(Queryable, Serialize, Deserialize, Identifiable)]
 #[table_name = "library"]

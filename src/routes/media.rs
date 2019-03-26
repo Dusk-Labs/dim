@@ -18,7 +18,7 @@ pub fn insert_media_by_lib_id(
     data: Json<InsertableMedia>,
 ) -> Result<Status, Status> {
     match Media::new(&conn, data) {
-        Ok(data) => Ok(Status::Ok),
+        Ok(_) => Ok(Status::Ok),
         Err(_) => Err(Status::NotFound),
     }
 }
