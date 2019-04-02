@@ -1,6 +1,5 @@
-use crate::database::library::{InsertableLibrary, Library};
 use crate::database::media::{InsertableMedia, UpdateMedia, Media};
-use crate::DbConnection;
+use crate::core::DbConnection;
 use rocket::http::Status;
 use rocket_contrib::json::Json;
 
@@ -18,7 +17,7 @@ pub fn insert_media_by_lib_id(
     data: Json<InsertableMedia>,
 ) -> Result<Status, Status> {
     match Media::new(&conn, data) {
-        Ok(_) => Ok(Status::Ok),
+        Ok(_) => Ok(Status::Created),
         Err(_) => Err(Status::NotFound),
     }
 }

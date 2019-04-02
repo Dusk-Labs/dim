@@ -28,7 +28,7 @@ pub struct InsertableMedia {
     pub year: Option<i32>,
     pub added: String,
     pub poster_path: Option<String>,
-    pub media_type: Option<String>,
+    pub media_type: String,
 }
 
 #[derive(AsChangeset, Deserialize, PartialEq, Debug)]
@@ -46,12 +46,9 @@ pub struct UpdateMedia {
 impl Media {
     pub fn get_all(
         conn: &diesel::SqliteConnection,
-        lib_id: i32,
+        _lib_id: i32,
         library: Library,
     ) -> Result<Json<Vec<Media>>, diesel::result::Error> {
-        use crate::schema::media;
-        use crate::schema::media::dsl::*;
-
         let result = Media::belonging_to(&library)
             .load::<Media>(conn)
             .map(|x| Json(x))?;
@@ -102,7 +99,6 @@ impl Media {
         data: Json<UpdateMedia>,
     ) -> Result<usize, diesel::result::Error> {
         use crate::schema::media::dsl::*;
-        use diesel::update;
 
         let entry = media.filter(id.eq(id));
 

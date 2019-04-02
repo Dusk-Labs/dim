@@ -3,6 +3,7 @@ name = "OpenFlixServerRust"
 version = "0.1.0"
 authors = ["HinamoreCh4n <motherrussia711@gmail.com>"]
 edition = "2018"
+build = "src/build.rs"
 
 [dependencies]
 rocket = { version = "0.4.0" }
@@ -13,9 +14,12 @@ r2d2-diesel = "1.0.0"
 r2d2 = "0.8.3"
 serde = { version = "1.0.89", features = ["derive"] }
 serde_derive = "1.0.89"
-serde_json = "1.0.39"
+serde_json = { version = "1.0.39", features = ["preserve_order"] }
 diesel_migrations = "1.4.0"
 log = "0.4.6"
+
+[dev-dependencies]
+parking_lot = { version = "*", features = ["nightly"] }
 
 [dependencies.rocket_contrib]
 version = "0.4.0"
