@@ -48,9 +48,9 @@ impl Media {
         conn: &diesel::SqliteConnection,
         _lib_id: i32,
         library: Library,
-    ) -> Result<Json<Vec<Media>>, diesel::result::Error> {
-        let result = Media::belonging_to(&library)
-            .load::<Media>(conn)
+    ) -> Result<Json<Vec<Self>>, diesel::result::Error> {
+        let result = Self::belonging_to(&library)
+            .load::<Self>(conn)
             .map(|x| Json(x))?;
         Ok(result)
     }
@@ -58,30 +58,14 @@ impl Media {
     pub fn get(
         conn: &diesel::SqliteConnection,
         req_id: i32,
-    ) -> Result<Json<Media>, diesel::result::Error> {
+    ) -> Result<Json<Self>, diesel::result::Error> {
         use crate::schema::media::dsl::*;
 
-        let result = media.filter(id.eq(req_id)).first::<Media>(conn)?;
+        let result = media.filter(id.eq(req_id)).first::<Self>(conn)?;
 
         Ok(Json(result))
     }
 
-    pub fn new(
-        conn: &diesel::SqliteConnection,
-        data: Json<InsertableMedia>,
-    ) -> Result<usize, diesel::result::Error> {
-        use crate::schema::library::dsl::*;
-        use crate::schema::media;
-
-        library
-            .filter(id.eq(data.library_id))
-            .first::<Library>(conn)?;
-
-        let result = diesel::insert_into(media::table)
-            .values(&*data)
-            .execute(conn)?;
-        Ok(result)
-    }
 
     pub fn delete(
         conn: &diesel::SqliteConnection,
@@ -93,15 +77,36 @@ impl Media {
         Ok(result)
     }
 
-    pub fn update(
+}
+
+impl InsertableMedia {
+    pub fn new(
+        &self,
         conn: &diesel::SqliteConnection,
-        id: i32,
-        data: Json<UpdateMedia>,
+    ) -> Result<usize, diesel::result::Error> {
+        use crate::schema::library::dsl::*;
+
+        library
+            .filter(id.eq(self.library_id))
+            .first::<Library>(conn)?;
+
+        let result = diesel::insert_into(media::table)
+            .values(self)
+            .execute(conn)?;
+        Ok(result)
+    }
+}
+
+impl UpdateMedia {
+    pub fn update(
+        &self,
+        conn: &diesel::SqliteConnection,
+        _id: i32,
     ) -> Result<usize, diesel::result::Error> {
         use crate::schema::media::dsl::*;
 
-        let entry = media.filter(id.eq(id));
+        let entry = media.filter(id.eq(_id));
 
-        diesel::update(entry).set(&*data).execute(conn)
+        diesel::update(entry).set(self).execute(conn)
     }
 }

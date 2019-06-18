@@ -4,7 +4,10 @@ use rocket::http::Status;
 use rocket_contrib::json::Json;
 
 #[get("/<id>")]
-pub fn get_media_by_id(conn: DbConnection, id: i32) -> Result<Json<Media>, Status> {
+pub fn get_media_by_id(
+    conn: DbConnection,
+    id: i32
+) -> Result<Json<Media>, Status> {
     match Media::get(&conn, id) {
         Ok(data) => Ok(data),
         Err(_) => Err(Status::NotFound),
@@ -16,9 +19,9 @@ pub fn insert_media_by_lib_id(
     conn: DbConnection,
     data: Json<InsertableMedia>,
 ) -> Result<Status, Status> {
-    match Media::new(&conn, data) {
+    match data.new(&conn) {
         Ok(_) => Ok(Status::Created),
-        Err(_) => Err(Status::NotFound),
+        Err(_) => Err(Status::UnprocessableEntity),
     }
 }
 
@@ -28,8 +31,8 @@ pub fn update_media_by_id(
     id: i32,
     data: Json<UpdateMedia>
 ) -> Result<Status, Status> {
-    match Media::update(&conn, id, data) {
-        Ok(_) => Ok(Status::Ok),
-        Err(_) => Err(Status::NotFound)
+    match data.update(&conn, id) {
+        Ok(_) => Ok(Status::NoContent),
+        Err(_) => Err(Status::NotModified)
     }
 }

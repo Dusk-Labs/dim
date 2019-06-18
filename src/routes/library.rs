@@ -14,14 +14,17 @@ pub fn library_post(
     conn: DbConnection,
     new_library: Json<InsertableLibrary>,
 ) -> Result<Status, Status> {
-    match Library::new(&conn, new_library) {
+    match new_library.new(&conn) {
         Ok(_) => Ok(Status::Created),
         Err(_) => Err(Status::NotImplemented),
     }
 }
 
 #[delete("/<id>")]
-pub fn library_delete(conn: DbConnection, id: i32) -> Result<Status, Status> {
+pub fn library_delete(
+    conn: DbConnection,
+    id: i32
+) -> Result<Status, Status> {
     match Library::delete(&conn, id) {
         Ok(_) => Ok(Status::NoContent),
         Err(_) => Err(Status::InternalServerError),
@@ -29,7 +32,10 @@ pub fn library_delete(conn: DbConnection, id: i32) -> Result<Status, Status> {
 }
 
 #[get("/<id>")]
-pub fn get_all_library(conn: DbConnection, id: i32) -> Result<Json<Vec<Media>>, Status> {
+pub fn get_all_library(
+    conn: DbConnection,
+    id: i32
+) -> Result<Json<Vec<Media>>, Status> {
     match Library::get(&conn, id) {
         Ok(data) => Ok(data),
         Err(_) => Err(Status::NotFound),

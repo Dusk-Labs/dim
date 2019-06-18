@@ -76,4 +76,10 @@ pub fn rocket() -> Rocket {
                 routes::media::update_media_by_id,
             ],
         )
+        .mount(
+            "/api/v1/movie",
+            routes![
+                routes::movie::get_movie_by_id,
+            ],
+        )
 }
