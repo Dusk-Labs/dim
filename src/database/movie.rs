@@ -21,7 +21,7 @@ impl Movie {
         use crate::schema::media::dsl::*;
         use crate::schema::movie::dsl::*;
 
-        let result = media.inner_join(movie).select((media)).load(conn)?;
+        let result = media.inner_join(movie).load(conn)?;
 
         println!("{:?}", result);
         //Ok(Json(result))
