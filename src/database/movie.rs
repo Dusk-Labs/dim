@@ -1,6 +1,5 @@
 use crate::database::media::*;
 use diesel::prelude::*;
-use crate::diesel::query_dsl::InternalJoinDsl;
 use rocket_contrib::json::Json;
 
 #[derive(Queryable, Serialize, Deserialize)]
@@ -17,15 +16,24 @@ impl Movie {
     pub fn get(
         conn: &diesel::SqliteConnection,
         req_id: i32,
-    ) -> Result<(), diesel::result::Error> {
+        ) -> Result<Json<Media>, diesel::result::Error> {
         use crate::schema::media::dsl::*;
-        use crate::schema::movie::dsl::*;
-
-        let result = media.inner_join(movie).load(conn)?;
-
+        let result = media.filter(id.eq(req_id)).first(conn)?;
         println!("{:?}", result);
-        //Ok(Json(result))
-        Ok(())
+        Ok(Json(result))
     }
 
+    pub fn get_all(
+        conn: &diesel::SqliteConnection,
+        ) -> Result<Json<Vec<Media>>, diesel::result::Error> {
+        use crate::schema::media;
+        use crate::schema::movie;
+        let result = media::dsl::media
+            .inner_join(movie::dsl::movie)
+            .select(
+                media::all_columns,
+                )
+            .load(conn)?;
+        Ok(Json(result))
+    }
 }

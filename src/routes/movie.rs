@@ -14,3 +14,13 @@ pub fn get_movie_by_id(
         Err(_) => Err(Status::NotFound),
     }
 }
+
+#[get("/")]
+pub fn get_movies(
+    conn: DbConnection,
+) -> Result<Json<Vec<Media>>, Status> {
+    match Movie::get_all(&conn) {
+        Ok(data) => Ok(data),
+        Err(_) => Err(Status::NotFound),
+    }
+}

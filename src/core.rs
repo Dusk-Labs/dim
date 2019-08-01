@@ -80,6 +80,7 @@ pub fn rocket() -> Rocket {
             "/api/v1/movie",
             routes![
                 routes::movie::get_movie_by_id,
+                routes::movie::get_movies,
             ],
         )
 }
