@@ -189,7 +189,7 @@ mod library_tests {
         run_test!(|client| {
             // Create a temporary library with test data
             post_media_test_template(&client);
-            let mut resp = client.get("/api/v1/library/1") // assume id of 1 for library
+            let mut resp = client.get("/api/v1/library/1/media") // assume id of 1 for library
                 .dispatch();
             
             let resp_content = json!([{

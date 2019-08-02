@@ -98,7 +98,7 @@ The scanners are split into two modules or sections. The first is a daemon that 
     Returns: 201, {id}
     ErrReturns: 403/404/500
 
-- [ ] GET /api/v1/library/<library_id>/media<?sort=key&ascending=(true|false)>
+- [-] GET /api/v1/library/<library_id>/media<?sort=key&ascending=(true|false)>
     Use: Returns a list of ids of the media it holds, this can be sorted by whatever attributes the media has ascending or descending
     Data: {JWT}
     Returns: [ids...]
@@ -111,13 +111,13 @@ The scanners are split into two modules or sections. The first is a daemon that 
     Returns: 200, {data}
     ErrReturns: 404/403
 
-- [ ] PATCH /api/v1/media/<id>
+- [x] PATCH /api/v1/media/<id>
     Use: Patch info about the media object which is agnostic accross tv shows and movies
     Data: {new info}
     Returns: 201??
     ErrReturns: 404/403
 
-- [ ] DELETE /api/v1/media/<id>
+- [x] DELETE /api/v1/media/<id>
     Use delete the media object
     Returns: 201,
     ErrReturns 404/403

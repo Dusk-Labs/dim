@@ -31,7 +31,7 @@ pub fn library_delete(
     }
 }
 
-#[get("/<id>")]
+#[get("/<id>/media")]
 pub fn get_all_library(
     conn: DbConnection,
     id: i32
