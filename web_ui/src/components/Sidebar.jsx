@@ -1,64 +1,64 @@
 import React, { Component } from 'react';
+import "./sidebar.css";
 
 class Sidebar extends Component {
     render() {
         return (
-            <div className="dim-sidebar-wrapper">
-                <sidebar className="dim-sidebar">
-                    <div className="dim-sidebar-section dim-sidebar-profile">
-                        <div className="profile-icon">
-                            <div className="profile-icon-inner">
-                            </div>
+            <div className="sidebar">
+                <div className="top">
+                    <section className="profile">
+                        <div className="icon-outer">
+                            <div className="icon-inner"></div>
                         </div>
-                        <h4 className="profile-name">Username</h4>
-                        <h6 className="profile-hours">0h spent watching</h6>
-                        <div className="separator"></div>
-                    </div>
+                        <div className="info">
+                            <h4 className="profile-name">Username</h4>
+                            <h6 className="profile-hours">0h spent watching</h6>
+                        </div>
+                    </section>
 
-                    <div className="dim-sidebar-section dim-sidebar-scrollable">
-                        <h4 className="label"> CONNECTED HOSTS </h4>
-                        <ul className="dim-list dim-hosts">
-                            <li className="item">
-                                <i class="fas fa-desktop"></i>
-                                Desktop
-                            </li>
-                            <li className="item">
-                                <i class="fas fa-laptop"></i>
-                                Laptop
-                            </li>
-                            <li className="item">
-                                <i class="fas fa-mobile-alt"></i>
-                                Phone
-                            </li>
-                        </ul>
-                    </div>
+                    <div className="separator"></div>
 
-                    <div className="dim-sidebar-section dim-sidebar-scrollable">
-                        <h4 className="label"> LOCAL LIBRARIES </h4>
-                        <ul className="dim-list dim-libraries">
-                            <li className="item">
-                                <i class="fas fa-film"></i>
-                                Movies
-                            </li>
-                            <li className="item">
-                                <i class="fas fa-gamepad"></i>
-                                Games
-                            </li>
-                            <li className="item">
-                                <i class="fas fa-tv"></i>
-                                TV Shows
-                            </li>
-                        </ul>
-                    </div>
+                    <section classname="search">
+                        <form>
+                            <div className="search-box">
+                                <input type="text" name="search" placeholder="SEARCH"/>
+                                <button type="submit">
+                                    <i className="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </section>
 
-                    <div className="dim-sidebar-section dim-sidebar-account-opt">
-                        <h4> Preferences </h4>
-                        <h4> Legal </h4>
-                        <h4> Logout </h4>
-                    </div>
-                </sidebar>
+                </div>
+
+                <div className="center">
+                    <section className="connected-hosts">
+                        <h4>CONNECTED HOSTS </h4>
+                        <div className="list">
+                            <i className="fas fa-desktop"></i><a href="#">Desktop</a>
+                            <i className="fas fa-laptop"></i><a href="#">Laptop</a>
+                            <i className="fas fa-mobile-alt"></i><a href="#">Phone</a>
+                        </div>
+                    </section>
+
+                    <section className="local-libraries">
+                        <h4>LOCAL LIBRARIES </h4>
+                        <div className="list">
+                            <i className="fas fa-film"></i><a href="#">Movies</a>
+                            <i className="fas fa-gamepad"></i><a href="#">Games</a>
+                            <i className="fas fa-tv"></i><a href="#">TV Shows</a>
+                        </div>
+                    </section>
+
+                    <section className="account">
+                        <h4>YOUR ACCOUNT</h4>
+                        <h4><a href="#">Preferences</a></h4>
+                        <h4><a href="#">Legal</a></h4>
+                        <h4><a href="#">Logout</a></h4>
+                    </section>
+                </div>
             </div>
-            );
+        );
     }
 }
 
