@@ -31,7 +31,7 @@ class Sidebar extends Component {
 
                 </div>
 
-                <div className="center">
+                <div className="middle">
                     <section className="connected-hosts">
                         <h4>CONNECTED HOSTS </h4>
                         <div className="list">
@@ -49,12 +49,14 @@ class Sidebar extends Component {
                             <i className="fas fa-tv"></i><a href="#">TV Shows</a>
                         </div>
                     </section>
+                </div>
 
+                <div className="bottom">
                     <section className="account">
                         <h4>YOUR ACCOUNT</h4>
-                        <h4><a href="#">Preferences</a></h4>
-                        <h4><a href="#">Legal</a></h4>
-                        <h4><a href="#">Logout</a></h4>
+                        <p><a href="#">Preferences</a></p>
+                        <p><a href="#">Legal</a></p>
+                        <p><a href="#">Logout</a></p>
                     </section>
                 </div>
             </div>
