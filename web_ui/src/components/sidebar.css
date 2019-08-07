@@ -1,0 +1,147 @@
+.sidebar {
+    height: 100%;
+    width: 30vh;
+    max-width: 278px;
+    min-width: 200px;
+    position: fixed;
+    background: #333333;
+    display: grid;
+    grid-template-rows: 25%;
+}
+
+.sidebar section {
+    margin: 5vh auto;
+    min-height: 7%;
+    width: 80%;
+    position: relative;
+    text-align: left;
+}
+
+.sidebar .list {
+    margin-top: 1.5vh;
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: auto auto;
+    align-items: center;
+    justify-content: left;
+}
+
+/* ICONS */
+.sidebar .list i {
+    text-align: center;
+    color: #ffffff;
+}
+
+/* HEADINGS */
+.sidebar h6,
+.sidebar h4 {
+    font-family: "Roboto Condensed";
+    margin: 0;
+    color: #808080;
+}
+
+.sidebar p,
+.sidebar a {
+    color: #e6e6e6;
+}
+
+.sidebar a {
+    text-decoration: none;
+}
+
+.sidebar a:hover {
+    text-decoration: underline;
+}
+
+.separator {
+    margin: 0 auto;
+    height: 2px;
+    width: 80%;
+    background: #808080;
+    border-radius: 2px;
+}
+
+/*
+    * == PROFILE ==
+*/
+
+.sidebar .profile {
+    margin-bottom: 1vh;
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto;
+    justify-content: left;
+    grid-gap: 10px;
+    align-items: center;
+}
+
+.sidebar .icon-outer {
+    height: 35px;
+    width: 35px;
+    border-radius: 35px;
+    border-color: #ffffff;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.sidebar .icon-inner {
+    height: 29px;
+    width: 29px;
+    background-color: #f7931e;
+    border-radius: 29px;
+    margin: auto;
+    position: relative;
+    top: 9%;
+}
+
+.sidebar .profile-name {
+    color: #ffffff;
+}
+
+.sidebar .profile-hours {
+    color: #808080
+}
+
+/*
+    * == SEARCH ==
+*/
+
+.sidebar .search-box {
+    background: #4d4d4d;
+    border-radius: 1vh;
+    padding: 0 1vh;
+    overflow: hidden;
+    display: grid;
+    grid-template-areas: "input button";
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.sidebar .search-box input {
+    padding: 1vh 0;
+    grid-area: input;
+    background: #4d4d4d;
+    border: none;
+    padding: 1vh;
+    outline: none;
+    color: #ffffff;
+    width: 85%;
+    font-family: "Roboto Black";
+}
+
+.sidebar .search-box button {
+    height: 30px;
+    width: 30px;
+    grid-area: button;
+    outline: none;
+    border: none;
+    border-radius: 100%;
+    background: #666666;
+    color: #ffffff;
+    transition: background 0.3s ease-in-out;
+}
+
+.sidebar .search-box button:hover {
+    background: #999999;
+    cursor: pointer;
+}
