@@ -1,6 +1,18 @@
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.css');
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.css");
+
+@font-face {
+	font-family: "Roboto Regular";
+	src: url("./assets/roboto_regular.ttf");
+}
+
+@font-face {
+	font-family: "Roboto Black";
+	src: url("./assets/roboto_black.ttf");
+}
 
 .App {
-	font-family: "Roboto";
+	font-family: "Roboto Regular";
+	display: grid;
+	grid-template-areas: "sidebar main";
+	grid-template-columns: 30vh auto;
 }
