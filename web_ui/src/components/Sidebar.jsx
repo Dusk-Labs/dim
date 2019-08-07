@@ -54,9 +54,10 @@ class Sidebar extends Component {
                 <div className="bottom">
                     <section className="account">
                         <h4>YOUR ACCOUNT</h4>
-                        <p><a href="#">Preferences</a></p>
-                        <p><a href="#">Legal</a></p>
-                        <p><a href="#">Logout</a></p>
+                        <div className="list">
+                            <i className="fas fa-wrench"></i><a href="#">Preferences</a>
+                            <i className="fas fa-door-open"></i><a href="#">Logout</a>
+                        </div>
                     </section>
                 </div>
             </div>
