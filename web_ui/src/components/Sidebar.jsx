@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import "./sidebar.css";
 
 class Sidebar extends Component {
     render() {
         return (
-            <div className="sidebar">
+            <aside className="sidebar">
                 <div className="top">
                     <section className="profile">
                         <div className="icon-outer">
@@ -18,7 +18,7 @@ class Sidebar extends Component {
 
                     <div className="separator"></div>
 
-                    <section classname="search">
+                    <section className="search">
                         <form>
                             <div className="search-box">
                                 <input type="text" name="search" placeholder="SEARCH"/>
@@ -28,7 +28,6 @@ class Sidebar extends Component {
                             </div>
                         </form>
                     </section>
-
                 </div>
 
                 <div className="middle">
@@ -49,9 +48,6 @@ class Sidebar extends Component {
                             <i className="fas fa-tv"></i><a href="#">TV Shows</a>
                         </div>
                     </section>
-                </div>
-
-                <div className="bottom">
                     <section className="account">
                         <h4>YOUR ACCOUNT</h4>
                         <div className="list">
@@ -60,7 +56,7 @@ class Sidebar extends Component {
                         </div>
                     </section>
                 </div>
-            </div>
+            </aside>
         );
     }
 }
