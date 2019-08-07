@@ -23,8 +23,8 @@ pub mod routes;
 pub mod schema;
 #[macro_use]
 pub mod macros;
-pub mod tests;
 pub mod core;
+pub mod tests;
 
 fn main() {
     core::rocket().launch();

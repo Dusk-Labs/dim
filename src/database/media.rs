@@ -66,7 +66,6 @@ impl Media {
         Ok(Json(result))
     }
 
-
     pub fn delete(
         conn: &diesel::SqliteConnection,
         id_to_del: i32,
@@ -76,23 +75,41 @@ impl Media {
         let result = diesel::delete(media.filter(id.eq(id_to_del))).execute(conn)?;
         Ok(result)
     }
-
 }
 
 impl InsertableMedia {
     pub fn new(
         &self,
-        conn: &diesel::SqliteConnection,
-    ) -> Result<usize, diesel::result::Error> {
+        conn: &diesel::SqliteConnection
+    ) -> Result<i32, diesel::result::Error> {
         use crate::schema::library::dsl::*;
+        use crate::database::tv::InsertableTVShow;
 
         library
             .filter(id.eq(self.library_id))
             .first::<Library>(conn)?;
 
-        let result = diesel::insert_into(media::table)
+        let count = diesel::insert_into(media::table)
             .values(self)
             .execute(conn)?;
+
+        let result = media::dsl::media
+            .order(media::id.desc())
+            .limit(count as i64)
+            .load::<Media>(conn)?
+            .into_iter()
+            .rev()
+            .last()
+            .unwrap()
+            .id;
+
+        match self.media_type.as_str() {
+            "tv" => {
+                InsertableTVShow { id: result }.insert(conn)?;
+            },
+            _ => {},
+        }
+
         Ok(result)
     }
 }

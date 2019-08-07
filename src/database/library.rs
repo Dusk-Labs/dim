@@ -40,7 +40,6 @@ impl Library {
         Media::get_all(conn, lib_id, result)
     }
 
-
     pub fn delete(
         conn: &diesel::SqliteConnection,
         id_to_del: i32,
@@ -53,10 +52,7 @@ impl Library {
 }
 
 impl InsertableLibrary {
-    pub fn new(
-        &self,
-        conn: &diesel::SqliteConnection,
-    ) -> Result<usize, diesel::result::Error> {
+    pub fn new(&self, conn: &diesel::SqliteConnection) -> Result<usize, diesel::result::Error> {
         let result = diesel::insert_into(library::table)
             .values(self)
             .execute(conn)?;

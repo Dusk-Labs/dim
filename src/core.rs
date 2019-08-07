@@ -5,7 +5,7 @@ use rocket::Rocket;
 use rocket_contrib::json::JsonValue;
 
 #[allow(unused_imports)]
-use crate::routes as routes;
+use crate::routes;
 
 embed_migrations!();
 
@@ -52,8 +52,8 @@ pub fn rocket() -> Rocket {
         .attach(DbConnection::fairing())
         .attach(AdHoc::on_attach(
             "Running Database Migrations",
-            run_db_migrations)
-        )
+            run_db_migrations,
+        ))
         .register(catchers![
             service_not_found,
             service_not_available,
@@ -77,10 +77,28 @@ pub fn rocket() -> Rocket {
             ],
         )
         .mount(
-            "/api/v1/movie",
+            "/api/v1/tv",
             routes![
-                routes::movie::get_movie_by_id,
-                routes::movie::get_movies,
+                routes::tv::get_tv_by_id,
+                routes::tv::get_tv_seasons,
+                routes::tv::post_season_to_tv,
+                routes::tv::get_season_by_id,
             ],
         )
+/*        .mount(
+            "/api/v1/season",
+            routes![
+                routes::tv::patch_season_by_id,
+                routes::tv::delete_season_by_id,
+                routes::tv::post_episode_to_season,
+            ],
+        )
+        .mount(
+            "/api/v1/episode",
+            routes![
+                routes::tv::get_episode_by_id,
+                routes::tv::patch_episode_by_id,
+                routes::tv::delete_episode_by_id,
+            ],
+        )*/
 }

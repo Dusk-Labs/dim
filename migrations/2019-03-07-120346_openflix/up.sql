@@ -66,7 +66,7 @@ CREATE TABLE tv_show (
 
 CREATE TABLE season (
     id INTEGER NOT NULL,
-	season_number INTEGER NOT NULL,
+	season_number INTEGER UNIQUE NOT NULL,
 	tvshowid INTEGER NOT NULL,
 	added TEXT,
 	poster TEXT,

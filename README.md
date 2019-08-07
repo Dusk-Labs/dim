@@ -15,6 +15,7 @@ The scanners are split into two modules or sections. The first is a daemon that 
 - Be able to transcode if theres a need for example if the device doesnt support the codec
 - Present a clean UI to see the media
 - Allow you to remotely control the streaming session, for example to seek, pause, play, increase/decrease volume, or play something else
+- Drag and Drop media upload/scan ( ie youre in the UI, you can drag and drop a file from your hard disk which will either get uploaded or if its from the same PC inserted into the library it was dragged to)
 
 
 ## API
@@ -95,10 +96,10 @@ The scanners are split into two modules or sections. The first is a daemon that 
 - [x] POST /api/v1/library/<library_id>/media
     Use: Append a media object to the database
     Data: {JWT, item: {...}}
-    Returns: 201, {id}
+    Returns: 200, {id}
     ErrReturns: 403/404/500
 
-- [-] GET /api/v1/library/<library_id>/media<?sort=key&ascending=(true|false)>
+- [ ] GET /api/v1/library/<library_id>/media<?sort=key&ascending=(true|false)>
     Use: Returns a list of ids of the media it holds, this can be sorted by whatever attributes the media has ascending or descending
     Data: {JWT}
     Returns: [ids...]
