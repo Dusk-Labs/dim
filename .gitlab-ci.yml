@@ -1,0 +1,39 @@
+image: 'rust:latest'
+
+stages:
+  - test
+  - doc
+  - build
+
+variables:
+  CARGO_HOME: $CI_PROJECT_DIR/cargo
+  APT_CACHE_DIR: $CI_PROJECT_DIR/apt
+
+before_script:
+  - apt-get update -yq
+  - apt-get install -o dir::cache::archives="$APT_CACHE_DIR" -y {{ DEPENDENCIES }}
+
+test:
+  stage: test
+  script:
+    - rustc --version
+    - cargo --version
+    - cargo test --verbose
+
+pages:
+  stage: doc
+  script:
+    - cargo doc --no-deps
+    - mv target/doc public
+    - echo '<meta http-equiv="refresh" content="0; url={{ LIBRARY NAME }}">' > public/index.html
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
+
+cache:
+  paths:
+    - apt/
+    - cargo/
+    - target/
