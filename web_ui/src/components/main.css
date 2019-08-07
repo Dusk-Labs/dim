@@ -18,6 +18,11 @@ main {
     box-sizing: border-box;
     min-height: 100vh;
     color: #ffffff;
+    display: grid;
+    grid-template-areas:
+        "banner"
+        "libraries";
+    grid-template-rows: 40vh auto;
 }
 
 /*
@@ -25,16 +30,20 @@ main {
 */
 
 main .banner {
+    grid-area: banner;
     position: relative;
+    text-align: right;
 }
 
 main .banner img {
-    object-fit: cover;
+    height: 100%;
     width: 100%;
-    mask-image: linear-gradient(to bottom, #000000 20%, #1a1a1a00 90%);
+    object-fit: cover;
+    mask-image: linear-gradient(to bottom, #000000 20%, #1a1a1a00 100%);
 }
 
 main .banner .info {
+    text-align: left;
     width: 25%;
     position: absolute;
     top: 50%;
@@ -63,7 +72,6 @@ main .banner .info p {
 main .banner button {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     font-family: "Roboto Black";
     border: none;
     color: #ffffff;
@@ -90,7 +98,8 @@ main .banner i {
 */
 
 main .libraries {
-    transform: translateY(-55px);
+    margin: 5vh 0;
+    grid-area: libraries;
     padding: 0 5%;
 }
 

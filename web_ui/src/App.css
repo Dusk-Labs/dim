@@ -16,3 +16,19 @@
 	grid-template-areas: "sidebar main";
 	grid-template-columns: 30vh auto;
 }
+
+/*
+	* == DEFAULTS ==
+*/
+a {
+	text-decoration: none;
+	color: #ffffff;
+}
+
+.separator {
+    margin: 0 auto;
+    height: 2px;
+    width: 100%;
+    background: #808080;
+    border-radius: 2px;
+}

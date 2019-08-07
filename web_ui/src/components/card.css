@@ -4,19 +4,16 @@
     text-align: center;
 }
 
-.card a {
-    text-decoration: none;
-    color: #ffffff;
-}
-
 .card img {
     display: block;
     height: 320px;
     width: 200px;
     object-fit: cover;
-    border-radius: 1vh;
+    border-radius: 0.5vh;
     opacity: 0.7;
-    transition: opacity 0.3s ease-in-out;
+    transition: 0.3s ease-in-out;
+    transition-property: opacity, box-shadow;
+    box-shadow: #ffffff33 0 0 50px 0px;
 }
 
 .card h5 {
@@ -25,4 +22,6 @@
 
 .card:hover img {
     opacity: 1;
+    box-shadow: #ffffff44 0 0 50px 0px;
+
 }
