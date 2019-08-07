@@ -77,7 +77,7 @@ CREATE TABLE season (
 CREATE TABLE episode (
 	id INTEGER NOT NULL,
 	seasonid INTEGER NOT NULL,
-	episode INTEGER NOT NULL,
+	episode_ INTEGER NOT NULL,
 	PRIMARY KEY (id),
 	FOREIGN KEY(id) REFERENCES streamable_media (id),
 	FOREIGN KEY(seasonid) REFERENCES seasons (id)

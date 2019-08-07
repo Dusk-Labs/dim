@@ -1,17 +1,13 @@
 use crate::core::DbConnection;
 use crate::database::media::Media;
 use crate::database::tv::TVShow;
-//use crate::database::episode::{Episode, InsertableEpisode, UpdateEpisode};
-//use crate::database::season::{Season, InsertableSeason, UpdateSeason};
-use crate::database::season::{Season, InsertableSeason};
+use crate::database::season::{Season, InsertableSeason, UpdateSeason};
+use crate::database::episode::{Episode, InsertableEpisode, UpdateEpisode};
 use rocket::http::Status;
-use rocket_contrib::json::{Json, JsonValue};
+use rocket_contrib::json::Json;
 
 #[get("/<id>")]
-pub fn get_tv_by_id(
-    conn: DbConnection,
-    id: i32
-) -> Result<Json<Media>, Status> {
+pub fn get_tv_by_id(conn: DbConnection, id: i32) -> Result<Json<Media>, Status> {
     match TVShow::get(&conn, id) {
         Ok(data) => Ok(data),
         Err(_) => Err(Status::NotFound),
@@ -19,10 +15,7 @@ pub fn get_tv_by_id(
 }
 
 #[get("/<id>/season")]
-pub fn get_tv_seasons(
-    conn: DbConnection,
-    id: i32
-) -> Result<Json<Vec<Season>>, Status> {
+pub fn get_tv_seasons(conn: DbConnection, id: i32) -> Result<Json<Vec<Season>>, Status> {
     match Season::get_all(&conn, id) {
         Ok(data) => Ok(data),
         Err(_) => Err(Status::NotFound),
@@ -33,7 +26,7 @@ pub fn get_tv_seasons(
 pub fn post_season_to_tv(
     conn: DbConnection,
     id: i32,
-    new_season: Json<InsertableSeason>
+    new_season: Json<InsertableSeason>,
 ) -> Result<Status, Status> {
     match new_season.new(&conn, id) {
         Ok(_) => Ok(Status::Ok),
@@ -42,10 +35,10 @@ pub fn post_season_to_tv(
 }
 
 #[get("/<id>/season/<season_num>")]
-pub fn get_season_by_id(
+pub fn get_season_by_num(
     conn: DbConnection,
     id: i32,
-    season_num: i32
+    season_num: i32,
 ) -> Result<Json<Season>, Status> {
     match Season::get(&conn, id, season_num) {
         Ok(data) => Ok(data),
@@ -53,75 +46,82 @@ pub fn get_season_by_id(
     }
 }
 
-/*
-#[patch("/<id>", format = "application/json", data = "<data>")]
-pub fn patch_season_by_id(
+#[patch("/<id>/season/<season_num>", format = "application/json", data = "<data>")]
+pub fn patch_season_by_num(
     conn: DbConnection,
     id: i32,
-    data: Json<UpdateSeason>
+    season_num: i32,
+    data: Json<UpdateSeason>,
 ) -> Result<Status, Status> {
-    match data.update(&conn, id) {
+    match data.update(&conn, id, season_num) {
         Ok(_) => Ok(Status::NoContent),
         Err(_) => Err(Status::NotModified),
     }
 }
 
-#[delete("/<id>")]
-pub fn delete_season_by_id(
+#[delete("/<id>/season/<season_num>")]
+pub fn delete_season_by_num(
     conn: DbConnection,
-    id: i32
+    id: i32,
+    season_num: i32
 ) -> Result<Status, Status> {
-    match Season::delete(&conn, id) {
+    match Season::delete(&conn, id, season_num) {
         Ok(_) => Ok(Status::Ok),
         Err(_) => Err(Status::NotModified),
     }
 }
 
-#[post("/<id>/episode", format = "application/json", data = "<episode>")]
+#[post("/<id>/season/<season_num>/episode", format = "application/json", data = "<episode>")]
 pub fn post_episode_to_season(
     conn: DbConnection,
     id: i32,
+    season_num: i32,
     episode: Json<InsertableEpisode>
-) -> Result<JsonValue, Status> {
-    match episode.insert(&conn, id) {
-        Ok(data) => Ok(data),
+) -> Result<Status, Status> {
+    match episode.insert(&conn, id, season_num) {
+        Ok(_) => Ok(Status::Ok),
         Err(_) => Err(Status::NotFound),
     }
 }
 
-// /api/v1/episode endpoint
 // NOTE: might want to separate these into separate files
 
-#[get("/<id>")]
+#[get("/<id>/season/<season_num>/episode/<ep_num>")]
 pub fn get_episode_by_id(
     conn: DbConnection,
-    id: i32
+    id: i32,
+    season_num: i32,
+    ep_num: i32,
 ) -> Result<Json<Episode>, Status> {
-    match Episode::get(&conn, id) {
+    match Episode::get(&conn, id, season_num, ep_num) {
         Ok(data) => Ok(data),
         Err(_) => Err(Status::NotFound),
     }
 }
 
-#[patch("/<id>", format = "application/json", data = "<episode>")]
+#[patch("/<id>/season/<season_num>/episode/<ep_num>", format = "application/json", data = "<episode>")]
 pub fn patch_episode_by_id(
     conn: DbConnection,
     id: i32,
+    season_num: i32,
+    ep_num: i32,
     episode: Json<UpdateEpisode>
 ) -> Result<Status, Status> {
-    match epsiode.update(&conn, id) {
+    match episode.update(&conn, id, season_num, ep_num) {
         Ok(_) => Ok(Status::NoContent),
         Err(_) => Err(Status::NotModified),
     }
 }
 
-#[delete("/<id>")]
+#[delete("/<id>/season/<season_num>/episode/<ep_num>")]
 pub fn delete_episode_by_id(
     conn: DbConnection,
-    id: i32
+    id: i32,
+    season_num: i32,
+    ep_num: i32,
 ) -> Result<Status, Status> {
-    match Episode::delete(&conn, id) {
+    match Episode::delete(&conn, id, season_num, ep_num) {
         Ok(_) => Ok(Status::Ok),
         Err(_) => Err(Status::NotModified),
     }
-}*/
+}

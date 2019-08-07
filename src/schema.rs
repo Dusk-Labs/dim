@@ -2,8 +2,6 @@ table! {
     episode (id) {
         id -> Integer,
         seasonid -> Integer,
-
-        #[column_name = "episode"]
         episode_ -> Integer,
     }
 }

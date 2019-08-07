@@ -82,23 +82,13 @@ pub fn rocket() -> Rocket {
                 routes::tv::get_tv_by_id,
                 routes::tv::get_tv_seasons,
                 routes::tv::post_season_to_tv,
-                routes::tv::get_season_by_id,
-            ],
-        )
-/*        .mount(
-            "/api/v1/season",
-            routes![
-                routes::tv::patch_season_by_id,
-                routes::tv::delete_season_by_id,
+                routes::tv::get_season_by_num,
+                routes::tv::patch_season_by_num,
+                routes::tv::delete_season_by_num,
                 routes::tv::post_episode_to_season,
-            ],
-        )
-        .mount(
-            "/api/v1/episode",
-            routes![
                 routes::tv::get_episode_by_id,
                 routes::tv::patch_episode_by_id,
                 routes::tv::delete_episode_by_id,
             ],
-        )*/
+        )
 }

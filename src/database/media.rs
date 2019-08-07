@@ -18,7 +18,7 @@ pub struct Media {
     pub media_type: Option<String>,
 }
 
-#[derive(Insertable, Serialize, Deserialize)]
+#[derive(Insertable, Serialize, Deserialize, Debug)]
 #[table_name = "media"]
 pub struct InsertableMedia {
     pub library_id: i32,
@@ -78,12 +78,9 @@ impl Media {
 }
 
 impl InsertableMedia {
-    pub fn new(
-        &self,
-        conn: &diesel::SqliteConnection
-    ) -> Result<i32, diesel::result::Error> {
-        use crate::schema::library::dsl::*;
+    pub fn new(&self, conn: &diesel::SqliteConnection) -> Result<i32, diesel::result::Error> {
         use crate::database::tv::InsertableTVShow;
+        use crate::schema::library::dsl::*;
 
         library
             .filter(id.eq(self.library_id))
@@ -106,8 +103,8 @@ impl InsertableMedia {
         match self.media_type.as_str() {
             "tv" => {
                 InsertableTVShow { id: result }.insert(conn)?;
-            },
-            _ => {},
+            }
+            _ => {}
         }
 
         Ok(result)

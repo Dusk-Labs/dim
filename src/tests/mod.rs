@@ -120,19 +120,13 @@ pub fn post_episode_test_template(client: &Client) {
     })
     .to_string();
 
-    let mut resp = client
-        .post("/api/v1/season/1/episode")
+    let resp = client
+        .post("/api/v1/tv/1/season/2/episode")
         .body(body)
         .header(ContentType::JSON)
         .dispatch();
 
-    let expected = json!({
-        "id": 2
-    })
-    .to_string();
-
-    assert_eq!(resp.status(), Status::Created);
-    assert_eq!(resp.body_string().unwrap(), expected);
+    assert_eq!(resp.status(), Status::Ok);
 }
 
 pub mod route_library_tests;

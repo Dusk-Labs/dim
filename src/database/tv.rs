@@ -1,7 +1,7 @@
 use crate::database::media::*;
+use crate::schema::tv_show;
 use diesel::prelude::*;
 use rocket_contrib::json::Json;
-use crate::schema::tv_show;
 
 #[derive(Identifiable, Associations, Queryable, Serialize, Deserialize, PartialEq, Debug)]
 #[belongs_to(Media, foreign_key = "id")]
@@ -41,10 +41,7 @@ impl TVShow {
 }
 
 impl InsertableTVShow {
-    pub fn insert(
-        &self,
-        conn: &diesel::SqliteConnection
-    ) -> Result<usize, diesel::result::Error> {
+    pub fn insert(&self, conn: &diesel::SqliteConnection) -> Result<usize, diesel::result::Error> {
         let count = diesel::insert_into(tv_show::table)
             .values(self)
             .execute(conn)?;

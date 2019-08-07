@@ -1,7 +1,7 @@
+use crate::database::tv::TVShow;
 use crate::schema::season;
 use diesel::prelude::*;
 use rocket_contrib::json::Json;
-use crate::database::tv::TVShow;
 
 #[derive(Identifiable, Associations, Queryable, Serialize, Deserialize, PartialEq, Debug)]
 #[belongs_to(TVShow, foreign_key = "tvshowid")]
@@ -22,17 +22,20 @@ pub struct InsertableSeason {
     pub poster: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(AsChangeset, Deserialize, PartialEq, Debug)]
 #[table_name = "season"]
 pub struct UpdateSeason {
-    pub season_number: i32,
-    pub tvshowid: i32,
-    pub added: String,
-    pub poster: String,
+    pub season_number: Option<i32>,
+    pub tvshowid: Option<i32>,
+    pub added: Option<String>,
+    pub poster: Option<String>,
 }
 
 impl Season {
-    pub fn get_all(conn: &diesel::SqliteConnection, tv_id: i32) -> Result<Json<Vec<Self>>, diesel::result::Error> {
+    pub fn get_all(
+        conn: &diesel::SqliteConnection,
+        tv_id: i32,
+    ) -> Result<Json<Vec<Self>>, diesel::result::Error> {
         use crate::schema::tv_show;
         let tv_show = tv_show::dsl::tv_show
             .find(tv_id)
@@ -50,7 +53,7 @@ impl Season {
     pub fn get(
         conn: &diesel::SqliteConnection,
         tv_id: i32,
-        season_num: i32
+        season_num: i32,
     ) -> Result<Json<Season>, diesel::result::Error> {
         use crate::schema::season::dsl::*;
         use crate::schema::tv_show;
@@ -67,11 +70,19 @@ impl Season {
 
     pub fn delete(
         conn: &diesel::SqliteConnection,
-        id_to_del: i32,
+        tv_id: i32,
+        season_num: i32,
     ) -> Result<usize, diesel::result::Error> {
-        use crate::schema::library::dsl::*;
+        use crate::schema::tv_show;
 
-        let result = diesel::delete(library.filter(id.eq(id_to_del))).execute(conn)?;
+        let tv_show = tv_show::dsl::tv_show
+            .find(tv_id)
+            .get_result::<TVShow>(conn)?;
+
+        let entry = 
+            Season::belonging_to(&tv_show).filter(season::dsl::season_number.eq(season_num));
+
+        let result = diesel::delete(entry).execute(conn)?;
         Ok(result)
     }
 }
@@ -80,21 +91,37 @@ impl InsertableSeason {
     pub fn new(
         &self,
         conn: &diesel::SqliteConnection,
-        id: i32
+        id: i32,
     ) -> Result<(), diesel::result::Error> {
         use crate::schema::tv_show;
 
         // We check if the tv show exists
         // if it doesnt exist the ? operator would automatically
         // return Err(diesel::result::Error)
-        let _ = tv_show::dsl::tv_show
-            .find(id)
-            .get_result::<TVShow>(conn)?;
+        let _ = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
 
         // We insert the tvshowid separately
         let _ = diesel::insert_into(season::table)
             .values((self, season::dsl::tvshowid.eq(id)))
             .execute(conn)?;
         Ok(())
+    }
+}
+
+impl UpdateSeason {
+    pub fn update(
+        &self,
+        conn: &diesel::SqliteConnection,
+        id: i32,
+        season_num: i32
+    ) -> Result<usize, diesel::result::Error> {
+        use crate::schema::tv_show;
+
+        let tv = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
+
+        let entry =
+            Season::belonging_to(&tv).filter(season::dsl::season_number.eq(season_num));
+
+        diesel::update(entry).set(self).execute(conn)
     }
 }
