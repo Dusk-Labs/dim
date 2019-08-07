@@ -44,20 +44,12 @@
     color: #e6e6e6;
 }
 
-.sidebar a {
-    text-decoration: none;
-}
-
 .sidebar a:hover {
     text-decoration: underline;
 }
 
-.separator {
-    margin: 0 auto;
-    height: 2px;
+.sidebar .separator {
     width: 80%;
-    background: #808080;
-    border-radius: 2px;
 }
 
 /*
