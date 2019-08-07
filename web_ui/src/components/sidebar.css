@@ -16,22 +16,6 @@
     text-align: left;
 }
 
-.sidebar .list {
-    margin-top: 1.5vh;
-    display: grid;
-    grid-gap: 10px;
-    grid-template-columns: auto auto;
-    align-items: center;
-    justify-content: left;
-}
-
-/* ICONS */
-.sidebar .list i {
-    text-align: center;
-    color: #ffffff;
-}
-
-/* HEADINGS */
 .sidebar h6,
 .sidebar h4 {
     font-family: "Roboto Black";
@@ -39,17 +23,36 @@
     color: #808080;
 }
 
-.sidebar p,
-.sidebar a {
-    color: #e6e6e6;
+
+.sidebar .middle h4 {
+    margin-bottom: 1vh;
 }
 
-.sidebar a:hover {
-    text-decoration: underline;
+/* ITEM */
+.sidebar .list > a {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 40px auto;
+    align-items: center;
+    justify-content: left;
+    border-radius: 1vh;
+    transition: 0.3s ease-in-out;
+    transition-property: padding, background, transform, font-size;
 }
 
-.sidebar .separator {
-    width: 80%;
+.sidebar .list > a:hover {
+    background: #222222;
+}
+
+/* ITEM ICON */
+.sidebar .list i {
+    text-align: center;
+}
+
+/* ITEM NAME */
+.sidebar .list p {
+    margin: 0;
+    padding: 1vh 0;
 }
 
 /*
@@ -139,4 +142,12 @@
 .sidebar .search-box button:hover {
     background: #999999;
     cursor: pointer;
+}
+
+/*
+    * == OTHER ==
+*/
+
+.sidebar .separator {
+    width: 80%;
 }
