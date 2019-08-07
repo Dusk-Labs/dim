@@ -1,8 +1,8 @@
 use crate::core::DbConnection;
-use crate::database::media::Media;
-use crate::database::tv::TVShow;
-use crate::database::season::{Season, InsertableSeason, UpdateSeason};
 use crate::database::episode::{Episode, InsertableEpisode, UpdateEpisode};
+use crate::database::media::Media;
+use crate::database::season::{InsertableSeason, Season, UpdateSeason};
+use crate::database::tv::TVShow;
 use rocket::http::Status;
 use rocket_contrib::json::Json;
 
@@ -46,7 +46,11 @@ pub fn get_season_by_num(
     }
 }
 
-#[patch("/<id>/season/<season_num>", format = "application/json", data = "<data>")]
+#[patch(
+    "/<id>/season/<season_num>",
+    format = "application/json",
+    data = "<data>"
+)]
 pub fn patch_season_by_num(
     conn: DbConnection,
     id: i32,
@@ -63,7 +67,7 @@ pub fn patch_season_by_num(
 pub fn delete_season_by_num(
     conn: DbConnection,
     id: i32,
-    season_num: i32
+    season_num: i32,
 ) -> Result<Status, Status> {
     match Season::delete(&conn, id, season_num) {
         Ok(_) => Ok(Status::Ok),
@@ -71,12 +75,16 @@ pub fn delete_season_by_num(
     }
 }
 
-#[post("/<id>/season/<season_num>/episode", format = "application/json", data = "<episode>")]
+#[post(
+    "/<id>/season/<season_num>/episode",
+    format = "application/json",
+    data = "<episode>"
+)]
 pub fn post_episode_to_season(
     conn: DbConnection,
     id: i32,
     season_num: i32,
-    episode: Json<InsertableEpisode>
+    episode: Json<InsertableEpisode>,
 ) -> Result<Status, Status> {
     match episode.insert(&conn, id, season_num) {
         Ok(_) => Ok(Status::Ok),
@@ -99,13 +107,17 @@ pub fn get_episode_by_id(
     }
 }
 
-#[patch("/<id>/season/<season_num>/episode/<ep_num>", format = "application/json", data = "<episode>")]
+#[patch(
+    "/<id>/season/<season_num>/episode/<ep_num>",
+    format = "application/json",
+    data = "<episode>"
+)]
 pub fn patch_episode_by_id(
     conn: DbConnection,
     id: i32,
     season_num: i32,
     ep_num: i32,
-    episode: Json<UpdateEpisode>
+    episode: Json<UpdateEpisode>,
 ) -> Result<Status, Status> {
     match episode.update(&conn, id, season_num, ep_num) {
         Ok(_) => Ok(Status::NoContent),

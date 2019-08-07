@@ -1,6 +1,6 @@
 use crate::database::media::InsertableMedia;
-use crate::database::media::UpdateMedia;
 use crate::database::media::Media;
+use crate::database::media::UpdateMedia;
 use crate::database::season::Season;
 use crate::database::tv::TVShow;
 use crate::schema::episode;
@@ -47,7 +47,7 @@ pub struct UpdateEpisode {
     pub episode: Option<i32>,
 
     #[serde(flatten)]
-    pub media: UpdateMedia
+    pub media: UpdateMedia,
 }
 
 #[derive(AsChangeset)]
@@ -62,11 +62,11 @@ impl Episode {
         conn: &diesel::SqliteConnection,
         id: i32,
         season_num: i32,
-        ep_num: i32
+        ep_num: i32,
     ) -> Result<Json<Episode>, diesel::result::Error> {
+        use crate::schema::media;
         use crate::schema::season;
         use crate::schema::tv_show;
-        use crate::schema::media;
 
         let tv_show = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
 
@@ -164,10 +164,10 @@ impl UpdateEpisode {
         conn: &diesel::SqliteConnection,
         id: i32,
         season_num: i32,
-        ep_num: i32
+        ep_num: i32,
     ) -> Result<(), diesel::result::Error> {
-        use crate::schema::tv_show;
         use crate::schema::season;
+        use crate::schema::tv_show;
 
         let tv = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
         let season = Season::belonging_to(&tv)

@@ -23,7 +23,6 @@ impl TVShow {
     ) -> Result<Json<Media>, diesel::result::Error> {
         use crate::schema::media::dsl::*;
         let result = media.filter(id.eq(req_id)).first(conn)?;
-        println!("{:?}", result);
         Ok(Json(result))
     }
 
