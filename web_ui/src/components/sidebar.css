@@ -1,12 +1,11 @@
 .sidebar {
+    grid-area: sidebar;
     height: 100%;
     width: 30vh;
-    max-width: 278px;
-    min-width: 200px;
     position: fixed;
     background: #333333;
     display: grid;
-    grid-template-rows: 25%;
+    grid-template-rows: 30%;
 }
 
 .sidebar section {
@@ -35,7 +34,7 @@
 /* HEADINGS */
 .sidebar h6,
 .sidebar h4 {
-    font-family: "Roboto Condensed";
+    font-family: "Roboto Black";
     margin: 0;
     color: #808080;
 }
@@ -66,7 +65,7 @@
 */
 
 .sidebar .profile {
-    margin-bottom: 1vh;
+    margin-bottom: 2vh;
     display: grid;
     grid-template-columns: auto auto;
     grid-template-rows: auto;
@@ -105,6 +104,10 @@
 /*
     * == SEARCH ==
 */
+
+.sidebar .search {
+    margin: 2vh auto;
+}
 
 .sidebar .search-box {
     background: #4d4d4d;
