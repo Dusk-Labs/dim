@@ -34,3 +34,14 @@ pub fn update_media_by_id(
         Err(_) => Err(Status::NotModified),
     }
 }
+
+#[delete("/<id>")]
+pub fn delete_media_by_id(
+    conn: DbConnection,
+    id: i32,
+) -> Result<Status, Status> {
+    match Media::delete(&conn, id) {
+        Ok(_) => Ok(Status::Ok),
+        Err(_) => Err(Status::NotFound),
+    }
+}

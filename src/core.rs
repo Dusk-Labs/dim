@@ -74,6 +74,7 @@ pub fn rocket() -> Rocket {
                 routes::media::get_media_by_id,
                 routes::media::insert_media_by_lib_id,
                 routes::media::update_media_by_id,
+                routes::media::delete_media_by_id,
             ],
         )
         .mount(
