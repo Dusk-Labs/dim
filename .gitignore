@@ -4,3 +4,5 @@ target
 target/*
 expanded.rs
 *.db
+build
+build/*

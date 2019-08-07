@@ -1,3 +1,10 @@
+extern crate diesel;
+extern crate parking_lot;
+
+use crate::macros::parking_lot::Mutex;
+
+pub static DB_LOCK: Mutex<()> = Mutex::new(());
+
 #[macro_export]
 macro_rules! insert {
     ($conn:expr, $table:expr, $aggregate:expr) => {
@@ -5,4 +12,15 @@ macro_rules! insert {
             .values(&$aggregate)
             .execute($conn);
     };
+}
+
+#[macro_export]
+macro_rules! run_test {
+    (|$client:ident| $block:expr) => {{
+        let _lock = DB_LOCK.lock();
+        let rocket = rocket();
+        let $client = Client::new(rocket).expect("Rocket client");
+
+        $block
+    }};
 }

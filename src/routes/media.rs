@@ -1,13 +1,11 @@
-use crate::database::media::{InsertableMedia, UpdateMedia, Media};
 use crate::core::DbConnection;
+use crate::database::media::{InsertableMedia, Media, UpdateMedia};
 use rocket::http::Status;
 use rocket_contrib::json::Json;
+use rocket_contrib::json::JsonValue;
 
 #[get("/<id>")]
-pub fn get_media_by_id(
-    conn: DbConnection,
-    id: i32
-) -> Result<Json<Media>, Status> {
+pub fn get_media_by_id(conn: DbConnection, id: i32) -> Result<Json<Media>, Status> {
     match Media::get(&conn, id) {
         Ok(data) => Ok(data),
         Err(_) => Err(Status::NotFound),
@@ -18,9 +16,9 @@ pub fn get_media_by_id(
 pub fn insert_media_by_lib_id(
     conn: DbConnection,
     data: Json<InsertableMedia>,
-) -> Result<Status, Status> {
+) -> Result<JsonValue, Status> {
     match data.new(&conn) {
-        Ok(_) => Ok(Status::Created),
+        Ok(id) => Ok(json!({ "id": id })),
         Err(_) => Err(Status::UnprocessableEntity),
     }
 }
@@ -29,10 +27,10 @@ pub fn insert_media_by_lib_id(
 pub fn update_media_by_id(
     conn: DbConnection,
     id: i32,
-    data: Json<UpdateMedia>
+    data: Json<UpdateMedia>,
 ) -> Result<Status, Status> {
     match data.update(&conn, id) {
         Ok(_) => Ok(Status::NoContent),
-        Err(_) => Err(Status::NotModified)
+        Err(_) => Err(Status::NotModified),
     }
 }
