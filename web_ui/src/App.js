@@ -1,14 +1,15 @@
-import React from 'react';
-import logo from './logo.svg';
-import Sidebar from './components/Sidebar.js';
+import React, { Component } from "react";
+import Sidebar from "./components/Sidebar.jsx";
 import './App.css';
 
-function App() {
-  return (
-    <div className="app-root">
-      <Sidebar />
-    </div>
-  );
+class App extends Component {
+	render() {
+		return (
+			<div className="app-root">
+				<Sidebar/>
+			</div>
+		);
+	}
 }
 
 export default App;
