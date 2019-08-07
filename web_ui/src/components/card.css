@@ -1,0 +1,28 @@
+.card {
+    height: 320px;
+    width: 200px;
+    text-align: center;
+}
+
+.card a {
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.card img {
+    display: block;
+    height: 320px;
+    width: 200px;
+    object-fit: cover;
+    border-radius: 1vh;
+    opacity: 0.7;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.card h5 {
+    margin-top: 1vh;
+}
+
+.card:hover img {
+    opacity: 1;
+}
