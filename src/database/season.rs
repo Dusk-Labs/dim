@@ -79,7 +79,7 @@ impl Season {
             .find(tv_id)
             .get_result::<TVShow>(conn)?;
 
-        let entry = 
+        let entry =
             Season::belonging_to(&tv_show).filter(season::dsl::season_number.eq(season_num));
 
         let result = diesel::delete(entry).execute(conn)?;
@@ -113,14 +113,13 @@ impl UpdateSeason {
         &self,
         conn: &diesel::SqliteConnection,
         id: i32,
-        season_num: i32
+        season_num: i32,
     ) -> Result<usize, diesel::result::Error> {
         use crate::schema::tv_show;
 
         let tv = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
 
-        let entry =
-            Season::belonging_to(&tv).filter(season::dsl::season_number.eq(season_num));
+        let entry = Season::belonging_to(&tv).filter(season::dsl::season_number.eq(season_num));
 
         diesel::update(entry).set(self).execute(conn)
     }
