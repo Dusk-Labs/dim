@@ -29,7 +29,7 @@ class Main extends Component {
                         <div className="cards">
                             <Card
                                 name="Spider-Man: Far From Home"
-                                src="https://images.mymovies.net/images/film/cin/350x522/fid19163.jpg"
+                                src="http://localhost:3000/img1.jpg"
                             ></Card>
                             <Card
                                 name="Men in Black: International"

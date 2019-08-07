@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import LazyImage from "./helpers/LazyImage.jsx";
 import "./card.css";
 
 class Card extends Component {
@@ -8,7 +9,7 @@ class Card extends Component {
         return (
             <div className="card">
                 <a href="#">
-                    <img alt={"cover-" + name} src={src}></img>
+                    <LazyImage alt={"cover-" + name} src={src}></LazyImage>
                     <h5>{name}</h5>
                 </a>
             </div>

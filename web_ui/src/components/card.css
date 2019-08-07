@@ -4,16 +4,24 @@
     text-align: center;
 }
 
-.card img {
+.card a {
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.card img, .card div, .placeholder {
     display: block;
     height: 320px;
     width: 200px;
     object-fit: cover;
-    border-radius: 0.5vh;
+    border-radius: 1vh;
     opacity: 0.7;
-    transition: 0.3s ease-in-out;
-    transition-property: opacity, box-shadow;
-    box-shadow: #ffffff33 0 0 50px 0px;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.card img, .card .image-wrapper {
+    animation-name: imageLoaded;
+    animation-duration: 0.7s;
 }
 
 .card h5 {
@@ -22,6 +30,20 @@
 
 .card:hover img {
     opacity: 1;
-    box-shadow: #ffffff44 0 0 50px 0px;
+}
 
+.placeholder {
+    height: 100%;
+    background-color: #555;
+}
+
+@keyframes imageLoaded {
+    from {
+        background-color: #555;
+        opacity: 0;
+    }
+    to {
+        background-color: none;
+        opacity: 0.7;
+    }
 }
