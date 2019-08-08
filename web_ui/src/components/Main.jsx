@@ -33,39 +33,39 @@ class Main extends Component {
                             ></Card>
                             <Card
                                 name="Men in Black: International"
-                                src="https://images.mymovies.net/images/film/cin/350x522/fid19167.jpg"
+                                src="http://localhost:3000/img1.jpg"
                             ></Card>
                             <Card
                                 name="Fast & Furious Presents: Hobbs & Shaw"
-                                src="https://images.mymovies.net/images/film/cin/350x522/fid19250.jpg"
+                                src="http://localhost:3000/img1.jpg"
                             ></Card>
                             <Card
                                 name="The Lion King"
-                                src="https://images.mymovies.net/images/film/cin/350x522/fid19112.jpg"
+                                src="http://localhost:3000/img1.jpg"
                             ></Card>
                             <Card
                                 name="Toy Story 4"
-                                src="https://images.mymovies.net/images/film/cin/350x522/fid19080.jpg"
+                                src="http://localhost:3000/img1.jpg"
                             ></Card>
                             <Card
                                 name="The Angry Birds 2"
-                                src="https://images.mymovies.net/images/film/cin/350x522/fid19400.jpg"
+                                src="http://localhost:3000/img1.jpg"
                             ></Card>
                             <Card
                                 name="Annabelle Comes Home"
-                                src="https://images.mymovies.net/images/film/cin/350x522/fid19409.jpg"
+                                src="http://localhost:3000/img1.jpg"
                             ></Card>
                             <Card
                                 name="Playmobil: The Movie"
-                                src="https://images.mymovies.net/images/film/cin/350x522/fid19148.jpg"
+                                src="http://localhost:3000/img1.jpg"
                             ></Card>
                             <Card
                                 name="The Sun is Also a Star"
-                                src="https://images.mymovies.net/images/film/cin/350x522/fid19267.jpg"
+                                src="http://localhost:3000/img1.jpg"
                             ></Card>
                             <Card
                                 name="Alladin"
-                                src="https://images.mymovies.net/images/film/cin/350x522/fid18993.jpg"
+                                src="http://localhost:3000/img1.jpg"
                             ></Card>
                         </div>
                     </div>

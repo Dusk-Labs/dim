@@ -8,7 +8,10 @@ class LazyImage extends Component {
             acquired: false,
             blob: null,
         };
+        this.fetchImage();
+    }
 
+    fetchImage() {
         fetch(this.props.src)
             .then(resp => {
                 if (resp.headers.get("content-type") === "image/jpeg") {
