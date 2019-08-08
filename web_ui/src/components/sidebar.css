@@ -4,8 +4,6 @@
     width: 30vh;
     position: fixed;
     background: #333333;
-    display: grid;
-    grid-template-rows: 30%;
 }
 
 .sidebar section {
