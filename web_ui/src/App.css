@@ -10,6 +10,16 @@
 	src: url("./assets/roboto_black.ttf");
 }
 
+@font-face {
+	font-family: "Roboto Condensed Regular";
+	src: url("./assets/roboto-condensed-regular.ttf");
+}
+
+@font-face {
+	font-family: "Roboto Condensed Bold";
+	src: url("./assets/roboto-condensed-bold.ttf");
+}
+
 .App {
 	font-family: "Roboto Regular";
 	display: grid;
