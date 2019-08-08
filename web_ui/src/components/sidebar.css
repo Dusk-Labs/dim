@@ -89,10 +89,12 @@
 }
 
 .sidebar .profile-name {
+    font-family: "Roboto Condensed Regular";
     color: #ffffff;
 }
 
 .sidebar .profile-hours {
+    font-family: "Roboto Regular";
     color: #808080
 }
 
