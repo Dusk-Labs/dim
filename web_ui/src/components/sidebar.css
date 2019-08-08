@@ -36,7 +36,7 @@
     align-items: center;
     justify-content: left;
     border-radius: 1vh;
-    transition: 0.3s ease-in-out;
+    transition: 0.1s ease-in-out;
     transition-property: padding, background, transform, font-size;
 }
 
