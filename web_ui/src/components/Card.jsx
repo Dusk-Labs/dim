@@ -10,7 +10,7 @@ class Card extends Component {
             <div className="card">
                 <a href="#">
                     <LazyImage alt={"cover-" + name} src={src}></LazyImage>
-                    <h5>{name}</h5>
+                    <p>{name}</p>
                 </a>
             </div>
         );
