@@ -34,25 +34,49 @@ class Sidebar extends Component {
                     <section className="connected-hosts">
                         <h4>CONNECTED HOSTS </h4>
                         <div className="list">
-                            <i className="fas fa-desktop"></i><a href="#">Desktop</a>
-                            <i className="fas fa-laptop"></i><a href="#">Laptop</a>
-                            <i className="fas fa-mobile-alt"></i><a href="#">Phone</a>
+                            <a href="http://example.com/">
+                                <i className="fas fa-desktop"></i>
+                                <p>Desktop</p>
+                            </a>
+                            <a href="http://example.com/">
+                                <i className="fas fa-laptop"></i>
+                                <p>Laptop</p>
+                            </a>
+                            <a href="http://example.com/">
+                                <i className="fas fa-mobile-alt"></i>
+                                <p>Phone</p>
+                            </a>
                         </div>
                     </section>
 
                     <section className="local-libraries">
                         <h4>LOCAL LIBRARIES </h4>
                         <div className="list">
-                            <i className="fas fa-film"></i><a href="#">Movies</a>
-                            <i className="fas fa-gamepad"></i><a href="#">Games</a>
-                            <i className="fas fa-tv"></i><a href="#">TV Shows</a>
+                            <a href="http://example.com/">
+                                <i className="fas fa-film"></i>
+                                <p>Movies</p>
+                            </a>
+                            <a href="http://example.com/">
+                                <i className="fas fa-gamepad"></i>
+                                <p>Games</p>
+                            </a>
+                            <a href="http://example.com/">
+                                <i className="fas fa-tv"></i>
+                                <p>TV Shows</p>
+                            </a>
                         </div>
                     </section>
                     <section className="account">
                         <h4>YOUR ACCOUNT</h4>
                         <div className="list">
-                            <i className="fas fa-wrench"></i><a href="#">Preferences</a>
-                            <i className="fas fa-door-open"></i><a href="#">Logout</a>
+                            <a href="http://example.com/">
+                                <i className="fas fa-wrench"></i>
+                                <p>Preferences</p>
+                            </a>
+                            <a href="http://example.com/">
+                                <i className="fas fa-door-open"></i>
+                                <p>Logout</p>
+                            </a>
                         </div>
                     </section>
                 </div>
