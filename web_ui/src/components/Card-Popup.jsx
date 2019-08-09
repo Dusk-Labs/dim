@@ -1,8 +1,21 @@
 import React, { Component } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./card-popup.scss";
 
 import RottenTomatoeLogo from "../assets/rotten_tomatoe.svg";
 import IMDbLogo from "../assets/imdb.png";
+
+import { library } from "@fortawesome/fontawesome-svg-core";
+
+import {
+    faPlay,
+    faPlayCircle,
+} from "@fortawesome/free-solid-svg-icons";
+
+library.add(
+    faPlay,
+    faPlayCircle
+);
 
 class CardPopup extends Component {
     render() {
@@ -16,7 +29,7 @@ class CardPopup extends Component {
             trailer,
             length,
             play,
-        } = this.props;
+        } = this.props.data;
 
         return (
             <div className="card-popup">
@@ -35,18 +48,18 @@ class CardPopup extends Component {
                             <p>{genre}</p>
                             <p>{year}</p>
                         </div>
-                        <a href={trailer}><i className="fas fa-play-circle"></i>WATCH TRAILER</a>
+                        <a href={trailer}><FontAwesomeIcon icon="play-circle"/>WATCH TRAILER</a>
                     </div>
                 </section>
 
-                <div class="separator"></div>
+                <div className="separator"></div>
 
                 <section className="footer">
                     <div className="length">
                         <p>{length}</p>
                         <p>HH MM SS</p>
                     </div>
-                    <button href={play}>PLAY<i className="fas fa-play"></i></button>
+                    <button href={play}>PLAY<FontAwesomeIcon icon="play"/></button>
                 </section>
             </div>
         );

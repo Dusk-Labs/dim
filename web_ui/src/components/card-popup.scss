@@ -1,12 +1,26 @@
+@keyframes appear {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
 .card-popup {
     max-height: 400px;
     max-width: 500px;
+    width: 500px;
     box-sizing: border-box;
     padding: 2vh 3vh;
     background: #333333;
     font-family: "Roboto Black";
     border-radius: 1vh;
-    position: relative;
+    position: fixed;
+    bottom: 5%;
+    right: 5%;
+    z-index: 1;
+    animation: appear 0.5s ease-in-out;
 
     section {
         margin: 1vh 0;
@@ -23,6 +37,13 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+
+        h1 {
+            margin-right: 2vh;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 
     .rating {
@@ -71,7 +92,7 @@
             justify-content: space-between;
 
             /* * TRAILER ICON */
-            i {
+            svg {
                 font-size: 0.9em;
             }
         }
@@ -127,7 +148,7 @@
     }
 
     /* ICON */
-    i {
+    svg {
         margin: 0 5px 0 5px;
         font-size: 0.5em;
     }
