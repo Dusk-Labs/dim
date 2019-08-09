@@ -1,5 +1,32 @@
 import React, { Component } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./sidebar.scss";
+
+import { library } from "@fortawesome/fontawesome-svg-core";
+
+import {
+    faDesktop,
+    faLaptop,
+    faMobileAlt,
+    faFilm,
+    faGamepad,
+    faTv,
+    faWrench,
+    faDoorOpen,
+    faSearch
+} from "@fortawesome/free-solid-svg-icons";
+
+library.add(
+    faDesktop,
+    faLaptop,
+    faMobileAlt,
+    faFilm,
+    faGamepad,
+    faTv,
+    faWrench,
+    faDoorOpen,
+    faSearch
+);
 
 class Sidebar extends Component {
     render() {
@@ -23,7 +50,7 @@ class Sidebar extends Component {
                             <div className="search-box">
                                 <input type="text" name="search" placeholder="SEARCH"/>
                                 <button type="submit">
-                                    <i className="fas fa-search"></i>
+                                    <FontAwesomeIcon icon="search"/>
                                 </button>
                             </div>
                         </form>
@@ -35,15 +62,15 @@ class Sidebar extends Component {
                         <h4>CONNECTED HOSTS </h4>
                         <div className="list">
                             <a href="http://example.com/">
-                                <i className="fas fa-desktop"></i>
+                                <FontAwesomeIcon icon="desktop"/>
                                 <p>Desktop</p>
                             </a>
                             <a href="http://example.com/">
-                                <i className="fas fa-laptop"></i>
+                            <FontAwesomeIcon icon="laptop"/>
                                 <p>Laptop</p>
                             </a>
                             <a href="http://example.com/">
-                                <i className="fas fa-mobile-alt"></i>
+                                <FontAwesomeIcon icon="mobile-alt"/>
                                 <p>Phone</p>
                             </a>
                         </div>
@@ -53,15 +80,15 @@ class Sidebar extends Component {
                         <h4>LOCAL LIBRARIES </h4>
                         <div className="list">
                             <a href="http://example.com/">
-                                <i className="fas fa-film"></i>
+                                <FontAwesomeIcon icon="film"/>
                                 <p>Movies</p>
                             </a>
                             <a href="http://example.com/">
-                                <i className="fas fa-gamepad"></i>
+                                <FontAwesomeIcon icon="gamepad"/>
                                 <p>Games</p>
                             </a>
                             <a href="http://example.com/">
-                                <i className="fas fa-tv"></i>
+                                <FontAwesomeIcon icon="tv"/>
                                 <p>TV Shows</p>
                             </a>
                         </div>
@@ -70,11 +97,11 @@ class Sidebar extends Component {
                         <h4>YOUR ACCOUNT</h4>
                         <div className="list">
                             <a href="http://example.com/">
-                                <i className="fas fa-wrench"></i>
+                                <FontAwesomeIcon icon="wrench"/>
                                 <p>Preferences</p>
                             </a>
                             <a href="http://example.com/">
-                                <i className="fas fa-door-open"></i>
+                                <FontAwesomeIcon icon="door-open"/>
                                 <p>Logout</p>
                             </a>
                         </div>
