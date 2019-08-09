@@ -36,18 +36,18 @@ main .banner {
 }
 
 main .banner img {
-    height: 100%;
+    min-height: 400px;
     width: 100%;
     object-fit: cover;
     mask-image: linear-gradient(to bottom, #000000 20%, #1a1a1a00 100%);
 }
 
 main .banner .info {
-    text-align: left;
-    width: 25%;
     position: absolute;
+    text-align: left;
     top: 50%;
-    left: 17%;
+    left: 30vh;
+    width: 40vh;
     transform: translate(-50%, -50%);
 }
 
@@ -100,7 +100,7 @@ main .banner i {
 main .libraries {
     margin: 5vh 0;
     grid-area: libraries;
-    padding: 0 5%;
+    padding: 0 9vh;
 }
 
 main .libraries h1 {
