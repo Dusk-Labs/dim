@@ -37,7 +37,11 @@
 
 .placeholder {
     height: 100%;
-    background-color: #555;
+    background: #555555;
+
+    &:hover {
+        background: #444444;
+    }
 }
 
 /*
