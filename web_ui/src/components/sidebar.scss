@@ -4,6 +4,8 @@
     width: 30vh;
     position: fixed;
     background: #333333;
+    box-shadow: 0 0 10px 5px #000000aa;
+    z-index: 1;
 
     section {
         margin: 5vh auto;
