@@ -11,6 +11,25 @@
         width: 80%;
         position: relative;
         text-align: left;
+
+        .header {
+            margin-bottom: 1vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            a {
+                padding: 0 5px;
+                border-radius: 1vh;
+                background: transparent;
+                transition: background 0.2s ease-in-out;
+
+                &:hover {
+                    background: #666666;
+                }
+            }
+
+        }
     }
 
     h6,
@@ -21,7 +40,7 @@
     }
 
     .middle h4 {
-        margin-bottom: 1vh;
+        // margin-bottom: 1vh;
     }
 
     /* ITEM */

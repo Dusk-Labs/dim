@@ -59,7 +59,10 @@ class Sidebar extends Component {
 
                 <div className="middle">
                     <section className="connected-hosts">
-                        <h4>CONNECTED HOSTS </h4>
+                        <div className="header">
+                            <h4>CONNECTED HOSTS</h4>
+                            <a href="http://example.com/">+</a>
+                        </div>
                         <div className="list">
                             <a href="http://example.com/">
                                 <FontAwesomeIcon icon="desktop"/>
@@ -77,7 +80,10 @@ class Sidebar extends Component {
                     </section>
 
                     <section className="local-libraries">
-                        <h4>LOCAL LIBRARIES </h4>
+                        <div className="header">
+                            <h4>LOCAL LIBRARIES</h4>
+                            <a href="http://example.com/">+</a>
+                        </div>
                         <div className="list">
                             <a href="http://example.com/">
                                 <FontAwesomeIcon icon="film"/>
@@ -93,8 +99,12 @@ class Sidebar extends Component {
                             </a>
                         </div>
                     </section>
+
                     <section className="account">
-                        <h4>YOUR ACCOUNT</h4>
+                        <div className="header">
+                            <h4>YOUR ACCOUNT</h4>
+                            <a href="http://example.com/">+</a>
+                        </div>
                         <div className="list">
                             <a href="http://example.com/">
                                 <FontAwesomeIcon icon="wrench"/>
