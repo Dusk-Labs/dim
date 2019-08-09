@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import CardPopup from "./Card-Popup.jsx";
 import LazyImage from "./helpers/LazyImage.jsx";
 import "./card.scss";
 
@@ -6,16 +7,52 @@ class Card extends Component {
 
     constructor(props) {
         super(props);
+        this.handleMouseHover = this.handleMouseHover.bind(this);
 
         this.state = {
-            data: {}
+            data: {},
+            pos: {},
+            hovering: false
         };
     }
 
     componentDidMount() {
-        fetch(`api/${this.props.id}`)
-            .then(res => res.json())
-            .then(({data}) => this.setState({ data: data}));
+        // fetch(`api/${this.props.id}`)
+        //     .then(res => res.json())
+        //     .then(({data}) => {
+        //         this.setState({
+        //             data: {
+        //                 name: "Movie Name",
+        //                 imdb: "0",
+        //                 rotten_tomatoes: "0",
+        //                 description: "Lorem ipsum",
+        //                 genre: "GENRE",
+        //                 year: "YEAR",
+        //                 trailer: "TRAILER",
+        //                 length: "00:00:00",
+        //                 play: "",
+        //             }
+        //         })
+        //     });
+        this.setState({
+            data: {
+                name: "Movie Name",
+                imdb: "0",
+                rotten_tomatoes: "0",
+                description: "Lorem ipsum",
+                genre: "GENRE",
+                year: this.props.id,
+                trailer: "",
+                length: "00:00:00",
+                play: "",
+            }
+        })
+    }
+
+    handleMouseHover() {
+        this.setState({
+            hovering: !this.state.hovering
+        });
     }
 
     render() {
@@ -26,11 +63,16 @@ class Card extends Component {
         }
 
         return (
-            <div className="card">
-                <a href="https://example.com/">
-                    <LazyImage alt={"cover-" + name} src={src}></LazyImage>
-                    <p>{name}</p>
-                </a>
+            <div className="card-wrapper" onMouseEnter={this.handleMouseHover} onMouseLeave={this.handleMouseHover}>
+                <div className="card">
+                    <a href="https://example.com/">
+                        <LazyImage alt={"cover-" + name} src={src}></LazyImage>
+                        <p>{name}</p>
+                    </a>
+                </div>
+                {this.state.hovering &&
+                    <CardPopup parent={<div></div>} data={this.state.data}/>
+                }
             </div>
         );
     }
