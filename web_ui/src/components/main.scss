@@ -15,6 +15,7 @@ main {
     grid-area: main;
     background: #1a1a1a;
     margin: 0;
+    min-width: 500px;
     box-sizing: border-box;
     min-height: 100vh;
     color: #ffffff;
@@ -34,7 +35,7 @@ main {
         text-align: right;
 
         img {
-            height: 100%;
+            min-height: 40vh;
             width: 100%;
             object-fit: cover;
             mask-image: linear-gradient(to bottom, #000000 20%, #1a1a1a00 100%);
@@ -42,11 +43,12 @@ main {
 
         .info {
             text-align: left;
-            width: 25%;
+            width: 400px;
             position: absolute;
             top: 50%;
-            left: 17%;
-            transform: translate(-50%, -50%);
+            left: 5%;
+            transform: translate(0, -40%);
+            text-shadow: #000000 0 0 15px;
 
             h1 {
                 font-size: 2em;
