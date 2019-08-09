@@ -29,7 +29,7 @@ class CardPopup extends Component {
             trailer,
             length,
             play,
-        } = this.props;
+        } = this.props.data;
 
         return (
             <div className="card-popup">
