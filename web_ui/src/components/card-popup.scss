@@ -1,0 +1,143 @@
+.card-popup {
+    max-height: 400px;
+    max-width: 500px;
+    box-sizing: border-box;
+    padding: 2vh 3vh;
+    background: #333333;
+    font-family: "Roboto Black";
+    border-radius: 1vh;
+    position: relative;
+
+    section {
+        margin: 1vh 0;
+    }
+
+    /*
+        * == HEADER ==
+    */
+
+    .header {
+        border-radius: 1vh;
+        background: #4d4d4d;
+        padding: 1vh 3vh;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .rating {
+        display: inline-grid;
+        grid-template-areas: "1 2 3 4";
+        grid-gap: 10px;
+        align-items: center;
+        color: #f2f2f2;
+
+        img {
+            width: 20px;
+
+            /* IMDB LOGO */
+            &:nth-child(1) {
+                width: 30px;
+            }
+        }
+    }
+
+    /*
+        * == MAIN ==
+    */
+
+    .main {
+        /* DESCRIPTION HEADING */
+        > h4 {
+            margin: 2vh 0 0 0;
+        }
+
+        /* DESCRIPTION */
+        > p {
+            margin: 0.5vh 0 0 0;
+            font-family: "Roboto Regular";
+        }
+    }
+
+    .info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        /* TRAILER */
+        a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            /* * TRAILER ICON */
+            i {
+                font-size: 0.9em;
+            }
+        }
+    }
+
+    .tags {
+        display: flex;
+
+        > p {
+            margin-right: 1vh;
+            background: #f7931e;
+            padding: 0.5vh 1vh;
+            border-radius: 10vh;
+        }
+    }
+
+    /*
+        * == FOOTER ==
+    */
+
+    .footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .length {
+        text-align: center;
+
+        /* LENGTH HINT */
+        > p:nth-child(2) {
+            color: #666666;
+        }
+    }
+
+
+    button {
+        display: flex;
+        align-items: center;
+        font-family: "Roboto Black";
+        border: none;
+        color: #ffffff;
+        padding: 1.5vh 5vh;
+        background: #f7931e;
+        border-radius: 1vh;
+        outline: none;
+        transition: background 0.3s ease-in-out;
+
+        &:hover {
+            background: #f9b53f;
+            cursor: pointer;
+        }
+    }
+
+    /* ICON */
+    i {
+        margin: 0 5px 0 5px;
+        font-size: 0.5em;
+    }
+
+    /*
+        * == OTHER ==
+    */
+
+    .separator {
+        width: 100%;
+    }
+}
+

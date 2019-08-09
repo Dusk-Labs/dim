@@ -20,6 +20,12 @@
 	src: url("./assets/roboto-condensed-bold.ttf");
 }
 
+body {
+	margin: 0;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
 .App {
 	font-family: "Roboto Regular";
 	display: grid;

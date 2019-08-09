@@ -1,0 +1,115 @@
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #333333;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #f7931e;
+}
+
+
+main {
+    grid-area: main;
+    background: #1a1a1a;
+    margin: 0;
+    box-sizing: border-box;
+    min-height: 100vh;
+    color: #ffffff;
+    display: grid;
+    grid-template-areas:
+        "banner"
+        "libraries";
+    grid-template-rows: 40vh auto;
+
+    /*
+        * == BANNER ==
+    */
+
+    .banner {
+        grid-area: banner;
+        position: relative;
+        text-align: right;
+
+        img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            mask-image: linear-gradient(to bottom, #000000 20%, #1a1a1a00 100%);
+        }
+
+        .info {
+            text-align: left;
+            width: 25%;
+            position: absolute;
+            top: 50%;
+            left: 17%;
+            transform: translate(-50%, -50%);
+
+            h1 {
+                font-size: 2em;
+                margin: 0;
+            }
+
+            .desc {
+                margin: 2vh 0;
+            }
+
+            h5, p {
+                margin: 1vh 0;
+            }
+
+            p {
+                color: #b3b3b3;
+            }
+        }
+
+        button {
+            display: flex;
+            align-items: center;
+            font-family: "Roboto Black";
+            border: none;
+            color: #ffffff;
+            padding: 0.5vh 2.5vh;
+            background: #f7931e;
+            border-radius: 1vh;
+            outline: none;
+            transition: background 0.3s ease-in-out;
+
+            &:hover {
+                background: #f9b53f;
+                cursor: pointer;
+            }
+        }
+
+        /* ICON */
+        i {
+            margin-left: 5px;
+            font-size: 0.5em;
+        }
+    }
+
+    /*
+        * == LIBRARY ==
+    */
+
+    .libraries {
+        margin: 5vh 0;
+        grid-area: libraries;
+        padding: 0 5%;
+
+        h1 {
+            margin: 0;
+        }
+    }
+
+    .cards {
+        margin: 5vh 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 200px);
+        /* grid-template-areas: "1 2 3 4 5 6"; */
+        grid-gap: 10vh 5vh;
+    }
+}
