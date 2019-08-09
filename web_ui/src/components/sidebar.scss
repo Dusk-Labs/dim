@@ -19,16 +19,24 @@
             justify-content: space-between;
 
             a {
+                opacity: 0;
                 padding: 0 5px;
                 border-radius: 1vh;
                 background: transparent;
-                transition: background 0.2s ease-in-out;
+                transition: 0.2s ease-in-out;
+                transition-property: background, opacity;
 
                 &:hover {
                     background: #666666;
                 }
             }
 
+        }
+
+        &:hover {
+            .header a {
+                opacity: 1;
+            }
         }
     }
 
@@ -37,10 +45,6 @@
         font-family: "Roboto Black";
         margin: 0;
         color: #808080;
-    }
-
-    .middle h4 {
-        // margin-bottom: 1vh;
     }
 
     /* ITEM */
