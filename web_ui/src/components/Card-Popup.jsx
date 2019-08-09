@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import "./card-popup.css";
+import "./card-popup.scss";
 
 import RottenTomatoeLogo from "../assets/rotten_tomatoe.svg";
 import IMDbLogo from "../assets/imdb.png";

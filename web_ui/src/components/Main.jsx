@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Card from "./Card.jsx";
 import LazyImage from "./helpers/LazyImage.jsx";
-import "./main.css";
+import "./main.scss";
 
 class Main extends Component {
     render() {

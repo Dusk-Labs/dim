@@ -1,0 +1,152 @@
+.sidebar {
+    grid-area: sidebar;
+    height: 100%;
+    width: 30vh;
+    position: fixed;
+    background: #333333;
+
+    section {
+        margin: 5vh auto;
+        min-height: 7%;
+        width: 80%;
+        position: relative;
+        text-align: left;
+    }
+
+    h6,
+    h4 {
+        font-family: "Roboto Black";
+        margin: 0;
+        color: #808080;
+    }
+
+    .middle h4 {
+        margin-bottom: 1vh;
+    }
+
+    /* ITEM */
+    .list > a {
+        display: grid;
+        grid-gap: 10px;
+        grid-template-columns: 40px auto;
+        align-items: center;
+        justify-content: left;
+        border-radius: 1vh;
+        transition: 0.1s ease-in-out;
+        transition-property: padding, background, transform, font-size;
+    }
+
+    .list > a:hover {
+        background: #222222;
+    }
+
+    /* ITEM ICON */
+    .list svg {
+        margin: 0 auto;
+    }
+
+    /* ITEM NAME */
+    .list p {
+        margin: 0;
+        padding: 1vh 0;
+    }
+
+    /*
+        * == PROFILE ==
+    */
+
+    .profile {
+        margin-bottom: 2vh;
+        display: grid;
+        grid-template-columns: auto auto;
+        grid-template-rows: auto;
+        justify-content: left;
+        grid-gap: 10px;
+        align-items: center;
+    }
+
+    .icon-outer {
+        height: 35px;
+        width: 35px;
+        border-radius: 35px;
+        border-color: #ffffff;
+        border-width: 2px;
+        border-style: solid;
+    }
+
+    .icon-inner {
+        height: 29px;
+        width: 29px;
+        background-color: #f7931e;
+        border-radius: 29px;
+        margin: auto;
+        position: relative;
+        top: 9%;
+    }
+
+    .profile-name {
+        font-family: "Roboto Condensed Regular";
+        color: #ffffff;
+    }
+
+    .profile-hours {
+        font-family: "Roboto Regular";
+        color: #808080
+    }
+
+    /*
+        * == SEARCH ==
+    */
+
+    .search {
+        margin: 2vh auto;
+    }
+
+    .search-box {
+        background: #4d4d4d;
+        border-radius: 1vh;
+        padding: 0 1vh;
+        overflow: hidden;
+        display: grid;
+        grid-template-areas: "input button";
+        justify-content: space-evenly;
+        align-items: center;
+
+        input {
+            padding: 1vh 0;
+            grid-area: input;
+            background: #4d4d4d;
+            border: none;
+            padding: 1vh;
+            outline: none;
+            color: #ffffff;
+            width: 85%;
+            font-family: "Roboto Black";
+        }
+
+        button {
+            height: 30px;
+            width: 30px;
+            grid-area: button;
+            outline: none;
+            border: none;
+            border-radius: 100%;
+            background: #666666;
+            color: #ffffff;
+            transition: background 0.3s ease-in-out;
+
+            &:hover {
+                background: #999999;
+                cursor: pointer;
+            }
+        }
+    }
+
+    /*
+        * == OTHER ==
+    */
+
+    .separator {
+        width: 80%;
+    }
+}
