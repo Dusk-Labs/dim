@@ -4,6 +4,7 @@ import LazyImage from "./helpers/LazyImage.jsx";
 import "./main.scss";
 
 class Main extends Component {
+
     render() {
         return (
             <main>
@@ -28,46 +29,16 @@ class Main extends Component {
                     <div className="recommended">
                         <h1>RECOMMENDED</h1>
                         <div className="cards">
-                            <Card
-                                name="Spider-Man: Far From Home"
-                                src="/img1.jpg"
-                            ></Card>
-                            <Card
-                                name="Men in Black: International"
-                                src="/img1.jpg"
-                            ></Card>
-                            <Card
-                                name="Fast & Furious Presents: Hobbs & Shaw"
-                                src="/img1.jpg"
-                            ></Card>
-                            <Card
-                                name="The Lion King"
-                                src="/img1.jpg"
-                            ></Card>
-                            <Card
-                                name="Toy Story 4"
-                                src="/img1.jpg"
-                            ></Card>
-                            <Card
-                                name="The Angry Birds 2"
-                                src="/img1.jpg"
-                            ></Card>
-                            <Card
-                                name="Annabelle Comes Home"
-                                src="/img1.jpg"
-                            ></Card>
-                            <Card
-                                name="Playmobil: The Movie"
-                                src="/img1.jpg"
-                            ></Card>
-                            <Card
-                                name="The Sun is Also a Star"
-                                src="/img1.jpg"
-                            ></Card>
-                            <Card
-                                name="Alladin"
-                                src="/img1.jpg"
-                            ></Card>
+                            <Card id="1"/>
+                            <Card id="1"/>
+                            <Card id="1"/>
+                            <Card id="1"/>
+                            <Card id="1"/>
+                            <Card id="1"/>
+                            <Card id="1"/>
+                            <Card id="1"/>
+                            <Card id="1"/>
+                            <Card id="1"/>
                         </div>
                     </div>
                 </section>
