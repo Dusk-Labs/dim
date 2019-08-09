@@ -52,7 +52,7 @@ class CardPopup extends Component {
                     </div>
                 </section>
 
-                <div class="separator"></div>
+                <div className="separator"></div>
 
                 <section className="footer">
                     <div className="length">
