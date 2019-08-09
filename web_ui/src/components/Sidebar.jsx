@@ -61,7 +61,6 @@ class Sidebar extends Component {
                     <section className="connected-hosts">
                         <div className="header">
                             <h4>CONNECTED HOSTS</h4>
-                            <a href="http://example.com/">+</a>
                         </div>
                         <div className="list">
                             <a href="http://example.com/">
@@ -103,7 +102,6 @@ class Sidebar extends Component {
                     <section className="account">
                         <div className="header">
                             <h4>YOUR ACCOUNT</h4>
-                            <a href="http://example.com/">+</a>
                         </div>
                         <div className="list">
                             <a href="http://example.com/">
