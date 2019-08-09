@@ -1,6 +1,16 @@
+@keyframes appear {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
 .card-popup {
     max-height: 400px;
     max-width: 500px;
+    width: 500px;
     box-sizing: border-box;
     padding: 2vh 3vh;
     background: #333333;
@@ -10,6 +20,7 @@
     bottom: 5%;
     right: 5%;
     z-index: 1;
+    animation: appear 0.5s ease-in-out;
 
     section {
         margin: 1vh 0;
