@@ -1,0 +1,73 @@
+.progress-bar {
+    position: absolute;
+    top: 60%;
+    right: 5%;
+    text-shadow: #000000 0 0 15px;
+    text-align: center;
+    display: grid;
+
+    p {
+        margin: 0;
+    }
+
+    /* ICON */
+    svg {
+        font-size: 0.5em;
+        margin: 0 1vh;
+    }
+
+    /* season + episode */
+    .s-e {
+        margin: 0 auto;
+        font-family: "Roboto Black";
+        display: flex;
+        align-items: center;
+    }
+
+    .progress {
+        display: flex;
+        align-items: center;
+
+        div {
+            margin: 0 1vh;
+            display: inline-grid;
+            text-align: center;
+
+            /* VALUE */
+            p:nth-child(1) {
+                font-family: "Roboto Black";
+                font-size: 1.3em;
+            }
+
+            /* UNIT */
+            p:nth-child(2) {
+                font-family: "Roboto Condensed Regular";
+            }
+        }
+    }
+
+
+    /*
+        * == PROGRESS BAR ==
+    */
+
+    progress {
+        height: 10px;
+        display: block;
+        border: none;
+        -webkit-appearance: none;
+        box-shadow: #000000 0 0 15px;
+
+        /* BAR */
+        &::-webkit-progress-bar {
+            background: #ffffff;
+            border-radius: 50px;
+        }
+
+        /* VALUE */
+        &::-webkit-progress-value {
+            border-radius: 50px;
+            background: #f15a24;
+        }
+    }
+}
