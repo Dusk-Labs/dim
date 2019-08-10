@@ -4,11 +4,11 @@ import LazyImage from "./helpers/LazyImage.jsx";
 import ProgressBar from "./progress-bar.jsx";
 import "./main.scss";
 
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faArrowAltCircleRight } from "@fortawesome/free-solid-svg-icons";
 
-library.add(faPlay);
+library.add(faArrowAltCircleRight);
 
 class Main extends Component {
 
@@ -29,7 +29,7 @@ class Main extends Component {
                                 in hopes of possibly re-populating the planet.
                             </p>
                         </div>
-                        <button>PLAY<FontAwesomeIcon icon="play"/></button>
+                        <button>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></button>
                     </div>
                     <ProgressBar id="1"/>
                 </section>

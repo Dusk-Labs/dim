@@ -8,12 +8,12 @@ import IMDbLogo from "../assets/imdb.png";
 import { library } from "@fortawesome/fontawesome-svg-core";
 
 import {
-    faPlay,
     faPlayCircle,
+    faArrowCircleRight,
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
-    faPlay,
+    faArrowCircleRight,
     faPlayCircle
 );
 
@@ -59,7 +59,7 @@ class CardPopup extends Component {
                         <p>{length}</p>
                         <p>HH MM SS</p>
                     </div>
-                    <button href={play}>PLAY<FontAwesomeIcon icon="play"/></button>
+                    <button href={play}>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></button>
                 </section>
             </div>
         );
