@@ -1,12 +1,12 @@
-::-webkit-scrollbar {
+::-webkit-scrollbar, ::-moz-scrollbar {
     width: 5px;
 }
 
-::-webkit-scrollbar-track {
+::-webkit-scrollbar-track, ::-webkit-scrollbar-track {
     background: #333333;
 }
 
-::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb, ::-moz-scrollbar-thumb {
     background: #f7931e;
 }
 
@@ -74,7 +74,7 @@ main {
             font-family: "Roboto Black";
             border: none;
             color: #eee7e7;
-            padding: 1vh 3vh;
+            padding: 0.7vh 3vh;
             background: #f7931e;
             border-radius: 1vh;
             outline: none;

@@ -14,6 +14,7 @@
     svg {
         font-size: 0.5em !important;
         margin: 0 1vh;
+        color: #e70;
     }
 
     /* season + episode */
@@ -52,11 +53,12 @@
     */
 
     progress {
-        height: 10px;
+        height: 5px;
         display: block;
         border: none;
         -webkit-appearance: none;
         box-shadow: #000000 0 0 15px;
+        border-radius: 5px;
 
         /* BAR */
         &::-webkit-progress-bar {
@@ -65,7 +67,7 @@
         }
 
         /* VALUE */
-        &::-webkit-progress-value {
+        &::-webkit-progress-value, &::-moz-progress-bar {
             border-radius: 50px;
             background: #f7931e;
         }
