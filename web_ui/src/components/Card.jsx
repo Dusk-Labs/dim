@@ -22,15 +22,15 @@ class Card extends Component {
         //     .then(({data}) => {
         //         this.setState({
         //             data: {
-        //                 name: "Movie Name",
-        //                 imdb: "0",
-        //                 rotten_tomatoes: "0",
-        //                 description: "Lorem ipsum",
-        //                 genre: "GENRE",
-        //                 year: "YEAR",
-        //                 trailer: "TRAILER",
-        //                 length: "00:00:00",
-        //                 play: "",
+        //                 name: ,
+        //                 imdb: ,
+        //                 rotten_tomatoes: ,
+        //                 description: ,
+        //                 genre: ,
+        //                 year: ,
+        //                 trailer: ,
+        //                 length: ,
+        //                 play: ,
         //             }
         //         })
         //     });
