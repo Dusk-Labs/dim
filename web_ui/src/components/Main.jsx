@@ -1,7 +1,14 @@
 import React, { Component } from "react";
 import Card from "./Card.jsx";
 import LazyImage from "./helpers/LazyImage.jsx";
+import ProgressBar from "./progress-bar.jsx";
 import "./main.scss";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faArrowAltCircleRight } from "@fortawesome/free-solid-svg-icons";
+
+library.add(faArrowAltCircleRight);
 
 class Main extends Component {
 
@@ -22,23 +29,24 @@ class Main extends Component {
                                 in hopes of possibly re-populating the planet.
                             </p>
                         </div>
-                        <button>PLAY<i className="fas fa-play"></i></button>
+                        <button>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></button>
                     </div>
+                    <ProgressBar id="1"/>
                 </section>
                 <section className="libraries">
                     <div className="recommended">
                         <h1>RECOMMENDED</h1>
                         <div className="cards">
                             <Card id="1"/>
-                            <Card id="1"/>
-                            <Card id="1"/>
-                            <Card id="1"/>
-                            <Card id="1"/>
-                            <Card id="1"/>
-                            <Card id="1"/>
-                            <Card id="1"/>
-                            <Card id="1"/>
-                            <Card id="1"/>
+                            <Card id="2"/>
+                            <Card id="3"/>
+                            <Card id="4"/>
+                            <Card id="5"/>
+                            <Card id="6"/>
+                            <Card id="7"/>
+                            <Card id="8"/>
+                            <Card id="9"/>
+                            <Card id="10"/>
                         </div>
                     </div>
                 </section>
