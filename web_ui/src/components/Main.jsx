@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Card from "./Card.jsx";
 import LazyImage from "./helpers/LazyImage.jsx";
+import ProgressBar from "./progress-bar.jsx";
 import "./main.scss";
 
 class Main extends Component {
@@ -24,6 +25,7 @@ class Main extends Component {
                         </div>
                         <button>PLAY<i className="fas fa-play"></i></button>
                     </div>
+                    <ProgressBar/>
                 </section>
                 <section className="libraries">
                     <div className="recommended">
