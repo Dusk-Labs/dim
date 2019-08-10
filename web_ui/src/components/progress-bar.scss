@@ -12,7 +12,7 @@
 
     /* ICON */
     svg {
-        font-size: 0.5em;
+        font-size: 0.5em !important;
         margin: 0 1vh;
     }
 
@@ -67,7 +67,7 @@
         /* VALUE */
         &::-webkit-progress-value {
             border-radius: 50px;
-            background: #f15a24;
+            background: #f7931e;
         }
     }
 }
