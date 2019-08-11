@@ -29,7 +29,7 @@ class Main extends Component {
                                 in hopes of possibly re-populating the planet.
                             </p>
                         </div>
-                        <button>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></button>
+                        <a href="http://example.com/">PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></a>
                     </div>
                     <ProgressBar id="1"/>
                 </section>
