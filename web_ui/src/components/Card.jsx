@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import CardPopup from "./Card-Popup.jsx";
 import LazyImage from "./helpers/LazyImage.jsx";
 import "./card.scss";
+import * as Vibrant from 'node-vibrant';
 
 class Card extends Component {
     constructor(props) {
@@ -29,7 +30,8 @@ class Card extends Component {
                 length: "00:00:00",
                 play: "",
                 src: data.poster_path,
-            }
+            },
+            accent: "#f7931e",
         })
     }
 
@@ -51,11 +53,16 @@ class Card extends Component {
         });
     }
 
+    onLoadPoster = async (blob) => {
+        const color = await Vibrant.from(URL.createObjectURL(blob)).getPalette();
+        this.setState({ accent: color.Vibrant.getHex() })
+    }
+
     render() {
-        let { name, src } = this.state.data;
+        const { name, src } = this.state.data;
+        const { accent } = this.state;
 
         if (!name) {
-            name = "MISSING NAME";
             // If we dont return a empty div then later on everything works
             // but <LazyImage> doesnt receive the correct props
             // TODO: Investigate
@@ -66,12 +73,12 @@ class Card extends Component {
             <div className="card-wrapper" onMouseEnter={this.handleMouseHover} onMouseLeave={this.handleMouseHover}>
                 <div className="card">
                     <a href="https://example.com/">
-                        <LazyImage alt={"cover-" + name} src={src}/>
+                        <LazyImage alt={"cover-" + name} src={src} onLoad={this.onLoadPoster}/>
                         <p style={{opacity: + !this.state.hovering}}>{name}</p>
                     </a>
                 </div>
                 {this.state.hovering &&
-                    <CardPopup data={this.state.data}/>
+                    <CardPopup data={this.state.data} accent={accent}/>
                 }
             </div>
         );

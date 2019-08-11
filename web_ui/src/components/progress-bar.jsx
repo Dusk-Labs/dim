@@ -17,20 +17,6 @@ class ProgressBar extends Component {
     }
 
     componentDidMount() {
-        // fetch(`api/${this.props.id}`)
-        //     .then(res => res.json())
-        //     .then(({data}) => {
-        //         this.setState({
-        //             data: {
-        //                 current: ,
-        //                 currentUnit: ,
-        //                 duration: ,
-        //                 durationUnit: ,
-        //                 season: ,
-        //                 episode:
-        //             }
-        //         })
-        //     });
         this.setState({
             data: {
                 current: 23,
@@ -38,9 +24,16 @@ class ProgressBar extends Component {
                 duration: 53,
                 durationUnit: "min",
                 season: "01",
-                episode: "01"
-            }
+                episode: "01",
+            },
+            accent: this.props.accent,
         })
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        return {
+            accent: nextProps.accent,
+        };
     }
 
     render() {
@@ -53,11 +46,15 @@ class ProgressBar extends Component {
             episode
         } = this.state.data;
 
+        const { accent } = this.state;
+
+        const width = current / duration * 100 + "%";
+
         return (
             <div className="progress-bar">
                 <div className="s-e">
                     <p>S{season}</p>
-                    <FontAwesomeIcon icon="circle"/>
+                    <FontAwesomeIcon icon="circle" style={{ color: accent }}/>
                     <p>E{episode}</p>
                 </div>
                 <div className="progress">
@@ -65,9 +62,9 @@ class ProgressBar extends Component {
                         <p>{current}</p>
                         <p>{currentUnit}</p>
                     </div>
-                    <div className="bar">
-                        <progress max={duration} value={current}></progress>
-                    </div>
+                    <span className="bar">
+                        <span className="progress" style={{ width: width, background: accent }}></span>
+                    </span>
                     <div className="duration">
                         <p>{duration}</p>
                         <p>{durationUnit}</p>

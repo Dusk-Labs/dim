@@ -28,7 +28,7 @@ class LazyImage extends Component {
         const objectUrl = URL.createObjectURL(blob);
         this.setState({ blob, objectUrl });
         if (this.props.onLoad) {
-            this.props.onLoad(blob)
+            await this.props.onLoad(blob)
         }
     }
 

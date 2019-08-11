@@ -7,7 +7,7 @@ import "./main.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faArrowAltCircleRight } from "@fortawesome/free-solid-svg-icons";
-import { usePalette } from 'react-palette';
+import * as Vibrant from 'node-vibrant';
 
 library.add(faArrowAltCircleRight);
 
@@ -17,6 +17,7 @@ class Main extends Component {
 
         this.state = {
             cards: [],
+            banner_accent: "#f7931e",
         };
 
         fetch(`http://86.21.150.167:8000/api/v1/library/1/media`)
@@ -27,17 +28,16 @@ class Main extends Component {
                     cards: cards
                 });
             });
-
-        //        this.bannerCallback = this.bannerCallback.bind(this);
     }
 
-    onLoadBanner = (blob) => {
-        console.log(blob)
+    onLoadBanner = async (blob) => {
+        const color = await Vibrant.from(URL.createObjectURL(blob)).getPalette();
+        this.setState({ banner_accent: color.Vibrant.getHex() })
     }
 
 
     render() {
-        const { cards } = this.state;
+        const { cards, banner_accent } = this.state;
         return (
             <main>
                 <section className="banner">
@@ -54,9 +54,9 @@ class Main extends Component {
                                 in hopes of possibly re-populating the planet.
                             </p>
                         </div>
-                        <a href="http://example.com/">PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></a>
+                        <a href="http://example.com/" style={{ background: banner_accent }}>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></a>
                     </div>
-                    <ProgressBar id="1"/>
+                    <ProgressBar id="1" accent={banner_accent}/>
                 </section>
                 <section className="libraries">
                     <div className="recommended">
