@@ -94,7 +94,7 @@ class Sidebar extends Component {
                         </div>
                         <div className="list">
                             <div className="item-wrapper">
-                                <a href="http://example.com/">
+                                <a className="active" href="http://example.com/">
                                     <FontAwesomeIcon icon="film"/>
                                     <p>Movies</p>
                                 </a>

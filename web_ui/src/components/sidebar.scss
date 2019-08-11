@@ -54,6 +54,10 @@
         }
     }
 
+    .active {
+        background: #555555;
+    }
+
     h6,
     h4 {
         font-family: "Roboto Black";
@@ -119,22 +123,21 @@
                 opacity: 1;
             }
         }
-    }
 
+        > div a:hover {
+            background: #222222;
+        }
 
-    .list > div a:hover {
-        background: #222222;
-    }
+        /* ITEM ICON */
+        svg {
+            margin: 0 auto;
+        }
 
-    /* ITEM ICON */
-    .list svg {
-        margin: 0 auto;
-    }
-
-    /* ITEM NAME */
-    .list p {
-        margin: 0;
-        padding: 1vh 0;
+        /* ITEM NAME */
+         p {
+            margin: 0;
+            padding: 1vh 0;
+        }
     }
 
     /*
