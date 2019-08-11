@@ -52,6 +52,7 @@ class CardPopup extends Component {
         if (!overflowing) return;
 
         this.setState({
+            accent: this.props.accent,
             styles: {
                 card: {
                     left: "unset",
@@ -72,6 +73,12 @@ class CardPopup extends Component {
 
     }
 
+    static getDerivedStateFromProps(nextProps, prevState) {
+        return {
+            accent: nextProps.accent,
+        };
+    }
+
     render() {
         const {
             name,
@@ -84,6 +91,8 @@ class CardPopup extends Component {
             length,
             play,
         } = this.props.data;
+
+        const { accent } = this.props;
 
         return (
             <div className="card-popup" ref={this.popup} style={this.state.styles.card}>
@@ -102,8 +111,8 @@ class CardPopup extends Component {
                     </section>
                     <section className="info">
                         <div className="tags">
-                            <p>{genre}</p>
-                            <p>{year}</p>
+                            <p style={{ background: accent}}>{genre}</p>
+                            <p style={{ background: accent}}>{year}</p>
                         </div>
                         {/* <a href={trailer}><FontAwesomeIcon icon="play-circle"/>WATCH TRAILER</a> */}
                     </section>
@@ -113,7 +122,7 @@ class CardPopup extends Component {
                             <p>{length}</p>
                             <p>HH MM SS</p>
                         </div>
-                        <a href={play}>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></a>
+                        <a href={play} style={{ background: accent }}>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></a>
                     </section>
                 </section>
 

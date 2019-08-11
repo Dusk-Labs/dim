@@ -2,9 +2,9 @@ import React, { Component } from "react";
 import CardPopup from "./Card-Popup.jsx";
 import LazyImage from "./helpers/LazyImage.jsx";
 import "./card.scss";
+import * as Vibrant from 'node-vibrant';
 
 class Card extends Component {
-
     constructor(props) {
         super(props);
         this.handleMouseHover = this.handleMouseHover.bind(this);
@@ -17,35 +17,21 @@ class Card extends Component {
     }
 
     componentDidMount() {
-        // fetch(`api/${this.props.id}`)
-        //     .then(res => res.json())
-        //     .then(({data}) => {
-        //         this.setState({
-        //             data: {
-        //                 name: ,
-        //                 imdb: ,
-        //                 rotten_tomatoes: ,
-        //                 description: ,
-        //                 genre: ,
-        //                 year: ,
-        //                 trailer: ,
-        //                 length: ,
-        //                 play: ,
-        //             }
-        //         })
-        //     });
+        let data = this.props.data;
         this.setState({
             data: {
-                name: "Spiderman: Far From Home",
-                imdb: "7.9/10",
+                name: data.name,
+                imdb: `${data.rating}/10`,
                 rotten_tomatoes: "90%",
-                description: "Following the events of Avengers: Endgame, Spider-Man must step up to take on new threats in a world that has changed forever.",
+                description: data.description,
                 genre: "Fantasy/Sci-Fi",
-                year: "2019",
+                year: data.year,
                 trailer: "",
-                length: "00:02:09",
+                length: "00:00:00",
                 play: "",
-            }
+                src: data.poster_path,
+            },
+            accent: "#f7931e",
         })
     }
 
@@ -67,23 +53,31 @@ class Card extends Component {
         });
     }
 
+    onLoadPoster = async (blob) => {
+        const color = await Vibrant.from(URL.createObjectURL(blob)).getPalette();
+        this.setState({ accent: color.Vibrant.getHex() })
+    }
+
     render() {
-        let { name, src } = this.state.data;
+        const { accent, data: { name, src } } = this.state
 
         if (!name) {
-            name = "MISSING NAME";
+            // If we dont return a empty div then later on everything works
+            // but <LazyImage> doesnt receive the correct props
+            // TODO: Investigate
+            return <div></div>;
         }
 
         return (
             <div className="card-wrapper" onMouseEnter={this.handleMouseHover} onMouseLeave={this.handleMouseHover}>
                 <div className="card">
                     <a href="https://example.com/">
-                        <LazyImage alt={"cover-" + name} src={src}></LazyImage>
+                        <LazyImage alt={"cover-" + name} src={src} onLoad={this.onLoadPoster}/>
                         <p style={{opacity: + !this.state.hovering}}>{name}</p>
                     </a>
                 </div>
                 {this.state.hovering &&
-                    <CardPopup data={this.state.data}/>
+                    <CardPopup data={this.state.data} accent={accent}/>
                 }
             </div>
         );

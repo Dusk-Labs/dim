@@ -1,41 +1,44 @@
 import React, { Component } from "react";
 
 class LazyImage extends Component {
-    constructor(props) {
-        super(props);
-
+    constructor(props){
+        super(props)
         this.state = {
-            acquired: false,
-            blob: null,
-        };
-        this.fetchImage();
+            blob: undefined,
+            objectUrl: undefined,
+        }
     }
 
-    fetchImage() {
-        fetch(this.props.src)
-            .then(resp => {
-                if (resp.headers.get("content-type") === "image/jpeg") {
-                    return resp.blob();
-                }
-            })
-            .then((blob) => {
-                if (blob) {
-                    const blobUrl = URL.createObjectURL(blob);
+    componentDidMount() {
+        this.fetchImage()
+    }
 
-                    this.setState({
-                        acquired: true,
-                        blob: blobUrl
-                    });
-                }
-            });
+    componentWillUnmount() {
+        if(this.state.objectUrl) {
+            URL.revokeObjectURL(this.state.objectUrl)
+        }
+    }
+
+    fetchImage = async () => {
+        const resp = await fetch(this.props.src);
+        if (!resp.headers.get("content-type") === "image/jpeg") {
+            throw new Error("Not an image");
+        }
+        const blob = await resp.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        this.setState({ blob, objectUrl });
+        if (this.props.onLoad) {
+            await this.props.onLoad(blob)
+        }
     }
 
     render() {
-        const { acquired, blob } = this.state;
+        const { alt } = this.props;
+        const { objectUrl } = this.state;
 
-        return acquired
-            ? <div className="image-wrapper"><img src={blob} alt={blob}></img></div>
-            : <div className="placeholder"></div>;
+        return objectUrl !== undefined
+            ? <div className="image-wrapper"><img src={objectUrl} alt={alt}></img></div>
+            : <div className="placeholder"/>;
     }
 }
 

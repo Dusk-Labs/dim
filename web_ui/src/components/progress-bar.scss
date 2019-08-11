@@ -60,8 +60,10 @@
         * == PROGRESS BAR ==
     */
 
-    progress {
+    .bar {
         height: 5px;
+        width: 175px;
+        background: #fff;
         display: block;
         border: none;
         -webkit-appearance: none;
@@ -69,16 +71,10 @@
                 box-shadow: #000000 0 0 15px;
         border-radius: 5px;
 
-        /* BAR */
-        &::-webkit-progress-bar {
-            background: #ffffff;
-            border-radius: 50px;
-        }
-
         /* VALUE */
-        &::-webkit-progress-value {
-            border-radius: 50px;
-            background: #f7931e;
+        .progress {
+            height: 5px;
+            border-radius: 5px;
         }
     }
 }
