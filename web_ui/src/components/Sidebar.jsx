@@ -63,18 +63,27 @@ class Sidebar extends Component {
                             <h4>CONNECTED HOSTS</h4>
                         </div>
                         <div className="list">
-                            <a href="http://example.com/">
-                                <FontAwesomeIcon icon="desktop"/>
-                                <p>Desktop</p>
-                            </a>
-                            <a href="http://example.com/">
-                            <FontAwesomeIcon icon="laptop"/>
-                                <p>Laptop</p>
-                            </a>
-                            <a href="http://example.com/">
-                                <FontAwesomeIcon icon="mobile-alt"/>
-                                <p>Phone</p>
-                            </a>
+                            <div className="item-wrapper">
+                                <a href="http://example.com/">
+                                    <FontAwesomeIcon icon="desktop"/>
+                                    <p>Desktop</p>
+                                </a>
+                                <a href="http://example.com/">-</a>
+                            </div>
+                            <div className="item-wrapper">
+                                <a href="http://example.com/">
+                                    <FontAwesomeIcon icon="laptop"/>
+                                    <p>Laptop</p>
+                                </a>
+                                <a href="http://example.com/">-</a>
+                            </div>
+                            <div className="item-wrapper">
+                                <a href="http://example.com/">
+                                    <FontAwesomeIcon icon="mobile-alt"/>
+                                    <p>Phone</p>
+                                </a>
+                                <a href="http://example.com/">-</a>
+                            </div>
                         </div>
                     </section>
 
@@ -84,18 +93,27 @@ class Sidebar extends Component {
                             <a href="http://example.com/">+</a>
                         </div>
                         <div className="list">
-                            <a href="http://example.com/">
-                                <FontAwesomeIcon icon="film"/>
-                                <p>Movies</p>
-                            </a>
-                            <a href="http://example.com/">
-                                <FontAwesomeIcon icon="gamepad"/>
-                                <p>Games</p>
-                            </a>
-                            <a href="http://example.com/">
-                                <FontAwesomeIcon icon="tv"/>
-                                <p>TV Shows</p>
-                            </a>
+                            <div className="item-wrapper">
+                                <a href="http://example.com/">
+                                    <FontAwesomeIcon icon="film"/>
+                                    <p>Movies</p>
+                                </a>
+                                <a href="http://example.com/">-</a>
+                            </div>
+                            <div className="item-wrapper">
+                                <a href="http://example.com/">
+                                    <FontAwesomeIcon icon="gamepad"/>
+                                    <p>Games</p>
+                                </a>
+                                <a href="http://example.com/">-</a>
+                            </div>
+                            <div className="item-wrapper">
+                                <a href="http://example.com/">
+                                    <FontAwesomeIcon icon="tv"/>
+                                    <p>TV Shows</p>
+                                </a>
+                                <a href="http://example.com/">-</a>
+                            </div>
                         </div>
                     </section>
 
@@ -104,14 +122,18 @@ class Sidebar extends Component {
                             <h4>YOUR ACCOUNT</h4>
                         </div>
                         <div className="list">
-                            <a href="http://example.com/">
-                                <FontAwesomeIcon icon="wrench"/>
-                                <p>Preferences</p>
-                            </a>
-                            <a href="http://example.com/">
-                                <FontAwesomeIcon icon="door-open"/>
-                                <p>Logout</p>
-                            </a>
+                            <div className="item-wrapper">
+                                <a href="http://example.com/">
+                                    <FontAwesomeIcon icon="wrench"/>
+                                    <p>Preferences</p>
+                                </a>
+                            </div>
+                            <div className="item-wrapper">
+                                <a href="http://example.com/">
+                                    <FontAwesomeIcon icon="door-open"/>
+                                    <p>Logout</p>
+                                </a>
+                            </div>
                         </div>
                     </section>
                 </div>
