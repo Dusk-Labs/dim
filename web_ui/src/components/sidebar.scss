@@ -19,13 +19,16 @@
             margin-bottom: 1vh;
             display: -webkit-box;
             display: -ms-flexbox;
+            display: -moz-box;
             display: flex;
             -webkit-box-align: center;
                 -ms-flex-align: center;
-                    align-items: center;
+                    -moz-box-align: center;
+                 align-items: center;
             -webkit-box-pack: justify;
                 -ms-flex-pack: justify;
-                    justify-content: space-between;
+                    -moz-box-pack: justify;
+                 justify-content: space-between;
 
             a {
                 opacity: 0;
@@ -65,10 +68,12 @@
         grid-template-columns: 40px auto;
         -webkit-box-align: center;
             -ms-flex-align: center;
-                align-items: center;
+                -moz-box-align: center;
+             align-items: center;
         -webkit-box-pack: left;
             -ms-flex-pack: left;
-                justify-content: left;
+                -moz-box-pack: left;
+             justify-content: left;
         border-radius: 1vh;
         -webkit-transition: 0.1s ease-in-out;
         transition: 0.1s ease-in-out;
@@ -104,11 +109,13 @@
         grid-template-rows: auto;
         -webkit-box-pack: left;
             -ms-flex-pack: left;
-                justify-content: left;
+                -moz-box-pack: left;
+             justify-content: left;
         grid-gap: 10px;
         -webkit-box-align: center;
             -ms-flex-align: center;
-                align-items: center;
+                -moz-box-align: center;
+             align-items: center;
     }
 
     .icon-outer {
@@ -157,10 +164,12 @@
         grid-template-areas: "input button";
         -webkit-box-pack: space-evenly;
             -ms-flex-pack: space-evenly;
-                justify-content: space-evenly;
+                -moz-box-pack: space-evenly;
+             justify-content: space-evenly;
         -webkit-box-align: center;
             -ms-flex-align: center;
-                align-items: center;
+                -moz-box-align: center;
+             align-items: center;
 
         input {
             padding: 1vh 0;

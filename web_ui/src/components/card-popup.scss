@@ -58,13 +58,16 @@
         background: #4d4d4d;
         display: -webkit-box;
         display: -ms-flexbox;
+        display: -moz-box;
         display: flex;
         -webkit-box-pack: justify;
             -ms-flex-pack: justify;
-                justify-content: space-between;
+                -moz-box-pack: justify;
+             justify-content: space-between;
         -webkit-box-align: center;
             -ms-flex-align: center;
-                align-items: center;
+                -moz-box-align: center;
+             align-items: center;
         height: 60%;
         width: 80%;
 
@@ -82,7 +85,8 @@
         grid-gap: 10px;
         -webkit-box-align: center;
             -ms-flex-align: center;
-                align-items: center;
+                -moz-box-align: center;
+             align-items: center;
         color: #f2f2f2;
 
         img {
@@ -122,18 +126,22 @@
         .info {
             display: -webkit-box;
             display: -ms-flexbox;
+            display: -moz-box;
             display: flex;
             -webkit-box-align: center;
                 -ms-flex-align: center;
-                    align-items: center;
+                    -moz-box-align: center;
+                 align-items: center;
             -webkit-box-pack: justify;
                 -ms-flex-pack: justify;
-                    justify-content: space-between;
+                    -moz-box-pack: justify;
+                 justify-content: space-between;
             text-align: center;
 
             .tags {
                 display: -webkit-box;
                 display: -ms-flexbox;
+                display: -moz-box;
                 display: flex;
 
                 /* TAGS */
@@ -188,13 +196,16 @@
         .footer {
             display: -webkit-box;
             display: -ms-flexbox;
+            display: -moz-box;
             display: flex;
             -webkit-box-align: center;
                 -ms-flex-align: center;
-                    align-items: center;
+                    -moz-box-align: center;
+                 align-items: center;
             -webkit-box-pack: justify;
                 -ms-flex-pack: justify;
-                    justify-content: space-between;
+                    -moz-box-pack: justify;
+                 justify-content: space-between;
 
             p {
                 margin: 0;
