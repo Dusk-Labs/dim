@@ -7,12 +7,13 @@ class LazyImage extends Component {
         this.state = {
             acquired: false,
             blob: null,
+            src: this.props.src,
         };
         this.fetchImage();
     }
 
     fetchImage() {
-        fetch(this.props.src)
+        fetch(this.state.src)
             .then(resp => {
                 if (resp.headers.get("content-type") === "image/jpeg") {
                     return resp.blob();
@@ -26,7 +27,11 @@ class LazyImage extends Component {
                         acquired: true,
                         blob: blobUrl
                     });
+                    return blob;
                 }
+            })
+            .then((blob) => {
+                this.props.callback(blob);
             });
     }
 
