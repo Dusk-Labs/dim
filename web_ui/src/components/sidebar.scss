@@ -66,16 +66,26 @@
     }
 
     /* ITEM */
-    .list {
-        .item-wrapper {
-            display: grid;
-            grid-template-columns: auto 20px;
-            text-align: center;
-            grid-gap: 15px;
-            -webkit-box-align: center;
-               -moz-box-align: center;
-                -ms-flex-align: center;
-                    align-items: center;
+    .list > a {
+        display: grid;
+        grid-gap: 10px;
+        grid-template-columns: 40px auto;
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                -moz-box-align: center;
+             align-items: center;
+        -webkit-box-pack: left;
+            -ms-flex-pack: left;
+                -moz-box-pack: left;
+             justify-content: left;
+        border-radius: 1vh;
+        -webkit-transition: 0.1s ease-in-out;
+        transition: 0.1s ease-in-out;
+        -webkit-transition-property: padding, background, font-size, -webkit-transform;
+        transition-property: padding, background, font-size, -webkit-transform;
+        transition-property: padding, background, transform, font-size;
+        transition-property: padding, background, transform, font-size, -webkit-transform;
+    }
 
             // ITEM
             a:nth-child(1) {
