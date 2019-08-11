@@ -19,13 +19,16 @@
             margin-bottom: 1vh;
             display: -webkit-box;
             display: -ms-flexbox;
+            display: -moz-box;
             display: flex;
             -webkit-box-align: center;
                 -ms-flex-align: center;
-                    align-items: center;
+                    -moz-box-align: center;
+                 align-items: center;
             -webkit-box-pack: justify;
                 -ms-flex-pack: justify;
-                    justify-content: space-between;
+                    -moz-box-pack: justify;
+                 justify-content: space-between;
 
             a {
                 opacity: 0;
@@ -59,26 +62,67 @@
     }
 
     /* ITEM */
-    .list > a {
-        display: grid;
-        grid-gap: 10px;
-        grid-template-columns: 40px auto;
-        -webkit-box-align: center;
-            -ms-flex-align: center;
-                align-items: center;
-        -webkit-box-pack: left;
-            -ms-flex-pack: left;
-                justify-content: left;
-        border-radius: 1vh;
-        -webkit-transition: 0.1s ease-in-out;
-        transition: 0.1s ease-in-out;
-        -webkit-transition-property: padding, background, font-size, -webkit-transform;
-        transition-property: padding, background, font-size, -webkit-transform;
-        transition-property: padding, background, transform, font-size;
-        transition-property: padding, background, transform, font-size, -webkit-transform;
+    .list {
+        .item-wrapper {
+            display: grid;
+            grid-template-columns: auto 20px;
+            text-align: center;
+            grid-gap: 15px;
+            -webkit-box-align: center;
+               -moz-box-align: center;
+                -ms-flex-align: center;
+                    align-items: center;
+
+            // ITEM
+            a:nth-child(1) {
+                overflow: hidden;
+                display: grid;
+                grid-gap: 10px;
+                grid-template-columns: 40px auto;
+                -webkit-box-align: center;
+                    -ms-flex-align: center;
+                        -moz-box-align: center;
+                     align-items: center;
+                -webkit-box-pack: left;
+                    -ms-flex-pack: left;
+                        -moz-box-pack: left;
+                     justify-content: left;
+                border-radius: 1vh;
+                -webkit-transition: 0.1s ease-in-out;
+                transition: 0.1s ease-in-out;
+                -webkit-transition-property: padding, background, font-size, -webkit-transform;
+                transition-property: padding, background, font-size, -webkit-transform;
+                transition-property: padding, background, transform, font-size;
+                transition-property: padding, background, transform, font-size, -webkit-transform;
+            }
+
+            // DELETE BUTTON
+            a:nth-child(2) {
+                font-family: "Roboto Black";
+                opacity: 0;
+                padding: 0 5px;
+                border-radius: 1vh;
+                background: transparent;
+                color: #ff6961;
+                -webkit-transition: 0.2s ease-in-out;
+                transition: 0.2s ease-in-out;
+                -webkit-transition-property: background, opacity;
+                transition-property: background, opacity;
+                background: #222222;
+
+                &:hover {
+                    background: #444444;
+                }
+            }
+
+            &:hover a:nth-child(2) {
+                opacity: 1;
+            }
+        }
     }
 
-    .list > a:hover {
+
+    .list > div a:hover {
         background: #222222;
     }
 
@@ -104,11 +148,13 @@
         grid-template-rows: auto;
         -webkit-box-pack: left;
             -ms-flex-pack: left;
-                justify-content: left;
+                -moz-box-pack: left;
+             justify-content: left;
         grid-gap: 10px;
         -webkit-box-align: center;
             -ms-flex-align: center;
-                align-items: center;
+                -moz-box-align: center;
+             align-items: center;
     }
 
     .icon-outer {
@@ -157,10 +203,12 @@
         grid-template-areas: "input button";
         -webkit-box-pack: space-evenly;
             -ms-flex-pack: space-evenly;
-                justify-content: space-evenly;
+                -moz-box-pack: space-evenly;
+             justify-content: space-evenly;
         -webkit-box-align: center;
             -ms-flex-align: center;
-                align-items: center;
+                -moz-box-align: center;
+             align-items: center;
 
         input {
             padding: 1vh 0;
