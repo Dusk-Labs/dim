@@ -74,6 +74,10 @@
         border-radius: 5px;
 
         /* BAR */
+        &::-moz-progress-bar {
+            background: #f7931e;
+        }
+
         &::-webkit-progress-bar {
             background: #ffffff;
             border-radius: 50px;
