@@ -11,8 +11,8 @@ class Card extends Component {
 
         this.state = {
             data: {},
-            pos: {},
-            hovering: false
+            hovering: false,
+            timeout: false
         };
     }
 
@@ -36,22 +36,34 @@ class Card extends Component {
         //     });
         this.setState({
             data: {
-                name: "Movie Name",
-                imdb: "0",
-                rotten_tomatoes: "0",
-                description: "Lorem ipsum",
-                genre: "GENRE",
-                year: this.props.id,
+                name: "Spiderman: Far From Home",
+                imdb: "7.9/10",
+                rotten_tomatoes: "90%",
+                description: "Following the events of Avengers: Endgame, Spider-Man must step up to take on new threats in a world that has changed forever.",
+                genre: "Fantasy/Sci-Fi",
+                year: "2019",
                 trailer: "",
-                length: "00:00:00",
+                length: "00:02:09",
                 play: "",
             }
         })
     }
 
     handleMouseHover() {
+        if(this.state.hoverTimeout != null) {
+            clearTimeout(this.state.hoverTimeout);
+            this.setState({ hoverTimeout: null, hovering: false });
+            return;
+        }
+        
         this.setState({
-            hovering: !this.state.hovering
+            hoverTimeout: setTimeout(this.renderCardPopout.bind(this), 600),
+        });
+    }
+
+    renderCardPopout() {
+        this.setState({
+            hovering: !this.state.hovering,
         });
     }
 
@@ -67,11 +79,11 @@ class Card extends Component {
                 <div className="card">
                     <a href="https://example.com/">
                         <LazyImage alt={"cover-" + name} src={src}></LazyImage>
-                        <p>{name}</p>
+                        <p style={{opacity: + !this.state.hovering}}>{name}</p>
                     </a>
                 </div>
                 {this.state.hovering &&
-                    <CardPopup parent={<div></div>} data={this.state.data}/>
+                    <CardPopup data={this.state.data}/>
                 }
             </div>
         );
