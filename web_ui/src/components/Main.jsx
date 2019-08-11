@@ -14,9 +14,10 @@ library.add(faArrowAltCircleRight);
 class Main extends Component {
     constructor(props) {
         super(props);
-        
+
         this.state = {
             cards: [],
+            bannerData: undefined,
         };
 
         fetch(`http://86.21.150.167:8000/api/v1/library/1/media`)
@@ -31,17 +32,26 @@ class Main extends Component {
         //        this.bannerCallback = this.bannerCallback.bind(this);
     }
 
-    bannerCallback(blob) {
-        const { data, loading, error } = usePalette(blob);
-        console.log(data);
+    componentDidMount() {
+        this.fetchBanner()
+    }
+
+    async fetchBanner() {
+        const url = "/banner1.jpg";
+        const resp = await fetch(url);
+        if (!resp.headers.get("content-type") === "image/jpeg") {
+            throw new Error("Not an image");
+        }
+        const bannerData = URL.createObjectURL(await resp.blob());
+        this.setState({ bannerData });
     }
 
     render() {
-        const { cards } = this.state;
+        const { cards, bannerData } = this.state;
         return (
             <main>
                 <section className="banner">
-                    <LazyImage alt="banner" src="/banner1.jpg" callback={(blob) => {this.bannerCallback(blob)}}></LazyImage>
+                    <LazyImage alt="banner" data={bannerData}/>
                     <div className="info">
                         <h1>THE 100</h1>
                         <div className="desc">
