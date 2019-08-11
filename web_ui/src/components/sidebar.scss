@@ -54,6 +54,10 @@
         }
     }
 
+    .active {
+        background: #555555;
+    }
+
     h6,
     h4 {
         font-family: "Roboto Black";
@@ -83,19 +87,67 @@
         transition-property: padding, background, transform, font-size, -webkit-transform;
     }
 
-    .list > a:hover {
-        background: #222222;
-    }
+            // ITEM
+            a:nth-child(1) {
+                overflow: hidden;
+                display: grid;
+                grid-gap: 10px;
+                grid-template-columns: 40px auto;
+                -webkit-box-align: center;
+                    -ms-flex-align: center;
+                        -moz-box-align: center;
+                     align-items: center;
+                -webkit-box-pack: left;
+                    -ms-flex-pack: left;
+                        -moz-box-pack: left;
+                     justify-content: left;
+                border-radius: 1vh;
+                -webkit-transition: 0.1s ease-in-out;
+                transition: 0.1s ease-in-out;
+                -webkit-transition-property: padding, background, font-size, -webkit-transform;
+                transition-property: padding, background, font-size, -webkit-transform;
+                transition-property: padding, background, transform, font-size;
+                transition-property: padding, background, transform, font-size, -webkit-transform;
+            }
 
-    /* ITEM ICON */
-    .list svg {
-        margin: 0 auto;
-    }
+            // DELETE BUTTON
+            a:nth-child(2) {
+                font-family: "Roboto Black";
+                opacity: 0;
+                padding: 0 5px;
+                border-radius: 1vh;
+                background: transparent;
+                color: #ff6961;
+                -webkit-transition: 0.2s ease-in-out;
+                transition: 0.2s ease-in-out;
+                -webkit-transition-property: background, opacity;
+                transition-property: background, opacity;
+                background: #222222;
 
-    /* ITEM NAME */
-    .list p {
-        margin: 0;
-        padding: 1vh 0;
+                &:hover {
+                    background: #444444;
+                }
+            }
+
+            &:hover a:nth-child(2) {
+                opacity: 1;
+            }
+        }
+
+        > div a:hover {
+            background: #222222;
+        }
+
+        /* ITEM ICON */
+        svg {
+            margin: 0 auto;
+        }
+
+        /* ITEM NAME */
+         p {
+            margin: 0;
+            padding: 1vh 0;
+        }
     }
 
     /*
