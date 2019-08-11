@@ -51,11 +51,7 @@ class Card extends Component {
         });
     }
 
-    lazyImageCallback(blob) {
-    }
-
     render() {
-        const callback = this.lazyImageCallback.bind(this);
         let { name, src } = this.state.data;
 
         if (!name) {
@@ -70,7 +66,7 @@ class Card extends Component {
             <div className="card-wrapper" onMouseEnter={this.handleMouseHover} onMouseLeave={this.handleMouseHover}>
                 <div className="card">
                     <a href="https://example.com/">
-                        <LazyImage alt={"cover-" + name} src={src} callback={(blob) => {console.log(blob)}}></LazyImage>
+                        <LazyImage alt={"cover-" + name} src={src}/>
                         <p style={{opacity: + !this.state.hovering}}>{name}</p>
                     </a>
                 </div>

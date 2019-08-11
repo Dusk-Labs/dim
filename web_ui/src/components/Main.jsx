@@ -17,7 +17,6 @@ class Main extends Component {
 
         this.state = {
             cards: [],
-            bannerData: undefined,
         };
 
         fetch(`http://86.21.150.167:8000/api/v1/library/1/media`)
@@ -32,26 +31,17 @@ class Main extends Component {
         //        this.bannerCallback = this.bannerCallback.bind(this);
     }
 
-    componentDidMount() {
-        this.fetchBanner()
+    onLoadBanner = (blob) => {
+        console.log(blob)
     }
 
-    async fetchBanner() {
-        const url = "/banner1.jpg";
-        const resp = await fetch(url);
-        if (!resp.headers.get("content-type") === "image/jpeg") {
-            throw new Error("Not an image");
-        }
-        const bannerData = URL.createObjectURL(await resp.blob());
-        this.setState({ bannerData });
-    }
 
     render() {
-        const { cards, bannerData } = this.state;
+        const { cards } = this.state;
         return (
             <main>
                 <section className="banner">
-                    <LazyImage alt="banner" data={bannerData}/>
+                    <LazyImage alt="banner" src="/banner1.jpg" onLoad={this.onLoadBanner}/>
                     <div className="info">
                         <h1>THE 100</h1>
                         <div className="desc">
