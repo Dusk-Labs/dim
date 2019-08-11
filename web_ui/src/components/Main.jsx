@@ -16,7 +16,7 @@ class Main extends Component {
         super(props);
 
         this.state = {
-            cards: [],
+            cards: {},
             banner_accent: "#f7931e",
         };
 
@@ -25,7 +25,7 @@ class Main extends Component {
             .then((json) => {
                 let cards = json.map(item => <Card key={item.id} data={item} src={item.poster_path}/>);
                 this.setState({
-                    cards: cards
+                    cards: { RECOMMENDED: cards },
                 });
             });
     }
@@ -38,6 +38,16 @@ class Main extends Component {
 
     render() {
         const { cards, banner_accent } = this.state;
+
+        const sections = Object.keys(cards).map((key) => {
+            return <div className="recommended">
+                <h1>{key}</h1>
+                <div className="cards">
+                    { cards[key] }
+                </div>
+            </div>
+        });
+
         return (
             <main>
                 <section className="banner">
@@ -59,12 +69,7 @@ class Main extends Component {
                     <ProgressBar id="1" accent={banner_accent}/>
                 </section>
                 <section className="libraries">
-                    <div className="recommended">
-                        <h1>RECOMMENDED</h1>
-                        <div className="cards">
-                            { cards }
-                        </div>
-                    </div>
+                    { sections }
                 </section>
             </main>
         );

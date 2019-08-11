@@ -59,8 +59,7 @@ class Card extends Component {
     }
 
     render() {
-        const { name, src } = this.state.data;
-        const { accent } = this.state;
+        const { accent, data: { name, src } } = this.state
 
         if (!name) {
             // If we dont return a empty div then later on everything works
