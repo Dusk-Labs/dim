@@ -1,22 +1,10 @@
-::-webkit-scrollbar {
-    width: 5px;
-}
-
-::-webkit-scrollbar-track {
-    background: #333333;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #f7931e;
-}
-
-
 main {
     grid-area: main;
     background: #1a1a1a;
     margin: 0;
     min-width: 500px;
-    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
     min-height: 100vh;
     color: #ffffff;
     display: grid;
@@ -37,8 +25,12 @@ main {
         img {
             min-height: 40vh;
             width: 100%;
-            object-fit: cover;
-            mask-image: linear-gradient(to bottom, #000000 20%, #1a1a1a00 100%);
+            -o-object-fit: cover;
+               object-fit: cover;
+            -webkit-mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(20%, #000000), to(#1a1a1a00));
+            -webkit-mask-image: linear-gradient(to bottom, #000000 20%, #1a1a1a00 100%);
+                    mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(20%, #000000), to(#1a1a1a00));
+                    mask-image: linear-gradient(to bottom, #000000 20%, #1a1a1a00 100%);
         }
 
         .info {
@@ -47,7 +39,8 @@ main {
             position: absolute;
             top: 50%;
             left: 5%;
-            transform: translate(0, -40%);
+            -webkit-transform: translate(0, -40%);
+                    transform: translate(0, -40%);
             text-shadow: #000000 0 0 15px;
 
             h1 {
@@ -71,9 +64,10 @@ main {
         a {
             font-family: "Roboto Black";
             color: #eee7e7;
-            padding: 1vh 3vh;
+            padding: 0.7vh 3vh;
             background: #f7931e;
             border-radius: 1vh;
+            -webkit-transition: background 0.3s ease-in-out;
             transition: background 0.3s ease-in-out;
             text-shadow: none;
 

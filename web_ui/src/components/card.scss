@@ -16,15 +16,19 @@
         display: block;
         height: 320px;
         width: 200px;
-        object-fit: cover;
+        -o-object-fit: cover;
+           object-fit: cover;
         border-radius: 1vh;
         opacity: 0.7;
+        -webkit-transition: opacity 0.3s ease-in-out;
         transition: opacity 0.3s ease-in-out;
     }
 
     img, .image-wrapper {
-        animation-name: imageLoaded;
-        animation-duration: 0.7s;
+        -webkit-animation-name: imageLoaded;
+                animation-name: imageLoaded;
+        -webkit-animation-duration: 0.7s;
+                animation-duration: 0.7s;
     }
 
     p {
@@ -51,6 +55,17 @@
 /*
     * == KEYFRAMES ==
 */
+
+@-webkit-keyframes imageLoaded {
+    from {
+        background-color: #555;
+        opacity: 0;
+    }
+    to {
+        background-color: none;
+        opacity: 0.7;
+    }
+}
 
 @keyframes imageLoaded {
     from {

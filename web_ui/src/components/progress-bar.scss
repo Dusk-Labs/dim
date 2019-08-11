@@ -14,19 +14,28 @@
     svg {
         font-size: 0.5em !important;
         margin: 0 1vh;
+        color: #e70;
     }
 
     /* season + episode */
     .s-e {
         margin: 0 auto;
         font-family: "Roboto Black";
+        display: -webkit-box;
+        display: -ms-flexbox;
         display: flex;
-        align-items: center;
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
     }
 
     .progress {
+        display: -webkit-box;
+        display: -ms-flexbox;
         display: flex;
-        align-items: center;
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
 
         div {
             margin: 0 1vh;
@@ -52,11 +61,13 @@
     */
 
     progress {
-        height: 10px;
+        height: 5px;
         display: block;
         border: none;
         -webkit-appearance: none;
-        box-shadow: #000000 0 0 15px;
+        -webkit-box-shadow: #000000 0 0 15px;
+                box-shadow: #000000 0 0 15px;
+        border-radius: 5px;
 
         /* BAR */
         &::-webkit-progress-bar {
