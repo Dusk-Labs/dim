@@ -23,23 +23,19 @@
         font-family: "Roboto Black";
         display: -webkit-box;
         display: -ms-flexbox;
-        display: -moz-box;
         display: flex;
         -webkit-box-align: center;
             -ms-flex-align: center;
-                -moz-box-align: center;
-             align-items: center;
+                align-items: center;
     }
 
     .progress {
         display: -webkit-box;
         display: -ms-flexbox;
-        display: -moz-box;
         display: flex;
         -webkit-box-align: center;
             -ms-flex-align: center;
-                -moz-box-align: center;
-             align-items: center;
+                align-items: center;
 
         div {
             margin: 0 1vh;
@@ -74,10 +70,6 @@
         border-radius: 5px;
 
         /* BAR */
-        &::-moz-progress-bar {
-            background: #f7931e;
-        }
-
         &::-webkit-progress-bar {
             background: #ffffff;
             border-radius: 50px;
