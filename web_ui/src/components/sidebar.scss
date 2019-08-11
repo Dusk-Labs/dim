@@ -4,7 +4,8 @@
     width: 30vh;
     position: fixed;
     background: #333333;
-    box-shadow: 0 0 10px 5px #000000aa;
+    -webkit-box-shadow: 0 0 10px 5px #000000aa;
+            box-shadow: 0 0 10px 5px #000000aa;
     z-index: 1;
 
     section {
@@ -16,16 +17,24 @@
 
         .header {
             margin-bottom: 1vh;
+            display: -webkit-box;
+            display: -ms-flexbox;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            -webkit-box-align: center;
+                -ms-flex-align: center;
+                    align-items: center;
+            -webkit-box-pack: justify;
+                -ms-flex-pack: justify;
+                    justify-content: space-between;
 
             a {
                 opacity: 0;
                 padding: 0 5px;
                 border-radius: 1vh;
                 background: transparent;
+                -webkit-transition: 0.2s ease-in-out;
                 transition: 0.2s ease-in-out;
+                -webkit-transition-property: background, opacity;
                 transition-property: background, opacity;
 
                 &:hover {
@@ -54,11 +63,19 @@
         display: grid;
         grid-gap: 10px;
         grid-template-columns: 40px auto;
-        align-items: center;
-        justify-content: left;
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
+        -webkit-box-pack: left;
+            -ms-flex-pack: left;
+                justify-content: left;
         border-radius: 1vh;
+        -webkit-transition: 0.1s ease-in-out;
         transition: 0.1s ease-in-out;
+        -webkit-transition-property: padding, background, font-size, -webkit-transform;
+        transition-property: padding, background, font-size, -webkit-transform;
         transition-property: padding, background, transform, font-size;
+        transition-property: padding, background, transform, font-size, -webkit-transform;
     }
 
     .list > a:hover {
@@ -85,9 +102,13 @@
         display: grid;
         grid-template-columns: auto auto;
         grid-template-rows: auto;
-        justify-content: left;
+        -webkit-box-pack: left;
+            -ms-flex-pack: left;
+                justify-content: left;
         grid-gap: 10px;
-        align-items: center;
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
     }
 
     .icon-outer {
@@ -134,8 +155,12 @@
         overflow: hidden;
         display: grid;
         grid-template-areas: "input button";
-        justify-content: space-evenly;
-        align-items: center;
+        -webkit-box-pack: space-evenly;
+            -ms-flex-pack: space-evenly;
+                justify-content: space-evenly;
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
 
         input {
             padding: 1vh 0;
@@ -158,6 +183,7 @@
             border-radius: 100%;
             background: #666666;
             color: #ffffff;
+            -webkit-transition: background 0.3s ease-in-out;
             transition: background 0.3s ease-in-out;
 
             &:hover {
