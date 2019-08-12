@@ -1,0 +1,74 @@
+@keyframes bounce-fill {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.5); }
+    100% { transform: scale(1); }
+}
+
+.crumbs {
+    position: absolute;
+    top: 10%;
+    right: 5%;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-column-gap: 10px;
+    justify-content: center;
+
+    .crumb {
+        width: 10px;
+        height: 10px;
+        background: rgba(255, 255, 255, 0);
+        border: solid 3px #ffffff;
+        border-radius: 10px;
+        transition: border-radius 0.3s ease-in-out;
+
+        &:hover {
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    }
+
+    .active {
+        background: #ffffff;
+        animation: bounce-fill 0.5s ease-out;
+    }
+}
+
+.pages {
+    max-height: 60vh;
+    min-height: 60vh;
+    height: 60vh;
+
+    .page {
+        position: absolute;
+        display: none;
+        opacity: 1;
+
+        .banner-wrapper {
+            display: block;
+            opacity: 0;
+            animation-name: outBanner;
+            animation-duration: 2s;
+        }
+    }
+
+    .active {
+        display: contents;
+
+        .banner-wrapper {
+            display: block;
+            opacity: 1;
+            animation-name: changeBanner;
+            animation-duration: 2s;
+        }
+    }
+}
+
+@keyframes changeBanner {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+@keyframes outBanner {
+    from {opacity: 1;}
+    to {opacity: 0;}
+}
