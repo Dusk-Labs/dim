@@ -1,30 +1,43 @@
+@keyframes bounce-fill {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.5); }
+    100% { transform: scale(1); }
+}
+
 .crumbs {
-    width: 75px;
-    height: 40px;
     position: absolute;
-    top: 30%;
-    right: 10%;
+    top: 10%;
+    right: 5%;
     display: grid;
-    grid-template-columns: 15px 15px 15px;
+    grid-template-columns: auto auto auto;
     grid-column-gap: 10px;
+    justify-content: center;
 
     .crumb {
-        position: relative;
-        width: 15px;
-        height: 15px;
-        background-color: rgba(255, 255, 255, 0);
-        border-style: solid;
-        border-color: #fff;
-        border-width: 4px;
-        border-radius: 15px;
+        width: 10px;
+        height: 10px;
+        background: rgba(255, 255, 255, 0);
+        border: solid 3px #ffffff;
+        border-radius: 10px;
+        transition: border-radius 0.3s ease-in-out;
+
+        &:hover {
+            cursor: pointer;
+            border-radius: 5px;
+        }
     }
 
     .active {
-        background-color: rgba(255, 255, 255, 255);
+        background: #ffffff;
+        animation: bounce-fill 0.5s ease-out;
     }
 }
 
 .pages {
+    max-height: 60vh;
+    min-height: 60vh;
+    height: 60vh;
+
     .page {
         position: absolute;
         display: none;
