@@ -2,7 +2,6 @@ image: 'rustlang/rust:nightly'
 
 stages:
   - test
-  - doc
   - build
 
 variables:
