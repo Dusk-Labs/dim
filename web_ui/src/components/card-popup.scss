@@ -9,6 +9,7 @@
 }
 
 .card-popup {
+    box-sizing: border-box;
     position: absolute;
     top: -20px;
     height: 360px;
@@ -21,7 +22,8 @@
     pointer-events: none;
     z-index: 1;
     display: grid;
-    grid-gap: 1vh;
+    align-items: center;
+    grid-gap: 2vh;
     -ms-flex-line-pack: center;
         align-content: center;
     grid-template-areas:
@@ -30,7 +32,6 @@
     font-family: "Roboto Black";
     -webkit-animation: appear 0.5s ease-in-out;
             animation: appear 0.5s ease-in-out;
-
     .clipped {
         position: absolute;
         width: 100%;
@@ -65,15 +66,8 @@
         -webkit-box-align: center;
             -ms-flex-align: center;
                 align-items: center;
-        height: 60%;
+        height: 5vh;
         width: 80%;
-
-        h1 {
-            margin-right: 2vh;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
     }
 
     .rating {
@@ -109,13 +103,32 @@
             grid-gap: 2vh;
 
         .description {
+            min-height: 80px;
+
             h4 {
                 margin: 0;
                 margin-bottom: 5px;
             }
+
             p {
                 margin: 0;
                 font-family: "Roboto Regular";
+            }
+
+            .read-on {
+                padding: 1px 2px;
+                font-family: "Roboto Black";
+                color: #666666;
+                border: solid 1px #666666;
+                border-radius: 5px;
+                font-size: 0.6em;
+                transition: 0.3s ease-in-out;
+                transition-property: background, color;
+
+                &:hover {
+                    background: #777777;
+                    color: #ffffff;
+                }
             }
         }
 
