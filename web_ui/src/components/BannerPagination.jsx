@@ -12,6 +12,18 @@ class BannerPages extends Component {
         this.state = {
             activeIndex: 0,
         }
+
+        setInterval(this.next.bind(this), 4000);
+    }
+
+    next = async () => {
+        const children = this.props.children;
+        const activeIndex = this.state.activeIndex;
+        const nextNum = activeIndex < children.length - 1 ? activeIndex + 1 : 0
+
+        this.setState({
+            activeIndex: nextNum,
+        });
     }
 
     toggle = async (e) => {
