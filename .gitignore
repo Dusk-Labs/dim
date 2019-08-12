@@ -6,3 +6,5 @@ expanded.rs
 *.db
 build
 build/*
+web_ui/package-lock.json
+web_ui/yarn.lock
