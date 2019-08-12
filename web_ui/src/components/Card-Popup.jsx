@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import TextTruncate from "react-text-truncate";
+
 import "./card-popup.scss";
 
 import RottenTomatoeLogo from "../assets/rotten_tomatoe.svg";
@@ -9,7 +11,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 
 import {
     faPlayCircle,
-    faArrowCircleRight,
+    faArrowCircleRight
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -63,6 +65,7 @@ class CardPopup extends Component {
                     borderRadius: "1vh 0 0 1vh"
                 },
                 header: {
+                    justifySelf: "start",
                     transform: "translateX(4vh)"
                 },
                 content: {
@@ -107,7 +110,12 @@ class CardPopup extends Component {
                 <section className="content" style={this.state.styles.content}>
                     <section className="description">
                         <h4>Description</h4>
-                        <p>{description}</p>
+                        <TextTruncate
+                            text={description}
+                            line={3}
+                            textElement="p"
+                            truncateText="..."
+                        />
                     </section>
                     <section className="info">
                         <div className="tags">
