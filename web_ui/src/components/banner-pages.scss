@@ -12,21 +12,15 @@
         position: relative;
         width: 15px;
         height: 15px;
-        background: #fff;
-        background-color: rgba(0,0,0,0);
+        background-color: rgba(255, 255, 255, 0);
         border-style: solid;
         border-color: #fff;
         border-width: 4px;
         border-radius: 15px;
     }
 
-    .active > div {
-        margin: 0 auto;
-        margin-top: 2px;
-        height: 10px;
-        width: 10px;
-        background: #fff;
-        border-radius: 10px;
+    .active {
+        background-color: rgba(255, 255, 255, 255);
     }
 }
 
