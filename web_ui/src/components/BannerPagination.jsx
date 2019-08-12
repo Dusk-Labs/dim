@@ -13,7 +13,7 @@ class BannerPages extends Component {
             activeIndex: 0,
         }
 
-        setInterval(this.next.bind(this), 4000);
+        setInterval(this.next.bind(this), 14000);
     }
 
     next = async () => {
