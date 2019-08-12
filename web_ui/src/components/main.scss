@@ -107,3 +107,20 @@ main {
         grid-gap: 10vh 5vh;
     }
 }
+
+
+@media only screen and (max-height: 850px) {
+    .banner {
+        img {
+            object-position: top;
+        }
+    }
+}
+
+@media only screen and (max-height: 1100px) and (max-width: 2560px) {
+    .banner {
+        img {
+            object-position: top;
+        }
+    }
+}
