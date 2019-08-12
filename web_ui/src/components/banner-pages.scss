@@ -1,0 +1,67 @@
+.crumbs {
+    width: 75px;
+    height: 40px;
+    position: absolute;
+    top: 30%;
+    right: 10%;
+    display: grid;
+    grid-template-columns: 15px 15px 15px;
+    grid-column-gap: 10px;
+
+    .crumb {
+        position: relative;
+        width: 15px;
+        height: 15px;
+        background: #fff;
+        background-color: rgba(0,0,0,0);
+        border-style: solid;
+        border-color: #fff;
+        border-width: 4px;
+        border-radius: 15px;
+    }
+
+    .active > div {
+        margin: 0 auto;
+        margin-top: 2px;
+        height: 10px;
+        width: 10px;
+        background: #fff;
+        border-radius: 10px;
+    }
+}
+
+.pages {
+    .page {
+        position: absolute;
+        display: none;
+        opacity: 1;
+
+        .banner-wrapper {
+            display: block;
+            opacity: 0;
+            animation-name: outBanner;
+            animation-duration: 2s;
+        }
+    }
+
+    .active {
+        display: contents;
+
+        .banner-wrapper {
+            display: block;
+            opacity: 1;
+            animation-name: changeBanner;
+            animation-duration: 2s;
+        }
+    }
+}
+
+@keyframes changeBanner {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+@keyframes outBanner {
+    from {opacity: 1;}
+    to {opacity: 0;}
+}
