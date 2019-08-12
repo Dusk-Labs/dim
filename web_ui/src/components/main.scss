@@ -24,6 +24,7 @@ main {
 
         img {
             min-height: 40vh;
+            max-height: 60vh;
             width: 100%;
             -o-object-fit: cover;
                object-fit: cover;
@@ -94,6 +95,7 @@ main {
         z-index: 1;
 
         h1 {
+            text-transform: uppercase;
             margin: 0;
         }
     }
