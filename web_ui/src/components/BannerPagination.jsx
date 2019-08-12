@@ -34,21 +34,19 @@ class BannerPages extends Component {
 
     render() {
         const { activeIndex } = this.state;
-        let children = [];
-        let crumbs = [];
+        const children = [];
+        const crumbs = [];
 
-        for(var child in this.props.children) {
+        for (var child in this.props.children) {
             const active = activeIndex === parseInt(child) ? "active" : "hidden";
             children.push(
-                <div className={"page " + active } key={child}>
+                <div className={"page " + active} key={child}>
                     { this.props.children[child] }
                 </div>
             );
 
             crumbs.push(
-                <div className={"crumb " + active} key={child} data-key={child} onClick={this.toggle}>
-                    <div/>
-                </div>
+                <div className={"crumb " + active} key={child} data-key={child} onClick={this.toggle}></div>
             );
         };
 
@@ -61,7 +59,7 @@ class BannerPages extends Component {
                     { crumbs }
                 </div>
             </div>
-            );
+        );
     }
 }
 
