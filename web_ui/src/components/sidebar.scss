@@ -30,9 +30,11 @@
                     -moz-box-pack: justify;
                  justify-content: space-between;
 
-            a {
+            //  ADD BUTTON
+            button {
+                color: #ffffff;
                 opacity: 0;
-                padding: 0 5px;
+                padding: 1px 5px;
                 border-radius: 1vh;
                 background: transparent;
                 -webkit-transition: 0.2s ease-in-out;
@@ -48,7 +50,7 @@
         }
 
         &:hover {
-            .header a {
+            .header button {
                 opacity: 1;
             }
         }
@@ -101,10 +103,10 @@
             }
 
             // DELETE BUTTON
-            a:nth-child(2) {
+            button {
                 font-family: "Roboto Black";
                 opacity: 0;
-                padding: 0 5px;
+                padding: 1px 5px;
                 border-radius: 1vh;
                 background: transparent;
                 color: #ff6961;
@@ -119,8 +121,10 @@
                 }
             }
 
-            &:hover a:nth-child(2) {
-                opacity: 1;
+            &:hover {
+                button {
+                    opacity: 1;
+                }
             }
         }
 
@@ -229,8 +233,6 @@
             height: 30px;
             width: 30px;
             grid-area: button;
-            outline: none;
-            border: none;
             border-radius: 100%;
             background: #666666;
             color: #ffffff;
