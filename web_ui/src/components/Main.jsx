@@ -22,9 +22,9 @@ class Main extends Component {
                     desc: "Set ninety-seven years after a nuclear war has destroyed civilization, when a spaceship housing humanity's lone survivors sends one hundred juvenile delinquents back to Earth, in hopes of possibly re-populating the planet."
                 },
                 {
-                    name: "Once Upon a Time in Hollywood",
-                    src: "/banner4.jpg",
-                    desc: "A faded television actor and his stunt double strive to achieve fame and success in the film industry during the final years of Hollywood's Golden Age in 1969 Los Angeles."
+                    name: "Blade Runner 2049",
+                    src: "/banner6.jpg",
+                    desc: "Thirty years after the events of the first film, a new blade runner, LAPD Officer K, unearths a long-buried secret that has the potential to plunge what's left of society into chaos. K's discovery leads him on a quest to find Rick Deckard, a former LAPD blade runner who has been missing for 30 years."
                 },
                 {
                     name: "The Expanse",
@@ -36,7 +36,7 @@ class Main extends Component {
     }
 
     async componentDidMount() {
-        const cardReq = await fetch("http://86.21.150.167:8000/api/v1/library/1/media");
+        const cardReq = await fetch("http://86.21.150.167:8000/api/v1/library/2/media");
         const json = await cardReq.json();
         const cards = json.map(item => <Card key={item.id} data={item} src={item.poster_path}/>);
 
