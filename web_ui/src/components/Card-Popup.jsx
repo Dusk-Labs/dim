@@ -7,18 +7,6 @@ import "./card-popup.scss";
 import RottenTomatoeLogo from "../assets/rotten_tomatoe.svg";
 import IMDbLogo from "../assets/imdb.png";
 
-import { library } from "@fortawesome/fontawesome-svg-core";
-
-import {
-    faPlayCircle,
-    faArrowCircleRight
-} from "@fortawesome/free-solid-svg-icons";
-
-library.add(
-    faArrowCircleRight,
-    faPlayCircle
-);
-
 class CardPopup extends Component {
 
     constructor(props) {

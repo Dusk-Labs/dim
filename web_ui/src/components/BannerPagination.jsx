@@ -1,11 +1,6 @@
 import React, { Component } from "react";
 import "./banner-pages.scss";
 
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faArrowAltCircleRight } from "@fortawesome/free-solid-svg-icons";
-
-library.add(faArrowAltCircleRight);
-
 class BannerPages extends Component {
     constructor(props) {
         super(props);

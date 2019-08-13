@@ -2,11 +2,6 @@ import React, { Component } from "react";
 import "./progress-bar.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faCircle } from "@fortawesome/free-solid-svg-icons";
-
-library.add(faCircle);
-
 class ProgressBar extends Component {
     constructor(props) {
         super(props);

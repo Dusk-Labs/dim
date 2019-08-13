@@ -4,12 +4,7 @@ import ProgressBar from "./progress-bar.jsx";
 import "./main.scss";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faArrowAltCircleRight } from "@fortawesome/free-solid-svg-icons";
 import * as Vibrant from 'node-vibrant';
-
-library.add(faArrowAltCircleRight);
-
 class Banner extends Component {
     constructor(props) {
         super(props);
