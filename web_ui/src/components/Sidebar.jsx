@@ -1,34 +1,83 @@
 import React, { Component } from "react";
+import Modal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./sidebar.scss";
 
-import { library } from "@fortawesome/fontawesome-svg-core";
+Modal.setAppElement("body");
 
-import {
-    faDesktop,
-    faLaptop,
-    faMobileAlt,
-    faFilm,
-    faGamepad,
-    faTv,
-    faWrench,
-    faDoorOpen,
-    faSearch
-} from "@fortawesome/free-solid-svg-icons";
-
-library.add(
-    faDesktop,
-    faLaptop,
-    faMobileAlt,
-    faFilm,
-    faGamepad,
-    faTv,
-    faWrench,
-    faDoorOpen,
-    faSearch
-);
+function List(items) {
+    return (
+        <div className="list">
+            {items.map((
+                { name, icon }, i
+            ) => {
+                return (
+                    <div className="item-wrapper" key={i}>
+                        <a href="http://example.com/">
+                            <FontAwesomeIcon icon={icon}/>
+                            <p>{name}</p>
+                        </a>
+                        <button>-</button>
+                    </div>
+                );
+            })}
+        </div>
+    )
+}
 
 class Sidebar extends Component {
+    constructor(props) {
+        super(props);
+
+        this.openShowAddLibrary = this.openShowAddLibrary.bind(this);
+        this.closeShowAddLibrary = this.closeShowAddLibrary.bind(this);
+
+        this.state = {
+            showAddLibrary: false,
+            lists: {
+                connected_hosts: [],
+                libraries: []
+            },
+            addLibrary: {
+                files: []
+            }
+        };
+    }
+
+    openShowAddLibrary() {
+        this.setState({
+            showAddLibrary: true
+        });
+    }
+
+    closeShowAddLibrary() {
+        this.setState({
+            showAddLibrary: false
+        });
+    }
+
+    componentDidMount() {
+        const hosts = [
+            { name: "Desktop", icon: "desktop" },
+            { name: "Laptop", icon: "laptop" },
+            { name: "Phone", icon: "mobile-alt" }
+        ];
+
+        const libs = [
+            { name: "Movies", icon: "film" },
+            { name: "Games", icon: "gamepad" },
+            { name: "TV Shows", icon: "tv" }
+        ];
+
+        this.setState({
+            lists: {
+                connected_hosts: List(hosts),
+                libraries: List(libs)
+            }
+        });
+
+    }
+
     render() {
         return (
             <aside className="sidebar">
@@ -62,59 +111,28 @@ class Sidebar extends Component {
                         <div className="header">
                             <h4>CONNECTED HOSTS</h4>
                         </div>
-                        <div className="list">
-                            <div className="item-wrapper">
-                                <a href="http://example.com/">
-                                    <FontAwesomeIcon icon="desktop"/>
-                                    <p>Desktop</p>
-                                </a>
-                                <a href="http://example.com/">-</a>
-                            </div>
-                            <div className="item-wrapper">
-                                <a href="http://example.com/">
-                                    <FontAwesomeIcon icon="laptop"/>
-                                    <p>Laptop</p>
-                                </a>
-                                <a href="http://example.com/">-</a>
-                            </div>
-                            <div className="item-wrapper">
-                                <a href="http://example.com/">
-                                    <FontAwesomeIcon icon="mobile-alt"/>
-                                    <p>Phone</p>
-                                </a>
-                                <a href="http://example.com/">-</a>
-                            </div>
-                        </div>
+                        {this.state.lists.connected_hosts}
                     </section>
 
                     <section className="local-libraries">
                         <div className="header">
                             <h4>LOCAL LIBRARIES</h4>
-                            <a href="http://example.com/">+</a>
+                            <button onClick={this.openShowAddLibrary}>+</button>
+                            <Modal
+                                isOpen={this.state.showAddLibrary}
+                                contentLabel="Minimal Modal Example"
+                                className="popup"
+                                overlayClassName="overlay"
+                            >
+                                <h2>ADD LIBRARY</h2>
+                                <input type="text" name="name" placeholder="NAME"/>
+                                <div className="options">
+                                    <button onClick={this.closeShowAddLibrary}>CANCEL</button>
+                                    <a href="add-library/post">ADD</a>
+                                </div>
+                            </Modal>
                         </div>
-                        <div className="list">
-                            <div className="item-wrapper">
-                                <a className="active" href="http://example.com/">
-                                    <FontAwesomeIcon icon="film"/>
-                                    <p>Movies</p>
-                                </a>
-                                <a href="http://example.com/">-</a>
-                            </div>
-                            <div className="item-wrapper">
-                                <a href="http://example.com/">
-                                    <FontAwesomeIcon icon="gamepad"/>
-                                    <p>Games</p>
-                                </a>
-                                <a href="http://example.com/">-</a>
-                            </div>
-                            <div className="item-wrapper">
-                                <a href="http://example.com/">
-                                    <FontAwesomeIcon icon="tv"/>
-                                    <p>TV Shows</p>
-                                </a>
-                                <a href="http://example.com/">-</a>
-                            </div>
-                        </div>
+                        {this.state.lists.libraries}
                     </section>
 
                     <section className="account">
