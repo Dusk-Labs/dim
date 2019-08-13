@@ -1,5 +1,8 @@
 use crate::database::media::*;
 use crate::schema::library;
+use crate::core::spawn_scanner;
+use crate::core::stop_scanner;
+use crate::core::MediaType;
 use diesel::prelude::*;
 use rocket_contrib::json::Json;
 
@@ -47,15 +50,35 @@ impl Library {
         use crate::schema::library::dsl::*;
 
         let result = diesel::delete(library.filter(id.eq(id_to_del))).execute(conn)?;
+
+        let _ = stop_scanner(id_to_del as u32);
+
         Ok(result)
     }
 }
 
 impl InsertableLibrary {
     pub fn new(&self, conn: &diesel::SqliteConnection) -> Result<usize, diesel::result::Error> {
-        let result = diesel::insert_into(library::table)
+        let size = diesel::insert_into(library::table)
             .values(self)
             .execute(conn)?;
-        Ok(result)
+
+        let result = library::table
+            .order(library::id.desc())
+            .limit(size as i64)
+            .load::<Library>(conn)?
+            .into_iter()
+            .rev()
+            .last()
+            .unwrap();
+
+        let m_type = match result.media_type.as_str() {
+            "movie" | "movies" => MediaType::Movie,
+            _ => MediaType::TV,
+        };
+
+        let _ = spawn_scanner(result.id as u32, m_type, result.location);
+
+        Ok(size)
     }
 }

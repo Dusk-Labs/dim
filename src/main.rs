@@ -14,6 +14,8 @@ extern crate rocket_contrib;
 extern crate rocket_codegen;
 #[macro_use]
 extern crate serde;
+#[macro_use]
+extern crate lazy_static;
 
 extern crate dotenv;
 extern crate rocket;
