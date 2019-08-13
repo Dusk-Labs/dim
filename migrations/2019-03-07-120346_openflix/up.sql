@@ -15,9 +15,6 @@ CREATE TABLE library (
 -- The Episodes table will also inherit from here
 CREATE TABLE media (
     id INTEGER NOT NULL,
-    -- library_id contains the id of the library
-    -- where the media was located in and attributes
-    -- to, this will be a foreign key to the table `library`
     library_id INTEGER NOT NULL,
 
     name VARCHAR(80) NOT NULL,
@@ -26,14 +23,9 @@ CREATE TABLE media (
     year INTEGER,
     added TEXT,
     poster_path TEXT,
-
-    -- media_type defines what kind of media this entry is
-    -- it can be anything but we currently
-    -- only support `movie` and `tv`
     media_type VARCHAR(50),
-
     PRIMARY KEY (id),
-    FOREIGN KEY(library_id) REFERENCES library (id)
+    CONSTRAINT fk_library FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE
 );
 
 -- Streamble Media Table
@@ -41,27 +33,22 @@ CREATE TABLE media (
 -- Media that has a file attached to it
 -- ie it can be streamed.
 -- Currently only movies and episodes inherit from this
---
--- Tables that reference a foreign key are: `movie` and `episode`
 CREATE TABLE streamable_media (
     id INTEGER NOT NULL,
     PRIMARY KEY (id),
-
-    -- We reference media here, by creating a many to many
-    -- relationship between media and streamable_media
-    FOREIGN KEY(id) REFERENCES media (id)
+    FOREIGN KEY(id) REFERENCES media (id) ON DELETE CASCADE
 );
 
 CREATE TABLE movie (
     id INTEGER NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY(id) REFERENCES streamable_media (id)
+    FOREIGN KEY(id) REFERENCES streamable_media (id) ON DELETE CASCADE
 );
 
 CREATE TABLE tv_show (
 	id INTEGER NOT NULL,
 	PRIMARY KEY (id),
-	FOREIGN KEY(id) REFERENCES media (id)
+	FOREIGN KEY(id) REFERENCES media (id) ON DELETE CASCADE
 );
 
 CREATE TABLE season (
@@ -71,7 +58,7 @@ CREATE TABLE season (
 	added TEXT,
 	poster TEXT,
 	PRIMARY KEY (id),
-	FOREIGN KEY(tvshowid) REFERENCES tv_show (id)
+	FOREIGN KEY(tvshowid) REFERENCES tv_show (id) ON DELETE CASCADE
 );
 
 CREATE TABLE episode (
@@ -80,7 +67,7 @@ CREATE TABLE episode (
 	episode_ INTEGER NOT NULL,
 	PRIMARY KEY (id),
 	FOREIGN KEY(id) REFERENCES streamable_media (id),
-	FOREIGN KEY(seasonid) REFERENCES seasons (id)
+	FOREIGN KEY(seasonid) REFERENCES season (id) ON DELETE CASCADE
 );
 
 CREATE TABLE mediafile (
@@ -93,5 +80,5 @@ CREATE TABLE mediafile (
 	original_resolution VARCHAR(10),
 	duration INTEGER,
 	PRIMARY KEY (id),
-	FOREIGN KEY(media_id) REFERENCES streamable_media (id)
+	FOREIGN KEY(media_id) REFERENCES streamable_media (id) ON DELETE CASCADE
 );

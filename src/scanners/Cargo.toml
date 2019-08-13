@@ -1,0 +1,22 @@
+[package]
+name = "scanners"
+version = "0.1.0"
+authors = ["HinamoreCh4n <motherrussia711@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = "2.33.0"
+crossbeam-channel = "0.3.9"
+tmdb = "2.0.0"
+walkdir = "2.2.9"
+notify = "4.0.12"
+torrent-name-parser = "0.1.2"
+reqwest = "0.9.19"
+serde = "1.0.98"
+chrono = "0.4.7"
+
+[[bin]]
+name = "scanners"
+path = "src/main.rs"

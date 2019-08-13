@@ -1,7 +1,7 @@
 [package]
-name = "OpenFlixServerRust"
-version = "0.1.0"
-authors = ["HinamoreCh4n <motherrussia711@gmail.com>"]
+name = "Dim"
+version = "0.2.0"
+authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
 build = "src/build.rs"
 
@@ -17,11 +17,13 @@ serde_derive = "*"
 serde_json = { version = "*", features = ["preserve_order"] }
 diesel_migrations = "*"
 log = "*"
-
-[dev-dependencies]
-parking_lot = { version = "*", features = ["nightly"] }
+rocket_cors = "0.5.0"
+lazy_static = "1.3.0"
 
 [dependencies.rocket_contrib]
 version = "*"
 default-features = false
 features = ["json", "diesel_sqlite_pool"]
+
+[dev-dependencies]
+parking_lot = { version = "*", features = ["nightly"] }
