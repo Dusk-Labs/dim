@@ -37,8 +37,6 @@ class Library extends Component {
     render() {
         const { cards } = this.state;
 
-        cards.length = 20;
-
         // * MULTIPLE SECTIONS
         // const sections = Object.keys(sections).map(section => {
         //     return (
