@@ -21,11 +21,11 @@ class Card extends Component {
         this.setState({
             data: {
                 name: data.name,
-                imdb: `${data.rating}/10`,
-                rotten_tomatoes: "90%",
-                description: data.description,
-                genre: "Fantasy/Sci-Fi",
-                year: data.year,
+                imdb: `${data.rating || "NA"}/10`,
+                rotten_tomatoes: "NA%",
+                description: data.description || "No description found.",
+                genre: "MAIN GENRE",
+                year: data.year || "YEAR",
                 trailer: "",
                 length: "00:00:00",
                 play: "",
@@ -41,7 +41,7 @@ class Card extends Component {
             this.setState({ hoverTimeout: null, hovering: false });
             return;
         }
-        
+
         this.setState({
             hoverTimeout: setTimeout(this.renderCardPopout.bind(this), 600),
         });
