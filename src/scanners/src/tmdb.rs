@@ -1,8 +1,8 @@
 extern crate reqwest;
 
+use crate::api::APIExec;
+use serde::Deserialize;
 use std::collections::VecDeque;
-use serde::{Deserialize};
-use crate::api::{APIExec};
 
 #[derive(Clone, Debug)]
 pub struct TMDbSearch<'a> {

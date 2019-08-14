@@ -1,5 +1,5 @@
 use crate::core::DbConnection;
-use crate::database::media::{InsertableMedia, Media, UpdateMedia};
+use dim_database::media::{InsertableMedia, Media, UpdateMedia};
 use rocket::http::Status;
 use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
@@ -7,7 +7,7 @@ use rocket_contrib::json::JsonValue;
 #[get("/<id>")]
 pub fn get_media_by_id(conn: DbConnection, id: i32) -> Result<Json<Media>, Status> {
     match Media::get(&conn, id) {
-        Ok(data) => Ok(data),
+        Ok(data) => Ok(Json(data)),
         Err(_) => Err(Status::NotFound),
     }
 }

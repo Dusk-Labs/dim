@@ -4,5 +4,4 @@ port = 8000
 log = "normal"
 
 [global.databases]
-openflix = { url = "openflix.sqlite" }
-memory = { url = ":memory:" }
+openflix = { url = "postgres://postgres:dimpostgres@postgres/dim" }

@@ -1,10 +1,9 @@
 -- Library table
 CREATE TABLE library (
-    id INTEGER NOT NULL,
+    id SERIAL PRIMARY KEY,
     name VARCHAR NOT NULL,
     location VARCHAR NOT NULL,
-    media_type VARCHAR(50) NOT NULL,
-    PRIMARY KEY (id)
+    media_type VARCHAR(50) NOT NULL
 );
 
 -- Media table
@@ -14,7 +13,7 @@ CREATE TABLE library (
 -- tv shows generally arent
 -- The Episodes table will also inherit from here
 CREATE TABLE media (
-    id INTEGER NOT NULL,
+    id SERIAL,
     library_id INTEGER NOT NULL,
 
     name VARCHAR(80) NOT NULL,
@@ -34,51 +33,51 @@ CREATE TABLE media (
 -- ie it can be streamed.
 -- Currently only movies and episodes inherit from this
 CREATE TABLE streamable_media (
-    id INTEGER NOT NULL,
+    id SERIAL,
     PRIMARY KEY (id),
     FOREIGN KEY(id) REFERENCES media (id) ON DELETE CASCADE
 );
 
 CREATE TABLE movie (
-    id INTEGER NOT NULL,
+    id SERIAL,
     PRIMARY KEY (id),
     FOREIGN KEY(id) REFERENCES streamable_media (id) ON DELETE CASCADE
 );
 
 CREATE TABLE tv_show (
-	id INTEGER NOT NULL,
-	PRIMARY KEY (id),
-	FOREIGN KEY(id) REFERENCES media (id) ON DELETE CASCADE
+    id SERIAL,
+    PRIMARY KEY (id),
+    FOREIGN KEY(id) REFERENCES media (id) ON DELETE CASCADE
 );
 
 CREATE TABLE season (
-    id INTEGER NOT NULL,
-	season_number INTEGER UNIQUE NOT NULL,
-	tvshowid INTEGER NOT NULL,
-	added TEXT,
-	poster TEXT,
-	PRIMARY KEY (id),
-	FOREIGN KEY(tvshowid) REFERENCES tv_show (id) ON DELETE CASCADE
+    id SERIAL,
+    season_number INTEGER UNIQUE NOT NULL,
+    tvshowid INTEGER NOT NULL,
+    added TEXT,
+    poster TEXT,
+    PRIMARY KEY (id),
+    FOREIGN KEY(tvshowid) REFERENCES tv_show (id) ON DELETE CASCADE
 );
 
 CREATE TABLE episode (
-	id INTEGER NOT NULL,
-	seasonid INTEGER NOT NULL,
-	episode_ INTEGER NOT NULL,
-	PRIMARY KEY (id),
-	FOREIGN KEY(id) REFERENCES streamable_media (id),
-	FOREIGN KEY(seasonid) REFERENCES season (id) ON DELETE CASCADE
+    id SERIAL,
+    seasonid INTEGER NOT NULL,
+    episode_ INTEGER NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY(id) REFERENCES streamable_media (id),
+    FOREIGN KEY(seasonid) REFERENCES season (id) ON DELETE CASCADE
 );
 
 CREATE TABLE mediafile (
-	id INTEGER NOT NULL,
-	media_id INTEGER,
-	target_file TEXT NOT NULL,
-	quality VARCHAR(10),
-	codec VARCHAR(10),
-	audio VARCHAR(10),
-	original_resolution VARCHAR(10),
-	duration INTEGER,
-	PRIMARY KEY (id),
-	FOREIGN KEY(media_id) REFERENCES streamable_media (id) ON DELETE CASCADE
+    id SERIAL,
+    media_id INTEGER,
+    target_file TEXT NOT NULL,
+    quality VARCHAR(10),
+    codec VARCHAR(10),
+    audio VARCHAR(10),
+    original_resolution VARCHAR(10),
+    duration INTEGER,
+    PRIMARY KEY (id),
+    FOREIGN KEY(media_id) REFERENCES streamable_media (id) ON DELETE CASCADE
 );
