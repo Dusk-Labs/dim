@@ -1,20 +1,15 @@
 import React, { Component } from "react";
-import Card from "./Card.jsx";
+import Library from "./Library.jsx";
 import Banner from "./Banner.jsx";
 import BannerPages from "./BannerPagination.jsx";
+
 import "./main.scss";
-
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faArrowAltCircleRight } from "@fortawesome/free-solid-svg-icons";
-
-library.add(faArrowAltCircleRight);
 
 class Main extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            cards: {},
             banners: [
                 {
                     name: "The 100",
@@ -35,38 +30,17 @@ class Main extends Component {
         };
     }
 
-    async componentDidMount() {
-        const cardReq = await fetch("http://86.21.150.167:8000/api/v1/library/2/media");
-        const json = await cardReq.json();
-        const cards = json.map(item => <Card key={item.id} data={item} src={item.poster_path}/>);
-
-        this.setState({
-            cards: { recommended: cards },
-        });
-    }
 
     render() {
-        const { cards } = this.state;
-
-        const sections = Object.keys(cards).map((key) => {
-            return <div className="recommended" key={key}>
-                <h1>{key}</h1>
-                <div className="cards">
-                    { cards[key] }
-                </div>
-            </div>
-        });
-
         return (
             <main>
                 <section className="banner">
                     <BannerPages>
-                        {this.state.banners.map(({name, src, desc}) => <Banner src={src} title={name} description={desc}/>)}
+                        {this.state.banners.map(({name, src, desc}, i) => <Banner key={i} src={src} title={name} description={desc}/>)}
                     </BannerPages>
                 </section>
-                <section className="libraries">
-                    { sections }
-                </section>
+
+                <Library url="http://86.21.150.167:8000/api/v1/library/2/media"/>
             </main>
         );
     }
