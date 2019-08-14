@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+
 import Main from "./components/Main.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import './App.scss';
@@ -11,10 +13,12 @@ library.add(fas);
 class App extends Component {
 	render() {
 		return (
-			<div className="App">
-				<Sidebar/>
-				<Main/>
-			</div>
+			<Router>
+				<div className="App">
+					<Sidebar/>
+					<Main/>
+				</div>
+			</Router>
 		);
 	}
 }
