@@ -10,7 +10,7 @@ main {
     display: grid;
     grid-template-areas:
         "banner"
-        "libraries";
+        "library";
     grid-template-rows: 40vh auto;
 
     /*
@@ -18,7 +18,6 @@ main {
     */
 
     .banner {
-        grid-area: banner;
         position: relative;
         text-align: right;
 
@@ -65,15 +64,16 @@ main {
         a {
             font-family: "Roboto Black";
             color: #eee7e7;
+            filter: brightness(90%);
             padding: 0.7vh 3vh;
             background: #f7931e;
             border-radius: 1vh;
-            -webkit-transition: background 0.3s ease-in-out;
-            transition: background 0.3s ease-in-out;
+            -webkit-transition: filter 0.3s ease-in-out;
+            transition: filter 0.3s ease-in-out;
             text-shadow: none;
 
             &:hover {
-                background: #f9b53f;
+                filter: brightness(100%);
             }
         }
 
@@ -88,9 +88,8 @@ main {
         * == LIBRARY ==
     */
 
-    .libraries {
+    .library {
         margin: 5vh 0;
-        grid-area: libraries;
         padding: 0 5%;
         z-index: 1;
 
