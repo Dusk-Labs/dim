@@ -10,7 +10,7 @@ class Banner extends Component {
         super(props);
 
         this.state = {
-            banner_accent: "#f7931e",
+            accent: "#f7931e",
             data: {
                 img: this.props.src,
                 title: this.props.title,
@@ -21,11 +21,11 @@ class Banner extends Component {
 
     onLoadBanner = async (blob) => {
         const color = await Vibrant.from(URL.createObjectURL(blob)).getPalette();
-        this.setState({ banner_accent: color.Vibrant.getHex() })
+        this.setState({ accent: color.Vibrant.getHex() })
     }
 
     render() {
-        const { banner_accent, data: {img, title, description} } = this.state;
+        const { accent, data: {img, title, description} } = this.state;
 
         return (
             <div className="banner-wrapper">
@@ -38,9 +38,9 @@ class Banner extends Component {
                             {description}
                         </p>
                     </div>
-                    <a href="http://example.com/" style={{ background: banner_accent }}>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></a>
+                    <a href="http://example.com/" style={{ background: accent }}>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></a>
                 </div>
-                <ProgressBar id="1" accent={banner_accent}/>
+                <ProgressBar id="1" accent={accent}/>
             </div>
         );
     }
