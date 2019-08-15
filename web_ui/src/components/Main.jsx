@@ -36,7 +36,7 @@ class Main extends Component {
     }
 
     async componentDidMount() {
-        const cardReq = await fetch("http://86.21.150.167:8000/api/v1/library/2/media");
+        const cardReq = await fetch("http://86.21.150.167:8000/api/v1/library/1/media");
         const json = await cardReq.json();
         const cards = json.map(item => <Card key={item.id} data={item} src={item.poster_path}/>);
 
