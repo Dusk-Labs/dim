@@ -40,7 +40,7 @@
         -ms-flex-pack: center;
             justify-content: center;
 
-    .crumb {
+    > span {
         width: 10px;
         height: 10px;
         background: rgba(255, 255, 255, 0);
@@ -63,7 +63,7 @@
 }
 
 .pages {
-    .page {
+    > div {
         position: absolute;
         display: none;
         opacity: 1;

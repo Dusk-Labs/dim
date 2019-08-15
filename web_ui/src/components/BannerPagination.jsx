@@ -4,55 +4,58 @@ import "./banner-pages.scss";
 class BannerPages extends Component {
     constructor(props) {
         super(props);
+
         this.state = {
             activeIndex: 0,
+            interval: 14000
         }
 
-        setInterval(this.next.bind(this), 14000);
+        this.interval = setInterval(this.next.bind(this), this.state.interval);
     }
 
     next = async () => {
-        const children = this.props.children;
-        const activeIndex = this.state.activeIndex;
-        const nextNum = activeIndex < children.length - 1 ? activeIndex + 1 : 0
+        let { length } = this.props.children;
+        const index = this.state.activeIndex;
+        const nextIndex = index < --length ? index + 1 : 0
 
         this.setState({
-            activeIndex: nextNum,
+            activeIndex: nextIndex,
         });
     }
 
     toggle = async (e) => {
+        clearInterval(this.interval);
+
         this.setState({
             activeIndex: parseInt(e.currentTarget.dataset.key)
         });
+
+        this.interval = setInterval(this.next.bind(this), this.state.interval);
     }
 
     render() {
         const { activeIndex } = this.state;
-        const children = [];
+        const banners = [];
         const crumbs = [];
 
-        for (var child in this.props.children) {
+        for (const child in this.props.children) {
             const active = activeIndex === parseInt(child) ? "active" : "hidden";
-            children.push(
-                <div className={"page " + active} key={child}>
-                    { this.props.children[child] }
+
+            banners.push(
+                <div className={active} key={child}>
+                    {this.props.children[child]}
                 </div>
             );
 
             crumbs.push(
-                <div className={"crumb " + active} key={child} data-key={child} onClick={this.toggle}></div>
+                <span className={active} key={child} data-key={child} onClick={this.toggle}></span>
             );
         };
 
         return (
-            <div>
-                <div className="pages">
-                    { children }
-                </div>
-                <div className="crumbs">
-                    { crumbs }
-                </div>
+            <div className="banner">
+                <div className="pages">{banners}</div>
+                <div className="crumbs">{crumbs}</div>
             </div>
         );
     }
