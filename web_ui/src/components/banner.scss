@@ -1,0 +1,81 @@
+.banner {
+    grid-area: banner;
+    position: relative;
+    text-align: right;
+
+    img {
+        min-height: 45vh;
+        max-height: 55vh;
+        width: 100%;
+        -o-object-fit: cover;
+            object-fit: cover;
+        -webkit-mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(20%, #000000), to(#1a1a1a00));
+        -webkit-mask-image: linear-gradient(to bottom, #000000 20%, #1a1a1a00 100%);
+                mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(20%, #000000), to(#1a1a1a00));
+                mask-image: linear-gradient(to bottom, #000000 20%, #1a1a1a00 100%);
+        -webkit-transition: object-position 0.3s ease-in-out;
+        transition: object-position 0.3s ease-in-out;
+        transition: object-position 0.3s ease-in-out, -o-object-position 0.3s ease-in-out;
+    }
+
+    .info {
+        text-align: left;
+        width: 400px;
+        position: absolute;
+        top: 50%;
+        left: 5%;
+        -webkit-transform: translate(0, -40%);
+                transform: translate(0, -40%);
+        text-shadow: #000000 0 0 15px;
+
+        h1 {
+            font-size: 2em;
+            margin: 0;
+        }
+
+        .desc {
+            margin: 2vh 0;
+        }
+
+        h5, p {
+            margin: 1vh 0;
+        }
+
+        p {
+            color: #b3b3b3;
+        }
+    }
+
+    a {
+        font-family: "Roboto Black";
+        color: #eee7e7;
+        padding: 0.7vh 3vh;
+        background: #f7931e;
+        border-radius: 1vh;
+        -webkit-transition: background 0.3s ease-in-out;
+        transition: background 0.3s ease-in-out;
+        text-shadow: none;
+
+        &:hover {
+            background: #f9b53f;
+        }
+    }
+
+    /* ICON */
+    svg {
+        margin-left: 5px;
+        font-size: 0.9em;
+    }
+}
+
+/*
+    * == MEDIA QUERIES ==
+*/
+
+// ~1080p WIDE SCREEN
+@media only screen and (min-width: 2400px) and (min-height: 1000px) {
+    .banner img {
+        -o-object-position: 30% 30%;
+           object-position: 30% 30%;
+    }
+}
