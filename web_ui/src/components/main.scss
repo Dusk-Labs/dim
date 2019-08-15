@@ -1,10 +1,10 @@
 main {
-    grid-area: main;
     background: #1a1a1a;
-    margin: 0;
+    margin-left: 30vh;
     min-width: 500px;
     -webkit-box-sizing: border-box;
-            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+         box-sizing: border-box;
     min-height: 100vh;
     color: #ffffff;
     display: grid;
@@ -12,77 +12,6 @@ main {
         "banner"
         "library";
     grid-template-rows: 40vh auto;
-
-    /*
-        * == BANNER ==
-    */
-
-    .banner {
-        position: relative;
-        text-align: right;
-
-        img {
-            min-height: 40vh;
-            max-height: 60vh;
-            width: 100%;
-            -o-object-fit: cover;
-               object-fit: cover;
-            -webkit-mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(20%, #000000), to(#1a1a1a00));
-            -webkit-mask-image: linear-gradient(to bottom, #000000 20%, #1a1a1a00 100%);
-                    mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(20%, #000000), to(#1a1a1a00));
-                    mask-image: linear-gradient(to bottom, #000000 20%, #1a1a1a00 100%);
-        }
-
-        .info {
-            text-align: left;
-            width: 400px;
-            position: absolute;
-            top: 50%;
-            left: 5%;
-            -webkit-transform: translate(0, -40%);
-                    transform: translate(0, -40%);
-            text-shadow: #000000 0 0 15px;
-
-            h1 {
-                font-size: 2em;
-                margin: 0;
-            }
-
-            .desc {
-                margin: 2vh 0;
-            }
-
-            h5, p {
-                margin: 1vh 0;
-            }
-
-            p {
-                color: #b3b3b3;
-            }
-        }
-
-        a {
-            font-family: "Roboto Black";
-            color: #eee7e7;
-            filter: brightness(90%);
-            padding: 0.7vh 3vh;
-            background: #f7931e;
-            border-radius: 1vh;
-            -webkit-transition: filter 0.3s ease-in-out;
-            transition: filter 0.3s ease-in-out;
-            text-shadow: none;
-
-            &:hover {
-                filter: brightness(100%);
-            }
-        }
-
-        /* ICON */
-        svg {
-            margin-left: 5px;
-            font-size: 0.9em;
-        }
-    }
 
     /*
         * == LIBRARY ==
@@ -104,22 +33,5 @@ main {
         display: grid;
         grid-template-columns: repeat(auto-fill, 200px);
         grid-gap: 10vh 5vh;
-    }
-}
-
-
-@media only screen and (max-height: 850px) {
-    .banner {
-        img {
-            object-position: top;
-        }
-    }
-}
-
-@media only screen and (max-height: 1100px) and (max-width: 2560px) {
-    .banner {
-        img {
-            object-position: top;
-        }
     }
 }

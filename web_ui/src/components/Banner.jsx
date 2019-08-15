@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import LazyImage from "./helpers/LazyImage.jsx";
 import ProgressBar from "./progress-bar.jsx";
-import "./main.scss";
+import "./banner.scss";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as Vibrant from 'node-vibrant';
