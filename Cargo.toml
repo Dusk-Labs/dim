@@ -27,3 +27,8 @@ features = ["json", "diesel_postgres_pool"]
 
 [dev-dependencies]
 parking_lot = { version = "*", features = ["nightly"] }
+
+[profile.release]
+lto = true
+panic = 'abort'
+opt-level = 'z'
