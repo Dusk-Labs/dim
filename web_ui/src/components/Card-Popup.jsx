@@ -8,7 +8,6 @@ import RottenTomatoeLogo from "../assets/rotten_tomatoe.svg";
 import IMDbLogo from "../assets/imdb.png";
 
 class CardPopup extends Component {
-
     constructor(props) {
         super(props);
 
@@ -73,14 +72,10 @@ class CardPopup extends Component {
     render() {
         const {
             name,
-            imdb,
-            rotten_tomatoes,
+            rating,
             description,
-            genre,
             year,
-            // trailer,
-            length,
-            play,
+            play
         } = this.props.data;
 
         const { accent } = this.props;
@@ -91,8 +86,8 @@ class CardPopup extends Component {
                 <section className="header" style={this.state.styles.header}>
                     <h1>{name}</h1>
                     <div className="rating">
-                        <img alt="imdb" src={IMDbLogo}></img><p>{imdb}</p>
-                        <img alt="rotten tomatoes" src={RottenTomatoeLogo}></img><p>{rotten_tomatoes}</p>
+                        <img alt="imdb" src={IMDbLogo}></img><p>{rating}/10</p>
+                        <img alt="rotten tomatoes" src={RottenTomatoeLogo}></img><p>0%</p>
                     </div>
                 </section>
                 <section className="content" style={this.state.styles.content}>
@@ -107,7 +102,7 @@ class CardPopup extends Component {
                     </section>
                     <section className="info">
                         <div className="tags">
-                            <p style={{ background: accent}}>{genre}</p>
+                            <p style={{ background: accent}}>GENRE</p>
                             <p style={{ background: accent}}>{year}</p>
                         </div>
                         {/* <a href={trailer}><FontAwesomeIcon icon="play-circle"/>WATCH TRAILER</a> */}
@@ -115,7 +110,7 @@ class CardPopup extends Component {
                     <section className="separator"></section>
                     <section className="footer">
                         <div className="length">
-                            <p>{length}</p>
+                            <p>00:00:00</p>
                             <p>HH MM SS</p>
                         </div>
                         <a href={play} style={{ background: accent }}>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></a>
