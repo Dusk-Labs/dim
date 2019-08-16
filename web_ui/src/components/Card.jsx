@@ -1,7 +1,6 @@
 import React, { PureComponent } from "react";
 import CardPopup from "./Card-Popup.jsx";
-// import LazyImage from "./helpers/LazyImage.jsx";
-import { LazyLoadImage } from 'react-lazy-load-image-component';
+import LazyImage from "./helpers/LazyImage.jsx";
 
 import "./card.scss";
 import * as Vibrant from 'node-vibrant';
@@ -47,7 +46,7 @@ class Card extends PureComponent {
 
         const cover = (
             poster_path
-                ? <LazyLoadImage alt={"cover-" + name} src={poster_path}/>
+                ? <LazyImage alt={"cover-" + name} src={poster_path}/>
                 : <div className="placeholder"></div>
         );
 
