@@ -1,32 +1,40 @@
 import React, { Component } from "react";
 
 class LazyImage extends Component {
-    constructor(props){
-        super(props)
+    constructor(props) {
+        super(props);
+
         this.state = {
             blob: undefined,
             objectUrl: undefined,
-        }
+        };
     }
 
     componentDidMount() {
-        this.fetchImage()
+        this.fetchImage();
     }
 
     componentWillUnmount() {
-        if(this.state.objectUrl) {
-            URL.revokeObjectURL(this.state.objectUrl)
+        if (this.state.objectUrl) {
+            URL.revokeObjectURL(this.state.objectUrl);
         }
     }
 
     fetchImage = async () => {
         const resp = await fetch(this.props.src);
+
         if (!resp.headers.get("content-type") === "image/jpeg") {
             throw new Error("Not an image");
         }
+
         const blob = await resp.blob();
         const objectUrl = URL.createObjectURL(blob);
-        this.setState({ blob, objectUrl });
+
+        this.setState({
+            blob,
+            objectUrl
+        });
+
         if (this.props.onLoad) {
             await this.props.onLoad(blob)
         }
