@@ -38,10 +38,13 @@ class CardPopup extends Component {
         const { x, width } = this.popup.current.getBoundingClientRect();
         const overflowing = (x + width > window.innerWidth - 100);
 
+        this.setState({
+            accent: this.props.accent
+        });
+
         if (!overflowing) return;
 
         this.setState({
-            accent: this.props.accent,
             styles: {
                 card: {
                     left: "unset",
@@ -80,6 +83,11 @@ class CardPopup extends Component {
 
         const { accent } = this.props;
 
+        const accentCSS = {
+            background: accent.background,
+            color: accent.text
+        };
+
         return (
             <div className="card-popup" ref={this.popup} style={this.state.styles.card}>
                 <div className="clipped" style={this.state.styles.clipped}></div>
@@ -102,8 +110,8 @@ class CardPopup extends Component {
                     </section>
                     <section className="info">
                         <div className="tags">
-                            <p style={{ background: accent}}>GENRE</p>
-                            <p style={{ background: accent}}>{year}</p>
+                            <p style={accentCSS}>GENRE</p>
+                            <p style={accentCSS}>{year}</p>
                         </div>
                         {/* <a href={trailer}><FontAwesomeIcon icon="play-circle"/>WATCH TRAILER</a> */}
                     </section>
@@ -113,7 +121,7 @@ class CardPopup extends Component {
                             <p>00:00:00</p>
                             <p>HH MM SS</p>
                         </div>
-                        <a href={play} style={{ background: accent }}>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></a>
+                        <a href={play} style={accentCSS}>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></a>
                     </section>
                 </section>
 
