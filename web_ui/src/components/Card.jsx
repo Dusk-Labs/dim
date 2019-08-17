@@ -32,7 +32,11 @@ class Card extends PureComponent {
         });
     }
 
-    renderCardPopout() {
+    async renderCardPopout() {
+        if(!this.state.accentDone && this.state.posterBlob !== undefined) {
+            const color = await Vibrant.from(this.state.posterBlob).getPalette();
+            this.setState({ accent: color.Vibrant.getHex() })
+        }
         this.setState({
             hovering: !this.state.hovering,
         });
