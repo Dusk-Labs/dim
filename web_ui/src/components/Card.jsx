@@ -13,7 +13,10 @@ class Card extends PureComponent {
         this.state = {
             hovering: false,
             timeout: false,
-            accent: "#f7931e"
+            accent: {
+                background: "#f7931e",
+                text: "#ffffff"
+            }
         };
     }
 
@@ -37,7 +40,13 @@ class Card extends PureComponent {
 
     onLoadPoster = async (blob) => {
         const color = await Vibrant.from(URL.createObjectURL(blob)).getPalette();
-        this.setState({ accent: color.Vibrant.getHex() })
+
+        this.setState({
+            accent: {
+                background: color.Vibrant.getHex(),
+                text: color.Vibrant.getTitleTextColor()
+            }
+        });
     }
 
     render() {
@@ -46,7 +55,7 @@ class Card extends PureComponent {
 
         const cover = (
             poster_path
-                ? <LazyImage alt={"cover-" + name} src={poster_path}/>
+                ? <LazyImage alt={"cover-" + name} src={poster_path} onLoad={this.onLoadPoster}/>
                 : <div className="placeholder"></div>
         );
 
