@@ -10,6 +10,7 @@ class Main extends Component {
         super(props);
 
         this.state = {
+            cards: [],
             banners: [
                 {
                     name: "The 100",
@@ -34,11 +35,9 @@ class Main extends Component {
     render() {
         return (
             <main>
-                <section className="banner">
-                    <BannerPages>
-                        {this.state.banners.map(({name, src, desc}, i) => <Banner key={i} src={src} title={name} description={desc}/>)}
-                    </BannerPages>
-                </section>
+                <BannerPages>
+                    {this.state.banners.map(({name, src, desc}, i) => <Banner key={i} src={src} title={name} description={desc}/>)}
+                </BannerPages>
 
                 <Library url="http://86.21.150.167:8000/api/v1/library/2/media"/>
             </main>

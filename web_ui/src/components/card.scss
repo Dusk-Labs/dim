@@ -50,6 +50,14 @@
     &:hover {
         background: #444444;
     }
+
+    &::after {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        position: absolute;
+        content: "MISSING COVER";
+    }
 }
 
 /*

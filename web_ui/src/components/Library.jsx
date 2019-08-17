@@ -11,19 +11,18 @@ class Library extends Component {
     }
 
     async componentDidMount() {
-        const cardReq = await fetch(this.props.url);
-        const json = await cardReq.json();
+        const req = await fetch("http://86.21.150.167:8000/api/v1/library/1/media");
+        const payload = await req.json();
 
-        try {
-            const cards = json.map(item => <Card key={item.id} data={item} src={item.poster_path}/>);
-            this.setState({ cards });
-        } catch (e) { }
+        const cards = payload.map((card, i) => <Card key={i} data={card}/>);
+        this.setState({ cards });
+
 
         // * MULTIPLE SECTIONS
         // const sections = await cardReq.json();
 
         // for (const section in sections) {
-        //     const cards = section.map(item => <Card key={item.id} data={item} src={item.poster_path}/>);
+        //     const cards = section.map((card, i) => <Card key={i} data={card}/>);
 
         //     this.setState({
         //         cards: {

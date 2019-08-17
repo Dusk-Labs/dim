@@ -10,7 +10,10 @@ class Banner extends Component {
         super(props);
 
         this.state = {
-            accent: "#f7931e",
+            accent: {
+                background: "#f7931e",
+                text: "#ffffff"
+            },
             data: {
                 img: this.props.src,
                 title: this.props.title,
@@ -21,11 +24,22 @@ class Banner extends Component {
 
     onLoadBanner = async (blob) => {
         const color = await Vibrant.from(URL.createObjectURL(blob)).getPalette();
-        this.setState({ accent: color.Vibrant.getHex() })
+
+        this.setState({
+            accent: {
+                background: color.Vibrant.getHex(),
+                text: color.Vibrant.getTitleTextColor()
+            }
+        });
     }
 
     render() {
         const { accent, data: {img, title, description} } = this.state;
+
+        const accentCSS = {
+            background: accent.background,
+            color: accent.text
+        };
 
         return (
             <div className="banner-wrapper">
@@ -34,13 +48,18 @@ class Banner extends Component {
                     <h1>{title}</h1>
                     <div className="desc">
                         <h5>PICK UP WHERE YOU LEFT OFF</h5>
-                        <p>
-                            {description}
-                        </p>
+                        <p>{description}</p>
                     </div>
-                    <a href="http://example.com/" style={{ background: accent }}>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></a>
+                    <a
+                        href={img}
+                        style={accentCSS}
+                        rel="noopener noreferrer"
+                        target="_blank">
+                        PLAY
+                        <FontAwesomeIcon icon="arrow-alt-circle-right"/>
+                    </a>
                 </div>
-                <ProgressBar id="1" accent={accent}/>
+                <ProgressBar id="1" accent={accent.background}/>
             </div>
         );
     }
