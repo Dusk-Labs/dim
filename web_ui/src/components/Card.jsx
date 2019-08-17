@@ -12,7 +12,9 @@ class Card extends Component {
         this.state = {
             data: {},
             hovering: false,
-            timeout: false
+            timeout: false,
+            posterBlob: undefined,
+            accentDone: false,
         };
     }
 
@@ -47,15 +49,18 @@ class Card extends Component {
         });
     }
 
-    renderCardPopout() {
+    async renderCardPopout() {
+        if(!this.state.accentDone && this.state.posterBlob !== undefined) {
+            const color = await Vibrant.from(this.state.posterBlob).getPalette();
+            this.setState({ accent: color.Vibrant.getHex() })
+        }
         this.setState({
             hovering: !this.state.hovering,
         });
     }
 
     onLoadPoster = async (blob) => {
-        const color = await Vibrant.from(URL.createObjectURL(blob)).getPalette();
-        this.setState({ accent: color.Vibrant.getHex() })
+        this.setState({ posterBlob: URL.createObjectURL(blob) });
     }
 
     render() {
