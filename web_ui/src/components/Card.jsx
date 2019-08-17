@@ -13,6 +13,8 @@ class Card extends PureComponent {
         this.state = {
             hovering: false,
             timeout: false,
+            posterBlob: undefined,
+            accentDone: false,
             accent: {
                 background: "#f7931e",
                 text: "#ffffff"
@@ -21,9 +23,14 @@ class Card extends PureComponent {
     }
 
     handleMouseHover() {
-        if(this.state.hoverTimeout != null) {
+        if (this.state.hoverTimeout != null) {
             clearTimeout(this.state.hoverTimeout);
-            this.setState({ hoverTimeout: null, hovering: false });
+
+            this.setState({
+                hoverTimeout: null,
+                hovering: false
+            });
+
             return;
         }
 
@@ -33,23 +40,25 @@ class Card extends PureComponent {
     }
 
     async renderCardPopout() {
-        if(!this.state.accentDone && this.state.posterBlob !== undefined) {
+        if (!this.state.accentDone && this.state.posterBlob !== undefined) {
             const color = await Vibrant.from(this.state.posterBlob).getPalette();
-            this.setState({ accent: color.Vibrant.getHex() })
+
+            this.setState({
+                accent: {
+                    background: color.Vibrant.getHex(),
+                    text: color.Vibrant.getTitleTextColor()
+                }
+            });
         }
+
         this.setState({
             hovering: !this.state.hovering,
         });
     }
 
     onLoadPoster = async (blob) => {
-        const color = await Vibrant.from(URL.createObjectURL(blob)).getPalette();
-
         this.setState({
-            accent: {
-                background: color.Vibrant.getHex(),
-                text: color.Vibrant.getTitleTextColor()
-            }
+            posterBlob: URL.createObjectURL(blob)
         });
     }
 
@@ -71,9 +80,7 @@ class Card extends PureComponent {
                         <p style={{opacity: + !this.state.hovering}}>{name}</p>
                     </a>
                 </div>
-                {this.state.hovering &&
-                    <CardPopup data={this.props.data} accent={accent}/>
-                }
+                {this.state.hovering && <CardPopup data={this.props.data} accent={accent}/>}
             </div>
         );
     }
