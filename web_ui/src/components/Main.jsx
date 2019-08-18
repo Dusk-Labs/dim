@@ -14,7 +14,7 @@ class Main extends Component {
         super(props);
 
         this.state = {
-            cards: {},
+            cards: [],
             banners: [
                 {
                     name: "The 100",
@@ -36,36 +36,23 @@ class Main extends Component {
     }
 
     async componentDidMount() {
-        const cardReq = await fetch("http://86.21.150.167:8000/api/v1/library/1/media");
-        const json = await cardReq.json();
-        const cards = json.map(item => <Card key={item.id} data={item} src={item.poster_path}/>);
+        const req = await fetch("http://86.21.150.167:8000/api/v1/library/1/media");
+        const payload = await req.json();
 
-        this.setState({
-            cards: { recommended: cards },
-        });
+        const cards = payload.map((card, i) => <Card key={i} data={card}/>);
+        this.setState({ cards });
     }
 
     render() {
-        const { cards } = this.state;
+        let { cards, banners } = this.state;
 
-        const sections = Object.keys(cards).map((key) => {
-            return <div className="recommended" key={key}>
-                <h1>{key}</h1>
-                <div className="cards">
-                    { cards[key] }
-                </div>
-            </div>
-        });
+        banners = banners.map(({name, src, desc}, i) => <Banner key={i} src={src} title={name} description={desc}/>);
 
         return (
             <main>
-                <section className="banner">
-                    <BannerPages>
-                        {this.state.banners.map(({name, src, desc}) => <Banner src={src} title={name} description={desc}/>)}
-                    </BannerPages>
-                </section>
+                <BannerPages>{banners}</BannerPages>
                 <section className="libraries">
-                    { sections }
+                    <div className="cards">{cards}</div>
                 </section>
             </main>
         );
