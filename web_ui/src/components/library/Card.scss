@@ -12,6 +12,10 @@
         color: #ffffff;
     }
 
+    img {
+        will-change: transform;
+    }
+
     img, div, .placeholder {
         display: block;
         height: 320px;

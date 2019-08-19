@@ -7,32 +7,6 @@ import "./sidebar.scss";
 
 Modal.setAppElement("body");
 
-function List(items) {
-    return items.length !== 0
-        ? (
-            <div className="list">
-                {items.map((
-                    { name, icon }, i
-                ) => {
-                    return (
-                        // path will be switched to ID instead of name
-                        <div className="item-wrapper" key={i}>
-                            <Link to={name}>
-                                <FontAwesomeIcon icon={icon}/>
-                                <p>{name}</p>
-                            </Link>
-                            <button>-</button>
-                        </div>
-                    );
-                })}
-            </div>
-        ) : (
-            <div className="empty">
-                <p>CURRENTLY EMPTY</p>
-            </div>
-        );
-}
-
 class Sidebar extends Component {
     constructor(props) {
         super(props);
@@ -50,9 +24,6 @@ class Sidebar extends Component {
             lists: {
                 connected_hosts: [],
                 libraries: []
-            },
-            addLibrary: {
-                files: []
             }
         };
     }
@@ -77,25 +48,47 @@ class Sidebar extends Component {
         };
 
         const hosts = [
-            { name: "Desktop", icon: "desktop" },
-            { name: "Laptop", icon: "laptop" },
-            { name: "Phone", icon: "mobile-alt" }
+            { name: "Desktop", icon: "desktop", path: "/"},
+            { name: "Laptop", icon: "laptop", path: "/"},
+            { name: "Phone", icon: "mobile-alt", path: "/"}
         ];
 
         const libs = [
-            { name: "Movies", icon: "film" },
-            { name: "Games", icon: "gamepad" },
-            { name: "TV Shows", icon: "tv" }
+            { name: "Movies", icon: "film", path: "/library/movies"},
+            { name: "Games", icon: "gamepad", path: "/library/games"},
+            { name: "TV Shows", icon: "tv", path: "/library/tv-shows"}
         ];
 
         this.setState({
             profile,
             lists: {
-                connected_hosts: List(hosts),
-                libraries: List(libs)
+                connected_hosts: this.list(hosts),
+                libraries: this.list(libs)
             }
         });
 
+    }
+
+    list(items) {
+        return items.length !== 0 ? (
+            <div className="list">
+                {items.map(({ name, icon, path }, i) => {
+                    return (
+                        <div className="item-wrapper" key={i}>
+                            <Link to={path}>
+                                <FontAwesomeIcon icon={icon}/>
+                                <p>{name}</p>
+                            </Link>
+                            <button>-</button>
+                        </div>
+                    );
+                })}
+            </div>
+        ) : (
+            <div className="empty">
+                <p>CURRENTLY EMPTY</p>
+            </div>
+        );
     }
 
     render() {

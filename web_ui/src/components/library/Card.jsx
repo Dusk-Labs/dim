@@ -1,9 +1,10 @@
 import React, { PureComponent } from "react";
-import CardPopup from "./Card-Popup.jsx";
-import LazyImage from "./helpers/LazyImage.jsx";
-
-import "./card.scss";
 import * as Vibrant from 'node-vibrant';
+
+import CardPopup from "./CardPopup.jsx";
+import LazyImage from "../../helpers/LazyImage.jsx";
+
+import "./Card.scss";
 
 class Card extends PureComponent {
     constructor(props) {

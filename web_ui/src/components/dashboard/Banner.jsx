@@ -1,10 +1,11 @@
 import React, { Component } from "react";
-import LazyImage from "./helpers/LazyImage.jsx";
-import ProgressBar from "./progress-bar.jsx";
-import "./banner.scss";
-
+import LazyImage from "../../helpers/LazyImage.jsx";
+import ProgressBar from "./ProgressBar.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as Vibrant from 'node-vibrant';
+
+import "./Banner.scss";
+
 class Banner extends Component {
     constructor(props) {
         super(props);

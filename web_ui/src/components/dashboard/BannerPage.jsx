@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import "./banner-pages.scss";
+import "./BannerPage.scss";
 
-class BannerPages extends Component {
+class BannerPage extends Component {
     constructor(props) {
         super(props);
 
@@ -61,4 +61,4 @@ class BannerPages extends Component {
     }
 }
 
-export default BannerPages;
+export default BannerPage;

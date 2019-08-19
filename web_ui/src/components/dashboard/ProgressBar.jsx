@@ -1,6 +1,7 @@
 import React, { Component } from "react";
-import "./progress-bar.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import "./ProgressBar.scss";
 
 class ProgressBar extends Component {
     constructor(props) {

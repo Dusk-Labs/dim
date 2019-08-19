@@ -2,10 +2,10 @@ import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import TextTruncate from "react-text-truncate";
 
-import "./card-popup.scss";
+import RottenTomatoeLogo from "../../assets/rotten_tomatoe.svg";
+import IMDbLogo from "../../assets/imdb.png";
 
-import RottenTomatoeLogo from "../assets/rotten_tomatoe.svg";
-import IMDbLogo from "../assets/imdb.png";
+import "./CardPopup.scss";
 
 class CardPopup extends Component {
     constructor(props) {

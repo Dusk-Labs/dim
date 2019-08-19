@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Card from "./Card.jsx";
+import Card from "../components/library/Card.jsx";
 
 class Library extends Component {
     constructor(props) {
@@ -11,12 +11,12 @@ class Library extends Component {
     }
 
     async componentDidMount() {
-        const req = await fetch("http://86.21.150.167:8000/api/v1/library/1/media");
+        // const { id } = this.props.match.params;
+        const req = await fetch("http://86.21.150.167:8000/api/v1/library/2/media");
         const payload = await req.json();
 
         const cards = payload.map((card, i) => <Card key={i} data={card}/>);
         this.setState({ cards });
-
 
         // * MULTIPLE SECTIONS
         // const sections = await cardReq.json();
