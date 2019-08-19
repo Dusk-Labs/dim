@@ -1,6 +1,6 @@
 .progress-bar {
     position: absolute;
-    top: 60%;
+    top: 80%;
     right: 5%;
     text-shadow: #000000 0 0 15px;
     text-align: center;
@@ -12,8 +12,8 @@
 
     /* ICON */
     svg {
+        margin: 0 0.5vh !important;
         font-size: 0.5em !important;
-        margin: 0 1vh;
         color: #e70;
     }
 
@@ -24,9 +24,11 @@
         display: -webkit-box;
         display: -ms-flexbox;
         display: flex;
+        justify-content: space-evenly;
         -webkit-box-align: center;
             -ms-flex-align: center;
                 align-items: center;
+
     }
 
     .progress {
@@ -50,7 +52,8 @@
 
             /* UNIT */
             p:nth-child(2) {
-                font-family: "Roboto Condensed Regular";
+                font-size: 0.8em;
+                font-family: "Roboto Black";
             }
         }
     }
@@ -61,7 +64,7 @@
     */
 
     .bar {
-        height: 5px;
+        height: 4px;
         width: 175px;
         background: #fff;
         display: block;
@@ -69,12 +72,12 @@
         -webkit-appearance: none;
         -webkit-box-shadow: #000000 0 0 15px;
                 box-shadow: #000000 0 0 15px;
-        border-radius: 5px;
+        border-radius: 4px;
 
         /* VALUE */
         .progress {
-            height: 5px;
-            border-radius: 5px;
+            height: 4px;
+            border-radius: 4px;
         }
     }
 }
