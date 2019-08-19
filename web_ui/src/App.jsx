@@ -19,7 +19,7 @@ class App extends Component {
 					<Sidebar/>
 					<Switch>
 						<Route exact path="/" component={Dashboard}/>
-						<Route path="/library/:id" component={(props) => <main><Library {...props}/></main>}/>
+						<Route path="/library/:id" component={(props) => <main><Library path={`http://86.21.150.167:8000/api/v1/library/${props.match.params.id}`}/></main>}/>
 					</Switch>
 				</div>
 			</Router>

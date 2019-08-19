@@ -54,9 +54,9 @@ class Sidebar extends Component {
         ];
 
         const libs = [
-            { name: "Movies", icon: "film", path: "/library/movies"},
-            { name: "Games", icon: "gamepad", path: "/library/games"},
-            { name: "TV Shows", icon: "tv", path: "/library/tv-shows"}
+            { name: "Movies", icon: "film", path: "/library/1"},
+            { name: "Games", icon: "gamepad", path: "/library/2"},
+            { name: "TV Shows", icon: "tv", path: "/library/3"}
         ];
 
         this.setState({

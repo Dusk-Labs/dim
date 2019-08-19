@@ -45,7 +45,7 @@ class Dashboard extends Component {
                     {this.state.banners.map(({name, src, desc}, i) => <Banner key={i} src={src} title={name} description={desc}/>)}
                 </BannerPage>
 
-                <Library url="http://86.21.150.167:8000/api/v1/library/2/media"/>
+                <Library path="http://86.21.150.167:8000/api/v1/dashboard"/>
             </main>
         );
     }

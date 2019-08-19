@@ -11,8 +11,7 @@ class Library extends Component {
     }
 
     async componentDidMount() {
-        // const { id } = this.props.match.params;
-        const req = await fetch("http://86.21.150.167:8000/api/v1/library/2/media");
+        const req = await fetch(this.props.path);
         const payload = await req.json();
 
         const cards = payload.map((card, i) => <Card key={i} data={card}/>);
