@@ -82,12 +82,16 @@
             .info {
                 // USERNAME
                 h4 {
-                    font-family: "Roboto Condensed Regular";
+                    font-family: "Roboto Black";
+                    font-weight: normal;
                     color: #ffffff;
                 }
 
                 // H SPENT WATCHING
-                h6 { font-family: "Roboto Regular"; }
+                h6 {
+                    font-family: "Roboto Regular";
+                    font-weight: normal;
+                }
             }
         }
 

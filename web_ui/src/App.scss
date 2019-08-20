@@ -194,7 +194,11 @@ main {
         h1 {
             text-transform: uppercase;
             margin: 0;
-        }
+		}
+
+		> section {
+			margin-bottom: 10vh;
+		}
     }
 
     .cards {

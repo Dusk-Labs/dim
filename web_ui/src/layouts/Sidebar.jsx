@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import Modal from "react-modal";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -40,7 +40,7 @@ class Sidebar extends Component {
         });
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         const profile = {
             username: "Lindsey Morgan",
             picture: "https://frostsnow.com/uploads/biography/2016/01/23/lindsey-morgan.jpg",
@@ -48,37 +48,34 @@ class Sidebar extends Component {
         };
 
         const hosts = [
-            { name: "Desktop", icon: "desktop", path: "/"},
-            { name: "Laptop", icon: "laptop", path: "/"},
-            { name: "Phone", icon: "mobile-alt", path: "/"}
+            { name: "Desktop", icon: "desktop", id: "1"},
+            { name: "Laptop", icon: "laptop", id: "2"},
+            { name: "Phone", icon: "mobile-alt", id: "3"}
         ];
 
-        const libs = [
-            { name: "Movies", icon: "film", path: "/library/1"},
-            { name: "Games", icon: "gamepad", path: "/library/2"},
-            { name: "TV Shows", icon: "tv", path: "/library/3"}
-        ];
+        const reqLibs = await fetch("http://86.21.150.167:8000/api/v1/library/");
+        const libs = await reqLibs.json();
 
         this.setState({
             profile,
             lists: {
-                connected_hosts: this.list(hosts),
-                libraries: this.list(libs)
+                connected_hosts: this.list(hosts, "/device/"),
+                libraries: this.list(libs, "/library/")
             }
         });
 
     }
 
-    list(items) {
+    list(items, path) {
         return items.length !== 0 ? (
             <div className="list">
-                {items.map(({ name, icon, path }, i) => {
+                {items.map(({ name, id }, i) => {
                     return (
                         <div className="item-wrapper" key={i}>
-                            <Link to={path}>
-                                <FontAwesomeIcon icon={icon}/>
+                            <NavLink to={path + id}>
+                                <FontAwesomeIcon icon="folder"/>
                                 <p>{name}</p>
-                            </Link>
+                            </NavLink>
                             <button>-</button>
                         </div>
                     );
@@ -149,16 +146,16 @@ class Sidebar extends Component {
                     </header>
                     <div className="list">
                         <div className="item-wrapper">
-                            <Link to="">
+                            <NavLink to="">
                                 <FontAwesomeIcon icon="wrench"/>
                                 <p>Preferences</p>
-                            </Link>
+                            </NavLink>
                         </div>
                         <div className="item-wrapper">
-                            <Link to="">
+                            <NavLink to="">
                                 <FontAwesomeIcon icon="door-open"/>
                                 <p>Logout</p>
-                            </Link>
+                            </NavLink>
                         </div>
                     </div>
                 </section>
