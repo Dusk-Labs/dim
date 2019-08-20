@@ -17,6 +17,7 @@ extern crate serde;
 extern crate dotenv;
 extern crate rocket;
 extern crate dim_database;
+extern crate dim_scanners;
 
 pub mod routes;
 pub mod schema;

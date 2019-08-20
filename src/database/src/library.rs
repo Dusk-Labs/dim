@@ -28,6 +28,17 @@ impl Library {
             .expect("Error querying all libraries")
     }
 
+    pub fn get_one(
+        conn: &diesel::PgConnection,
+        lib_id: i32,
+    ) -> Result<Library, diesel::result::Error> {
+        use crate::schema::library::dsl::*;
+
+        library
+            .filter(id.eq(lib_id))
+            .first::<Self>(conn)
+    }
+
     pub fn get(
         conn: &diesel::PgConnection,
         lib_id: i32,
@@ -51,20 +62,10 @@ impl Library {
 }
 
 impl InsertableLibrary {
-    pub fn new(&self, conn: &diesel::PgConnection) -> Result<usize, diesel::result::Error> {
-        let size = diesel::insert_into(library::table)
+    pub fn new(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
+        diesel::insert_into(library::table)
             .values(self)
-            .execute(conn)?;
-
-        let _ = library::table
-            .order(library::id.desc())
-            .limit(size as i64)
-            .load::<Library>(conn)?
-            .into_iter()
-            .rev()
-            .last()
-            .unwrap();
-
-        Ok(size)
+            .returning(library::id)
+            .get_result(conn)
     }
 }

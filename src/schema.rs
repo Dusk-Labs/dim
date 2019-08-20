@@ -25,6 +25,7 @@ table! {
         year -> Nullable<Int4>,
         added -> Nullable<Text>,
         poster_path -> Nullable<Text>,
+        backdrop_path -> Nullable<Text>,
         media_type -> Nullable<Varchar>,
     }
 }
@@ -33,9 +34,13 @@ table! {
     mediafile (id) {
         id -> Int4,
         media_id -> Nullable<Int4>,
+        library_id -> Int4,
         target_file -> Text,
+        raw_name -> Text,
+        raw_year -> Nullable<Int4>,
         quality -> Nullable<Varchar>,
         codec -> Nullable<Varchar>,
+        container -> Nullable<Varchar>,
         audio -> Nullable<Varchar>,
         original_resolution -> Nullable<Varchar>,
         duration -> Nullable<Int4>,
@@ -73,7 +78,8 @@ table! {
 joinable!(episode -> season (seasonid));
 joinable!(episode -> streamable_media (id));
 joinable!(media -> library (library_id));
-joinable!(mediafile -> streamable_media (media_id));
+joinable!(mediafile -> library (library_id));
+joinable!(mediafile -> media (media_id));
 joinable!(movie -> streamable_media (id));
 joinable!(season -> tv_show (tvshowid));
 joinable!(streamable_media -> media (id));

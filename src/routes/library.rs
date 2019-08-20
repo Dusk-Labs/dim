@@ -3,6 +3,8 @@ use dim_database::library::{InsertableLibrary, Library};
 use dim_database::media::Media;
 use rocket::http::Status;
 use rocket_contrib::json::Json;
+use std::thread;
+use dim_scanners;
 
 #[get("/")]
 pub fn library_get(conn: DbConnection) -> Json<Vec<Library>> {
@@ -15,7 +17,13 @@ pub fn library_post(
     new_library: Json<InsertableLibrary>,
 ) -> Result<Status, Status> {
     match new_library.new(&conn) {
-        Ok(_) => Ok(Status::Created),
+        Ok(id) => {
+            println!("Starting scanner thread");
+            std::thread::spawn(move || {
+                dim_scanners::start(id).unwrap();
+            });
+            Ok(Status::Created)
+        },
         Err(_) => Err(Status::NotImplemented),
     }
 }

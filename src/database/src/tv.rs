@@ -29,9 +29,8 @@ impl TVShow {
         conn: &diesel::PgConnection,
     ) -> Result<Vec<Media>, diesel::result::Error> {
         use crate::schema::media;
-        use crate::schema::movie;
         let result = media::dsl::media
-            .inner_join(movie::dsl::movie)
+            .inner_join(tv_show::dsl::tv_show)
             .select(media::all_columns)
             .load(conn)?;
         Ok(result)

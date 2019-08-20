@@ -14,4 +14,5 @@ torrent-name-parser = "0.1.2"
 reqwest = "0.9.19"
 serde = "1.0.98"
 chrono = "0.4.7"
-dim-database = { path = "../../database" }
+dim-database = { path = "../database" }
+diesel = { version = "1.4.2", features = ["postgres"] }

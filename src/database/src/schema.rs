@@ -1,58 +1,63 @@
 table! {
     episode (id) {
-        id -> Integer,
-        seasonid -> Integer,
-        episode_ -> Integer,
+        id -> Int4,
+        seasonid -> Int4,
+        episode_ -> Int4,
     }
 }
 
 table! {
     library (id) {
-        id -> Integer,
-        name -> Text,
-        location -> Text,
-        media_type -> Text,
+        id -> Int4,
+        name -> Varchar,
+        location -> Varchar,
+        media_type -> Varchar,
     }
 }
 
 table! {
     media (id) {
-        id -> Integer,
-        library_id -> Integer,
-        name -> Text,
+        id -> Int4,
+        library_id -> Int4,
+        name -> Varchar,
         description -> Nullable<Text>,
-        rating -> Nullable<Integer>,
-        year -> Nullable<Integer>,
+        rating -> Nullable<Int4>,
+        year -> Nullable<Int4>,
         added -> Nullable<Text>,
         poster_path -> Nullable<Text>,
-        media_type -> Nullable<Text>,
+        backdrop_path -> Nullable<Text>,
+        media_type -> Nullable<Varchar>,
     }
 }
 
 table! {
     mediafile (id) {
-        id -> Integer,
-        media_id -> Nullable<Integer>,
+        id -> Int4,
+        media_id -> Nullable<Int4>,
+        library_id -> Int4,
         target_file -> Text,
-        quality -> Nullable<Text>,
-        codec -> Nullable<Text>,
-        audio -> Nullable<Text>,
-        original_resolution -> Nullable<Text>,
-        duration -> Nullable<Integer>,
+        raw_name -> Text,
+        raw_year -> Nullable<Int4>,
+        quality -> Nullable<Varchar>,
+        codec -> Nullable<Varchar>,
+        container -> Nullable<Varchar>,
+        audio -> Nullable<Varchar>,
+        original_resolution -> Nullable<Varchar>,
+        duration -> Nullable<Int4>,
     }
 }
 
 table! {
     movie (id) {
-        id -> Integer,
+        id -> Int4,
     }
 }
 
 table! {
     season (id) {
-        id -> Integer,
-        season_number -> Integer,
-        tvshowid -> Integer,
+        id -> Int4,
+        season_number -> Int4,
+        tvshowid -> Int4,
         added -> Nullable<Text>,
         poster -> Nullable<Text>,
     }
@@ -60,24 +65,25 @@ table! {
 
 table! {
     streamable_media (id) {
-        id -> Integer,
+        id -> Int4,
     }
 }
 
 table! {
     tv_show (id) {
-        id -> Integer,
+        id -> Int4,
     }
 }
 
+joinable!(episode -> season (seasonid));
 joinable!(episode -> streamable_media (id));
 joinable!(media -> library (library_id));
+joinable!(mediafile -> library (library_id));
 joinable!(mediafile -> streamable_media (media_id));
 joinable!(movie -> streamable_media (id));
 joinable!(season -> tv_show (tvshowid));
 joinable!(streamable_media -> media (id));
 joinable!(tv_show -> media (id));
-joinable!(movie -> media (id));
 
 allow_tables_to_appear_in_same_query!(
     episode,

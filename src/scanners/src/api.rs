@@ -70,7 +70,7 @@ impl<'a> MovieObject<'a> {
 
     pub fn media_fetch(&mut self) -> Result<(), ()> {
         let year = match self.raw_metadata.year() {
-            Some(x) => Some(x as u16),
+            Some(x) => Some(x),
             None => None,
         };
 
@@ -132,5 +132,5 @@ impl<'a> MovieObject<'a> {
 
 pub trait APIExec<'a> {
     fn new(api_key: &'a str) -> Self;
-    fn search(&mut self, title: String, year: Option<u16>) -> Option<MovieResult>;
+    fn search(&mut self, title: String, year: Option<i32>) -> Option<MovieResult>;
 }

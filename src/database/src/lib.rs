@@ -15,3 +15,16 @@ pub mod library;
 pub mod media;
 pub mod season; 
 pub mod tv;
+pub mod mediafile;
+
+pub fn get_conn() -> Result<diesel::PgConnection, diesel::result::ConnectionError> {
+    use diesel::pg::PgConnection;
+    use diesel::connection::Connection;
+    let conn = PgConnection::establish("postgres://postgres:dimpostgres@postgres/dim");
+
+    if conn.is_ok() {
+        conn
+    } else {
+        PgConnection::establish("postgres://postgres:dimpostgres@127.0.0.1/dim")
+    }
+}

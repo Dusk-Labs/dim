@@ -14,6 +14,7 @@ pub struct Media {
     pub year: Option<i32>,
     pub added: Option<String>,
     pub poster_path: Option<String>,
+    pub backdrop_path: Option<String>,
     pub media_type: Option<String>,
 }
 
@@ -27,6 +28,7 @@ pub struct InsertableMedia {
     pub year: Option<i32>,
     pub added: String,
     pub poster_path: Option<String>,
+    pub backdrop_path: Option<String>,
     pub media_type: String,
 }
 
@@ -39,6 +41,7 @@ pub struct UpdateMedia {
     pub year: Option<Option<i32>>,
     pub added: Option<Option<String>>,
     pub poster_path: Option<Option<String>>,
+    pub backdrop_path: Option<Option<String>>,
     pub media_type: Option<Option<String>>,
 }
 
@@ -50,7 +53,7 @@ impl Media {
     ) -> Result<Vec<Self>, diesel::result::Error> {
         let result = Self::belonging_to(&library)
             .load::<Self>(conn)?;
-        Ok(result)
+        Ok(result) 
     }
 
     pub fn get(
@@ -62,6 +65,24 @@ impl Media {
         let result = media.filter(id.eq(req_id)).first::<Self>(conn)?;
 
         Ok(result)
+    }
+
+    pub fn get_by_name_and_lib(
+        conn: &diesel::PgConnection,
+        library: &Library,
+        name: &String,
+    ) -> Result<Self, diesel::result::Error> {
+        let result = Self::belonging_to(library)
+            .load::<Self>(conn)?;
+
+        // Manual filter because of a bug with combining filter with belonging_to
+        for i in result {
+            if i.name == *name {
+                return Ok(i)
+            }
+        }
+
+        return Err(diesel::result::Error::NotFound)
     }
 
     pub fn delete(

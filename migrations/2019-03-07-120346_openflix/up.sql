@@ -22,6 +22,7 @@ CREATE TABLE media (
     year INTEGER,
     added TEXT,
     poster_path TEXT,
+    backdrop_path TEXT,
     media_type VARCHAR(50),
     PRIMARY KEY (id),
     CONSTRAINT fk_library FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE
@@ -71,13 +72,22 @@ CREATE TABLE episode (
 
 CREATE TABLE mediafile (
     id SERIAL,
-    media_id INTEGER,
+    media_id INTEGER, -- Optional, populated on metadata search
+    library_id INTEGER NOT NULL,
     target_file TEXT NOT NULL,
+
+    raw_name TEXT NOT NULL,
+    raw_year INTEGER,
+
     quality VARCHAR(10),
     codec VARCHAR(10),
+    container VARCHAR(10),
     audio VARCHAR(10),
     original_resolution VARCHAR(10),
     duration INTEGER,
     PRIMARY KEY (id),
-    FOREIGN KEY(media_id) REFERENCES streamable_media (id) ON DELETE CASCADE
+--  For now we directly link to media instead of a intermediary, NOTE: FIXME
+--    FOREIGN KEY(media_id) REFERENCES streamable_media (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(library_id) REFERENCES library(id) ON DELETE CASCADE
 );
