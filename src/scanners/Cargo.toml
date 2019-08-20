@@ -1,10 +1,8 @@
 [package]
-name = "scanners"
+name = "dim-scanners"
 version = "0.1.0"
-authors = ["HinamoreCh4n <motherrussia711@gmail.com>"]
+authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 clap = "2.33.0"
@@ -16,7 +14,5 @@ torrent-name-parser = "0.1.2"
 reqwest = "0.9.19"
 serde = "1.0.98"
 chrono = "0.4.7"
-
-[[bin]]
-name = "scanners"
-path = "src/main.rs"
+dim-database = { path = "../database" }
+diesel = { version = "1.4.2", features = ["postgres"] }

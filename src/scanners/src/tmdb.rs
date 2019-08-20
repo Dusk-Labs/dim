@@ -1,8 +1,8 @@
 extern crate reqwest;
 
+use crate::api::APIExec;
+use serde::Deserialize;
 use std::collections::VecDeque;
-use serde::{Deserialize};
-use crate::api::{APIExec};
 
 #[derive(Clone, Debug)]
 pub struct TMDbSearch<'a> {
@@ -31,7 +31,7 @@ impl<'a> APIExec<'a> for TMDbSearch<'a> {
         Self { api_key: api_key }
     }
 
-    fn search(&mut self, title: String, year: Option<u16>) -> Option<MovieResult> {
+    fn search(&mut self, title: String, year: Option<i32>) -> Option<MovieResult> {
         let mut resp = self.paginated_search(&title, &year).unwrap();
         resp.get_one()
     }
@@ -41,7 +41,7 @@ impl<'a> TMDbSearch<'a> {
     fn paginated_search(
         &mut self,
         title: &String,
-        year: &Option<u16>,
+        year: &Option<i32>,
     ) -> Result<SearchResult, Box<dyn std::error::Error>> {
         let resp: SearchResult = match year {
             Some(y) => reqwest::get(

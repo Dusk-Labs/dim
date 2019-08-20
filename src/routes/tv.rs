@@ -1,15 +1,15 @@
 use crate::core::DbConnection;
-use crate::database::episode::{Episode, InsertableEpisode, UpdateEpisode};
-use crate::database::media::Media;
-use crate::database::season::{InsertableSeason, Season, UpdateSeason};
-use crate::database::tv::TVShow;
+use dim_database::episode::{Episode, UpdateEpisode};
+use dim_database::media::Media;
+use dim_database::season::{Season, UpdateSeason};
+use dim_database::tv::TVShow;
 use rocket::http::Status;
 use rocket_contrib::json::Json;
 
 #[get("/<id>")]
 pub fn get_tv_by_id(conn: DbConnection, id: i32) -> Result<Json<Media>, Status> {
     match TVShow::get(&conn, id) {
-        Ok(data) => Ok(data),
+        Ok(data) => Ok(Json(data)),
         Err(_) => Err(Status::NotFound),
     }
 }
@@ -17,19 +17,7 @@ pub fn get_tv_by_id(conn: DbConnection, id: i32) -> Result<Json<Media>, Status> 
 #[get("/<id>/season")]
 pub fn get_tv_seasons(conn: DbConnection, id: i32) -> Result<Json<Vec<Season>>, Status> {
     match Season::get_all(&conn, id) {
-        Ok(data) => Ok(data),
-        Err(_) => Err(Status::NotFound),
-    }
-}
-
-#[post("/<id>/season", format = "application/json", data = "<new_season>")]
-pub fn post_season_to_tv(
-    conn: DbConnection,
-    id: i32,
-    new_season: Json<InsertableSeason>,
-) -> Result<Status, Status> {
-    match new_season.new(&conn, id) {
-        Ok(_) => Ok(Status::Ok),
+        Ok(data) => Ok(Json(data)),
         Err(_) => Err(Status::NotFound),
     }
 }
@@ -41,7 +29,7 @@ pub fn get_season_by_num(
     season_num: i32,
 ) -> Result<Json<Season>, Status> {
     match Season::get(&conn, id, season_num) {
-        Ok(data) => Ok(data),
+        Ok(data) => Ok(Json(data)),
         Err(_) => Err(Status::NotFound),
     }
 }
@@ -75,25 +63,6 @@ pub fn delete_season_by_num(
     }
 }
 
-#[post(
-    "/<id>/season/<season_num>/episode",
-    format = "application/json",
-    data = "<episode>"
-)]
-pub fn post_episode_to_season(
-    conn: DbConnection,
-    id: i32,
-    season_num: i32,
-    episode: Json<InsertableEpisode>,
-) -> Result<Status, Status> {
-    match episode.insert(&conn, id, season_num) {
-        Ok(_) => Ok(Status::Ok),
-        Err(_) => Err(Status::NotFound),
-    }
-}
-
-// NOTE: might want to separate these into separate files
-
 #[get("/<id>/season/<season_num>/episode/<ep_num>")]
 pub fn get_episode_by_id(
     conn: DbConnection,
@@ -102,7 +71,7 @@ pub fn get_episode_by_id(
     ep_num: i32,
 ) -> Result<Json<Episode>, Status> {
     match Episode::get(&conn, id, season_num, ep_num) {
-        Ok(data) => Ok(data),
+        Ok(data) => Ok(Json(data)),
         Err(_) => Err(Status::NotFound),
     }
 }

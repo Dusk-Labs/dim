@@ -1,13 +1,13 @@
 extern crate reqwest;
 
+use chrono::prelude::Utc;
+use chrono::Datelike;
+use chrono::NaiveDate;
+use serde::Serialize;
 use std::collections::HashMap;
 use torrent_name_parser::Metadata;
-use serde::Serialize;
-use chrono::prelude::Utc;
-use chrono::NaiveDate;
-use chrono::Datelike;
 
-use crate::tmdb::{TMDbSearch, MovieResult};
+use crate::tmdb::{MovieResult, TMDbSearch};
 
 #[derive(Serialize)]
 struct InsertableMedia {
@@ -43,7 +43,7 @@ impl<'a> MovieObject<'a> {
             path: path,
             api: TMDbSearch::new("38c372f5bc572c8aadde7a802638534e"),
             lib_id: lib_id,
-            media_id: None
+            media_id: None,
         }
     }
 
@@ -56,7 +56,8 @@ impl<'a> MovieObject<'a> {
         };
         let client = reqwest::Client::new();
 
-        let result: HashMap<String, i32> = client.post("http://127.0.0.1:8000/api/v1/media")
+        let result: HashMap<String, i32> = client
+            .post("http://127.0.0.1:8000/api/v1/media")
             .json(&body)
             .send()?
             .json()?;
@@ -69,25 +70,31 @@ impl<'a> MovieObject<'a> {
 
     pub fn media_fetch(&mut self) -> Result<(), ()> {
         let year = match self.raw_metadata.year() {
-            Some(x) => Some(x as u16),
+            Some(x) => Some(x),
             None => None,
         };
 
         let res = self.api.search(self.raw_metadata.title().to_owned(), year);
         match res {
-            Some(x) => { self.update(x).unwrap(); },
-            None => { },
+            Some(x) => {
+                self.update(x).unwrap();
+            }
+            None => {}
         };
         Ok(())
     }
 
     fn update(&mut self, data: MovieResult) -> Result<(), Box<dyn std::error::Error>> {
         if self.media_id.is_none() {
-            return Ok(())
+            return Ok(());
         }
-        
+
         let year: Option<i32> = match data.release_date {
-            Some(x) => Some(NaiveDate::parse_from_str(x.as_str(), "%Y-%m-%d").unwrap().year() as i32),
+            Some(x) => Some(
+                NaiveDate::parse_from_str(x.as_str(), "%Y-%m-%d")
+                    .unwrap()
+                    .year() as i32,
+            ),
             None => None,
         };
 
@@ -108,7 +115,14 @@ impl<'a> MovieObject<'a> {
 
         let client = reqwest::Client::new();
 
-        let _ = client.patch(format!("http://127.0.0.1:8000/api/v1/media/{}", self.media_id.unwrap()).as_str())
+        let _ = client
+            .patch(
+                format!(
+                    "http://127.0.0.1:8000/api/v1/media/{}",
+                    self.media_id.unwrap()
+                )
+                .as_str(),
+            )
             .json(&body)
             .send()?;
 
@@ -118,5 +132,5 @@ impl<'a> MovieObject<'a> {
 
 pub trait APIExec<'a> {
     fn new(api_key: &'a str) -> Self;
-    fn search(&mut self, title: String, year: Option<u16>) -> Option<MovieResult>;
+    fn search(&mut self, title: String, year: Option<i32>) -> Option<MovieResult>;
 }

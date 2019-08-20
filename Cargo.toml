@@ -1,14 +1,13 @@
 [package]
-name = "Dim"
-version = "0.2.0"
+name = "dim"
+version = "0.3.0"
 authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
-build = "src/build.rs"
 
 [dependencies]
 rocket = { version = "*" }
 rocket_codegen = "*"
-diesel = { version = "*", features = ["sqlite"] }
+diesel = { version = "*", features = ["postgres"] }
 dotenv = "*"
 r2d2-diesel = "*"
 r2d2 = "*"
@@ -19,11 +18,18 @@ diesel_migrations = "*"
 log = "*"
 rocket_cors = "0.5.0"
 lazy_static = "1.3.0"
+dim-database = { path = "./src/database" }
+dim-scanners = { path = "./src/scanners" }
 
 [dependencies.rocket_contrib]
 version = "*"
 default-features = false
-features = ["json", "diesel_sqlite_pool"]
+features = ["json", "diesel_postgres_pool"]
 
 [dev-dependencies]
 parking_lot = { version = "*", features = ["nightly"] }
+
+[profile.release]
+lto = true
+panic = 'abort'
+opt-level = 'z'

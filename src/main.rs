@@ -12,15 +12,13 @@ extern crate log;
 extern crate rocket_contrib;
 #[macro_use]
 extern crate rocket_codegen;
-#[macro_use]
-extern crate serde;
-#[macro_use]
-extern crate lazy_static;
 
+extern crate serde;
 extern crate dotenv;
 extern crate rocket;
+extern crate dim_database;
+extern crate dim_scanners;
 
-pub mod database;
 pub mod routes;
 pub mod schema;
 #[macro_use]

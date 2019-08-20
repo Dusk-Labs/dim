@@ -1,2 +1,9 @@
 -- This file should undo anything in `up.sql`
-DROP TABLE library
+DROP TABLE mediafile;
+DROP TABLE episode;
+DROP TABLE season;
+DROP TABLE tv_show;
+DROP TABLE movie;
+DROP TABLE streamable_media;
+DROP TABLE media;
+DROP TABLE library;
