@@ -72,10 +72,24 @@
     * == MEDIA QUERIES ==
 */
 
-// ~1080p WIDE SCREEN
-@media only screen and (min-width: 2400px) and (min-height: 1000px) {
+
+@media only screen and (max-width: 2560px) and (max-height: 1440px) {
     .banner img {
         -o-object-position: 30% 30%;
            object-position: 30% 30%;
     }
 }
+
+// @media only screen and (min-width: 2400px) and (min-height: 720px) {
+//     .banner img {
+//         -o-object-position: 30% 30%;
+//            object-position: 30% 30%;
+//     }
+// }
+
+// @media only screen and (max-width: 1366px) and (max-height: 720px) {
+//     .banner img {
+//         -o-object-position: 30% 30%;
+//            object-position: 30% 30%;
+//     }
+// }
