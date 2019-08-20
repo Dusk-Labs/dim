@@ -4,4 +4,4 @@ port = 8000
 log = "normal"
 
 [global.databases]
-openflix = { url = "postgres://postgres:dimpostgres@postgres/dim" }
+openflix = { url = "postgres://postgres:dimpostgres@127.0.0.1/dim" }

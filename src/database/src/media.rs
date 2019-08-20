@@ -2,7 +2,7 @@ use crate::library::Library;
 use crate::schema::media;
 use diesel::prelude::*;
 
-#[derive(Identifiable, Queryable, Serialize, Deserialize, PartialEq, Debug, Associations)]
+#[derive(Clone, Identifiable, Queryable, Serialize, Deserialize, PartialEq, Debug, Associations)]
 #[belongs_to(Library, foreign_key = "library_id")]
 #[table_name = "media"]
 pub struct Media {

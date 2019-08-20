@@ -75,9 +75,17 @@ pub fn rocket() -> Rocket {
             unprocessable_entity
         ])
         .mount(
+            "/api/v1/",
+            routes![
+                routes::general::dashboard,
+                routes::general::banners,
+            ],
+        )
+        .mount(
             "/api/v1/library",
             routes![
                 routes::library::library_get,
+                routes::library::get_self,
                 routes::library::library_post,
                 routes::library::library_delete,
                 routes::library::get_all_library
@@ -87,7 +95,6 @@ pub fn rocket() -> Rocket {
             "/api/v1/media",
             routes![
                 routes::media::get_media_by_id,
-                routes::media::insert_media_by_lib_id,
                 routes::media::update_media_by_id,
                 routes::media::delete_media_by_id,
             ],
@@ -97,11 +104,9 @@ pub fn rocket() -> Rocket {
             routes![
                 routes::tv::get_tv_by_id,
                 routes::tv::get_tv_seasons,
-                routes::tv::post_season_to_tv,
                 routes::tv::get_season_by_num,
                 routes::tv::patch_season_by_num,
                 routes::tv::delete_season_by_num,
-                routes::tv::post_episode_to_season,
                 routes::tv::get_episode_by_id,
                 routes::tv::patch_episode_by_id,
                 routes::tv::delete_episode_by_id,

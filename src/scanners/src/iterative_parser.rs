@@ -94,7 +94,10 @@ fn iterate_stage2(conn: PgConnection, lib: Library) {
                         Some(path) => Some(format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", path)),
                         None => None,
                     },
-                    backdrop_path: result.backdrop_path,
+                    backdrop_path: match result.backdrop_path {
+                        Some(path) => Some(format!("https://image.tmdb.org/t/p/original/{}", path)),
+                        None => None,
+                    },
                     media_type: String::from("movie"),
                 };
 

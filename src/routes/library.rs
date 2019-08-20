@@ -3,8 +3,8 @@ use dim_database::library::{InsertableLibrary, Library};
 use dim_database::media::Media;
 use rocket::http::Status;
 use rocket_contrib::json::Json;
-use std::thread;
 use dim_scanners;
+use std::collections::HashMap;
 
 #[get("/")]
 pub fn library_get(conn: DbConnection) -> Json<Vec<Library>> {
@@ -18,7 +18,6 @@ pub fn library_post(
 ) -> Result<Status, Status> {
     match new_library.new(&conn) {
         Ok(id) => {
-            println!("Starting scanner thread");
             std::thread::spawn(move || {
                 dim_scanners::start(id).unwrap();
             });
@@ -36,10 +35,26 @@ pub fn library_delete(conn: DbConnection, id: i32) -> Result<Status, Status> {
     }
 }
 
-#[get("/<id>/media")]
-pub fn get_all_library(conn: DbConnection, id: i32) -> Result<Json<Vec<Media>>, Status> {
-    match Library::get(&conn, id) {
+#[get("/<id>")]
+pub fn get_self(conn: DbConnection, id: i32) -> Result<Json<Library>, Status> {
+    match Library::get_one(&conn, id) {
         Ok(data) => Ok(Json(data)),
         Err(_) => Err(Status::NotFound),
+    }
+}
+
+#[get("/<id>/media")]
+pub fn get_all_library(conn: DbConnection, id: i32) -> Result<Json<HashMap<String, Vec<Media>>>, Status> {
+    let mut result: HashMap<String, Vec<Media>> = HashMap::new();
+    if let Ok(lib) = Library::get_one(&conn, id) {
+        match Library::get(&conn, id) {
+            Ok(data) => {
+                result.insert(lib.name, data);
+                Ok(Json(result))
+            },
+            Err(_) => Err(Status::NotFound),
+        }
+    } else {
+        Err(Status::NotFound)
     }
 }
