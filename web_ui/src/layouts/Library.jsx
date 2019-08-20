@@ -6,59 +6,48 @@ class Library extends Component {
         super(props);
 
         this.state = {
-            cards: [],
+            cards: {},
         };
     }
 
     async componentDidMount() {
         const req = await fetch(this.props.path);
-        const payload = await req.json();
+        const sections = await req.json();
 
-        const cards = payload.map((card, i) => <Card key={i} data={card}/>);
-        this.setState({ cards });
+        for (const section in sections) {
+            const cards = sections[section].map((card, i) => <Card key={i} data={card}/>);
 
-        // * MULTIPLE SECTIONS
-        // const sections = await cardReq.json();
-
-        // for (const section in sections) {
-        //     const cards = section.map((card, i) => <Card key={i} data={card}/>);
-
-        //     this.setState({
-        //         cards: {
-        //             [section]: cards
-        //         },
-        //     });
-        // }
-
+            this.setState(prevState => ({
+                cards: {...prevState.cards, [section]: cards}
+            }));
+        }
     }
 
     render() {
         const { cards } = this.state;
 
         // * MULTIPLE SECTIONS
-        // const sections = Object.keys(sections).map(section => {
-        //     return (
-        //         <section key={section}>
-        //             <h1>{section}</h1>
-        //             <div className="cards">
-        //                 {cards[section].length !== 0
-        //                     ? cards[section]
-        //                     : (
-        //                         <div className="empty">
-        //                             <p>CURRENTLY EMPTY</p>
-        //                         </div>
-        //                     )
-        //                 }
-        //             </div>
-        //         </section>
-        //     );
-        // });
+        const sections = Object.keys(cards).map(section => {
+            return (
+                <section key={section}>
+                    <h1>{section}</h1>
+                    <div className="cards">
+                        {cards[section].length !== 0
+                            ? cards[section]
+                            : (
+                                <div className="empty">
+                                    <p>CURRENTLY EMPTY</p>
+                                </div>
+                            )
+                        }
+                    </div>
+                </section>
+            );
+        });
 
         return (
             <div className="library">
-                <div className="cards">
-                    { cards }
-                </div>
+                { sections }
             </div>
         );
     }
