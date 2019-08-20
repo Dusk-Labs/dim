@@ -42,6 +42,7 @@ fn iterate(conn: PgConnection, lib: Library) {
         .collect::<Vec<_>>();
 
     for file in files {
+        println!("[SCANNER] Scanning file: {}", file.file_name().unwrap().to_str().unwrap());
         let metadata = Metadata::from(file.file_name().unwrap().to_str().unwrap());
 
         let media_file = InsertableMediaFile {

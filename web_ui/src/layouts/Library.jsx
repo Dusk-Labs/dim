@@ -11,15 +11,25 @@ class Library extends Component {
     }
 
     async componentDidMount() {
-        const req = await fetch(this.props.path);
+        this.fetchCards(this.props.path);
+    }
+
+    fetchCards = async (path) => {
+        const req = await fetch(path);
         const sections = await req.json();
 
         for (const section in sections) {
             const cards = sections[section].map((card, i) => <Card key={i} data={card}/>);
 
             this.setState(prevState => ({
-                cards: {...prevState.cards, [section]: cards}
+                cards: {[section]: cards}
             }));
+        }
+    }
+
+    async componentDidUpdate(prevProps) {
+        if (this.props.path !== prevProps.path) {
+            this.fetchCards(this.props.path);
         }
     }
 
