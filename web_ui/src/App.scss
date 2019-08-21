@@ -234,11 +234,3 @@ main {
 /*
     * == MEDIA QUERIES
 */
-
-
-// ~1080p WIDE SCREEN
-@media only screen and (min-width: 2400px) and (min-height: 1000px) {
-    body {
-        font-size: 1.25em;
-    }
-}

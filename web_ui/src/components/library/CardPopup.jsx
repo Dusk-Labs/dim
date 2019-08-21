@@ -28,7 +28,7 @@ class CardPopup extends Component {
                     transform: "translateX(-4vh)"
                 },
                 content: {
-                    margin: "0 4vh 0 7vh"
+                    margin: "0 40px 0 70px"
                 }
             }
         };
@@ -59,7 +59,7 @@ class CardPopup extends Component {
                     transform: "translateX(4vh)"
                 },
                 content: {
-                    margin: "0 7vh 0 4vh"
+                    margin: "0 70px 0 40px"
                 }
             }
         });

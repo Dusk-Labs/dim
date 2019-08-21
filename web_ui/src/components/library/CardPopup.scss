@@ -1,37 +1,33 @@
-@-webkit-keyframes appear {
+@-webkit-keyframes CardPopupAppear {
     0% { opacity: 0; }
     100% { opacity: 1; }
 }
 
-@keyframes appear {
+@keyframes CardPopupAppear {
     0% { opacity: 0; }
     100% { opacity: 1; }
 }
 
 .card-popup {
-    box-sizing: border-box;
     position: absolute;
+    padding: 30px 0;
+    box-sizing: border-box;
+    align-content: space-between;
     top: -20px;
     height: 360px;
-    max-height: 360px;
-    min-height: 360px;
-    width: 450px;
-    max-width: 500px;
-    min-width: 500px;
+    width: 500px;
     background: transparent;
     pointer-events: none;
     z-index: 1;
     display: grid;
     align-items: center;
-    grid-gap: 2vh;
-    -ms-flex-line-pack: center;
-        align-content: center;
     grid-template-areas:
         "header"
         "content";
     font-family: "Roboto Black";
-    -webkit-animation: appear 0.5s ease-in-out;
-            animation: appear 0.5s ease-in-out;
+    -webkit-animation: CardPopupAppear 0.5s ease-in-out;
+            animation: CardPopupAppear 0.5s ease-in-out;
+
     .clipped {
         position: absolute;
         width: 100%;
@@ -52,22 +48,21 @@
     */
 
     .header {
-        padding: 1vh 3vh;
+        padding: 10px 30px;
         -webkit-clip-path: unset;
-                clip-path: unset;
+        clip-path: unset;
         border-radius: 1vh;
         background: #4d4d4d;
         display: -webkit-box;
         display: -ms-flexbox;
         display: flex;
         -webkit-box-pack: justify;
-            -ms-flex-pack: justify;
-                justify-content: space-between;
+        -ms-flex-pack: justify;
+        justify-content: space-between;
         -webkit-box-align: center;
-            -ms-flex-align: center;
-                align-items: center;
-        height: 5vh;
-        width: 80%;
+        -ms-flex-align: center;
+        align-items: center;
+        width: 85%;
         box-shadow: 0 0 30px 0 #00000055;
     }
 
@@ -96,12 +91,13 @@
 
     .content {
         display: grid;
+        align-content: space-between;
         grid-template-areas:
             "description"
             "info"
             "seperator"
             "footer";
-            grid-gap: 2vh;
+            grid-gap: 15px;
 
         .description {
             min-height: 80px;
@@ -261,4 +257,3 @@
     }
 
 }
-
