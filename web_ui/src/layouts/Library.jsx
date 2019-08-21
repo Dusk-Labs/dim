@@ -6,30 +6,32 @@ class Library extends Component {
         super(props);
 
         this.state = {
-            cards: {},
+            cards: {}
         };
     }
 
     async componentDidMount() {
-        this.fetchCards(this.props.path);
+        this.fetchCards();
     }
 
-    fetchCards = async (path) => {
-        const req = await fetch(path);
-        const sections = await req.json();
+    fetchCards = async () => {
+        const req = await fetch(this.props.path);
+        const payload = await req.json();
+        let sections = {};
 
-        for (const section in sections) {
-            const cards = sections[section].map((card, i) => <Card key={i} data={card}/>);
-
-            this.setState(prevState => ({
-                cards: {[section]: cards}
-            }));
+        for (const section in payload) {
+            const card_list = payload[section].map((card, i) => <Card key={i} data={card}/>);
+            sections[section] = card_list;
         }
-    }
+
+        this.setState({
+            cards: sections
+        });
+    };
 
     async componentDidUpdate(prevProps) {
         if (this.props.path !== prevProps.path) {
-            this.fetchCards(this.props.path);
+            this.fetchCards();
         }
     }
 
