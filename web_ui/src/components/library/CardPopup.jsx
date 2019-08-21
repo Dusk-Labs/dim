@@ -21,11 +21,11 @@ class CardPopup extends Component {
                 },
                 clipped: {
                     clipPath: "polygon(10% 0, 100% 0, 100% 100%, 5% 100%)",
-                    borderRadius: "0 1vh 1vh 0"
+                    borderRadius: "0 10px 10px 0"
                 },
                 header: {
                     justifySelf: "end",
-                    transform: "translateX(-4vh)"
+                    transform: "translateX(-40px)"
                 },
                 content: {
                     margin: "0 40px 0 70px"
@@ -36,7 +36,7 @@ class CardPopup extends Component {
 
     componentDidMount() {
         const { x, width } = this.popup.current.getBoundingClientRect();
-        const overflowing = (x + width > window.innerWidth - 100);
+        const overflowing = (x + width > window.innerWidth - 5);
 
         this.setState({
             accent: this.props.accent
@@ -52,11 +52,11 @@ class CardPopup extends Component {
                 },
                 clipped: {
                     clipPath: "polygon(0 0, 90% 0, 95% 100%, 0% 100%)",
-                    borderRadius: "1vh 0 0 1vh"
+                    borderRadius: "10px 0 0 10px"
                 },
                 header: {
                     justifySelf: "start",
-                    transform: "translateX(4vh)"
+                    transform: "translateX(40px)"
                 },
                 content: {
                     margin: "0 70px 0 40px"
@@ -66,7 +66,7 @@ class CardPopup extends Component {
 
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+    static getDerivedStateFromProps(nextProps) {
         return {
             accent: nextProps.accent,
         };
