@@ -1,9 +1,10 @@
 use crate::core::DbConnection;
 use dim_database::library::{InsertableLibrary, Library};
 use dim_database::media::Media;
-use rocket::http::Status;
-use rocket_contrib::json::Json;
+use dim_database::mediafile::MediaFile;
 use dim_scanners;
+use rocket::http::Status;
+use rocket_contrib::json::{Json, JsonValue};
 use std::collections::HashMap;
 
 #[get("/")]
@@ -22,7 +23,7 @@ pub fn library_post(
                 dim_scanners::start(id).unwrap();
             });
             Ok(Status::Created)
-        },
+        }
         Err(_) => Err(Status::NotImplemented),
     }
 }
@@ -44,14 +45,41 @@ pub fn get_self(conn: DbConnection, id: i32) -> Result<Json<Library>, Status> {
 }
 
 #[get("/<id>/media")]
-pub fn get_all_library(conn: DbConnection, id: i32) -> Result<Json<HashMap<String, Vec<Media>>>, Status> {
-    let mut result: HashMap<String, Vec<Media>> = HashMap::new();
+pub fn get_all_library(
+    conn: DbConnection,
+    id: i32,
+) -> Result<Json<HashMap<String, Vec<JsonValue>>>, Status> {
+    let mut result: HashMap<String, Vec<JsonValue>> = HashMap::new();
     if let Ok(lib) = Library::get_one(&conn, id) {
         match Library::get(&conn, id) {
             Ok(data) => {
-                result.insert(lib.name, data);
+                let out = data
+                    .iter()
+                    .map(|x| {
+                        let duration = match MediaFile::get_of_media(&conn, &x) {
+                            Ok(x) => x.duration.unwrap(),
+                            Err(_) => 0,
+                        };
+
+                        json!({
+                            "id": x.id,
+                            "library_id": x.library_id,
+                            "name": x.name,
+                            "description": x.description,
+                            "rating": x.rating,
+                            "year": x.year,
+                            "added": x.added,
+                            "poster_path": x.poster_path,
+                            "backdrop_path": x.backdrop_path,
+                            "media_type": x.media_type,
+                            "genres": x.genres,
+                            "duration": duration
+                        })
+                    })
+                    .collect::<Vec<JsonValue>>();
+                result.insert(lib.name, out);
                 Ok(Json(result))
-            },
+            }
             Err(_) => Err(Status::NotFound),
         }
     } else {

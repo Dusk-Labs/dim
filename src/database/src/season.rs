@@ -1,5 +1,5 @@
-use crate::tv::TVShow;
 use crate::schema::season;
+use crate::tv::TVShow;
 use diesel::prelude::*;
 
 #[derive(Identifiable, Associations, Queryable, Serialize, Deserialize, PartialEq, Debug)]
@@ -40,8 +40,7 @@ impl Season {
             .find(tv_id)
             .get_result::<TVShow>(conn)?;
 
-        let result = Self::belonging_to(&tv_show)
-            .load::<Self>(conn)?;
+        let result = Self::belonging_to(&tv_show).load::<Self>(conn)?;
 
         Ok(result)
     }
@@ -84,11 +83,7 @@ impl Season {
 }
 
 impl InsertableSeason {
-    pub fn new(
-        &self,
-        conn: &diesel::PgConnection,
-        id: i32,
-    ) -> Result<(), diesel::result::Error> {
+    pub fn new(&self, conn: &diesel::PgConnection, id: i32) -> Result<(), diesel::result::Error> {
         use crate::schema::tv_show;
 
         // We check if the tv show exists

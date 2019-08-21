@@ -1,10 +1,10 @@
 use diesel::prelude::*;
 use rocket::fairing::AdHoc;
+use rocket::http::Method;
 use rocket::Request;
 use rocket::Rocket;
 use rocket_contrib::json::JsonValue;
 use rocket_cors;
-use rocket::http::Method;
 
 #[allow(unused_imports)]
 use crate::routes;
@@ -55,13 +55,16 @@ pub fn rocket() -> Rocket {
     // You can also deserialize this
     let cors = rocket_cors::CorsOptions {
         allowed_origins,
-        allowed_methods: vec![Method::Get, Method::Post, Method::Delete, Method::Patch].into_iter().map(From::from).collect(),
+        allowed_methods: vec![Method::Get, Method::Post, Method::Delete, Method::Patch]
+            .into_iter()
+            .map(From::from)
+            .collect(),
         allowed_headers: rocket_cors::AllowedHeaders::all(),
         allow_credentials: true,
         ..Default::default()
     }
-    .to_cors().unwrap();
-
+    .to_cors()
+    .unwrap();
 
     rocket::ignite()
         .attach(DbConnection::fairing())
@@ -76,10 +79,7 @@ pub fn rocket() -> Rocket {
         ])
         .mount(
             "/api/v1/",
-            routes![
-                routes::general::dashboard,
-                routes::general::banners,
-            ],
+            routes![routes::general::dashboard, routes::general::banners,],
         )
         .mount(
             "/api/v1/library",

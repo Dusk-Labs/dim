@@ -1,4 +1,5 @@
 use crate::library::Library;
+use crate::mediafile::MediaFile;
 use crate::schema::media;
 use diesel::prelude::*;
 
@@ -16,6 +17,7 @@ pub struct Media {
     pub poster_path: Option<String>,
     pub backdrop_path: Option<String>,
     pub media_type: Option<String>,
+    pub genres: Option<Vec<String>>,
 }
 
 #[derive(Insertable, Serialize, Deserialize, Debug)]
@@ -30,6 +32,7 @@ pub struct InsertableMedia {
     pub poster_path: Option<String>,
     pub backdrop_path: Option<String>,
     pub media_type: String,
+    pub genres: Option<Vec<String>>,
 }
 
 #[derive(AsChangeset, Deserialize, PartialEq, Debug)]
@@ -43,6 +46,7 @@ pub struct UpdateMedia {
     pub poster_path: Option<Option<String>>,
     pub backdrop_path: Option<Option<String>>,
     pub media_type: Option<Option<String>>,
+    pub genres: Option<Vec<String>>,
 }
 
 impl Media {
@@ -51,15 +55,12 @@ impl Media {
         _lib_id: i32,
         library: Library,
     ) -> Result<Vec<Self>, diesel::result::Error> {
-        let result = Self::belonging_to(&library)
-            .load::<Self>(conn)?;
-        Ok(result) 
+        let result = Self::belonging_to(&library).load::<Self>(conn)?;
+
+        Ok(result)
     }
 
-    pub fn get(
-        conn: &diesel::PgConnection,
-        req_id: i32,
-    ) -> Result<Self, diesel::result::Error> {
+    pub fn get(conn: &diesel::PgConnection, req_id: i32) -> Result<Self, diesel::result::Error> {
         use crate::schema::media::dsl::*;
 
         let result = media.filter(id.eq(req_id)).first::<Self>(conn)?;
@@ -72,17 +73,16 @@ impl Media {
         library: &Library,
         name: &String,
     ) -> Result<Self, diesel::result::Error> {
-        let result = Self::belonging_to(library)
-            .load::<Self>(conn)?;
+        let result = Self::belonging_to(library).load::<Self>(conn)?;
 
         // Manual filter because of a bug with combining filter with belonging_to
         for i in result {
             if i.name == *name {
-                return Ok(i)
+                return Ok(i);
             }
         }
 
-        return Err(diesel::result::Error::NotFound)
+        return Err(diesel::result::Error::NotFound);
     }
 
     pub fn delete(
@@ -98,8 +98,8 @@ impl Media {
 
 impl InsertableMedia {
     pub fn new(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
-        use crate::tv::InsertableTVShow;
         use crate::schema::library::dsl::*;
+        use crate::tv::InsertableTVShow;
 
         library
             .filter(id.eq(self.library_id))

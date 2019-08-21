@@ -1,9 +1,9 @@
 use crate::media::InsertableMedia;
 use crate::media::Media;
 use crate::media::UpdateMedia;
+use crate::schema::episode;
 use crate::season::Season;
 use crate::tv::TVShow;
-use crate::schema::episode;
 use diesel::prelude::*;
 
 #[derive(Serialize)]

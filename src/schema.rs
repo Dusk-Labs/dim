@@ -27,6 +27,7 @@ table! {
         poster_path -> Nullable<Text>,
         backdrop_path -> Nullable<Text>,
         media_type -> Nullable<Varchar>,
+        genres -> Nullable<Array<Text>>,
     }
 }
 
