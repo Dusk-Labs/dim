@@ -33,6 +33,10 @@ class BannerPage extends Component {
         this.interval = setInterval(this.next.bind(this), this.state.interval);
     }
 
+    componentWillUnmount() {
+        clearInterval(this.interval);
+    }
+    
     render() {
         const { activeIndex } = this.state;
         const banners = [];
