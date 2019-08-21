@@ -19,6 +19,7 @@
 }
 
 ::-webkit-scrollbar {
+	height: 5px;
     width: 5px;
 }
 
@@ -69,7 +70,7 @@ button {
     height: 2px;
     width: 100%;
     background: #808080;
-    border-radius: 2px;
+	border-radius: 2px;
 }
 
 /*
@@ -170,7 +171,6 @@ button {
 main {
     background: #1a1a1a;
     margin-left: 300px;
-    min-width: 500px;
     -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
          box-sizing: border-box;
@@ -180,14 +180,15 @@ main {
     grid-template-areas:
         "banner"
         "library";
-    grid-template-rows: 40vh auto;
+	grid-template-rows: 40vh auto;
+	transition: margin 0.3s ease-in-out;
 
     /*
         * == LIBRARY ==
     */
 
     .library {
-        margin: 5vh 0;
+        margin: 50px 0;
         padding: 0 5%;
         z-index: 1;
 
@@ -202,10 +203,12 @@ main {
     }
 
     .cards {
-        margin: 5vh 0;
-        display: grid;
+        margin: 50px 0;
+		display: grid;
+		justify-content: space-between;
         grid-template-columns: repeat(auto-fill, 200px);
-        grid-gap: 10vh 5vh;
+		grid-gap: 10vh 5vh;
+		transition: all 1s;
     }
 }
 
@@ -234,3 +237,9 @@ main {
 /*
     * == MEDIA QUERIES
 */
+
+@media only screen and (max-width: 651px) {
+	main .cards {
+		justify-content: center !important;
+	}
+}

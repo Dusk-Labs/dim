@@ -7,9 +7,11 @@
     -webkit-box-shadow: 0 0 10px 5px #000000aa;
             box-shadow: 0 0 10px 5px #000000aa;
     z-index: 1;
+    -webkit-transition: width 0.3s ease-in-out;
+    transition: width 0.3s ease-in-out;
 
     section {
-        margin: 5vh auto;
+        margin: 50px auto;
         width: 80%;
 
         header {
@@ -74,7 +76,8 @@
                 padding: 4px;
                 height: 31px;
                 width: 31px;
-                object-fit: cover;
+                -o-object-fit: cover;
+                   object-fit: cover;
                 border-radius: 35px;
                 border: #ffffff 2px solid;
             }
@@ -97,9 +100,11 @@
 
         .search-box {
             background: #4d4d4d;
-            border-radius: 1vh;
-            display: grid;
-            grid-template-areas: "input button";
+            border-radius: 10px;
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
+            display: flex;
             -webkit-box-pack: space-evenly;
                 -ms-flex-pack: space-evenly;
                     -moz-box-pack: space-evenly;
@@ -108,14 +113,35 @@
                 -ms-flex-align: center;
                     -moz-box-align: center;
                     align-items: center;
+            overflow: hidden;
 
             input {
                 background: #4d4d4d;
                 border: none;
-                padding: 1vh;
+                padding: 10px;
                 outline: none;
                 color: #ffffff;
                 font-family: "Roboto Black";
+            }
+
+            input::-webkit-input-placeholder {
+                color: #8d8d8d8d;
+            }
+
+            input::-moz-placeholder {
+                color: #8d8d8d8d;
+            }
+
+            input:-ms-input-placeholder {
+                color: #8d8d8d8d;
+            }
+
+            input::-ms-input-placeholder {
+                color: #8d8d8d8d;
+            }
+
+            input::placeholder {
+                color: #8d8d8d8d;
             }
 
             button {
@@ -144,6 +170,7 @@
     h4 {
         font-family: "Roboto Black";
         margin: 0;
+        font-weight: normal;
         color: #808080;
     }
 
@@ -238,17 +265,27 @@
             display: block !important;
 
             .profile {
+                margin: 10px 0 !important;
                 display: block !important;
             }
         }
 
-        .search-box, .separator {
+        .search-box input {
+            width: 50% !important;
+        }
+
+        .separator {
             display: none !important;
         }
 
-        section button {
-            display: none !important;
+        section {
+            margin: 30px auto;
+
+            header button {
+                display: none !important;
+            }
         }
+
 
         .item-wrapper {
             grid-template-columns: auto !important;
