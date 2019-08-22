@@ -48,6 +48,7 @@
         border-radius: 10px;
         -webkit-transition: border-radius 0.3s ease-in-out;
         transition: border-radius 0.3s ease-in-out;
+        box-shadow: 2px 4px 3px rgba(0,0,0,0.3);
 
         &:hover {
             cursor: pointer;
