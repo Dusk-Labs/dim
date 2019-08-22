@@ -4,8 +4,6 @@ import Library from "./Library.jsx";
 import Banner from "../components/dashboard/Banner.jsx";
 import BannerPage from "../components/dashboard/BannerPage.jsx";
 
-import "./Dashboard.scss";
-
 class Dashboard extends Component {
     constructor(props) {
         super(props);
