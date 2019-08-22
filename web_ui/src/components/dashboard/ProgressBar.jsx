@@ -24,7 +24,7 @@ class ProgressBar extends Component {
         })
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+    static getDerivedStateFromProps(nextProps) {
         return {
             accent: nextProps.accent,
             data: {
@@ -45,7 +45,6 @@ class ProgressBar extends Component {
         } = this.state.data;
 
         const { accent } = this.state;
-
         const width = current / duration * 100 + "%";
 
         return (
@@ -59,14 +58,14 @@ class ProgressBar extends Component {
                 }
                 <div className="progress">
                     <div className="current">
-                        <p>{current}</p>
+                        <p>{current | "N/A"}</p>
                         <p>min</p>
                     </div>
                     <span className="bar">
                         <span className="progress" style={{ width: width, background: accent }}></span>
                     </span>
                     <div className="duration">
-                        <p>{duration}</p>
+                        <p>{duration | "N/A"}</p>
                         <p>min</p>
                     </div>
                 </div>
