@@ -20,17 +20,37 @@
 
     .info {
         text-align: left;
-        width: 400px;
+        width: 450px;
         position: absolute;
         top: 50%;
         left: 5%;
         -webkit-transform: translate(0, -40%);
                 transform: translate(0, -40%);
-        text-shadow: #000000 0 0 10px;
+        text-shadow: 2px 4px 3px rgba(0,0,0,0.3);
 
         h1 {
             font-size: 2em;
             margin: 0;
+        }
+
+        .extra {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            font-family: "Roboto Black";
+
+            svg {
+                font-size: 0.5em;
+            }
+
+            p {
+                text-shadow: none;
+                padding: 6px 12px;
+                border-radius: 10px;
+                margin: 5px 5px 5px 0;
+                // margin-right: 5px;
+                white-space: nowrap;
+            }
         }
 
         .desc {
@@ -42,7 +62,7 @@
         }
 
         p {
-            color: #b3b3b3;
+            color: #bfbfbf;
         }
     }
 
@@ -92,7 +112,7 @@
     }
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 660px) {
     .banner .info {
         top: 45%;
         width: 350px;

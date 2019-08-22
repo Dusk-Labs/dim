@@ -2,6 +2,7 @@ import React, { PureComponent } from "react";
 import LazyImage from "../../helpers/LazyImage.jsx";
 import ProgressBar from "./ProgressBar.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import TruncText from "../../helpers/TruncText.jsx";
 import * as Vibrant from 'node-vibrant';
 
 import "./Banner.scss";
@@ -17,8 +18,15 @@ class Banner extends PureComponent {
             },
             data: {
                 img: this.props.src,
-                title: this.props.title,
-                description: this.props.description,
+                title: "TITLE",
+                description: "DESCRIPTION",
+                season: this.props.season,
+                episode: this.props.episode,
+                duration: this.props.duration,
+                delta: this.props.delta,
+                banner_caption: this.props.banner_caption,
+                genres: [],
+                year: this.props.year,
             },
         };
     }
@@ -52,21 +60,41 @@ class Banner extends PureComponent {
     }
 
     render() {
-        const { accent, data: {img, title, description, season, episode, duration, delta, banner_caption} } = this.state;
+        const {
+            accent,
+            data: {
+                img,
+                title,
+                description,
+                season,
+                episode,
+                duration,
+                delta,
+                banner_caption,
+                genres,
+                year
+            }
+        } = this.state;
 
         const accentCSS = {
             background: accent.background,
             color: accent.text
         };
 
+        genres.length = 3;
+
         return (
             <div className="banner-wrapper">
                 <LazyImage alt="banner" src={img} onLoad={this.onLoadBanner}/>
                 <div className="info">
                     <h1>{title}</h1>
+                    <div className="extra">
+                        <p style={accentCSS}>{year}</p>
+                        {genres.map((genre, i) => <p key={i} style={accentCSS}>{genre}</p>)}
+                    </div>
                     <div className="desc">
                         <h5>{banner_caption}</h5>
-                        <p>{description}</p>
+                        <TruncText content={description} max={35}/>
                     </div>
                     <a
                         href={img}
