@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import Modal from "react-modal";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import SidebarIcon from "../helpers/SidebarIcon.jsx";
 import "./sidebar.scss";
 
 Modal.setAppElement("body");
@@ -48,13 +49,21 @@ class Sidebar extends Component {
         };
 
         const hosts = [
-            { name: "Desktop", icon: "desktop", id: "1"},
-            { name: "Laptop", icon: "laptop", id: "2"},
-            { name: "Phone", icon: "mobile-alt", id: "3"}
+            { name: "Desktop", id: "1"},
+            { name: "Laptop", id: "2"},
+            { name: "Phone", id: "3"}
         ];
 
-        const reqLibs = await fetch("http://86.21.150.167:8000/api/v1/library/");
-        const libs = await reqLibs.json();
+        // const reqProfile = fetch("http://86.21.150.167:8000/api/v1/");
+        // const reqHosts = fetch("http://86.21.150.167:8000/api/v1/");
+        const reqLibs = fetch("http://86.21.150.167:8000/api/v1/library/");
+
+        // const [ profile, hosts, libs ] = [
+        const [ libs ] = [
+            // await (await reqProfile).json(),
+            // await (await reqHosts).json(),
+            await (await reqLibs).json()
+        ];
 
         this.setState({
             profile,
@@ -66,14 +75,16 @@ class Sidebar extends Component {
 
     }
 
-    list(items, path) {
+    list(res, path) {
+        const items = !res || res.error ? [] : res;
+
         return items.length !== 0 ? (
             <div className="list">
-                {items.map(({ name, id }, i) => {
+                {items.map(({ name, id, media_type }, i) => {
                     return (
                         <div className="item-wrapper" key={i}>
                             <NavLink to={path + id}>
-                                <FontAwesomeIcon icon="folder"/>
+                                <SidebarIcon icon={media_type || name}/>
                                 <p>{name}</p>
                             </NavLink>
                             <button>-</button>

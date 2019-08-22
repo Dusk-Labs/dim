@@ -1,5 +1,6 @@
 .sidebar {
     grid-area: sidebar;
+    min-height: 100vh;
     height: 100%;
     width: 300px;
     position: fixed;
@@ -176,9 +177,12 @@
 
     // ITEM
     .list {
+        height: 115.5px;
+        overflow-y: scroll;
+
         .item-wrapper {
             display: grid;
-            grid-template-columns: auto 20px;
+            grid-template-columns: auto 20px 1px;
             text-align: center;
             grid-gap: 15px;
             -webkit-box-align: center;
@@ -279,13 +283,16 @@
         }
 
         section {
-            margin: 30px auto;
+            margin: 30px auto !important;
 
             header button {
                 display: none !important;
             }
         }
 
+        .list {
+            height: 243.51px !important;
+        }
 
         .item-wrapper {
             grid-template-columns: auto !important;
