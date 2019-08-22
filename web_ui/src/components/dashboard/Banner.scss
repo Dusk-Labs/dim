@@ -26,7 +26,7 @@
         left: 5%;
         -webkit-transform: translate(0, -40%);
                 transform: translate(0, -40%);
-        text-shadow: #000000 0 0 15px;
+        text-shadow: #000000 0 0 10px;
 
         h1 {
             font-size: 2em;
@@ -49,15 +49,20 @@
     a {
         font-family: "Roboto Black";
         color: #eee7e7;
-        padding: 0.7vh 3vh;
+        padding: 7px 30px;
         border-radius: 1vh;
-        filter: brightness(90%);
+        -webkit-filter: brightness(90%);
+                filter: brightness(90%);
         -webkit-transition: filter 0.3s ease-in-out;
+        -webkit-transition: -webkit-filter 0.3s ease-in-out;
+        transition: -webkit-filter 0.3s ease-in-out;
         transition: filter 0.3s ease-in-out;
+        transition: filter 0.3s ease-in-out, -webkit-filter 0.3s ease-in-out;
         text-shadow: none;
 
         &:hover {
-            filter: brightness(100%);
+            -webkit-filter: brightness(100%);
+                    filter: brightness(100%);
         }
     }
 
@@ -80,16 +85,16 @@
     }
 }
 
-// @media only screen and (min-width: 2400px) and (min-height: 720px) {
-//     .banner img {
-//         -o-object-position: 30% 30%;
-//            object-position: 30% 30%;
-//     }
-// }
+@media only screen and (max-width: 720px) and (max-height: 1440px) {
+    .banner img {
+        -o-object-position: 50%;
+           object-position: 50%;
+    }
+}
 
-// @media only screen and (max-width: 1366px) and (max-height: 720px) {
-//     .banner img {
-//         -o-object-position: 30% 30%;
-//            object-position: 30% 30%;
-//     }
-// }
+@media only screen and (max-width: 600px) {
+    .banner .info {
+        top: 45%;
+        width: 350px;
+    }
+}

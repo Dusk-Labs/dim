@@ -1,15 +1,18 @@
 .sidebar {
     grid-area: sidebar;
+    min-height: 100vh;
     height: 100%;
-    width: 30vh;
+    width: 300px;
     position: fixed;
     background: #333333;
     -webkit-box-shadow: 0 0 10px 5px #000000aa;
             box-shadow: 0 0 10px 5px #000000aa;
     z-index: 1;
+    -webkit-transition: width 0.3s ease-in-out;
+    transition: width 0.3s ease-in-out;
 
     section {
-        margin: 5vh auto;
+        margin: 50px auto;
         width: 80%;
 
         header {
@@ -74,7 +77,8 @@
                 padding: 4px;
                 height: 31px;
                 width: 31px;
-                object-fit: cover;
+                -o-object-fit: cover;
+                   object-fit: cover;
                 border-radius: 35px;
                 border: #ffffff 2px solid;
             }
@@ -97,9 +101,11 @@
 
         .search-box {
             background: #4d4d4d;
-            border-radius: 1vh;
-            display: grid;
-            grid-template-areas: "input button";
+            border-radius: 10px;
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
+            display: flex;
             -webkit-box-pack: space-evenly;
                 -ms-flex-pack: space-evenly;
                     -moz-box-pack: space-evenly;
@@ -108,14 +114,35 @@
                 -ms-flex-align: center;
                     -moz-box-align: center;
                     align-items: center;
+            overflow: hidden;
 
             input {
                 background: #4d4d4d;
                 border: none;
-                padding: 1vh;
+                padding: 10px;
                 outline: none;
                 color: #ffffff;
                 font-family: "Roboto Black";
+            }
+
+            input::-webkit-input-placeholder {
+                color: #8d8d8d8d;
+            }
+
+            input::-moz-placeholder {
+                color: #8d8d8d8d;
+            }
+
+            input:-ms-input-placeholder {
+                color: #8d8d8d8d;
+            }
+
+            input::-ms-input-placeholder {
+                color: #8d8d8d8d;
+            }
+
+            input::placeholder {
+                color: #8d8d8d8d;
             }
 
             button {
@@ -144,14 +171,18 @@
     h4 {
         font-family: "Roboto Black";
         margin: 0;
+        font-weight: normal;
         color: #808080;
     }
 
-    /* ITEM */
+    // ITEM
     .list {
+        height: 115.5px;
+        overflow-y: scroll;
+
         .item-wrapper {
             display: grid;
-            grid-template-columns: auto 20px;
+            grid-template-columns: auto 20px 1px;
             text-align: center;
             grid-gap: 15px;
             -webkit-box-align: center;
@@ -212,15 +243,76 @@
             background: #222222;
         }
 
-        /* ITEM ICON */
+        // ITEM ICON
         svg {
             margin: 0 auto;
         }
 
-        /* ITEM NAME */
+        // ITEM NAME
          p {
             margin: 0;
             padding: 1vh 0;
+        }
+    }
+}
+
+@media only screen and (max-width: 1080px) {
+    main {
+        margin-left: 150px !important;
+    }
+
+    .sidebar {
+        width: 150px !important;
+        text-align: center !important;
+
+        .main-part {
+            display: block !important;
+
+            .profile {
+                margin: 10px 0 !important;
+                display: block !important;
+            }
+        }
+
+        .search-box input {
+            width: 50% !important;
+        }
+
+        .separator {
+            display: none !important;
+        }
+
+        section {
+            margin: 30px auto !important;
+
+            header button {
+                display: none !important;
+            }
+        }
+
+        .list {
+            height: 243.51px !important;
+        }
+
+        .item-wrapper {
+            grid-template-columns: auto !important;
+            grid-gap: 0 !important;
+
+            button {
+                display: none !important;
+            }
+
+            // ITEM ICON
+            a:nth-child(1) {
+                padding: 1vh 0 !important;
+                display: block !important;
+            }
+
+            // ITEM NAME
+            p {
+                padding: 1vh 0 0 0 !important;
+            }
+
         }
     }
 }
