@@ -33,6 +33,7 @@ pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
         .load::<Media>(&*conn)
         .expect("unable to load banners")
         .iter()
+        .filter(|x| x.backdrop_path.is_some())
         .map(|x| {
             let duration = match MediaFile::get_of_media(&*conn, &x) {
                 Ok(x) => x.duration.unwrap(),
