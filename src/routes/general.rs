@@ -42,9 +42,11 @@ pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
             json!({
                 "id": x.id,
                 "title": x.name,
+                "year": x.year,
                 "synopsis": x.description,
                 "backdrop": x.backdrop_path,
                 "duration": duration,
+                "genres": x.genres,
                 "delta": 0,
                 "banner_caption": "WATCH SOMETHING FRESH"
             })

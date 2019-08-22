@@ -34,6 +34,8 @@ class Banner extends PureComponent {
                 duration: this.props.duration,
                 delta: this.props.delta,
                 banner_caption: this.props.banner_caption,
+                genres: this.props.genres,
+                year: this.props.year,
             }
         });
     }
