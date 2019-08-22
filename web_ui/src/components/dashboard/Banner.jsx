@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import LazyImage from "../../helpers/LazyImage.jsx";
 import ProgressBar from "./ProgressBar.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -6,7 +6,7 @@ import * as Vibrant from 'node-vibrant';
 
 import "./Banner.scss";
 
-class Banner extends Component {
+class Banner extends PureComponent {
     constructor(props) {
         super(props);
 
@@ -23,6 +23,21 @@ class Banner extends Component {
         };
     }
 
+    componentDidMount() {
+        this.setState({
+            data: {
+                img: this.props.src,
+                title: this.props.title,
+                description: this.props.description,
+                season: this.props.season,
+                episode: this.props.episode,
+                duration: this.props.duration,
+                delta: this.props.delta,
+                banner_caption: this.props.banner_caption,
+            }
+        });
+    }
+
     onLoadBanner = async (blob) => {
         const color = await Vibrant.from(URL.createObjectURL(blob)).getPalette();
 
@@ -35,7 +50,7 @@ class Banner extends Component {
     }
 
     render() {
-        const { accent, data: {img, title, description} } = this.state;
+        const { accent, data: {img, title, description, season, episode, duration, delta, banner_caption} } = this.state;
 
         const accentCSS = {
             background: accent.background,
@@ -48,7 +63,7 @@ class Banner extends Component {
                 <div className="info">
                     <h1>{title}</h1>
                     <div className="desc">
-                        <h5>PICK UP WHERE YOU LEFT OFF</h5>
+                        <h5>{banner_caption}</h5>
                         <p>{description}</p>
                     </div>
                     <a
@@ -60,7 +75,7 @@ class Banner extends Component {
                         <FontAwesomeIcon icon="arrow-alt-circle-right"/>
                     </a>
                 </div>
-                <ProgressBar id="1" accent={accent.background}/>
+                <ProgressBar id="1" accent={accent.background} season={season} episode={episode} duration={duration} delta={delta}/>
             </div>
         );
     }

@@ -15,12 +15,10 @@ class ProgressBar extends Component {
     componentDidMount() {
         this.setState({
             data: {
-                current: 23,
-                currentUnit: "min",
-                duration: 53,
-                durationUnit: "min",
-                season: "01",
-                episode: "01",
+                current: Math.round(this.props.delta / 60),
+                duration: Math.round(this.props.duration / 60),
+                season: this.props.season,
+                episode: this.props.episode,
             },
             accent: this.props.accent,
         })
@@ -29,15 +27,19 @@ class ProgressBar extends Component {
     static getDerivedStateFromProps(nextProps, prevState) {
         return {
             accent: nextProps.accent,
+            data: {
+                current: Math.round(nextProps.delta / 60),
+                duration: Math.round(nextProps.duration / 60),
+                season: nextProps.season,
+                episode: nextProps.episode,
+            },
         };
     }
 
     render() {
         const {
             current,
-            currentUnit,
             duration,
-            durationUnit,
             season,
             episode
         } = this.state.data;
@@ -48,22 +50,24 @@ class ProgressBar extends Component {
 
         return (
             <div className="progress-bar">
-                <div className="s-e">
-                    <p>S{season}</p>
-                    <FontAwesomeIcon icon="circle" style={{ color: accent }}/>
-                    <p>E{episode}</p>
-                </div>
+                { (season, episode !== undefined) &&
+                    (<div className="s-e">
+                        <p>S{season}</p>
+                        <FontAwesomeIcon icon="circle" style={{ color: accent }}/>
+                        <p>E{episode}</p>
+                    </div>)
+                }
                 <div className="progress">
                     <div className="current">
                         <p>{current}</p>
-                        <p>{currentUnit}</p>
+                        <p>min</p>
                     </div>
                     <span className="bar">
                         <span className="progress" style={{ width: width, background: accent }}></span>
                     </span>
                     <div className="duration">
                         <p>{duration}</p>
-                        <p>{durationUnit}</p>
+                        <p>min</p>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 use crate::core::DbConnection;
 use diesel::prelude::*;
 use dim_database::media::Media;
+use dim_database::mediafile::MediaFile;
 use rocket::http::Status;
 use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
@@ -33,11 +34,19 @@ pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
         .expect("unable to load banners")
         .iter()
         .map(|x| {
+            let duration = match MediaFile::get_of_media(&*conn, &x) {
+                Ok(x) => x.duration.unwrap(),
+                Err(_) => 0,
+            };
+
             json!({
                 "id": x.id,
                 "title": x.name,
                 "synopsis": x.description,
                 "backdrop": x.backdrop_path,
+                "duration": duration,
+                "delta": 0,
+                "banner_caption": "WATCH SOMETHING FRESH"
             })
         })
         .collect::<Vec<_>>();
