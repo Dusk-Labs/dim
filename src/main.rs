@@ -13,11 +13,12 @@ extern crate rocket_contrib;
 #[macro_use]
 extern crate rocket_codegen;
 
-extern crate serde;
-extern crate dotenv;
-extern crate rocket;
 extern crate dim_database;
 extern crate dim_scanners;
+extern crate dim_streamer;
+extern crate dotenv;
+extern crate rocket;
+extern crate serde;
 
 pub mod routes;
 pub mod schema;

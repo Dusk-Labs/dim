@@ -2,7 +2,6 @@ use crate::library::Library;
 use crate::media::Media;
 use crate::schema::mediafile;
 use diesel::prelude::*;
-use diesel::debug_query;
 
 #[derive(Identifiable, Queryable, Serialize, Deserialize, PartialEq, Debug, Associations)]
 #[belongs_to(Library, foreign_key = "library_id")]
@@ -13,7 +12,7 @@ pub struct MediaFile {
     pub media_id: Option<i32>,
     pub library_id: i32,
     pub target_file: String,
-    
+
     pub raw_name: String,
     pub raw_year: Option<i32>,
 
@@ -31,7 +30,7 @@ pub struct InsertableMediaFile {
     pub media_id: Option<i32>,
     pub library_id: i32,
     pub target_file: String,
-    
+
     pub raw_name: String,
     pub raw_year: Option<i32>,
 
@@ -61,10 +60,18 @@ pub struct UpdateMediaFile {
 impl MediaFile {
     pub fn get_by_lib(
         conn: &diesel::PgConnection,
-        lib: &Library
+        lib: &Library,
     ) -> Result<Vec<Self>, diesel::result::Error> {
-        Self::belonging_to(lib)
-            .load::<Self>(conn)
+        Self::belonging_to(lib).load::<Self>(conn)
+    }
+
+    pub fn get_of_media(
+        conn: &diesel::PgConnection,
+        media: &Media,
+    ) -> Result<Self, diesel::result::Error> {
+        let result = Self::belonging_to(media).first::<Self>(conn)?;
+
+        Ok(result)
     }
 }
 
@@ -84,19 +91,12 @@ impl UpdateMediaFile {
     pub fn update(
         &self,
         conn: &diesel::PgConnection,
-        _id: i32
+        _id: i32,
     ) -> Result<usize, diesel::result::Error> {
         use crate::schema::mediafile::dsl::*;
-        let entry = mediafile
-            .filter(id.eq(_id));
+        let entry = mediafile.filter(id.eq(_id));
 
         let q = diesel::update(entry).set(self);
-        /*
-        let query = diesel::debug_query::<diesel::pg::Pg, _>(
-            &q
-        ).to_string();
-        println!("Q: {}", query);
-        */
         q.execute(conn)
     }
 }

@@ -1,35 +1,29 @@
 use crate::core::DbConnection;
-use dim_database::library::{InsertableLibrary, Library};
+use diesel::prelude::*;
 use dim_database::media::Media;
 use rocket::http::Status;
 use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
-use diesel::prelude::*;
 
 #[get("/dashboard")]
-pub fn dashboard(
-    conn: DbConnection,
-) -> Result<JsonValue, Status> {
+pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
     use dim_database::schema::media::dsl::*;
-    let top_rated = media
-        .order(rating.desc())
-        .load::<Media>(&*conn).unwrap();
-    
-    let recently_added = media
-        .order(added.desc())
-        .load::<Media>(&*conn).unwrap();
+    let top_rated = media.order(rating.desc()).load::<Media>(&*conn).unwrap();
 
-    let body = json!({
-        "TOP RATED": top_rated[0..10].to_vec(),
-        "FRESHLY ADDED": recently_added[0..10].to_vec()
-    });
-    Ok(body)
+    let recently_added = media.order(added.desc()).load::<Media>(&*conn).unwrap();
+
+    if top_rated.len() >= 10 && recently_added.len() >= 10 {
+        Ok(json!({
+            "TOP RATED": top_rated[0..10].to_vec(),
+            "FRESHLY ADDED": recently_added[0..10].to_vec()
+        }))
+    } else {
+        Ok(json!({}))
+    }
 }
 
 #[get("/dashboard/banner")]
-pub fn banners(
-    conn: DbConnection,
-) -> Result<Json<Vec<JsonValue>>, Status> {
+pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
     use dim_database::schema::media::dsl::*;
     no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
     let results = media

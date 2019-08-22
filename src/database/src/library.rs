@@ -34,9 +34,7 @@ impl Library {
     ) -> Result<Library, diesel::result::Error> {
         use crate::schema::library::dsl::*;
 
-        library
-            .filter(id.eq(lib_id))
-            .first::<Self>(conn)
+        library.filter(id.eq(lib_id)).first::<Self>(conn)
     }
 
     pub fn get(

@@ -24,6 +24,7 @@ CREATE TABLE media (
     poster_path TEXT,
     backdrop_path TEXT,
     media_type VARCHAR(50),
+    genres TEXT[], -- NOTE: Use a separate table for genres
     PRIMARY KEY (id),
     CONSTRAINT fk_library FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE
 );
@@ -79,11 +80,11 @@ CREATE TABLE mediafile (
     raw_name TEXT NOT NULL,
     raw_year INTEGER,
 
-    quality VARCHAR(10),
-    codec VARCHAR(10),
-    container VARCHAR(10),
-    audio VARCHAR(10),
-    original_resolution VARCHAR(10),
+    quality VARCHAR(255),
+    codec VARCHAR(255),
+    container VARCHAR(255),
+    audio VARCHAR(255),
+    original_resolution VARCHAR(255),
     duration INTEGER,
     PRIMARY KEY (id),
 --  For now we directly link to media instead of a intermediary, NOTE: FIXME

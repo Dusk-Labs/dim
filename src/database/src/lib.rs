@@ -9,17 +9,17 @@ extern crate diesel_migrations;
 #[macro_use]
 extern crate serde;
 
-pub mod schema;
 pub mod episode;
 pub mod library;
 pub mod media;
-pub mod season; 
-pub mod tv;
 pub mod mediafile;
+pub mod schema;
+pub mod season;
+pub mod tv;
 
 pub fn get_conn() -> Result<diesel::PgConnection, diesel::result::ConnectionError> {
-    use diesel::pg::PgConnection;
     use diesel::connection::Connection;
+    use diesel::pg::PgConnection;
     let conn = PgConnection::establish("postgres://postgres:dimpostgres@postgres/dim");
 
     if conn.is_ok() {

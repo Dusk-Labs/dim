@@ -27,6 +27,7 @@ table! {
         poster_path -> Nullable<Text>,
         backdrop_path -> Nullable<Text>,
         media_type -> Nullable<Varchar>,
+        genres -> Nullable<Array<Text>>,
     }
 }
 
@@ -79,7 +80,7 @@ joinable!(episode -> season (seasonid));
 joinable!(episode -> streamable_media (id));
 joinable!(media -> library (library_id));
 joinable!(mediafile -> library (library_id));
-joinable!(mediafile -> streamable_media (media_id));
+joinable!(mediafile -> media (media_id));
 joinable!(movie -> streamable_media (id));
 joinable!(season -> tv_show (tvshowid));
 joinable!(streamable_media -> media (id));

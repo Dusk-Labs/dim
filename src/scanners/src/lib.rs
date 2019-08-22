@@ -1,15 +1,15 @@
 extern crate clap;
 extern crate crossbeam_channel;
+extern crate diesel;
 extern crate notify;
 extern crate torrent_name_parser;
-extern crate diesel;
 
-use std::thread;
 use dim_database::get_conn;
+use std::thread;
 
 pub mod api;
-pub mod tmdb;
 pub mod iterative_parser;
+pub mod tmdb;
 
 use crate::iterative_parser::start_iterative_parser;
 
@@ -24,9 +24,9 @@ pub fn start(library_id: i32) -> std::result::Result<(), &'static str> {
         }));
     } else {
         println!("[SCANNERS] Failed to connect to db");
-        return Err("[SCANNERS] Failed to connect to db")
+        return Err("[SCANNERS] Failed to connect to db");
     }
-    
+
     for t in threads {
         t.join();
     }
