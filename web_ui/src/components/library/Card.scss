@@ -47,10 +47,8 @@
     }
 
     img, .image-wrapper {
-        -webkit-animation-name: imageLoaded;
-                animation-name: imageLoaded;
-        -webkit-animation-duration: 0.7s;
-                animation-duration: 0.7s;
+        -webkit-animation: imageLoaded 1s ease-in-out;
+                animation: imageLoaded 1s ease-in-out;
     }
 
     p {
@@ -69,15 +67,6 @@
     &:hover {
         background: #444444;
     }
-
-    &::after {
-        top: 50%;
-        left: 50%;
-        -webkit-transform: translate(-50%, -50%);
-                transform: translate(-50%, -50%);
-        position: absolute;
-        content: "MISSING COVER";
-    }
 }
 
 /*
@@ -85,23 +74,19 @@
 */
 
 @-webkit-keyframes imageLoaded {
-    from {
-        background-color: #555;
+    0% {
         opacity: 0;
     }
-    to {
-        background-color: none;
-        opacity: 0.7;
+    100% {
+        opacity: 1;
     }
 }
 
 @keyframes imageLoaded {
-    from {
-        background-color: #555;
+    0% {
         opacity: 0;
     }
-    to {
-        background-color: none;
-        opacity: 0.7;
+    100% {
+        opacity: 1;
     }
 }
