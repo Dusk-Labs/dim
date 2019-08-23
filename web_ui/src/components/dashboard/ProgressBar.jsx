@@ -19,6 +19,7 @@ class ProgressBar extends Component {
                 duration: Math.round(this.props.duration / 60),
                 season: this.props.season,
                 episode: this.props.episode,
+                quality: this.props.quality
             },
             accent: this.props.accent,
         })
@@ -32,6 +33,7 @@ class ProgressBar extends Component {
                 duration: Math.round(nextProps.duration / 60),
                 season: nextProps.season,
                 episode: nextProps.episode,
+                quality: nextProps.quality
             },
         };
     }
@@ -41,7 +43,8 @@ class ProgressBar extends Component {
             current,
             duration,
             season,
-            episode
+            episode,
+            quality
         } = this.state.data;
 
         const { accent } = this.state;
@@ -49,13 +52,15 @@ class ProgressBar extends Component {
 
         return (
             <div className="progress-bar">
-                { (season, episode !== undefined) &&
-                    (<div className="s-e">
-                        <p>S{season}</p>
-                        <FontAwesomeIcon icon="circle" style={{ color: accent }}/>
-                        <p>E{episode}</p>
-                    </div>)
-                }
+                {(season, episode !== undefined)
+                    ? (<div className="s-e">
+                            <p>S{season}</p>
+                            <FontAwesomeIcon icon="circle" style={{ color: accent }}/>
+                            <p>E{episode}</p>
+                        </div>)
+                    : (<div className="s-e">
+                        <p>{quality}</p>
+                    </div>)}
                 <div className="progress">
                     <div className="current">
                         <p>{current | "N/A"}</p>
