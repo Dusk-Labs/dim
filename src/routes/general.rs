@@ -28,7 +28,7 @@ pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
     use dim_database::schema::media::dsl::*;
     no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
     let results = media
-        .filter(year.ge(2011))
+//        .filter(year.ge(2011))
         .order(RANDOM)
         .limit(3)
         .load::<Media>(&*conn)
