@@ -1,5 +1,12 @@
 .card-wrapper {
     position: relative;
+
+    &:hover .card {
+        .image-wrapper {
+            -webkit-box-shadow: white 0 0 50px -20px;
+                    box-shadow: white 0 0 50px -20px;
+        }
+    }
 }
 
 .card {
@@ -12,19 +19,21 @@
         color: #ffffff;
     }
 
+    .image-wrapper {
+        -webkit-box-shadow: none;
+                box-shadow: none;
+        -webkit-transition: -webkit-box-shadow 0.3s ease-in-out;
+        transition: -webkit-box-shadow 0.3s ease-in-out;
+        transition: box-shadow 0.3s ease-in-out;
+        transition: box-shadow 0.3s ease-in-out, -webkit-box-shadow 0.3s ease-in-out;
+    }
+
     img {
         will-change: transform;
-        -webkit-transition: 0.3s ease-in-out;
-        transition: 0.3s ease-in-out;
-        -webkit-transition-property: -webkit-transform;
-        transition-property: -webkit-transform;
-        transition-property: transform;
-        transition-property: transform, -webkit-transform;
-
-        &:hover {
-            -webkit-transform: scale(1.01);
-                    transform: scale(1.01);
-        }
+        -webkit-transition: -webkit-transform 0.3s ease-in-out;
+        transition: -webkit-transform 0.3s ease-in-out;
+        transition: transform 0.3s ease-in-out;
+        transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
     }
 
     img, div, .placeholder {
