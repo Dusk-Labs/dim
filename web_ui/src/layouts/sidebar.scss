@@ -1,19 +1,33 @@
 .sidebar {
-    grid-area: sidebar;
     min-height: 100vh;
     height: 100%;
     width: 300px;
     position: fixed;
-    background: #333333;
+    background: linear-gradient(315deg, #333333 0%, #363636 100%);
     -webkit-box-shadow: 0 0 10px 5px #00000055;
             box-shadow: 0 0 10px 5px #00000055;
     z-index: 2;
     -webkit-transition: width 0.3s ease-in-out;
     transition: width 0.3s ease-in-out;
 
+    &:hover {
+        ::-webkit-scrollbar-thumb {
+            background: #f7931e;
+        }
+    }
+
+    ::-webkit-scrollbar-thumb,
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
     section {
+        -webkit-transition: all 0.3s ease-in-out;
+        transition: all 0.3s ease-in-out;
         margin: 50px auto;
         width: 80%;
+        -webkit-transition: color 0.3s ease-in-out;
+        transition: color 0.3s ease-in-out;
 
         header {
             margin-bottom: 10px;
@@ -34,7 +48,7 @@
             button {
                 color: #ffffff;
                 opacity: 0;
-                padding: 1px 5px;
+                padding: 2px 5px;
                 border-radius: 10px;
                 background: transparent;
                 -webkit-transition: 0.2s ease-in-out;
@@ -50,6 +64,7 @@
         }
 
         &:hover {
+            color: rgba(0, 0, 0, 0.3);
             header button {
                 opacity: 1;
             }
@@ -163,8 +178,13 @@
         }
     }
 
+    // CURRENT ROUTE
     .active {
         background: #555555;
+
+        &:hover {
+            background: #666666 !important;
+        }
     }
 
     h6,
@@ -218,7 +238,7 @@
             button {
                 font-family: "Roboto Black";
                 opacity: 0;
-                padding: 1px 5px;
+                padding: 2px 5px;
                 border-radius: 10px;
                 background: transparent;
                 color: #ff6961;

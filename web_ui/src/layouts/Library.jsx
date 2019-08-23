@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import Card from "../components/library/Card.jsx";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 
 class Library extends Component {
     constructor(props) {
@@ -57,11 +56,11 @@ class Library extends Component {
 
         return (
             <div className="library">
-                { sections.length > 0 
-                    ? sections 
+                { sections.length > 0
+                    ? sections
                     : (
                         <div className="empty">
-                            <FontAwesomeIcon icon={faQuestionCircle}/>
+                            <FontAwesomeIcon icon="question-circle"/>
                             <p> There is no content in this library.</p>
                         </div>
                     )

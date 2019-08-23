@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 
 class LazyImage extends Component {
     constructor(props) {
@@ -11,9 +10,10 @@ class LazyImage extends Component {
             objectUrl: undefined,
             blankMsg: (
                 <div className="empty">
-                    <FontAwesomeIcon icon={faQuestionCircle}/>
-                    <p>No Cover, yet.</p>
-                </div>),
+                    <FontAwesomeIcon icon="question-circle"/>
+                    <p>LOADING COVER</p>
+                </div>
+            ),
         }
     }
 
@@ -21,11 +21,15 @@ class LazyImage extends Component {
         const resp = await fetch(this.props.src);
 
         if (!resp.headers.get("content-type") === "image/jpeg") {
-            this.setState({ blankMsg: (
-                <div className="empty">
-                    <FontAwesomeIcon icon={faQuestionCircle}/>
-                    <p>Failed to load cover</p>
-                </div>) });
+            this.setState({
+                blankMsg: (
+                    <div className="empty">
+                        <FontAwesomeIcon icon="question-circle"/>
+                        <p>FAILED TO LOAD COVER</p>
+                    </div>
+                )
+            });
+
             throw new Error("Not an image");
         }
 

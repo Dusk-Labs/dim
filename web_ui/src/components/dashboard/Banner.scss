@@ -1,10 +1,4 @@
 .banner {
-    grid-area: banner;
-    position: relative;
-    text-align: right;
-    -webkit-animation: bannerAppear 2.5s ease-in-out;
-            animation: bannerAppear 2.5s ease-in-out;
-
     .image-wrapper {
         position: relative;
 
@@ -22,10 +16,10 @@
             transition: object-position 0.3s ease-in-out, -o-object-position 0.3s ease-in-out;
         }
 
+        // OVERLAY SIDE SHADOWS
         &::after {
             content: "";
             position: absolute;
-            top: 0;
             left: 0;
             height: 100%;
             width: 100%;
@@ -34,7 +28,8 @@
         }
     }
 
-    .genres {
+    // YEAR + GENRE
+    .extras {
         top: 10%;
         left: 5%;
         position: absolute;
@@ -48,12 +43,10 @@
            -moz-box-align: center;
             -ms-flex-align: center;
                 align-items: center;
-        font-family: "Roboto Black";
 
+        // separator
         svg {
-            margin: 0;
-            padding: 0;
-            margin: 0 10px 0 10px;
+            margin: 0 10px;
             font-size: 0.4em;
         }
 
@@ -63,52 +56,49 @@
             font-size: 0.9em;
         }
 
+        // NOT YEAR
         p:not(:first-child) {
             margin: 0 15px 0 0;
         }
     }
 
     .info {
-        text-align: left;
         width: 450px;
         position: absolute;
         left: 5%;
         top: 50%;
         -webkit-transform: translate(0, -30%);
                 transform: translate(0, -30%);
-        text-shadow: 2px 4px 3px rgba(0,0,0,0.3);
-
-        p:first-child {
-            font-family: "Roboto Black";
-        }
+        text-shadow: 2px 4px 3px rgba(0, 0, 0, 0.3);
 
         h1 {
             font-size: 2em;
             margin: 0;
         }
 
-        .desc {
-            margin: 2vh 0;
+        .description {
+            margin: 15px 0;
         }
 
+        // BANNER CAPTION & DESCRIPTION
         h5, p {
-            margin: 1vh 0;
+            margin: 10px 0;
         }
 
+        // BANNER DESCRIPTION
         p {
             color: #bfbfbf;
         }
     }
 
+    // PLAY BUTTON
     a {
         display: inline-block;
         font-family: "Roboto Black";
-        color: #eee7e7;
         padding: 7px 30px;
         border-radius: 1vh;
-        -webkit-filter: brightness(90%);
-                filter: brightness(90%);
-        -webkit-transition: filter 0.3s ease-in-out;
+        -webkit-filter: saturate(0.7);
+                filter: saturate(0.7);
         -webkit-transition: -webkit-filter 0.3s ease-in-out;
         transition: -webkit-filter 0.3s ease-in-out;
         transition: filter 0.3s ease-in-out;
@@ -116,42 +106,25 @@
         text-shadow: none;
 
         &:hover {
-            -webkit-filter: brightness(100%);
-                    filter: brightness(100%);
+            -webkit-filter: saturate(1);
+                    filter: saturate(1);
+        }
+
+        // ICON
+        svg {
+            margin-left: 5px;
+            font-size: 0.9em;
         }
     }
 
-    /* ICON */
-    svg {
-        margin-left: 5px;
-        font-size: 0.9em;
+    .placeholder:hover {
+        background-position: 100% 100%;
     }
+
 }
 
 /*
-    * == KEYFRAMES ==
-*/
-
-@-webkit-keyframes bannerAppear {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-@keyframes bannerAppear {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-/*
-    * == MEDIA QUERIES
+    * == MEDIA QUERIES ==
 */
 
 @media only screen and (max-width: 2560px) and (max-height: 1440px) {
@@ -169,30 +142,19 @@
 }
 
 @media only screen and (max-width: 651px) {
-	.banner .info {
-        width: 350px;
-    }
-    .banner .progress-bar {
-        display: none;
-    }
-    .banner .crumbs {
-        top: unset;
-        bottom: 12%;
-    }
-
     .banner {
-        .image-wrapper {
-            &::after {
-                content: "";
-                position: absolute;
-                top: 0;
-                left: 0;
-                height: 100%;
-                width: 100%;
-                background: -webkit-gradient(linear, left top, right top, from(#1a1a1a), color-stop(80%, transparent)), -webkit-gradient(linear, right top, left top, from(#1a1a1a), color-stop(80%, transparent));
-                background: linear-gradient(90deg, #1a1a1a, transparent 80%), linear-gradient(-90deg, #1a1a1a, transparent 80%);
-            }
+        // OVERLAY SIDE SHADOWS
+        .image-wrapper::after {
+            background: -webkit-gradient(linear, left top, right top, from(#1a1a1a), color-stop(80%, transparent)), -webkit-gradient(linear, right top, left top, from(#1a1a1a), color-stop(80%, transparent));
+            background: linear-gradient(90deg, #1a1a1a, transparent 80%), linear-gradient(-90deg, #1a1a1a, transparent 80%);
+        }
+
+        .info {
+            width: 350px;
+        }
+
+        .progress-bar {
+            display: none;
         }
     }
-
 }

@@ -7,56 +7,44 @@
                     box-shadow: white 0 0 50px -20px;
         }
     }
-}
 
-.card {
-    height: 320px;
-    width: 200px;
-    text-align: center;
-
-    a {
-        text-decoration: none;
-        color: #ffffff;
-    }
-
-    .image-wrapper {
-        -webkit-box-shadow: none;
-                box-shadow: none;
-        -webkit-transition: -webkit-box-shadow 0.3s ease-in-out;
-        transition: -webkit-box-shadow 0.3s ease-in-out;
-        transition: box-shadow 0.3s ease-in-out;
-        transition: box-shadow 0.3s ease-in-out, -webkit-box-shadow 0.3s ease-in-out;
-    }
-
-    img {
-        will-change: transform;
-        -webkit-transition: -webkit-transform 0.3s ease-in-out;
-        transition: -webkit-transform 0.3s ease-in-out;
-        transition: transform 0.3s ease-in-out;
-        transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
-    }
-
-    img, div, .placeholder {
-        display: block;
+    .card {
         height: 320px;
         width: 200px;
-        -o-object-fit: cover;
-           object-fit: cover;
-        border-radius: 1vh;
-        overflow: hidden;
-    }
+        text-align: center;
 
-    img, .image-wrapper {
-        -webkit-animation: imageLoaded 1s ease-in-out;
-                animation: imageLoaded 1s ease-in-out;
-    }
+        .image-wrapper {
+            -webkit-transition: -webkit-box-shadow 0.3s ease-in-out;
+            transition: -webkit-box-shadow 0.3s ease-in-out;
+            transition: box-shadow 0.3s ease-in-out;
+            transition: box-shadow 0.3s ease-in-out, -webkit-box-shadow 0.3s ease-in-out;
+            -webkit-animation: imageLoaded 1s ease-in-out;
+                    animation: imageLoaded 1s ease-in-out;
+        }
 
-    p {
-        margin-top: 1vh;
-        text-transform: uppercase;
-        font-size: 0.8em;
-        -webkit-transition: opacity 0.3s ease-in-out;
-        transition: opacity 0.3s ease-in-out;
+        img {
+            will-change: transform;
+            -webkit-transition: -webkit-transform 0.3s ease-in-out;
+            transition: -webkit-transform 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
+            -o-object-fit: cover;
+               object-fit: cover;
+        }
+
+        img, div, .placeholder {
+            height: 320px;
+            width: 200px;
+            border-radius: 1vh;
+        }
+
+        p {
+            margin-top: 1vh;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            -webkit-transition: opacity 0.3s ease-in-out;
+            transition: opacity 0.3s ease-in-out;
+        }
     }
 }
 

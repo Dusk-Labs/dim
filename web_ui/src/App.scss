@@ -20,7 +20,7 @@
 
 ::-webkit-scrollbar {
 	height: 5px;
-    width: 5px;
+	width: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -28,7 +28,8 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #f7931e;
+	background: #f7931e;
+	border-radius: 10px;
 }
 
 body {
@@ -38,9 +39,6 @@ body {
 	background: #1a1a1a;
 	scrollbar-color: #f7931e #333333;
 	scrollbar-width: thin;
-}
-
-.App {
 	font-family: "Roboto Regular";
 }
 
@@ -54,13 +52,27 @@ a {
 }
 
 .empty {
-	color: #ffffff;
-	font-size: 0.8em;
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	   -moz-box-orient: vertical;
+	   -moz-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	-webkit-box-pack: center;
+	   -moz-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	-webkit-box-align: center;
+	   -moz-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	height: 100%;
 	font-family: "Roboto Condensed Regular";
-    margin: auto;
-    width: 50%;
-    padding: 10px;
-    text-align: center;
+	text-align: center;
 
     & > svg {
         color: #f39c12;
@@ -91,11 +103,18 @@ button {
 }
 
 .placeholder {
+	position: relative;
     height: 100%;
-    background: #555555;
+	background: #555555;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(50%, #222222), to(transparent));
+	background: linear-gradient(to bottom, #222222 50%, transparent 100%);
+	background-size: 200% 200%;
+	background-position: 100% 100%;
+	-webkit-transition: background-position 0.3s ease-in-out;
+	transition: background-position 0.3s ease-in-out;
 
     &:hover {
-        background: #444444;
+		background-position: 0 0;
     }
 }
 
@@ -121,28 +140,6 @@ button {
 		border-top-color: #ffffff;
 		-webkit-animation: spinner 0.6s linear infinite;
 		        animation: spinner 0.6s linear infinite;
-	}
-}
-
-@-webkit-keyframes spinner {
-	from {
-		-webkit-transform: rotate(0deg);
-		        transform: rotate(0deg);
-	}
-	to {
-		-webkit-transform: rotate(360deg);
-		        transform: rotate(360deg);
-	}
-}
-
-@keyframes spinner {
-	from {
-		-webkit-transform: rotate(0deg);
-		        transform: rotate(0deg);
-	}
-	to {
-		-webkit-transform: rotate(360deg);
-		        transform: rotate(360deg);
 	}
 }
 
@@ -243,12 +240,10 @@ button {
 
 main {
 	position: relative;
-    background: #1a1a1a;
     margin-left: 300px;
     -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
          box-sizing: border-box;
-    min-height: 100vh;
     color: #ffffff;
     display: grid;
     grid-template-areas:
@@ -276,6 +271,65 @@ main {
 		> section {
 			margin-bottom: 10vh;
 		}
+
+		.floating-bar {
+			position: fixed;
+			bottom: 1%;
+			right: 1%;
+			display: -webkit-box;
+			display: -moz-box;
+			display: -ms-flexbox;
+			display: flex;
+			background: #444444;
+			border-radius: 10px;
+			padding: 5px;
+			z-index: 1;
+			-webkit-box-pack: space-evenly;
+			   -moz-box-pack: space-evenly;
+			    -ms-flex-pack: space-evenly;
+			        justify-content: space-evenly;
+			text-align: center;
+			-webkit-box-align: center;
+			   -moz-box-align: center;
+			    -ms-flex-align: center;
+			        align-items: center;
+			-webkit-transition: 0.3s ease-in-out;
+			transition: 0.3s ease-in-out;
+			-webkit-transition-property: bottom, right, -webkit-transform;
+			transition-property: bottom, right, -webkit-transform;
+			transition-property: bottom, right, transform;
+			transition-property: bottom, right, transform, -webkit-transform;
+
+			a {
+				display: -webkit-box;
+				display: -moz-box;
+				display: -ms-flexbox;
+				display: flex;
+				-webkit-box-orient: vertical;
+				-webkit-box-direction: normal;
+				   -moz-box-orient: vertical;
+				   -moz-box-direction: normal;
+				    -ms-flex-direction: column;
+				        flex-direction: column;
+				-webkit-box-pack: center;
+				   -moz-box-pack: center;
+				    -ms-flex-pack: center;
+				        justify-content: center;
+				-webkit-box-align: center;
+				   -moz-box-align: center;
+				    -ms-flex-align: center;
+				        align-items: center;
+				height: 40px;
+				width: 40px;
+				border-radius: 50%;
+				-webkit-transition: background 0.3s ease-in-out;
+				transition: background 0.3s ease-in-out;
+
+				&:hover {
+					background: #666666;
+				}
+			}
+		}
     }
 
     .cards {
@@ -290,6 +344,32 @@ main {
 		-webkit-transition: all 1s;
 		transition: all 1s;
     }
+}
+
+/*
+	* === KEYFRAMES ===
+*/
+
+@-webkit-keyframes spinner {
+	from {
+		-webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+	}
+	to {
+		-webkit-transform: rotate(360deg);
+		        transform: rotate(360deg);
+	}
+}
+
+@keyframes spinner {
+	from {
+		-webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+	}
+	to {
+		-webkit-transform: rotate(360deg);
+		        transform: rotate(360deg);
+	}
 }
 
 @-webkit-keyframes appearPopup {
