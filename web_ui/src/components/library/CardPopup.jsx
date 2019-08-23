@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import TextTruncate from "react-text-truncate";
 
-import RottenTomatoeLogo from "../../assets/rotten_tomatoe.svg";
 import IMDbLogo from "../../assets/imdb.png";
 
 import "./CardPopup.scss";
@@ -20,7 +19,7 @@ class CardPopup extends Component {
                     right: "unset"
                 },
                 clipped: {
-                    clipPath: "polygon(10% 0, 100% 0, 100% 100%, 5% 100%)",
+                    animation: "CardPopupClipLeft 0.3s ease-in forwards",
                     borderRadius: "0 10px 10px 0"
                 },
                 header: {
@@ -51,7 +50,7 @@ class CardPopup extends Component {
                     right: "50%"
                 },
                 clipped: {
-                    clipPath: "polygon(0 0, 90% 0, 95% 100%, 0% 100%)",
+                    animation: "CardPopupClipRight 0.3s ease-in forwards",
                     borderRadius: "10px 0 0 10px"
                 },
                 header: {
@@ -95,7 +94,6 @@ class CardPopup extends Component {
                     <h1>{name}</h1>
                     <div className="rating">
                         <img alt="imdb" src={IMDbLogo}></img><p>{rating}/10</p>
-                        <img alt="rotten tomatoes" src={RottenTomatoeLogo}></img><p>0%</p>
                     </div>
                 </section>
                 <section className="content" style={this.state.styles.content}>
