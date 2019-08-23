@@ -19,7 +19,7 @@ class CardPopup extends Component {
                     right: "unset"
                 },
                 clipped: {
-                    animation: "CardPopupClipLeft 0.3s ease-in forwards",
+                    clipPath: "polygon(10% 0, 100% 0, 100% 100%, 5% 100%)",
                     borderRadius: "0 10px 10px 0"
                 },
                 header: {
@@ -50,7 +50,7 @@ class CardPopup extends Component {
                     right: "50%"
                 },
                 clipped: {
-                    animation: "CardPopupClipRight 0.3s ease-in forwards",
+                    clipPath: "polygon(0 0, 90% 0, 95% 100%, 0 100%)",
                     borderRadius: "10px 0 0 10px"
                 },
                 header: {

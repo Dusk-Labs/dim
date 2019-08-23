@@ -8,50 +8,6 @@
     100% { opacity: 1; }
 }
 
-@-webkit-keyframes CardPopupClipLeft {
-    0% {
-        -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 5% 100%);
-                clip-path: polygon(0 0, 100% 0, 100% 100%, 5% 100%);
-    }
-    100% {
-        -webkit-clip-path: polygon(10% 0, 100% 0, 100% 100%, 5% 100%);
-                clip-path: polygon(10% 0, 100% 0, 100% 100%, 5% 100%);
-    }
-}
-
-@keyframes CardPopupClipLeft {
-    0% {
-        -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 5% 100%);
-                clip-path: polygon(0 0, 100% 0, 100% 100%, 5% 100%);
-    }
-    100% {
-        -webkit-clip-path: polygon(10% 0, 100% 0, 100% 100%, 5% 100%);
-                clip-path: polygon(10% 0, 100% 0, 100% 100%, 5% 100%);
-    }
-}
-
-@-webkit-keyframes CardPopupClipRight {
-    0% {
-        -webkit-clip-path: polygon(0 0, 100% 0, 95% 100%, 0 100%);
-                clip-path: polygon(0 0, 100% 0, 95% 100%, 0 100%);
-    }
-    100% {
-        -webkit-clip-path: polygon(0 0, 90% 0, 95% 100%, 0 100%);
-                clip-path: polygon(0 0, 90% 0, 95% 100%, 0 100%);
-    }
-}
-
-@keyframes CardPopupClipRight {
-    0% {
-        -webkit-clip-path: polygon(0 0, 100% 0, 95% 100%, 0 100%);
-                clip-path: polygon(0 0, 100% 0, 95% 100%, 0 100%);
-    }
-    100% {
-        -webkit-clip-path: polygon(0 0, 90% 0, 95% 100%, 0 100%);
-                clip-path: polygon(0 0, 90% 0, 95% 100%, 0 100%);
-    }
-}
-
 .card-popup {
     position: absolute;
     padding: 30px 0;
