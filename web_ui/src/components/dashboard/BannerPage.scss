@@ -1,79 +1,98 @@
-.crumbs {
-    position: absolute;
-    top: 10%;
-    right: 5%;
-    display: grid;
-    grid-template-columns: auto auto auto;
-    grid-column-gap: 10px;
-    -webkit-box-pack: center;
-       -moz-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
-    z-index: 2;
+.banner-wrapper {
+    position: relative;
+    -webkit-animation: bannerAppear 2.5s ease-in-out;
+            animation: bannerAppear 2.5s ease-in-out;
 
-    > span {
-        width: 10px;
-        height: 10px;
-        background: rgba(255, 255, 255, 0);
-        border: solid 3px #ffffff;
-        border-radius: 10px;
-        -webkit-transition: -webkit-transform 0.3s ease-in-out;
-        transition: -webkit-transform 0.3s ease-in-out;
-        transition: transform 0.3s ease-in-out;
-        transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
-        -webkit-box-shadow: 2px 4px 3px rgba(0,0,0,0.3);
-                box-shadow: 2px 4px 3px rgba(0,0,0,0.3);
-
-        &:hover {
-            cursor: pointer;
-            -webkit-transform: scale(1.1);
-                    transform: scale(1.1);
-        }
-    }
-
-    .active {
-        background: #ffffff;
-        -webkit-animation: crumbActive 0.5s ease-out;
-                animation: crumbActive 0.5s ease-out;
-    }
-}
-
-.pages {
-    > div {
+    .crumbs {
         position: absolute;
-    }
+        top: 10%;
+        right: 5%;
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: flex;
+        z-index: 1;
 
-    .banner-wrapper {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        opacity: 0;
-    }
+        // CRUMB
+        > span {
+            margin-left: 10px;
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            border: solid 3px #ffffff;
+            -webkit-transition: -webkit-transform 0.3s ease-in-out;
+            transition: -webkit-transform 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
+            -webkit-box-shadow: 2px 4px 3px rgba(0, 0, 0, 0.3);
+                    box-shadow: 2px 4px 3px rgba(0, 0, 0, 0.3);
 
-    .active, .hidden {
-        display: contents;
-    }
+            &:hover {
+                cursor: pointer;
+                -webkit-transform: scale(1.1);
+                        transform: scale(1.1);
+            }
 
-    .hidden {
-        opacity: 0;
-        .banner-wrapper {
-            -webkit-animation: onHideBanner 0.7s ease-in-out forwards;
-                    animation: onHideBanner 0.7s ease-in-out forwards;
+            &.active {
+                background: #ffffff;
+                -webkit-animation: crumbActive 0.5s ease-out;
+                        animation: crumbActive 0.5s ease-out;
+            }
         }
     }
 
-    .active {
-        .banner-wrapper {
-            z-index: 1;
-            -webkit-animation: onActiveBanner 0.7s ease-in-out forwards;
-                    animation: onActiveBanner 0.7s ease-in-out forwards;
+    .pages {
+        .banner {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            opacity: 0;
+        }
+
+        .active, .hidden {
+            display: contents;
+        }
+
+        .hidden {
+            opacity: 0;
+            .banner {
+                -webkit-animation: onHideBanner 0.7s ease-in-out forwards;
+                        animation: onHideBanner 0.7s ease-in-out forwards;
+            }
+        }
+
+        .active {
+            .banner {
+                z-index: 1;
+                -webkit-animation: onActiveBanner 0.7s ease-in-out forwards;
+                        animation: onActiveBanner 0.7s ease-in-out forwards;
+            }
         }
     }
+
 }
 
 /*
     * == KEYFRAMES ==
 */
+
+@-webkit-keyframes bannerAppear {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes bannerAppear {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
 
 @-webkit-keyframes onHideBanner {
     0% {
@@ -146,5 +165,16 @@
     100% {
         -webkit-transform: scale(1);
         transform: scale(1);
+    }
+}
+
+/*
+    * == MEDIA QUERIES ==
+*/
+
+@media only screen and (max-width: 651px) {
+    .banner-wrapper .crumbs {
+        top: unset;
+        bottom: 0;
     }
 }

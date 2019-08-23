@@ -86,16 +86,16 @@ class Banner extends PureComponent {
         }
 
         return (
-            <div className="banner-wrapper">
+            <div className="banner">
                 <LazyImage alt="banner" src={img} onLoad={this.onLoadBanner}/>
-                <div className="genres">
+                <div className="extras">
                     <p>{year}</p>
                     <FontAwesomeIcon icon="circle" style={{ color: accent.background }}/>
                     {genres.map((genre, i) => <p key={i}>{genre}</p>)}
                 </div>
                 <div className="info">
                     <h1>{title}</h1>
-                    <div className="desc">
+                    <div className="description">
                         <h5>{banner_caption}</h5>
                         <TruncText content={description} max={35}/>
                     </div>

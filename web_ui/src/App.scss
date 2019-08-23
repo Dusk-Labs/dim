@@ -20,7 +20,7 @@
 
 ::-webkit-scrollbar {
 	height: 5px;
-    width: 5px;
+	width: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -28,7 +28,8 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #f7931e;
+	background: #f7931e;
+	border-radius: 10px;
 }
 
 body {
@@ -38,9 +39,6 @@ body {
 	background: #1a1a1a;
 	scrollbar-color: #f7931e #333333;
 	scrollbar-width: thin;
-}
-
-.App {
 	font-family: "Roboto Regular";
 }
 
@@ -107,28 +105,6 @@ button {
 		border-top-color: #ffffff;
 		-webkit-animation: spinner 0.6s linear infinite;
 		        animation: spinner 0.6s linear infinite;
-	}
-}
-
-@-webkit-keyframes spinner {
-	from {
-		-webkit-transform: rotate(0deg);
-		        transform: rotate(0deg);
-	}
-	to {
-		-webkit-transform: rotate(360deg);
-		        transform: rotate(360deg);
-	}
-}
-
-@keyframes spinner {
-	from {
-		-webkit-transform: rotate(0deg);
-		        transform: rotate(0deg);
-	}
-	to {
-		-webkit-transform: rotate(360deg);
-		        transform: rotate(360deg);
 	}
 }
 
@@ -229,12 +205,10 @@ button {
 
 main {
 	position: relative;
-    background: #1a1a1a;
     margin-left: 300px;
     -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
          box-sizing: border-box;
-    min-height: 100vh;
     color: #ffffff;
     display: grid;
     grid-template-areas:
@@ -335,6 +309,32 @@ main {
 		-webkit-transition: all 1s;
 		transition: all 1s;
     }
+}
+
+/*
+	* === KEYFRAMES ===
+*/
+
+@-webkit-keyframes spinner {
+	from {
+		-webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+	}
+	to {
+		-webkit-transform: rotate(360deg);
+		        transform: rotate(360deg);
+	}
+}
+
+@keyframes spinner {
+	from {
+		-webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+	}
+	to {
+		-webkit-transform: rotate(360deg);
+		        transform: rotate(360deg);
+	}
 }
 
 @-webkit-keyframes appearPopup {

@@ -58,7 +58,7 @@ class BannerPage extends Component {
         };
 
         return (
-            <div className="banner">
+            <div className="banner-wrapper">
                 <div className="pages">{banners}</div>
                 <div className="crumbs">{crumbs}</div>
             </div>

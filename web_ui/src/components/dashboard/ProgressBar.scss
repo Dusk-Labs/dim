@@ -2,22 +2,20 @@
     position: absolute;
     bottom: 0;
     right: 5%;
-    text-shadow: #000000 0 0 15px;
-    text-align: center;
     display: grid;
+    text-shadow: #000000 0 0 20px;
 
     p {
         margin: 0;
     }
 
-    /* ICON */
+    // SEPARATOR
     svg {
-        margin: 0 0.5vh !important;
+        margin: 0 5px !important;
         font-size: 0.5em !important;
-        color: #e70;
     }
 
-    /* season + episode */
+    // SEASON AND EPISODE
     .s-e {
         margin: 0 auto;
         font-family: "Roboto Black";
@@ -46,9 +44,8 @@
                 -moz-box-align: center;
              align-items: center;
 
+        // CURRENT AND DURATION
         div {
-            margin: 0 1vh;
-            display: inline-grid;
             text-align: center;
 
             /* VALUE */
@@ -63,28 +60,26 @@
                 font-family: "Roboto Black";
             }
         }
-    }
 
-
-    /*
-        * == PROGRESS BAR ==
-    */
-
-    .bar {
-        height: 4px;
-        width: 175px;
-        background: #fff;
-        display: block;
-        border: none;
-        -webkit-appearance: none;
-        -webkit-box-shadow: #000000 0 0 15px;
-                box-shadow: #000000 0 0 15px;
-        border-radius: 4px;
-
-        /* VALUE */
-        .progress {
+        .bar {
+            margin: 0 10px;
             height: 4px;
+            width: 175px;
+            background: #ffffff;
+            -webkit-appearance: none;
+            -webkit-box-shadow: #000000 0 0 20px;
+                    box-shadow: #000000 0 0 20px;
             border-radius: 4px;
+            position: relative;
+
+            /* VALUE */
+            .progress-fill {
+                position: absolute;
+                left: 0;
+                height: 4px;
+                border-radius: 4px;
+            }
         }
     }
+
 }
