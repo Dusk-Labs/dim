@@ -60,7 +60,7 @@ class Banner extends PureComponent {
     }
 
     render() {
-        const {
+        let {
             accent,
             data: {
                 img,
@@ -81,17 +81,20 @@ class Banner extends PureComponent {
             color: accent.text
         };
 
-        genres.length = 3;
+        if (genres.length > 3) {
+            genres.length = 3;
+        }
 
         return (
             <div className="banner-wrapper">
                 <LazyImage alt="banner" src={img} onLoad={this.onLoadBanner}/>
+                <div className="genres">
+                    <p>{year}</p>
+                    <FontAwesomeIcon icon="circle" style={{ color: accent.background }}/>
+                    {genres.map((genre, i) => <p key={i}>{genre}</p>)}
+                </div>
                 <div className="info">
                     <h1>{title}</h1>
-                    <div className="extra">
-                        <p style={accentCSS}>{year}</p>
-                        {genres.map((genre, i) => <p key={i} style={accentCSS}>{genre}</p>)}
-                    </div>
                     <div className="desc">
                         <h5>{banner_caption}</h5>
                         <TruncText content={description} max={35}/>
