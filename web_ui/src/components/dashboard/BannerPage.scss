@@ -1,19 +1,124 @@
-@-webkit-keyframes bounce-fill {
-    0% {
-        -webkit-transform: scale(1);
-            transform: scale(1);
+.crumbs {
+    position: absolute;
+    top: 10%;
+    right: 5%;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-column-gap: 10px;
+    -webkit-box-pack: center;
+       -moz-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    z-index: 2;
+
+    > span {
+        width: 10px;
+        height: 10px;
+        background: rgba(255, 255, 255, 0);
+        border: solid 3px #ffffff;
+        border-radius: 10px;
+        -webkit-transition: -webkit-transform 0.3s ease-in-out;
+        transition: -webkit-transform 0.3s ease-in-out;
+        transition: transform 0.3s ease-in-out;
+        transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
+        -webkit-box-shadow: 2px 4px 3px rgba(0,0,0,0.3);
+                box-shadow: 2px 4px 3px rgba(0,0,0,0.3);
+
+        &:hover {
+            cursor: pointer;
+            -webkit-transform: scale(1.1);
+                    transform: scale(1.1);
+        }
     }
-    50% {
-        -webkit-transform: scale(0.5);
-            transform: scale(0.5);
-    }
-    100% {
-        -webkit-transform: scale(1);
-            transform: scale(1);
+
+    .active {
+        background: #ffffff;
+        -webkit-animation: crumbActive 0.5s ease-out;
+                animation: crumbActive 0.5s ease-out;
     }
 }
 
-@keyframes bounce-fill {
+.pages {
+    > div {
+        position: absolute;
+    }
+
+    .banner-wrapper {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+    }
+
+    .active, .hidden {
+        display: contents;
+    }
+
+    .hidden {
+        opacity: 0;
+        .banner-wrapper {
+            -webkit-animation: onHideBanner 0.7s ease-in-out forwards;
+                    animation: onHideBanner 0.7s ease-in-out forwards;
+        }
+    }
+
+    .active {
+        .banner-wrapper {
+            z-index: 1;
+            -webkit-animation: onActiveBanner 0.7s ease-in-out forwards;
+                    animation: onActiveBanner 0.7s ease-in-out forwards;
+        }
+    }
+}
+
+/*
+    * == KEYFRAMES ==
+*/
+
+@-webkit-keyframes onHideBanner {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        -webkit-filter: blur(3px);
+                filter: blur(3px);
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes onHideBanner {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        -webkit-filter: blur(3px);
+                filter: blur(3px);
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes onActiveBanner {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes onActiveBanner {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes bounce-fill {
     0% {
         -webkit-transform: scale(1);
             transform: scale(1);
@@ -28,109 +133,32 @@
     }
 }
 
-.crumbs {
-    position: absolute;
-    top: 10%;
-    right: 5%;
-    display: grid;
-    grid-template-columns: auto auto auto;
-    grid-column-gap: 10px;
-    -webkit-box-pack: center;
-       -moz-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
-
-    > span {
-        width: 10px;
-        height: 10px;
-        background: rgba(255, 255, 255, 0);
-        border: solid 3px #ffffff;
-        border-radius: 10px;
-        -webkit-transition: border-radius 0.3s ease-in-out;
-        transition: border-radius 0.3s ease-in-out;
-        -webkit-box-shadow: 2px 4px 3px rgba(0,0,0,0.3);
-                box-shadow: 2px 4px 3px rgba(0,0,0,0.3);
-
-        &:hover {
-            cursor: pointer;
-            border-radius: 4px;
-        }
+@-webkit-keyframes crumbChosen {
+    0% {
+        -webkit-transform: scale(1);
+            transform: scale(1);
     }
-
-    .active {
-        background: #ffffff;
-        -webkit-animation: bounce-fill 0.5s ease-out;
-                animation: bounce-fill 0.5s ease-out;
+    50% {
+        -webkit-transform: scale(0.5);
+        transform: scale(0.5);
+    }
+    100% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
     }
 }
 
-.pages {
-    > div {
-        position: absolute;
-        display: none;
-        opacity: 1;
-
-        .banner-wrapper {
-            display: block;
-            opacity: 0;
-            -webkit-animation-name: outBanner;
-                    animation-name: outBanner;
-            -webkit-animation-duration: 2s;
-                    animation-duration: 2s;
-        }
+@keyframes crumbChosen {
+    0% {
+        -webkit-transform: scale(1);
+            transform: scale(1);
     }
-
-    .active {
-        display: contents;
-
-        .banner-wrapper {
-            display: block;
-            opacity: 1;
-
-            -webkit-animation-name: changeBanner;
-                    animation-name: changeBanner;
-            -webkit-animation-duration: 2s;
-                    animation-duration: 2s;
-        }
+    50% {
+        -webkit-transform: scale(0.5);
+        transform: scale(0.5);
     }
-}
-
-/*
-    * == KEYFRAMES ==
-*/
-
-@-webkit-keyframes changeBanner {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes changeBanner {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@-webkit-keyframes outBanner {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-    }
-}
-
-@keyframes outBanner {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
+    100% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
     }
 }
