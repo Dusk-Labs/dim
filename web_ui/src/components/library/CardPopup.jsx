@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import TextTruncate from "react-text-truncate";
+import TruncText from "../../helpers/TruncText.jsx";
 
 import IMDbLogo from "../../assets/imdb.png";
 
@@ -13,6 +13,7 @@ class CardPopup extends Component {
         this.popup = React.createRef();
 
         this.state = {
+            overflowing: false,
             styles: {
                 card: {
                     left: "50%",
@@ -44,6 +45,7 @@ class CardPopup extends Component {
         if (!overflowing) return;
 
         this.setState({
+            overflowing: true,
             styles: {
                 card: {
                     left: "unset",
@@ -76,11 +78,20 @@ class CardPopup extends Component {
             name,
             rating,
             description,
+            genres,
             year,
+            duration,
             play
         } = this.props.data;
 
         const { accent } = this.props;
+        const genre = genres[Math.floor(Math.random() * genres.length)];
+
+        const length = {
+            hh: ("0" + Math.floor(duration / 3600)).slice(-2),
+            mm: ("0" + Math.floor(duration % 3600 / 60)).slice(-2),
+            ss: ("0" + Math.floor(duration % 3600 % 60)).slice(-2)
+        };
 
         const accentCSS = {
             background: accent.background,
@@ -91,32 +102,30 @@ class CardPopup extends Component {
             <div className="card-popup" ref={this.popup} style={this.state.styles.card}>
                 <div className="clipped" style={this.state.styles.clipped}></div>
                 <section className="header" style={this.state.styles.header}>
-                    <h1>{name}</h1>
+                    {!this.state.overflowing && <h1>{name}</h1>}
                     <div className="rating">
                         <img alt="imdb" src={IMDbLogo}></img><p>{rating}/10</p>
                     </div>
+                    {this.state.overflowing && <h1>{name}</h1>}
                 </section>
                 <section className="content" style={this.state.styles.content}>
                     <section className="description">
                         <h4>Description</h4>
-                        <TextTruncate
-                            text={description}
-                            line={3}
-                            textElement="p"
-                            truncateText="..."
-                        />
+                        <TruncText content={description} max={21}/>
                     </section>
                     <section className="info">
                         <div className="tags">
-                            <p style={accentCSS}>GENRE</p>
                             <p style={accentCSS}>{year}</p>
+                            <p style={accentCSS}>{genre}</p>
                         </div>
-                        {/* <a href={trailer}><FontAwesomeIcon icon="play-circle"/>WATCH TRAILER</a> */}
+                        <div className="options">
+                            <button><FontAwesomeIcon icon="pen"/></button>
+                        </div>
                     </section>
                     <section className="separator"></section>
                     <section className="footer">
                         <div className="length">
-                            <p>00:00:00</p>
+                            <p>{length.hh}:{length.mm}:{length.ss}</p>
                             <p>HH MM SS</p>
                         </div>
                         <a href={play} style={accentCSS}>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></a>
