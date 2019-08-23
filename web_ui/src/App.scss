@@ -203,6 +203,65 @@ main {
 		> section {
 			margin-bottom: 10vh;
 		}
+
+		.floating-bar {
+			position: fixed;
+			bottom: 1%;
+			right: 1%;
+			display: -webkit-box;
+			display: -moz-box;
+			display: -ms-flexbox;
+			display: flex;
+			background: #444444;
+			border-radius: 10px;
+			padding: 5px;
+			z-index: 1;
+			-webkit-box-pack: space-evenly;
+			   -moz-box-pack: space-evenly;
+			    -ms-flex-pack: space-evenly;
+			        justify-content: space-evenly;
+			text-align: center;
+			-webkit-box-align: center;
+			   -moz-box-align: center;
+			    -ms-flex-align: center;
+			        align-items: center;
+			-webkit-transition: 0.3s ease-in-out;
+			transition: 0.3s ease-in-out;
+			-webkit-transition-property: bottom, right, -webkit-transform;
+			transition-property: bottom, right, -webkit-transform;
+			transition-property: bottom, right, transform;
+			transition-property: bottom, right, transform, -webkit-transform;
+
+			a {
+				display: -webkit-box;
+				display: -moz-box;
+				display: -ms-flexbox;
+				display: flex;
+				-webkit-box-orient: vertical;
+				-webkit-box-direction: normal;
+				   -moz-box-orient: vertical;
+				   -moz-box-direction: normal;
+				    -ms-flex-direction: column;
+				        flex-direction: column;
+				-webkit-box-pack: center;
+				   -moz-box-pack: center;
+				    -ms-flex-pack: center;
+				        justify-content: center;
+				-webkit-box-align: center;
+				   -moz-box-align: center;
+				    -ms-flex-align: center;
+				        align-items: center;
+				height: 40px;
+				width: 40px;
+				border-radius: 50%;
+				-webkit-transition: background 0.3s ease-in-out;
+				transition: background 0.3s ease-in-out;
+
+				&:hover {
+					background: #666666;
+				}
+			}
+		}
     }
 
     .cards {

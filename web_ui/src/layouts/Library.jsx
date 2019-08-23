@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import Card from "../components/library/Card.jsx";
+import { NavLink } from "react-router-dom";
+import FloatingBar from "../helpers/FloatingBar.jsx";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 class Library extends Component {
     constructor(props) {
@@ -60,6 +63,11 @@ class Library extends Component {
 
         return (
             <div className="library">
+                <FloatingBar>
+                    <NavLink to="/">
+                        <FontAwesomeIcon icon="home"/>
+                    </NavLink>
+                </FloatingBar>
                 { sections }
             </div>
         );
