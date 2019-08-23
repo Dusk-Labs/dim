@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
+import { far } from "@fortawesome/free-regular-svg-icons";
 
 import Sidebar from "./layouts/Sidebar.jsx";
 import Dashboard from "./layouts/Dashboard.jsx";
@@ -9,7 +11,7 @@ import Library from "./layouts/Library.jsx";
 
 import './App.scss';
 
-library.add(fas);
+library.add(fas, far);
 
 class App extends Component {
 	render() {

@@ -9,6 +9,7 @@
     "@babel/plugin-transform-react-jsx-source": "^7.5.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.22",
     "@fortawesome/free-brands-svg-icons": "^5.10.2",
+    "@fortawesome/free-regular-svg-icons": "^5.10.2",
     "@fortawesome/free-solid-svg-icons": "^5.10.2",
     "@fortawesome/react-fontawesome": "^0.1.4",
     "@svgr/webpack": "4.3.2",

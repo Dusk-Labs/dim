@@ -1,4 +1,6 @@
 use crate::core::DbConnection;
+use std::path::PathBuf;
+use walkdir::WalkDir;
 use diesel::prelude::*;
 use dim_database::media::Media;
 use dim_database::mediafile::MediaFile;
@@ -9,7 +11,10 @@ use rocket_contrib::json::JsonValue;
 #[get("/dashboard")]
 pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
     use dim_database::schema::media::dsl::*;
-    let top_rated = media.order(rating.desc()).load::<Media>(&*conn).unwrap();
+    let top_rated = media
+        .order(rating.desc())
+        .load::<Media>(&*conn)
+        .unwrap();
 
     let recently_added = media.order(added.desc()).load::<Media>(&*conn).unwrap();
 
@@ -28,7 +33,6 @@ pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
     use dim_database::schema::media::dsl::*;
     no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
     let results = media
-//        .filter(year.ge(2011))
         .order(RANDOM)
         .limit(3)
         .load::<Media>(&*conn)
@@ -56,4 +60,21 @@ pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
         .collect::<Vec<_>>();
 
     Ok(Json(results))
+}
+
+#[get("/filebrowser/<path..>")]
+pub fn get_directory_structure(path: PathBuf) -> Result<Json<Vec<String>>, Status> {
+    let dirs: Vec<String> = WalkDir::new(format!("/{}", path.to_str().unwrap()))
+        .max_depth(1usize)
+        .into_iter()
+        .filter_map(|x| x.ok())
+        .filter(|x| !x.file_name()
+                .to_str()
+                .map(|s| s.starts_with("."))
+                .unwrap_or(false))
+        .filter(|x| !x.path().is_file())
+        .map(|x| x.path().to_str().unwrap().to_owned())
+        .collect::<Vec<_>>();
+
+    Ok(Json(dirs))
 }

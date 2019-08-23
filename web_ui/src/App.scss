@@ -52,9 +52,37 @@ a {
 }
 
 .empty {
-	color: #ffffff;
-	font-size: 0.8em;
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	   -moz-box-orient: vertical;
+	   -moz-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	-webkit-box-pack: center;
+	   -moz-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	-webkit-box-align: center;
+	   -moz-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	height: 100%;
 	font-family: "Roboto Condensed Regular";
+	text-align: center;
+
+    & > svg {
+        color: #f39c12;
+        width: 1.5em !important;
+        height: 1.5em !important;
+    }
+
+    & > p {
+        color: #bfbfbf;
+    }
 }
 
 button {
@@ -75,11 +103,18 @@ button {
 }
 
 .placeholder {
+	position: relative;
     height: 100%;
-    background: #555555;
+	background: #555555;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(50%, #222222), to(transparent));
+	background: linear-gradient(to bottom, #222222 50%, transparent 100%);
+	background-size: 200% 200%;
+	background-position: 100% 100%;
+	-webkit-transition: background-position 0.3s ease-in-out;
+	transition: background-position 0.3s ease-in-out;
 
     &:hover {
-        background: #444444;
+		background-position: 0 0;
     }
 }
 

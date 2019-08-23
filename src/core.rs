@@ -79,7 +79,11 @@ pub fn rocket() -> Rocket {
         ])
         .mount(
             "/api/v1/",
-            routes![routes::general::dashboard, routes::general::banners,],
+            routes![
+                routes::general::dashboard,
+                routes::general::banners,
+                routes::general::get_directory_structure,
+            ],
         )
         .mount(
             "/api/v1/library",
