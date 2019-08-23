@@ -36,12 +36,13 @@ class BannerPage extends Component {
     componentWillUnmount() {
         clearInterval(this.interval);
     }
-    
+
     render() {
         const { activeIndex } = this.state;
         const banners = [];
         const crumbs = [];
 
+        // eslint-disable-next-line
         for (const child in this.props.children) {
             const active = activeIndex === parseInt(child) ? "active" : "hidden";
 

@@ -19,6 +19,7 @@ class Library extends Component {
         const payload = await req.json();
         let sections = {};
 
+        // eslint-disable-next-line
         for (const section in payload) {
             const card_list = payload[section].map((card, i) => <Card key={i} data={card}/>);
             sections[section] = card_list;
