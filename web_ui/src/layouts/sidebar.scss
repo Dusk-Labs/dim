@@ -16,7 +16,7 @@
         width: 80%;
 
         header {
-            margin-bottom: 1vh;
+            margin-bottom: 10px;
             display: -webkit-box;
             display: -ms-flexbox;
             display: -moz-box;
@@ -35,7 +35,7 @@
                 color: #ffffff;
                 opacity: 0;
                 padding: 1px 5px;
-                border-radius: 1vh;
+                border-radius: 10px;
                 background: transparent;
                 -webkit-transition: 0.2s ease-in-out;
                 transition: 0.2s ease-in-out;
@@ -177,10 +177,11 @@
 
     // ITEM
     .list {
-        height: 115.5px;
+        height: 120px;
         overflow-y: scroll;
 
         .item-wrapper {
+            height: 40px;
             display: grid;
             grid-template-columns: auto 20px 1px;
             text-align: center;
@@ -204,7 +205,7 @@
                     -ms-flex-pack: left;
                         -moz-box-pack: left;
                      justify-content: left;
-                border-radius: 1vh;
+                border-radius: 10px;
                 -webkit-transition: 0.1s ease-in-out;
                 transition: 0.1s ease-in-out;
                 -webkit-transition-property: padding, background, font-size, -webkit-transform;
@@ -218,7 +219,7 @@
                 font-family: "Roboto Black";
                 opacity: 0;
                 padding: 1px 5px;
-                border-radius: 1vh;
+                border-radius: 10px;
                 background: transparent;
                 color: #ff6961;
                 -webkit-transition: 0.2s ease-in-out;
@@ -251,7 +252,7 @@
         // ITEM NAME
          p {
             margin: 0;
-            padding: 1vh 0;
+            padding: 10px 0;
         }
     }
 }
@@ -291,7 +292,11 @@
         }
 
         .list {
-            height: 243.51px !important;
+            height: 240px !important;
+
+            .item-wrapper {
+                height: 80px;
+            }
         }
 
         .item-wrapper {
@@ -304,13 +309,13 @@
 
             // ITEM ICON
             a:nth-child(1) {
-                padding: 1vh 0 !important;
+                padding: 10px 0 !important;
                 display: block !important;
             }
 
             // ITEM NAME
             p {
-                padding: 1vh 0 0 0 !important;
+                padding: 10px 0 0 0 !important;
             }
 
         }
