@@ -36,6 +36,8 @@ body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	background: #1a1a1a;
+	scrollbar-color: #f7931e #333333;
+	scrollbar-width: thin;
 }
 
 .App {
@@ -181,6 +183,7 @@ main {
         "banner"
         "library";
 	grid-template-rows: 40vh auto;
+	-webkit-transition: margin 0.3s ease-in-out;
 	transition: margin 0.3s ease-in-out;
 
     /*
@@ -190,11 +193,11 @@ main {
     .library {
         margin: 50px 0;
         padding: 0 5%;
-        z-index: 1;
+		z-index: 1;
 
         h1 {
             text-transform: uppercase;
-            margin: 0;
+			margin: 0;
 		}
 
 		> section {
@@ -203,11 +206,15 @@ main {
     }
 
     .cards {
-        margin: 50px 0;
+		margin: 50px 0;
 		display: grid;
-		justify-content: space-between;
+		-webkit-box-pack: justify;
+		   -moz-box-pack: justify;
+		    -ms-flex-pack: justify;
+		        justify-content: space-between;
         grid-template-columns: repeat(auto-fill, 200px);
 		grid-gap: 10vh 5vh;
+		-webkit-transition: all 1s;
 		transition: all 1s;
     }
 }
@@ -240,6 +247,9 @@ main {
 
 @media only screen and (max-width: 651px) {
 	main .cards {
-		justify-content: center !important;
+		-webkit-box-pack: center !important;
+		   -moz-box-pack: center !important;
+		    -ms-flex-pack: center !important;
+		        justify-content: center !important;
 	}
 }
