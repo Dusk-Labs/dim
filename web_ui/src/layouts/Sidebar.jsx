@@ -68,14 +68,14 @@ class Sidebar extends Component {
         this.setState({
             profile,
             lists: {
-                connected_hosts: this.list(hosts, "/device/"),
-                libraries: this.list(libs, "/library/")
+                connected_hosts: this.listConnectedHosts(hosts),
+                libraries: this.listLibraries(libs)
             }
         });
 
     }
 
-    list(res, path) {
+    listConnectedHosts(res) {
         const items = !res || res.error ? [] : res;
 
         return items.length !== 0 ? (
@@ -83,7 +83,7 @@ class Sidebar extends Component {
                 {items.map(({ name, id, media_type }, i) => {
                     return (
                         <div className="item-wrapper" key={i}>
-                            <NavLink to={path + id}>
+                            <NavLink to={"/device/" + id}>
                                 <SidebarIcon icon={media_type || name}/>
                                 <p>{name}</p>
                             </NavLink>
@@ -94,7 +94,37 @@ class Sidebar extends Component {
             </div>
         ) : (
             <div className="empty">
-                <p>CURRENTLY EMPTY</p>
+                <p>NO HOSTS</p>
+            </div>
+        );
+    }
+
+    listLibraries(res) {
+        const items = !res || res.error ? [] : res;
+
+        return items.length !== 0 ? (
+            <div className="list">
+                <div className="item-wrapper">
+                    <NavLink to="/" exact>
+                        <FontAwesomeIcon icon="home"/>
+                        <p>Dashboard</p>
+                    </NavLink>
+                </div>
+                {items.map(({ name, id, media_type }, i) => {
+                    return (
+                        <div className="item-wrapper" key={i}>
+                            <NavLink to={"/library/" + id}>
+                                <SidebarIcon icon={media_type || name}/>
+                                <p>{name}</p>
+                            </NavLink>
+                            <button>-</button>
+                        </div>
+                    );
+                })}
+            </div>
+        ) : (
+            <div className="empty">
+                <p>NO LIBRARIES</p>
             </div>
         );
     }
