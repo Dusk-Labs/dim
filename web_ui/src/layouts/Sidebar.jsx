@@ -43,9 +43,9 @@ class Sidebar extends Component {
 
     async componentDidMount() {
         const profile = {
-            username: "Lindsey Morgan",
-            picture: "https://frostsnow.com/uploads/biography/2016/01/23/lindsey-morgan.jpg",
-            spentWatching: 4
+            username: "Lana Rhoades",
+            picture: "https://i.pinimg.com/564x/69/85/38/698538a169f06333ee09a532c91a49d8.jpg",
+            spentWatching: 12
         };
 
         const hosts = [

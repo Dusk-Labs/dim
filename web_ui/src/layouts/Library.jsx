@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import Card from "../components/library/Card.jsx";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 
 class Library extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            cards: {},
-            loaded: false
+            cards: {}
         };
     }
 
@@ -22,13 +23,14 @@ class Library extends Component {
 
         // eslint-disable-next-line
         for (const section in payload) {
-            const card_list = payload[section].map((card, i) => <Card key={i} data={card}/>);
-            sections[section] = card_list;
+            if (payload[section].length > 0) {
+                const card_list = payload[section].map((card, i) => <Card key={i} data={card}/>);
+                sections[section] = card_list;
+            }
         }
 
         this.setState({
-            cards: sections,
-            loaded: true
+            cards: sections
         });
     };
 
@@ -43,25 +45,27 @@ class Library extends Component {
 
         // * MULTIPLE SECTIONS
         const sections = Object.keys(cards).map(section => {
-            return (this.state.loaded
-                ? (
-                    <section key={section}>
-                        <h1>{section}</h1>
-                        <div className="cards">
-                            {cards[section].length !== 0
-                                ? cards[section]
-                                : (<div className="empty">
-                                    <p>CURRENTLY EMPTY</p>
-                                </div>)}
-                        </div>
-                    </section>
-                ) : <div class="spinner"></div>
+            return (
+                <section key={section}>
+                    <h1>{section}</h1>
+                    <div className="cards">
+                        { cards[section] }
+                    </div>
+                </section>
             );
         });
 
         return (
             <div className="library">
-                { sections }
+                { sections.length > 0 
+                    ? sections 
+                    : (
+                        <div className="empty">
+                            <FontAwesomeIcon icon={faQuestionCircle}/>
+                            <p> There is no content in this library.</p>
+                        </div>
+                    )
+                }
             </div>
         );
     }

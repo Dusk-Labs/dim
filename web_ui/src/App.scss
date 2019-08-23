@@ -57,6 +57,20 @@ a {
 	color: #ffffff;
 	font-size: 0.8em;
 	font-family: "Roboto Condensed Regular";
+    margin: auto;
+    width: 50%;
+    padding: 10px;
+    text-align: center;
+
+    & > svg {
+        color: #f39c12;
+        width: 1.5em !important;
+        height: 1.5em !important;
+    }
+
+    & > p {
+        color: #bfbfbf;
+    }
 }
 
 button {

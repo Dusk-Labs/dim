@@ -68,9 +68,9 @@ class Card extends PureComponent {
         const { name, poster_path } = this.props.data;
 
         const cover = (
-            poster_path
-                ? <LazyImage alt={"cover-" + name} src={poster_path} onLoad={this.onLoadPoster}/>
-                : <div className="placeholder"></div>
+            poster_path && (
+                <LazyImage alt={"cover-" + name} src={poster_path} onLoad={this.onLoadPoster}/>
+                )
         );
 
         return (
