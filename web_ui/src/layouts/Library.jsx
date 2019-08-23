@@ -6,7 +6,8 @@ class Library extends Component {
         super(props);
 
         this.state = {
-            cards: {}
+            cards: {},
+            loaded: false
         };
     }
 
@@ -26,7 +27,8 @@ class Library extends Component {
         }
 
         this.setState({
-            cards: sections
+            cards: sections,
+            loaded: true
         });
     };
 
@@ -41,20 +43,19 @@ class Library extends Component {
 
         // * MULTIPLE SECTIONS
         const sections = Object.keys(cards).map(section => {
-            return (
-                <section key={section}>
-                    <h1>{section}</h1>
-                    <div className="cards">
-                        {cards[section].length !== 0
-                            ? cards[section]
-                            : (
-                                <div className="empty">
+            return (this.state.loaded
+                ? (
+                    <section key={section}>
+                        <h1>{section}</h1>
+                        <div className="cards">
+                            {cards[section].length !== 0
+                                ? cards[section]
+                                : (<div className="empty">
                                     <p>CURRENTLY EMPTY</p>
-                                </div>
-                            )
-                        }
-                    </div>
-                </section>
+                                </div>)}
+                        </div>
+                    </section>
+                ) : <div class="spinner"></div>
             );
         });
 
