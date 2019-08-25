@@ -3,8 +3,9 @@ import { NavLink } from "react-router-dom";
 import Modal from "react-modal";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import SidebarSearch from "../helpers/SidebarSearch.jsx";
 import SidebarIcon from "../helpers/SidebarIcon.jsx";
-import "./sidebar.scss";
+import "./Sidebar.scss";
 
 Modal.setAppElement("body");
 
@@ -143,14 +144,7 @@ class Sidebar extends Component {
                         </div>
                     </div>
                     <div className="separator"></div>
-                    <form>
-                        <div className="search-box">
-                            <input type="text" name="search" placeholder="SEARCH"/>
-                            <button type="submit">
-                                <FontAwesomeIcon icon="search"/>
-                            </button>
-                        </div>
-                    </form>
+                    <SidebarSearch></SidebarSearch>
                 </section>
 
                 <section className="connected-hosts">
