@@ -7,6 +7,21 @@ table! {
 }
 
 table! {
+    genre (id) {
+        id -> Int4,
+        name -> Varchar,
+    }
+}
+
+table! {
+    genre_media (id) {
+        id -> Int4,
+        genre_id -> Int4,
+        media_id -> Int4,
+    }
+}
+
+table! {
     library (id) {
         id -> Int4,
         name -> Varchar,
@@ -16,6 +31,8 @@ table! {
 }
 
 table! {
+    use diesel_full_text_search::{TsVector as Tsvector};
+    use diesel::sql_types::*;
     media (id) {
         id -> Int4,
         library_id -> Int4,
@@ -27,7 +44,7 @@ table! {
         poster_path -> Nullable<Text>,
         backdrop_path -> Nullable<Text>,
         media_type -> Nullable<Varchar>,
-        genres -> Nullable<Array<Text>>,
+        name_search_index -> Tsvector,
     }
 }
 
@@ -78,6 +95,8 @@ table! {
 
 joinable!(episode -> season (seasonid));
 joinable!(episode -> streamable_media (id));
+joinable!(genre_media -> genre (genre_id));
+joinable!(genre_media -> media (media_id));
 joinable!(media -> library (library_id));
 joinable!(mediafile -> library (library_id));
 joinable!(mediafile -> media (media_id));
@@ -88,6 +107,8 @@ joinable!(tv_show -> media (id));
 
 allow_tables_to_appear_in_same_query!(
     episode,
+    genre,
+    genre_media,
     library,
     media,
     mediafile,

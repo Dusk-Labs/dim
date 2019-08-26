@@ -52,7 +52,7 @@ class ProgressBar extends Component {
 
         return (
             <div className="progress-bar">
-                {(season, episode === undefined)
+                {(season, episode !== undefined)
                     ? (<div className="s-e">
                             <p>S{season}</p>
                             <FontAwesomeIcon icon="circle" style={{ color: accent }}/>

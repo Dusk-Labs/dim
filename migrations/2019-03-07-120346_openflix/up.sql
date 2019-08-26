@@ -92,3 +92,11 @@ CREATE TABLE mediafile (
     FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(library_id) REFERENCES library(id) ON DELETE CASCADE
 );
+
+CREATE TABLE progress (
+    id SERIAL,
+    delta INTEGER,
+    media_id INTEGER,
+
+    FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE
+);

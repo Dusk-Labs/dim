@@ -1,6 +1,7 @@
 use crate::core::DbConnection;
 use crate::dim_database::media::{Media, UpdateMedia};
 use crate::dim_database::mediafile::MediaFile;
+use crate::dim_database::genre::Genre;
 use rocket::http::Status;
 use rocket_contrib::json::{Json, JsonValue};
 
@@ -16,6 +17,12 @@ pub fn get_media_by_id(conn: DbConnection, id: i32) -> Result<JsonValue, Status>
         Err(_) => 0,
     };
 
+    let genres = Genre::get_by_media(&conn, data.id)
+        .unwrap()
+        .iter()
+        .map(|x| x.name.clone())
+        .collect::<Vec<String>>();
+
     Ok(json!({
         "id": data.id,
         "library_id": data.library_id,
@@ -27,7 +34,7 @@ pub fn get_media_by_id(conn: DbConnection, id: i32) -> Result<JsonValue, Status>
         "poster_path": data.poster_path,
         "backdrop_path": data.backdrop_path,
         "media_type": data.media_type,
-        "genres": data.genres,
+        "genres": genres,
         "duration": duration
     }))
 }

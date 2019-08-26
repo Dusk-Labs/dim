@@ -1,5 +1,5 @@
 use crate::media::InsertableMedia;
-use crate::media::Media;
+use crate::media::{Media, MEDIA_ALL_COLUMNS};
 use crate::media::UpdateMedia;
 use crate::schema::episode;
 use crate::season::Season;
@@ -78,6 +78,7 @@ impl Episode {
             .first::<EpisodeWrapper>(conn)?;
 
         let media = media::dsl::media
+            .select(MEDIA_ALL_COLUMNS)
             .filter(media::dsl::id.eq(episode.id))
             .first::<Media>(conn)?;
 

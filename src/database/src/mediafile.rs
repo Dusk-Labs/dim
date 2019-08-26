@@ -73,6 +73,19 @@ impl MediaFile {
 
         Ok(result)
     }
+
+    pub fn get_one(
+        conn: &diesel::PgConnection,
+        _id: i32,
+    ) -> Result<Self, diesel::result::Error> {
+       use crate::schema::mediafile::dsl::*;
+
+       let result = mediafile
+           .filter(id.eq(_id))
+           .first::<Self>(conn)?;
+
+       Ok(result)
+    }
 }
 
 impl InsertableMediaFile {
