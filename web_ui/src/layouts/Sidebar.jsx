@@ -17,15 +17,16 @@ class Sidebar extends Component {
         this.closeShowAddLibrary = this.closeShowAddLibrary.bind(this);
 
         this.state = {
-            profile: {
-                username: null,
-                picture: null,
-                spentWatching: null
-            },
+            profile: (
+                <div className="profile">
+                    <div className="default-icon"></div>
+                    <p id="response">LOADING</p>
+                </div>
+            ),
             showAddLibrary: false,
             lists: {
-                connected_hosts: [],
-                libraries: []
+                connectedHosts: <p id="response">LOADING</p>,
+                libraries: <p id="response">LOADING</p>
             }
         };
     }
@@ -42,46 +43,90 @@ class Sidebar extends Component {
         });
     }
 
+    async handle_req(promise) {
+        try {
+            return await (await promise).json();
+        } catch (err) {
+            return { err: err };
+        }
+    }
+
     async componentDidMount() {
+        this.getProfile();
+        this.listConnectedHosts();
+        this.listLibraries();
+    }
+
+    async getProfile() {
+        // ! FOR WHEN API READY
+        // const reqProfile = fetch("http://86.21.150.167:8000/api/v1/");
+        // const profile = await this.handle_req(reqProfile);
+
+        // if (profile.err) {
+        //     const profFailed = (
+        //         <div className="profile">
+        //             <div className="default-icon"></div>
+        //             <p id="response">FAILED TO LOAD</p>
+        //         </div>
+        //     );
+
+        //     return this.setState({
+        //         profile: profFailed
+        //     });
+        // }
+        // !
+
+        // ! TEMP (REMOVE WHEN USING API)
         const profile = {
             username: "Lana Rhoades",
             picture: "https://i.pinimg.com/564x/69/85/38/698538a169f06333ee09a532c91a49d8.jpg",
             spentWatching: 12
         };
+        // !
 
+        const { username, picture, spentWatching } = profile;
+
+        const prof = (
+            <div className="profile">
+                <img alt="icon" src={picture}></img>
+                <div className="info">
+                    <h4>{username}</h4>
+                    <h6>{spentWatching}h spent watching</h6>
+                </div>
+            </div>
+        );
+
+        return this.setState({
+            profile: prof
+        });
+    }
+
+    async listConnectedHosts() {
+        // ! FOR WHEN API READY
+        // const reqHosts = fetch("http://86.21.150.167:8000/api/v1/");
+        // const hosts = await this.handle_req(reqHosts);
+
+        // if (hosts.err) {
+        //     return this.setState(prevState => ({
+        //         lists: {
+        //             ...prevState.lists,
+        //             connectedHosts: <p id="response">FAILED TO LOAD</p>,
+        //         }
+        //     }));
+        // }
+        // !
+
+        // ! TEMP (REMOVE WHEN USING API)
         const hosts = [
             { name: "Desktop", id: "1"},
             { name: "Laptop", id: "2"},
             { name: "Phone", id: "3"}
         ];
+        // !
 
-        // const reqProfile = fetch("http://86.21.150.167:8000/api/v1/");
-        // const reqHosts = fetch("http://86.21.150.167:8000/api/v1/");
-        const reqLibs = fetch("http://86.21.150.167:8000/api/v1/library/");
-
-        // const [ profile, hosts, libs ] = [
-        const [ libs ] = [
-            // await (await reqProfile).json(),
-            // await (await reqHosts).json(),
-            await (await reqLibs).json()
-        ];
-
-        this.setState({
-            profile,
-            lists: {
-                connected_hosts: this.listConnectedHosts(hosts),
-                libraries: this.listLibraries(libs)
-            }
-        });
-
-    }
-
-    listConnectedHosts(res) {
-        const items = !res || res.error ? [] : res;
-
-        return items.length !== 0 ? (
+        const list = hosts.length !== 0 ? (
             <div className="list">
-                {items.map(({ name, id, media_type }, i) => {
+                {hosts.map(({ name, id, media_type }, i) => {
                     return (
                         <div className="item-wrapper" key={i}>
                             <NavLink to={"/device/" + id}>
@@ -93,17 +138,30 @@ class Sidebar extends Component {
                     );
                 })}
             </div>
-        ) : (
-            <div className="empty">
-                <p>NO HOSTS</p>
-            </div>
-        );
+        ) : <p id="response">NO HOSTS</p>;
+
+        return this.setState(prevState => ({
+            lists: {
+                ...prevState.lists,
+                connectedHosts: list
+            }
+        }));
     }
 
-    listLibraries(res) {
-        const items = !res || res.error ? [] : res;
+    async listLibraries() {
+        const reqLibs = fetch("http://86.21.150.167:8000/api/v1/library");
+        const libs = await this.handle_req(reqLibs);
 
-        return items.length !== 0 ? (
+        if (libs.err) {
+            return this.setState(prevState => ({
+                lists: {
+                    ...prevState.lists,
+                    libraries: <p id="response"> FAILED TO LOAD</p>
+                }
+            }));
+        }
+
+        const list = libs.length !== 0 ? (
             <div className="list">
                 <div className="item-wrapper">
                     <NavLink to="/" exact>
@@ -111,7 +169,7 @@ class Sidebar extends Component {
                         <p>Dashboard</p>
                     </NavLink>
                 </div>
-                {items.map(({ name, id, media_type }, i) => {
+                {libs.map(({ name, id, media_type }, i) => {
                     return (
                         <div className="item-wrapper" key={i}>
                             <NavLink to={"/library/" + id}>
@@ -123,26 +181,21 @@ class Sidebar extends Component {
                     );
                 })}
             </div>
-        ) : (
-            <div className="empty">
-                <p>NO LIBRARIES</p>
-            </div>
-        );
+        ) : <p id="response">NO LIBRARIES</p>;
+
+        return this.setState(prevState => ({
+            lists: {
+                ...prevState.lists,
+                libraries: list
+            }
+        }));
     }
 
     render() {
-        const { profile } = this.state;
-
         return (
             <nav className="sidebar">
                 <section className="main-part">
-                    <div className="profile">
-                        <img alt="icon" src={profile.picture}></img>
-                        <div className="info">
-                            <h4>{profile.username || "Username"}</h4>
-                            <h6>{profile.spentWatching || "0"}h spent watching</h6>
-                        </div>
-                    </div>
+                    {this.state.profile}
                     <div className="separator"></div>
                     <SidebarSearch></SidebarSearch>
                 </section>
@@ -151,7 +204,7 @@ class Sidebar extends Component {
                     <header>
                         <h4>CONNECTED HOSTS</h4>
                     </header>
-                    {this.state.lists.connected_hosts}
+                    {this.state.lists.connectedHosts}
                 </section>
 
                 <section className="local-libraries">
