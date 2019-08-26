@@ -21,6 +21,13 @@
         width: 190px;
         overflow: hidden;
         white-space: nowrap;
+
+        // TAG
+        span {
+            padding: 0 5px;
+            background: #666666;
+            border-radius: 5px;
+        }
     }
 
     input::-webkit-input-placeholder {
