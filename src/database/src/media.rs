@@ -2,8 +2,10 @@ use crate::library::Library;
 use crate::mediafile::MediaFile;
 use crate::schema::media;
 use diesel::prelude::*;
+use diesel::sql_types::*;
+use crate::genre::Genre;
 
-#[derive(Clone, Identifiable, Queryable, Serialize, Deserialize, PartialEq, Debug, Associations)]
+#[derive(Clone, Identifiable, Queryable, Serialize, Deserialize, Debug, Associations)]
 #[belongs_to(Library, foreign_key = "library_id")]
 #[table_name = "media"]
 pub struct Media {
@@ -17,8 +19,41 @@ pub struct Media {
     pub poster_path: Option<String>,
     pub backdrop_path: Option<String>,
     pub media_type: Option<String>,
-    pub genres: Option<Vec<String>>,
 }
+
+impl PartialEq for Media {
+    fn eq(&self, other: &Media) -> bool {
+        self.id == other.id
+    }
+}
+
+/// We literally never want to select `name_search_index`
+/// so we provide this type and constant to pass to `.select`
+type MediaAllColumns = (
+    media::id,
+    media::library_id,
+    media::name,
+    media::description,
+    media::rating,
+    media::year,
+    media::added,
+    media::poster_path,
+    media::backdrop_path,
+    media::media_type,
+);
+
+pub const MEDIA_ALL_COLUMNS: MediaAllColumns = (
+    media::id,
+    media::library_id,
+    media::name,
+    media::description,
+    media::rating,
+    media::year,
+    media::added,
+    media::poster_path,
+    media::backdrop_path,
+    media::media_type,
+);
 
 #[derive(Insertable, Serialize, Deserialize, Debug)]
 #[table_name = "media"]
@@ -32,7 +67,6 @@ pub struct InsertableMedia {
     pub poster_path: Option<String>,
     pub backdrop_path: Option<String>,
     pub media_type: String,
-    pub genres: Option<Vec<String>>,
 }
 
 #[derive(AsChangeset, Deserialize, PartialEq, Debug)]
@@ -46,7 +80,6 @@ pub struct UpdateMedia {
     pub poster_path: Option<Option<String>>,
     pub backdrop_path: Option<Option<String>>,
     pub media_type: Option<Option<String>>,
-    pub genres: Option<Vec<String>>,
 }
 
 impl Media {
@@ -55,15 +88,16 @@ impl Media {
         _lib_id: i32,
         library: Library,
     ) -> Result<Vec<Self>, diesel::result::Error> {
-        let result = Self::belonging_to(&library).load::<Self>(conn)?;
-
+        let result = Self::belonging_to(&library)
+            .select(MEDIA_ALL_COLUMNS)
+            .load::<Self>(conn)?; 
         Ok(result)
     }
 
     pub fn get(conn: &diesel::PgConnection, req_id: i32) -> Result<Self, diesel::result::Error> {
         use crate::schema::media::dsl::*;
 
-        let result = media.filter(id.eq(req_id)).first::<Self>(conn)?;
+        let result = media.filter(id.eq(req_id)).select(MEDIA_ALL_COLUMNS).first::<Self>(conn)?;
 
         Ok(result)
     }
@@ -73,7 +107,7 @@ impl Media {
         library: &Library,
         name: &String,
     ) -> Result<Self, diesel::result::Error> {
-        let result = Self::belonging_to(library).load::<Self>(conn)?;
+        let result = Self::belonging_to(library).select(MEDIA_ALL_COLUMNS).load::<Self>(conn)?;
 
         // Manual filter because of a bug with combining filter with belonging_to
         for i in result {
@@ -98,6 +132,7 @@ impl Media {
 
 impl InsertableMedia {
     pub fn new(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
+        use diesel::sql_query;
         use crate::schema::library::dsl::*;
         use crate::tv::InsertableTVShow;
 
@@ -105,19 +140,10 @@ impl InsertableMedia {
             .filter(id.eq(self.library_id))
             .first::<Library>(conn)?;
 
-        let count = diesel::insert_into(media::table)
+        let result = diesel::insert_into(media::table)
             .values(self)
-            .execute(conn)?;
-
-        let result = media::dsl::media
-            .order(media::id.desc())
-            .limit(count as i64)
-            .load::<Media>(conn)?
-            .into_iter()
-            .rev()
-            .last()
-            .unwrap()
-            .id;
+            .returning(media::id)
+            .get_result(conn)?;
 
         match self.media_type.as_str() {
             "tv" => {

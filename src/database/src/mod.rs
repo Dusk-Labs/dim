@@ -5,3 +5,4 @@ pub mod media;
 pub mod season;
 pub mod tv;
 pub mod mediafile;
+pub mod genre;

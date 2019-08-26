@@ -5,6 +5,7 @@ use chrono::Datelike;
 use chrono::NaiveDate;
 use diesel::pg::PgConnection;
 use dim_database::media::{InsertableMedia, Media};
+use dim_database::genre::*;
 use dim_database::{get_conn, library::Library, mediafile::*};
 use dim_streamer::{ffprobe::FFProbeCtx, FFPROBE_BIN};
 use std::path::PathBuf;
@@ -108,9 +109,9 @@ fn iterate_stage2(conn: PgConnection, lib: Library) {
                     added: Utc::now().to_string(),
                     poster_path: match result.poster_path {
                         Some(path) => Some(format!(
-                            "https://image.tmdb.org/t/p/w600_and_h900_bestv2{}",
-                            path
-                        )),
+                                "https://image.tmdb.org/t/p/w600_and_h900_bestv2{}",
+                                path
+                                )),
                         None => None,
                     },
                     backdrop_path: match result.backdrop_path {
@@ -118,11 +119,8 @@ fn iterate_stage2(conn: PgConnection, lib: Library) {
                         None => None,
                     },
                     media_type: String::from("movie"),
-                    genres: match result.genres {
-                        Some(x) => Some(x.iter().map(|x| x.name.clone()).collect::<Vec<String>>()),
-                        None => None,
-                    },
                 };
+
 
                 media_id = match media.new(&conn) {
                     Ok(id) => id,
@@ -130,6 +128,26 @@ fn iterate_stage2(conn: PgConnection, lib: Library) {
                         println!("[ITERATE_STAGE2] Error inserting media {}", err);
                         continue;
                     }
+                };
+
+                match result.genres {
+                    Some(y) => {
+                        for x in y {
+                            let genre = InsertableGenre {
+                                name: x.name.clone(),
+                            };
+
+                            let id = genre.new(&conn).unwrap();
+
+                            let pair = InsertableGenreMedia {
+                                genre_id: id,
+                                media_id: media_id,
+                            };
+
+                            pair.new(&conn);
+                        };
+                    },
+                    None => { },
                 };
             }
 

@@ -51,6 +51,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "diesel_full_text_search"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "diesel 1.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "diesel_migrations"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -64,6 +72,7 @@ name = "dim-database"
 version = "0.1.0"
 dependencies = [
  "diesel 1.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "diesel_full_text_search 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "diesel_migrations 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "r2d2 0.8.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "r2d2-diesel 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -491,6 +500,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum cloudabi 0.0.3 (registry+https://github.com/rust-lang/crates.io-index)" = "ddfc5b9aa5d4507acaf872de71051dfd0e309860e88966e1051e462a077aac4f"
 "checksum diesel 1.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "8d24935ba50c4a8dc375a0fd1f8a2ba6bdbdc4125713126a74b965d6a01a06d7"
 "checksum diesel_derives 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "62a27666098617d52c487a41f70de23d44a1dc1f3aa5877ceba2790fb1f1cab4"
+"checksum diesel_full_text_search 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "7ad3168d9d2008c58b8c9fabb79ddc38d1f9d511fa15e0dcbd6b987912b05783"
 "checksum diesel_migrations 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "bf3cde8413353dc7f5d72fa8ce0b99a560a359d2c5ef1e5817ca731cd9008f4c"
 "checksum fuchsia-cprng 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "a06f77d526c1a601b7c4cdd98f54b5eaabffc14d5f2f0296febdc7f357c6d3ba"
 "checksum itoa 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "501266b7edd0174f8530248f87f99c88fbe60ca4ef3dd486835b8d8d53136f7f"

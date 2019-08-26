@@ -22,6 +22,8 @@ dim-database = { path = "./src/database" }
 dim-scanners = { path = "./src/scanners" }
 dim-streamer = { path = "./src/streaming" }
 walkdir = "2.2.9"
+diesel_full_text_search = "1.0.1"
+rand = "0.7.0"
 
 [dependencies.rocket_contrib]
 version = "*"

@@ -4,7 +4,6 @@
 
 #[macro_use]
 extern crate diesel;
-#[macro_use]
 extern crate diesel_migrations;
 #[macro_use]
 extern crate serde;
@@ -16,6 +15,7 @@ pub mod mediafile;
 pub mod schema;
 pub mod season;
 pub mod tv;
+pub mod genre;
 
 pub fn get_conn() -> Result<diesel::PgConnection, diesel::result::ConnectionError> {
     use diesel::connection::Connection;

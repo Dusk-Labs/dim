@@ -83,6 +83,9 @@ pub fn rocket() -> Rocket {
                 routes::general::dashboard,
                 routes::general::banners,
                 routes::general::get_directory_structure,
+                routes::stream::start_stream,
+                routes::stream::return_static,
+                routes::general::search,
             ],
         )
         .mount(

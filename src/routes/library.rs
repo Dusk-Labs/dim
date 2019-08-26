@@ -2,6 +2,7 @@ use crate::core::DbConnection;
 use dim_database::library::{InsertableLibrary, Library};
 use dim_database::media::Media;
 use dim_database::mediafile::MediaFile;
+use dim_database::genre::Genre;
 use dim_scanners;
 use rocket::http::Status;
 use rocket_contrib::json::{Json, JsonValue};
@@ -60,6 +61,11 @@ pub fn get_all_library(
                             Ok(x) => x.duration.unwrap(),
                             Err(_) => 0,
                         };
+                        let genres = Genre::get_by_media(&conn, x.id)
+                            .unwrap()
+                            .iter()
+                            .map(|x| x.name.clone())
+                            .collect::<Vec<String>>();
 
                         json!({
                             "id": x.id,
@@ -72,7 +78,7 @@ pub fn get_all_library(
                             "poster_path": x.poster_path,
                             "backdrop_path": x.backdrop_path,
                             "media_type": x.media_type,
-                            "genres": x.genres,
+                            "genres": genres,
                             "duration": duration
                         })
                     })
