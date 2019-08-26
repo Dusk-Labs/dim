@@ -23,29 +23,13 @@ pub fn construct_standard(conn: &DbConnection, data: &Media, quick: Option<bool>
         .iter()
         .map(|x| x.name.clone())
         .collect::<Vec<String>>();
-    if let Some(x) = quick {
-        if x {
-            return json!({
-                "id": data.id,
-                "name": data.name,
-                "library_id": data.library_id
-            });
-        } else {
-            return json!({
-                "id": data.id,
-                "library_id": data.library_id,
-                "name": data.name,
-                "description": data.description,
-                "rating": data.rating,
-                "year": data.year,
-                "added": data.added,
-                "poster_path": data.poster_path,
-                "backdrop_path": data.backdrop_path,
-                "media_type": data.media_type,
-                "genres": genres,
-                "duration": duration
-            });
-        }
+
+    if quick.is_some() && quick.unwrap() {
+        return json!({
+            "id": data.id,
+            "name": data.name,
+            "library_id": data.library_id
+        });
     } else {
         return json!({
             "id": data.id,
@@ -213,12 +197,12 @@ pub fn search(
         }
     }
 
-    match result.load::<Media>(&*conn) {
-        Ok(x) => Ok(Json(
+    if let Ok(x) = result.load::<Media>(&*conn) {
+        return Ok(Json(
             x.iter()
                 .map(|x| construct_standard(&conn, x, quick))
                 .collect::<Vec<JsonValue>>(),
-        )),
-        Err(_) => Err(Status::NotFound),
+        ));
     }
+    Err(Status::NotFound)
 }
