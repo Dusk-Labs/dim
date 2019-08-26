@@ -6,27 +6,21 @@
 .search-box-wrapper {
     background: #4d4d4d;
     border-radius: 10px;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-pack: space-evenly;
-        -ms-flex-pack: space-evenly;
-            -moz-box-pack: space-evenly;
-            justify-content: space-evenly;
-    -webkit-box-align: center;
-        -ms-flex-align: center;
-            -moz-box-align: center;
-            align-items: center;
     overflow: hidden;
+    position: relative;
 
-    input {
+    .input {
+        -webkit-box-sizing: border-box;
+           -moz-box-sizing: border-box;
+                box-sizing: border-box;
         background: #4d4d4d;
-        border: none;
-        padding: 10px;
         outline: none;
+        padding: 10px 20px;
         color: #ffffff;
         font-family: "Roboto Black";
+        width: 190px;
+        overflow: hidden;
+        white-space: nowrap;
     }
 
     input::-webkit-input-placeholder {
@@ -50,6 +44,11 @@
     }
 
     button {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        -webkit-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);
         height: 25px;
         width: 25px;
         border-radius: 30px;
@@ -73,11 +72,14 @@
     padding: 10px;
     border-radius: 10px;
     background: #4d4d4d;
-    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
     color: #8d8d8d;
-    animation: SidebarSearchBoxAppear 0.2s ease-in-out;
+    -webkit-animation: SidebarSearchBoxAppear 0.2s ease-in-out;
+            animation: SidebarSearchBoxAppear 0.2s ease-in-out;
 
-    // TAG + HEADDER
+    // TAG + HEADER
     p {
         margin: 0;
     }
@@ -90,14 +92,25 @@
 
     .option {
         padding: 8px 10px;
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        -webkit-box-align: center;
+           -moz-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
+        -webkit-box-pack: justify;
+           -moz-box-pack: justify;
+            -ms-flex-pack: justify;
+                justify-content: space-between;
         font-family: "Roboto Black";
+        -webkit-transition: background 0.3s ease-in-out;
         transition: background 0.3s ease-in-out;
         border-radius: 10px;
 
         svg {
+            -webkit-transition: color 0.3s ease-in-out;
             transition: color 0.3s ease-in-out;
         }
 
@@ -116,26 +129,85 @@
     position: absolute;
     width: 100%;
     top: 120%;
-    padding: 25px 20px;
+    padding: 20px 10px;
     border-radius: 10px;
     background: #4d4d4d;
-    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
     color: #8d8d8d;
-    animation: SidebarSearchForAppear 0.2s ease-in-out;
+    -webkit-animation: SidebarSearchForAppear 0.2s ease-in-out;
+            animation: SidebarSearchForAppear 0.2s ease-in-out;
     font-size: 0.9em;
     font-family: "Roboto Condensed Bold";
 
     p {
-        margin: 0;
+        margin: 1px 0;
+        padding: 0 10px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     #query {
         font-family: "Roboto Black";
         color: #ffffff;
     }
+
+    .results {
+        .result-list {
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-orient: vertical;
+            -webkit-box-direction: normal;
+               -moz-box-orient: vertical;
+               -moz-box-direction: normal;
+                -ms-flex-direction: column;
+                    flex-direction: column;
+            max-height: 150px;
+            overflow: scroll;
+            padding: 0 5px;
+        }
+
+        a {
+            padding: 8px 5px;
+            background: transparent;
+            -webkit-transition: background 0.3 ease-in-out;
+            transition: background 0.3 ease-in-out;
+            border-radius: 10px;
+
+            &:hover {
+                background: #666666;
+            }
+        }
+    }
+}
+
+@-webkit-keyframes SidebarSearchBoxAppear {
+    0% {
+        opacity: 0;
+        width: 0;
+    }
+    100% {
+        opacity: 1;
+        width: 100%;
+    }
 }
 
 @keyframes SidebarSearchBoxAppear {
+    0% {
+        opacity: 0;
+        width: 0;
+    }
+    100% {
+        opacity: 1;
+        width: 100%;
+    }
+}
+
+@-webkit-keyframes SidebarSearchForAppear {
     0% {
         opacity: 0;
         width: 0;
