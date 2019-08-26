@@ -60,7 +60,7 @@ impl Library {
 }
 
 impl InsertableLibrary {
-    pub fn new(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
+    pub fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
         diesel::insert_into(library::table)
             .values(self)
             .returning(library::id)

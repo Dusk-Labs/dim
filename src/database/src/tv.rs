@@ -18,7 +18,10 @@ pub struct InsertableTVShow {
 impl TVShow {
     pub fn get(conn: &diesel::PgConnection, req_id: i32) -> Result<Media, diesel::result::Error> {
         use crate::schema::media::dsl::*;
-        let result = media.select(MEDIA_ALL_COLUMNS).filter(id.eq(req_id)).first(conn)?;
+        let result = media
+            .select(MEDIA_ALL_COLUMNS)
+            .filter(id.eq(req_id))
+            .first(conn)?;
         Ok(result)
     }
 

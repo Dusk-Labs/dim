@@ -1,5 +1,5 @@
-use diesel::prelude::*;
 use crate::schema::{genre, genre_media};
+use diesel::prelude::*;
 
 #[derive(Clone, Identifiable, Queryable, Serialize, Deserialize, PartialEq, Debug)]
 #[table_name = "genre"]
@@ -9,8 +9,6 @@ pub struct Genre {
 }
 
 #[derive(Clone, Identifiable, Queryable, Debug, PartialEq)]
-#[belongs_to(Media, foreign_key = "media_id")]
-#[belongs_to(Genre, foreign_key = "genre_id")]
 #[table_name = "genre_media"]
 pub struct GenreMedia {
     pub id: i32,
@@ -32,12 +30,18 @@ pub struct InsertableGenreMedia {
 }
 
 impl Genre {
-    pub fn get_by_name(conn: &diesel::PgConnection, query: String) -> Result<Self, diesel::result::Error> {
+    pub fn get_by_name(
+        conn: &diesel::PgConnection,
+        query: String,
+    ) -> Result<Self, diesel::result::Error> {
         use crate::schema::genre::dsl::*;
         genre.filter(name.ilike(query)).first::<Self>(conn)
     }
 
-    pub fn get_by_media(conn: &diesel::PgConnection, query: i32) -> Result<Vec<Self>, diesel::result::Error> {
+    pub fn get_by_media(
+        conn: &diesel::PgConnection,
+        query: i32,
+    ) -> Result<Vec<Self>, diesel::result::Error> {
         genre::table
             .inner_join(genre_media::table)
             .filter(genre_media::media_id.eq(query))
@@ -47,12 +51,12 @@ impl Genre {
 }
 
 impl InsertableGenre {
-    pub fn new(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
+    pub fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
         use crate::schema::genre::dsl::*;
 
         // first check if exists
         if let Ok(x) = Genre::get_by_name(&conn, self.name.clone()) {
-            return Ok(x.id)
+            return Ok(x.id);
         }
 
         let result = diesel::insert_into(genre)
@@ -65,10 +69,8 @@ impl InsertableGenre {
 }
 
 impl InsertableGenreMedia {
-    pub fn new(&self, conn: &diesel::PgConnection) {
+    pub fn insert(&self, conn: &diesel::PgConnection) {
         use crate::schema::genre_media::dsl::*;
-        let _ = diesel::insert_into(genre_media)
-            .values(self)
-            .execute(conn);
+        let _ = diesel::insert_into(genre_media).values(self).execute(conn);
     }
 }

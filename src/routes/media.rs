@@ -1,7 +1,7 @@
 use crate::core::DbConnection;
+use crate::dim_database::genre::Genre;
 use crate::dim_database::media::{Media, UpdateMedia};
 use crate::dim_database::mediafile::MediaFile;
-use crate::dim_database::genre::Genre;
 use rocket::http::Status;
 use rocket_contrib::json::{Json, JsonValue};
 

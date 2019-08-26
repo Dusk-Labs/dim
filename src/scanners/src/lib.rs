@@ -1,3 +1,6 @@
+extern crate rocket_slog;
+#[macro_use]
+extern crate slog;
 extern crate clap;
 extern crate crossbeam_channel;
 extern crate diesel;
@@ -5,6 +8,7 @@ extern crate notify;
 extern crate torrent_name_parser;
 
 use dim_database::get_conn;
+use rocket_slog::SyncLogger;
 use std::thread;
 
 pub mod api;
@@ -13,22 +17,22 @@ pub mod tmdb;
 
 use crate::iterative_parser::start_iterative_parser;
 
-pub fn start(library_id: i32) -> std::result::Result<(), &'static str> {
+pub fn start(library_id: i32, log: SyncLogger) -> std::result::Result<(), ()> {
     let mut threads = Vec::new();
 
-    println!("Scanning {}", library_id);
-    if let Ok(_) = get_conn() {
-        let library_id_ref = library_id.clone();
+    info!(log, "Scanning {}", library_id);
+    if get_conn().is_ok() {
+        let library_id_ref = library_id;
         threads.push(thread::spawn(move || {
-            start_iterative_parser(library_id_ref);
+            start_iterative_parser(library_id_ref, log);
         }));
     } else {
-        println!("[SCANNERS] Failed to connect to db");
-        return Err("[SCANNERS] Failed to connect to db");
+        error!(log, "Failed to connect to db");
+        return Err(());
     }
 
     for t in threads {
-        t.join();
+        t.join().unwrap_or(());
     }
 
     Ok(())
