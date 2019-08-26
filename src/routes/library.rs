@@ -1,12 +1,10 @@
 use crate::core::DbConnection;
 use dim_database::library::{InsertableLibrary, Library};
-use dim_database::media::Media;
-use dim_database::mediafile::MediaFile;
-use dim_database::genre::Genre;
 use dim_scanners;
 use rocket::http::Status;
 use rocket_contrib::json::{Json, JsonValue};
 use std::collections::HashMap;
+use crate::routes::general::construct_standard;
 
 #[get("/")]
 pub fn library_get(conn: DbConnection) -> Json<Vec<Library>> {
@@ -53,35 +51,11 @@ pub fn get_all_library(
     let mut result: HashMap<String, Vec<JsonValue>> = HashMap::new();
     if let Ok(lib) = Library::get_one(&conn, id) {
         match Library::get(&conn, id) {
-            Ok(data) => {
+            Ok(mut data) => {
+                data.sort_by(|a, b| a.name.cmp(&b.name));
                 let out = data
                     .iter()
-                    .map(|x| {
-                        let duration = match MediaFile::get_of_media(&conn, &x) {
-                            Ok(x) => x.duration.unwrap(),
-                            Err(_) => 0,
-                        };
-                        let genres = Genre::get_by_media(&conn, x.id)
-                            .unwrap()
-                            .iter()
-                            .map(|x| x.name.clone())
-                            .collect::<Vec<String>>();
-
-                        json!({
-                            "id": x.id,
-                            "library_id": x.library_id,
-                            "name": x.name,
-                            "description": x.description,
-                            "rating": x.rating,
-                            "year": x.year,
-                            "added": x.added,
-                            "poster_path": x.poster_path,
-                            "backdrop_path": x.backdrop_path,
-                            "media_type": x.media_type,
-                            "genres": genres,
-                            "duration": duration
-                        })
-                    })
+                    .map(|x| construct_standard(&conn, x, None))
                     .collect::<Vec<JsonValue>>();
                 result.insert(lib.name, out);
                 Ok(Json(result))

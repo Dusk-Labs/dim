@@ -12,7 +12,7 @@ use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
 use rand::Rng;
 
-fn construct_standard(conn: &DbConnection, data: &Media) -> JsonValue {
+pub fn construct_standard(conn: &DbConnection, data: &Media, quick: Option<bool>) -> JsonValue {
     let duration = match MediaFile::get_of_media(&conn, &data) {
         Ok(x) => x.duration.unwrap(),
         Err(_) => 0,
@@ -23,21 +23,47 @@ fn construct_standard(conn: &DbConnection, data: &Media) -> JsonValue {
         .iter()
         .map(|x| x.name.clone())
         .collect::<Vec<String>>();
-
-    json!({
-        "id": data.id,
-        "library_id": data.library_id,
-        "name": data.name,
-        "description": data.description,
-        "rating": data.rating,
-        "year": data.year,
-        "added": data.added,
-        "poster_path": data.poster_path,
-        "backdrop_path": data.backdrop_path,
-        "media_type": data.media_type,
-        "genres": genres,
-        "duration": duration
-    })
+    if let Some(x) = quick {
+        match x {
+            false => {
+                return json!({
+                    "id": data.id,
+                    "library_id": data.library_id,
+                    "name": data.name,
+                    "description": data.description,
+                    "rating": data.rating,
+                    "year": data.year,
+                    "added": data.added,
+                    "poster_path": data.poster_path,
+                    "backdrop_path": data.backdrop_path,
+                    "media_type": data.media_type,
+                    "genres": genres,
+                    "duration": duration
+                })},
+            true => {
+                return json!({
+                    "id": data.id,
+                    "name": data.name,
+                    "library_id": data.library_id
+                })
+            },
+        }
+    } else {
+        return json!({
+            "id": data.id,
+            "library_id": data.library_id,
+            "name": data.name,
+            "description": data.description,
+            "rating": data.rating,
+            "year": data.year,
+            "added": data.added,
+            "poster_path": data.poster_path,
+            "backdrop_path": data.backdrop_path,
+            "media_type": data.media_type,
+            "genres": genres,
+            "duration": duration
+        })
+    }
 }
 
 #[get("/dashboard")]
@@ -50,7 +76,7 @@ pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
         .load::<Media>(&*conn)
         .unwrap()
         .iter()
-        .map(|x| construct_standard(&conn, x))
+        .map(|x| construct_standard(&conn, x, None))
         .collect::<Vec<JsonValue>>();
 
     let recently_added = media
@@ -59,7 +85,7 @@ pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
         .load::<Media>(&*conn)
         .unwrap()
         .iter()
-        .map(|x| construct_standard(&conn, x))
+        .map(|x| construct_standard(&conn, x, None))
         .collect::<Vec<JsonValue>>();
 
     if top_rated.len() >= 10 && recently_added.len() >= 10 {
@@ -130,13 +156,14 @@ pub fn get_directory_structure(path: PathBuf) -> Result<Json<Vec<String>>, Statu
     Ok(Json(dirs))
 }
 
-#[get("/search?<query>&<year>&<library_id>&<genre>")]
+#[get("/search?<query>&<year>&<library_id>&<genre>&<quick>")]
 pub fn search(
     conn: DbConnection,
     query: Option<&RawStr>,
     year: Option<i32>,
     library_id: Option<i32>,
-    genre: Option<String>
+    genre: Option<String>,
+    quick: Option<bool>
 ) -> Result<Json<Vec<JsonValue>>, Status> {
     use dim_database::schema::media;
     use crate::dim_database::schema::genre_media;
@@ -178,7 +205,7 @@ pub fn search(
         match new_result.load::<Media>(&*conn) {
             Ok(x) => return Ok(Json(x
                                     .iter()
-                                    .map(|x| construct_standard(&conn, x))
+                                    .map(|x| construct_standard(&conn, x, quick))
                                     .collect::<Vec<JsonValue>>())),
             Err(_) => return Err(Status::NotFound),
         }
@@ -187,7 +214,7 @@ pub fn search(
     match result.load::<Media>(&*conn) {
         Ok(x) => Ok(Json(x
                          .iter()
-                         .map(|x| construct_standard(&conn, x))
+                         .map(|x| construct_standard(&conn, x, quick))
                          .collect::<Vec<JsonValue>>())),
         Err(_) => Err(Status::NotFound),
     }
