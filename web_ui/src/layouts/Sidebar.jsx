@@ -133,7 +133,6 @@ class Sidebar extends Component {
                                 <SidebarIcon icon={media_type || name}/>
                                 <p>{name}</p>
                             </NavLink>
-                            <button>-</button>
                         </div>
                     );
                 })}
