@@ -1,7 +1,7 @@
 [development]
 address = "0.0.0.0"
 port = 8000
-log = "normal"
+log = "off"
 
 [global.databases]
 openflix = { url = "postgres://postgres:dimpostgres@127.0.0.1/dim" }

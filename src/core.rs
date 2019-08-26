@@ -5,6 +5,12 @@ use rocket::Request;
 use rocket::Rocket;
 use rocket_contrib::json::JsonValue;
 use rocket_cors;
+use rocket_slog::SlogFairing;
+use sloggers::{
+    terminal::{Destination, TerminalLoggerBuilder},
+    types::Severity,
+    Build,
+};
 
 #[allow(unused_imports)]
 use crate::routes;
@@ -38,21 +44,26 @@ fn unprocessable_entity() -> JsonValue {
     })
 }
 
-fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
+fn run_db_migrations(rocket: Rocket) -> std::result::Result<Rocket, Rocket> {
     let conn = DbConnection::get_one(&rocket).expect("Database Connection Failed");
     match embedded_migrations::run(&*conn) {
         Ok(()) => Ok(rocket),
         Err(e) => {
-            error!("Failed to run database migrations: {:?}", e);
-            Err(rocket)
+            panic!("Failed to run database migrations: {:?}", e);
         }
     }
 }
 
 pub fn rocket() -> Rocket {
+    let mut builder = TerminalLoggerBuilder::new();
+    builder.level(Severity::Debug);
+    builder.destination(Destination::Stdout);
+
+    let logger = builder.build().unwrap();
+    let fairing = SlogFairing::new(logger);
+
     let allowed_origins = rocket_cors::AllowedOrigins::all();
 
-    // You can also deserialize this
     let cors = rocket_cors::CorsOptions {
         allowed_origins,
         allowed_methods: vec![Method::Get, Method::Post, Method::Delete, Method::Patch]
@@ -72,6 +83,7 @@ pub fn rocket() -> Rocket {
             "Running Database Migrations",
             run_db_migrations,
         ))
+        .attach(fairing)
         .register(catchers![
             service_not_found,
             service_not_available,

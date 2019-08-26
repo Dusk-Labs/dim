@@ -9,13 +9,13 @@ extern crate diesel_migrations;
 extern crate serde;
 
 pub mod episode;
+pub mod genre;
 pub mod library;
 pub mod media;
 pub mod mediafile;
 pub mod schema;
 pub mod season;
 pub mod tv;
-pub mod genre;
 
 pub fn get_conn() -> Result<diesel::PgConnection, diesel::result::ConnectionError> {
     use diesel::connection::Connection;

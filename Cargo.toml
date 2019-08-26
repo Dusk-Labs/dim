@@ -24,6 +24,9 @@ dim-streamer = { path = "./src/streaming" }
 walkdir = "2.2.9"
 diesel_full_text_search = "1.0.1"
 rand = "0.7.0"
+rocket-slog = "0.4.0"
+slog = "2.5.2"
+sloggers = "0.3.3"
 
 [dependencies.rocket_contrib]
 version = "*"

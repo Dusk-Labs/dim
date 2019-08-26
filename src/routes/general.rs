@@ -1,16 +1,16 @@
 use crate::core::DbConnection;
-use std::path::PathBuf;
-use walkdir::WalkDir;
 use diesel::prelude::*;
+use dim_database::genre::*;
 use dim_database::media::Media;
 use dim_database::media::MEDIA_ALL_COLUMNS;
 use dim_database::mediafile::MediaFile;
-use dim_database::genre::*;
-use rocket::http::Status;
+use rand::Rng;
 use rocket::http::RawStr;
+use rocket::http::Status;
 use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
-use rand::Rng;
+use std::path::PathBuf;
+use walkdir::WalkDir;
 
 pub fn construct_standard(conn: &DbConnection, data: &Media, quick: Option<bool>) -> JsonValue {
     let duration = match MediaFile::get_of_media(&conn, &data) {
@@ -24,29 +24,27 @@ pub fn construct_standard(conn: &DbConnection, data: &Media, quick: Option<bool>
         .map(|x| x.name.clone())
         .collect::<Vec<String>>();
     if let Some(x) = quick {
-        match x {
-            false => {
-                return json!({
-                    "id": data.id,
-                    "library_id": data.library_id,
-                    "name": data.name,
-                    "description": data.description,
-                    "rating": data.rating,
-                    "year": data.year,
-                    "added": data.added,
-                    "poster_path": data.poster_path,
-                    "backdrop_path": data.backdrop_path,
-                    "media_type": data.media_type,
-                    "genres": genres,
-                    "duration": duration
-                })},
-            true => {
-                return json!({
-                    "id": data.id,
-                    "name": data.name,
-                    "library_id": data.library_id
-                })
-            },
+        if x {
+            return json!({
+                "id": data.id,
+                "name": data.name,
+                "library_id": data.library_id
+            });
+        } else {
+            return json!({
+                "id": data.id,
+                "library_id": data.library_id,
+                "name": data.name,
+                "description": data.description,
+                "rating": data.rating,
+                "year": data.year,
+                "added": data.added,
+                "poster_path": data.poster_path,
+                "backdrop_path": data.backdrop_path,
+                "media_type": data.media_type,
+                "genres": genres,
+                "duration": duration
+            });
         }
     } else {
         return json!({
@@ -62,7 +60,7 @@ pub fn construct_standard(conn: &DbConnection, data: &Media, quick: Option<bool>
             "media_type": data.media_type,
             "genres": genres,
             "duration": duration
-        })
+        });
     }
 }
 
@@ -115,7 +113,7 @@ pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
                 Ok(x) => x.duration.unwrap(),
                 Err(_) => 0,
             };
-            
+
             let genres: Vec<String> = Genre::get_by_media(&*conn, x.id)
                 .unwrap()
                 .iter()
@@ -145,10 +143,12 @@ pub fn get_directory_structure(path: PathBuf) -> Result<Json<Vec<String>>, Statu
         .max_depth(1usize)
         .into_iter()
         .filter_map(|x| x.ok())
-        .filter(|x| !x.file_name()
+        .filter(|x| {
+            !x.file_name()
                 .to_str()
-                .map(|s| s.starts_with("."))
-                .unwrap_or(false))
+                .map(|s| s.starts_with('.'))
+                .unwrap_or(false)
+        })
         .filter(|x| !x.path().is_file())
         .map(|x| x.path().to_str().unwrap().to_owned())
         .collect::<Vec<_>>();
@@ -163,22 +163,20 @@ pub fn search(
     year: Option<i32>,
     library_id: Option<i32>,
     genre: Option<String>,
-    quick: Option<bool>
+    quick: Option<bool>,
 ) -> Result<Json<Vec<JsonValue>>, Status> {
-    use dim_database::schema::media;
     use crate::dim_database::schema::genre_media;
+    use diesel::dsl::sql;
     use diesel::sql_types::Text;
-	use diesel::dsl::sql;
     use diesel_full_text_search::*;
-    
-    let mut result = media::table
-        .select(MEDIA_ALL_COLUMNS)
-        .into_boxed();
+    use dim_database::schema::media;
+
+    let mut result = media::table.select(MEDIA_ALL_COLUMNS).into_boxed();
 
     if let Some(query_string) = query {
         let query_string = query_string
             .url_decode_lossy()
-            .split(" ")
+            .split(' ')
             .collect::<Vec<&str>>()
             .as_slice()
             .join(" & ");
@@ -199,23 +197,28 @@ pub fn search(
 
     if let Some(x) = genre {
         let genre_row = Genre::get_by_name(&*conn, x).unwrap().id;
-        let new_result = result.inner_join(genre_media::table)
+        let new_result = result
+            .inner_join(genre_media::table)
             .filter(genre_media::genre_id.eq(genre_row));
 
         match new_result.load::<Media>(&*conn) {
-            Ok(x) => return Ok(Json(x
-                                    .iter()
-                                    .map(|x| construct_standard(&conn, x, quick))
-                                    .collect::<Vec<JsonValue>>())),
+            Ok(x) => {
+                return Ok(Json(
+                    x.iter()
+                        .map(|x| construct_standard(&conn, x, quick))
+                        .collect::<Vec<JsonValue>>(),
+                ))
+            }
             Err(_) => return Err(Status::NotFound),
         }
     }
-    
+
     match result.load::<Media>(&*conn) {
-        Ok(x) => Ok(Json(x
-                         .iter()
-                         .map(|x| construct_standard(&conn, x, quick))
-                         .collect::<Vec<JsonValue>>())),
+        Ok(x) => Ok(Json(
+            x.iter()
+                .map(|x| construct_standard(&conn, x, quick))
+                .collect::<Vec<JsonValue>>(),
+        )),
         Err(_) => Err(Status::NotFound),
     }
 }

@@ -1,9 +1,9 @@
 use crate::core::DbConnection;
 use diesel::prelude::*;
-use dim_streamer::{FFMPEG_BIN, ffmpeg::FFmpeg};
+use dim_streamer::{ffmpeg::FFmpeg, FFMPEG_BIN};
 use rocket::http::Status;
-use rocket_contrib::json::JsonValue;
 use rocket::response::NamedFile;
+use rocket_contrib::json::JsonValue;
 use std::path::{Path, PathBuf};
 
 #[get("/stream/start/<_id>")]
@@ -13,19 +13,19 @@ pub fn start_stream(conn: DbConnection, _id: i32) -> Result<JsonValue, Status> {
         .filter(media_id.eq(Some(_id)))
         .select(id)
         .first::<i32>(&*conn);
-    
+
     if let Ok(m_id) = media_inst {
         let mut stream = match FFmpeg::new(FFMPEG_BIN, m_id) {
             Ok(x) => x,
             Err(_) => return Err(Status::NotFound),
         };
-        
+
         let uuid = match stream.stream() {
             Ok(uuid) => uuid,
             Err(_) => return Err(Status::NotFound),
         };
 
-        Ok(json!({"uuid": uuid}))
+        Ok(json!({ "uuid": uuid }))
     } else {
         Err(Status::NotFound)
     }

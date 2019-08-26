@@ -1,13 +1,14 @@
 use crate::core::DbConnection;
+use crate::routes::general::construct_standard;
 use dim_database::library::{InsertableLibrary, Library};
 use dim_scanners;
 use rocket::http::Status;
 use rocket_contrib::json::{Json, JsonValue};
+use rocket_slog::SyncLogger;
 use std::collections::HashMap;
-use crate::routes::general::construct_standard;
 
 #[get("/")]
-pub fn library_get(conn: DbConnection) -> Json<Vec<Library>> {
+pub fn library_get(conn: DbConnection, _log: SyncLogger) -> Json<Vec<Library>> {
     Json(Library::get_all(&conn))
 }
 
@@ -15,11 +16,12 @@ pub fn library_get(conn: DbConnection) -> Json<Vec<Library>> {
 pub fn library_post(
     conn: DbConnection,
     new_library: Json<InsertableLibrary>,
+    log: SyncLogger,
 ) -> Result<Status, Status> {
-    match new_library.new(&conn) {
+    match new_library.insert(&conn) {
         Ok(id) => {
             std::thread::spawn(move || {
-                dim_scanners::start(id).unwrap();
+                dim_scanners::start(id, log).unwrap();
             });
             Ok(Status::Created)
         }
