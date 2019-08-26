@@ -48,13 +48,13 @@ pub struct UpdateMediaFile {
     pub media_id: Option<i32>,
     pub target_file: Option<String>,
     pub raw_name: Option<String>,
-    pub raw_year: Option<Option<i32>>,
-    pub quality: Option<Option<String>>,
-    pub codec: Option<Option<String>>,
-    pub container: Option<Option<String>>,
-    pub audio: Option<Option<String>>,
-    pub original_resolution: Option<Option<String>>,
-    pub duration: Option<Option<i32>>,
+    pub raw_year: Option<i32>,
+    pub quality: Option<String>,
+    pub codec: Option<String>,
+    pub container: Option<String>,
+    pub audio: Option<String>,
+    pub original_resolution: Option<String>,
+    pub duration: Option<i32>,
 }
 
 impl MediaFile {
@@ -74,17 +74,12 @@ impl MediaFile {
         Ok(result)
     }
 
-    pub fn get_one(
-        conn: &diesel::PgConnection,
-        _id: i32,
-    ) -> Result<Self, diesel::result::Error> {
-       use crate::schema::mediafile::dsl::*;
+    pub fn get_one(conn: &diesel::PgConnection, _id: i32) -> Result<Self, diesel::result::Error> {
+        use crate::schema::mediafile::dsl::*;
 
-       let result = mediafile
-           .filter(id.eq(_id))
-           .first::<Self>(conn)?;
+        let result = mediafile.filter(id.eq(_id)).first::<Self>(conn)?;
 
-       Ok(result)
+        Ok(result)
     }
 }
 

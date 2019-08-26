@@ -35,11 +35,11 @@ pub struct MovieResult {
 
 impl<'a> APIExec<'a> for TMDbSearch<'a> {
     fn new(api_key: &'a str) -> Self {
-        Self { api_key: api_key }
+        Self { api_key }
     }
 
     fn search(&mut self, title: String, year: Option<i32>) -> Option<MovieResult> {
-        let mut resp = self.paginated_search(&title, &year).unwrap();
+        let mut resp = self.paginated_search(&title, year).unwrap();
         resp.get_one()
     }
 }
@@ -47,8 +47,8 @@ impl<'a> APIExec<'a> for TMDbSearch<'a> {
 impl<'a> TMDbSearch<'a> {
     fn paginated_search(
         &mut self,
-        title: &String,
-        year: &Option<i32>,
+        title: &str,
+        year: Option<i32>,
     ) -> Result<SearchResult, Box<dyn std::error::Error>> {
         let mut resp: SearchResult = match year {
             Some(y) => reqwest::get(
@@ -59,20 +59,17 @@ impl<'a> TMDbSearch<'a> {
                 )?.json()?,
         };
 
-        match resp.get_one() {
-            Some(x) => {
-                let result: MovieResult = reqwest::get(
-                    format!(
-                        "https://api.themoviedb.org/3/movie/{}?api_key={}&language=en-US",
-                        x.id, self.api_key
-                    )
-                    .as_str(),
-                )?
-                .json()?;
-                resp.put_one(result);
-            }
-            None => {}
-        };
+        if let Some(x) = resp.get_one() {
+            let result: MovieResult = reqwest::get(
+                format!(
+                    "https://api.themoviedb.org/3/movie/{}?api_key={}&language=en-US",
+                    x.id, self.api_key
+                )
+                .as_str(),
+            )?
+            .json()?;
+            resp.put_one(result);
+        }
 
         Ok(resp)
     }

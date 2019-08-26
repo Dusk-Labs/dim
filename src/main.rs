@@ -7,8 +7,6 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 #[macro_use]
-extern crate log;
-#[macro_use]
 extern crate rocket_contrib;
 #[macro_use]
 extern crate rocket_codegen;
@@ -17,8 +15,12 @@ extern crate dim_database;
 extern crate dim_scanners;
 extern crate dim_streamer;
 extern crate dotenv;
+extern crate log;
 extern crate rocket;
+extern crate rocket_slog;
 extern crate serde;
+extern crate slog;
+extern crate sloggers;
 
 pub mod routes;
 pub mod schema;

@@ -1,9 +1,6 @@
 use crate::library::Library;
-use crate::mediafile::MediaFile;
 use crate::schema::media;
 use diesel::prelude::*;
-use diesel::sql_types::*;
-use crate::genre::Genre;
 
 #[derive(Clone, Identifiable, Queryable, Serialize, Deserialize, Debug, Associations)]
 #[belongs_to(Library, foreign_key = "library_id")]
@@ -73,13 +70,13 @@ pub struct InsertableMedia {
 #[table_name = "media"]
 pub struct UpdateMedia {
     pub name: Option<String>,
-    pub description: Option<Option<String>>,
-    pub rating: Option<Option<i32>>,
-    pub year: Option<Option<i32>>,
-    pub added: Option<Option<String>>,
-    pub poster_path: Option<Option<String>>,
-    pub backdrop_path: Option<Option<String>>,
-    pub media_type: Option<Option<String>>,
+    pub description: Option<String>,
+    pub rating: Option<i32>,
+    pub year: Option<i32>,
+    pub added: Option<String>,
+    pub poster_path: Option<String>,
+    pub backdrop_path: Option<String>,
+    pub media_type: Option<String>,
 }
 
 impl Media {
@@ -90,14 +87,17 @@ impl Media {
     ) -> Result<Vec<Self>, diesel::result::Error> {
         let result = Self::belonging_to(&library)
             .select(MEDIA_ALL_COLUMNS)
-            .load::<Self>(conn)?; 
+            .load::<Self>(conn)?;
         Ok(result)
     }
 
     pub fn get(conn: &diesel::PgConnection, req_id: i32) -> Result<Self, diesel::result::Error> {
         use crate::schema::media::dsl::*;
 
-        let result = media.filter(id.eq(req_id)).select(MEDIA_ALL_COLUMNS).first::<Self>(conn)?;
+        let result = media
+            .filter(id.eq(req_id))
+            .select(MEDIA_ALL_COLUMNS)
+            .first::<Self>(conn)?;
 
         Ok(result)
     }
@@ -105,9 +105,11 @@ impl Media {
     pub fn get_by_name_and_lib(
         conn: &diesel::PgConnection,
         library: &Library,
-        name: &String,
+        name: &str,
     ) -> Result<Self, diesel::result::Error> {
-        let result = Self::belonging_to(library).select(MEDIA_ALL_COLUMNS).load::<Self>(conn)?;
+        let result = Self::belonging_to(library)
+            .select(MEDIA_ALL_COLUMNS)
+            .load::<Self>(conn)?;
 
         // Manual filter because of a bug with combining filter with belonging_to
         for i in result {
@@ -116,7 +118,7 @@ impl Media {
             }
         }
 
-        return Err(diesel::result::Error::NotFound);
+        Err(diesel::result::Error::NotFound)
     }
 
     pub fn delete(
@@ -131,8 +133,7 @@ impl Media {
 }
 
 impl InsertableMedia {
-    pub fn new(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
-        use diesel::sql_query;
+    pub fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
         use crate::schema::library::dsl::*;
         use crate::tv::InsertableTVShow;
 
@@ -145,11 +146,8 @@ impl InsertableMedia {
             .returning(media::id)
             .get_result(conn)?;
 
-        match self.media_type.as_str() {
-            "tv" => {
-                InsertableTVShow { id: result }.insert(conn)?;
-            }
-            _ => {}
+        if self.media_type.as_str() == "tv" {
+            InsertableTVShow { id: result }.insert(conn)?;
         }
 
         Ok(result)

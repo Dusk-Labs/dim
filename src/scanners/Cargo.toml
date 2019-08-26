@@ -17,3 +17,5 @@ chrono = "0.4.7"
 dim-database = { path = "../database" }
 dim-streamer = { path = "../streaming" }
 diesel = { version = "1.4.2", features = ["postgres"] }
+rocket-slog = "0.4.0"
+slog = "2.5.2"

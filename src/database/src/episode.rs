@@ -1,6 +1,6 @@
 use crate::media::InsertableMedia;
-use crate::media::{Media, MEDIA_ALL_COLUMNS};
 use crate::media::UpdateMedia;
+use crate::media::{Media, MEDIA_ALL_COLUMNS};
 use crate::schema::episode;
 use crate::season::Season;
 use crate::tv::TVShow;
@@ -126,7 +126,7 @@ impl InsertableEpisode {
             .filter(season::dsl::season_number.eq(season_num))
             .first::<Season>(conn)?;
 
-        let media_id = self.media.new(conn)?;
+        let media_id = self.media.insert(conn)?;
 
         let episode: InsertableEpisodeWrapper = self.into();
 
@@ -153,7 +153,7 @@ impl EpisodeWrapper {
             id: self.id,
             seasonid: self.seasonid,
             episode: self.episode,
-            media: media,
+            media,
         }
     }
 }

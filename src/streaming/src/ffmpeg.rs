@@ -1,6 +1,6 @@
 use dim_database::{get_conn, mediafile::MediaFile};
-use std::process::{Command, Child};
 use std::fs;
+use std::process::{Child, Command};
 use uuid::Uuid;
 
 pub struct FFmpeg {
@@ -27,7 +27,10 @@ impl FFmpeg {
             },
             process: None,
             uuid: uuid.to_hyphenated().to_string(),
-            out_dir: format!("/home/hinach4n/media/media1/transcoding/{}", uuid.to_hyphenated().to_string()),
+            out_dir: format!(
+                "/home/hinach4n/media/media1/transcoding/{}",
+                uuid.to_hyphenated().to_string()
+            ),
         })
     }
 
