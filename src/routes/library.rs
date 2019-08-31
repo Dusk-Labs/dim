@@ -21,7 +21,7 @@ pub fn library_post(
     match new_library.insert(&conn) {
         Ok(id) => {
             std::thread::spawn(move || {
-                dim_scanners::start(id, log).unwrap();
+                dim_scanners::start(id, log.get()).unwrap();
             });
             Ok(Status::Created)
         }

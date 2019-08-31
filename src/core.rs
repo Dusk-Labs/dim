@@ -6,11 +6,14 @@ use rocket::Rocket;
 use rocket_contrib::json::JsonValue;
 use rocket_cors;
 use rocket_slog::SlogFairing;
+use slog::Logger;
 use sloggers::{
     terminal::{Destination, TerminalLoggerBuilder},
     types::Severity,
     Build,
 };
+use std::collections::HashMap;
+use std::sync::Mutex;
 
 #[allow(unused_imports)]
 use crate::routes;
@@ -54,12 +57,36 @@ fn run_db_migrations(rocket: Rocket) -> std::result::Result<Rocket, Rocket> {
     }
 }
 
-pub fn rocket() -> Rocket {
+lazy_static! {
+    static ref LIB_SCANNERS: Mutex<HashMap<i32, std::thread::JoinHandle<()>>> =
+        Mutex::new(HashMap::new());
+}
+
+fn run_scanners(log: Logger) {
+    if let Ok(conn) = dim_database::get_conn() {
+        for lib in dim_database::library::Library::get_all(&conn) {
+            slog::slog_info!(log, "Starting scanner for {} with id: {}", lib.name, lib.id);
+            let log_clone = log.clone();
+            let library_id = lib.id;
+            LIB_SCANNERS.lock().unwrap().insert(
+                library_id,
+                std::thread::spawn(move || {
+                    let _ = dim_scanners::start(library_id, &log_clone).unwrap();
+                }),
+            );
+        }
+    }
+}
+
+pub fn launch() {
     let mut builder = TerminalLoggerBuilder::new();
     builder.level(Severity::Debug);
     builder.destination(Destination::Stdout);
 
     let logger = builder.build().unwrap();
+
+    run_scanners(logger.clone());
+
     let fairing = SlogFairing::new(logger);
 
     let allowed_origins = rocket_cors::AllowedOrigins::all();
@@ -132,4 +159,9 @@ pub fn rocket() -> Rocket {
             ],
         )
         .attach(cors)
+        .launch();
+
+    for (_, thread) in LIB_SCANNERS.lock().unwrap().drain().take(1) {
+        let _ = thread.join().unwrap();
+    }
 }

@@ -51,9 +51,13 @@ pub fn construct_standard(conn: &DbConnection, data: &Media, quick: Option<bool>
 #[get("/dashboard")]
 pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
     use dim_database::schema::media::dsl::*;
+    use dim_database::schema::mediafile;
 
     let top_rated = media
+        .inner_join(mediafile::table)
+        .filter(mediafile::corrupt.eq(false))
         .select(MEDIA_ALL_COLUMNS)
+        .group_by(id)
         .order(rating.desc())
         .load::<Media>(&*conn)
         .unwrap()
@@ -62,7 +66,10 @@ pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
         .collect::<Vec<JsonValue>>();
 
     let recently_added = media
+        .inner_join(mediafile::table)
+        .filter(mediafile::corrupt.eq(false))
         .select(MEDIA_ALL_COLUMNS)
+        .group_by(id)
         .order(added.desc())
         .load::<Media>(&*conn)
         .unwrap()
@@ -83,9 +90,13 @@ pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
 #[get("/dashboard/banner")]
 pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
     use dim_database::schema::media::dsl::*;
+    use dim_database::schema::mediafile;
     no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
     let results = media
+        .inner_join(mediafile::table)
+        .filter(mediafile::corrupt.eq(false))
         .select(MEDIA_ALL_COLUMNS)
+        .group_by(id)
         .order(RANDOM)
         .limit(3)
         .load::<Media>(&*conn)
