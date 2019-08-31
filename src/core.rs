@@ -71,7 +71,7 @@ fn run_scanners(log: Logger) {
             LIB_SCANNERS.lock().unwrap().insert(
                 library_id,
                 std::thread::spawn(move || {
-                    let _ = dim_scanners::start(library_id, &log_clone).unwrap();
+                    dim_scanners::start(library_id, &log_clone).unwrap();
                 }),
             );
         }
@@ -162,6 +162,6 @@ pub fn launch() {
         .launch();
 
     for (_, thread) in LIB_SCANNERS.lock().unwrap().drain().take(1) {
-        let _ = thread.join().unwrap();
+        thread.join().unwrap();
     }
 }
