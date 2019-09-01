@@ -1,4 +1,5 @@
 use crate::iterative_parser::IterativeScanner;
+use crate::EventTx;
 use crossbeam_channel::unbounded;
 use dim_database::{get_conn, library::Library};
 use notify::event::{EventKind::*, ModifyKind::*};
@@ -10,14 +11,15 @@ use std::time::Duration;
 pub struct ParserDaemon {
     lib: Library,
     log: Logger,
+    event_tx: EventTx,
 }
 
 impl ParserDaemon {
-    pub fn new(library_id: i32, log: Logger) -> Result<Self, ()> {
+    pub fn new(library_id: i32, log: Logger, event_tx: EventTx) -> Result<Self, ()> {
         let conn = get_conn().expect("Failed to connect to postgres");
 
         if let Ok(lib) = Library::get_one(&conn, library_id) {
-            return Ok(Self { lib, log });
+            return Ok(Self { lib, log, event_tx });
         }
 
         Err(())
@@ -60,7 +62,7 @@ impl ParserDaemon {
 
     fn handle_create(&self, paths: Vec<PathBuf>) {
         for path in paths {
-            let parser = IterativeScanner::new(self.lib.id, self.log.clone()).unwrap();
+            let parser = IterativeScanner::new(self.lib.id, self.log.clone(), self.event_tx.clone()).unwrap();
 
             debug!(self.log, "Received handle_create event type: {:?}", path);
 

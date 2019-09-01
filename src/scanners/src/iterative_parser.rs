@@ -1,5 +1,6 @@
 use crate::api::APIExec;
 use crate::tmdb::TMDbSearch;
+use crate::EventTx;
 use chrono::prelude::Utc;
 use chrono::Datelike;
 use chrono::NaiveDate;
@@ -7,6 +8,7 @@ use diesel::pg::PgConnection;
 use dim_database::genre::*;
 use dim_database::media::{InsertableMedia, Media};
 use dim_database::{get_conn, library::Library, mediafile::*};
+use dim_events::event::*;
 use dim_streamer::{ffprobe::FFProbeCtx, FFPROBE_BIN};
 use slog::Logger;
 use std::path::PathBuf;
@@ -17,14 +19,15 @@ pub struct IterativeScanner {
     conn: PgConnection,
     lib: Library,
     log: Logger,
+    event_tx: EventTx,
 }
 
 impl<'a> IterativeScanner {
-    pub fn new(library_id: i32, log: Logger) -> Result<Self, ()> {
+    pub fn new(library_id: i32, log: Logger, event_tx: EventTx) -> Result<Self, ()> {
         let conn = get_conn().expect("Failed to get a valid connection to db");
 
         if let Ok(lib) = Library::get_one(&conn, library_id) {
-            return Ok(Self { conn, lib, log });
+            return Ok(Self { conn, lib, log, event_tx});
         }
 
         Err(())
@@ -113,6 +116,7 @@ impl<'a> IterativeScanner {
         );
 
         for orphan in &orphans {
+            info!(self.log, "Scanning {} orphan", orphan.raw_name.clone());
             if let Some(result) = tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year) {
                 self.match_media_to_tmdb(result, &orphan);
             }
@@ -196,5 +200,14 @@ impl<'a> IterativeScanner {
         };
 
         updated_mediafile.update(&self.conn, orphan.id).unwrap();
+
+        let event_message = Message {
+            id: media_id,
+            event_type: PushEventType::EventNewCard,
+        };
+
+        let new_event = Event::new(&format!("/events/library/{}", self.lib.id), event_message);
+
+        let _ = self.event_tx.send(new_event);
     }
 }

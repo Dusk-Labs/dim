@@ -13,7 +13,7 @@ use sloggers::{
     Build,
 };
 use std::collections::HashMap;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 #[allow(unused_imports)]
 use crate::routes;
@@ -62,20 +62,27 @@ lazy_static! {
         Mutex::new(HashMap::new());
 }
 
-fn run_scanners(log: Logger) {
+pub type EventTx = std::sync::mpsc::Sender<dim_events::server::EventType>;
+fn run_scanners(log: Logger, tx: EventTx) {
     if let Ok(conn) = dim_database::get_conn() {
         for lib in dim_database::library::Library::get_all(&conn) {
             slog::slog_info!(log, "Starting scanner for {} with id: {}", lib.name, lib.id);
             let log_clone = log.clone();
             let library_id = lib.id;
+            let tx_clone = tx.clone();
             LIB_SCANNERS.lock().unwrap().insert(
                 library_id,
                 std::thread::spawn(move || {
-                    dim_scanners::start(library_id, &log_clone).unwrap();
+                    dim_scanners::start(library_id, &log_clone, tx_clone).unwrap();
                 }),
             );
         }
     }
+}
+
+fn start_event_server(_log: Logger) -> EventTx {
+    let server = dim_events::server::Server::new();
+    server.get_tx()
 }
 
 pub fn launch() {
@@ -85,7 +92,8 @@ pub fn launch() {
 
     let logger = builder.build().unwrap();
 
-    run_scanners(logger.clone());
+    let event_tx = start_event_server(logger.clone());
+    run_scanners(logger.clone(), event_tx.clone());
 
     let fairing = SlogFairing::new(logger);
 
@@ -159,6 +167,7 @@ pub fn launch() {
             ],
         )
         .attach(cors)
+        .manage(Arc::new(Mutex::new(event_tx)))
         .launch();
 
     for (_, thread) in LIB_SCANNERS.lock().unwrap().drain().take(1) {

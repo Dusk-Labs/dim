@@ -16,6 +16,7 @@ serde = "1.0.98"
 chrono = "0.4.7"
 dim-database = { path = "../database" }
 dim-streamer = { path = "../streaming" }
+dim-events = { path = "../events" }
 diesel = { version = "1.4.2", features = ["postgres"] }
 rocket-slog = "0.4.0"
 slog = "2.5.2"

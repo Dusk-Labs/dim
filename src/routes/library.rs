@@ -1,11 +1,14 @@
 use crate::core::DbConnection;
+use crate::core::EventTx;
 use crate::routes::general::construct_standard;
 use dim_database::library::{InsertableLibrary, Library};
 use dim_scanners;
 use rocket::http::Status;
+use rocket::State;
 use rocket_contrib::json::{Json, JsonValue};
 use rocket_slog::SyncLogger;
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 #[get("/")]
 pub fn library_get(conn: DbConnection, _log: SyncLogger) -> Json<Vec<Library>> {
@@ -17,11 +20,14 @@ pub fn library_post(
     conn: DbConnection,
     new_library: Json<InsertableLibrary>,
     log: SyncLogger,
+    event_tx: State<Arc<Mutex<EventTx>>>,
 ) -> Result<Status, Status> {
     match new_library.insert(&conn) {
         Ok(id) => {
+            let tx = event_tx.lock().unwrap();
+            let tx_clone = tx.clone();
             std::thread::spawn(move || {
-                dim_scanners::start(id, log.get()).unwrap();
+                dim_scanners::start(id, log.get(), tx_clone).unwrap();
             });
             Ok(Status::Created)
         }
