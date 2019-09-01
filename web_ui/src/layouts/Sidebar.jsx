@@ -4,7 +4,7 @@ import Modal from "react-modal";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SidebarIcon from "../helpers/SidebarIcon.jsx";
-import "./sidebar.scss";
+import "./Sidebar.scss";
 
 Modal.setAppElement("body");
 
