@@ -2,7 +2,7 @@ use crate::media::*;
 use crate::schema::library;
 use diesel::prelude::*;
 
-#[derive(Queryable, Serialize, Deserialize, Identifiable)]
+#[derive(Queryable, Serialize, Deserialize, Identifiable, Clone)]
 #[table_name = "library"]
 pub struct Library {
     pub id: i32,

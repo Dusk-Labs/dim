@@ -6,11 +6,14 @@ use rocket::Rocket;
 use rocket_contrib::json::JsonValue;
 use rocket_cors;
 use rocket_slog::SlogFairing;
+use slog::Logger;
 use sloggers::{
     terminal::{Destination, TerminalLoggerBuilder},
     types::Severity,
     Build,
 };
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 #[allow(unused_imports)]
 use crate::routes;
@@ -54,12 +57,44 @@ fn run_db_migrations(rocket: Rocket) -> std::result::Result<Rocket, Rocket> {
     }
 }
 
-pub fn rocket() -> Rocket {
+lazy_static! {
+    static ref LIB_SCANNERS: Mutex<HashMap<i32, std::thread::JoinHandle<()>>> =
+        Mutex::new(HashMap::new());
+}
+
+pub type EventTx = std::sync::mpsc::Sender<dim_events::server::EventType>;
+fn run_scanners(log: Logger, tx: EventTx) {
+    if let Ok(conn) = dim_database::get_conn() {
+        for lib in dim_database::library::Library::get_all(&conn) {
+            slog::slog_info!(log, "Starting scanner for {} with id: {}", lib.name, lib.id);
+            let log_clone = log.clone();
+            let library_id = lib.id;
+            let tx_clone = tx.clone();
+            LIB_SCANNERS.lock().unwrap().insert(
+                library_id,
+                std::thread::spawn(move || {
+                    dim_scanners::start(library_id, &log_clone, tx_clone).unwrap();
+                }),
+            );
+        }
+    }
+}
+
+fn start_event_server(_log: Logger) -> EventTx {
+    let server = dim_events::server::Server::new();
+    server.get_tx()
+}
+
+pub fn launch() {
     let mut builder = TerminalLoggerBuilder::new();
     builder.level(Severity::Debug);
     builder.destination(Destination::Stdout);
 
     let logger = builder.build().unwrap();
+
+    let event_tx = start_event_server(logger.clone());
+    run_scanners(logger.clone(), event_tx.clone());
+
     let fairing = SlogFairing::new(logger);
 
     let allowed_origins = rocket_cors::AllowedOrigins::all();
@@ -132,4 +167,10 @@ pub fn rocket() -> Rocket {
             ],
         )
         .attach(cors)
+        .manage(Arc::new(Mutex::new(event_tx)))
+        .launch();
+
+    for (_, thread) in LIB_SCANNERS.lock().unwrap().drain().take(1) {
+        thread.join().unwrap();
+    }
 }

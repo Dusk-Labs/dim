@@ -21,6 +21,7 @@ lazy_static = "1.3.0"
 dim-database = { path = "./src/database" }
 dim-scanners = { path = "./src/scanners" }
 dim-streamer = { path = "./src/streaming" }
+dim-events = { path = "./src/events" }
 walkdir = "2.2.9"
 diesel_full_text_search = "1.0.1"
 rand = "0.7.0"
