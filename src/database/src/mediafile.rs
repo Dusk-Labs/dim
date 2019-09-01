@@ -22,6 +22,7 @@ pub struct MediaFile {
     pub audio: Option<String>,
     pub original_resolution: Option<String>,
     pub duration: Option<i32>,
+    pub corrupt: Option<bool>,
 }
 
 #[derive(Insertable, Serialize, Deserialize, Debug)]
@@ -40,6 +41,7 @@ pub struct InsertableMediaFile {
     pub audio: Option<String>,
     pub original_resolution: Option<String>,
     pub duration: Option<i32>,
+    pub corrupt: Option<bool>,
 }
 
 #[derive(AsChangeset, Deserialize, PartialEq, Debug)]
@@ -55,6 +57,7 @@ pub struct UpdateMediaFile {
     pub audio: Option<String>,
     pub original_resolution: Option<String>,
     pub duration: Option<i32>,
+    pub corrupt: Option<bool>,
 }
 
 impl MediaFile {
@@ -69,7 +72,9 @@ impl MediaFile {
         conn: &diesel::PgConnection,
         media: &Media,
     ) -> Result<Self, diesel::result::Error> {
-        let result = Self::belonging_to(media).first::<Self>(conn)?;
+        let result = Self::belonging_to(media)
+            .filter(mediafile::corrupt.eq(false))
+            .first::<Self>(conn)?;
 
         Ok(result)
     }
@@ -80,6 +85,15 @@ impl MediaFile {
         let result = mediafile.filter(id.eq(_id)).first::<Self>(conn)?;
 
         Ok(result)
+    }
+
+    pub fn exists_by_file(conn: &diesel::PgConnection, file: &str) -> bool {
+        use crate::schema::mediafile::dsl::*;
+        use diesel::dsl::exists;
+        use diesel::dsl::select;
+        select(exists(mediafile.filter(target_file.eq(file))))
+            .get_result(conn)
+            .unwrap()
     }
 }
 

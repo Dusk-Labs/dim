@@ -39,8 +39,10 @@ impl<'a> APIExec<'a> for TMDbSearch<'a> {
     }
 
     fn search(&mut self, title: String, year: Option<i32>) -> Option<MovieResult> {
-        let mut resp = self.paginated_search(&title, year).unwrap();
-        resp.get_one()
+        if let Ok(mut resp) = self.paginated_search(&title, year) {
+            return resp.get_one()
+        }
+        None
     }
 }
 
