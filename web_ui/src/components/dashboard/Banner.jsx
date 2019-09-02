@@ -13,6 +13,7 @@ class Banner extends PureComponent {
 
         this.imageWrapper = React.createRef();
         this.getImageWrapperRef = this.getImageWrapperRef.bind(this);
+        this.handleScroll = this.handleScroll.bind(this);
 
         this.state = {
             accent: {
@@ -50,18 +51,18 @@ class Banner extends PureComponent {
             }
         });
 
-        window.addEventListener("scroll", () => {
-            const scrolled = window.pageYOffset;
-            const rate = scrolled * 0.2;
-
-            if (this.imageWrapper.style.transform !== undefined) {
-                this.imageWrapper.style.transform = `translate3d(0px, ${rate}px, 0px)`;
-            }
-        });
+        window.addEventListener("scroll", this.handleScroll);
     }
 
     componentWillUnmount() {
-        window.removeEventListener("scroll");
+        window.removeEventListener("scroll", this.handleScroll);
+    }
+
+    handleScroll() {
+        const scrolled = window.pageYOffset;
+        const rate = scrolled * 0.2;
+
+        this.imageWrapper.style.transform = `translate3d(0px, ${rate}px, 0px)`;
     }
 
     onLoadBanner = async (blob) => {

@@ -54,9 +54,9 @@ class Play extends Component {
         this.video.current.addEventListener("loadeddata", this.handleVideoLoaded);
         this.video.current.addEventListener("timeupdate", this.handleVideoTimeUpdate);
         this.video.current.addEventListener("volumechange", this.handleVideoVolumeChange);
-        document.addEventListener("fullscreenchange", this.handlePageFullscreen);
         this.video.current.addEventListener("mousemove", this.handleMouseMove);
         this.progressBar.current.addEventListener("click", this.handleProgressbarMouseClick);
+        document.addEventListener("fullscreenchange", this.handlePageFullscreen);
 
         // ! WILL SWITCH TO THIS WHEN PLAYER DESIGN IS SOMEWHAT DONE.
         // const id = "66232264-6baf-4dc6-bf3a-6bc6cc6a0131";
@@ -94,11 +94,13 @@ class Play extends Component {
         const main = document.getElementsByTagName("main")[0];
         main.style["margin-left"] = "300px";
 
-        this.video.current.removeEventListener("click");
-        this.video.current.removeEventListener("loadeddata")
-        this.video.current.removeEventListener("timeupdate");
-        this.video.current.removeEventListener("mousemove");
-        this.progressBar.current.removeEventListener("click");
+        this.video.current.removeEventListener("click", this.toggleVideoPlay);
+        this.video.current.removeEventListener("loadeddata", this.handleVideoLoaded);
+        this.video.current.removeEventListener("timeupdate", this.handleVideoTimeUpdate);
+        this.video.current.removeEventListener("volumechange", this.handleVideoVolumeChange);
+        this.video.current.removeEventListener("mousemove", this.handleMouseMove);
+        this.progressBar.current.removeEventListener("click", this.handleProgressbarMouseClick);
+        document.removeEventListener("fullscreenchange", this.handlePageFullscreen);
     }
 
     handleProgressbarMouseClick(e) {
