@@ -7,17 +7,55 @@ class Library extends Component {
         super(props);
 
         this.state = {
-            cards: {}
+            cards: <div className="spinner"></div>
         };
     }
 
     async componentDidMount() {
-        this.fetchCards();
+        if (this.props.cards === undefined) {
+            return this.fetchCards();
+        } else {
+            const card_list = this.props.cards.map((card, i) => <Card key={i} data={card}/>);
+
+            this.setState({
+                cards: (
+                    <div className="cards">
+                        { card_list }
+                    </div>
+                )
+            })
+        }
+    }
+
+    async componentDidUpdate(prevProps) {
+        if (this.props.path !== prevProps.path) {
+            this.fetchCards();
+        }
+    }
+
+    async handle_req(promise) {
+        try {
+            return await (await promise).json();
+        } catch (err) {
+            return { err: err };
+        }
     }
 
     fetchCards = async () => {
-        const req = await fetch(this.props.path);
-        const payload = await req.json();
+        const req = fetch(this.props.path);
+        const payload = await this.handle_req(req);
+
+        if (payload.err) {
+            return this.setState({
+                cards: (
+                    <div className="empty">
+                        <FontAwesomeIcon icon="question-circle"/>
+                        <p>FAILED TO LOAD</p>
+                    </div>
+                )
+            });
+        }
+
         let sections = {};
 
         // eslint-disable-next-line
@@ -28,43 +66,35 @@ class Library extends Component {
             }
         }
 
-        this.setState({
-            cards: sections
-        });
-    };
-
-    async componentDidUpdate(prevProps) {
-        if (this.props.path !== prevProps.path) {
-            this.fetchCards();
-        }
-    }
-
-    render() {
-        const { cards } = this.state;
-
-        // * MULTIPLE SECTIONS
-        const sections = Object.keys(cards).map(section => {
+        const cards = Object.keys(sections).map(section => {
             return (
                 <section key={section}>
                     <h1>{section}</h1>
                     <div className="cards">
-                        { cards[section] }
+                        { sections[section] }
                     </div>
                 </section>
             );
         });
 
+        this.setState({
+            cards: (
+                cards.length > 0
+                ? cards
+                : (
+                    <div className="empty">
+                        <FontAwesomeIcon icon="question-circle"/>
+                        <p>There is no content in this library.</p>
+                    </div>
+                )
+            )
+        });
+    };
+
+    render() {
         return (
             <div className="library">
-                { sections.length > 0
-                    ? sections
-                    : (
-                        <div className="empty">
-                            <FontAwesomeIcon icon="question-circle"/>
-                            <p> There is no content in this library.</p>
-                        </div>
-                    )
-                }
+                {this.state.cards}
             </div>
         );
     }

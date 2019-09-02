@@ -51,7 +51,7 @@ class ProgressBar extends Component {
         const width = current / duration * 100 + "%";
 
         return (
-            <div className="progress-bar">
+            <div className="banner-progress-bar">
                 {(season, episode !== undefined)
                     ? (<div className="s-e">
                             <p>S{season}</p>

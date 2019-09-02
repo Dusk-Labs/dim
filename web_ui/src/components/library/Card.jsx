@@ -9,6 +9,8 @@ import "./Card.scss";
 class Card extends PureComponent {
     constructor(props) {
         super(props);
+
+        this.card = React.createRef();
         this.handleMouseHover = this.handleMouseHover.bind(this);
 
         this.state = {
@@ -24,6 +26,8 @@ class Card extends PureComponent {
     }
 
     handleMouseHover() {
+        this.card.current.style.animation = "none";
+
         if (this.state.hoverTimeout != null) {
             clearTimeout(this.state.hoverTimeout);
 
@@ -65,17 +69,17 @@ class Card extends PureComponent {
 
     render() {
         const { accent } = this.state
-        const { name, poster_path } = this.props.data;
+        const { name, poster_path, id } = this.props.data;
 
         const cover = (
             poster_path && (
                 <LazyImage alt={"cover-" + name} src={poster_path} onLoad={this.onLoadPoster}/>
-                )
+            )
         );
 
         return (
             <div className="card-wrapper" onMouseEnter={this.handleMouseHover} onMouseLeave={this.handleMouseHover}>
-                <div className="card">
+                <div id={id} className="card" ref={this.card}>
                     <a href={poster_path} rel="noopener noreferrer" target="_blank">
                         { cover }
                         <p style={{opacity: + !this.state.hovering}}>{name}</p>
