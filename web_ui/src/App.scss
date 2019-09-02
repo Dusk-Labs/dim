@@ -263,6 +263,11 @@ main {
 	-webkit-transition: margin 0.3s ease-in-out;
 	transition: margin 0.3s ease-in-out;
 
+	> section h1 {
+		margin: 50px 0;
+		padding: 0 5%;
+	}
+
     /*
         * == LIBRARY ==
     */
