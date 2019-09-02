@@ -1,10 +1,8 @@
 [package]
 name = "dim-streamer"
 version = "0.1.0"
-authors = ["HinamoreCh4n <motherrussia711@gmail.com>"]
+authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 serde = "1.0.99"

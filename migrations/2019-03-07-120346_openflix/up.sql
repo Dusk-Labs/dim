@@ -75,7 +75,7 @@ CREATE TABLE mediafile (
     id SERIAL,
     media_id INTEGER, -- Optional, populated on metadata search
     library_id INTEGER NOT NULL,
-    target_file TEXT NOT NULL,
+    target_file TEXT NOT NULL UNIQUE,
 
     raw_name TEXT NOT NULL,
     raw_year INTEGER,
@@ -86,6 +86,8 @@ CREATE TABLE mediafile (
     audio VARCHAR(255),
     original_resolution VARCHAR(255),
     duration INTEGER,
+
+    corrupt BOOLEAN,
     PRIMARY KEY (id),
 --  For now we directly link to media instead of a intermediary, NOTE: FIXME
 --    FOREIGN KEY(media_id) REFERENCES streamable_media (id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -98,5 +100,6 @@ CREATE TABLE progress (
     delta INTEGER,
     media_id INTEGER,
 
+    PRIMARY KEY (id),
     FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE
 );

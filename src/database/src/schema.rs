@@ -62,6 +62,7 @@ table! {
         audio -> Nullable<Varchar>,
         original_resolution -> Nullable<Varchar>,
         duration -> Nullable<Int4>,
+        corrupt -> Nullable<Bool>,
     }
 }
 

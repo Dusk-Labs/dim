@@ -1,0 +1,218 @@
+.video-wrapper {
+    background: black;
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+}
+
+video {
+    height: 100vh;
+    width: 100%;
+    outline: none;
+}
+
+.overlay {
+    position: absolute;
+    background: radial-gradient(circle, transparent 50%, black 100%);
+    top: 0;
+    height: 100%;
+    width: 100%;
+    padding: 50px;
+    opacity: 0;
+    box-sizing: border-box;
+    display: grid;
+    align-items: flex-end;
+    grid-gap: 100px;
+    grid-template-rows: 1fr;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+        "top-left top top-right"
+        "middle-left middle middle-right"
+        "bottom-left bottom bottom-right";
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+
+    .cover {
+        grid-area: bottom-left;
+        text-align: center;
+
+        img {
+            height: 320px;
+            width: 200px;
+            will-change: transform;
+            -webkit-transition: -webkit-transform 0.3s ease-in-out;
+            transition: -webkit-transform 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
+            -o-object-fit: cover;
+               object-fit: cover;
+            border-radius: 10px;
+        }
+
+        p {
+            margin: 5px 0 0 0;
+            font-family: "Roboto Condensed Regular";
+        }
+    }
+
+
+    .controls {
+        grid-area: bottom;
+        pointer-events: all;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        opacity: 1;
+        transition: opacity 0.3s ease-in-out;
+
+        &:hover {
+            opacity: 1;
+        }
+
+        svg {
+            padding: 0 10px;
+        }
+
+        .upper {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+            font-family: "Roboto Condensed Bold";
+
+            p {
+                margin: 0;
+            }
+
+            // S1 . E1 separator
+            svg {
+                font-size: 0.5em;
+            }
+
+            // S1 . E1 + movie name
+            .left {
+                .se-ep {
+                    display: flex;
+                    align-items: center;
+                }
+            }
+
+            // video current time and duration
+            .right {
+                display: flex;
+                align-items: center;
+                justify-content: space-evenly;
+            }
+        }
+
+        .center {
+            margin: 25px 0;
+            width: 100%;
+
+            .video-progress-wrapper {
+                border-radius: 10px;
+                background: linear-gradient(315deg, #333333 0%, #363636 100%);
+                width: 100%;
+                height: 12px;
+                position: relative;
+                display:inline-block;
+                overflow: hidden;
+
+                &:hover {
+                    cursor: pointer;
+                    background: linear-gradient(315deg, #444444 0%, #363636 100%);
+                }
+
+                span {
+                    font-family: "Roboto Condensed Bold";
+                }
+
+                .video-progress-inner {
+                    background: #f7931e;
+                    border-radius: 10px;
+                    height: 12px;
+                    width: 0;
+                    position: relative;
+                    transition: width 0.1s ease-in-out;
+                    pointer-events: none;
+
+                    .video-progress-dragger {
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        background: #ffffff;
+                        height: 12px;
+                        width: 18px;
+                        border-radius: 10px;
+
+                        &:hover {
+                            cursor: pointer;
+                        }
+                    }
+                }
+            }
+        }
+
+        .lower {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+
+            svg {
+                transition: color 0.3s ease-in-out;
+
+                &:hover {
+                    cursor: pointer;
+                    color: #f7931e;
+                }
+            }
+
+            // volume slider
+            .left {
+                display: flex;
+                justify-content: flex-start;
+
+                svg {
+                    padding: 0 10px 0 0;
+                }
+            }
+
+            // video skip + play/pause
+            .middle {
+                display: flex;
+                justify-content: center;
+            }
+
+            // fullscreen toggle
+            .right {
+                display: flex;
+                justify-content: flex-end;
+
+                svg {
+                    padding: 0 0 0 10px;
+                }
+            }
+        }
+    }
+
+    .ends-at {
+        grid-area: bottom-right;
+        text-align: right;
+
+        p {
+            margin: 0;
+        }
+
+        // header
+        p:first-child {
+            font-size: 0.8em;
+            margin-bottom: 5px;
+            font-family: "Roboto Condensed Regular";
+        }
+
+        // time
+        p:last-child {
+            font-family: "Roboto Condensed Bold";
+        }
+    }
+}

@@ -1,0 +1,10 @@
+[package]
+name = "dim-events"
+version = "0.1.0"
+authors = ["Valerian G. <valerian.garleanu@pm.me>"]
+edition = "2018"
+
+[dependencies]
+ws = "0.9.0"
+serde_json = "*"
+serde = { version = "1.0.99", features = ["derive"] }
