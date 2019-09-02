@@ -31,8 +31,6 @@ table! {
 }
 
 table! {
-    use diesel_full_text_search::{TsVector as Tsvector};
-    use diesel::sql_types::*;
     media (id) {
         id -> Int4,
         library_id -> Int4,
@@ -62,13 +60,20 @@ table! {
         audio -> Nullable<Varchar>,
         original_resolution -> Nullable<Varchar>,
         duration -> Nullable<Int4>,
-        corrupt -> Nullable<Bool>,
     }
 }
 
 table! {
     movie (id) {
         id -> Int4,
+    }
+}
+
+table! {
+    progress (id) {
+        id -> Int4,
+        delta -> Nullable<Int4>,
+        media_id -> Nullable<Int4>,
     }
 }
 
@@ -102,6 +107,7 @@ joinable!(media -> library (library_id));
 joinable!(mediafile -> library (library_id));
 joinable!(mediafile -> media (media_id));
 joinable!(movie -> streamable_media (id));
+joinable!(progress -> media (media_id));
 joinable!(season -> tv_show (tvshowid));
 joinable!(streamable_media -> media (id));
 joinable!(tv_show -> media (id));
@@ -114,6 +120,7 @@ allow_tables_to_appear_in_same_query!(
     media,
     mediafile,
     movie,
+    progress,
     season,
     streamable_media,
     tv_show,

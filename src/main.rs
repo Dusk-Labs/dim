@@ -10,6 +10,8 @@ extern crate diesel_migrations;
 extern crate rocket_contrib;
 #[macro_use]
 extern crate rocket_codegen;
+#[macro_use]
+extern crate lazy_static;
 
 extern crate dim_database;
 extern crate dim_scanners;
@@ -29,6 +31,21 @@ pub mod macros;
 pub mod core;
 pub mod tests;
 
+const VERSION: &str = "0.0.3";
+lazy_static! {
+    static ref BANNER: String = format!(
+        r#"
+                _____  _           
+               |  __ \(_)          
+               | |  | |_ _ __ ___  
+               | |  | | | '_ ` _ \ 
+               | |__| | | | | | | |
+welcome to ... |_____/|_|_| |_| |_|  version: {}"#,
+        VERSION
+    );
+}
+
 fn main() {
-    core::rocket().launch();
+    println!("{}", *BANNER);
+    core::launch();
 }

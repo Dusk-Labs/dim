@@ -2,8 +2,14 @@ use std::path::PathBuf;
 use std::process::Command;
 use std::str;
 
+#[derive(Default, Debug, Clone, PartialEq)]
+pub struct FFPWrapper {
+    ffpstream: Option<FFPStream>,
+    corrupt: Option<bool>,
+}
+
 #[derive(Default, Debug, Clone, PartialEq, serde_derive::Serialize, serde_derive::Deserialize)]
-pub struct FFPStream {
+struct FFPStream {
     streams: Vec<Stream>,
     format: Format,
 }
@@ -79,7 +85,7 @@ impl FFProbeCtx {
         }
     }
 
-    pub fn get_meta(&self, file: &PathBuf) -> Result<FFPStream, std::io::Error> {
+    pub fn get_meta(&self, file: &PathBuf) -> Result<FFPWrapper, std::io::Error> {
         let probe = Command::new(self.ffprobe_bin.clone())
             .arg(file.to_str().unwrap())
             .arg("-v")
@@ -92,41 +98,78 @@ impl FFProbeCtx {
 
         let json = String::from_utf8_lossy(probe.stdout.as_slice());
 
-        let de: FFPStream = serde_json::from_str(&json).unwrap();
+        let de: FFPWrapper = match serde_json::from_str(&json) {
+            Ok(x) => FFPWrapper {
+                ffpstream: Some(x),
+                corrupt: None,
+            },
+            Err(_) => FFPWrapper {
+                ffpstream: None,
+                corrupt: Some(true),
+            },
+        };
 
         Ok(de)
     }
 }
 
-impl FFPStream {
+impl FFPWrapper {
     pub fn get_quality(&self) -> Option<String> {
-        match self.streams[0].height {
-            Some(x) => Some(x.to_string()),
-            None => None,
+        if let Some(ctx) = self.ffpstream.clone() {
+            match ctx.streams[0].height {
+                Some(x) => Some(x.to_string()),
+                None => None,
+            }
+        } else {
+            None
         }
     }
 
     pub fn get_codec(&self) -> Option<String> {
-        Some(self.streams[0].codec_name.clone())
+        if let Some(ctx) = self.ffpstream.clone() {
+            Some(ctx.streams[0].codec_name.clone())
+        } else {
+            None
+        }
     }
 
     pub fn get_container(&self) -> Option<String> {
-        Some(self.format.format_name.clone())
+        if let Some(ctx) = self.ffpstream.clone() {
+            Some(ctx.format.format_name.clone())
+        } else {
+            None
+        }
     }
 
     pub fn get_audio_type(&self) -> Option<String> {
-        Some(self.streams[1].codec_long_name.clone())
+        if let Some(ctx) = self.ffpstream.clone() {
+            Some(ctx.streams[1].codec_long_name.clone())
+        } else {
+            None
+        }
     }
 
     pub fn get_res(&self) -> Option<String> {
-        Some(format!(
-            "{}x{}",
-            self.streams[0].width.unwrap_or(1920),
-            self.streams[0].height.unwrap_or(1080)
-        ))
+        if let Some(ctx) = self.ffpstream.clone() {
+            Some(format!(
+                "{}x{}",
+                ctx.streams[0].width.unwrap_or(1920),
+                ctx.streams[0].height.unwrap_or(1080)
+            ))
+        } else {
+            None
+        }
     }
 
     pub fn get_duration(&self) -> Option<i32> {
-        Some(self.format.duration.parse::<f64>().unwrap() as i32)
+        if let Some(ctx) = self.ffpstream.clone() {
+            Some(ctx.format.duration.parse::<f64>().unwrap() as i32)
+        } else {
+            None
+        }
+    }
+
+    pub fn is_corrupt(&self) -> Option<bool> {
+        Some(self.corrupt.unwrap_or(false))
     }
 }
