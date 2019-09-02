@@ -25,12 +25,12 @@ class SidebarSearch extends Component {
 
     componentDidMount() {
         document.addEventListener("click", this.handleDocumentClick);
-        this.inputBox.current.addEventListener("input", this.onChange.bind(this));
+        this.inputBox.current.addEventListener("input", this.onChange);
     }
 
     componentWillUnmount() {
-        document.removeEventListener("click");
-        this.inputBox.current.removeEventListener("input");
+        document.removeEventListener("click", this.handleDocumentClick);
+        this.inputBox.current.removeEventListener("input", this.onChange);
     }
 
     async handle_req(promise) {
