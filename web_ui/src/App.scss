@@ -51,6 +51,16 @@ a {
 	color: #ffffff;
 }
 
+#response {
+	font-family: "Roboto Condensed Regular";
+	color: #ffffff;
+	font-size: 0.8em;
+	background: #f7931e;
+	display: inline-block;
+	padding: 5px;
+	border-radius: 10px;
+}
+
 .empty {
 	display: -webkit-box;
 	display: -moz-box;
@@ -253,6 +263,11 @@ main {
 	-webkit-transition: margin 0.3s ease-in-out;
 	transition: margin 0.3s ease-in-out;
 
+	> section h1 {
+		margin: 50px 0;
+		padding: 0 5%;
+	}
+
     /*
         * == LIBRARY ==
     */
@@ -390,30 +405,6 @@ main {
 	100% { opacity: 1; }
 }
 
-@-webkit-keyframes changeSpinnerContent {
-	10% { content: "⠙"; }
-	20% { content: "⠹"; }
-	30% { content: "⠸"; }
-	40% { content: "⠼"; }
-	50% { content: "⠴"; }
-	60% { content: "⠦"; }
-	70% { content: "⠧"; }
-	80% { content: "⠇"; }
-	90% { content: "⠏"; }
-}
-
-@keyframes changeSpinnerContent {
-	10% { content: "⠙"; }
-	20% { content: "⠹"; }
-	30% { content: "⠸"; }
-	40% { content: "⠼"; }
-	50% { content: "⠴"; }
-	60% { content: "⠦"; }
-	70% { content: "⠧"; }
-	80% { content: "⠇"; }
-	90% { content: "⠏"; }
-}
-
 /*
     * == MEDIA QUERIES
 */
@@ -425,4 +416,10 @@ main {
 		    -ms-flex-pack: center !important;
 		        justify-content: center !important;
 	}
+}
+
+.item-wrapper {
+    & > a::after, & > a::before {
+        content: unset !important;
+    }
 }

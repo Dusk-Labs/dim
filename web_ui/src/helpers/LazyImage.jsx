@@ -18,6 +18,10 @@ class LazyImage extends Component {
     }
 
     async componentDidMount() {
+        if (this.props.passImageRef) {
+            this.props.passImageRef(this.image);
+        }
+
         const resp = await fetch(this.props.src);
 
         if (!resp.headers.get("content-type") === "image/jpeg") {
@@ -57,7 +61,7 @@ class LazyImage extends Component {
         const { objectUrl, blankMsg } = this.state;
 
         return objectUrl !== undefined
-            ? <div className="image-wrapper"><img src={objectUrl} alt={alt}></img></div>
+            ? <div className="image-wrapper" ref={this.props.imageWrapperRef}><img src={objectUrl} alt={alt}></img></div>
             : <div className="placeholder">{blankMsg}</div>;
     }
 }

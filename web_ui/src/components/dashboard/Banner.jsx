@@ -11,6 +11,10 @@ class Banner extends PureComponent {
     constructor(props) {
         super(props);
 
+        this.imageWrapper = React.createRef();
+        this.getImageWrapperRef = this.getImageWrapperRef.bind(this);
+        this.handleScroll = this.handleScroll.bind(this);
+
         this.state = {
             accent: {
                 background: "#f7931e",
@@ -46,6 +50,19 @@ class Banner extends PureComponent {
                 year: this.props.year,
             }
         });
+
+        window.addEventListener("scroll", this.handleScroll);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("scroll", this.handleScroll);
+    }
+
+    handleScroll() {
+        const scrolled = window.pageYOffset;
+        const rate = scrolled * 0.2;
+
+        this.imageWrapper.style.transform = `translate3d(0px, ${rate}px, 0px)`;
     }
 
     onLoadBanner = async (blob) => {
@@ -57,6 +74,10 @@ class Banner extends PureComponent {
                 text: color.Vibrant.getTitleTextColor()
             }
         });
+    }
+
+    getImageWrapperRef(ref) {
+        this.imageWrapper = ref;
     }
 
     render() {
@@ -87,7 +108,7 @@ class Banner extends PureComponent {
 
         return (
             <div className="banner">
-                <LazyImage alt="banner" src={img} onLoad={this.onLoadBanner}/>
+                <LazyImage alt="banner" src={img} onLoad={this.onLoadBanner} imageWrapperRef={this.getImageWrapperRef}/>
                 <div className="extras">
                     <p>{year}</p>
                     <FontAwesomeIcon icon="circle" style={{ color: accent.background }}/>
