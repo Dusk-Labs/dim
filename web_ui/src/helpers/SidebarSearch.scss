@@ -21,13 +21,19 @@
         width: 190px;
         overflow: hidden;
         white-space: nowrap;
+    }
 
-        // TAG
-        span {
-            padding: 0 5px;
-            background: #666666;
-            border-radius: 5px;
-        }
+    #placeholder {
+        content: "SEARCH";
+        top: 50%;
+        left: 10%;
+        position: absolute;
+        color: #808080;
+        font-family: "Roboto Black";
+        pointer-events: none;
+        font-size: 0.9em;
+        transform: translateY(-50%);
+        animation: PlaceholderAppear 0.2s ease-in-out;
     }
 
     input::-webkit-input-placeholder {
@@ -72,66 +78,6 @@
     }
 }
 
-.search-box-options {
-    position: absolute;
-    width: 100%;
-    top: 120%;
-    padding: 10px;
-    border-radius: 10px;
-    background: #4d4d4d;
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-            box-sizing: border-box;
-    color: #8d8d8d;
-    -webkit-animation: SidebarSearchBoxAppear 0.2s ease-in-out;
-            animation: SidebarSearchBoxAppear 0.2s ease-in-out;
-
-    // TAG + HEADER
-    p {
-        margin: 0;
-    }
-
-    header {
-        font-size: 0.9em;
-        padding: 0 10px;
-        font-family: "Roboto Condensed Bold";
-    }
-
-    .option {
-        padding: 8px 10px;
-        display: -webkit-box;
-        display: -moz-box;
-        display: -ms-flexbox;
-        display: flex;
-        -webkit-box-align: center;
-           -moz-box-align: center;
-            -ms-flex-align: center;
-                align-items: center;
-        -webkit-box-pack: justify;
-           -moz-box-pack: justify;
-            -ms-flex-pack: justify;
-                justify-content: space-between;
-        font-family: "Roboto Black";
-        -webkit-transition: background 0.3s ease-in-out;
-        transition: background 0.3s ease-in-out;
-        border-radius: 10px;
-
-        svg {
-            -webkit-transition: color 0.3s ease-in-out;
-            transition: color 0.3s ease-in-out;
-        }
-
-        &:hover {
-            background: #666666;
-            cursor: pointer;
-
-            svg {
-                color: #f7931e;
-            }
-        }
-    }
-}
-
 .search-box-search-for {
     position: absolute;
     width: 100%;
@@ -154,6 +100,10 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+    }
+
+    #response {
+        margin: 0 10px;
     }
 
     #query {
@@ -233,5 +183,14 @@
     100% {
         opacity: 1;
         width: 100%;
+    }
+}
+
+@keyframes PlaceholderAppear {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
     }
 }
