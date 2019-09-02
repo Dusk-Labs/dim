@@ -71,14 +71,32 @@
     }
 }
 
-@keyframes cardGlow {
+@-webkit-keyframes cardGlow {
     0% {
-        box-shadow: white 0 0 50px;
+        -webkit-box-shadow: white 0 0 50px;
+                box-shadow: white 0 0 50px;
     }
     50% {
-        box-shadow: none;
+        -webkit-box-shadow: none;
+                box-shadow: none;
     }
     100% {
-        box-shadow: white 0 0 50px;
+        -webkit-box-shadow: white 0 0 50px;
+                box-shadow: white 0 0 50px;
+    }
+}
+
+@keyframes cardGlow {
+    0% {
+        -webkit-box-shadow: white 0 0 50px;
+                box-shadow: white 0 0 50px;
+    }
+    50% {
+        -webkit-box-shadow: none;
+                box-shadow: none;
+    }
+    100% {
+        -webkit-box-shadow: white 0 0 50px;
+                box-shadow: white 0 0 50px;
     }
 }
