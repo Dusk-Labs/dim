@@ -24,10 +24,8 @@ class Sidebar extends Component {
                 </div>
             ),
             showAddLibrary: false,
-            lists: {
-                connectedHosts: <p id="response">LOADING</p>,
-                libraries: <p id="response">LOADING</p>
-            }
+            connectedHosts: <p id="response">LOADING</p>,
+            libraries: <p id="response">LOADING</p>
         };
     }
 
@@ -107,12 +105,9 @@ class Sidebar extends Component {
         // const hosts = await this.handle_req(reqHosts);
 
         // if (hosts.err) {
-        //     return this.setState(prevState => ({
-        //         lists: {
-        //             ...prevState.lists,
-        //             connectedHosts: <p id="response">FAILED TO LOAD</p>,
-        //         }
-        //     }));
+        //     return this.setState({
+        //         connectedHosts: <p id="response">FAILED TO LOAD</p>,
+        //     });
         // }
         // !
 
@@ -139,12 +134,9 @@ class Sidebar extends Component {
             </div>
         ) : <p id="response">NO HOSTS</p>;
 
-        return this.setState(prevState => ({
-            lists: {
-                ...prevState.lists,
-                connectedHosts: list
-            }
-        }));
+        return this.setState({
+            connectedHosts: list
+        });
     }
 
     async listLibraries() {
@@ -152,42 +144,29 @@ class Sidebar extends Component {
         const libs = await this.handle_req(reqLibs);
 
         if (libs.err) {
-            return this.setState(prevState => ({
-                lists: {
-                    ...prevState.lists,
-                    libraries: <p id="response"> FAILED TO LOAD</p>
-                }
-            }));
+            return this.setState({
+                libraries: <p id="response">FAILED TO LOAD</p>
+            });
         }
 
-        const list = libs.length !== 0 ? (
-            <div className="list">
-                <div className="item-wrapper">
-                    <NavLink to="/" exact>
-                        <FontAwesomeIcon icon="home"/>
-                        <p>Dashboard</p>
-                    </NavLink>
-                </div>
-                {libs.map(({ name, id, media_type }, i) => {
-                    return (
-                        <div className="item-wrapper" key={i}>
-                            <NavLink to={"/library/" + id}>
-                                <SidebarIcon icon={media_type || name}/>
-                                <p>{name}</p>
-                            </NavLink>
-                            <button>-</button>
-                        </div>
-                    );
-                })}
-            </div>
-        ) : <p id="response">NO LIBRARIES</p>;
+        const list = (
+            libs.length !== 0
+                ? libs.map((
+                    { name, id, media_type }, i
+                ) =>
+                    <div className="item-wrapper" key={i}>
+                        <NavLink to={"/library/" + id}>
+                            <SidebarIcon icon={media_type || name}/>
+                            <p>{name}</p>
+                        </NavLink>
+                        <button>-</button>
+                    </div>
+                ) : <p id="response">NO LIBRARIES</p>
+        );
 
-        return this.setState(prevState => ({
-            lists: {
-                ...prevState.lists,
-                libraries: list
-            }
-        }));
+        return this.setState({
+            libraries: list
+        });
     }
 
     render() {
@@ -203,7 +182,7 @@ class Sidebar extends Component {
                     <header>
                         <h4>CONNECTED HOSTS</h4>
                     </header>
-                    {this.state.lists.connectedHosts}
+                    {this.state.connectedHosts}
                 </section>
 
                 <section className="local-libraries">
@@ -224,7 +203,15 @@ class Sidebar extends Component {
                             </div>
                         </Modal>
                     </header>
-                    {this.state.lists.libraries}
+                    <div className="list">
+                        <div className="item-wrapper">
+                            <NavLink to="/" exact>
+                                <FontAwesomeIcon icon="home"/>
+                                <p>Dashboard</p>
+                            </NavLink>
+                        </div>
+                        {this.state.libraries}
+                    </div>
                 </section>
 
                 <section className="your-account">
