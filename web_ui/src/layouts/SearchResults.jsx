@@ -34,7 +34,16 @@ class SearchResults extends Component {
         }
 
         this.setState({
-            cards: <Library cards={results}/>
+            cards: (
+                results.length > 0
+                    ? <Library cards={results}/>
+                    : (
+                        <div className="empty">
+                            <FontAwesomeIcon icon="question-circle"/>
+                            <p>NO RESULTS FOUND</p>
+                        </div>
+                    )
+            )
         });
     }
 
