@@ -123,69 +123,6 @@
                 }
             }
         }
-
-        .search-box {
-            background: #4d4d4d;
-            border-radius: 10px;
-            display: -webkit-box;
-            display: -moz-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-pack: space-evenly;
-                -ms-flex-pack: space-evenly;
-                    -moz-box-pack: space-evenly;
-                    justify-content: space-evenly;
-            -webkit-box-align: center;
-                -ms-flex-align: center;
-                    -moz-box-align: center;
-                    align-items: center;
-            overflow: hidden;
-
-            input {
-                background: #4d4d4d;
-                border: none;
-                padding: 10px;
-                outline: none;
-                color: #ffffff;
-                font-family: "Roboto Black";
-            }
-
-            input::-webkit-input-placeholder {
-                color: #8d8d8d8d;
-            }
-
-            input::-moz-placeholder {
-                color: #8d8d8d8d;
-            }
-
-            input:-ms-input-placeholder {
-                color: #8d8d8d8d;
-            }
-
-            input::-ms-input-placeholder {
-                color: #8d8d8d8d;
-            }
-
-            input::placeholder {
-                color: #8d8d8d8d;
-            }
-
-            button {
-                height: 25px;
-                width: 25px;
-                border-radius: 30px;
-                font-size: 0.7em;
-                background: #666666;
-                color: #ffffff;
-                -webkit-transition: background 0.3s ease-in-out;
-                transition: background 0.3s ease-in-out;
-
-                &:hover {
-                    background: #999999;
-                    cursor: pointer;
-                }
-            }
-        }
     }
 
     // CURRENT ROUTE
@@ -289,7 +226,7 @@
 
 @media only screen and (max-width: 1080px) {
     main {
-        margin-left: 150px;
+        margin-left: 150px !important;
     }
 
     .sidebar {
