@@ -147,6 +147,10 @@
         height: 120px;
         overflow-y: scroll;
 
+        #response {
+            margin: 5px 0;
+        }
+
         .item-wrapper {
             height: 40px;
             display: grid;
