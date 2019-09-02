@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { HashLink } from 'react-router-hash-link';
+import { Link, withRouter } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./SidebarSearch.scss";
@@ -14,6 +15,7 @@ class SidebarSearch extends Component {
         this.onChange = this.onChange.bind(this);
         this.toggleShowSearchFor = this.toggleShowSearchFor.bind(this);
         this.handleDocumentClick = this.handleDocumentClick.bind(this);
+        this.handleKeyPress = this.handleKeyPress.bind(this);
 
         this.state = {
             query: "",
@@ -26,11 +28,13 @@ class SidebarSearch extends Component {
     componentDidMount() {
         document.addEventListener("click", this.handleDocumentClick);
         this.inputBox.current.addEventListener("input", this.onChange);
+        this.inputBox.current.addEventListener("keydown", this.handleKeyPress);
     }
 
     componentWillUnmount() {
         document.removeEventListener("click", this.handleDocumentClick);
         this.inputBox.current.removeEventListener("input", this.onChange);
+        this.inputBox.current.removeEventListener("keydown", this.handleKeyPress);
     }
 
     async handle_req(promise) {
@@ -79,6 +83,8 @@ class SidebarSearch extends Component {
     }
 
     async getResults() {
+        if (this.state.query.length === 0) return;
+
         const reqResults = fetch(`http://86.21.150.167:8000/api/v1/search?query=${this.state.query}&quick=true`);
         const results = await this.handle_req(reqResults);
 
@@ -120,10 +126,10 @@ class SidebarSearch extends Component {
         });
     }
 
-    // prevents multi-line (on enter)
-    handleOnKeyDown = (e) => {
-        if (e.which === 13) {
+    handleKeyPress(e) {
+        if (e.keyCode === 13 && this.state.query.length >= 1) {
             e.preventDefault();
+            this.props.history.push(`/search?query=${this.state.query}`);
         }
     }
 
@@ -133,7 +139,7 @@ class SidebarSearch extends Component {
                 <div className="search-box-wrapper">
                     <div className="input"
                         ref={this.inputBox}
-                        onKeyDown={this.handleOnKeyDown}
+                        onKeyDown={this.handleKeyPress}
                         contentEditable="true"
                         value={this.state.query}
                         onChange={this.onChange}>
@@ -141,9 +147,9 @@ class SidebarSearch extends Component {
                     {this.state.showPlaceholder &&
                         <span id="placeholder">SEARCH</span>
                     }
-                    <button type="submit" onClick={this.onSubmit}>
+                    <Link to={`/search?query=${this.state.query}`}>
                         <FontAwesomeIcon icon="search"/>
-                    </button>
+                    </Link>
                 </div>
                 {this.state.showSearchFor &&
                     <div className="search-box-search-for">
@@ -155,4 +161,4 @@ class SidebarSearch extends Component {
     }
 }
 
-export default SidebarSearch;
+export default withRouter(SidebarSearch)
