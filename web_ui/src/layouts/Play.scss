@@ -19,9 +19,14 @@ video {
     width: 100%;
     padding: 50px;
     opacity: 0;
-    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
     display: grid;
-    align-items: flex-end;
+    -webkit-box-align: end;
+       -moz-box-align: end;
+        -ms-flex-align: end;
+            align-items: flex-end;
     grid-gap: 100px;
     grid-template-rows: 1fr;
     grid-template-columns: auto 1fr auto;
@@ -30,6 +35,7 @@ video {
         "middle-left middle middle-right"
         "bottom-left bottom bottom-right";
     pointer-events: none;
+    -webkit-transition: opacity 0.3s ease-in-out;
     transition: opacity 0.3s ease-in-out;
 
     .cover {
@@ -59,10 +65,22 @@ video {
     .controls {
         grid-area: bottom;
         pointer-events: all;
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
         display: flex;
-        flex-direction: column;
-        align-items: center;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+           -moz-box-orient: vertical;
+           -moz-box-direction: normal;
+            -ms-flex-direction: column;
+                flex-direction: column;
+        -webkit-box-align: center;
+           -moz-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
         opacity: 1;
+        -webkit-transition: opacity 0.3s ease-in-out;
         transition: opacity 0.3s ease-in-out;
 
         &:hover {
@@ -74,9 +92,18 @@ video {
         }
 
         .upper {
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
+            -webkit-box-pack: justify;
+               -moz-box-pack: justify;
+                -ms-flex-pack: justify;
+                    justify-content: space-between;
+            -webkit-box-align: end;
+               -moz-box-align: end;
+                -ms-flex-align: end;
+                    align-items: flex-end;
             width: 100%;
             font-family: "Roboto Condensed Bold";
 
@@ -92,16 +119,31 @@ video {
             // S1 . E1 + movie name
             .left {
                 .se-ep {
+                    display: -webkit-box;
+                    display: -moz-box;
+                    display: -ms-flexbox;
                     display: flex;
-                    align-items: center;
+                    -webkit-box-align: center;
+                       -moz-box-align: center;
+                        -ms-flex-align: center;
+                            align-items: center;
                 }
             }
 
             // video current time and duration
             .right {
+                display: -webkit-box;
+                display: -moz-box;
+                display: -ms-flexbox;
                 display: flex;
-                align-items: center;
-                justify-content: space-evenly;
+                -webkit-box-align: center;
+                   -moz-box-align: center;
+                    -ms-flex-align: center;
+                        align-items: center;
+                -webkit-box-pack: space-evenly;
+                   -moz-box-pack: space-evenly;
+                    -ms-flex-pack: space-evenly;
+                        justify-content: space-evenly;
             }
         }
 
@@ -133,6 +175,7 @@ video {
                     height: 12px;
                     width: 0;
                     position: relative;
+                    -webkit-transition: width 0.1s ease-in-out;
                     transition: width 0.1s ease-in-out;
                     pointer-events: none;
 
@@ -154,11 +197,18 @@ video {
         }
 
         .lower {
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
             display: flex;
-            justify-content: space-between;
+            -webkit-box-pack: justify;
+               -moz-box-pack: justify;
+                -ms-flex-pack: justify;
+                    justify-content: space-between;
             width: 100%;
 
             svg {
+                -webkit-transition: color 0.3s ease-in-out;
                 transition: color 0.3s ease-in-out;
 
                 &:hover {
@@ -169,8 +219,14 @@ video {
 
             // volume slider
             .left {
+                display: -webkit-box;
+                display: -moz-box;
+                display: -ms-flexbox;
                 display: flex;
-                justify-content: flex-start;
+                -webkit-box-pack: start;
+                   -moz-box-pack: start;
+                    -ms-flex-pack: start;
+                        justify-content: flex-start;
 
                 svg {
                     padding: 0 10px 0 0;
@@ -179,14 +235,26 @@ video {
 
             // video skip + play/pause
             .middle {
+                display: -webkit-box;
+                display: -moz-box;
+                display: -ms-flexbox;
                 display: flex;
-                justify-content: center;
+                -webkit-box-pack: center;
+                   -moz-box-pack: center;
+                    -ms-flex-pack: center;
+                        justify-content: center;
             }
 
             // fullscreen toggle
             .right {
+                display: -webkit-box;
+                display: -moz-box;
+                display: -ms-flexbox;
                 display: flex;
-                justify-content: flex-end;
+                -webkit-box-pack: end;
+                   -moz-box-pack: end;
+                    -ms-flex-pack: end;
+                        justify-content: flex-end;
 
                 svg {
                     padding: 0 0 0 10px;
