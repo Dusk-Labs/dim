@@ -9,6 +9,7 @@ import Sidebar from "./layouts/Sidebar.jsx";
 import Dashboard from "./layouts/Dashboard.jsx";
 import Library from "./layouts/Library.jsx";
 import Play from "./layouts/Play.jsx";
+import SearchResults from "./layouts/SearchResults";
 
 import './App.scss';
 
@@ -30,6 +31,14 @@ class App extends Component {
 							<Sidebar/>
 							<main>
 								<Library path={`http://86.21.150.167:8000/api/v1/library/${props.match.params.id}/media`}/>
+							</main>
+						</div>
+					}/>
+					<Route exact path="/search" render={props =>
+						<div className="App">
+							<Sidebar/>
+							<main>
+								<SearchResults {...props}/>
 							</main>
 						</div>
 					}/>
