@@ -8,18 +8,36 @@ class SearchResults extends Component {
         super(props);
 
         this.state = {
-            cards: <div className="spinner"></div>,
+            cards: <div className="spinner"></div>
         };
     }
 
-    async componentDidMount() {
+    componentDidMount() {
         this.getResults();
     }
 
-    async getResults() {
-        const query = new URLSearchParams(this.props.location.search);
+    componentDidUpdate(prevProps) {
+        if (this.props.location.search !== prevProps.location.search) {
+            this.getResults();
+        }
+    }
 
-        const reqResults = fetch(`http://86.21.150.167:8000/api/v1/search?query=${query.get("query")}`);
+    async getResults() {
+        const searchURL = new URLSearchParams(this.props.location.search);
+        const query = searchURL.get("query");
+
+        if (query.length === 0) {
+            return this.setState({
+                cards: (
+                    <div className="empty">
+                        <FontAwesomeIcon icon="question-circle"/>
+                        <p>NO SEARCH PROVIDED</p>
+                    </div>
+                )
+            });
+        };
+
+        const reqResults = fetch(`http://86.21.150.167:8000/api/v1/search?query=${query}`);
         const results = await this.handle_req(reqResults);
 
         if (results.err) {
