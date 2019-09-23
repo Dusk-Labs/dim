@@ -16,6 +16,9 @@ pub struct Message {
 #[serde(tag = "type")]
 pub enum PushEventType {
     EventNewCard,
+    EventRemoveCard,
+    EventNewLibrary,
+    EventRemoveLibrary,
 }
 
 impl<'a> Event {
