@@ -220,13 +220,13 @@ class Sidebar extends Component {
                     </header>
                     <div className="list">
                         <div className="item-wrapper">
-                            <NavLink to="">
+                            <NavLink to="/preferences">
                                 <FontAwesomeIcon icon="wrench"/>
                                 <p>Preferences</p>
                             </NavLink>
                         </div>
                         <div className="item-wrapper">
-                            <NavLink to="">
+                            <NavLink to="/logout">
                                 <FontAwesomeIcon icon="door-open"/>
                                 <p>Logout</p>
                             </NavLink>

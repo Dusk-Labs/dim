@@ -30,7 +30,7 @@ class Dashboard extends Component {
             <main>
                 { this.state.bannersReady && (
                 <BannerPage>
-                    {this.state.banners.map(({title, backdrop, synopsis, season, episode, duration, delta, banner_caption, genres, year}, i) => <Banner key={i} src={backdrop} title={title} description={synopsis} season={season} episode={episode} duration={duration} delta={delta === undefined ? 0 : delta} banner_caption={banner_caption} genres={genres} year={year}/>)}
+                    {this.state.banners.map((banner, i) => <Banner key={i} banner={banner}/>)}
                 </BannerPage>
                 )}
                 <Library path="http://86.21.150.167:8000/api/v1/dashboard"/>
