@@ -12,6 +12,7 @@
         height: 320px;
         width: 200px;
         text-align: center;
+        border-radius: 10px;
 
         .image-wrapper {
             -webkit-transition: -webkit-box-shadow 0.3s ease-in-out;
@@ -67,5 +68,35 @@
     }
     100% {
         opacity: 1;
+    }
+}
+
+@-webkit-keyframes cardGlow {
+    0% {
+        -webkit-box-shadow: white 0 0 50px;
+                box-shadow: white 0 0 50px;
+    }
+    50% {
+        -webkit-box-shadow: none;
+                box-shadow: none;
+    }
+    100% {
+        -webkit-box-shadow: white 0 0 50px;
+                box-shadow: white 0 0 50px;
+    }
+}
+
+@keyframes cardGlow {
+    0% {
+        -webkit-box-shadow: white 0 0 50px;
+                box-shadow: white 0 0 50px;
+    }
+    50% {
+        -webkit-box-shadow: none;
+                box-shadow: none;
+    }
+    100% {
+        -webkit-box-shadow: white 0 0 50px;
+                box-shadow: white 0 0 50px;
     }
 }
