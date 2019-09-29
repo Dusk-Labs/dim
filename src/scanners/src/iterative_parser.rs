@@ -116,9 +116,11 @@ impl<'a> IterativeScanner {
         );
 
         for orphan in &orphans {
-            info!(self.log, "Scanning {} orphan", orphan.raw_name.clone());
-            if let Some(result) = tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year) {
-                self.match_media_to_tmdb(result, &orphan);
+            if orphan.media_id.is_none() {
+                info!(self.log, "Scanning {} orphan", orphan.raw_name.clone());
+                if let Some(result) = tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year) {
+                    self.match_media_to_tmdb(result, &orphan);
+                }
             }
         }
     }
