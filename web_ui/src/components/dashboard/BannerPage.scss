@@ -58,6 +58,10 @@
             .banner {
                 -webkit-animation: onHideBanner 0.7s ease-in-out forwards;
                         animation: onHideBanner 0.7s ease-in-out forwards;
+
+                img {
+                    animation: onHideBannerImage 0.7s ease-in-out forwards;
+                }
             }
         }
 
@@ -66,6 +70,10 @@
                 z-index: 1;
                 -webkit-animation: onActiveBanner 0.7s ease-in-out forwards;
                         animation: onActiveBanner 0.7s ease-in-out forwards;
+
+                img {
+                    animation: onActiveBannerImage 0.7s ease-in-out forwards;
+                }
             }
         }
     }
@@ -75,6 +83,24 @@
 /*
     * == KEYFRAMES ==
 */
+
+@keyframes onActiveBannerImage {
+    0% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes onHideBannerImage {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.05);
+    }
+}
 
 @-webkit-keyframes bannerAppear {
     0% {
