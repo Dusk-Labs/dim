@@ -6,48 +6,19 @@ class LazyImage extends Component {
         super(props);
 
         this.state = {
-            blob: undefined,
-            objectUrl: undefined,
-            blankMsg: (
-                <div className="empty">
-                    <FontAwesomeIcon icon="question-circle"/>
-                    <p>LOADING COVER</p>
+            img: (
+                <div className="placeholder">
+                    <div className="empty">
+                        <FontAwesomeIcon icon="question-circle"/>
+                        <p>LOADING IMAGE</p>
+                    </div>
                 </div>
             ),
         }
     }
 
-    async componentDidMount() {
-        if (this.props.passImageRef) {
-            this.props.passImageRef(this.image);
-        }
-
-        const resp = await fetch(this.props.src);
-
-        if (!resp.headers.get("content-type") === "image/jpeg") {
-            this.setState({
-                blankMsg: (
-                    <div className="empty">
-                        <FontAwesomeIcon icon="question-circle"/>
-                        <p>FAILED TO LOAD COVER</p>
-                    </div>
-                )
-            });
-
-            throw new Error("Not an image");
-        }
-
-        const blob = await resp.blob();
-        const objectUrl = URL.createObjectURL(blob);
-
-        this.setState({
-            blob,
-            objectUrl
-        });
-
-        if (this.props.onLoad) {
-            await this.props.onLoad(blob);
-        }
+    componentDidMount() {
+        this.renderBlob();
     }
 
     componentWillUnmount() {
@@ -56,13 +27,48 @@ class LazyImage extends Component {
         }
     }
 
-    render() {
-        const { alt } = this.props;
-        const { objectUrl, blankMsg } = this.state;
+    componentDidUpdate(prevProps) {
+        if (prevProps.src !== this.props.src) {
+            this.renderBlob();
+        }
+    }
 
-        return objectUrl !== undefined
-            ? <div className="image-wrapper" ref={this.props.imageWrapperRef}><img src={objectUrl} alt={alt}></img></div>
-            : <div className="placeholder">{blankMsg}</div>;
+    async renderBlob() {
+        const resp = await fetch(this.props.src);
+
+        if (!resp.headers.get("content-type") === "image/jpeg") {
+            this.setState({
+                img: (
+                    <div className="placeholder">
+                        <div className="empty">
+                            <FontAwesomeIcon icon="question-circle"/>
+                            <p>FAILED TO LOAD IMAGE</p>
+                        </div>
+                    </div>
+                )
+            });
+        }
+
+        const blob = await resp.blob();
+        const objectUrl = URL.createObjectURL(blob);
+
+        this.setState({
+            blob,
+            objectUrl,
+            img: (
+                <div className="image-wrapper">
+                    <img src={objectUrl} alt={this.props.alt}></img>
+                </div>
+            )
+        });
+
+        if (this.props.onLoad) {
+            await this.props.onLoad(blob);
+        }
+    }
+
+    render() {
+        return this.state.img;
     }
 }
 

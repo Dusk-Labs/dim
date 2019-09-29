@@ -127,9 +127,12 @@ class SidebarSearch extends Component {
     }
 
     handleKeyPress(e) {
-        if (e.keyCode === 13 && this.state.query.length >= 1) {
+        if (e.keyCode === 13) {
             e.preventDefault();
-            this.props.history.push(`/search?query=${this.state.query}`);
+
+            if (this.state.query.length >= 1) {
+                this.props.history.push(`/search?query=${this.state.query}`);
+            }
         }
     }
 

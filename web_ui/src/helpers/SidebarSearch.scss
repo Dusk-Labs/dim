@@ -32,8 +32,10 @@
         font-family: "Roboto Black";
         pointer-events: none;
         font-size: 0.9em;
-        transform: translateY(-50%);
-        animation: PlaceholderAppear 0.2s ease-in-out;
+        -webkit-transform: translateY(-50%);
+                transform: translateY(-50%);
+        -webkit-animation: PlaceholderAppear 0.2s ease-in-out;
+                animation: PlaceholderAppear 0.2s ease-in-out;
     }
 
     input::-webkit-input-placeholder {
@@ -57,9 +59,18 @@
     }
 
     a {
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
         display: flex;
-        justify-content: center;
-        align-items: center;
+        -webkit-box-pack: center;
+           -moz-box-pack: center;
+            -ms-flex-pack: center;
+                justify-content: center;
+        -webkit-box-align: center;
+           -moz-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
         position: absolute;
         top: 50%;
         right: 0;
@@ -186,6 +197,15 @@
     100% {
         opacity: 1;
         width: 100%;
+    }
+}
+
+@-webkit-keyframes PlaceholderAppear {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
     }
 }
 

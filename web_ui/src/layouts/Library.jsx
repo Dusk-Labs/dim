@@ -12,24 +12,26 @@ class Library extends Component {
     }
 
     async componentDidMount() {
-        if (this.props.cards === undefined) {
-            return this.fetchCards();
-        } else {
-            const card_list = this.props.cards.map((card, i) => <Card key={i} data={card}/>);
-
-            this.setState({
-                cards: (
-                    <div className="cards">
-                        { card_list }
-                    </div>
-                )
-            })
-        }
+        this.props.cards !== undefined
+            ? this.getPropCards()
+            : this.getPathCards();
     }
 
     async componentDidUpdate(prevProps) {
         if (this.props.path !== prevProps.path) {
-            this.fetchCards();
+            return this.getPathCards();
+        }
+
+        if (this.props.cards) {
+            if (this.props.cards.length !== prevProps.cards.length) {
+                return this.getPropCards();
+            }
+
+            const equal = this.props.cards.every((card, i) => {
+                return card.id === prevProps.cards[i].id;
+            });
+
+            if (!equal) this.getPropCards();
         }
     }
 
@@ -41,7 +43,19 @@ class Library extends Component {
         }
     }
 
-    fetchCards = async () => {
+    getPropCards() {
+        const card_list = this.props.cards.map((card, i) => <Card key={i} data={card}/>);
+
+        this.setState({
+            cards: (
+                <div className="cards">
+                    { card_list }
+                </div>
+            )
+        });
+    }
+
+    async getPathCards() {
         const req = fetch(this.props.path);
         const payload = await this.handle_req(req);
 
