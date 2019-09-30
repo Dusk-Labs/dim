@@ -119,9 +119,9 @@ class Sidebar extends Component {
         ];
         // !
 
-        const list = hosts.length !== 0 ? (
-            <div className="list">
-                {hosts.map(({ name, id, media_type }, i) => {
+        const list = hosts.length !== 0
+            ? (
+                hosts.map(({ name, id, media_type }, i) => {
                     return (
                         <div className="item-wrapper" key={i}>
                             <NavLink to={"/device/" + id}>
@@ -130,9 +130,8 @@ class Sidebar extends Component {
                             </NavLink>
                         </div>
                     );
-                })}
-            </div>
-        ) : <p id="response">NO HOSTS</p>;
+                })
+            ) : <p id="response">NO HOSTS</p>;
 
         return this.setState({
             connectedHosts: list
@@ -182,7 +181,9 @@ class Sidebar extends Component {
                     <header>
                         <h4>CONNECTED HOSTS</h4>
                     </header>
-                    {this.state.connectedHosts}
+                    <div className="list">
+                        {this.state.connectedHosts}
+                    </div>
                 </section>
 
                 <section className="local-libraries">
