@@ -56,7 +56,7 @@ class LazyImage extends Component {
             blob,
             objectUrl,
             img: (
-                <div className="image-wrapper">
+                <div className="image-wrapper" ref={this.props.imageWrapperRef}>
                     <img src={objectUrl} alt={this.props.alt}></img>
                 </div>
             )
