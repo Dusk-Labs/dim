@@ -8,6 +8,7 @@
     border-radius: 10px;
     overflow: hidden;
     position: relative;
+    height: 100%;
 
     .input {
         -webkit-box-sizing: border-box;
@@ -21,6 +22,7 @@
         width: 190px;
         overflow: hidden;
         white-space: nowrap;
+        height: 40px;
     }
 
     #placeholder {
