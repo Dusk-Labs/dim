@@ -88,24 +88,30 @@
                     -moz-box-align: center;
                  align-items: center;
 
-            img, .default-icon {
-                position: relative;
+            .profile-icon {
+                margin: 0 auto;
+                height: 31px;
+                width: 31px;
                 padding: 4px;
+                border-radius: 100%;
+                border: #ffffff 2px solid;
+            }
+
+            img {
+                -webkit-animation: SidebarProfileIconLoad 0.5s ease-in;
+                        animation: SidebarProfileIconLoad 0.5s ease-in;
+            }
+
+            img, .default-icon {
                 height: 31px;
                 width: 31px;
                 -o-object-fit: cover;
                    object-fit: cover;
                 border-radius: 50%;
-                border: #ffffff 2px solid;
             }
 
-            .default-icon::after {
-                content: "";
-                position: absolute;
+            .default-icon {
                 background: #f7931e;
-                height: 31px;
-                width: 31px;
-                border-radius: 50%;
             }
 
             .info {
@@ -226,6 +232,54 @@
             padding: 10px 0;
         }
     }
+}
+
+@-webkit-keyframes SidebarProfileIconLoad {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+    // 0% {
+    //     transform: scale(1, 1);
+    // }
+    // 10% {
+    //     transform: scale(1.1, 0.9);
+    // }
+    // 30% {
+    //     transform: scale(0.9, 1.1);
+    // }
+    // 50% {
+    //     transform: scale(1, 1);
+    // }
+    // 100% {
+    //     transform: scale(1, 1);
+    // }
+}
+
+@keyframes SidebarProfileIconLoad {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+    // 0% {
+    //     transform: scale(1, 1);
+    // }
+    // 10% {
+    //     transform: scale(1.1, 0.9);
+    // }
+    // 30% {
+    //     transform: scale(0.9, 1.1);
+    // }
+    // 50% {
+    //     transform: scale(1, 1);
+    // }
+    // 100% {
+    //     transform: scale(1, 1);
+    // }
 }
 
 @media only screen and (max-width: 1080px) {

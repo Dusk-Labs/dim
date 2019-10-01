@@ -134,6 +134,8 @@ button {
 	left: 50%;
 	height: 40px;
 	width: 40px;
+	max-height:40px;
+	max-width: 40px;
 	-webkit-transform: translate(-50%, -50%);
 	        transform: translate(-50%, -50%);
 

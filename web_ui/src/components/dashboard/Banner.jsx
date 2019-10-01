@@ -84,10 +84,16 @@ class Banner extends PureComponent {
             genres.length = 3;
         }
 
+        const loading = (
+            <div className="placeholder">
+                <div className="spinner"></div>
+            </div>
+        );
+
         this.setState({
             banner: (
                 <div className="banner">
-                    <LazyImage alt="banner" src={backdrop} onLoad={this.onLoadBanner} imageWrapperRef={this.getImageWrapperRef}/>
+                    <LazyImage alt="banner" src={backdrop} onLoad={this.onLoadBanner} imageWrapperRef={this.getImageWrapperRef} loading={loading}/>
                     <div className="extras">
                         <p>{year}</p>
                         <FontAwesomeIcon icon="circle" style={{ color: accent.background }}/>
