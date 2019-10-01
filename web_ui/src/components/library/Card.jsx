@@ -16,7 +16,6 @@ class Card extends PureComponent {
         this.state = {
             hovering: false,
             timeout: false,
-            posterBlob: undefined,
             accentDone: false,
             accent: {
                 background: "#f7931e",
@@ -71,9 +70,15 @@ class Card extends PureComponent {
         const { accent } = this.state
         const { name, poster_path, id } = this.props.data;
 
+        const loading = (
+            <div className="placeholder">
+                <div className="spinner"></div>
+            </div>
+        );
+
         const cover = (
             poster_path && (
-                <LazyImage alt={"cover-" + name} src={poster_path} onLoad={this.onLoadPoster}/>
+                <LazyImage alt={"cover-" + name} src={poster_path} onLoad={this.onLoadPoster} loading={loading}/>
             )
         );
 
