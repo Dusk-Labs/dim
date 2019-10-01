@@ -5,6 +5,8 @@ import Modal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SidebarSearch from "../helpers/SidebarSearch.jsx";
 import SidebarIcon from "../helpers/SidebarIcon.jsx";
+import LazyImage from "../helpers/LazyImage.jsx";
+import ProfileIcon from "../assets/profile_icon.jpg";
 import "./Sidebar.scss";
 
 Modal.setAppElement("body");
@@ -56,7 +58,7 @@ class Sidebar extends Component {
     }
 
     async getProfile() {
-        // ! FOR WHEN API READY
+        // ! WHEN IS API READY
         // const reqProfile = fetch("http://86.21.150.167:8000/api/v1/");
         // const profile = await this.handle_req(reqProfile);
 
@@ -77,25 +79,29 @@ class Sidebar extends Component {
         // ! TEMP (REMOVE WHEN USING API)
         const profile = {
             username: "Lana Rhoades",
-            picture: "https://i.pinimg.com/564x/69/85/38/698538a169f06333ee09a532c91a49d8.jpg",
+            picture: ProfileIcon,
             spentWatching: 12
         };
         // !
 
         const { username, picture, spentWatching } = profile;
 
-        const prof = (
-            <div className="profile">
-                <img alt="icon" src={picture}></img>
-                <div className="info">
-                    <h4>{username}</h4>
-                    <h6>{spentWatching}h spent watching</h6>
-                </div>
-            </div>
+        const loading = (
+            <div className="default-icon"></div>
         );
 
         return this.setState({
-            profile: prof
+            profile: (
+                <div className="profile">
+                    <div className="profile-icon">
+                        <LazyImage alt="profile-icon" src={picture} loading={loading}/>
+                    </div>
+                    <div className="info">
+                        <h4>{username}</h4>
+                        <h6>{spentWatching}h spent watching</h6>
+                    </div>
+                </div>
+            )
         });
     }
 

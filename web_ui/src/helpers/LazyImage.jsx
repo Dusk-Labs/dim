@@ -6,14 +6,7 @@ class LazyImage extends Component {
         super(props);
 
         this.state = {
-            img: (
-                <div className="placeholder">
-                    <div className="empty">
-                        <FontAwesomeIcon icon="question-circle"/>
-                        <p>LOADING IMAGE</p>
-                    </div>
-                </div>
-            ),
+            img: this.props.loading
         }
     }
 
