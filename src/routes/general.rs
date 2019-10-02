@@ -4,7 +4,6 @@ use dim_database::genre::*;
 use dim_database::media::Media;
 use dim_database::media::MEDIA_ALL_COLUMNS;
 use dim_database::mediafile::MediaFile;
-use rand::Rng;
 use rocket::http::RawStr;
 use rocket::http::Status;
 use rocket_contrib::json::Json;
@@ -53,14 +52,18 @@ pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
     use dim_database::schema::media::dsl::*;
     use dim_database::schema::mediafile;
 
-    let top_rated = media
+    let mut top_rated = media
         .inner_join(mediafile::table)
         .filter(mediafile::corrupt.eq(false))
         .select(MEDIA_ALL_COLUMNS)
-        .group_by(id)
+        .group_by((id, name))
         .order(rating.desc())
         .load::<Media>(&*conn)
-        .unwrap()
+        .unwrap();
+
+    top_rated.dedup_by(|a, b| a.name.eq(&b.name));
+
+    let top_rated = top_rated
         .iter()
         .map(|x| construct_standard(&conn, x, None))
         .collect::<Vec<JsonValue>>();
@@ -69,7 +72,7 @@ pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
         .inner_join(mediafile::table)
         .filter(mediafile::corrupt.eq(false))
         .select(MEDIA_ALL_COLUMNS)
-        .group_by(id)
+        .group_by((id, name))
         .order(added.desc())
         .load::<Media>(&*conn)
         .unwrap()
@@ -90,8 +93,11 @@ pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
 #[get("/dashboard/banner")]
 pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
     use dim_database::schema::media::dsl::*;
+    use rand::distributions::{Distribution, Uniform};
     use dim_database::schema::mediafile;
     no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
+    let sampler = Uniform::new(0, 240);
+    let mut rng = rand::thread_rng();
     let results = media
         .inner_join(mediafile::table)
         .filter(mediafile::corrupt.eq(false))
@@ -123,7 +129,7 @@ pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
                 "backdrop": x.backdrop_path,
                 "duration": duration,
                 "genres": genres,
-                "delta": rand::thread_rng().gen_range(240, duration),
+                "delta": sampler.sample(&mut rng), 
                 "banner_caption": "WATCH SOMETHING FRESH"
             })
         })
