@@ -61,6 +61,7 @@
     "react-palette": "^1.0.1",
     "react-router-dom": "^5.1.1",
     "react-router-hash-link": "^1.2.2",
+    "react-scrollbars-custom": "^4.0.20",
     "resolve": "1.12.0",
     "semver": "6.3.0",
     "terser-webpack-plugin": "1.4.1",

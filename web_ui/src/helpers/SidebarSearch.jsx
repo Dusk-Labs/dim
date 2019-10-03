@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { HashLink } from 'react-router-hash-link';
 import { Link, withRouter } from "react-router-dom";
 
+import { Scrollbar } from "react-scrollbars-custom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./SidebarSearch.scss";
 
