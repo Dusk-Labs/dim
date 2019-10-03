@@ -1,0 +1,108 @@
+@mixin keyframes($name) {
+    @-webkit-keyframes #{$name} {
+        @content;
+    }
+
+    @-moz-keyframes #{$name} {
+        @content;
+    }
+
+    @keyframes #{$name} {
+        @content;
+    }
+}
+
+@mixin display($prop) {
+    @if $prop == flex {
+        display: -webkit-box;
+        display: -moz-box;
+        display: flex;
+    }
+}
+
+@mixin transition($prop) {
+    -webkit-transition: $prop;
+    -moz-transition: $prop;
+    transition: $prop;
+}
+
+@mixin animation($prop) {
+    -webkit-animation: $prop;
+    -moz-animation: $prop;
+    animation: $prop;
+}
+
+@mixin box-shadow($prop) {
+    -webkit-box-shadow: $prop;
+    -moz-box-shadow: $prop;
+    box-shadow: $prop;
+}
+
+@mixin mask-image($prop) {
+    -webkit-mask-image: $prop;
+    mask-image: $prop;
+}
+
+@mixin object-fit($prop) {
+    -o-object-fit: $prop;
+    object-fit: $prop;
+}
+
+@mixin box-sizing($prop) {
+    -webkit-box-sizing: $prop;
+    -moz-box-sizing: $prop;
+    box-sizing: $prop;
+}
+
+@mixin filter($prop) {
+    -webkit-filter: $prop;
+    filter: $prop;
+}
+
+/*
+    * == POSITIONING ==
+*/
+
+@mixin transform($prop) {
+    -webkit-transform: $prop;
+    -moz-transform: $prop;
+    transform: $prop;
+}
+
+@mixin justify-content($prop) {
+    -webkit-box-pack: $prop;
+    -moz-box-pack: $prop;
+    justify-content: $prop;
+
+    @if $prop == space-between {
+        -webkit-box-pack: justify;
+        -moz-box-pack: justify;
+    }
+
+    @if $prop == flex-start {
+        -webkit-box-pack: start;
+        -moz-box-pack: start;
+    }
+
+    @if $prop == flex-end {
+        -webkit-box-pack: end;
+        -moz-box-pack: end;
+    }
+}
+
+@mixin align-items($prop) {
+    -webkit-box-align: $prop;
+    -moz-box-align: $prop;
+    align-items: $prop;
+
+    @if $prop == flex-end {
+        -webkit-box-align: end;
+        -moz-box-align: end;
+    }
+}
+
+
+@mixin flex-direction($prop) {
+    -webkit-flex-direction: $prop;
+    flex-direction: $prop;
+}

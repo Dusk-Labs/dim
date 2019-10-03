@@ -1,42 +1,35 @@
+@import "../../mixins.scss";
+
 .banner-wrapper {
+    @include animation(bannerAppear 2.5s ease-in-out);
     position: relative;
-    -webkit-animation: bannerAppear 2.5s ease-in-out;
-            animation: bannerAppear 2.5s ease-in-out;
+    z-index: 0;
 
     .crumbs {
+        @include display(flex);
         position: absolute;
         top: 10%;
         right: 5%;
-        display: -webkit-box;
-        display: -moz-box;
-        display: -ms-flexbox;
-        display: flex;
         z-index: 1;
 
         // CRUMB
         > span {
+            @include transition(transition 0.3s ease-in-out);
+            @include box-shadow(2px 4px 3px rgba(0, 0, 0, 0.3));
             margin-left: 10px;
             height: 10px;
             width: 10px;
             border-radius: 50%;
             border: solid 3px #ffffff;
-            -webkit-transition: -webkit-transform 0.3s ease-in-out;
-            transition: -webkit-transform 0.3s ease-in-out;
-            transition: transform 0.3s ease-in-out;
-            transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
-            -webkit-box-shadow: 2px 4px 3px rgba(0, 0, 0, 0.3);
-                    box-shadow: 2px 4px 3px rgba(0, 0, 0, 0.3);
 
             &:hover {
+                @include transform(scale(1.1));
                 cursor: pointer;
-                -webkit-transform: scale(1.1);
-                        transform: scale(1.1);
             }
 
             &.active {
+                @include animation(crumbActive 0.5s ease-out);
                 background: #ffffff;
-                -webkit-animation: crumbActive 0.5s ease-out;
-                        animation: crumbActive 0.5s ease-out;
             }
         }
     }
@@ -55,24 +48,23 @@
 
         .hidden {
             opacity: 0;
+
             .banner {
-                -webkit-animation: onHideBanner 0.7s ease-in-out forwards;
-                        animation: onHideBanner 0.7s ease-in-out forwards;
+                @include animation(onHideBanner 0.7s ease-in-out forwards);
 
                 img {
-                    animation: onHideBannerImage 0.7s ease-in-out forwards;
+                    @include animation(onHideBannerImage 0.7s ease-in-out forwards);
                 }
             }
         }
 
         .active {
             .banner {
+                @include animation(onActiveBanner 0.7s ease-in-out forwards);
                 z-index: 1;
-                -webkit-animation: onActiveBanner 0.7s ease-in-out forwards;
-                        animation: onActiveBanner 0.7s ease-in-out forwards;
 
                 img {
-                    animation: onActiveBannerImage 0.7s ease-in-out forwards;
+                    @include animation(onActiveBannerImage 0.7s ease-in-out forwards);
                 }
             }
         }
@@ -84,34 +76,25 @@
     * == KEYFRAMES ==
 */
 
-@keyframes onActiveBannerImage {
+@include keyframes(onActiveBannerImage) {
     0% {
-        transform: scale(1.05);
+        @include transform(scale(1.05));
     }
     100% {
-        transform: scale(1);
+        @include transform(scale(1));
     }
 }
 
-@keyframes onHideBannerImage {
+@include keyframes(onHideBannerImage) {
     0% {
-        transform: scale(1);
+        @include transform(scale(1));
     }
     100% {
-        transform: scale(1.05);
+        @include transform(scale(1.05));
     }
 }
 
-@-webkit-keyframes bannerAppear {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-@keyframes bannerAppear {
+@include keyframes(bannerAppear) {
     0% {
         opacity: 0;
     }
@@ -120,7 +103,7 @@
     }
 }
 
-@-webkit-keyframes onHideBanner {
+@include keyframes(onHideBanner) {
     0% {
         opacity: 1;
     }
@@ -133,20 +116,7 @@
     }
 }
 
-@keyframes onHideBanner {
-    0% {
-        opacity: 1;
-    }
-    50% {
-        -webkit-filter: blur(3px);
-                filter: blur(3px);
-    }
-    100% {
-        opacity: 0;
-    }
-}
-
-@-webkit-keyframes onActiveBanner {
+@include keyframes(onActiveBanner) {
     0% {
         opacity: 0;
     }
@@ -155,42 +125,15 @@
     }
 }
 
-@keyframes onActiveBanner {
+@include keyframes(crumbActive) {
     0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-@-webkit-keyframes crumbActive {
-    0% {
-        -webkit-transform: scale(1);
-            transform: scale(1);
+        @include transform(scale(1));
     }
     50% {
-        -webkit-transform: scale(0.5);
-        transform: scale(0.6);
+        @include transform(scale(0.6));
     }
     100% {
-        -webkit-transform: scale(1);
-        transform: scale(1);
-    }
-}
-
-@keyframes crumbActive {
-    0% {
-        -webkit-transform: scale(1);
-            transform: scale(1);
-    }
-    50% {
-        -webkit-transform: scale(0.5);
-        transform: scale(0.6);
-    }
-    100% {
-        -webkit-transform: scale(1);
-        transform: scale(1);
+        @include transform(scale(1));
     }
 }
 
