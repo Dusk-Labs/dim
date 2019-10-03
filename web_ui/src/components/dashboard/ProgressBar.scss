@@ -1,3 +1,5 @@
+@import "../../mixins.scss";
+
 .banner-progress-bar {
     position: absolute;
     bottom: 0;
@@ -17,31 +19,16 @@
 
     // SEASON AND EPISODE
     .s-e {
+        @include display(flex);
+        @include justify-content(space-evenly);
+        @include align-items(center);
         margin: 0 auto;
         font-family: "Roboto Black";
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: -moz-box;
-        display: flex;
-        -webkit-box-pack: space-evenly;
-           -moz-box-pack: space-evenly;
-            -ms-flex-pack: space-evenly;
-                justify-content: space-evenly;
-        -webkit-box-align: center;
-            -ms-flex-align: center;
-                -moz-box-align: center;
-             align-items: center;
     }
 
     .progress {
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: -moz-box;
-        display: flex;
-        -webkit-box-align: center;
-            -ms-flex-align: center;
-                -moz-box-align: center;
-             align-items: center;
+        @include display(flex);
+        @include align-items(center);
 
         // CURRENT AND DURATION
         div {
@@ -61,13 +48,12 @@
         }
 
         .bar {
+            @include box-shadow(#000000 0 0 20px);
             margin: 0 10px;
             height: 4px;
             width: 175px;
             background: #ffffff;
             -webkit-appearance: none;
-            -webkit-box-shadow: #000000 0 0 20px;
-                    box-shadow: #000000 0 0 20px;
             border-radius: 4px;
             position: relative;
 
@@ -82,4 +68,14 @@
         }
     }
 
+}
+
+/*
+    * == MEDIA QUERIES ==
+*/
+
+@media only screen and (max-width: 651px) {
+    .banner-progress-bar {
+        display: none;
+    }
 }

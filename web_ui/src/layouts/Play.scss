@@ -1,3 +1,5 @@
+@import "../mixins.scss";
+
 .video-wrapper {
     background: black;
     position: relative;
@@ -12,6 +14,9 @@ video {
 }
 
 .overlay {
+    @include box-sizing(border-box);
+    @include align-items(flex-end);
+    @include transition(opacity 0.3s ease-in-out);
     position: absolute;
     background: radial-gradient(circle, transparent 50%, black 100%);
     top: 0;
@@ -19,14 +24,7 @@ video {
     width: 100%;
     padding: 50px;
     opacity: 0;
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-            box-sizing: border-box;
     display: grid;
-    -webkit-box-align: end;
-       -moz-box-align: end;
-        -ms-flex-align: end;
-            align-items: flex-end;
     grid-gap: 100px;
     grid-template-rows: 1fr;
     grid-template-columns: auto 1fr auto;
@@ -35,21 +33,16 @@ video {
         "middle-left middle middle-right"
         "bottom-left bottom bottom-right";
     pointer-events: none;
-    -webkit-transition: opacity 0.3s ease-in-out;
-    transition: opacity 0.3s ease-in-out;
 
     .cover {
         grid-area: bottom-left;
         text-align: center;
 
         img {
+            @include transition(transform 0.3s ease-in-out);
             height: 320px;
             width: 200px;
             will-change: transform;
-            -webkit-transition: -webkit-transform 0.3s ease-in-out;
-            transition: -webkit-transform 0.3s ease-in-out;
-            transition: transform 0.3s ease-in-out;
-            transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
             -o-object-fit: cover;
                object-fit: cover;
             border-radius: 10px;
@@ -63,25 +56,13 @@ video {
 
 
     .controls {
+        @include display(flex);
+        @include flex-direction(column);
+        @include align-items(center);
+        @include transition(opacity 0.3s ease-in-out);
         grid-area: bottom;
         pointer-events: all;
-        display: -webkit-box;
-        display: -moz-box;
-        display: -ms-flexbox;
-        display: flex;
-        -webkit-box-orient: vertical;
-        -webkit-box-direction: normal;
-           -moz-box-orient: vertical;
-           -moz-box-direction: normal;
-            -ms-flex-direction: column;
-                flex-direction: column;
-        -webkit-box-align: center;
-           -moz-box-align: center;
-            -ms-flex-align: center;
-                align-items: center;
         opacity: 1;
-        -webkit-transition: opacity 0.3s ease-in-out;
-        transition: opacity 0.3s ease-in-out;
 
         &:hover {
             opacity: 1;
@@ -92,18 +73,9 @@ video {
         }
 
         .upper {
-            display: -webkit-box;
-            display: -moz-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-pack: justify;
-               -moz-box-pack: justify;
-                -ms-flex-pack: justify;
-                    justify-content: space-between;
-            -webkit-box-align: end;
-               -moz-box-align: end;
-                -ms-flex-align: end;
-                    align-items: flex-end;
+            @include display(flex);
+            @include justify-content(space-between);
+            @include align-items(flex-end);
             width: 100%;
             font-family: "Roboto Condensed Bold";
 
@@ -119,31 +91,16 @@ video {
             // S1 . E1 + movie name
             .left {
                 .se-ep {
-                    display: -webkit-box;
-                    display: -moz-box;
-                    display: -ms-flexbox;
-                    display: flex;
-                    -webkit-box-align: center;
-                       -moz-box-align: center;
-                        -ms-flex-align: center;
-                            align-items: center;
+                    @include display(flex);
+                    @include align-items(center);
                 }
             }
 
             // video current time and duration
             .right {
-                display: -webkit-box;
-                display: -moz-box;
-                display: -ms-flexbox;
-                display: flex;
-                -webkit-box-align: center;
-                   -moz-box-align: center;
-                    -ms-flex-align: center;
-                        align-items: center;
-                -webkit-box-pack: space-evenly;
-                   -moz-box-pack: space-evenly;
-                    -ms-flex-pack: space-evenly;
-                        justify-content: space-evenly;
+                @include display(flex);
+                @include align-items(center);
+                @include justify-content(space-between);
             }
         }
 
@@ -170,13 +127,12 @@ video {
                 }
 
                 .video-progress-inner {
+                    @include transition(width 0.1s ease-in-out);
                     background: #f7931e;
                     border-radius: 10px;
                     height: 12px;
                     width: 0;
                     position: relative;
-                    -webkit-transition: width 0.1s ease-in-out;
-                    transition: width 0.1s ease-in-out;
                     pointer-events: none;
 
                     .video-progress-dragger {
@@ -197,14 +153,8 @@ video {
         }
 
         .lower {
-            display: -webkit-box;
-            display: -moz-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-pack: justify;
-               -moz-box-pack: justify;
-                -ms-flex-pack: justify;
-                    justify-content: space-between;
+            @include display(flex);
+            @include justify-content(space-between);
             width: 100%;
 
             svg {
@@ -219,14 +169,8 @@ video {
 
             // volume slider
             .left {
-                display: -webkit-box;
-                display: -moz-box;
-                display: -ms-flexbox;
-                display: flex;
-                -webkit-box-pack: start;
-                   -moz-box-pack: start;
-                    -ms-flex-pack: start;
-                        justify-content: flex-start;
+                @include display(flex);
+                @include justify-content(flex-start);
 
                 svg {
                     padding: 0 10px 0 0;
@@ -235,26 +179,14 @@ video {
 
             // video skip + play/pause
             .middle {
-                display: -webkit-box;
-                display: -moz-box;
-                display: -ms-flexbox;
-                display: flex;
-                -webkit-box-pack: center;
-                   -moz-box-pack: center;
-                    -ms-flex-pack: center;
-                        justify-content: center;
+                @include display(flex);
+                @include justify-content(center);
             }
 
             // fullscreen toggle
             .right {
-                display: -webkit-box;
-                display: -moz-box;
-                display: -ms-flexbox;
-                display: flex;
-                -webkit-box-pack: end;
-                   -moz-box-pack: end;
-                    -ms-flex-pack: end;
-                        justify-content: flex-end;
+                @include display(flex);
+                @include justify-content(flex-end);
 
                 svg {
                     padding: 0 0 0 10px;
