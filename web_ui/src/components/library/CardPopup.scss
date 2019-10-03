@@ -1,30 +1,24 @@
-.card-popup {
+@import "../../mixins.scss";
+
+%card-popup {
+    @include align-items(center);
+    @include box-sizing(border-box);
+    @include transition(width 0.3s ease-in-out);
+    @include animation(CardPopupAppear 0.5s ease-in-out);
     position: absolute;
     padding: 30px 0;
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-            box-sizing: border-box;
-    -ms-flex-line-pack: justify;
-        align-content: space-between;
+    align-content: space-between;
     top: -20px;
     height: 360px;
     width: 500px;
     background: transparent;
     pointer-events: none;
-    z-index: 1;
+    z-index: 2;
     display: grid;
-    -webkit-box-align: center;
-       -moz-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
     grid-template-areas:
         "header"
         "content";
     font-family: "Roboto Black";
-    -webkit-animation: CardPopupAppear 0.5s ease-in-out;
-            animation: CardPopupAppear 0.5s ease-in-out;
-    -webkit-transition: width 0.3s ease-in-out;
-    transition: width 0.3s ease-in-out;
 
     .clipped {
         position: absolute;
@@ -42,36 +36,23 @@
     }
 
     .header {
+        @include display(flex);
+        @include justify-content(space-between);
+        @include align-items(center);
+        @include box-shadow(0 0 30px 0 #00000055);
         padding: 10px 30px;
         -webkit-clip-path: unset;
         clip-path: unset;
         border-radius: 10px;
         background: #4d4d4d;
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: -moz-box;
-        display: flex;
-        -webkit-box-pack: justify;
-        -ms-flex-pack: justify;
-        -moz-box-pack: justify;
-             justify-content: space-between;
-        -webkit-box-align: center;
-        -ms-flex-align: center;
-        -moz-box-align: center;
-             align-items: center;
         width: 85%;
-        -webkit-box-shadow: 0 0 30px 0 #00000055;
-                box-shadow: 0 0 30px 0 #00000055;
     }
 
     .rating {
+        @include align-items(center);
         display: inline-grid;
         grid-template-columns: repeat(4, auto);
         grid-gap: 10px;
-        -webkit-box-align: center;
-            -ms-flex-align: center;
-                -moz-box-align: center;
-             align-items: center;
         color: #f2f2f2;
 
         img {
@@ -86,8 +67,7 @@
 
     .content {
         display: grid;
-        -ms-flex-line-pack: justify;
-            align-content: space-between;
+        align-content: space-between;
         grid-template-areas:
             "description"
             "info"
@@ -110,25 +90,13 @@
         }
 
         .info {
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: -moz-box;
-            display: flex;
-            -webkit-box-align: center;
-                -ms-flex-align: center;
-                    -moz-box-align: center;
-                 align-items: center;
-            -webkit-box-pack: justify;
-                -ms-flex-pack: justify;
-                    -moz-box-pack: justify;
-                 justify-content: space-between;
+            @include display(flex);
+            @include align-items(center);
+            @include justify-content(space-between);
             text-align: center;
 
             .tags {
-                display: -webkit-box;
-                display: -ms-flexbox;
-                display: -moz-box;
-                display: flex;
+                @include display(flex);
 
                 /* TAG */
                 p {
@@ -146,21 +114,15 @@
                 p:nth-child(1) {
                     width: 50px;
                 }
-
-                // GENRE
-                p:nth-child(2) {
-                    // width: 120px;
-                }
             }
 
             .options {
                 button {
+                    @include transition(background 0.3s ease-in-out);
                     background: transparent;
                     padding: 5px 10px;
                     border-radius: 10px;
                     color: #ffffff;
-                    -webkit-transition: background 0.3s ease-in-out;
-                    transition: background 0.3s ease-in-out;
 
                     &:hover {
                         background: #555555;
@@ -171,18 +133,9 @@
         }
 
         .footer {
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: -moz-box;
-            display: flex;
-            -webkit-box-align: center;
-                -ms-flex-align: center;
-                    -moz-box-align: center;
-                 align-items: center;
-            -webkit-box-pack: justify;
-                -ms-flex-pack: justify;
-                    -moz-box-pack: justify;
-                 justify-content: space-between;
+            @include display(flex);
+            @include align-items(center);
+            @include justify-content(space-between);
 
             // LENGTH + HINT
             p {
@@ -191,20 +144,14 @@
 
             // PLAY BUTTON
             a {
+                @include filter(saturate(0.7));
+                @include transition(filter 0.3s ease-in-out);
                 padding: 10px 30px;
-                -webkit-filter: saturate(0.7);
-                        filter: saturate(0.7);
                 background: #f7931e;
                 border-radius: 10px;
-                -webkit-transition: filter 0.3s ease-in-out;
-                -webkit-transition: -webkit-filter 0.3s ease-in-out;
-                transition: -webkit-filter 0.3s ease-in-out;
-                transition: filter 0.3s ease-in-out;
-                transition: filter 0.3s ease-in-out, -webkit-filter 0.3s ease-in-out;
 
                 &:hover {
-                    -webkit-filter: saturate(1);
-                            filter: saturate(1);
+                    @include filter(saturate(1));
                     cursor: pointer;
                 }
             }
@@ -238,18 +185,57 @@
     }
 }
 
+.card-popup-right {
+    @extend %card-popup;
+    left: 50%;
+    right: unset;
+
+    .clipped {
+        clip-path: polygon(10% 0, 100% 0, 100% 100%, 5% 100%);
+        border-radius: 0 10px 10px 0;
+    }
+
+    .header {
+        justify-self: end;
+        transform: translateX(-40px);
+    }
+
+    .content {
+        margin: 0 40px 0 70px;
+    }
+}
+
+.card-popup-left {
+    @extend %card-popup;
+    left: unset;
+    right: 50%;
+
+    .clipped {
+        clip-path: polygon(0 0, 90% 0, 95% 100%, 0 100%);
+        border-radius: 10px 0 0 10px;
+    }
+
+    .header {
+        justify-self: start;
+        transform: translateX(40px);
+    }
+
+    .content {
+        margin: 0 70px 0 40px;
+    }
+}
+
 /*
     * == KEYFRAMES ===
 */
 
-@-webkit-keyframes CardPopupAppear {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-}
-
-@keyframes CardPopupAppear {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+@include keyframes(CardPopupAppear) {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 /*
@@ -257,7 +243,7 @@
 */
 
 @media only screen and (max-width: 800px) {
-	.card-popup {
+	%card-popup {
         width: 210px !important;
 
         .header {
@@ -273,13 +259,10 @@
         }
 
         .content {
+            @include justify-content(end);
             margin: 0 40px 0 20px !important;
             padding: 0 !important;
             grid-gap: 10px;
-            -webkit-box-pack: end;
-               -moz-box-pack: end;
-                -ms-flex-pack: end;
-                    justify-content: end;
         }
 
         .options,
@@ -289,12 +272,7 @@
         }
 
         .tags {
-            -webkit-box-orient: vertical;
-            -webkit-box-direction: normal;
-               -moz-box-orient: vertical;
-               -moz-box-direction: normal;
-                -ms-flex-direction: column;
-                    flex-direction: column;
+            @include flex-direction(column);
 
             p {
                 margin: 2px 0 !important;
@@ -302,12 +280,7 @@
         }
 
         .footer {
-            -webkit-box-orient: vertical !important;
-            -webkit-box-direction: normal !important;
-               -moz-box-orient: vertical !important;
-               -moz-box-direction: normal !important;
-                -ms-flex-direction: column !important;
-                    flex-direction: column !important;
+            @include flex-direction(column !important);
 
             a {
                 margin-top: 10px !important;
