@@ -1,3 +1,5 @@
+@import "../mixins.scss";
+
 .search-box {
     position: relative;
     z-index: 1;
@@ -11,9 +13,7 @@
     height: 100%;
 
     .input {
-        -webkit-box-sizing: border-box;
-           -moz-box-sizing: border-box;
-                box-sizing: border-box;
+        @include box-sizing(border-box);
         background: #4d4d4d;
         outline: none;
         padding: 10px 20px;
@@ -26,6 +26,8 @@
     }
 
     #placeholder {
+        @include transform(translateY(-50%));
+        @include animation(PlaceholderAppear 0.2s ease-in-out);
         content: "SEARCH";
         top: 50%;
         left: 10%;
@@ -34,10 +36,6 @@
         font-family: "Roboto Black";
         pointer-events: none;
         font-size: 0.9em;
-        -webkit-transform: translateY(-50%);
-                transform: translateY(-50%);
-        -webkit-animation: PlaceholderAppear 0.2s ease-in-out;
-                animation: PlaceholderAppear 0.2s ease-in-out;
     }
 
     input::-webkit-input-placeholder {
@@ -48,44 +46,25 @@
         color: #8d8d8d8d;
     }
 
-    input:-ms-input-placeholder {
-        color: #8d8d8d8d;
-    }
-
-    input::-ms-input-placeholder {
-        color: #8d8d8d8d;
-    }
-
     input::placeholder {
         color: #8d8d8d8d;
     }
 
     a {
-        display: -webkit-box;
-        display: -moz-box;
-        display: -ms-flexbox;
-        display: flex;
-        -webkit-box-pack: center;
-           -moz-box-pack: center;
-            -ms-flex-pack: center;
-                justify-content: center;
-        -webkit-box-align: center;
-           -moz-box-align: center;
-            -ms-flex-align: center;
-                align-items: center;
+        @include display(flex);
+        @include justify-content(center);
+        @include align-items(center);
+        @include transform(translate(-50%, -50%));
+        @include transition(background 0.3s ease-in-out);
         position: absolute;
         top: 50%;
         right: 0;
-        -webkit-transform: translate(-50%, -50%);
-                transform: translate(-50%, -50%);
         height: 25px;
         width: 25px;
         border-radius: 30px;
         font-size: 0.7em;
         background: #666666;
         color: #ffffff;
-        -webkit-transition: background 0.3s ease-in-out;
-        transition: background 0.3s ease-in-out;
 
         &:hover {
             background: #999999;
@@ -95,18 +74,15 @@
 }
 
 .search-box-search-for {
+    @include box-sizing(border-box);
+    @include box-sizing(SidebarSearchForAppear 0.2s ease-in);
     position: absolute;
     width: 100%;
     top: 120%;
     padding: 20px 10px;
     border-radius: 10px;
     background: #4d4d4d;
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-            box-sizing: border-box;
     color: #8d8d8d;
-    -webkit-animation: SidebarSearchForAppear 0.2s ease-in-out;
-            animation: SidebarSearchForAppear 0.2s ease-in-out;
     font-size: 0.9em;
     font-family: "Roboto Condensed Bold";
 
@@ -129,26 +105,17 @@
 
     .results {
         .result-list {
-            display: -webkit-box;
-            display: -moz-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-orient: vertical;
-            -webkit-box-direction: normal;
-               -moz-box-orient: vertical;
-               -moz-box-direction: normal;
-                -ms-flex-direction: column;
-                    flex-direction: column;
+            @include display(flex);
+            @include flex-direction(column);
             max-height: 150px;
             overflow: scroll;
             padding: 0 5px;
         }
 
         a {
+            @include transition(background 0.3s ease-in-out);
             padding: 8px 5px;
             background: transparent;
-            -webkit-transition: background 0.3 ease-in-out;
-            transition: background 0.3 ease-in-out;
             border-radius: 10px;
 
             &:hover {
@@ -158,7 +125,11 @@
     }
 }
 
-@-webkit-keyframes SidebarSearchBoxAppear {
+/*
+    * == KEYFRAMES ==
+*/
+
+@include keyframes(SidebarSearchBoxAppear) {
     0% {
         opacity: 0;
         width: 0;
@@ -169,7 +140,7 @@
     }
 }
 
-@keyframes SidebarSearchBoxAppear {
+@include keyframes(SidebarSearchForAppear) {
     0% {
         opacity: 0;
         width: 0;
@@ -180,38 +151,7 @@
     }
 }
 
-@-webkit-keyframes SidebarSearchForAppear {
-    0% {
-        opacity: 0;
-        width: 0;
-    }
-    100% {
-        opacity: 1;
-        width: 100%;
-    }
-}
-
-@keyframes SidebarSearchForAppear {
-    0% {
-        opacity: 0;
-        width: 0;
-    }
-    100% {
-        opacity: 1;
-        width: 100%;
-    }
-}
-
-@-webkit-keyframes PlaceholderAppear {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-@keyframes PlaceholderAppear {
+@include keyframes(PlaceholderAppear) {
     0% {
         opacity: 0;
     }

@@ -1,20 +1,16 @@
+@import "../../mixins.scss";
+
 .banner {
     .image-wrapper {
         position: relative;
         overflow: hidden;
 
         img {
+            @include mask-image(linear-gradient(to bottom, #000000 50%, transparent 100%));
+            @include transition(object-position 0.3s ease-in-out);
+            @include object-fit(cover);
             height: 55vh;
             width: 100%;
-            -o-object-fit: cover;
-               object-fit: cover;
-            -webkit-mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(50%, black), to(transparent));
-            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-                    mask-image: -webkit-gradient(linear, left top, left bottom, color-stop(50%, black), to(transparent));
-                    mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-            -webkit-transition: object-position 0.3s ease-in-out;
-            transition: object-position 0.3s ease-in-out;
-            transition: object-position 0.3s ease-in-out, -o-object-position 0.3s ease-in-out;
         }
 
         // OVERLAY SIDE SHADOWS
@@ -24,26 +20,21 @@
             left: 0;
             height: 100%;
             width: 100%;
-            background: -webkit-gradient(linear, left top, right top, from(#1a1a1a), color-stop(60%, transparent)), -webkit-gradient(linear, right top, left top, from(#1a1a1a), color-stop(40%, transparent));
-            background: linear-gradient(90deg, #1a1a1a, transparent 60%), linear-gradient(-90deg, #1a1a1a, transparent 40%);
+            background:
+                linear-gradient(90deg, #1a1a1a, transparent 60%),
+                linear-gradient(-90deg, #1a1a1a, transparent 40%);
         }
     }
 
     // YEAR + GENRE
     .extras {
+        @include display(flex);
+        @include align-items(center);
         top: 10%;
         left: 5%;
         position: absolute;
-        display: -webkit-box;
-        display: -moz-box;
-        display: -ms-flexbox;
-        display: flex;
         -ms-flex-wrap: wrap;
             flex-wrap: wrap;
-        -webkit-box-align: center;
-           -moz-box-align: center;
-            -ms-flex-align: center;
-                align-items: center;
 
         // separator
         svg {
@@ -64,12 +55,11 @@
     }
 
     .info {
+        @include transform(translate(0, -30%));
         width: 450px;
         position: absolute;
         left: 5%;
         top: 50%;
-        -webkit-transform: translate(0, -30%);
-                transform: translate(0, -30%);
         text-shadow: 2px 4px 3px rgba(0, 0, 0, 0.3);
 
         h1 {
@@ -94,21 +84,16 @@
 
     // PLAY BUTTON
     a {
+        @include transition(filter 0.3s ease-in-out);
+        @include filter(saturate(0.7));
         display: inline-block;
         font-family: "Roboto Black";
         padding: 7px 30px;
         border-radius: 1vh;
-        -webkit-filter: saturate(0.7);
-                filter: saturate(0.7);
-        -webkit-transition: -webkit-filter 0.3s ease-in-out;
-        transition: -webkit-filter 0.3s ease-in-out;
-        transition: filter 0.3s ease-in-out;
-        transition: filter 0.3s ease-in-out, -webkit-filter 0.3s ease-in-out;
         text-shadow: none;
 
         &:hover {
-            -webkit-filter: saturate(1);
-                    filter: saturate(1);
+            @include filter(saturate(1));
         }
 
         // ICON
@@ -146,8 +131,9 @@
     .banner {
         // OVERLAY SIDE SHADOWS
         .image-wrapper::after {
-            background: -webkit-gradient(linear, left top, right top, from(#1a1a1a), color-stop(80%, transparent)), -webkit-gradient(linear, right top, left top, from(#1a1a1a), color-stop(80%, transparent));
-            background: linear-gradient(90deg, #1a1a1a, transparent 80%), linear-gradient(-90deg, #1a1a1a, transparent 80%);
+            background:
+                linear-gradient(90deg, #1a1a1a, transparent 80%),
+                linear-gradient(-90deg, #1a1a1a, transparent 80%);
         }
 
         .info {
