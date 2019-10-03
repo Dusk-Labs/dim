@@ -7,6 +7,7 @@ import SidebarSearch from "../helpers/SidebarSearch.jsx";
 import SidebarIcon from "../helpers/SidebarIcon.jsx";
 import LazyImage from "../helpers/LazyImage.jsx";
 import ProfileIcon from "../assets/profile_icon.jpg";
+import { Scrollbar } from "react-scrollbars-custom";
 import "./Sidebar.scss";
 
 Modal.setAppElement("body");
@@ -188,7 +189,9 @@ class Sidebar extends Component {
                         <h4>CONNECTED HOSTS</h4>
                     </header>
                     <div className="list">
+                        <Scrollbar>
                         {this.state.connectedHosts}
+                            </Scrollbar>
                     </div>
                 </section>
 
@@ -211,6 +214,7 @@ class Sidebar extends Component {
                         </Modal>
                     </header>
                     <div className="list">
+                        <Scrollbar>
                         <div className="item-wrapper">
                             <NavLink to="/" exact>
                                 <FontAwesomeIcon icon="home"/>
@@ -218,6 +222,7 @@ class Sidebar extends Component {
                             </NavLink>
                         </div>
                         {this.state.libraries}
+                    </Scrollbar>
                     </div>
                 </section>
 

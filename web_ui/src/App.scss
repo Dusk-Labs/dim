@@ -425,3 +425,11 @@ main {
         content: unset !important;
     }
 }
+
+.ScrollbarsCustom-TrackY {
+    width: 5px !important;
+
+    & > .ScrollbarsCustom-Thumb {
+        background: #f7931e none repeat scroll 0% 0% !important;
+    }
+}
