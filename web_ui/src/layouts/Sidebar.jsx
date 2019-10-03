@@ -190,8 +190,8 @@ class Sidebar extends Component {
                     </header>
                     <div className="list">
                         <Scrollbar>
-                        {this.state.connectedHosts}
-                            </Scrollbar>
+                            {this.state.connectedHosts}
+                        </Scrollbar>
                     </div>
                 </section>
 
@@ -215,14 +215,14 @@ class Sidebar extends Component {
                     </header>
                     <div className="list">
                         <Scrollbar>
-                        <div className="item-wrapper">
-                            <NavLink to="/" exact>
-                                <FontAwesomeIcon icon="home"/>
-                                <p>Dashboard</p>
-                            </NavLink>
-                        </div>
-                        {this.state.libraries}
-                    </Scrollbar>
+                            <div className="item-wrapper">
+                                <NavLink to="/" exact>
+                                    <FontAwesomeIcon icon="home"/>
+                                    <p>Dashboard</p>
+                                </NavLink>
+                            </div>
+                            {this.state.libraries}
+                        </Scrollbar>
                     </div>
                 </section>
 
