@@ -1,10 +1,11 @@
+@import "../../mixins.scss";
+
 .card-wrapper {
     position: relative;
 
     &:hover .card {
         .image-wrapper {
-            -webkit-box-shadow: white 0 0 50px -20px;
-                    box-shadow: white 0 0 50px -20px;
+            @include box-shadow(#ffffff 0 0 50px -20px);
         }
     }
 
@@ -15,20 +16,13 @@
         border-radius: 10px;
 
         .image-wrapper {
-            -webkit-transition: -webkit-box-shadow 0.3s ease-in-out;
-            transition: -webkit-box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out, -webkit-box-shadow 0.3s ease-in-out;
-            -webkit-animation: imageLoaded 1s ease-in-out;
-                    animation: imageLoaded 1s ease-in-out;
+            @include transition(box-shadow 0.3s ease-in-out);
+            @include animation(imageLoaded 1s ease-in-out);
         }
 
         img {
+            @include transition(transform 0.3s ease-in-out);
             will-change: transform;
-            -webkit-transition: -webkit-transform 0.3s ease-in-out;
-            transition: -webkit-transform 0.3s ease-in-out;
-            transition: transform 0.3s ease-in-out;
-            transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
             -o-object-fit: cover;
                object-fit: cover;
         }
@@ -40,11 +34,10 @@
         }
 
         p {
+            @include transition(opacity 0.3s ease-in-out);
             margin-top: 1vh;
             text-transform: uppercase;
             font-size: 0.8em;
-            -webkit-transition: opacity 0.3s ease-in-out;
-            transition: opacity 0.3s ease-in-out;
         }
     }
 }
@@ -53,7 +46,7 @@
     * == KEYFRAMES ==
 */
 
-@-webkit-keyframes imageLoaded {
+@include keyframes(imageLoaded) {
     0% {
         opacity: 0;
     }
@@ -62,41 +55,14 @@
     }
 }
 
-@keyframes imageLoaded {
+@include keyframes(cardGlow) {
     0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-@-webkit-keyframes cardGlow {
-    0% {
-        -webkit-box-shadow: white 0 0 50px;
-                box-shadow: white 0 0 50px;
+        @include box-shadow(#ffffff 0 0 50px);
     }
     50% {
-        -webkit-box-shadow: none;
-                box-shadow: none;
+        @include box-shadow(none);
     }
     100% {
-        -webkit-box-shadow: white 0 0 50px;
-                box-shadow: white 0 0 50px;
-    }
-}
-
-@keyframes cardGlow {
-    0% {
-        -webkit-box-shadow: white 0 0 50px;
-                box-shadow: white 0 0 50px;
-    }
-    50% {
-        -webkit-box-shadow: none;
-                box-shadow: none;
-    }
-    100% {
-        -webkit-box-shadow: white 0 0 50px;
-                box-shadow: white 0 0 50px;
+        @include box-shadow(#ffffff 0 0 50px);
     }
 }

@@ -1,14 +1,14 @@
+@import "../mixins.scss";
+
 .sidebar {
+    @include box-shadow(0 0 10px 5px #00000055);
+    @include transition(width 0.3s ease-in-out);
     min-height: 100vh;
     height: 100%;
     width: 300px;
     position: fixed;
     background: linear-gradient(315deg, #333333 0%, #363636 100%);
-    -webkit-box-shadow: 0 0 10px 5px #00000055;
-            box-shadow: 0 0 10px 5px #00000055;
-    z-index: 2;
-    -webkit-transition: width 0.3s ease-in-out;
-    transition: width 0.3s ease-in-out;
+    z-index: 1;
 
     &:hover {
         ::-webkit-scrollbar-thumb {
@@ -22,38 +22,24 @@
     }
 
     section {
-        -webkit-transition: all 0.3s ease-in-out;
-        transition: all 0.3s ease-in-out;
+        @include transition(color 0.3s ease-in-out);
         margin: 50px auto;
         width: 80%;
-        -webkit-transition: color 0.3s ease-in-out;
-        transition: color 0.3s ease-in-out;
 
         header {
+            @include display(flex);
+            @include align-items(center);
+            @include justify-content(space-between);
             margin-bottom: 10px;
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: -moz-box;
-            display: flex;
-            -webkit-box-align: center;
-                -ms-flex-align: center;
-                    -moz-box-align: center;
-                 align-items: center;
-            -webkit-box-pack: justify;
-                -ms-flex-pack: justify;
-                    -moz-box-pack: justify;
-                 justify-content: space-between;
 
             //  ADD BUTTON
             button {
+                @include transition(0.2s ease-in-out);
                 color: #ffffff;
                 opacity: 0;
                 padding: 2px 5px;
                 border-radius: 10px;
                 background: transparent;
-                -webkit-transition: 0.2s ease-in-out;
-                transition: 0.2s ease-in-out;
-                -webkit-transition-property: background, opacity;
                 transition-property: background, opacity;
 
                 &:hover {
@@ -76,17 +62,11 @@
         grid-gap: 15px;
 
         .profile {
+            @include justify-content(left);
+            @include align-items(center);
             display: grid;
             grid-gap: 10px;
             grid-template-columns: auto auto;
-            -webkit-box-pack: left;
-                -ms-flex-pack: left;
-                    -moz-box-pack: left;
-                 justify-content: left;
-            -webkit-box-align: center;
-                -ms-flex-align: center;
-                    -moz-box-align: center;
-                 align-items: center;
 
             .profile-icon {
                 margin: 0 auto;
@@ -98,8 +78,7 @@
             }
 
             img {
-                -webkit-animation: SidebarProfileIconLoad 0.5s ease-in;
-                        animation: SidebarProfileIconLoad 0.5s ease-in;
+                @include animation(SidebarProfileIconLoad 0.5s ease-in);
             }
 
             img, .default-icon {
@@ -158,50 +137,35 @@
         }
 
         .item-wrapper {
+            @include align-items(center);
             height: 40px;
             display: grid;
             grid-template-columns: auto 20px 1px;
             text-align: center;
             grid-gap: 15px;
-            -webkit-box-align: center;
-               -moz-box-align: center;
-                -ms-flex-align: center;
-                    align-items: center;
 
             // ITEM
             a:nth-child(1) {
+                @include align-items(center);
+                @include justify-content(left);
+                @include transition(0.1s ease-in-out);
                 overflow: hidden;
                 display: grid;
                 grid-gap: 10px;
                 grid-template-columns: 40px auto;
-                -webkit-box-align: center;
-                    -ms-flex-align: center;
-                        -moz-box-align: center;
-                     align-items: center;
-                -webkit-box-pack: left;
-                    -ms-flex-pack: left;
-                        -moz-box-pack: left;
-                     justify-content: left;
                 border-radius: 10px;
-                -webkit-transition: 0.1s ease-in-out;
-                transition: 0.1s ease-in-out;
-                -webkit-transition-property: padding, background, font-size, -webkit-transform;
-                transition-property: padding, background, font-size, -webkit-transform;
                 transition-property: padding, background, transform, font-size;
-                transition-property: padding, background, transform, font-size, -webkit-transform;
             }
 
             // DELETE BUTTON
             button {
+                @include transition(0.2s ease-in-out);
                 font-family: "Roboto Black";
                 opacity: 0;
                 padding: 2px 5px;
                 border-radius: 10px;
                 background: transparent;
                 color: #ff6961;
-                -webkit-transition: 0.2s ease-in-out;
-                transition: 0.2s ease-in-out;
-                -webkit-transition-property: background, opacity;
                 transition-property: background, opacity;
                 background: #222222;
 
@@ -234,53 +198,22 @@
     }
 }
 
-@-webkit-keyframes SidebarProfileIconLoad {
+/*
+    * == KEYFRAMES ==
+*/
+
+@include keyframes(SidebarProfileIconLoad) {
     0% {
         opacity: 0;
     }
     100% {
         opacity: 1;
     }
-    // 0% {
-    //     transform: scale(1, 1);
-    // }
-    // 10% {
-    //     transform: scale(1.1, 0.9);
-    // }
-    // 30% {
-    //     transform: scale(0.9, 1.1);
-    // }
-    // 50% {
-    //     transform: scale(1, 1);
-    // }
-    // 100% {
-    //     transform: scale(1, 1);
-    // }
 }
 
-@keyframes SidebarProfileIconLoad {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-    // 0% {
-    //     transform: scale(1, 1);
-    // }
-    // 10% {
-    //     transform: scale(1.1, 0.9);
-    // }
-    // 30% {
-    //     transform: scale(0.9, 1.1);
-    // }
-    // 50% {
-    //     transform: scale(1, 1);
-    // }
-    // 100% {
-    //     transform: scale(1, 1);
-    // }
-}
+/*
+    * == MEDIA QUERIES ==
+*/
 
 @media only screen and (max-width: 1080px) {
     main {
@@ -342,7 +275,6 @@
             p {
                 padding: 10px 0 0 0 !important;
             }
-
         }
     }
 }
