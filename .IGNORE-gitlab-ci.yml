@@ -12,7 +12,7 @@ test:
   script:
     - rustc --version
     - cargo --version
-    - cargo test --verbose
+#    - cargo test --verbose
 
 cache:
   paths:
