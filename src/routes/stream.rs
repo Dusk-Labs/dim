@@ -25,10 +25,9 @@ pub fn start_stream(conn: DbConnection, _id: i32) -> Result<JsonValue, Status> {
             Err(_) => return Err(Status::NotFound),
         };
 
-        Ok(json!({ "uuid": uuid }))
-    } else {
-        Err(Status::NotFound)
+        return Ok(json!({ "uuid": uuid }));
     }
+    Err(Status::NotFound)
 }
 
 #[get("/stream/static/<uuid>/<path..>")]
