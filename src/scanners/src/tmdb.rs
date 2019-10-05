@@ -99,7 +99,7 @@ cached! {
         let mut resp: SearchResult = match year {
             Some(y) => {
                 if let Ok(mut res) = reqwest::get(format!("https://api.themoviedb.org/3/search/{}?api_key={}&language=en-US&query={}&page=1&include_adult=false&year={}", sub_point, api_key, title, y).as_str()) {
-                    if res.status().is_client_error() {
+                    if res.status().as_u16() == 429u16 {
                         retry_after(res);
                         return paginated_search(api_key, title, year, tv);
                     }
@@ -110,7 +110,7 @@ cached! {
             },
             None => {
                 if let Ok(mut res) = reqwest::get(format!("https://api.themoviedb.org/3/search/{}?api_key={}&language=en-US&query={}&page=1&include_adult=false", sub_point, api_key, title).as_str()) {
-                    if res.status().is_client_error() {
+                    if res.status().as_u16() == 429u16 {
                         retry_after(res);
                         return paginated_search(api_key, title, year, tv);
                     }
@@ -124,7 +124,7 @@ cached! {
         if let Some(x) = resp.get_one() {
             let result: QueryResult = {
                 if let Ok(mut res) = reqwest::get(format!("https://api.themoviedb.org/3/{}/{}?api_key={}&language=en-US", sub_point, x.id, api_key).as_str()) {
-                    if res.status().is_client_error() {
+                    if res.status().as_u16() == 429u16 {
                         retry_after(res);
                         return paginated_search(api_key, title, year, tv);
                     }
