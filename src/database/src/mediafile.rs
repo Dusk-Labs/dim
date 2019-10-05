@@ -22,6 +22,14 @@ pub struct MediaFile {
     pub audio: Option<String>,
     pub original_resolution: Option<String>,
     pub duration: Option<i32>,
+
+    /***
+     * Options specific to tv show scanner hence Option<T>
+    ***/
+    pub episode: Option<i32>,
+    pub season: Option<i32>,
+    /*** ***/
+
     pub corrupt: Option<bool>,
 }
 
@@ -41,6 +49,14 @@ pub struct InsertableMediaFile {
     pub audio: Option<String>,
     pub original_resolution: Option<String>,
     pub duration: Option<i32>,
+
+    /***
+     * Options specific to tv show scanner hence Option<T>
+    ***/
+    pub episode: Option<i32>,
+    pub season: Option<i32>,
+    /*** ***/
+
     pub corrupt: Option<bool>,
 }
 
@@ -57,6 +73,14 @@ pub struct UpdateMediaFile {
     pub audio: Option<String>,
     pub original_resolution: Option<String>,
     pub duration: Option<i32>,
+
+    /***
+     * Options specific to tv show scanner hence Option<T>
+    ***/
+    pub episode: Option<i32>,
+    pub season: Option<i32>,
+    /*** ***/
+
     pub corrupt: Option<bool>,
 }
 

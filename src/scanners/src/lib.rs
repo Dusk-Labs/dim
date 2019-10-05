@@ -1,5 +1,7 @@
 #[macro_use]
 extern crate slog;
+#[macro_use]
+extern crate cached;
 
 extern crate clap;
 extern crate crossbeam_channel;
