@@ -1,0 +1,19 @@
+image: "rustlang/rust:nightly"
+
+services:
+    - postgres:latest
+
+variables:
+    POSTGRES_DB: dim 
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: "dimpostgres"
+
+before_script:
+    - apt-get update -yqq
+    - apt-get install -yqq --no-install-recommends build-essential
+
+# Use cargo to test the project
+test:cargo:
+    script:
+        - rustc --version && cargo --version  # Print version info for debugging
+        - cargo test --all --verbose
