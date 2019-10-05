@@ -1,13 +1,11 @@
 # Dark Powered media Manager written in rust
 
 ## Current Design
-![Design 1](./docs/design2.jpg?raw=true)
+![Design 1](./docs/design/design3.jpg?raw=true)
 
 ## Specification
-Dim (temporary name) is a media manager. It is able to automatically scan the filesystem for movies, tv shows and parse game libraries. These items are then automatically added to their specific libraries which can then be accessed through a native or a comfy web ui.
-To achieve this the application is split up into three main parts. It implements a micro-service type architecture. We have the front-end web-ui which is based on React.js, the backend server written in Rust utilizing the rocket web framework, diesel for the ORM and sqlite as the database, and lastly scanner scripts, these are scripts/programs which are called on server boot which scan the filesystem, parse metadata and fetch metadata for the media. So far only tv show and movie scanners are planned for implementation, with a steam library scanner coming later on.\
-
-The scanners are split into two modules or sections. The first is a daemon that reacts on changes to the filesystem for example scanner 1 will monitor the changes to dir1, when a new file is created in dir1 the daemon calls a procedure to scan that and identify the file. The second part is the metadata scanner. The job of the metadata scanner is to scan the file and reduce the metadata for it. For example one could parse the file name or check for the metadata in the file itself then it should append it to the database through the use of various REST api endpoints. It can also update the data in the database. For example if the file gets moved it can automatically update the pointer in the database. Furthermore the scanners can fetch info from the net too. The scanners must take in at least 3 arguments, --endpoint, --auth-token --path. Each correspond to one attribute, first is for the ip/domain of the endpoint, second is the auth-token used to authenticate the scanner and the last is the path it will keep track of.
+Dim is a media manager powered by the dark forces. It is able to automatically scan the filesystem for movies, tv shows and and other planned media types. These items are then automatically added to their specific libraries which can then be accessed through a native or a comfy web ui.
+To achieve this the application is split up into two parts. We have the front-end web-ui which is based on React.js, the backend server written in Rust utilizing the rocket web framework, diesel for the ORM and postgres as the database.
 
 ## Features
 - Scan and automatically add, filter and fix media on your device
