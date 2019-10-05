@@ -94,10 +94,7 @@ impl SearchResult {
 cached! {
     SEARCH;
     fn paginated_search(api_key: String, title: String, year: Option<i32>, tv: bool) -> Result<SearchResult, ()> = {
-        let sub_point = match tv {
-            true => "tv",
-            false => "movie",
-        };
+        let sub_point = if tv { "tv" } else { "movie" };
 
         let mut resp: SearchResult = match year {
             Some(y) => {
