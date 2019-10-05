@@ -1,7 +1,7 @@
 # Dark Powered media Manager written in rust
 
 ## Current Design
-![Design 1](./docs/design3.jpg?raw=true)
+![Design 1](./docs/design/design3.jpg?raw=true)
 
 ## Specification
 Dim is a media manager powered by the dark forces. It is able to automatically scan the filesystem for movies, tv shows and and other planned media types. These items are then automatically added to their specific libraries which can then be accessed through a native or a comfy web ui.
