@@ -103,6 +103,11 @@ cached! {
                         retry_after(res);
                         return paginated_search(api_key, title, year, tv);
                     }
+
+                    if res.status().as_u16() != 200u16 {
+                        return Err(())
+                    }
+
                     res.json().unwrap()
                 } else {
                     return Err(())
@@ -114,6 +119,11 @@ cached! {
                         retry_after(res);
                         return paginated_search(api_key, title, year, tv);
                     }
+
+                    if res.status().as_u16() != 200u16 {
+                        return Err(())
+                    }
+
                     res.json().unwrap()
                 } else {
                     return Err(())
@@ -128,6 +138,11 @@ cached! {
                         retry_after(res);
                         return paginated_search(api_key, title, year, tv);
                     }
+
+                    if res.status().as_u16() != 200u16 {
+                        return Err(())
+                    }
+
                     res.json().unwrap()
                 } else {
                     return Err(())
