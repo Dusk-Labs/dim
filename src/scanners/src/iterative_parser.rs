@@ -77,7 +77,7 @@ impl<'a> IterativeScanner {
         info!(self.log, "Scanning file: {}", &path);
 
         let ctx = FFProbeCtx::new(FFPROBE_BIN);
-        let metadata = Metadata::from(file.file_name().unwrap().to_str().unwrap());
+        let metadata = Metadata::from(file.file_name().unwrap().to_str().unwrap()).unwrap();
         let ffprobe_data = ctx.get_meta(&file).unwrap();
 
         let media_file = InsertableMediaFile {
