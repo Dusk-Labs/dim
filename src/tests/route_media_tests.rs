@@ -1,13 +1,12 @@
 #[cfg(test)]
 mod tests {
-    use crate::core::rocket;
+    use crate::core::rocket_pad;
     use crate::macros::DB_LOCK;
     use crate::tests::drop_all_data;
-    use crate::tests::post_media_test_template;
-    use rocket::http::ContentType;
     use rocket::http::Status;
     use rocket::local::Client;
 
+/*
     #[test]
     fn get_media_by_id() {
         run_test!(|client| {
@@ -31,13 +30,6 @@ mod tests {
 
             assert_eq!(resp.status(), Status::Ok);
             assert_eq!(resp.body_string().unwrap(), resp_content);
-        });
-    }
-
-    #[test]
-    fn post_media() {
-        run_test!(|client| {
-            post_media_test_template(&client, "unittest");
         });
     }
 
@@ -103,5 +95,5 @@ mod tests {
 
             assert_eq!(resp.status(), Status::UnprocessableEntity);
         });
-    }
+    } */
 }

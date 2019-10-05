@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use crate::core::rocket;
+    use crate::dim_database::get_conn;
+    use crate::core::rocket_pad;
     use crate::macros::DB_LOCK;
     use crate::tests::drop_all_data;
     use crate::tests::{
