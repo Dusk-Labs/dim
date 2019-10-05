@@ -1,8 +1,6 @@
 use diesel::prelude::*;
-use rocket::fairing::AdHoc;
 use rocket::http::Method;
 use rocket::Request;
-use rocket::Rocket;
 use rocket_contrib::json::JsonValue;
 use rocket_cors;
 use rocket_slog::SlogFairing;
@@ -47,14 +45,16 @@ fn unprocessable_entity() -> JsonValue {
     })
 }
 
-fn run_db_migrations(rocket: Rocket) -> std::result::Result<Rocket, Rocket> {
-    let conn = DbConnection::get_one(&rocket).expect("Database Connection Failed");
-    match embedded_migrations::run(&*conn) {
-        Ok(()) => Ok(rocket),
-        Err(e) => {
+fn run_db_migrations(log: Logger) {
+    slog::slog_info!(log, "Running database migrations");
+    if let Ok(conn) = dim_database::get_conn() {
+        if let Err(e) = embedded_migrations::run(&conn) {
             panic!("Failed to run database migrations: {:?}", e);
         }
+    } else {
+        panic!("Failed to get database connection");
     }
+    slog::slog_info!(log, "Database migrations ready");
 }
 
 lazy_static! {
@@ -85,7 +85,7 @@ fn start_event_server(_log: Logger) -> EventTx {
     server.get_tx()
 }
 
-pub fn launch() {
+pub(crate) fn rocket_pad() -> rocket::Rocket {
     let mut builder = TerminalLoggerBuilder::new();
     builder.level(Severity::Debug);
     builder.destination(Destination::Stdout);
@@ -93,6 +93,7 @@ pub fn launch() {
     let logger = builder.build().unwrap();
 
     let event_tx = start_event_server(logger.clone());
+    run_db_migrations(logger.clone());
     run_scanners(logger.clone(), event_tx.clone());
 
     let fairing = SlogFairing::new(logger);
@@ -114,10 +115,6 @@ pub fn launch() {
 
     rocket::ignite()
         .attach(DbConnection::fairing())
-        .attach(AdHoc::on_attach(
-            "Running Database Migrations",
-            run_db_migrations,
-        ))
         .attach(fairing)
         .register(catchers![
             service_not_found,
@@ -168,7 +165,10 @@ pub fn launch() {
         )
         .attach(cors)
         .manage(Arc::new(Mutex::new(event_tx)))
-        .launch();
+}
+
+pub fn launch() {
+    rocket_pad().launch();
 
     for (_, thread) in LIB_SCANNERS.lock().unwrap().drain().take(1) {
         thread.join().unwrap();

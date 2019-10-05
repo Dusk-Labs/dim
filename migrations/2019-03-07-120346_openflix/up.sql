@@ -86,6 +86,9 @@ CREATE TABLE mediafile (
     audio VARCHAR(255),
     original_resolution VARCHAR(255),
     duration INTEGER,
+    
+    episode INTEGER,
+    season INTEGER,
 
     corrupt BOOLEAN,
     PRIMARY KEY (id),
