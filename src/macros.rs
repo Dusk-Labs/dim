@@ -18,7 +18,7 @@ macro_rules! insert {
 macro_rules! run_test {
     (|$client:ident| $block:expr) => {{
         let _lock = DB_LOCK.lock();
-        let rocket = rocket();
+        let rocket = rocket_pad();
         let $client = Client::new(rocket).expect("Rocket client");
 
         $block
