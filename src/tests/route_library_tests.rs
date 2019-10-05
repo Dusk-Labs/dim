@@ -1,9 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use crate::core::rocket;
+    use crate::core::rocket_pad;
     use crate::macros::DB_LOCK;
     use crate::tests::drop_all_data;
-    use crate::tests::post_media_test_template;
     use rocket::http::ContentType;
     use rocket::http::Status;
     use rocket::local::Client;
@@ -116,23 +115,28 @@ mod tests {
     #[test]
     fn get_library_content() {
         run_test!(|client| {
-            // Create a temporary library with test data
-            post_media_test_template(&client, "unittest");
+            drop_all_data();
+            // Post some test data
+            let body = json!({
+                "name": "unittest",
+                "location": "/tmp/unittest",
+                "media_type": "unittest"
+            })
+            .to_string();
+            let resp = client
+                .post("/api/v1/library")
+                .body(body)
+                .header(ContentType::JSON)
+                .dispatch();
+            assert_eq!(resp.status(), Status::Created);
+
             let mut resp = client
                 .get("/api/v1/library/1/media") // assume id of 1 for library
                 .dispatch();
 
-            let resp_content = json!([{
-                "id": 1,
-                "library_id": 1,
-                "name": "unittest",
-                "description": null,
-                "rating": null,
-                "year": null,
-                "added": "unittest",
-                "poster_path": null,
-                "media_type": "unittest"
-            }])
+            let resp_content = json!({
+                "unittest": []
+            })
             .to_string();
             assert_eq!(resp.status(), Status::Ok);
             assert_eq!(resp.body_string().unwrap(), resp_content);
