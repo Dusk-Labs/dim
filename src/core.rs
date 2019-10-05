@@ -85,7 +85,7 @@ fn start_event_server(_log: Logger) -> EventTx {
     server.get_tx()
 }
 
-pub fn launch() {
+pub(crate) fn rocket_pad() -> rocket::Rocket {
     let mut builder = TerminalLoggerBuilder::new();
     builder.level(Severity::Debug);
     builder.destination(Destination::Stdout);
@@ -165,7 +165,10 @@ pub fn launch() {
         )
         .attach(cors)
         .manage(Arc::new(Mutex::new(event_tx)))
-        .launch();
+}
+
+pub fn launch() {
+    rocket_pad().launch();
 
     for (_, thread) in LIB_SCANNERS.lock().unwrap().drain().take(1) {
         thread.join().unwrap();
