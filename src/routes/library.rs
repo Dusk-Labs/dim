@@ -13,7 +13,11 @@ use std::sync::{Arc, Mutex};
 
 #[get("/")]
 pub fn library_get(conn: DbConnection, _log: SyncLogger) -> Json<Vec<Library>> {
-    Json(Library::get_all(&conn))
+    Json({
+        let mut x = Library::get_all(&conn);
+        x.sort_by(|a, b| a.name.cmp(&b.name));
+        x
+    })
 }
 
 #[post("/", format = "application/json", data = "<new_library>")]

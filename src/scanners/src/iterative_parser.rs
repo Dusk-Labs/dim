@@ -70,11 +70,11 @@ impl<'a> IterativeScanner {
     pub fn mount_file(&self, file: PathBuf) -> Result<(), diesel::result::Error> {
         let path = file.clone().into_os_string().into_string().unwrap();
 
-        info!(self.log, "Scanning file: {}", &path);
-
         if MediaFile::exists_by_file(&self.conn, &path) {
             return Ok(());
         }
+
+        info!(self.log, "Scanning file: {}", &path);
 
         let ctx = FFProbeCtx::new(FFPROBE_BIN);
         let metadata = Metadata::from(file.file_name().unwrap().to_str().unwrap());
@@ -94,6 +94,9 @@ impl<'a> IterativeScanner {
             original_resolution: ffprobe_data.get_res(),
             duration: ffprobe_data.get_duration(),
             corrupt: ffprobe_data.is_corrupt(),
+
+            season: metadata.season(),
+            episode: metadata.episode(),
         };
 
         if let Err(err) = media_file.insert(&self.conn) {
@@ -117,16 +120,21 @@ impl<'a> IterativeScanner {
 
         for orphan in &orphans {
             if orphan.media_id.is_none() {
+                let q_type = match self.lib.media_type.as_str() {
+                    "tv" => true,
+                    _ => false,
+                };
+
                 info!(self.log, "Scanning {} orphan", orphan.raw_name.clone());
-                if let Some(result) = tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year) {
+                if let Some(result) = tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year, q_type) {
                     self.match_media_to_tmdb(result, &orphan);
                 }
             }
         }
     }
 
-    fn match_media_to_tmdb(&self, result: crate::tmdb::MovieResult, orphan: &MediaFile) {
-        let year: Option<i32> = match result.release_date {
+    fn match_media_to_tmdb(&self, result: crate::tmdb::QueryResult, orphan: &MediaFile) {
+        let year: Option<i32> = match result.get_release_date() {
             Some(x) => Some(
                 NaiveDate::parse_from_str(x.as_str(), "%Y-%m-%d")
                     .unwrap()
@@ -136,13 +144,13 @@ impl<'a> IterativeScanner {
         };
 
         let media_id: i32;
-        if let Ok(media) = Media::get_by_name_and_lib(&self.conn, &self.lib, &result.title) {
+        if let Ok(media) = Media::get_by_name_and_lib(&self.conn, &self.lib, &result.get_title().unwrap()) {
             media_id = media.id;
         } else {
-            info!(self.log, "Inserting movie: {}", result.title);
+            info!(self.log, "Inserting movie: {}", result.get_title().unwrap());
             let media = InsertableMedia {
                 library_id: self.lib.id,
-                name: result.title,
+                name: result.get_title().unwrap(),
                 description: result.overview,
                 rating: match result.vote_average {
                     Some(d) => Some(d as i32),
@@ -161,7 +169,7 @@ impl<'a> IterativeScanner {
                     Some(path) => Some(format!("https://image.tmdb.org/t/p/original/{}", path)),
                     None => None,
                 },
-                media_type: String::from("movie"),
+                media_type: self.lib.media_type.clone(),
             };
 
             media_id = match media.insert(&self.conn) {
@@ -199,6 +207,8 @@ impl<'a> IterativeScanner {
             original_resolution: None,
             duration: None,
             corrupt: None,
+            episode: None,
+            season: None,
         };
 
         updated_mediafile.update(&self.conn, orphan.id).unwrap();
