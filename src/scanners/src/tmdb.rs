@@ -1,8 +1,11 @@
-extern crate reqwest;
-
 use crate::api::APIExec;
 use serde::Deserialize;
-use std::collections::VecDeque;
+use std::collections::{VecDeque, HashMap};
+use std::sync::{Mutex, Arc};
+
+lazy_static! {
+    static ref CACHE: Arc<Mutex<HashMap<(String, Option<i32>, bool), SearchResult>>> = Arc::new(Mutex::new(HashMap::new()));
+}
 
 #[derive(Clone, Debug)]
 pub struct TMDbSearch<'a> {
@@ -73,8 +76,60 @@ impl<'a> TMDbSearch<'a> {
         title: &str,
         year: Option<i32>,
         tv: bool,
-    ) -> Result<SearchResult, ()> {
-        paginated_search(String::from(self.api_key), String::from(title), year, tv)
+    ) -> Result<SearchResult, reqwest::Error> {
+        {
+            let cache = CACHE.lock().unwrap();
+            let key = (title.to_string(), year, tv);
+            if cache.contains_key(&key) {
+                return Ok(cache.get(&key).unwrap().clone())
+            }
+        }
+
+        let sub_point = if tv { "tv" } else { "movie" };
+
+        let mut resp: SearchResult = match year {
+            Some(y) => {
+                let mut res = reqwest::get(format!("https://api.themoviedb.org/3/search/{}?api_key={}&language=en-US&query={}&page=1&include_adult=false&year={}", sub_point, self.api_key, title, y).as_str())?;
+                if res.status().as_u16() == 429u16 {
+                    retry_after(res);
+                    return self.paginated_search(title, year, tv);
+                }
+
+                res.json()?
+            },
+            None => {
+                let mut res = reqwest::get(format!("https://api.themoviedb.org/3/search/{}?api_key={}&language=en-US&query={}&page=1&include_adult=false", sub_point, self.api_key, title).as_str())?;
+                if res.status().as_u16() == 429u16 {
+                    retry_after(res);
+                    return self.paginated_search(title, year, tv);
+                }
+
+                res.json()?
+            },
+        };
+
+        if let Some(x) = resp.get_one() {
+            let result: QueryResult = {
+                let mut res = reqwest::get(format!("https://api.themoviedb.org/3/{}/{}?api_key={}&language=en-US", sub_point, x.id, self.api_key).as_str())?;
+                if res.status().as_u16() == 429u16 {
+                    retry_after(res);
+                    return self.paginated_search(title, year, tv);
+                }
+
+                res.json()?
+            };
+
+            resp.put_one(result);
+        }
+
+        {
+            let mut cache = CACHE.lock().unwrap();
+            let key = (title.to_string(), year, tv);
+
+            cache.insert(key, resp.clone());
+        }
+
+        Ok(resp)
     }
 }
 
@@ -88,71 +143,6 @@ impl SearchResult {
 
     fn put_one(&mut self, item: QueryResult) {
         self.results.push_front(Some(item));
-    }
-}
-
-cached! {
-    SEARCH;
-    fn paginated_search(api_key: String, title: String, year: Option<i32>, tv: bool) -> Result<SearchResult, ()> = {
-        let sub_point = if tv { "tv" } else { "movie" };
-
-        let mut resp: SearchResult = match year {
-            Some(y) => {
-                if let Ok(mut res) = reqwest::get(format!("https://api.themoviedb.org/3/search/{}?api_key={}&language=en-US&query={}&page=1&include_adult=false&year={}", sub_point, api_key, title, y).as_str()) {
-                    if res.status().as_u16() == 429u16 {
-                        retry_after(res);
-                        return paginated_search(api_key, title, year, tv);
-                    }
-
-                    if res.status().as_u16() != 200u16 {
-                        return Err(())
-                    }
-
-                    res.json().unwrap()
-                } else {
-                    return Err(())
-                }
-            },
-            None => {
-                if let Ok(mut res) = reqwest::get(format!("https://api.themoviedb.org/3/search/{}?api_key={}&language=en-US&query={}&page=1&include_adult=false", sub_point, api_key, title).as_str()) {
-                    if res.status().as_u16() == 429u16 {
-                        retry_after(res);
-                        return paginated_search(api_key, title, year, tv);
-                    }
-
-                    if res.status().as_u16() != 200u16 {
-                        return Err(())
-                    }
-
-                    res.json().unwrap()
-                } else {
-                    return Err(())
-                }
-            },
-        };
-
-        if let Some(x) = resp.get_one() {
-            let result: QueryResult = {
-                if let Ok(mut res) = reqwest::get(format!("https://api.themoviedb.org/3/{}/{}?api_key={}&language=en-US", sub_point, x.id, api_key).as_str()) {
-                    if res.status().as_u16() == 429u16 {
-                        retry_after(res);
-                        return paginated_search(api_key, title, year, tv);
-                    }
-
-                    if res.status().as_u16() != 200u16 {
-                        return Err(())
-                    }
-
-                    res.json().unwrap()
-                } else {
-                    return Err(())
-                }
-            };
-
-            resp.put_one(result);
-        }
-
-        Ok(resp)
     }
 }
 

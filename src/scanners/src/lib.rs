@@ -1,9 +1,10 @@
 #[macro_use]
 extern crate slog;
 #[macro_use]
-extern crate cached;
+extern crate lazy_static;
 
 extern crate clap;
+extern crate reqwest;
 extern crate crossbeam_channel;
 extern crate diesel;
 extern crate notify;
