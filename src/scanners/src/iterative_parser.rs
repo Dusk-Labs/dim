@@ -77,7 +77,7 @@ impl<'a> IterativeScanner {
         info!(self.log, "Scanning file: {}", &path);
 
         let ctx = FFProbeCtx::new(FFPROBE_BIN);
-        let metadata = Metadata::from(file.file_name().unwrap().to_str().unwrap());
+        let metadata = Metadata::from(file.file_name().unwrap().to_str().unwrap()).unwrap();
         let ffprobe_data = ctx.get_meta(&file).unwrap();
 
         let media_file = InsertableMediaFile {
@@ -134,14 +134,12 @@ impl<'a> IterativeScanner {
     }
 
     fn match_media_to_tmdb(&self, result: crate::tmdb::QueryResult, orphan: &MediaFile) {
-        let year: Option<i32> = match result.get_release_date() {
-            Some(x) => Some(
-                NaiveDate::parse_from_str(x.as_str(), "%Y-%m-%d")
-                    .unwrap()
-                    .year() as i32,
-            ),
-            None => None,
-        };
+        let year: Option<i32> = result
+            .get_release_date()
+            .map(|x| NaiveDate::parse_from_str(x.as_str(), "%Y-%m-%d"))
+            .map(Result::ok)
+            .unwrap_or(None)
+            .map(|s| s.year() as i32);
 
         let media_id: i32;
         if let Ok(media) = Media::get_by_name_and_lib(&self.conn, &self.lib, &result.get_title().unwrap()) {
