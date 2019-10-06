@@ -15,6 +15,7 @@ use slog::Logger;
 use std::path::PathBuf;
 use torrent_name_parser::Metadata;
 use walkdir::WalkDir;
+use rayon::prelude::*;
 
 pub struct IterativeScanner {
     conn: PgConnection,
@@ -41,7 +42,7 @@ impl<'a> IterativeScanner {
             None => self.lib.location.as_str(),
         };
 
-        let files: Vec<PathBuf> = WalkDir::new(path)
+        let files: Vec<String> = WalkDir::new(path)
             .follow_links(true)
             .into_iter()
             .filter_map(|f| f.ok())
@@ -58,56 +59,19 @@ impl<'a> IterativeScanner {
                     None => false,
                 }
             })
-            .map(|f| f.into_path())
+            .map(|f| f.into_path().to_str().unwrap().to_owned())
             .collect::<Vec<_>>();
 
-        for file in files {
-            self.mount_file(file).unwrap();
-        }
+        let logger = self.log.clone();
+        let lib_id = self.lib.id;
+        files.par_iter()
+            .for_each(|x| mount_file(logger.clone(), x.clone(), lib_id).unwrap());
 
         self.fix_orphans();
     }
 
     pub fn mount_file(&self, file: PathBuf) -> Result<(), diesel::result::Error> {
-        let path = file.clone().into_os_string().into_string().unwrap();
-
-        if MediaFile::exists_by_file(&self.conn, &path) {
-            return Ok(());
-        }
-
-        info!(self.log, "Scanning file: {}", &path);
-
-        let ctx = FFProbeCtx::new(FFPROBE_BIN);
-        let metadata = Metadata::from(file.file_name().unwrap().to_str().unwrap()).unwrap();
-        let ffprobe_data = ctx.get_meta(&file).unwrap();
-
-        let media_file = InsertableMediaFile {
-            media_id: None,
-            library_id: self.lib.id,
-            target_file: path,
-
-            raw_name: metadata.title().to_owned(),
-            raw_year: metadata.year(),
-            quality: ffprobe_data.get_quality(),
-            codec: ffprobe_data.get_codec(),
-            container: ffprobe_data.get_container(),
-            audio: ffprobe_data.get_audio_type(),
-            original_resolution: ffprobe_data.get_res(),
-            duration: ffprobe_data.get_duration(),
-            corrupt: ffprobe_data.is_corrupt(),
-
-            season: metadata.season(),
-            episode: metadata.episode(),
-        };
-
-        if let Err(err) = media_file.insert(&self.conn) {
-            error!(
-                self.log,
-                "Failed to insert media_file {} {:?}", err, media_file
-            );
-        }
-
-        Ok(())
+        mount_file(self.log.clone(), file.to_str().unwrap().to_owned(), self.lib.id)
     }
 
     pub fn fix_orphans(&self) {
@@ -216,4 +180,48 @@ impl<'a> IterativeScanner {
         let new_event = Event::new(&format!("/events/library/{}", self.lib.id), event_msg);
         let _ = self.event_tx.send(new_event);
     }
+}
+
+pub fn mount_file(log: Logger, file: String, lib_id: i32) -> Result<(), diesel::result::Error> {
+    let file = std::path::PathBuf::from(file);
+    let conn = get_conn().unwrap();
+    let path = file.clone().into_os_string().into_string().unwrap();
+
+    if MediaFile::exists_by_file(&conn, &path) {
+        return Ok(());
+    }
+
+    info!(log, "Scanning file: {}", &path);
+
+    let ctx = FFProbeCtx::new(FFPROBE_BIN);
+    let metadata = Metadata::from(file.file_name().unwrap().to_str().unwrap()).unwrap();
+    let ffprobe_data = ctx.get_meta(&file).unwrap();
+
+    let media_file = InsertableMediaFile {
+        media_id: None,
+        library_id: lib_id,
+        target_file: path,
+
+        raw_name: metadata.title().to_owned(),
+        raw_year: metadata.year(),
+        quality: ffprobe_data.get_quality(),
+        codec: ffprobe_data.get_codec(),
+        container: ffprobe_data.get_container(),
+        audio: ffprobe_data.get_audio_type(),
+        original_resolution: ffprobe_data.get_res(),
+        duration: ffprobe_data.get_duration(),
+        corrupt: ffprobe_data.is_corrupt(),
+
+        season: metadata.season(),
+        episode: metadata.episode(),
+    };
+
+    if let Err(err) = media_file.insert(&conn) {
+        error!(
+            log,
+            "Failed to insert media_file {} {:?}", err, media_file
+            );
+    }
+
+    Ok(())
 }

@@ -11,6 +11,7 @@ extern crate diesel;
 extern crate notify;
 extern crate rocket_slog;
 extern crate torrent_name_parser;
+extern crate rayon;
 
 use dim_database::get_conn;
 use slog::Logger;
