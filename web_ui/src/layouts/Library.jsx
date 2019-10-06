@@ -59,7 +59,7 @@ class Library extends Component {
         const req = fetch(this.props.path);
         const payload = await this.handle_req(req);
 
-        if (payload.err) {
+        if (payload.err || payload.error) {
             return this.setState({
                 cards: (
                     <div className="empty">
