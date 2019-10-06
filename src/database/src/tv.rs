@@ -42,9 +42,7 @@ impl TVShow {
 
 impl StaticTrait for InsertableTVShow {
     fn new(id: i32) -> Self {
-        Self {
-            id
-        }
+        Self { id }
     }
 
     fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {

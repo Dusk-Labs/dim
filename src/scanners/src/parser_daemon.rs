@@ -62,7 +62,9 @@ impl ParserDaemon {
 
     fn handle_create(&self, paths: Vec<PathBuf>) {
         for path in paths {
-            let parser = IterativeScanner::new(self.lib.id, self.log.clone(), self.event_tx.clone()).unwrap();
+            let parser =
+                IterativeScanner::new(self.lib.id, self.log.clone(), self.event_tx.clone())
+                    .unwrap();
 
             debug!(self.log, "Received handle_create event type: {:?}", path);
 

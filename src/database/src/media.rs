@@ -1,7 +1,7 @@
 use crate::library::Library;
 use crate::schema::media;
-use crate::streamablemedia::StreamableTrait;
 use crate::streamablemedia::InsertableStreamableMedia;
+use crate::streamablemedia::StreamableTrait;
 use crate::tv::StaticTrait;
 use diesel::prelude::*;
 
@@ -136,7 +136,6 @@ impl Media {
         let result = diesel::delete(media.filter(id.eq(id_to_del))).execute(conn)?;
         Ok(result)
     }
-
 }
 
 impl InsertableMedia {
@@ -155,16 +154,23 @@ impl InsertableMedia {
         Ok(result)
     }
 
-    pub fn into_streamable<T: StreamableTrait>(&self, conn: &diesel::PgConnection, manual_t: Option<()>) -> Result<i32, diesel::result::Error> {
+    pub fn into_streamable<T: StreamableTrait>(
+        &self,
+        conn: &diesel::PgConnection,
+        manual_t: Option<()>,
+    ) -> Result<i32, diesel::result::Error> {
         let id = self.insert(conn).unwrap();
         let _ = InsertableStreamableMedia::insert(id, conn)?;
         match manual_t {
-            Some(_) => { Ok(id) },
+            Some(_) => Ok(id),
             None => T::new(id).insert(conn),
         }
     }
 
-    pub fn into_static<T: StaticTrait>(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
+    pub fn into_static<T: StaticTrait>(
+        &self,
+        conn: &diesel::PgConnection,
+    ) -> Result<i32, diesel::result::Error> {
         let id = self.insert(conn).unwrap();
         T::new(id).insert(conn)
     }

@@ -5,12 +5,12 @@ use rocket::local::Client;
 pub fn drop_all_data() {
     use crate::dim_database::get_conn;
     use crate::dim_database::schema::episode;
+    use crate::dim_database::schema::genre;
     use crate::dim_database::schema::library;
     use crate::dim_database::schema::media;
+    use crate::dim_database::schema::mediafile;
     use crate::dim_database::schema::season;
     use crate::dim_database::schema::tv_show;
-    use crate::dim_database::schema::genre;
-    use crate::dim_database::schema::mediafile;
     use diesel::prelude::*;
     use diesel::sql_query;
 
@@ -24,8 +24,7 @@ pub fn drop_all_data() {
     diesel::delete(genre::table).execute(&conn).unwrap();
     diesel::delete(mediafile::table).execute(&conn).unwrap();
 
-    let _ = sql_query("ALTER SEQUENCE library_id_seq RESTART WITH 1")
-        .execute(&conn);
+    let _ = sql_query("ALTER SEQUENCE library_id_seq RESTART WITH 1").execute(&conn);
 }
 
 pub mod route_library_tests;

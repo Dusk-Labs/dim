@@ -5,13 +5,13 @@ extern crate slog;
 extern crate lazy_static;
 
 extern crate clap;
-extern crate reqwest;
 extern crate crossbeam_channel;
 extern crate diesel;
 extern crate notify;
+extern crate rayon;
+extern crate reqwest;
 extern crate rocket_slog;
 extern crate torrent_name_parser;
-extern crate rayon;
 
 use dim_database::get_conn;
 use slog::Logger;
