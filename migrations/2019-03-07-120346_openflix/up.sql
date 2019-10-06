@@ -93,8 +93,8 @@ CREATE TABLE mediafile (
     corrupt BOOLEAN,
     PRIMARY KEY (id),
 --  For now we directly link to media instead of a intermediary, NOTE: FIXME
---    FOREIGN KEY(media_id) REFERENCES streamable_media (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(media_id) REFERENCES streamable_media (id) ON DELETE CASCADE ON UPDATE CASCADE,
+--    FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(library_id) REFERENCES library(id) ON DELETE CASCADE
 );
 

@@ -16,6 +16,8 @@ pub mod mediafile;
 pub mod schema;
 pub mod season;
 pub mod tv;
+pub mod streamablemedia;
+pub mod movie;
 
 pub fn get_conn() -> Result<diesel::PgConnection, diesel::result::ConnectionError> {
     use diesel::connection::Connection;
