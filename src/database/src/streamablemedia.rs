@@ -20,22 +20,6 @@ pub struct InsertableStreamableMedia {
     pub id: i32,
 }
 
-/*
-impl<T> StreamableMedia {
-    pub fn insert_as_streamable(conn: &PgConnection, media: T) -> impl StreamableTrait {
-        let media = media.insert().unwrap();
-
-        let new_self = StreamableMedia {
-            id: media.id,
-        };
-
-        diesel::insert(new_self)
-            .execute(conn);
-
-        media
-    }
-}*/
-
 impl InsertableStreamableMedia {
     pub(crate) fn insert(id: i32, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
         diesel::insert_into(streamable_media::table)

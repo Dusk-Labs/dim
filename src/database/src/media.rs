@@ -2,7 +2,10 @@ use crate::library::Library;
 use crate::schema::media;
 use crate::streamablemedia::StreamableTrait;
 use crate::streamablemedia::InsertableStreamableMedia;
+use crate::tv::StaticTrait;
 use diesel::prelude::*;
+
+pub trait MediaTrait {}
 
 #[derive(Clone, Identifiable, Queryable, Serialize, Deserialize, Debug, Associations)]
 #[belongs_to(Library, foreign_key = "library_id")]
@@ -54,7 +57,7 @@ pub const MEDIA_ALL_COLUMNS: MediaAllColumns = (
     media::media_type,
 );
 
-#[derive(Insertable, Serialize, Deserialize, Debug)]
+#[derive(Default, Insertable, Serialize, Deserialize, Debug)]
 #[table_name = "media"]
 pub struct InsertableMedia {
     pub library_id: i32,
@@ -88,6 +91,7 @@ impl Media {
         library: Library,
     ) -> Result<Vec<Self>, diesel::result::Error> {
         let result = Self::belonging_to(&library)
+            .filter(media::media_type.ne("episode"))
             .select(MEDIA_ALL_COLUMNS)
             .load::<Self>(conn)?;
         Ok(result)
@@ -138,7 +142,6 @@ impl Media {
 impl InsertableMedia {
     pub fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
         use crate::schema::library::dsl::*;
-        use crate::tv::InsertableTVShow;
 
         library
             .filter(id.eq(self.library_id))
@@ -149,16 +152,20 @@ impl InsertableMedia {
             .returning(media::id)
             .get_result(conn)?;
 
-        if self.media_type.as_str() == "tv" {
-            InsertableTVShow { id: result }.insert(conn)?;
-        }
-
         Ok(result)
     }
 
-    pub fn into_streamable<T: StreamableTrait>(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
+    pub fn into_streamable<T: StreamableTrait>(&self, conn: &diesel::PgConnection, manual_t: Option<()>) -> Result<i32, diesel::result::Error> {
         let id = self.insert(conn).unwrap();
         let _ = InsertableStreamableMedia::insert(id, conn)?;
+        match manual_t {
+            Some(_) => { Ok(id) },
+            None => T::new(id).insert(conn),
+        }
+    }
+
+    pub fn into_static<T: StaticTrait>(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
+        let id = self.insert(conn).unwrap();
         T::new(id).insert(conn)
     }
 }

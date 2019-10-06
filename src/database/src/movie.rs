@@ -1,5 +1,6 @@
 use crate::streamablemedia::{StreamableTrait, StreamableMedia};
 use crate::schema::movie;
+use crate::media::MediaTrait;
 use diesel::prelude::*;
 
 #[derive(Clone, Identifiable, Queryable, Associations)]
@@ -29,3 +30,5 @@ impl StreamableTrait for InsertableMovie {
             .get_result(conn)
     }
 }
+
+impl MediaTrait for InsertableMovie {}

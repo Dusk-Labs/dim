@@ -49,17 +49,13 @@ pub fn construct_standard(conn: &DbConnection, data: &Media, quick: Option<bool>
 
 #[get("/dashboard")]
 pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
-    use dim_database::schema::media::dsl::*;
-    use dim_database::schema::mediafile;
-    use dim_database::schema::streamable_media;
+    use dim_database::schema::media;
 
-    let mut top_rated = media
-        .inner_join(streamable_media::table
-                    .inner_join(mediafile::table))
-        .filter(mediafile::corrupt.eq(false))
+    let mut top_rated = media::table
+        .filter(media::media_type.ne("episode"))
         .select(MEDIA_ALL_COLUMNS)
-        .group_by((id, name))
-        .order(rating.desc())
+        .group_by((media::id, media::name))
+        .order(media::rating.desc())
         .load::<Media>(&*conn)
         .unwrap();
 
@@ -70,13 +66,11 @@ pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
         .map(|x| construct_standard(&conn, x, None))
         .collect::<Vec<JsonValue>>();
 
-    let recently_added = media
-        .inner_join(streamable_media::table
-                    .inner_join(mediafile::table))
-        .filter(mediafile::corrupt.eq(false))
+    let recently_added = media::table
+        .filter(media::media_type.ne("episode"))
         .select(MEDIA_ALL_COLUMNS)
-        .group_by((id, name))
-        .order(added.desc())
+        .group_by((media::id, media::name))
+        .order(media::added.desc())
         .load::<Media>(&*conn)
         .unwrap()
         .iter()
@@ -95,21 +89,17 @@ pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
 
 #[get("/dashboard/banner")]
 pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
-    use dim_database::schema::media::dsl::*;
-    use dim_database::schema::mediafile;
-    use dim_database::schema::streamable_media;
+    use dim_database::schema::media;
     use rand::distributions::{Distribution, Uniform};
 
     no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
 
     let sampler = Uniform::new(0, 240);
     let mut rng = rand::thread_rng();
-    let results = media
-        .inner_join(streamable_media::table
-                    .inner_join(mediafile::table))
-        .filter(mediafile::corrupt.eq(false))
+    let results = media::table
+        .filter(media::media_type.ne("episode"))
         .select(MEDIA_ALL_COLUMNS)
-        .group_by(id)
+        .group_by(media::id)
         .order(RANDOM)
         .limit(3)
         .load::<Media>(&*conn)
@@ -180,6 +170,8 @@ pub fn search(
     use dim_database::schema::media;
 
     let mut result = media::table.select(MEDIA_ALL_COLUMNS).into_boxed();
+
+    result = result.filter(media::media_type.ne("episode"));
 
     if let Some(query_string) = query {
         let query_string = query_string
