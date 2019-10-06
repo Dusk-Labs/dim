@@ -51,9 +51,11 @@ pub fn construct_standard(conn: &DbConnection, data: &Media, quick: Option<bool>
 pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
     use dim_database::schema::media::dsl::*;
     use dim_database::schema::mediafile;
+    use dim_database::schema::streamable_media;
 
     let mut top_rated = media
-        .inner_join(mediafile::table)
+        .inner_join(streamable_media::table
+                    .inner_join(mediafile::table))
         .filter(mediafile::corrupt.eq(false))
         .select(MEDIA_ALL_COLUMNS)
         .group_by((id, name))
@@ -69,7 +71,8 @@ pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
         .collect::<Vec<JsonValue>>();
 
     let recently_added = media
-        .inner_join(mediafile::table)
+        .inner_join(streamable_media::table
+                    .inner_join(mediafile::table))
         .filter(mediafile::corrupt.eq(false))
         .select(MEDIA_ALL_COLUMNS)
         .group_by((id, name))
@@ -93,13 +96,17 @@ pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
 #[get("/dashboard/banner")]
 pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
     use dim_database::schema::media::dsl::*;
-    use rand::distributions::{Distribution, Uniform};
     use dim_database::schema::mediafile;
+    use dim_database::schema::streamable_media;
+    use rand::distributions::{Distribution, Uniform};
+
     no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
+
     let sampler = Uniform::new(0, 240);
     let mut rng = rand::thread_rng();
     let results = media
-        .inner_join(mediafile::table)
+        .inner_join(streamable_media::table
+                    .inner_join(mediafile::table))
         .filter(mediafile::corrupt.eq(false))
         .select(MEDIA_ALL_COLUMNS)
         .group_by(id)

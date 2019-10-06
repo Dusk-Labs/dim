@@ -1,11 +1,12 @@
 use crate::library::Library;
+use crate::streamablemedia::StreamableMedia;
 use crate::media::Media;
 use crate::schema::mediafile;
 use diesel::prelude::*;
 
 #[derive(Identifiable, Queryable, Serialize, Deserialize, PartialEq, Debug, Associations)]
 #[belongs_to(Library, foreign_key = "library_id")]
-#[belongs_to(Media, foreign_key = "media_id")]
+#[belongs_to(StreamableMedia, foreign_key = "media_id")]
 #[table_name = "mediafile"]
 pub struct MediaFile {
     pub id: i32,
@@ -96,7 +97,10 @@ impl MediaFile {
         conn: &diesel::PgConnection,
         media: &Media,
     ) -> Result<Self, diesel::result::Error> {
-        let result = Self::belonging_to(media)
+        let streamable_media = StreamableMedia::belonging_to(media)
+            .first::<StreamableMedia>(conn)?;
+
+        let result = Self::belonging_to(&streamable_media)
             .filter(mediafile::corrupt.eq(false))
             .first::<Self>(conn)?;
 
