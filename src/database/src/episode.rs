@@ -1,8 +1,10 @@
 use crate::media::InsertableMedia;
 use crate::media::UpdateMedia;
 use crate::media::{Media, MEDIA_ALL_COLUMNS};
+use crate::movie::InsertableMovie;
 use crate::schema::episode;
 use crate::season::Season;
+use crate::streamablemedia::StreamableMedia;
 use crate::tv::TVShow;
 use diesel::prelude::*;
 
@@ -18,7 +20,7 @@ pub struct Episode {
 }
 
 #[derive(Identifiable, Associations, Queryable, PartialEq, Debug)]
-#[belongs_to(Media, foreign_key = "id")]
+#[belongs_to(StreamableMedia, foreign_key = "id")]
 #[belongs_to(Season, foreign_key = "seasonid")]
 #[table_name = "episode"]
 pub struct EpisodeWrapper {
@@ -116,7 +118,7 @@ impl InsertableEpisode {
         conn: &diesel::PgConnection,
         id: i32,
         season_num: i32,
-    ) -> Result<(), diesel::result::Error> {
+    ) -> Result<i32, diesel::result::Error> {
         use crate::schema::season;
         use crate::schema::tv_show;
 
@@ -126,18 +128,20 @@ impl InsertableEpisode {
             .filter(season::dsl::season_number.eq(season_num))
             .first::<Season>(conn)?;
 
-        let media_id = self.media.insert(conn)?;
+        let media_id = self
+            .media
+            .into_streamable::<InsertableMovie>(conn, Some(()))?; // we use InsertableMovie with Some as it doesnt matter
 
         let episode: InsertableEpisodeWrapper = self.into();
 
-        let _ = diesel::insert_into(episode::table)
+        diesel::insert_into(episode::table)
             .values((
                 episode::dsl::id.eq(media_id),
                 episode,
                 episode::dsl::seasonid.eq(season.id),
             ))
-            .execute(conn)?;
-        Ok(())
+            .returning(episode::id)
+            .get_result(conn)
     }
 
     fn into(&self) -> InsertableEpisodeWrapper {

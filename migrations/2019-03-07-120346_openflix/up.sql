@@ -54,7 +54,7 @@ CREATE TABLE tv_show (
 
 CREATE TABLE season (
     id SERIAL,
-    season_number INTEGER UNIQUE NOT NULL,
+    season_number INTEGER NOT NULL,
     tvshowid INTEGER NOT NULL,
     added TEXT,
     poster TEXT,
@@ -67,7 +67,7 @@ CREATE TABLE episode (
     seasonid INTEGER NOT NULL,
     episode_ INTEGER NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY(id) REFERENCES streamable_media (id),
+    FOREIGN KEY(id) REFERENCES streamable_media (id) ON DELETE CASCADE,
     FOREIGN KEY(seasonid) REFERENCES season (id) ON DELETE CASCADE
 );
 
@@ -93,8 +93,8 @@ CREATE TABLE mediafile (
     corrupt BOOLEAN,
     PRIMARY KEY (id),
 --  For now we directly link to media instead of a intermediary, NOTE: FIXME
---    FOREIGN KEY(media_id) REFERENCES streamable_media (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(media_id) REFERENCES streamable_media (id) ON DELETE CASCADE ON UPDATE CASCADE,
+--    FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(library_id) REFERENCES library(id) ON DELETE CASCADE
 );
 
