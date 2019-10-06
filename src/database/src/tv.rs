@@ -2,6 +2,11 @@ use crate::media::*;
 use crate::schema::tv_show;
 use diesel::prelude::*;
 
+pub trait StaticTrait {
+    fn new(id: i32) -> Self;
+    fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error>;
+}
+
 #[derive(Identifiable, Associations, Queryable, Serialize, Deserialize, PartialEq, Debug)]
 #[belongs_to(Media, foreign_key = "id")]
 #[table_name = "tv_show"]
@@ -35,11 +40,20 @@ impl TVShow {
     }
 }
 
-impl InsertableTVShow {
-    pub fn insert(&self, conn: &diesel::PgConnection) -> Result<usize, diesel::result::Error> {
-        let count = diesel::insert_into(tv_show::table)
+impl StaticTrait for InsertableTVShow {
+    fn new(id: i32) -> Self {
+        Self {
+            id
+        }
+    }
+
+    fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
+        println!("Called insert tv");
+        diesel::insert_into(tv_show::table)
             .values(self)
-            .execute(conn)?;
-        Ok(count)
+            .returning(tv_show::id)
+            .get_result(conn)
     }
 }
+
+impl MediaTrait for InsertableTVShow {}

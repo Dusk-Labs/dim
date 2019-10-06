@@ -54,7 +54,7 @@ CREATE TABLE tv_show (
 
 CREATE TABLE season (
     id SERIAL,
-    season_number INTEGER UNIQUE NOT NULL,
+    season_number INTEGER NOT NULL,
     tvshowid INTEGER NOT NULL,
     added TEXT,
     poster TEXT,
@@ -67,7 +67,7 @@ CREATE TABLE episode (
     seasonid INTEGER NOT NULL,
     episode_ INTEGER NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY(id) REFERENCES streamable_media (id),
+    FOREIGN KEY(id) REFERENCES streamable_media (id) ON DELETE CASCADE,
     FOREIGN KEY(seasonid) REFERENCES season (id) ON DELETE CASCADE
 );
 

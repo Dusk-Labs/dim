@@ -87,7 +87,7 @@ impl InsertableSeason {
         &self,
         conn: &diesel::PgConnection,
         id: i32,
-    ) -> Result<(), diesel::result::Error> {
+    ) -> Result<i32, diesel::result::Error> {
         use crate::schema::tv_show;
 
         // We check if the tv show exists
@@ -96,10 +96,10 @@ impl InsertableSeason {
         let _ = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
 
         // We insert the tvshowid separately
-        let _ = diesel::insert_into(season::table)
+        diesel::insert_into(season::table)
             .values((self, season::dsl::tvshowid.eq(id)))
-            .execute(conn)?;
-        Ok(())
+            .returning(season::id)
+            .get_result(conn)
     }
 }
 

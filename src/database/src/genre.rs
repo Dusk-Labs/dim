@@ -48,6 +48,19 @@ impl Genre {
             .select((genre::dsl::id, genre::dsl::name))
             .load::<Self>(&*conn)
     }
+
+    pub fn get_by_media_and_genre(
+        conn: &diesel::PgConnection,
+        genre_id: i32,
+        media_id: i32,
+    ) -> Result<Self, diesel::result::Error> {
+        genre::table
+            .inner_join(genre_media::table)
+            .filter(genre_media::media_id.eq(media_id))
+            .filter(genre_media::genre_id.eq(genre_id))
+            .select((genre::dsl::id, genre::dsl::name))
+            .first::<Self>(&*conn)
+    }
 }
 
 impl InsertableGenre {
@@ -75,6 +88,10 @@ impl InsertableGenreMedia {
     }
 
     pub fn insert_pair(genre_id: i32, media_id: i32, conn: &diesel::PgConnection) {
+        if Genre::get_by_media_and_genre(&conn, genre_id, media_id).is_ok() {
+            return;
+        }
+
         let pair = Self {
             genre_id,
             media_id,

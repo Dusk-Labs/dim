@@ -8,6 +8,9 @@ use diesel::pg::PgConnection;
 use dim_database::genre::*;
 use dim_database::media::{InsertableMedia, Media};
 use dim_database::movie::{InsertableMovie};
+use dim_database::tv::{InsertableTVShow};
+use dim_database::season::{InsertableSeason, Season};
+use dim_database::episode::{Episode, InsertableEpisode};
 use dim_database::{get_conn, library::Library, mediafile::*};
 use dim_events::event::*;
 use dim_streamer::{ffprobe::FFProbeCtx, FFPROBE_BIN};
@@ -135,20 +138,73 @@ impl<'a> IterativeScanner {
         };
 
         if tv {
-            self.insert_tv(orphan, media);
+            self.insert_tv(orphan, media, result.genres);
             return;
         }
 
         self.insert_movie(orphan, media, result.genres);
     }
  
-    fn insert_tv(&self, _: &MediaFile, _: InsertableMedia) {
+    fn insert_tv(&self, orphan: &MediaFile, media: InsertableMedia, genres: Option<Vec<crate::tmdb::Genre>>) {
+        let media_id = Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.clone().as_str())
+            .map_or_else(
+                |_| media.into_static::<InsertableTVShow>(&self.conn).unwrap(),
+                |x| x.id);
+
+        if let Some(genres) = genres {
+            for genre in genres {
+                let genre = InsertableGenre {
+                    name: genre.name.clone()
+                };
+
+                let _ = genre.insert(&self.conn)
+                    .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
+            }
+        };
+
+        let _season_id = Season::get(&self.conn, orphan.season.unwrap(), media_id)
+            .map_or_else(
+                |_| {
+                    let season = InsertableSeason {
+                        season_number: orphan.season.unwrap(),
+                        added: Utc::now().to_string(),
+                        poster: String::from(""),
+                    };
+
+                    season.insert(&self.conn, media_id).unwrap()
+                },
+                |x| x.id);
+
+        let episode_id = Episode::get(&self.conn, media_id, orphan.season.unwrap(), orphan.episode.unwrap())
+            .map_or_else(
+                |_| {
+                    let episode = InsertableEpisode {
+                        episode: orphan.episode.unwrap(),
+                        media: InsertableMedia {
+                            library_id: orphan.library_id,
+                            name: format!("{}", orphan.episode.unwrap()),
+                            added: Utc::now().to_string(),
+                            media_type: String::from("episode"),
+                            ..Default::default()
+                        },
+                    };
+
+                    episode.insert(&self.conn, media_id, orphan.season.unwrap()).unwrap()
+                },
+                |x| x.id);
+
+        let updated_mediafile = UpdateMediaFile {
+            media_id: Some(episode_id),
+            ..Default::default()
+        };
+        
+        updated_mediafile.update(&self.conn, orphan.id).unwrap();
     }
 
     fn insert_movie(&self, orphan: &MediaFile, media: InsertableMedia, genres: Option<Vec<crate::tmdb::Genre>>) {
         let media_id = Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.clone().as_str())
             .map_or_else(
-                |_| media.into_streamable::<InsertableMovie>(&self.conn).unwrap(),
+                |_| media.into_streamable::<InsertableMovie>(&self.conn, None).unwrap(),
                 |x| x.id);
 
         if let Some(genres) = genres {
@@ -182,7 +238,7 @@ impl<'a> IterativeScanner {
     }
 }
 
-pub fn mount_file(log: Logger, file: String, lib_id: i32) -> Result<(), diesel::result::Error> {
+fn mount_file(log: Logger, file: String, lib_id: i32) -> Result<(), diesel::result::Error> {
     let file = std::path::PathBuf::from(file);
     let conn = get_conn().unwrap();
     let path = file.clone().into_os_string().into_string().unwrap();
