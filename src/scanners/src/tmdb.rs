@@ -3,8 +3,10 @@ use serde::Deserialize;
 use std::collections::{VecDeque, HashMap};
 use std::sync::{Mutex, Arc};
 
+type CacheType = Arc<Mutex<HashMap<(String, Option<i32>, bool), SearchResult>>>;
+
 lazy_static! {
-    static ref CACHE: Arc<Mutex<HashMap<(String, Option<i32>, bool), SearchResult>>> = Arc::new(Mutex::new(HashMap::new()));
+    static ref CACHE: CacheType = Arc::new(Mutex::new(HashMap::new()));
 }
 
 #[derive(Clone, Debug)]

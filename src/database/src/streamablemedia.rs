@@ -1,5 +1,4 @@
 use crate::media::Media;
-use crate::mediafile::MediaFile;
 use crate::schema::streamable_media;
 use diesel::prelude::*;
 
@@ -9,7 +8,7 @@ pub trait StreamableTrait {
 }
 
 #[derive(Identifiable, Queryable, Serialize, Deserialize, PartialEq, Debug, Associations)]
-#[belongs(Media, foreign_key = "id")]
+#[belongs_to(Media, foreign_key = "id")]
 #[table_name = "streamable_media"]
 pub struct StreamableMedia {
     pub id: i32,

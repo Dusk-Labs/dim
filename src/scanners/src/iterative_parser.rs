@@ -178,8 +178,7 @@ impl<'a> IterativeScanner {
         self.insert_movie(orphan, media, result.genres);
     }
  
-    fn insert_tv(&self, orphan: &MediaFile, media: InsertableMedia) {
-        return;
+    fn insert_tv(&self, _: &MediaFile, _: InsertableMedia) {
     }
 
     fn insert_movie(&self, orphan: &MediaFile, media: InsertableMedia, genres: Option<Vec<crate::tmdb::Genre>>) {
@@ -188,17 +187,16 @@ impl<'a> IterativeScanner {
                 |_| media.into_streamable::<InsertableMovie>(&self.conn).unwrap(),
                 |x| x.id);
 
-        genres
-            .map(|x| {
-                for genre in x {
-                    let genre = InsertableGenre {
-                        name: genre.name.clone()
-                    };
+        if let Some(genres) = genres {
+            for genre in genres {
+                let genre = InsertableGenre {
+                    name: genre.name.clone()
+                };
 
-                    let _ = genre.insert(&self.conn)
-                        .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
-                }
-            });
+                let _ = genre.insert(&self.conn)
+                    .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
+            }
+        };
 
         let updated_mediafile = UpdateMediaFile {
             media_id: Some(media_id),

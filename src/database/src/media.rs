@@ -158,8 +158,8 @@ impl InsertableMedia {
 
     pub fn into_streamable<T: StreamableTrait>(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
         let id = self.insert(conn).unwrap();
-        let _ = T::new(id).insert(conn)?;
-        InsertableStreamableMedia::insert(id, conn)
+        let _ = InsertableStreamableMedia::insert(id, conn)?;
+        T::new(id).insert(conn)
     }
 }
 
