@@ -32,6 +32,10 @@
 	border-radius: 10px;
 }
 
+::-webkit-scrollbar-corner {
+	background: none;
+}
+
 body {
 	margin: 0;
 	-webkit-font-smoothing: antialiased;
