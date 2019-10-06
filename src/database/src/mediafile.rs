@@ -1,7 +1,7 @@
 use crate::library::Library;
-use crate::streamablemedia::StreamableMedia;
 use crate::media::Media;
 use crate::schema::mediafile;
+use crate::streamablemedia::StreamableMedia;
 use diesel::prelude::*;
 
 #[derive(Identifiable, Queryable, Serialize, Deserialize, PartialEq, Debug, Associations)]
@@ -26,11 +26,10 @@ pub struct MediaFile {
 
     /***
      * Options specific to tv show scanner hence Option<T>
-    ***/
+     ***/
     pub episode: Option<i32>,
     pub season: Option<i32>,
     /*** ***/
-
     pub corrupt: Option<bool>,
 }
 
@@ -53,11 +52,10 @@ pub struct InsertableMediaFile {
 
     /***
      * Options specific to tv show scanner hence Option<T>
-    ***/
+     ***/
     pub episode: Option<i32>,
     pub season: Option<i32>,
     /*** ***/
-
     pub corrupt: Option<bool>,
 }
 
@@ -77,11 +75,10 @@ pub struct UpdateMediaFile {
 
     /***
      * Options specific to tv show scanner hence Option<T>
-    ***/
+     ***/
     pub episode: Option<i32>,
     pub season: Option<i32>,
     /*** ***/
-
     pub corrupt: Option<bool>,
 }
 
@@ -97,8 +94,8 @@ impl MediaFile {
         conn: &diesel::PgConnection,
         media: &Media,
     ) -> Result<Self, diesel::result::Error> {
-        let streamable_media = StreamableMedia::belonging_to(media)
-            .first::<StreamableMedia>(conn)?;
+        let streamable_media =
+            StreamableMedia::belonging_to(media).first::<StreamableMedia>(conn)?;
 
         let result = Self::belonging_to(&streamable_media)
             .filter(mediafile::corrupt.eq(false))

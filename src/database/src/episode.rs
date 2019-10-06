@@ -2,9 +2,9 @@ use crate::media::InsertableMedia;
 use crate::media::UpdateMedia;
 use crate::media::{Media, MEDIA_ALL_COLUMNS};
 use crate::movie::InsertableMovie;
-use crate::streamablemedia::{StreamableMedia};
 use crate::schema::episode;
 use crate::season::Season;
+use crate::streamablemedia::StreamableMedia;
 use crate::tv::TVShow;
 use diesel::prelude::*;
 
@@ -128,7 +128,9 @@ impl InsertableEpisode {
             .filter(season::dsl::season_number.eq(season_num))
             .first::<Season>(conn)?;
 
-        let media_id = self.media.into_streamable::<InsertableMovie>(conn, Some(()))?; // we use InsertableMovie with Some as it doesnt matter
+        let media_id = self
+            .media
+            .into_streamable::<InsertableMovie>(conn, Some(()))?; // we use InsertableMovie with Some as it doesnt matter
 
         let episode: InsertableEpisodeWrapper = self.into();
 

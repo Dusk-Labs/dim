@@ -2,8 +2,8 @@ use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::routes::general::construct_standard;
 use dim_database::library::{InsertableLibrary, Library};
+use dim_events::event::{Event, Message, PushEventType};
 use dim_scanners;
-use dim_events::event::{Message, PushEventType, Event};
 use rocket::http::Status;
 use rocket::State;
 use rocket_contrib::json::{Json, JsonValue};
@@ -49,7 +49,11 @@ pub fn library_post(
 }
 
 #[delete("/<id>")]
-pub fn library_delete(conn: DbConnection, id: i32, event_tx: State<Arc<Mutex<EventTx>>>) -> Result<Status, Status> {
+pub fn library_delete(
+    conn: DbConnection,
+    id: i32,
+    event_tx: State<Arc<Mutex<EventTx>>>,
+) -> Result<Status, Status> {
     match Library::delete(&conn, id) {
         Ok(_) => {
             let event_message = Message {
@@ -60,7 +64,7 @@ pub fn library_delete(conn: DbConnection, id: i32, event_tx: State<Arc<Mutex<Eve
             let event = Event::new("/events/library", event_message);
             let _ = event_tx.lock().unwrap().send(event);
             Ok(Status::NoContent)
-        },
+        }
         Err(_) => Err(Status::InternalServerError),
     }
 }

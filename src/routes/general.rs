@@ -126,7 +126,7 @@ pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
                 "backdrop": x.backdrop_path,
                 "duration": duration,
                 "genres": genres,
-                "delta": sampler.sample(&mut rng), 
+                "delta": sampler.sample(&mut rng),
                 "banner_caption": "WATCH SOMETHING FRESH"
             })
         })

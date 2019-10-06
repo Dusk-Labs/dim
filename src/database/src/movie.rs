@@ -1,6 +1,6 @@
-use crate::streamablemedia::{StreamableTrait, StreamableMedia};
-use crate::schema::movie;
 use crate::media::MediaTrait;
+use crate::schema::movie;
+use crate::streamablemedia::{StreamableMedia, StreamableTrait};
 use diesel::prelude::*;
 
 #[derive(Clone, Identifiable, Queryable, Associations)]
@@ -18,12 +18,10 @@ pub struct InsertableMovie {
 
 impl StreamableTrait for InsertableMovie {
     fn new(id: i32) -> Self {
-        Self {
-            id
-        }
+        Self { id }
     }
 
-    fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error>{
+    fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
         diesel::insert_into(movie::table)
             .values(self)
             .returning(movie::id)

@@ -1,12 +1,7 @@
 #[cfg(test)]
 mod tests {
-    
-    
-    
-    
-    
 
-/*
+    /*
     #[test]
     fn get_media_by_id() {
         run_test!(|client| {

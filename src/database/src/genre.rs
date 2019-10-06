@@ -92,10 +92,7 @@ impl InsertableGenreMedia {
             return;
         }
 
-        let pair = Self {
-            genre_id,
-            media_id,
-        };
+        let pair = Self { genre_id, media_id };
 
         pair.insert(conn);
     }

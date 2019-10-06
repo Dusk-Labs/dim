@@ -21,9 +21,12 @@ pub struct InsertableStreamableMedia {
 }
 
 impl InsertableStreamableMedia {
-    pub(crate) fn insert(id: i32, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
+    pub(crate) fn insert(
+        id: i32,
+        conn: &diesel::PgConnection,
+    ) -> Result<i32, diesel::result::Error> {
         diesel::insert_into(streamable_media::table)
-            .values(InsertableStreamableMedia {id})
+            .values(InsertableStreamableMedia { id })
             .returning(streamable_media::id)
             .get_result(conn)
     }

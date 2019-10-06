@@ -13,11 +13,11 @@ pub mod genre;
 pub mod library;
 pub mod media;
 pub mod mediafile;
+pub mod movie;
 pub mod schema;
 pub mod season;
-pub mod tv;
 pub mod streamablemedia;
-pub mod movie;
+pub mod tv;
 
 pub fn get_conn() -> Result<diesel::PgConnection, diesel::result::ConnectionError> {
     use diesel::connection::Connection;
