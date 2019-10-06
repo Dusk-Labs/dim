@@ -22,7 +22,7 @@ impl Server {
 
         let inner_clone = inner.clone();
         let server_thread = thread::spawn(move || {
-            listen("127.0.0.1:3012", |sender| {
+            listen("0.0.0.0:3012", |sender| {
                 Client::new(inner_clone.clone(), sender)
             })
             .unwrap()

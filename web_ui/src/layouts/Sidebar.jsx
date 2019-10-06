@@ -18,6 +18,8 @@ class Sidebar extends Component {
 
         this.openShowAddLibrary = this.openShowAddLibrary.bind(this);
         this.closeShowAddLibrary = this.closeShowAddLibrary.bind(this);
+        this.library_ws = new WebSocket('ws://86.21.150.167:3012/events/library');
+        this.library_ws.addEventListener('message', this.handle_ws_msg);
 
         this.state = {
             profile: (
@@ -28,7 +30,7 @@ class Sidebar extends Component {
             ),
             showAddLibrary: false,
             connectedHosts: <p id="response">LOADING</p>,
-            libraries: <p id="response">LOADING</p>
+            libraries: []
         };
     }
 
@@ -42,6 +44,36 @@ class Sidebar extends Component {
         this.setState({
             showAddLibrary: false
         });
+    }
+
+    handle_ws_msg = async (event) => {
+        let msg = JSON.parse(event.data);
+        if (msg.res !== "/events/library")
+            return;
+        if (msg.message.event_type.type === "EventNewLibrary") {
+            let lib_data = await this.handle_req(fetch(`http://86.21.150.167:8000/api/v1/library/${msg.message.id}`));
+
+            if (lib_data.err === undefined) {
+                this.setState({
+                    libraries: [...this.state.libraries, lib_data].sort((a, b) => {
+                        let name_a = a.name.toUpperCase();
+                        let name_b = b.name.toUpperCase();
+
+                        if (name_a < name_b)
+                            return -1;
+
+                        if (name_a > name_b)
+                            return 1;
+                        return 0;
+                    })
+                });
+            }
+        } else if (msg.message.event_type.type === "EventRemoveLibrary") {
+            let libraries = this.state.libraries.filter(x => x.id !== msg.message.id);
+            this.setState({
+                libraries
+            });
+        }
     }
 
     async handle_req(promise) {
@@ -151,13 +183,20 @@ class Sidebar extends Component {
 
         if (libs.err) {
             return this.setState({
-                libraries: <p id="response">FAILED TO LOAD</p>
+                libraries: []
             });
         }
 
-        const list = (
-            libs.length !== 0
-                ? libs.map((
+        return this.setState({
+            libraries: libs
+        });
+    }
+
+    render() {
+        const {libraries} = this.state;
+        const libs = (
+            libraries.length !== 0
+                ? libraries.map((
                     { name, id, media_type }, i
                 ) =>
                     <div className="item-wrapper" key={i}>
@@ -170,12 +209,6 @@ class Sidebar extends Component {
                 ) : <p id="response">NO LIBRARIES</p>
         );
 
-        return this.setState({
-            libraries: list
-        });
-    }
-
-    render() {
         return (
             <nav className="sidebar">
                 <section className="main-part">
@@ -221,7 +254,7 @@ class Sidebar extends Component {
                                     <p>Dashboard</p>
                                 </NavLink>
                             </div>
-                            {this.state.libraries}
+                            {libs}
                         </Scrollbar>
                     </div>
                 </section>
