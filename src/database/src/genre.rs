@@ -73,4 +73,13 @@ impl InsertableGenreMedia {
         use crate::schema::genre_media::dsl::*;
         let _ = diesel::insert_into(genre_media).values(self).execute(conn);
     }
+
+    pub fn insert_pair(genre_id: i32, media_id: i32, conn: &diesel::PgConnection) {
+        let pair = Self {
+            genre_id,
+            media_id,
+        };
+
+        pair.insert(conn);
+    }
 }

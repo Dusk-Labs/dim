@@ -1,3 +1,4 @@
+#![feature(result_map_or_else)]
 #[macro_use]
 extern crate slog;
 #[macro_use]

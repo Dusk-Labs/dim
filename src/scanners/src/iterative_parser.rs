@@ -7,6 +7,7 @@ use chrono::NaiveDate;
 use diesel::pg::PgConnection;
 use dim_database::genre::*;
 use dim_database::media::{InsertableMedia, Media};
+use dim_database::movie::{InsertableMovie};
 use dim_database::{get_conn, library::Library, mediafile::*};
 use dim_events::event::*;
 use dim_streamer::{ffprobe::FFProbeCtx, FFPROBE_BIN};
@@ -127,13 +128,20 @@ impl<'a> IterativeScanner {
 
                 info!(self.log, "Scanning {} orphan", orphan.raw_name.clone());
                 if let Some(result) = tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year, q_type) {
-                    self.match_media_to_tmdb(result, &orphan);
+                    self.match_media_to_tmdb(result, &orphan, q_type);
                 }
             }
         }
     }
 
-    fn match_media_to_tmdb(&self, result: crate::tmdb::QueryResult, orphan: &MediaFile) {
+    fn match_media_to_tmdb(
+        &self,
+        result: crate::tmdb::QueryResult,
+        orphan: &MediaFile,
+        tv: bool,
+    ) {
+        let name = result.get_title().unwrap();
+
         let year: Option<i32> = result
             .get_release_date()
             .map(|x| NaiveDate::parse_from_str(x.as_str(), "%Y-%m-%d"))
@@ -141,83 +149,73 @@ impl<'a> IterativeScanner {
             .unwrap_or(None)
             .map(|s| s.year() as i32);
 
-        let media_id: i32;
-        if let Ok(media) = Media::get_by_name_and_lib(&self.conn, &self.lib, &result.get_title().unwrap()) {
-            media_id = media.id;
-        } else {
-            info!(self.log, "Inserting movie: {}", result.get_title().unwrap());
-            let media = InsertableMedia {
-                library_id: self.lib.id,
-                name: result.get_title().unwrap(),
-                description: result.overview,
-                rating: match result.vote_average {
-                    Some(d) => Some(d as i32),
-                    None => None,
-                },
-                year,
-                added: Utc::now().to_string(),
-                poster_path: match result.poster_path {
-                    Some(path) => Some(format!(
-                        "https://image.tmdb.org/t/p/w600_and_h900_bestv2{}",
-                        path
-                    )),
-                    None => None,
-                },
-                backdrop_path: match result.backdrop_path {
-                    Some(path) => Some(format!("https://image.tmdb.org/t/p/original/{}", path)),
-                    None => None,
-                },
-                media_type: self.lib.media_type.clone(),
-            };
+        let rating = result.vote_average
+            .map(|x| x as i32);
 
-            media_id = match media.insert(&self.conn) {
-                Ok(id) => id,
-                Err(err) => {
-                    error!(self.log, "Error inserting media: {}", err);
-                    return;
-                }
-            };
+        let poster_path = result.poster_path
+            .map(|s| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s));
 
-            if let Some(y) = result.genres {
-                for x in y {
+        let backdrop_path = result.backdrop_path
+            .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s));
+
+        let media = InsertableMedia {
+            library_id: self.lib.id,
+            name,
+            description: result.overview,
+            rating,
+            year,
+            added: Utc::now().to_string(),
+            poster_path,
+            backdrop_path,
+            media_type: self.lib.media_type.clone(),
+        };
+
+        if tv {
+            self.insert_tv(orphan, media);
+            return;
+        }
+
+        self.insert_movie(orphan, media, result.genres);
+    }
+ 
+    fn insert_tv(&self, orphan: &MediaFile, media: InsertableMedia) {
+        return;
+    }
+
+    fn insert_movie(&self, orphan: &MediaFile, media: InsertableMedia, genres: Option<Vec<crate::tmdb::Genre>>) {
+        let media_id = Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.clone().as_str())
+            .map_or_else(
+                |_| media.into_streamable::<InsertableMovie>(&self.conn).unwrap(),
+                |x| x.id);
+
+        genres
+            .map(|x| {
+                for genre in x {
                     let genre = InsertableGenre {
-                        name: x.name.clone(),
+                        name: genre.name.clone()
                     };
 
-                    let genre_id = genre.insert(&self.conn).unwrap();
-
-                    let pair = InsertableGenreMedia { genre_id, media_id };
-
-                    pair.insert(&self.conn);
+                    let _ = genre.insert(&self.conn)
+                        .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
                 }
-            }
-        }
+            });
 
         let updated_mediafile = UpdateMediaFile {
             media_id: Some(media_id),
-            target_file: None,
-            raw_name: None,
-            raw_year: None,
-            quality: None,
-            codec: None,
-            container: None,
-            audio: None,
-            original_resolution: None,
-            duration: None,
-            corrupt: None,
-            episode: None,
-            season: None,
+            ..Default::default()
         };
-
+        
         updated_mediafile.update(&self.conn, orphan.id).unwrap();
+        self.push_event(media_id);
+    }
 
-        let event_message = Message {
+    fn push_event(&self, media_id: i32) {
+        let event_msg = Message {
             id: media_id,
             event_type: PushEventType::EventNewCard,
         };
 
-        let new_event = Event::new(&format!("/events/library/{}", self.lib.id), event_message);
-
+        let new_event = Event::new(&format!("/events/library/{}", self.lib.id), event_msg);
         let _ = self.event_tx.send(new_event);
     }
 }

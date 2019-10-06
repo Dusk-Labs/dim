@@ -60,7 +60,7 @@ pub struct InsertableMediaFile {
     pub corrupt: Option<bool>,
 }
 
-#[derive(AsChangeset, Deserialize, PartialEq, Debug)]
+#[derive(Default, AsChangeset, Deserialize, PartialEq, Debug)]
 #[table_name = "mediafile"]
 pub struct UpdateMediaFile {
     pub media_id: Option<i32>,
