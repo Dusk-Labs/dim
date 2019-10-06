@@ -1,5 +1,9 @@
 @import "../mixins.scss";
 
+:root {
+    --accent-background: #f7931e;
+}
+
 .video-wrapper {
     background: black;
     position: relative;
@@ -15,7 +19,6 @@ video {
 
 .overlay {
     @include box-sizing(border-box);
-    @include align-items(flex-end);
     @include transition(opacity 0.3s ease-in-out);
     position: absolute;
     background: radial-gradient(circle, transparent 50%, black 100%);
@@ -23,11 +26,11 @@ video {
     height: 100%;
     width: 100%;
     padding: 50px;
-    opacity: 0;
+    opacity: 1;
     display: grid;
     grid-gap: 100px;
     grid-template-rows: 1fr;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 200px 1fr 200px;
     grid-template-areas:
         "top-left top top-right"
         "middle-left middle middle-right"
@@ -36,22 +39,7 @@ video {
 
     .cover {
         grid-area: bottom-left;
-        text-align: center;
-
-        img {
-            @include transition(transform 0.3s ease-in-out);
-            height: 320px;
-            width: 200px;
-            will-change: transform;
-            -o-object-fit: cover;
-               object-fit: cover;
-            border-radius: 10px;
-        }
-
-        p {
-            margin: 5px 0 0 0;
-            font-family: "Roboto Condensed Regular";
-        }
+        pointer-events: all;
     }
 
 
@@ -60,6 +48,7 @@ video {
         @include flex-direction(column);
         @include align-items(center);
         @include transition(opacity 0.3s ease-in-out);
+        align-self: flex-end;
         grid-area: bottom;
         pointer-events: all;
         opacity: 1;
@@ -85,14 +74,20 @@ video {
 
             // S1 . E1 separator
             svg {
-                font-size: 0.5em;
+                font-size: 0.4em;
+                color: var(--accent-background);
+                padding: 0 5px;
             }
 
             // S1 . E1 + movie name
             .left {
+                text-transform: uppercase;
+
                 .se-ep {
+                    margin-bottom: 5px;
                     @include display(flex);
                     @include align-items(center);
+                    font-family: "Roboto Condensed";
                 }
             }
 
@@ -163,7 +158,7 @@ video {
 
                 &:hover {
                     cursor: pointer;
-                    color: #f7931e;
+                    color: var(--accent-background);
                 }
             }
 
@@ -197,7 +192,9 @@ video {
 
     .ends-at {
         grid-area: bottom-right;
+        align-self: flex-end;
         text-align: right;
+        pointer-events: all;
 
         p {
             margin: 0;
@@ -213,6 +210,35 @@ video {
         // time
         p:last-child {
             font-family: "Roboto Condensed Bold";
+        }
+    }
+
+    .select-version {
+        text-align: right;
+        grid-area: top-right;
+        pointer-events: all;
+        position: relative;
+
+        &:hover .versions {
+            opacity: 1;
+        }
+
+        .header {
+            @include display(flex);
+            @include align-items(center);
+            @include justify-content(flex-end);
+
+            // downward arrow icon
+            svg {
+                margin-right: 5px;
+            }
+        }
+
+        .versions {
+            @include transition(opacity 0.3s ease-in-out);
+            position: absolute;
+            right: 0;
+            opacity: 0;
         }
     }
 }

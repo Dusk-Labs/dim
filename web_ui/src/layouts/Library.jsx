@@ -6,8 +6,9 @@ class Library extends Component {
     constructor(props) {
         super(props);
 
+
         this.state = {
-            cards: <div className="spinner"></div>
+            cards: {},
         };
     }
 
@@ -15,6 +16,9 @@ class Library extends Component {
         this.props.cards !== undefined
             ? this.getPropCards()
             : this.getPathCards();
+
+        if (this.props.id !== undefined)
+            this.mount_websocket();
     }
 
     async componentDidUpdate(prevProps) {
@@ -35,6 +39,42 @@ class Library extends Component {
         }
     }
 
+    mount_websocket() {
+        window.library = this;
+        this.websocket = new WebSocket(`ws://86.21.150.167:3012/events/library/${this.props.id}`);
+        this.websocket.addEventListener('message', this.handle_ws_msg);
+    }
+
+    handle_ws_msg = async (event) => {
+        let msg = JSON.parse(event.data);
+        if (msg.res !== `/events/library/${this.props.id}`)
+            return;
+        if (msg.message.event_type.type === "EventNewCard") {
+            let card_data = await this.handle_req(fetch(`http://86.21.150.167:8000/api/v1/media/${msg.message.id}`));
+
+            if (card_data.err === undefined) {
+                const key = Object.keys(this.state.cards)[0];
+                this.setState({
+                    cards: {key: Array.from(
+                        new Set([...this.state.cards[key], card_data]
+                            .map(JSON.stringify)))
+                        .map(JSON.parse)
+                        .sort((a, b) => {
+                        let name_a = a.name.toUpperCase();
+                        let name_b = b.name.toUpperCase();
+
+                        if (name_a < name_b)
+                            return -1;
+
+                        if (name_a > name_b)
+                            return 1;
+                        return 0;
+                    })
+                }});
+            }
+        }
+    }
+
     async handle_req(promise) {
         try {
             return await (await promise).json();
@@ -44,14 +84,8 @@ class Library extends Component {
     }
 
     getPropCards() {
-        const card_list = this.props.cards.map((card, i) => <Card key={i} data={card}/>);
-
         this.setState({
-            cards: (
-                <div className="cards">
-                    { card_list }
-                </div>
-            )
+            cards: {"SECTION": this.props.cards}
         });
     }
 
@@ -61,26 +95,28 @@ class Library extends Component {
 
         if (payload.err) {
             return this.setState({
-                cards: (
-                    <div className="empty">
-                        <FontAwesomeIcon icon="question-circle"/>
-                        <p>FAILED TO LOAD</p>
-                    </div>
-                )
+                error: true
             });
         }
 
+        this.setState({
+            cards: payload
+        });
+    };
+
+    render() {
+        const {cards, error} = this.state;
         let sections = {};
 
         // eslint-disable-next-line
-        for (const section in payload) {
-            if (payload[section].length > 0) {
-                const card_list = payload[section].map((card, i) => <Card key={i} data={card}/>);
+        for (const section in cards) {
+            if (cards[section].length > 0) {
+                const card_list = cards[section].map((card, i) => <Card key={i} data={card}/>);
                 sections[section] = card_list;
             }
         }
 
-        const cards = Object.keys(sections).map(section => {
+        const card_list = Object.keys(sections).map(section => {
             return (
                 <section key={section}>
                     <h1>{section}</h1>
@@ -91,24 +127,24 @@ class Library extends Component {
             );
         });
 
-        this.setState({
-            cards: (
-                cards.length > 0
-                ? cards
-                : (
+        // Somehow fit this loading spinner in
+        // <div className="spinner"></div>
+
+        return (
+            <div className="library">
+                {error ? (
+                    <div className="empty">
+                        <FontAwesomeIcon icon="question-circle"/>
+                        <p>FAILED TO LOAD</p>
+                    </div>
+                 ) : card_list.length > 0 ? (
+                        card_list
+                 ) : (
                     <div className="empty">
                         <FontAwesomeIcon icon="question-circle"/>
                         <p>There is no content in this library.</p>
                     </div>
-                )
-            )
-        });
-    };
-
-    render() {
-        return (
-            <div className="library">
-                {this.state.cards}
+                 )}
             </div>
         );
     }

@@ -30,7 +30,8 @@ class App extends Component {
 						<div className="App">
 							<Sidebar/>
 							<main>
-								<Library path={`http://86.21.150.167:8000/api/v1/library/${props.match.params.id}/media`}/>
+                                <Library path={`http://86.21.150.167:8000/api/v1/library/${props.match.params.id}/media`}
+                                    id={props.match.params.id}/>
 							</main>
 						</div>
 					}/>
