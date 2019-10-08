@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Card from "../components/library/Card.jsx";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-class Library extends Component {
+class CardList extends Component {
     constructor(props) {
         super(props);
 
@@ -114,4 +114,4 @@ class Library extends Component {
     }
 }
 
-export default Library;
+export default CardList;

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import Library from "./Library.jsx";
+import CardList from "./CardList.jsx";
 
 class SearchResults extends Component {
     constructor(props) {
@@ -54,7 +54,7 @@ class SearchResults extends Component {
         this.setState({
             cards: (
                 results.length > 0
-                    ? <Library cards={results}/>
+                    ? <CardList cards={results}/>
                     : (
                         <div className="empty">
                             <FontAwesomeIcon icon="question-circle"/>
