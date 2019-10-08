@@ -2,12 +2,17 @@ import React, { Component } from "react";
 import { NavLink } from "react-router-dom";
 import Modal from "react-modal";
 
+import { connect } from "react-redux";
+import { fetchLibraries } from "../actions/libraryActions.js";
+import { fetchHosts } from "../actions/hostActions.js";
+import { fetchUser } from "../actions/userActions.js";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SidebarSearch from "../helpers/SidebarSearch.jsx";
 import SidebarIcon from "../helpers/SidebarIcon.jsx";
 import LazyImage from "../helpers/LazyImage.jsx";
-import ProfileIcon from "../assets/profile_icon.jpg";
 import { Scrollbar } from "react-scrollbars-custom";
+
 import "./Sidebar.scss";
 
 Modal.setAppElement("body");
@@ -20,15 +25,7 @@ class Sidebar extends Component {
         this.closeShowAddLibrary = this.closeShowAddLibrary.bind(this);
 
         this.state = {
-            profile: (
-                <div className="profile">
-                    <div className="default-icon"></div>
-                    <p id="response">LOADING</p>
-                </div>
-            ),
-            showAddLibrary: false,
-            connectedHosts: <p id="response">LOADING</p>,
-            libraries: <p id="response">LOADING</p>
+            showAddLibrary: false
         };
     }
 
@@ -44,55 +41,54 @@ class Sidebar extends Component {
         });
     }
 
-    async handle_req(promise) {
-        try {
-            return await (await promise).json();
-        } catch (err) {
-            return { err: err };
-        }
-    }
-
     async componentDidMount() {
-        this.getProfile();
-        this.listConnectedHosts();
-        this.listLibraries();
+        this.props.fetchUser();
+        this.props.fetchHosts();
+        this.props.fetchLibraries();
     }
 
-    async getProfile() {
-        // ! WHEN IS API READY
-        // const reqProfile = fetch("http://86.21.150.167:8000/api/v1/");
-        // const profile = await this.handle_req(reqProfile);
+    render() {
+        let user;
+        let hosts;
+        let libraries;
 
-        // if (profile.err) {
-        //     const profFailed = (
-        //         <div className="profile">
-        //             <div className="default-icon"></div>
-        //             <p id="response">FAILED TO LOAD</p>
-        //         </div>
-        //     );
+        /*
+            * == USER ==
+        */
 
-        //     return this.setState({
-        //         profile: profFailed
-        //     });
-        // }
-        // !
+        // FETCH_USER_START
+        if (this.props.user.fetching) {
+            user = (
+                <div className="profile">
+                    <div className="profile-icon">
+                        <div className="default-icon"></div>
+                    </div>
+                    <p id="response">LOADING</p>
+                </div>
+            );
+        }
 
-        // ! TEMP (REMOVE WHEN USING API)
-        const profile = {
-            username: "Lana Rhoades",
-            picture: ProfileIcon,
-            spentWatching: 12
-        };
-        // !
+        // FETCH_USER_ERR
+        if (this.props.user.fetched && this.props.user.error) {
+            user = (
+                <div className="profile">
+                    <div className="profile-icon">
+                        <div className="default-icon"></div>
+                    </div>
+                    <p id="response">FAILED TO LOAD</p>
+                </div>
+            );
+        }
 
-        const { username, picture, spentWatching } = profile;
+        // FETCH_USER_OK
+        if (this.props.user.fetched && !this.props.user.error) {
+            const loading = (
+                <div className="default-icon"></div>
+            );
 
-        const loading = (
-            <div className="default-icon"></div>
-        );
+            const { username, picture, spentWatching } = this.props.user.info;
 
-        return this.setState({
-            profile: (
+            user = (
                 <div className="profile">
                     <div className="profile-icon">
                         <LazyImage alt="profile-icon" src={picture} loading={loading}/>
@@ -102,64 +98,63 @@ class Sidebar extends Component {
                         <h6>{spentWatching}h spent watching</h6>
                     </div>
                 </div>
-            )
-        });
-    }
-
-    async listConnectedHosts() {
-        // ! FOR WHEN API READY
-        // const reqHosts = fetch("http://86.21.150.167:8000/api/v1/");
-        // const hosts = await this.handle_req(reqHosts);
-
-        // if (hosts.err) {
-        //     return this.setState({
-        //         connectedHosts: <p id="response">FAILED TO LOAD</p>,
-        //     });
-        // }
-        // !
-
-        // ! TEMP (REMOVE WHEN USING API)
-        const hosts = [
-            { name: "Desktop", id: "1"},
-            { name: "Laptop", id: "2"},
-            { name: "Phone", id: "3"}
-        ];
-        // !
-
-        const list = hosts.length !== 0
-            ? (
-                hosts.map(({ name, id, media_type }, i) => {
-                    return (
-                        <div className="item-wrapper" key={i}>
-                            <NavLink to={"/device/" + id}>
-                                <SidebarIcon icon={media_type || name}/>
-                                <p>{name}</p>
-                            </NavLink>
-                        </div>
-                    );
-                })
-            ) : <p id="response">NO HOSTS</p>;
-
-        return this.setState({
-            connectedHosts: list
-        });
-    }
-
-    async listLibraries() {
-        const reqLibs = fetch("http://86.21.150.167:8000/api/v1/library");
-        const libs = await this.handle_req(reqLibs);
-
-        if (libs.err) {
-            return this.setState({
-                libraries: <p id="response">FAILED TO LOAD</p>
-            });
+            );
         }
 
-        const list = (
-            libs.length !== 0
-                ? libs.map((
+        /*
+            * == HOSTS ==
+        */
+
+        // FETCH_HOSTS_START
+        if (this.props.hosts.fetching) {
+            hosts = <p id="response">LOADING</p>;
+        }
+
+        // FETCH_HOSTS_ERR
+        if (this.props.hosts.fetched && this.props.hosts.error) {
+            hosts = <p id="response">FAILED TO LOAD</p>
+        }
+
+        // FETCH_HOSTS_OK
+        if (this.props.hosts.fetched && !this.props.hosts.error) {
+            const { items } = this.props.hosts;
+
+            if (items.length > 0) {
+                hosts = items.map((
                     { name, id, media_type }, i
-                ) =>
+                ) => (
+                    <div className="item-wrapper" key={i}>
+                        <NavLink to={"/device/" + id}>
+                            <SidebarIcon icon={media_type || name}/>
+                            <p>{name}</p>
+                        </NavLink>
+                    </div>
+                ));
+            } else hosts = <p id="response">NO HOSTS</p>
+        }
+
+        /*
+            * == LIBRARIES ==
+        */
+
+        // FETCH_LIBRARIES_START
+        if (this.props.libraries.fetching) {
+            libraries = <p id="response">LOADING</p>;
+        }
+
+        // FETCH_LIBRARIES_ERR
+        if (this.props.libraries.fetched && this.props.libraries.error) {
+            libraries = <p id="response">FAILED TO LOAD</p>
+        }
+
+        // FETCH_LIBRARIES_OK
+        if (this.props.libraries.fetched && !this.props.libraries.error) {
+            const { items } = this.props.libraries;
+
+            if (items.length > 0) {
+                libraries = items.map((
+                    { name, id, media_type }, i
+                ) => (
                     <div className="item-wrapper" key={i}>
                         <NavLink to={"/library/" + id}>
                             <SidebarIcon icon={media_type || name}/>
@@ -167,19 +162,14 @@ class Sidebar extends Component {
                         </NavLink>
                         <button>-</button>
                     </div>
-                ) : <p id="response">NO LIBRARIES</p>
-        );
+                ));
+            } else libraries = <p id="response">NO LIBRARIES</p>
+        }
 
-        return this.setState({
-            libraries: list
-        });
-    }
-
-    render() {
         return (
             <nav className="sidebar">
                 <section className="main-part">
-                    {this.state.profile}
+                    { user }
                     <div className="separator"></div>
                     <SidebarSearch></SidebarSearch>
                 </section>
@@ -190,7 +180,7 @@ class Sidebar extends Component {
                     </header>
                     <div className="list">
                         <Scrollbar>
-                            {this.state.connectedHosts}
+                            { hosts }
                         </Scrollbar>
                     </div>
                 </section>
@@ -221,7 +211,7 @@ class Sidebar extends Component {
                                     <p>Dashboard</p>
                                 </NavLink>
                             </div>
-                            {this.state.libraries}
+                            { libraries }
                         </Scrollbar>
                     </div>
                 </section>
@@ -250,4 +240,16 @@ class Sidebar extends Component {
     }
 }
 
-export default Sidebar;
+const mapStateToProps = (state) => ({
+    user: state.user,
+    hosts: state.hosts,
+    libraries: state.libraries
+});
+
+const actions = {
+    fetchLibraries,
+    fetchHosts,
+    fetchUser
+};
+
+export default connect(mapStateToProps, actions)(Sidebar);
