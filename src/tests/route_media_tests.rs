@@ -1,12 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use crate::core::rocket_pad;
-    use crate::macros::DB_LOCK;
-    use crate::tests::drop_all_data;
-    use rocket::http::Status;
-    use rocket::local::Client;
 
-/*
+    /*
     #[test]
     fn get_media_by_id() {
         run_test!(|client| {
