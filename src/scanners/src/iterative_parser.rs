@@ -5,11 +5,16 @@ use chrono::prelude::Utc;
 use chrono::Datelike;
 use chrono::NaiveDate;
 use diesel::pg::PgConnection;
+use dim_database::episode::{Episode, InsertableEpisode};
 use dim_database::genre::*;
 use dim_database::media::{InsertableMedia, Media};
+use dim_database::movie::InsertableMovie;
+use dim_database::season::{InsertableSeason, Season};
+use dim_database::tv::InsertableTVShow;
 use dim_database::{get_conn, library::Library, mediafile::*};
 use dim_events::event::*;
 use dim_streamer::{ffprobe::FFProbeCtx, FFPROBE_BIN};
+use rayon::prelude::*;
 use slog::Logger;
 use std::path::PathBuf;
 use torrent_name_parser::Metadata;
@@ -27,7 +32,12 @@ impl<'a> IterativeScanner {
         let conn = get_conn().expect("Failed to get a valid connection to db");
 
         if let Ok(lib) = Library::get_one(&conn, library_id) {
-            return Ok(Self { conn, lib, log, event_tx});
+            return Ok(Self {
+                conn,
+                lib,
+                log,
+                event_tx,
+            });
         }
 
         Err(())
@@ -40,7 +50,7 @@ impl<'a> IterativeScanner {
             None => self.lib.location.as_str(),
         };
 
-        let files: Vec<PathBuf> = WalkDir::new(path)
+        let files: Vec<String> = WalkDir::new(path)
             .follow_links(true)
             .into_iter()
             .filter_map(|f| f.ok())
@@ -57,56 +67,24 @@ impl<'a> IterativeScanner {
                     None => false,
                 }
             })
-            .map(|f| f.into_path())
+            .map(|f| f.into_path().to_str().unwrap().to_owned())
             .collect::<Vec<_>>();
 
-        for file in files {
-            self.mount_file(file).unwrap();
-        }
+        let logger = self.log.clone();
+        let lib_id = self.lib.id;
+        files
+            .par_iter()
+            .for_each(|x| mount_file(logger.clone(), x.clone(), lib_id).unwrap());
 
         self.fix_orphans();
     }
 
     pub fn mount_file(&self, file: PathBuf) -> Result<(), diesel::result::Error> {
-        let path = file.clone().into_os_string().into_string().unwrap();
-
-        if MediaFile::exists_by_file(&self.conn, &path) {
-            return Ok(());
-        }
-
-        info!(self.log, "Scanning file: {}", &path);
-
-        let ctx = FFProbeCtx::new(FFPROBE_BIN);
-        let metadata = Metadata::from(file.file_name().unwrap().to_str().unwrap()).unwrap();
-        let ffprobe_data = ctx.get_meta(&file).unwrap();
-
-        let media_file = InsertableMediaFile {
-            media_id: None,
-            library_id: self.lib.id,
-            target_file: path,
-
-            raw_name: metadata.title().to_owned(),
-            raw_year: metadata.year(),
-            quality: ffprobe_data.get_quality(),
-            codec: ffprobe_data.get_codec(),
-            container: ffprobe_data.get_container(),
-            audio: ffprobe_data.get_audio_type(),
-            original_resolution: ffprobe_data.get_res(),
-            duration: ffprobe_data.get_duration(),
-            corrupt: ffprobe_data.is_corrupt(),
-
-            season: metadata.season(),
-            episode: metadata.episode(),
-        };
-
-        if let Err(err) = media_file.insert(&self.conn) {
-            error!(
-                self.log,
-                "Failed to insert media_file {} {:?}", err, media_file
-            );
-        }
-
-        Ok(())
+        mount_file(
+            self.log.clone(),
+            file.to_str().unwrap().to_owned(),
+            self.lib.id,
+        )
     }
 
     pub fn fix_orphans(&self) {
@@ -126,14 +104,18 @@ impl<'a> IterativeScanner {
                 };
 
                 info!(self.log, "Scanning {} orphan", orphan.raw_name.clone());
-                if let Some(result) = tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year, q_type) {
-                    self.match_media_to_tmdb(result, &orphan);
+                if let Some(result) =
+                    tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year, q_type)
+                {
+                    self.match_media_to_tmdb(result, &orphan, q_type);
                 }
             }
         }
     }
 
-    fn match_media_to_tmdb(&self, result: crate::tmdb::QueryResult, orphan: &MediaFile) {
+    fn match_media_to_tmdb(&self, result: crate::tmdb::QueryResult, orphan: &MediaFile, tv: bool) {
+        let name = result.get_title().unwrap();
+
         let year: Option<i32> = result
             .get_release_date()
             .map(|x| NaiveDate::parse_from_str(x.as_str(), "%Y-%m-%d"))
@@ -141,83 +123,194 @@ impl<'a> IterativeScanner {
             .unwrap_or(None)
             .map(|s| s.year() as i32);
 
-        let media_id: i32;
-        if let Ok(media) = Media::get_by_name_and_lib(&self.conn, &self.lib, &result.get_title().unwrap()) {
-            media_id = media.id;
-        } else {
-            info!(self.log, "Inserting movie: {}", result.get_title().unwrap());
-            let media = InsertableMedia {
-                library_id: self.lib.id,
-                name: result.get_title().unwrap(),
-                description: result.overview,
-                rating: match result.vote_average {
-                    Some(d) => Some(d as i32),
-                    None => None,
-                },
-                year,
-                added: Utc::now().to_string(),
-                poster_path: match result.poster_path {
-                    Some(path) => Some(format!(
-                        "https://image.tmdb.org/t/p/w600_and_h900_bestv2{}",
-                        path
-                    )),
-                    None => None,
-                },
-                backdrop_path: match result.backdrop_path {
-                    Some(path) => Some(format!("https://image.tmdb.org/t/p/original/{}", path)),
-                    None => None,
-                },
-                media_type: self.lib.media_type.clone(),
-            };
+        let rating = result.vote_average.map(|x| x as i32);
 
-            media_id = match media.insert(&self.conn) {
-                Ok(id) => id,
-                Err(err) => {
-                    error!(self.log, "Error inserting media: {}", err);
-                    return;
-                }
-            };
+        let poster_path = result
+            .poster_path
+            .map(|s| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s));
 
-            if let Some(y) = result.genres {
-                for x in y {
-                    let genre = InsertableGenre {
-                        name: x.name.clone(),
-                    };
+        let backdrop_path = result
+            .backdrop_path
+            .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s));
 
-                    let genre_id = genre.insert(&self.conn).unwrap();
+        let media = InsertableMedia {
+            library_id: self.lib.id,
+            name,
+            description: result.overview,
+            rating,
+            year,
+            added: Utc::now().to_string(),
+            poster_path,
+            backdrop_path,
+            media_type: self.lib.media_type.clone(),
+        };
 
-                    let pair = InsertableGenreMedia { genre_id, media_id };
-
-                    pair.insert(&self.conn);
-                }
-            }
+        if tv {
+            self.insert_tv(orphan, media, result.genres);
+            return;
         }
 
+        self.insert_movie(orphan, media, result.genres);
+    }
+
+    fn insert_tv(
+        &self,
+        orphan: &MediaFile,
+        media: InsertableMedia,
+        genres: Option<Vec<crate::tmdb::Genre>>,
+    ) {
+        let media_id =
+            Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.clone().as_str())
+                .map_or_else(
+                    |_| media.into_static::<InsertableTVShow>(&self.conn).unwrap(),
+                    |x| x.id,
+                );
+
+        if let Some(genres) = genres {
+            for genre in genres {
+                let genre = InsertableGenre {
+                    name: genre.name.clone(),
+                };
+
+                let _ = genre
+                    .insert(&self.conn)
+                    .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
+            }
+        };
+
+        let _season_id = Season::get(&self.conn, orphan.season.unwrap(), media_id).map_or_else(
+            |_| {
+                let season = InsertableSeason {
+                    season_number: orphan.season.unwrap(),
+                    added: Utc::now().to_string(),
+                    poster: String::from(""),
+                };
+
+                season.insert(&self.conn, media_id).unwrap()
+            },
+            |x| x.id,
+        );
+
+        let episode_id = Episode::get(
+            &self.conn,
+            media_id,
+            orphan.season.unwrap(),
+            orphan.episode.unwrap(),
+        )
+        .map_or_else(
+            |_| {
+                let episode = InsertableEpisode {
+                    episode: orphan.episode.unwrap(),
+                    media: InsertableMedia {
+                        library_id: orphan.library_id,
+                        name: format!("{}", orphan.episode.unwrap()),
+                        added: Utc::now().to_string(),
+                        media_type: String::from("episode"),
+                        ..Default::default()
+                    },
+                };
+
+                episode
+                    .insert(&self.conn, media_id, orphan.season.unwrap())
+                    .unwrap()
+            },
+            |x| x.id,
+        );
+
         let updated_mediafile = UpdateMediaFile {
-            media_id: Some(media_id),
-            target_file: None,
-            raw_name: None,
-            raw_year: None,
-            quality: None,
-            codec: None,
-            container: None,
-            audio: None,
-            original_resolution: None,
-            duration: None,
-            corrupt: None,
-            episode: None,
-            season: None,
+            media_id: Some(episode_id),
+            ..Default::default()
         };
 
         updated_mediafile.update(&self.conn, orphan.id).unwrap();
+    }
 
-        let event_message = Message {
+    fn insert_movie(
+        &self,
+        orphan: &MediaFile,
+        media: InsertableMedia,
+        genres: Option<Vec<crate::tmdb::Genre>>,
+    ) {
+        let media_id =
+            Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.clone().as_str())
+                .map_or_else(
+                    |_| {
+                        media
+                            .into_streamable::<InsertableMovie>(&self.conn, None)
+                            .unwrap()
+                    },
+                    |x| x.id,
+                );
+
+        if let Some(genres) = genres {
+            for genre in genres {
+                let genre = InsertableGenre {
+                    name: genre.name.clone(),
+                };
+
+                let _ = genre
+                    .insert(&self.conn)
+                    .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
+            }
+        };
+
+        let updated_mediafile = UpdateMediaFile {
+            media_id: Some(media_id),
+            ..Default::default()
+        };
+
+        updated_mediafile.update(&self.conn, orphan.id).unwrap();
+        self.push_event(media_id);
+    }
+
+    fn push_event(&self, media_id: i32) {
+        let event_msg = Message {
             id: media_id,
             event_type: PushEventType::EventNewCard,
         };
 
-        let new_event = Event::new(&format!("/events/library/{}", self.lib.id), event_message);
-
+        let new_event = Event::new(&format!("/events/library/{}", self.lib.id), event_msg);
         let _ = self.event_tx.send(new_event);
     }
+}
+
+fn mount_file(log: Logger, file: String, lib_id: i32) -> Result<(), diesel::result::Error> {
+    let file = std::path::PathBuf::from(file);
+    let conn = get_conn().unwrap();
+    let path = file.clone().into_os_string().into_string().unwrap();
+
+    if MediaFile::exists_by_file(&conn, &path) {
+        return Ok(());
+    }
+
+    info!(log, "Scanning file: {}", &path);
+
+    let ctx = FFProbeCtx::new(FFPROBE_BIN);
+    let metadata = Metadata::from(file.file_name().unwrap().to_str().unwrap()).unwrap();
+    let ffprobe_data = ctx.get_meta(&file).unwrap();
+
+    let media_file = InsertableMediaFile {
+        media_id: None,
+        library_id: lib_id,
+        target_file: path,
+
+        raw_name: metadata.title().to_owned(),
+        raw_year: metadata.year(),
+        quality: ffprobe_data.get_quality(),
+        codec: ffprobe_data.get_codec(),
+        container: ffprobe_data.get_container(),
+        audio: ffprobe_data.get_audio_type(),
+        original_resolution: ffprobe_data.get_res(),
+        duration: ffprobe_data.get_duration(),
+        corrupt: ffprobe_data.is_corrupt(),
+
+        season: metadata.season(),
+        episode: metadata.episode(),
+    };
+
+    if let Err(err) = media_file.insert(&conn) {
+        error!(log, "Failed to insert media_file {} {:?}", err, media_file);
+    }
+
+    Ok(())
 }

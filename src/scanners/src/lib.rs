@@ -1,13 +1,15 @@
+#![feature(result_map_or_else)]
 #[macro_use]
 extern crate slog;
 #[macro_use]
 extern crate lazy_static;
 
 extern crate clap;
-extern crate reqwest;
 extern crate crossbeam_channel;
 extern crate diesel;
 extern crate notify;
+extern crate rayon;
+extern crate reqwest;
 extern crate rocket_slog;
 extern crate torrent_name_parser;
 
