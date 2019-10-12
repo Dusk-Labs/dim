@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import TruncText from "../../helpers/TruncText.jsx";
 
+import TruncText from "../../helpers/TruncText.jsx";
 import IMDbLogo from "../../assets/imdb.png";
 
 import "./CardPopup.scss";
@@ -79,7 +79,10 @@ class CardPopup extends Component {
                 <section className="content">
                     <section className="description">
                         <h4>Description</h4>
-                        <TruncText content={description} max={21}/>
+                        {description.length > 0
+                            ? <TruncText content={description} max={21}/>
+                            : <p>No description found.</p>
+                        }
                     </section>
                     <section className="info">
                         <div className="tags">
