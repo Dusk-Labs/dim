@@ -2,7 +2,6 @@ use crate::core::DbConnection;
 use diesel::prelude::*;
 use dim_database::genre::*;
 use dim_database::media::Media;
-use dim_database::media::MEDIA_ALL_COLUMNS;
 use dim_database::mediafile::MediaFile;
 use rocket::http::RawStr;
 use rocket::http::Status;
@@ -53,7 +52,6 @@ pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
 
     let mut top_rated = media::table
         .filter(media::media_type.ne("episode"))
-        .select(MEDIA_ALL_COLUMNS)
         .group_by((media::id, media::name))
         .order(media::rating.desc())
         .load::<Media>(&*conn)
@@ -68,7 +66,6 @@ pub fn dashboard(conn: DbConnection) -> Result<JsonValue, Status> {
 
     let recently_added = media::table
         .filter(media::media_type.ne("episode"))
-        .select(MEDIA_ALL_COLUMNS)
         .group_by((media::id, media::name))
         .order(media::added.desc())
         .load::<Media>(&*conn)
@@ -98,7 +95,6 @@ pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
     let mut rng = rand::thread_rng();
     let results = media::table
         .filter(media::media_type.ne("episode"))
-        .select(MEDIA_ALL_COLUMNS)
         .group_by(media::id)
         .order(RANDOM)
         .limit(3)
@@ -164,12 +160,9 @@ pub fn search(
     quick: Option<bool>,
 ) -> Result<Json<Vec<JsonValue>>, Status> {
     use crate::dim_database::schema::genre_media;
-    use diesel::dsl::sql;
-    use diesel::sql_types::Text;
-    use diesel_full_text_search::*;
     use dim_database::schema::media;
 
-    let mut result = media::table.select(MEDIA_ALL_COLUMNS).into_boxed();
+    let mut result = media::table.into_boxed();
 
     result = result.filter(media::media_type.ne("episode"));
 
@@ -179,12 +172,9 @@ pub fn search(
             .split(' ')
             .collect::<Vec<&str>>()
             .as_slice()
-            .join(" & ");
+            .join("% %");
 
-        let q = sql::<TsQuery>("plainto_tsquery(")
-            .bind::<Text, _>(query_string)
-            .sql(")");
-        result = result.filter(q.clone().matches(media::name_search_index));
+        result = result.filter(media::name.ilike(format!("%{}%", query_string)));
     }
 
     if let Some(x) = year {

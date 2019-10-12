@@ -108,7 +108,7 @@
             @include display(flex);
             @include flex-direction(column);
             max-height: 150px;
-            overflow: scroll;
+            overflow: hidden;
             padding: 0 5px;
         }
 
