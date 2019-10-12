@@ -9,6 +9,12 @@ class SidebarIcon extends Component {
             case "movies":
                 icon = "film";
                 break;
+            case "movie":
+                icon = "film";
+                break;
+            case "tv":
+                icon = "tv";
+                break;
             case "desktop":
                 icon = "desktop";
                 break;
