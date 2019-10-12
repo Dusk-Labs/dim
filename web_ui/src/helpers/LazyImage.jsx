@@ -1,13 +1,15 @@
 import React, { Component } from "react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 class LazyImage extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            img: this.props.loading
-        }
+            fetching: false,
+            fetched: false,
+            error: false
+        };
     }
 
     componentDidMount() {
@@ -27,32 +29,29 @@ class LazyImage extends Component {
     }
 
     async renderBlob() {
-        const resp = await fetch(this.props.src);
+        console.log("BEFORE", this.state);
+        this.setState({
+            fetching: true
+        });
 
-        if (!resp.headers.get("content-type") === "image/jpeg") {
-            this.setState({
-                img: (
-                    <div className="placeholder">
-                        <div className="empty">
-                            <FontAwesomeIcon icon="question-circle"/>
-                            <p>FAILED TO LOAD IMAGE</p>
-                        </div>
-                    </div>
-                )
+        const res = await fetch(this.props.src);
+
+        if (!res.headers.get("content-type") === "image/jpeg" || !this.props.src) {
+            return this.setState({
+                fetching: false,
+                fetched: true,
+                error: true
             });
         }
 
-        const blob = await resp.blob();
+        const blob = await res.blob();
         const objectUrl = URL.createObjectURL(blob);
 
         this.setState({
+            fetching: false,
+            fetched: true,
             blob,
-            objectUrl,
-            img: (
-                <div className="image-wrapper" ref={this.props.imageWrapperRef}>
-                    <img src={objectUrl} alt={this.props.alt}></img>
-                </div>
-            )
+            objectUrl
         });
 
         if (this.props.onLoad) {
@@ -61,7 +60,42 @@ class LazyImage extends Component {
     }
 
     render() {
-        return this.state.img;
+        // FETCHING
+        if (this.state.fetching) {
+            if (!this.props.loading) {
+                return (
+                    <div className="placeholder">
+                        <div className="spinner"></div>
+                    </div>
+                );
+            } else return this.props.loading;
+        }
+
+        // ERR
+        if (this.state.fetched && this.state.error) {
+            console.log(this.state);
+            if (!this.props.onFail) {
+                return (
+                    <div className="placeholder">
+                        <div className="empty">
+                            <FontAwesomeIcon icon="question-circle"/>
+                            <p>FAILED TO LOAD</p>
+                        </div>
+                    </div>
+                );
+            } else return this.props.onFail();
+        }
+
+        // OK
+        if (this.state.fetched && !this.state.error) {
+            return (
+                <div className="image-wrapper" ref={this.props.imageWrapperRef}>
+                    <img src={this.state.objectUrl} alt={this.props.alt}></img>
+                </div>
+            );
+        }
+
+        return <div className="placeholder"></div>;
     }
 }
 

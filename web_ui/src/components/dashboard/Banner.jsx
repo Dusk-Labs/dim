@@ -86,9 +86,8 @@ class Banner extends PureComponent {
                 <LazyImage
                     alt="banner"
                     src={backdrop}
-                    onLoad={this.onLoadBanner}
                     imageWrapperRef={this.getImageWrapperRef}
-                    loading={<div className="spinner"></div>}
+                    onLoad={this.onLoadBanner}
                 />
                 <div className="extras">
                     <p>{year}</p>
