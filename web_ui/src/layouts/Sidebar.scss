@@ -75,6 +75,11 @@
                 padding: 4px;
                 border-radius: 100%;
                 border: #ffffff 2px solid;
+
+                // shows up before loading starts
+                .placeholder {
+                    border-radius: 50%;
+                }
             }
 
             img {
