@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import CardList from "./CardList.jsx";
@@ -8,7 +8,10 @@ class SearchResults extends Component {
         super(props);
 
         this.state = {
-            cards: <div className="spinner"></div>
+            cards: {},
+            fetching: false,
+            fetched: false,
+            error: null
         };
     }
 
@@ -23,45 +26,37 @@ class SearchResults extends Component {
     }
 
     async getResults() {
+        this.setState({
+            fetching: true
+        });
+
         const searchURL = new URLSearchParams(this.props.location.search);
         const query = searchURL.get("query");
 
         if (query.length === 0) {
             return this.setState({
-                cards: (
-                    <div className="empty">
-                        <FontAwesomeIcon icon="question-circle"/>
-                        <p>NO SEARCH PROVIDED</p>
-                    </div>
-                )
+                fetching: false,
+                fetched: true,
+                error: true
             });
         };
 
-        const reqResults = fetch(`http://86.21.150.167:8000/api/v1/search?query=${query}`);
-        const results = await this.handle_req(reqResults);
+        const res = await fetch(`http://86.21.150.167:8000/api/v1/search?query=${query}`);
 
-        if (results.err) {
+        if (res.status !== 200) {
             return this.setState({
-                cards: (
-                    <div className="empty">
-                        <FontAwesomeIcon icon="question-circle"/>
-                        <p>FAILED TO LOAD</p>
-                    </div>
-                )
+                fetching: false,
+                fetched: true,
+                error: true
             });
         }
 
+        const results = await res.json();
+
         this.setState({
-            cards: (
-                results.length > 0
-                    ? <CardList cards={results}/>
-                    : (
-                        <div className="empty">
-                            <FontAwesomeIcon icon="question-circle"/>
-                            <p>NO RESULTS FOUND</p>
-                        </div>
-                    )
-            )
+            fetching: false,
+            fetched: true,
+            cards: results
         });
     }
 
@@ -74,12 +69,36 @@ class SearchResults extends Component {
     }
 
     render() {
-        return (
-            <section>
-                <h1>RESULTS</h1>
-                {this.state.cards}
-            </section>
-        );
+        let cards = <Fragment/>;
+
+        // FETCHING
+        if (this.state.fetching) {
+            cards = <div className="spinner"></div>;
+        }
+
+        // ERR
+        if (this.state.fetched && this.state.error) {
+            cards = (
+                <div className="empty">
+                    <FontAwesomeIcon icon="question-circle"/>
+                    <p>FAILED TO LOAD</p>
+                </div>
+            );
+        }
+
+        // OK
+        if (this.state.fetched && !this.state.error) {
+            cards = this.state.cards.length > 0
+                ? <CardList cards={{"RESULTS": this.state.cards}}/>
+                : (
+                    <div className="empty">
+                        <FontAwesomeIcon icon="question-circle"/>
+                        <p>NO RESULTS FOUND</p>
+                    </div>
+                )
+        }
+
+        return cards;
     }
 }
 
