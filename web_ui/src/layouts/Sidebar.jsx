@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import { NavLink } from "react-router-dom";
 import Modal from "react-modal";
-
 import { connect } from "react-redux";
+import { Scrollbar } from "react-scrollbars-custom";
+
 import { fetchLibraries } from "../actions/libraryActions.js";
 import { fetchHosts } from "../actions/hostActions.js";
 import { fetchUser } from "../actions/userActions.js";
@@ -11,7 +12,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SidebarSearch from "../helpers/SidebarSearch.jsx";
 import SidebarIcon from "../helpers/SidebarIcon.jsx";
 import LazyImage from "../helpers/LazyImage.jsx";
-import { Scrollbar } from "react-scrollbars-custom";
 
 import "./Sidebar.scss";
 
@@ -93,7 +93,11 @@ class Sidebar extends Component {
             user = (
                 <div className="profile">
                     <div className="profile-icon">
-                        <LazyImage alt="profile-icon" src={picture} loading={loading}/>
+                        <LazyImage
+                            alt="profile-icon"
+                            src={picture}
+                            loading={loading}
+                        />
                     </div>
                     <div className="info">
                         <h4>{username}</h4>
