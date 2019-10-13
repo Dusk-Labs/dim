@@ -29,9 +29,10 @@ class LazyImage extends Component {
     }
 
     async renderBlob() {
-        console.log("BEFORE", this.state);
         this.setState({
-            fetching: true
+            fetching: true,
+            fetched: false,
+            error: false
         });
 
         const res = await fetch(this.props.src);
@@ -73,7 +74,6 @@ class LazyImage extends Component {
 
         // ERR
         if (this.state.fetched && this.state.error) {
-            console.log(this.state);
             if (!this.props.onFail) {
                 return (
                     <div className="placeholder">
