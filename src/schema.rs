@@ -31,8 +31,6 @@ table! {
 }
 
 table! {
-    use diesel_full_text_search::{TsVector as Tsvector};
-    use diesel::sql_types::*;
     media (id) {
         id -> Int4,
         library_id -> Int4,
@@ -44,7 +42,6 @@ table! {
         poster_path -> Nullable<Text>,
         backdrop_path -> Nullable<Text>,
         media_type -> Nullable<Varchar>,
-        name_search_index -> Tsvector,
     }
 }
 
