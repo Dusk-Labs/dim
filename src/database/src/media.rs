@@ -29,34 +29,6 @@ impl PartialEq for Media {
     }
 }
 
-/// We literally never want to select `name_search_index`
-/// so we provide this type and constant to pass to `.select`
-type MediaAllColumns = (
-    media::id,
-    media::library_id,
-    media::name,
-    media::description,
-    media::rating,
-    media::year,
-    media::added,
-    media::poster_path,
-    media::backdrop_path,
-    media::media_type,
-);
-
-pub const MEDIA_ALL_COLUMNS: MediaAllColumns = (
-    media::id,
-    media::library_id,
-    media::name,
-    media::description,
-    media::rating,
-    media::year,
-    media::added,
-    media::poster_path,
-    media::backdrop_path,
-    media::media_type,
-);
-
 #[derive(Default, Insertable, Serialize, Deserialize, Debug)]
 #[table_name = "media"]
 pub struct InsertableMedia {
@@ -92,7 +64,6 @@ impl Media {
     ) -> Result<Vec<Self>, diesel::result::Error> {
         let result = Self::belonging_to(&library)
             .filter(media::media_type.ne("episode"))
-            .select(MEDIA_ALL_COLUMNS)
             .load::<Self>(conn)?;
         Ok(result)
     }
@@ -102,7 +73,6 @@ impl Media {
 
         let result = media
             .filter(id.eq(req_id))
-            .select(MEDIA_ALL_COLUMNS)
             .first::<Self>(conn)?;
 
         Ok(result)
@@ -114,7 +84,6 @@ impl Media {
         name: &str,
     ) -> Result<Self, diesel::result::Error> {
         let result = Self::belonging_to(library)
-            .select(MEDIA_ALL_COLUMNS)
             .load::<Self>(conn)?;
 
         // Manual filter because of a bug with combining filter with belonging_to
