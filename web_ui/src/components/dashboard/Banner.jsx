@@ -4,6 +4,7 @@ import ProgressBar from "./ProgressBar.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import TruncText from "../../helpers/TruncText.jsx";
 import * as Vibrant from 'node-vibrant';
+import { Link } from "react-router-dom";
 
 import "./Banner.scss";
 
@@ -95,9 +96,9 @@ class Banner extends PureComponent {
                 <div className="banner">
                     <LazyImage alt="banner" src={backdrop} onLoad={this.onLoadBanner} imageWrapperRef={this.getImageWrapperRef} loading={loading}/>
                     <div className="extras">
-                        <p>{year}</p>
+                        <Link to={`/search?year=${year}`}>{year}</Link>
                         <FontAwesomeIcon icon="circle" style={{ color: accent.background }}/>
-                        {genres.map((genre, i) => <p key={i}>{genre}</p>)}
+                            {genres.map((genre, i) => <Link to={`/search?genre=${genre}`} key={i}>{genre}</Link>)}
                     </div>
                     <div className="info">
                         <h1>{title}</h1>
@@ -107,6 +108,7 @@ class Banner extends PureComponent {
                         </div>
                         <a
                             href={backdrop}
+                            className="play"
                             style={accentCSS}
                             rel="noopener noreferrer"
                             target="_blank">

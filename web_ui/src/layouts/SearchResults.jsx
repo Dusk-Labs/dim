@@ -24,9 +24,14 @@ class SearchResults extends Component {
 
     async getResults() {
         const searchURL = new URLSearchParams(this.props.location.search);
-        const query = searchURL.get("query");
+        let params = '';
 
-        if (query.length === 0) {
+        for (const key of searchURL.keys()) {
+            if(searchURL.get(key) !== undefined)
+                params += `${key}=${searchURL.get(key)}&`
+        }
+
+        if (params.length === 0) {
             return this.setState({
                 cards: (
                     <div className="empty">
@@ -37,7 +42,7 @@ class SearchResults extends Component {
             });
         };
 
-        const reqResults = fetch(`http://86.21.150.167:8000/api/v1/search?query=${query}`);
+        const reqResults = fetch(`http://86.21.150.167:8000/api/v1/search?${params}`);
         const results = await this.handle_req(reqResults);
 
         if (results.err) {
