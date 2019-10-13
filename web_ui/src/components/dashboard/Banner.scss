@@ -4,6 +4,7 @@
     .image-wrapper {
         position: relative;
         overflow: hidden;
+        will-change: transform;
 
         img {
             @include mask-image(linear-gradient(to bottom, #000000 50%, transparent 100%));

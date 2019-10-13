@@ -24,11 +24,15 @@ class Banner extends PureComponent {
     }
 
     componentDidMount() {
-        window.addEventListener("scroll", this.handleScroll);
+        window.addEventListener("scroll", () => {
+            window.requestAnimationFrame(this.handleScroll);
+        });
     }
 
     componentWillUnmount() {
-        window.removeEventListener("scroll", this.handleScroll);
+        window.removeEventListener("scroll", () => {
+            window.requestAnimationFrame(this.handleScroll);
+        });
     }
 
     handleScroll() {
@@ -36,6 +40,8 @@ class Banner extends PureComponent {
         const rate = scrolled * 0.2;
 
         if (this.imageWrapper.current !== null) {
+            this.imageWrapper.style.webkitTransform = `translate3d(0px, ${rate}px, 0px)`;
+            this.imageWrapper.style.MozTransform = `translate3d(0px, ${rate}px, 0px)`;
             this.imageWrapper.style.transform = `translate3d(0px, ${rate}px, 0px)`;
         }
     }
