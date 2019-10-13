@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import * as Vibrant from "node-vibrant";
 import HLS from "hls.js";
+import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import "./Play.scss";
@@ -13,6 +14,8 @@ class Play extends Component {
         this.video = React.createRef();
         this.progressBar = React.createRef();
         this.overlay = React.createRef();
+        this.navLinks = React.createRef();
+        this.navPages = React.createRef();
 
         this.body = document.getElementsByTagName("body")[0];
 
@@ -35,7 +38,8 @@ class Play extends Component {
             progressWidth: "0%",
             fullscreen: false,
             mouseMoveTimeout: null,
-            mute: false
+            mute: false,
+            navIndex: -1
         };
     }
 
@@ -55,13 +59,17 @@ class Play extends Component {
         this.progressBar.current.addEventListener("click", this.handleProgressbarMouseClick.bind(this));
         document.addEventListener("fullscreenchange", this.handlePageFullscreen.bind(this));
 
+        // const reqSourceID = await fetch(`http://86.21.150.167:8000/api/v1/stream/start/${this.props.match.params.id}`);
+        // const sourceID = await reqSourceID.json();
+
+        const sourceID = "66232264-6baf-4dc6-bf3a-6bc6cc6a0131"; // ! TEMPORARY - FOR TESTING
+        const source = `http://86.21.150.167:8000/api/v1/stream/static/${sourceID}/index.m3u8`;
+
         const config = {
             autoStartLoad: true,
             startPosition: 0,
             debug: false,
         };
-
-        const source = `http://86.21.150.167:8000/api/v1/stream/static/66232264-6baf-4dc6-bf3a-6bc6cc6a0131/index.m3u8`;
 
         // ! FIXME: USING OLD VER (0.8.8) (OUTDATED)
         if (HLS.isSupported()) {
@@ -76,9 +84,55 @@ class Play extends Component {
         // !
 
         // ! TO BE REPLACED WITH API
+        let versions = [
+            {
+                file: "FILENAME",
+                codec: "H624",
+                videoBitrate: "200 KB/S",
+                audio: "AAC",
+                audioBitrate: "192 KB/S",
+                library: "2"
+            },
+            {
+                file: "FILENAME",
+                codec: "H624",
+                videoBitrate: "200 KB/S",
+                audio: "AAC",
+                audioBitrate: "192 KB/S",
+                library: "3"
+            },
+            {
+                file: "FILENAME",
+                codec: "H624",
+                videoBitrate: "200 KB/S",
+                audio: "AAC",
+                audioBitrate: "192 KB/S",
+                library: "4"
+            },
+            {
+                file: "FILENAME",
+                codec: "H624",
+                videoBitrate: "200 KB/S",
+                audio: "AAC",
+                audioBitrate: "192 KB/S",
+                library: "5"
+            }
+        ];
+        // !
+
+        versions = versions.map((
+            { file, codec, videoBitrate, audio, audioBitrate, library }, i
+        ) => (
+            <NavLink className="version" key={i} to="#">
+                <FontAwesomeIcon icon="file-video"/>
+                <p>{file} - {codec}@{videoBitrate} {audio}@{audioBitrate} - Library {library}</p>
+            </NavLink>
+        ));
+
         this.setState({
             name: "Gravity",
-            cover: "https://images-na.ssl-images-amazon.com/images/I/41qngCO1gzL.jpg"
+            cover: "https://images-na.ssl-images-amazon.com/images/I/41qngCO1gzL.jpg",
+            versions
         });
     }
 
@@ -110,7 +164,8 @@ class Play extends Component {
 
         this.setState({
             duration: `${hh}:${mm}:${ss}`,
-            endsAt: currentDate.toLocaleString("en-US", { hour: "numeric", minute: "numeric", hour12: true })
+            endsAt: currentDate.toLocaleString("en-US", { hour: "numeric", minute: "numeric", hour12: true }),
+            resolution: "1080p"
         });
     }
 
@@ -228,17 +283,51 @@ class Play extends Component {
         const posterBlob = URL.createObjectURL(blob);
         const color = await Vibrant.from(posterBlob).getPalette();
 
-        const accent = {
-            background: color.Vibrant.getHex(),
-            text: color.Vibrant.getTitleTextColor()
-        };
-
         const root = document.documentElement;
-        root.style.setProperty("--accent-background", accent.background);
+        root.style.setProperty("--accent-background", color.Vibrant.getHex());
+        root.style.setProperty("--accent-text", color.Vibrant.getTitleTextColor());
+    }
+
+    navSelect(e, index) {
+        if (this.state.navIndex === index) {
+            e.target.classList.add("inActive");
+            e.target.classList.remove("active");
+
+            this.navPages.current.children[index].classList.add("hidden");
+            this.navPages.current.children[index].classList.remove("shown");
+
+            return this.setState({navIndex: -1});
+        }
+
+        this.setState({navIndex: index});
+
+        // eslint-disable-next-line
+        for (let [i, navLink] of [...this.navLinks.current.children].entries()) {
+            if (i === index) {
+                navLink.classList.add("active");
+                navLink.classList.remove("inActive");
+                continue;
+            };
+
+            navLink.classList.add("inActive");
+            navLink.classList.remove("active");
+        }
+
+        // eslint-disable-next-line
+        for (let [i, navPage] of [...this.navPages.current.children].entries()) {
+            if (i === index) {
+                navPage.classList.add("shown");
+                navPage.classList.remove("hidden");
+                continue;
+            };
+
+            navPage.classList.add("hidden");
+            navPage.classList.remove("shown");
+        }
     }
 
     render() {
-        const CoverLoading = (
+        const coverLoading = (
             <div className="placeholder">
                 <div className="spinner"></div>
             </div>
@@ -253,7 +342,7 @@ class Play extends Component {
                             <div className="card-wrapper">
                                 <div className="card">
                                 <a href={this.state.cover} rel="noopener noreferrer" target="_blank">
-                                    <LazyImage alt="cover" src={this.state.cover} onLoad={this.onCoverLoad} loading={CoverLoading}/>
+                                    <LazyImage alt="cover" src={this.state.cover} onLoad={this.onCoverLoad} loading={coverLoading}/>
                                 </a>
                                 </div>
                             </div>
@@ -327,14 +416,27 @@ class Play extends Component {
                             <p>ENDS AT</p>
                             <p>{this.state.endsAt}</p>
                         </section>
-                        <section className="select-version">
-                            <div className="header">
-                                <FontAwesomeIcon icon="caret-down"/>
-                                <p>SELECT VERSION</p>
+                        <section ref={this.navLinks} className="video-nav">
+                            <p onClick={(e) => this.navSelect(e, 0)} className="inActive">VERSIONS</p>
+                            <p onClick={(e) => this.navSelect(e, 1)} className="inActive">CAST</p>
+                            <p onClick={(e) => this.navSelect(e, 2)} className="inActive">DIRECTORS</p>
+                            <p onClick={(e) => this.navSelect(e, 3)} className="inActive">MEDIA INFO</p>
+                        </section>
+                        <section ref={this.navPages} className="pages">
+                            <div className="page hidden select-version">
+                                <h3>VERSIONS</h3>
+                                <div className="versions">
+                                    {this.state.versions}
+                                </div>
                             </div>
-                            <div className="versions">
-                                <p>FILE NAME 1</p> 
-                                <p>FILE NAME 2</p>
+                            <div className="page hidden cast">
+                                <h3>CAST</h3>
+                            </div>
+                            <div className="page hidden directors">
+                                <h3>DIRECTORS</h3>
+                            </div>
+                            <div className="page hidden media-info">
+                                <h3>MEDIA INFO</h3>
                             </div>
                         </section>
                     </div>

@@ -1,3 +1,5 @@
+@import "./mixins.scss";
+
 @font-face {
 	font-family: "Roboto Regular";
 	src: url("./assets/roboto_regular.ttf");
@@ -32,6 +34,10 @@
 	border-radius: 10px;
 }
 
+::-webkit-scrollbar-corner {
+	background: none;
+}
+
 body {
 	margin: 0;
 	-webkit-font-smoothing: antialiased;
@@ -62,24 +68,11 @@ a {
 }
 
 .empty {
-	display: -webkit-box;
-	display: -moz-box;
-	display: -ms-flexbox;
-	display: flex;
-	-webkit-box-orient: vertical;
-	-webkit-box-direction: normal;
-	   -moz-box-orient: vertical;
-	   -moz-box-direction: normal;
-	    -ms-flex-direction: column;
-	        flex-direction: column;
-	-webkit-box-pack: center;
-	   -moz-box-pack: center;
-	    -ms-flex-pack: center;
-	        justify-content: center;
-	-webkit-box-align: center;
-	   -moz-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	@include display(flex);
+	@include flex-direction(column);
+	@include justify-content(center);
+	@include align-items(center);
+	@include animation(appear 0.5s ease-in-out);
 	height: 100%;
 	font-family: "Roboto Condensed Regular";
 	text-align: center;
@@ -113,15 +106,14 @@ button {
 }
 
 .placeholder {
+	@include transition(background-position 0.3s ease-in-out);
+	@include animation(appear 0.5s ease-in-out);
 	position: relative;
     height: 100%;
 	background: #555555;
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(50%, #222222), to(transparent));
 	background: linear-gradient(to bottom, #222222 50%, transparent 100%);
 	background-size: 200% 200%;
 	background-position: 100% 100%;
-	-webkit-transition: background-position 0.3s ease-in-out;
-	transition: background-position 0.3s ease-in-out;
 
     &:hover {
 		background-position: 0 0;
@@ -129,6 +121,7 @@ button {
 }
 
 .spinner {
+	@include transform(translate(-50%, -50%));
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -136,10 +129,10 @@ button {
 	width: 40px;
 	max-height:40px;
 	max-width: 40px;
-	-webkit-transform: translate(-50%, -50%);
-	        transform: translate(-50%, -50%);
+	animation: testing 0.5s ease-in-out;
 
 	&::after {
+		@include animation(spinner 0.6s linear infinite);
 		content: "";
 		position: absolute;
 		top: 0;
@@ -150,8 +143,6 @@ button {
 		border: solid 2px #333333;
 		background: rgba(0, 0, 0, .2);
 		border-top-color: #ffffff;
-		-webkit-animation: spinner 0.6s linear infinite;
-		        animation: spinner 0.6s linear infinite;
 	}
 }
 
@@ -160,20 +151,19 @@ button {
 */
 
 .popup {
+	@include align-items(center);
+	@include transform(translate(-50%, -50%));
+	@include box-shadow(#00000099 0 0 10px 0);
+	@include box-sizing(border-box);
+	@include animation(appearPopup 0.5s ease-in-out);
 	display: grid;
 	grid-template-areas:
 		"heading"
 		"input"
 		"options";
-	-webkit-box-align: center;
-	   -moz-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	-webkit-transform: translate(-50%, -50%);
-	        transform: translate(-50%, -50%);
 	width: 400px;
 	height: 200px;
 	background: #333333;
@@ -181,14 +171,7 @@ button {
 	border-radius: 1vh;
 	outline: none;
 	padding: 1vh 2vh;
-	-webkit-box-sizing: border-box;
-	   -moz-box-sizing: border-box;
-	        box-sizing: border-box;
-	-webkit-box-shadow: #00000099 0 0 10px 0;
-	        box-shadow: #00000099 0 0 10px 0;
 	z-index: 1;
-	-webkit-animation: appearPopup 0.5s ease-in-out;
-	        animation: appearPopup 0.5s ease-in-out;
 
 	h2 {
 		margin: 0;
@@ -208,29 +191,18 @@ button {
 	}
 
 	.options {
+		@include display(flex);
+		@include align-items(center);
+		@include justify-content(flex-end);
 		grid-area: options;
-		display: -webkit-box;
-		display: -moz-box;
-		display: -ms-flexbox;
-		display: flex;
-		-webkit-box-align: center;
-		   -moz-box-align: center;
-		    -ms-flex-align: center;
-		        align-items: center;
-		-webkit-box-pack: end;
-		   -moz-box-pack: end;
-		    -ms-flex-pack: end;
-		        justify-content: flex-end;
 
 		button, a {
+			@include transition(0.2s ease-in-out);
 			font-family: "Roboto Black";
 			padding: 1vh 2vh;
 			border-radius: 1vh;
-			-webkit-transition: 0.2s ease-in-out;
-			transition: 0.2s ease-in-out;
-			-webkit-transition-property: background, opacity;
-			transition-property: background, opacity;
 			background: #222222;
+			transition-property: background, opacity;
 		}
 
 		button {
@@ -251,145 +223,37 @@ button {
 }
 
 main {
+	@include box-sizing(border-box);
+	@include transition(margin 0.3s ease-in-out);
 	position: relative;
     margin-left: 300px;
-    -webkit-box-sizing: border-box;
-            -moz-box-sizing: border-box;
-         box-sizing: border-box;
     color: #ffffff;
     display: grid;
     grid-template-areas:
         "banner"
         "library";
 	grid-template-rows: 40vh auto;
-	-webkit-transition: margin 0.3s ease-in-out;
-	transition: margin 0.3s ease-in-out;
 
 	> section h1 {
 		margin: 50px 0;
 		padding: 0 5%;
 	}
-
-    /*
-        * == LIBRARY ==
-    */
-
-    .library {
-        margin: 50px 0;
-        padding: 0 5%;
-		z-index: 1;
-		position: relative;
-
-        h1 {
-            text-transform: uppercase;
-			margin: 0;
-		}
-
-		> section {
-			margin-bottom: 10vh;
-		}
-
-		.floating-bar {
-			position: fixed;
-			bottom: 1%;
-			right: 1%;
-			display: -webkit-box;
-			display: -moz-box;
-			display: -ms-flexbox;
-			display: flex;
-			background: #444444;
-			border-radius: 10px;
-			padding: 5px;
-			z-index: 1;
-			-webkit-box-pack: space-evenly;
-			   -moz-box-pack: space-evenly;
-			    -ms-flex-pack: space-evenly;
-			        justify-content: space-evenly;
-			text-align: center;
-			-webkit-box-align: center;
-			   -moz-box-align: center;
-			    -ms-flex-align: center;
-			        align-items: center;
-			-webkit-transition: 0.3s ease-in-out;
-			transition: 0.3s ease-in-out;
-			-webkit-transition-property: bottom, right, -webkit-transform;
-			transition-property: bottom, right, -webkit-transform;
-			transition-property: bottom, right, transform;
-			transition-property: bottom, right, transform, -webkit-transform;
-
-			a {
-				display: -webkit-box;
-				display: -moz-box;
-				display: -ms-flexbox;
-				display: flex;
-				-webkit-box-orient: vertical;
-				-webkit-box-direction: normal;
-				   -moz-box-orient: vertical;
-				   -moz-box-direction: normal;
-				    -ms-flex-direction: column;
-				        flex-direction: column;
-				-webkit-box-pack: center;
-				   -moz-box-pack: center;
-				    -ms-flex-pack: center;
-				        justify-content: center;
-				-webkit-box-align: center;
-				   -moz-box-align: center;
-				    -ms-flex-align: center;
-				        align-items: center;
-				height: 40px;
-				width: 40px;
-				border-radius: 50%;
-				-webkit-transition: background 0.3s ease-in-out;
-				transition: background 0.3s ease-in-out;
-
-				&:hover {
-					background: #666666;
-				}
-			}
-		}
-    }
-
-    .cards {
-		margin: 50px 0;
-		display: grid;
-		-webkit-box-pack: justify;
-		   -moz-box-pack: justify;
-		    -ms-flex-pack: justify;
-		        justify-content: space-between;
-        grid-template-columns: repeat(auto-fill, 200px);
-		grid-gap: 10vh 5vh;
-		-webkit-transition: all 1s;
-		transition: all 1s;
-    }
 }
 
 /*
 	* === KEYFRAMES ===
 */
 
-@-webkit-keyframes spinner {
+@include keyframes(spinner) {
 	from {
-		-webkit-transform: rotate(0deg);
-		        transform: rotate(0deg);
+		@include transform(rotate(0deg));
 	}
 	to {
-		-webkit-transform: rotate(360deg);
-		        transform: rotate(360deg);
+		@include transform(rotate(360deg));
 	}
 }
 
-@keyframes spinner {
-	from {
-		-webkit-transform: rotate(0deg);
-		        transform: rotate(0deg);
-	}
-	to {
-		-webkit-transform: rotate(360deg);
-		        transform: rotate(360deg);
-	}
-}
-
-@-webkit-keyframes appearPopup {
+@include keyframes(appearPopup) {
 	0% {
 		opacity: 0;
 		width: 0;
@@ -398,13 +262,13 @@ main {
 	100% { opacity: 1; }
 }
 
-@keyframes appearPopup {
+@include keyframes(appear) {
 	0% {
 		opacity: 0;
-		width: 0;
 	}
-	50% { width: 400px; }
-	100% { opacity: 1; }
+	100% {
+		opacity: 1;
+	}
 }
 
 /*

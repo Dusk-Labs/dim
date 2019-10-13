@@ -1,9 +1,10 @@
 import React, { PureComponent } from "react";
-import LazyImage from "../../helpers/LazyImage.jsx";
-import ProgressBar from "./ProgressBar.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import TruncText from "../../helpers/TruncText.jsx";
 import * as Vibrant from 'node-vibrant';
+
+import ProgressBar from "./ProgressBar.jsx";
+import LazyImage from "../../helpers/LazyImage.jsx";
+import TruncText from "../../helpers/TruncText.jsx";
 
 import "./Banner.scss";
 
@@ -12,23 +13,17 @@ class Banner extends PureComponent {
         super(props);
 
         this.imageWrapper = React.createRef();
+
         this.getImageWrapperRef = this.getImageWrapperRef.bind(this);
         this.handleScroll = this.handleScroll.bind(this);
 
         this.state = {
-            accent: {
-                background: "#f7931e",
-                text: "#ffffff"
-            },
-            banner: <div className="spinner"></div>
+            backgroundColor: "#f7931e",
+            textColor: "#ffffff"
         };
     }
 
     componentDidMount() {
-        this.setState({
-            ...this.props.banner
-        }, this.renderBanner);
-
         window.addEventListener("scroll", this.handleScroll);
     }
 
@@ -49,79 +44,75 @@ class Banner extends PureComponent {
         const color = await Vibrant.from(URL.createObjectURL(blob)).getPalette();
 
         this.setState({
-            accent: {
-                background: color.Vibrant.getHex(),
-                text: color.Vibrant.getTitleTextColor()
-            }
-        }, this.renderBanner);
+            backgroundColor: color.Vibrant.getHex(),
+            textColor: color.Vibrant.getTitleTextColor()
+        });
     }
 
     getImageWrapperRef(ref) {
         this.imageWrapper = ref;
     }
 
-    renderBanner() {
-        let {
-            accent,
-            backdrop,
-            title,
-            synopsis,
-            season,
-            episode,
-            duration,
-            delta,
-            banner_caption,
-            genres,
-            year,
-        } = this.state;
+    render() {
+        const { backgroundColor, textColor } = this.state;
 
-        const accentCSS = {
-            background: accent.background,
-            color: accent.text
-        };
+        const {
+            title,
+            year,
+            synopsis,
+            backdrop,
+            banner_caption,
+            delta,
+            duration,
+            genres,
+            season,
+            episode
+        } = this.props.banner;
 
         if (genres.length > 3) {
             genres.length = 3;
         }
 
-        const loading = (
-            <div className="placeholder">
-                <div className="spinner"></div>
+        const progressBarData = {
+            textColor: backgroundColor,
+            season,
+            episode,
+            duration,
+            delta
+        };
+
+        return (
+            <div className="banner">
+                <LazyImage
+                    alt="banner"
+                    src={backdrop}
+                    imageWrapperRef={this.getImageWrapperRef}
+                    onLoad={this.onLoadBanner}
+                />
+                <div className="extras">
+                    <p>{year}</p>
+                    <FontAwesomeIcon icon="circle" style={{ color: backgroundColor }}/>
+                    {genres.map((genre, i) => <p key={i}>{genre}</p>)}
+                </div>
+                <div className="info">
+                    <h1>{title}</h1>
+                    <div className="description">
+                        <h5>{banner_caption}</h5>
+                        <TruncText content={synopsis} max={35}/>
+                    </div>
+                    <a
+                        href={backdrop}
+                        style={{color: textColor, background: backgroundColor}}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                    >
+                        PLAY
+                        <FontAwesomeIcon icon="arrow-alt-circle-right"/>
+                    </a>
+                </div>
+                <ProgressBar data={progressBarData}/>
             </div>
         );
-
-        this.setState({
-            banner: (
-                <div className="banner">
-                    <LazyImage alt="banner" src={backdrop} onLoad={this.onLoadBanner} imageWrapperRef={this.getImageWrapperRef} loading={loading}/>
-                    <div className="extras">
-                        <p>{year}</p>
-                        <FontAwesomeIcon icon="circle" style={{ color: accent.background }}/>
-                        {genres.map((genre, i) => <p key={i}>{genre}</p>)}
-                    </div>
-                    <div className="info">
-                        <h1>{title}</h1>
-                        <div className="description">
-                            <h5>{banner_caption}</h5>
-                            <TruncText content={synopsis} max={35}/>
-                        </div>
-                        <a
-                            href={backdrop}
-                            style={accentCSS}
-                            rel="noopener noreferrer"
-                            target="_blank">
-                            PLAY
-                            <FontAwesomeIcon icon="arrow-alt-circle-right"/>
-                        </a>
-                    </div>
-                    <ProgressBar id="1" accent={accent.background} season={season} episode={episode} duration={duration} delta={delta === undefined ? 0 : delta}/>
-                </div>
-            )
-        });
-    }
-
-    render() {
-        return this.state.banner;
     }
 }
 
