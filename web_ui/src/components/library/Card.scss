@@ -17,14 +17,14 @@
 
         .image-wrapper {
             @include transition(box-shadow 0.3s ease-in-out);
-            @include animation(imageLoaded 1s ease-in-out);
-        }
 
-        img {
-            @include transition(transform 0.3s ease-in-out);
-            will-change: transform;
-            -o-object-fit: cover;
-               object-fit: cover;
+            img {
+                @include transition(transform 0.3s ease-in-out);
+                @include animation(imageLoaded 1s ease-in);
+                will-change: transform;
+                -o-object-fit: cover;
+                   object-fit: cover;
+            }
         }
 
         img, div, .placeholder {
