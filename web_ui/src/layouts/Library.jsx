@@ -116,10 +116,11 @@ class Library extends Component {
             }
         }
 
+        // temporary fix with the empty div
         const card_list = Object.keys(sections).map(section => {
             return (
                 <section key={section}>
-                    <h1>{section}</h1>
+                    { section !== "SECTION" ? <h1>{section}</h1> : <div></div> }
                     <div className="cards">
                         { sections[section] }
                     </div>

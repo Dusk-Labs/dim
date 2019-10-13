@@ -22,6 +22,7 @@ class Dashboard extends Component {
     fetchBanners = async () => {
         const bannersReq = await fetch("http://86.21.150.167:8000/api/v1/dashboard/banner");
         const banners = await bannersReq.json();
+        console.log(banners);
         this.setState({ banners, bannersReady: true });
     }
 
