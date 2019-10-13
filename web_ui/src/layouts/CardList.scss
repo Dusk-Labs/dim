@@ -1,0 +1,56 @@
+@import "../mixins.scss";
+
+.card_list {
+    margin: 50px 0;
+    padding: 0 5%;
+    z-index: 1;
+    position: relative;
+
+    h1 {
+        text-transform: uppercase;
+        margin: 0;
+    }
+
+    > section {
+        margin-bottom: 10vh;
+    }
+
+    .floating-bar {
+        @include display(flex);
+        @include justify-content(space-evenly);
+        @include align-items(center);
+        @include transition(0.3s ease-in-out);
+        position: fixed;
+        bottom: 1%;
+        right: 1%;
+        background: #444444;
+        border-radius: 10px;
+        padding: 5px;
+        z-index: 1;
+        text-align: center;
+        transition-property: bottom, right, transform;
+
+        a {
+            @include display(flex);
+            @include flex-direction(column);
+            @include justify-content(center);
+            @include align-items(center);
+            @include transition(background 0.3s ease-in-out);
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+
+            &:hover {
+                background: #666666;
+            }
+        }
+    }
+}
+
+.cards {
+    @include justify-content(space-between);
+    margin: 50px 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 200px);
+    grid-gap: 10vh 5vh;
+}

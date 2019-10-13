@@ -70,23 +70,15 @@ class Card extends PureComponent {
         const { accent } = this.state
         const { name, poster_path, id } = this.props.data;
 
-        const loading = (
-            <div className="placeholder">
-                <div className="spinner"></div>
-            </div>
-        );
-
-        const cover = (
-            poster_path && (
-                <LazyImage alt={"cover-" + name} src={poster_path} onLoad={this.onLoadPoster} loading={loading}/>
-            )
-        );
-
         return (
             <div className="card-wrapper" onMouseEnter={this.handleMouseHover} onMouseLeave={this.handleMouseHover}>
                 <div id={id} className="card" ref={this.card}>
                     <a href={poster_path} rel="noopener noreferrer" target="_blank">
-                        { cover }
+                        <LazyImage
+                            alt={"cover-" + name}
+                            src={poster_path}
+                            onLoad={this.onLoadPoster}
+                        />
                         <p style={{opacity: + !this.state.hovering}}>{name}</p>
                     </a>
                 </div>

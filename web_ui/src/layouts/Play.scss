@@ -2,6 +2,7 @@
 
 :root {
     --accent-background: #f7931e;
+    --accent-text: #ffffff;
 }
 
 .video-wrapper {
@@ -20,8 +21,9 @@ video {
 .overlay {
     @include box-sizing(border-box);
     @include transition(opacity 0.3s ease-in-out);
+    @include justify-content(space-between);
     position: absolute;
-    background: radial-gradient(circle, transparent 50%, black 100%);
+    background: radial-gradient(circle, transparent 0, black 100%);
     top: 0;
     height: 100%;
     width: 100%;
@@ -29,8 +31,8 @@ video {
     opacity: 1;
     display: grid;
     grid-gap: 100px;
-    grid-template-rows: 1fr;
-    grid-template-columns: 200px 1fr 200px;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 200px 0.9fr 200px;
     grid-template-areas:
         "top-left top top-right"
         "middle-left middle middle-right"
@@ -122,8 +124,8 @@ video {
                 }
 
                 .video-progress-inner {
-                    @include transition(width 0.1s ease-in-out);
-                    background: #f7931e;
+                    @include transition(width 1s ease-in-out);
+                    background: var(--accent-background);
                     border-radius: 10px;
                     height: 12px;
                     width: 0;
@@ -213,32 +215,150 @@ video {
         }
     }
 
-    .select-version {
-        text-align: right;
-        grid-area: top-right;
+    .video-nav {
+        @include display(flex);
+        @include justify-content(center);
+        grid-area: top;
         pointer-events: all;
         position: relative;
+        font-family: "Roboto Black";
 
-        &:hover .versions {
-            opacity: 1;
+        %navLinkIndicator {
+            @include transform(translate(-50%, -50%));
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: 50%;
+            height: 4px;
+            width: 20px;
+            background: var(--accent-background);
+            border-radius: 10px;
         }
 
-        .header {
-            @include display(flex);
-            @include align-items(center);
-            @include justify-content(flex-end);
+        .active::after {
+            @extend %navLinkIndicator;
+            @include animation(activeVideoNavLink 0.3s ease-out);
+        }
 
-            // downward arrow icon
-            svg {
-                margin-right: 5px;
+        .inActive::after {
+            @extend %navLinkIndicator;
+            @include animation(hideVideoNavLink 0.3s ease-in forwards);
+        }
+
+        p {
+            margin: 0 10px;
+            position: relative;
+            cursor: pointer;
+        }
+    }
+
+    .pages {
+        justify-self: center;
+        grid-area: middle;
+        position: relative;
+        pointer-events: all;
+
+        .page {
+            @include transform(translateX(-50%));
+            border-radius: 10px;
+            box-sizing: border-box;
+            padding: 20px;
+            height: auto;
+            position: absolute;
+            background: linear-gradient(315deg, #333333 0%, #363636 100%);
+            box-sizing: border-box;
+
+            .versions {
+                @include display(flex);
+                @include flex-direction(column);
+                overflow-y: scroll;
+                padding-right: 10px;
+                max-height: 250px;
+                width: 500px;
+
+                .version {
+                    @include display(flex);
+                    @include align-items(center);
+                    @include transition(background 0.2s ease-in-out);
+                    padding: 10px;
+                    border-radius: 10px;
+                    background: none;
+                    font-family: "Roboto Condensed";
+
+                    &:hover {
+                        background: #444444;
+                    }
+
+                    svg {
+                        margin-right: 10px;
+                    }
+
+                    p {
+                        margin: 0;
+                    }
+                }
             }
         }
 
-        .versions {
-            @include transition(opacity 0.3s ease-in-out);
-            position: absolute;
-            right: 0;
+        .shown {
+            @include animation(shownVideoNavPage 0.3s ease-in);
+            opacity: 1;
+            z-index: 1;
+        }
+
+        .hidden {
+            @include animation(hiddenVideoNavPage 0.3s ease-in);
             opacity: 0;
         }
+    }
+
+}
+
+/*
+    * == KEYFRAMES ==
+*/
+
+@include keyframes(activeVideoNavLink) {
+    0% {
+        opacity: 0;
+        width: 0;
+    }
+    50% {
+        width: 30px;
+    }
+    100% {
+        opacity: 1;
+        width: 20px;
+    }
+}
+
+@include keyframes(shownVideoNavPage) {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@include keyframes(hiddenVideoNavPage) {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@include keyframes(hideVideoNavLink) {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        width: 30px;
+    }
+    100% {
+        opacity: 0;
+        width: 0;
     }
 }
