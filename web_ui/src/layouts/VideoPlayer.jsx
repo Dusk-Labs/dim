@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import * as Vibrant from "node-vibrant";
-import HLS from "hls.js";
 import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import HLS from "hls.js";
 
-import "./Play.scss";
+import "./VideoPlayer.scss";
 import LazyImage from "../helpers/LazyImage.jsx";
 
 class Play extends Component {
