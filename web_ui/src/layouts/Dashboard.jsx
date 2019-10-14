@@ -5,8 +5,8 @@ import { fetchDashboard } from "../actions/dashboardActions.js";
 import { fetchBanners } from "../actions/dashboardActions.js";
 
 import CardList from "../layouts/CardList.jsx";
-import Banner from "../components/dashboard/Banner.jsx";
-import BannerPage from "../components/dashboard/BannerPage.jsx";
+import Banner from "../components/Banner.jsx";
+import BannerPage from "../components/BannerPage.jsx";
 
 class Dashboard extends Component {
 
@@ -28,7 +28,6 @@ class Dashboard extends Component {
                 {this.props.banners.fetched && !this.props.banners.error &&
                     <BannerPage>{banners}</BannerPage>
                 }
-                {/* FETCH_DASHBOARD_OK */}
                 {this.props.dashboard.fetched && !this.props.dashboard.error &&
                     <CardList cards={this.props.dashboard.sections}/>
                 }
@@ -42,9 +41,9 @@ const mapStateToProps = (state) => ({
     banners: state.banners
 });
 
-const actions = {
+const mapActionstoProps = {
     fetchDashboard,
     fetchBanners
 };
 
-export default connect(mapStateToProps, actions)(Dashboard);
+export default connect(mapStateToProps, mapActionstoProps)(Dashboard);
