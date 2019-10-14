@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import TruncText from "../../helpers/TruncText.jsx";
-import IMDbLogo from "../../assets/imdb.png";
+import TruncText from "../helpers/TruncText.jsx";
+import IMDbLogo from "../assets/imdb.png";
 
 import "./CardPopup.scss";
 
