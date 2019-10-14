@@ -1,9 +1,6 @@
 import React, { Component } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
-import { Provider } from "react-redux";
-import store from "./store.js";
-
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { far } from "@fortawesome/free-regular-svg-icons";
@@ -11,7 +8,7 @@ import { far } from "@fortawesome/free-regular-svg-icons";
 import Sidebar from "./layouts/Sidebar.jsx";
 import Dashboard from "./layouts/Dashboard.jsx";
 import CardList from "./layouts/CardList.jsx";
-import Play from "./layouts/Play.jsx";
+import VideoPlayer from "./layouts/VideoPlayer.jsx";
 import SearchResults from "./layouts/SearchResults";
 
 import './App.scss';
@@ -21,7 +18,6 @@ library.add(fas, far);
 class App extends Component {
 	render() {
 		return (
-			<Provider store={store}>
 			<Router>
 			<Switch>
 				<Route exact path="/" render={() =>
@@ -48,12 +44,11 @@ class App extends Component {
 				}/>
 				<Route exact path="/play/:id" render={props =>
 					<div className="App">
-						<Play {...props}/>
+						<VideoPlayer {...props}/>
 					</div>
 				}/>
 			</Switch>
 			</Router>
-			</Provider>
 		);
 	}
 }
