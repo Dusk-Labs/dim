@@ -1,12 +1,12 @@
-import React, { PureComponent } from "react";
+import React, { Component } from "react";
 import * as Vibrant from 'node-vibrant';
 
 import CardPopup from "./CardPopup.jsx";
-import LazyImage from "../../helpers/LazyImage.jsx";
+import LazyImage from "../helpers/LazyImage.jsx";
 
 import "./Card.scss";
 
-class Card extends PureComponent {
+class Card extends Component {
     constructor(props) {
         super(props);
 

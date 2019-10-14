@@ -8,7 +8,7 @@ class BannerPage extends Component {
         this.state = {
             activeIndex: 0,
             interval: 14000
-        }
+        };
 
         this.interval = setInterval(this.next.bind(this), this.state.interval);
     }

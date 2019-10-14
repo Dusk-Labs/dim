@@ -1,12 +1,14 @@
 import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import Card from "../components/library/Card.jsx";
+import Card from "../components/Card.jsx";
 import "./CardList.scss";
 
 class CardList extends Component {
     constructor(props) {
         super(props);
+
+        this._isMounted = false;
 
         this.state = {
             cards: {},
@@ -16,12 +18,18 @@ class CardList extends Component {
         };
     }
 
-    async componentDidMount() {
+    componentDidMount() {
+        this._isMounted = true;
+
         this.getCards();
 
         if (this.props.id) {
             this.mount_websocket();
         }
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     async componentDidUpdate(prevProps) {
@@ -95,7 +103,7 @@ class CardList extends Component {
         if (this.props.path) {
             const res = await fetch(this.props.path);
 
-            if (res.status !== 200) {
+            if (res.status !== 200 && this._isMounted) {
                 return this.setState({
                     fetching: false,
                     fetched: true,
@@ -105,11 +113,13 @@ class CardList extends Component {
 
             const payload = await res.json();
 
-            this.setState({
-                fetching: false,
-                fetched: true,
-                cards: payload
-            });
+            if (this._isMounted) {
+                this.setState({
+                    fetching: false,
+                    fetched: true,
+                    cards: payload
+                });
+            }
         } else {
             this.setState({
                 fetching: false,
@@ -139,21 +149,22 @@ class CardList extends Component {
 
         // OK
         if (this.state.fetched && !this.state.error) {
-            let cards = this.state.cards;
+            const { cards } = this.state;
+            let sections = {};
 
             // eslint-disable-next-line
             for (const section in cards) {
                 if (cards[section].length > 0) {
-                    cards[section] = cards[section].map((card, i) => <Card key={i} data={card}/>);
+                    sections[section] = cards[section].map((card, i) => <Card key={i} data={card}/>);
                 }
             }
 
-            card_list = Object.keys(cards).map(section => {
+            card_list = Object.keys(sections).map(section => {
                 return (
                     <section key={section}>
                         <h1>{section}</h1>
                         <div className="cards">
-                            { cards[section] }
+                            { sections[section] }
                         </div>
                     </section>
                 );
