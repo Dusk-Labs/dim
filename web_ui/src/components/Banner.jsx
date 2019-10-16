@@ -1,5 +1,6 @@
 import React, { PureComponent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router-dom";
 import * as Vibrant from 'node-vibrant';
 
 import ProgressBar from "./ProgressBar.jsx";
@@ -103,9 +104,9 @@ class Banner extends PureComponent {
                     onLoad={this.onLoadBanner}
                 />
                 <div className="extras">
-                    <p>{year}</p>
+                    <Link to={`/search?year=${year}`}>{year}</Link>
                     <FontAwesomeIcon icon="circle" style={{ color: backgroundColor }}/>
-                    {genres.map((genre, i) => <p key={i}>{genre}</p>)}
+                        {genres.map((genre, i) => <Link to={`/search?genre=${genre}`}>{genre}</Link>)}
                 </div>
                 <div className="info">
                     <h1>{title}</h1>
@@ -116,6 +117,7 @@ class Banner extends PureComponent {
                     <a
                         href={backdrop}
                         style={{color: textColor, background: backgroundColor}}
+                        className="play-btn"
                         rel="noopener noreferrer"
                         target="_blank"
                     >

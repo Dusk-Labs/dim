@@ -98,16 +98,11 @@ impl FFProbeCtx {
 
         let json = String::from_utf8_lossy(probe.stdout.as_slice());
 
-        let de: FFPWrapper = match serde_json::from_str(&json) {
-            Ok(x) => FFPWrapper {
-                ffpstream: Some(x),
-                corrupt: None,
-            },
-            Err(_) => FFPWrapper {
-                ffpstream: None,
-                corrupt: Some(true),
-            },
-        };
+        let de: FFPWrapper = serde_json::from_str(&json)
+            .map_or_else(
+                |_| { FFPWrapper { ffpstream: None, corrupt: Some(true) } },
+                |x| { FFPWrapper { ffpstream: Some(x), corrupt: None } }
+                );
 
         Ok(de)
     }

@@ -42,14 +42,18 @@
             font-size: 0.4em;
         }
 
-        p {
+        a {
             margin: 0;
             font-family: "Roboto Regular";
             font-size: 0.9em;
         }
 
+        a:hover {
+            text-decoration: underline;
+        }
+
         // NOT YEAR
-        p:not(:first-child) {
+        a:not(:first-child) {
             margin: 0 15px 0 0;
         }
     }
@@ -83,7 +87,7 @@
     }
 
     // PLAY BUTTON
-    a {
+    .play-btn {
         @include transition(filter 0.3s ease-in-out);
         @include filter(saturate(0.7));
         display: inline-block;

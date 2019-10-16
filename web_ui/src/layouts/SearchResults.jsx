@@ -31,9 +31,17 @@ class SearchResults extends Component {
         });
 
         const searchURL = new URLSearchParams(this.props.location.search);
-        const query = searchURL.get("query");
 
-        if (query.length === 0) {
+        let params = '';
+
+        // eslint-disable-next-line
+        for (const key of searchURL.keys()) {
+            if (searchURL.get(key) !== undefined) {
+                params += `${key}=${searchURL.get(key)}&`;
+            }
+        }
+
+        if (params.length === 0) {
             return this.setState({
                 fetching: false,
                 fetched: true,
@@ -41,7 +49,7 @@ class SearchResults extends Component {
             });
         };
 
-        const res = await fetch(`http://86.21.150.167:8000/api/v1/search?query=${query}`);
+        const res = await fetch(`http://86.21.150.167:8000/api/v1/search?${params}`);
 
         if (res.status !== 200) {
             return this.setState({
