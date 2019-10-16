@@ -129,11 +129,15 @@ class Play extends Component {
             </NavLink>
         ));
 
-        this.setState({
+        const media_info = {
             name: "Gravity",
             cover: "https://images-na.ssl-images-amazon.com/images/I/41qngCO1gzL.jpg",
             versions
-        });
+        };
+
+        this.setState(media_info);
+
+        document.title = `Dim - Playing '${media_info.name}'`;
     }
 
     componentWillUnmount() {
