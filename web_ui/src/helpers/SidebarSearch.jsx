@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import { HashLink } from 'react-router-hash-link';
-import { Link, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 
-import { Scrollbar } from "react-scrollbars-custom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./SidebarSearch.scss";
 
@@ -14,6 +13,7 @@ class SidebarSearch extends Component {
         this.inputBox = React.createRef();
 
         this.onChange = this.onChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
         this.toggleShowSearchFor = this.toggleShowSearchFor.bind(this);
         this.handleDocumentClick = this.handleDocumentClick.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -46,8 +46,8 @@ class SidebarSearch extends Component {
         }
     }
 
+    // hides popups if clicked outside component
     handleDocumentClick(e) {
-        // hides popups if clicked outside component
         if (!this.searchBox.current.contains(e.target)) {
             if (this.state.showSearchFor) {
                 this.setState({
@@ -130,10 +130,13 @@ class SidebarSearch extends Component {
     handleKeyPress(e) {
         if (e.keyCode === 13) {
             e.preventDefault();
+            this.handleSubmit();
+        }
+    }
 
-            if (this.state.query.length >= 1) {
-                this.props.history.push(`/search?query=${this.state.query}`);
-            }
+    handleSubmit() {
+        if (this.state.query.length >= 1) {
+            this.props.history.push(`/search?query=${this.state.query}`);
         }
     }
 
@@ -151,14 +154,14 @@ class SidebarSearch extends Component {
                     {this.state.showPlaceholder &&
                         <span id="placeholder">SEARCH</span>
                     }
-                    <Link to={`/search?query=${this.state.query}`}>
+                    <button onClick={this.handleSubmit}>
                         <FontAwesomeIcon icon="search"/>
-                    </Link>
+                    </button>
                 </div>
                 {this.state.showSearchFor &&
                     <div className="search-box-search-for">
                         <p>SEARCH FOR: <span id="query">{this.state.query}</span></p>
-                        { this.state.results }
+                        {this.state.results}
                     </div>}
             </div>
         );
