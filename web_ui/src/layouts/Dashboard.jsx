@@ -10,8 +10,8 @@ import Banner from "../components/Banner.jsx";
 import BannerPage from "../components/BannerPage.jsx";
 
 class Dashboard extends Component {
-
     componentDidMount() {
+        document.title = "Dim - Dashboard";
         this.props.fetchDashboard();
         this.props.fetchBanners();
     }

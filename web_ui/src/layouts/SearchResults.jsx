@@ -16,6 +16,7 @@ class SearchResults extends Component {
     }
 
     componentDidMount() {
+        document.title = "Dim - Results";
         this.getResults();
     }
 
