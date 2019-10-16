@@ -10,6 +10,7 @@ class Card extends Component {
     constructor(props) {
         super(props);
 
+        this.cardWrapper = React.createRef();
         this.card = React.createRef();
         this.handleMouseHover = this.handleMouseHover.bind(this);
 
@@ -22,6 +23,20 @@ class Card extends Component {
                 text: "#ffffff"
             }
         };
+    }
+
+    componentDidMount() {
+        this.cardWrapper.current.addEventListener("mouseenter", this.handleMouseHover);
+        this.cardWrapper.current.addEventListener("mouseleave", this.handleMouseHover);
+        this.cardWrapper.current.addEventListener("focusin", this.handleMouseHover);
+        this.cardWrapper.current.addEventListener("focusout", this.handleMouseHover);
+    }
+    
+    componentWillUnmount() {
+        this.cardWrapper.current.removeEventListener("mouseenter", this.handleMouseHover);
+        this.cardWrapper.current.removeEventListener("mouseleave", this.handleMouseHover);
+        this.cardWrapper.current.removeEventListener("focusin", this.handleMouseHover);
+        this.cardWrapper.current.removeEventListener("focusout", this.handleMouseHover);
     }
 
     handleMouseHover() {
@@ -71,7 +86,7 @@ class Card extends Component {
         const { name, poster_path, id } = this.props.data;
 
         return (
-            <div className="card-wrapper" onMouseEnter={this.handleMouseHover} onMouseLeave={this.handleMouseHover}>
+            <div className="card-wrapper" ref={this.cardWrapper}>
                 <div id={id} className="card" ref={this.card}>
                     <a href={poster_path} rel="noopener noreferrer" target="_blank">
                         <LazyImage
