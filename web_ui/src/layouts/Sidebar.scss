@@ -42,8 +42,17 @@
                 background: transparent;
                 transition-property: background, opacity;
 
+                &::-moz-focus-inner {
+                    border: 0;
+                }
+
+                &:focus,
                 &:hover {
                     background: #666666;
+                }
+
+                &:focus {
+                    opacity: 1;
                 }
             }
 
@@ -117,6 +126,7 @@
     .active {
         background: #555555;
 
+        &:focus,
         &:hover {
             background: #666666 !important;
         }
@@ -146,6 +156,12 @@
             text-align: center;
             grid-gap: 15px;
 
+            &:hover {
+                button {
+                    opacity: 1;
+                }
+            }
+
             // ITEM
             a:nth-child(1) {
                 @include align-items(center);
@@ -171,20 +187,27 @@
                 transition-property: background, opacity;
                 background: #222222;
 
+                &::-moz-focus-inner {
+                    border: 0;
+                }
+
                 &:hover {
                     background: #444444;
                 }
-            }
 
-            &:hover {
-                button {
+                &:focus {
                     opacity: 1;
                 }
             }
         }
 
-        > div a:hover {
-            background: #222222;
+        > div a {
+            outline: none;
+            
+            &:focus,
+            &:hover {
+                background: #222222;
+            }
         }
 
         // ITEM ICON

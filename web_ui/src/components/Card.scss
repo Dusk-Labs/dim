@@ -3,8 +3,8 @@
 .card-wrapper {
     position: relative;
 
-    &:hover .card {
-        .image-wrapper {
+    &:hover {
+        .card .image-wrapper {
             @include box-shadow(#ffffff 0 0 50px -20px);
         }
     }
@@ -19,11 +19,10 @@
             @include transition(box-shadow 0.3s ease-in-out);
 
             img {
+                @include object-fit(cover);
                 @include transition(transform 0.3s ease-in-out);
                 @include animation(imageLoaded 1s ease-in);
                 will-change: transform;
-                -o-object-fit: cover;
-                   object-fit: cover;
             }
         }
 
@@ -43,6 +42,15 @@
             text-transform: uppercase;
             font-size: 0.8em;
         }
+        
+        a {
+            outline: none;
+
+            &:focus .image-wrapper {
+                @include box-shadow(#ffffff 0 0 50px -20px);
+            }
+        }
+
     }
 }
 

@@ -91,7 +91,9 @@
         padding: 7px 30px;
         border-radius: 1vh;
         text-shadow: none;
+        outline: none;
 
+        &:focus,
         &:hover {
             @include filter(saturate(1));
         }
