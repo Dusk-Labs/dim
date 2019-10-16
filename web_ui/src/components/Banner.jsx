@@ -100,7 +100,7 @@ class Banner extends PureComponent {
                 <div className="extras">
                     <Link to={`/search?year=${year}`}>{year}</Link>
                     <FontAwesomeIcon icon="circle" style={{ color: backgroundColor }}/>
-                        {genres.map((genre, i) => <Link to={`/search?genre=${genre}`}>{genre}</Link>)}
+                        {genres.map((genre, i) => <Link to={`/search?genre=${genre}`} key={i}>{genre}</Link>)}
                 </div>
                 <div className="info">
                     <h1>{title}</h1>
