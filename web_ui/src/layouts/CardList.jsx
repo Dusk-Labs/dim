@@ -119,6 +119,8 @@ class CardList extends Component {
                     fetched: true,
                     cards: payload
                 });
+
+                document.title = `Dim - ${Object.keys(payload)[0]}`;
             }
         } else {
             this.setState({

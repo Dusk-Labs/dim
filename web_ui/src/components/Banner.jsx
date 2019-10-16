@@ -27,28 +27,22 @@ class Banner extends PureComponent {
 
     componentDidMount() {
         this._isMounted = true;
-
-        window.addEventListener("scroll", () => {
-            window.requestAnimationFrame(this.handleScroll);
-        });
+        window.addEventListener("scroll", this.handleScroll);
     }
 
     componentWillUnmount() {
         this._isMounted = false;
-
-        window.removeEventListener("scroll", () => {
-            window.requestAnimationFrame(this.handleScroll);
-        });
+        window.removeEventListener("scroll", this.handleScroll);
     }
 
     handleScroll() {
         const scrolled = window.pageYOffset;
         const rate = scrolled * 0.2;
 
-        if (this.imageWrapper.current !== null) {
-            this.imageWrapper.style.webkitTransform = `translate3d(0px, ${rate}px, 0px)`;
-            this.imageWrapper.style.MozTransform = `translate3d(0px, ${rate}px, 0px)`;
-            this.imageWrapper.style.transform = `translate3d(0px, ${rate}px, 0px)`;
+        if (this.imageWrapper.current) {
+            this.imageWrapper.current.style.webkitTransform = `translate3d(0px, ${rate}px, 0px)`;
+            this.imageWrapper.current.style.MozTransform = `translate3d(0px, ${rate}px, 0px)`;
+            this.imageWrapper.current.style.transform = `translate3d(0px, ${rate}px, 0px)`;
         }
     }
 
@@ -64,7 +58,7 @@ class Banner extends PureComponent {
     }
 
     getImageWrapperRef(ref) {
-        this.imageWrapper = ref;
+        this.imageWrapper = {current: ref};
     }
 
     render() {
