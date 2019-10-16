@@ -16,6 +16,7 @@ class SearchResults extends Component {
     }
 
     componentDidMount() {
+        document.title = "Dim - Results";
         this.getResults();
     }
 
@@ -32,6 +33,8 @@ class SearchResults extends Component {
 
         const searchURL = new URLSearchParams(this.props.location.search);
         const query = searchURL.get("query");
+
+        document.title = `Dim - Results for '${query}'`;
 
         if (query.length === 0) {
             return this.setState({
