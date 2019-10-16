@@ -5,6 +5,8 @@ class LazyImage extends Component {
     constructor(props) {
         super(props);
 
+        this._isMounted = false;
+
         this.state = {
             fetching: false,
             fetched: false,
@@ -13,10 +15,12 @@ class LazyImage extends Component {
     }
 
     componentDidMount() {
+        this._isMounted = true;
         this.renderBlob();
     }
 
     componentWillUnmount() {
+        this._isMounted = false;
         if (this.state.objectUrl) {
             URL.revokeObjectURL(this.state.objectUrl);
         }
@@ -37,7 +41,7 @@ class LazyImage extends Component {
 
         const res = await fetch(this.props.src);
 
-        if (!res.headers.get("content-type") === "image/jpeg" || !this.props.src) {
+        if ((!res.headers.get("content-type") === "image/jpeg" || !this.props.src) && this._isMounted) {
             return this.setState({
                 fetching: false,
                 fetched: true,
@@ -48,15 +52,17 @@ class LazyImage extends Component {
         const blob = await res.blob();
         const objectUrl = URL.createObjectURL(blob);
 
-        this.setState({
-            fetching: false,
-            fetched: true,
-            blob,
-            objectUrl
-        });
+        if (this._isMounted) {
+            this.setState({
+                fetching: false,
+                fetched: true,
+                blob,
+                objectUrl
+            });
 
-        if (this.props.onLoad) {
-            await this.props.onLoad(blob);
+            if (this.props.onLoad) {
+                await this.props.onLoad(blob);
+            }
         }
     }
 

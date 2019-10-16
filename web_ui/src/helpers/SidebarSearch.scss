@@ -14,6 +14,7 @@
 
     .input {
         @include box-sizing(border-box);
+        @include transition(0.3s ease-in-out);
         background: #4d4d4d;
         outline: none;
         padding: 10px 20px;
@@ -23,6 +24,7 @@
         overflow: hidden;
         white-space: nowrap;
         height: 40px;
+        transition-property: background, padding;
     }
 
     #placeholder {
@@ -50,7 +52,7 @@
         color: #8d8d8d8d;
     }
 
-    a {
+    button {
         @include display(flex);
         @include justify-content(center);
         @include align-items(center);
@@ -65,7 +67,13 @@
         font-size: 0.7em;
         background: #666666;
         color: #ffffff;
+        outline: none;
 
+        &::-moz-focus-inner {
+            border: 0;
+        }
+
+        &:focus,
         &:hover {
             background: #999999;
             cursor: pointer;
