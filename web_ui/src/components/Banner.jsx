@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as Vibrant from 'node-vibrant';
 
 import ProgressBar from "./ProgressBar.jsx";
-import LazyImage from "../../helpers/LazyImage.jsx";
-import TruncText from "../../helpers/TruncText.jsx";
+import LazyImage from "../helpers/LazyImage.jsx";
+import TruncText from "../helpers/TruncText.jsx";
 
 import "./Banner.scss";
 
@@ -12,8 +12,9 @@ class Banner extends PureComponent {
     constructor(props) {
         super(props);
 
-        this.imageWrapper = React.createRef();
+        this._isMounted = false;
 
+        this.imageWrapper = React.createRef();
         this.getImageWrapperRef = this.getImageWrapperRef.bind(this);
         this.handleScroll = this.handleScroll.bind(this);
 
@@ -24,11 +25,19 @@ class Banner extends PureComponent {
     }
 
     componentDidMount() {
-        window.addEventListener("scroll", this.handleScroll);
+        this._isMounted = true;
+
+        window.addEventListener("scroll", () => {
+            window.requestAnimationFrame(this.handleScroll);
+        });
     }
 
     componentWillUnmount() {
-        window.removeEventListener("scroll", this.handleScroll);
+        this._isMounted = false;
+
+        window.removeEventListener("scroll", () => {
+            window.requestAnimationFrame(this.handleScroll);
+        });
     }
 
     handleScroll() {
@@ -36,6 +45,8 @@ class Banner extends PureComponent {
         const rate = scrolled * 0.2;
 
         if (this.imageWrapper.current !== null) {
+            this.imageWrapper.style.webkitTransform = `translate3d(0px, ${rate}px, 0px)`;
+            this.imageWrapper.style.MozTransform = `translate3d(0px, ${rate}px, 0px)`;
             this.imageWrapper.style.transform = `translate3d(0px, ${rate}px, 0px)`;
         }
     }
@@ -43,10 +54,12 @@ class Banner extends PureComponent {
     onLoadBanner = async (blob) => {
         const color = await Vibrant.from(URL.createObjectURL(blob)).getPalette();
 
-        this.setState({
-            backgroundColor: color.Vibrant.getHex(),
-            textColor: color.Vibrant.getTitleTextColor()
-        });
+        if (this._isMounted) {
+            this.setState({
+                backgroundColor: color.Vibrant.getHex(),
+                textColor: color.Vibrant.getTitleTextColor()
+            });
+        }
     }
 
     getImageWrapperRef(ref) {
