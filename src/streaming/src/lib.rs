@@ -1,3 +1,4 @@
+#![feature(result_map_or_else)]
 extern crate dim_database;
 extern crate serde;
 extern crate serde_derive;
