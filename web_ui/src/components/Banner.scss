@@ -42,14 +42,9 @@
             font-size: 0.4em;
         }
 
-        p {
-            margin: 0;
-            font-family: "Roboto Regular";
-            font-size: 0.9em;
-        }
 
         // NOT YEAR
-        p:not(:first-child) {
+        a:not(:first-child) {
             margin: 0 15px 0 0;
         }
     }
@@ -83,7 +78,7 @@
     }
 
     // PLAY BUTTON
-    a {
+    .play-btn {
         @include transition(filter 0.3s ease-in-out);
         @include filter(saturate(0.7));
         display: inline-block;
@@ -109,6 +104,16 @@
         background-position: 100% 100%;
     }
 
+}
+
+a {
+    margin: 0;
+    font-family: "Roboto Regular";
+    font-size: 0.9em;
+    
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 /*
