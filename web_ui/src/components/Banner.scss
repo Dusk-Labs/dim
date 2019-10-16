@@ -42,15 +42,6 @@
             font-size: 0.4em;
         }
 
-        a {
-            margin: 0;
-            font-family: "Roboto Regular";
-            font-size: 0.9em;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
 
         // NOT YEAR
         a:not(:first-child) {
@@ -111,6 +102,16 @@
         background-position: 100% 100%;
     }
 
+}
+
+a {
+    margin: 0;
+    font-family: "Roboto Regular";
+    font-size: 0.9em;
+    
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 /*
