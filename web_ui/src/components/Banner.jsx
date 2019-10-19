@@ -65,6 +65,7 @@ class Banner extends PureComponent {
         const { backgroundColor, textColor } = this.state;
 
         const {
+            id,
             title,
             year,
             synopsis,
@@ -109,7 +110,7 @@ class Banner extends PureComponent {
                         <TruncText content={synopsis} max={35}/>
                     </div>
                     <a
-                        href={backdrop}
+                        onClick={() => window.open(`/play/${id}`, "_blank")}
                         style={{color: textColor, background: backgroundColor}}
                         className="play-btn"
                         rel="noopener noreferrer"
