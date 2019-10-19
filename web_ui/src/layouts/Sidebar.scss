@@ -10,17 +10,6 @@
     background: linear-gradient(315deg, #333333 0%, #363636 100%);
     z-index: 1;
 
-    &:hover {
-        ::-webkit-scrollbar-thumb {
-            background: #f7931e;
-        }
-    }
-
-    ::-webkit-scrollbar-thumb,
-    ::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
     section {
         @include transition(color 0.3s ease-in-out);
         margin: 50px auto;
@@ -96,10 +85,9 @@
             }
 
             img, .default-icon {
+                @include object-fit(cover);
                 height: 31px;
                 width: 31px;
-                -o-object-fit: cover;
-                   object-fit: cover;
                 border-radius: 50%;
             }
 
@@ -203,7 +191,7 @@
 
         > div a {
             outline: none;
-            
+
             &:focus,
             &:hover {
                 background: #222222;
