@@ -43,9 +43,9 @@ class Play extends Component {
         };
     }
 
-    // TODO: mousemove, .overlay -> background: radial-gradient(circle, transparent 50%, black 10%);
     async componentDidMount() {
-        document.getElementsByTagName("main")[0].style["margin-left"] = 0;
+        document.querySelector("meta[name='theme-color']").setAttribute("content", "#000000");
+        document.getElementsByTagName("main")[0].style["margin-left"] = "0";
 
         this.video.current.addEventListener("loadeddata", this.handleVideoLoaded.bind(this));
         this.video.current.addEventListener("timeupdate", this.handleVideoTimeUpdate.bind(this));
@@ -141,6 +141,8 @@ class Play extends Component {
     }
 
     componentWillUnmount() {
+        document.querySelector("meta[name='theme-color']").setAttribute("content", "#333333");
+
         this.video.current.removeEventListener("loadeddata", this.handleVideoLoaded);
         this.video.current.removeEventListener("timeupdate", this.handleVideoTimeUpdate);
         this.video.current.removeEventListener("mousemove", this.handleMouseMove);
@@ -338,114 +340,112 @@ class Play extends Component {
         );
 
         return (
-            <main>
-                <div className="video-wrapper">
-                    <video ref={this.video}></video>
-                    <div className="overlay" ref={this.overlay}>
-                        <section className="cover">
-                            <div className="card-wrapper">
-                                <div className="card">
-                                <a href={this.state.cover} rel="noopener noreferrer" target="_blank">
-                                    <LazyImage alt="cover" src={this.state.cover} onLoad={this.onCoverLoad} loading={coverLoading}/>
-                                </a>
-                                </div>
+            <div className="video-wrapper">
+                <video ref={this.video}></video>
+                <div className="overlay" ref={this.overlay}>
+                    <section className="cover">
+                        <div className="card-wrapper">
+                            <div className="card">
+                            <a href={this.state.cover} rel="noopener noreferrer" target="_blank">
+                                <LazyImage alt="cover" src={this.state.cover} onLoad={this.onCoverLoad} loading={coverLoading}/>
+                            </a>
                             </div>
-                        </section>
-                        <section className="controls">
-                            <div className="upper">
-                                <div className="left">
-                                    {this.state.season && this.state.episode &&
-                                        <div className="se-ep">
-                                            <p>S{this.state.season}</p>
-                                            <FontAwesomeIcon icon="circle"/>
-                                            <p>E{this.state.episode}</p>
-                                        </div>
-                                    }
-                                    <div className="name">
-                                        <p>{this.state.name}</p>
+                        </div>
+                    </section>
+                    <section className="controls">
+                        <div className="upper">
+                            <div className="left">
+                                {this.state.season && this.state.episode &&
+                                    <div className="se-ep">
+                                        <p>S{this.state.season}</p>
+                                        <FontAwesomeIcon icon="circle"/>
+                                        <p>E{this.state.episode}</p>
                                     </div>
-                                </div>
-                                <div className="right">
-                                    <p>{this.state.current}</p>
-                                    <FontAwesomeIcon icon="circle"/>
-                                    <p>{this.state.duration}</p>
+                                }
+                                <div className="name">
+                                    <p>{this.state.name}</p>
                                 </div>
                             </div>
-                            <div className="center">
-                                <div className="video-progress-wrapper" ref={this.progressBar}>
+                            <div className="right">
+                                <p>{this.state.current}</p>
+                                <FontAwesomeIcon icon="circle"/>
+                                <p>{this.state.duration}</p>
+                            </div>
+                        </div>
+                        <div className="center">
+                            <div className="video-progress-wrapper" ref={this.progressBar}>
+                                <div className="video-progress-inner" style={{width: this.state.progressWidth}}>
+                                    <div className="video-progress-dragger"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="lower">
+                            <div className="left">
+                                <div className="volume" onClick={this.toggleVideoVolume}>
+                                    <FontAwesomeIcon icon={this.state.mute ? "volume-mute" : "volume-up"}/>
+                                </div>
+                                <div className="video-progress-wrapper">
                                     <div className="video-progress-inner" style={{width: this.state.progressWidth}}>
                                         <div className="video-progress-dragger"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="lower">
-                                <div className="left">
-                                    <div className="volume" onClick={this.toggleVideoVolume}>
-                                        <FontAwesomeIcon icon={this.state.mute ? "volume-mute" : "volume-up"}/>
-                                    </div>
-                                    <div className="video-progress-wrapper">
-                                        <div className="video-progress-inner" style={{width: this.state.progressWidth}}>
-                                            <div className="video-progress-dragger"></div>
-                                        </div>
-                                    </div>
+                            <div className="middle">
+                                <div className="backward">
+                                    <FontAwesomeIcon icon="backward"/>
                                 </div>
-                                <div className="middle">
-                                    <div className="backward">
-                                        <FontAwesomeIcon icon="backward"/>
-                                    </div>
-                                    <div className="skip-backwards" onClick={() => this.videoSkip(false)}>
-                                        <FontAwesomeIcon icon="fast-backward" onClick={() => this.videoSkip(false)}/>
-                                    </div>
-                                    <div className="state" onClick={this.toggleVideoPlay}>
-                                        <FontAwesomeIcon icon={this.state.play ? "play" : "pause"}/>
-                                    </div>
-                                    <div className="skip-forwards" onClick={() => this.videoSkip(true)}>
-                                        <FontAwesomeIcon icon="fast-forward"/>
-                                    </div>
-                                    <div className="forward">
-                                        <FontAwesomeIcon icon="forward"/>
-                                    </div>
+                                <div className="skip-backwards" onClick={() => this.videoSkip(false)}>
+                                    <FontAwesomeIcon icon="fast-backward" onClick={() => this.videoSkip(false)}/>
                                 </div>
-                                <div className="right">
-                                    <div className="captions">
-                                        <FontAwesomeIcon icon="closed-captioning"/>
-                                    </div>
-                                    <div className="fullscreen" onClick={this.toggleFullscreen}>
-                                        <FontAwesomeIcon icon={this.state.fullscreen ? "compress" : "expand"}/>
-                                    </div>
+                                <div className="state" onClick={this.toggleVideoPlay}>
+                                    <FontAwesomeIcon icon={this.state.play ? "play" : "pause"}/>
+                                </div>
+                                <div className="skip-forwards" onClick={() => this.videoSkip(true)}>
+                                    <FontAwesomeIcon icon="fast-forward"/>
+                                </div>
+                                <div className="forward">
+                                    <FontAwesomeIcon icon="forward"/>
                                 </div>
                             </div>
-                        </section>
-                        <section className="ends-at">
-                            <p>ENDS AT</p>
-                            <p>{this.state.endsAt}</p>
-                        </section>
-                        <section ref={this.navLinks} className="video-nav">
-                            <p onClick={(e) => this.navSelect(e, 0)} className="inActive">VERSIONS</p>
-                            <p onClick={(e) => this.navSelect(e, 1)} className="inActive">CAST</p>
-                            <p onClick={(e) => this.navSelect(e, 2)} className="inActive">DIRECTORS</p>
-                            <p onClick={(e) => this.navSelect(e, 3)} className="inActive">MEDIA INFO</p>
-                        </section>
-                        <section ref={this.navPages} className="pages">
-                            <div className="page hidden select-version">
-                                <h3>VERSIONS</h3>
-                                <div className="versions">
-                                    {this.state.versions}
+                            <div className="right">
+                                <div className="captions">
+                                    <FontAwesomeIcon icon="closed-captioning"/>
+                                </div>
+                                <div className="fullscreen" onClick={this.toggleFullscreen}>
+                                    <FontAwesomeIcon icon={this.state.fullscreen ? "compress" : "expand"}/>
                                 </div>
                             </div>
-                            <div className="page hidden cast">
-                                <h3>CAST</h3>
+                        </div>
+                    </section>
+                    <section className="ends-at">
+                        <p>ENDS AT</p>
+                        <p>{this.state.endsAt}</p>
+                    </section>
+                    <section ref={this.navLinks} className="video-nav">
+                        <p onClick={(e) => this.navSelect(e, 0)} className="inActive">VERSIONS</p>
+                        <p onClick={(e) => this.navSelect(e, 1)} className="inActive">CAST</p>
+                        <p onClick={(e) => this.navSelect(e, 2)} className="inActive">DIRECTORS</p>
+                        <p onClick={(e) => this.navSelect(e, 3)} className="inActive">MEDIA INFO</p>
+                    </section>
+                    <section ref={this.navPages} className="pages">
+                        <div className="page hidden select-version">
+                            <h3>VERSIONS</h3>
+                            <div className="versions">
+                                {this.state.versions}
                             </div>
-                            <div className="page hidden directors">
-                                <h3>DIRECTORS</h3>
-                            </div>
-                            <div className="page hidden media-info">
-                                <h3>MEDIA INFO</h3>
-                            </div>
-                        </section>
-                    </div>
+                        </div>
+                        <div className="page hidden cast">
+                            <h3>CAST</h3>
+                        </div>
+                        <div className="page hidden directors">
+                            <h3>DIRECTORS</h3>
+                        </div>
+                        <div className="page hidden media-info">
+                            <h3>MEDIA INFO</h3>
+                        </div>
+                    </section>
                 </div>
-            </main>
+            </div>
         );
     }
 }
