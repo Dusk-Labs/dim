@@ -4,14 +4,16 @@ import Modal from "react-modal";
 import { connect } from "react-redux";
 import { Scrollbar } from "react-scrollbars-custom";
 
-import { fetchLibraries } from "../actions/libraryActions.js";
+import { fetchLibraries, delLibrary } from "../actions/libraryActions.js";
 import { fetchHosts } from "../actions/hostActions.js";
 import { fetchUser } from "../actions/userActions.js";
+
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SidebarSearch from "../helpers/SidebarSearch.jsx";
 import SidebarIcon from "../helpers/SidebarIcon.jsx";
 import LazyImage from "../helpers/LazyImage.jsx";
+import NewLibraryModal from "../helpers/NewLibraryModal.jsx";
 
 import "./Sidebar.scss";
 
@@ -21,26 +23,8 @@ class Sidebar extends Component {
     constructor(props) {
         super(props);
 
-        this.openShowAddLibrary = this.openShowAddLibrary.bind(this);
-        this.closeShowAddLibrary = this.closeShowAddLibrary.bind(this);
         this.library_ws = new WebSocket('ws://86.21.150.167:3012/events/library');
         this.library_ws.addEventListener('message', this.handle_ws_msg);
-
-        this.state = {
-            showAddLibrary: false
-        };
-    }
-
-    openShowAddLibrary() {
-        this.setState({
-            showAddLibrary: true
-        });
-    }
-
-    closeShowAddLibrary() {
-        this.setState({
-            showAddLibrary: false
-        });
     }
 
     async componentDidMount() {
@@ -166,7 +150,7 @@ class Sidebar extends Component {
                             <SidebarIcon icon={media_type || name}/>
                             <p>{name}</p>
                         </NavLink>
-                        <button>-</button>
+                        <button onClick={() => this.props.delLibrary(id)}>-</button>
                     </div>
                 ));
             } else libraries = <p id="response">NO LIBRARIES</p>
@@ -186,7 +170,7 @@ class Sidebar extends Component {
                     </header>
                     <div className="list">
                         <Scrollbar>
-                            { hosts }
+                            {hosts}
                         </Scrollbar>
                     </div>
                 </section>
@@ -194,20 +178,7 @@ class Sidebar extends Component {
                 <section className="local-libraries">
                     <header>
                         <h4>LOCAL LIBRARIES</h4>
-                        <button onClick={this.openShowAddLibrary}>+</button>
-                        <Modal
-                            isOpen={this.state.showAddLibrary}
-                            contentLabel="Minimal Modal Example"
-                            className="popup"
-                            overlayClassName="overlay"
-                        >
-                            <h2>ADD LIBRARY</h2>
-                            <input type="text" name="name" placeholder="NAME"/>
-                            <div className="options">
-                                <button onClick={this.closeShowAddLibrary}>CANCEL</button>
-                                <a href="add-library/post">ADD</a>
-                            </div>
-                        </Modal>
+                        <NewLibraryModal/>
                     </header>
                     <div className="list">
                         <Scrollbar>
@@ -217,7 +188,7 @@ class Sidebar extends Component {
                                     <p>Dashboard</p>
                                 </NavLink>
                             </div>
-                            { libraries }
+                            {libraries}
                         </Scrollbar>
                     </div>
                 </section>
@@ -249,13 +220,14 @@ class Sidebar extends Component {
 const mapStateToProps = (state) => ({
     user: state.user,
     hosts: state.hosts,
-    libraries: state.libraries
+    libraries: state.libraryReducer.fetch_libraries
 });
 
 const actions = {
     fetchLibraries,
     fetchHosts,
-    fetchUser
+    fetchUser,
+    delLibrary
 };
 
 export default connect(mapStateToProps, actions)(Sidebar);
