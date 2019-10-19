@@ -1,0 +1,32 @@
+import {
+    FETCH_DIRECTORIES_START,
+    FETCH_DIRECTORIES_OK,
+    FETCH_DIRECTORIES_ERR
+} from "./types.js";
+
+export const fetchDirectories = (path) => async (dispatch) => {
+    dispatch({ type: FETCH_DIRECTORIES_START });
+
+    try {
+        const res = await fetch(`http://86.21.150.167:8000/api/v1/filebrowser/${path}`);
+
+        if (res.status !== 200) {
+            return dispatch({
+                type: FETCH_DIRECTORIES_ERR,
+                payload: res.statusText
+            });
+        }
+
+        const dirs = await res.json();
+
+        dispatch({
+            type: FETCH_DIRECTORIES_OK,
+            payload: {path, dirs}
+        });
+    } catch(err) {
+        dispatch({
+            type: FETCH_DIRECTORIES_ERR,
+            payload: err
+        });
+    }
+}
