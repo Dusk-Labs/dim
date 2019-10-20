@@ -44,7 +44,9 @@ class App extends Component {
 				}/>
 				<Route exact path="/play/:id" render={props =>
 					<div className="App">
-						<VideoPlayer {...props}/>
+						<main>
+							<VideoPlayer {...props}/>
+						</main>
 					</div>
 				}/>
 			</Switch>

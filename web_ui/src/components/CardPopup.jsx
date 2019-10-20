@@ -43,13 +43,13 @@ class CardPopup extends Component {
 
     render() {
         const {
+            id,
             name,
             rating,
             description,
             genres,
             year,
-            duration,
-            play
+            duration
         } = this.props.data;
 
         const { accent } = this.props;
@@ -99,7 +99,15 @@ class CardPopup extends Component {
                             <p>{length.hh}:{length.mm}:{length.ss}</p>
                             <p>HH MM SS</p>
                         </div>
-                        <a href={play} style={accentCSS}>PLAY<FontAwesomeIcon icon="arrow-alt-circle-right"/></a>
+                        <a
+                            onClick={() => window.open(`/play/${id}`, "_blank")}
+                            style={accentCSS}
+                            className="play-btn"
+                            rel="noopener noreferrer"
+                        >
+                            PLAY
+                            <FontAwesomeIcon icon="arrow-alt-circle-right"/>
+                        </a>
                     </section>
                 </section>
 
