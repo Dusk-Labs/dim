@@ -157,20 +157,29 @@ class CardList extends Component {
             // eslint-disable-next-line
             for (const section in cards) {
                 if (cards[section].length > 0) {
-                    sections[section] = cards[section].map((card, i) => <Card key={i} data={card}/>);
+                    sections[section] = (
+                        cards[section].map((card, i) => <Card key={i} data={card}/>)
+                    );
                 }
             }
 
-            card_list = Object.keys(sections).map(section => {
-                return (
+            if (Object.keys(sections).length === 0) {
+                card_list = (
+                    <div className="empty">
+                        <FontAwesomeIcon icon="question-circle"/>
+                        <p>LIBRARY EMPTY</p>
+                    </div>
+                );
+            } else {
+                card_list = Object.keys(sections).map(section => (
                     <section key={section}>
                         <h1>{section}</h1>
                         <div className="cards">
                             { sections[section] }
                         </div>
                     </section>
-                );
-            });
+                ));
+            }
         }
 
         return (

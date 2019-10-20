@@ -1,0 +1,150 @@
+@import "../mixins.scss";
+
+.newLibraryPopup {
+	@include box-shadow(#00000088 0 0 10px);
+	@include transform(translate(-50%, -50%));
+	@include box-sizing(border-box);
+	@include transition(width 0.3s ease-in-out);
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	min-width: 500px;
+	background: #333333;
+	color: #ffffff;
+	border-radius: 10px;
+	outline: none;
+	padding: 20px;
+	z-index: 1;
+
+	// HEADING
+	h3 {
+		margin: 0;
+		font-family: "Roboto Condensed Regular";
+	}
+
+	// PATH
+	h2 {
+		margin: 0;
+		font-family: "Roboto Black";
+	}
+
+	.selection {
+		@include display(flex);
+		@include justify-content(space-between);
+		margin: 10px 0;
+
+		.left {
+			margin-right: 15px;
+			position: relative;
+			flex-grow: 1;
+			background: #4d4d4d;
+			border-radius: 10px;
+			overflow: hidden;
+		}
+
+		.right {
+			@include display(flex);
+			@include flex-direction(column);
+
+			input {
+				@include box-sizing(border-box);
+				@include transition(border 0.3s ease-in-out);
+				margin-bottom: 10px;
+				background: #4d4d4d;
+				outline: none;
+				padding: 10px;
+				color: #ffffff;
+				font-family: "Roboto Black";
+				overflow: hidden;
+				white-space: nowrap;
+				border: solid 2px transparent;
+				border-radius: 10px !important;
+
+				&:focus {
+					border: solid 2px transparent !important;
+				}
+			}
+		}
+
+	}
+
+	.dirs {
+		overflow-y: auto;
+		height: 203px;
+		max-height: 300px;
+		background: #4d4d4d;
+		border-radius: 10px;
+
+		&::-webkit-scrollbar-track {
+			background: #4d4d4d;
+		}
+
+		.dir {
+			@include display(flex);
+			@include align-items(center);
+			@include transition(background 0.1s ease-in-out);
+			cursor: pointer;
+			padding: 5px 10px;
+			border-radius: 10px;
+
+			&:hover {
+				background: #222222;
+			}
+
+			// FOLDER ICON
+			svg {
+				margin-right: 10px;
+			}
+
+			// PATH NAME
+			p {
+				margin: 0;
+				user-select: none;
+			}
+		}
+	}
+
+	.options {
+		@include display(flex);
+		@include justify-content(space-between);
+
+		.page-controls svg {
+			margin: 0;
+		}
+
+		button {
+			@include filter(saturate(0.7));
+			@include transition(filter 0.3s ease-in-out);
+			font-family: "Roboto Black";
+			padding: 5px 10px;
+			border-radius: 10px;
+			outline: none;
+			background: #f7931e;
+			color: #ffffff;
+
+			&:focus,
+			&:hover {
+				@include filter(saturate(1));
+			}
+
+			// ICON
+			svg {
+				margin-left: 5px;
+				font-size: 0.9em;
+			}
+		}
+
+		.select {
+			// CANCEL BUTTON
+			button:nth-child(1) {
+				@include transition(color 0.3s ease-in-out);
+				background: transparent;
+
+				&:focus,
+				&:hover {
+					color: #ff6961;
+				}
+			}
+		}
+	}
+}

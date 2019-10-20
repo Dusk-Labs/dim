@@ -133,7 +133,7 @@ button {
 	width: 40px;
 	max-height:40px;
 	max-width: 40px;
-	animation: testing 0.5s ease-in-out;
+	animation: appear 0.5s ease-in-out;
 
 	&::after {
 		@include animation(spinner 0.6s linear infinite);
@@ -150,80 +150,15 @@ button {
 	}
 }
 
-/*
-    * == POPUP ==
-*/
-
-.popup {
-	@include align-items(center);
-	@include transform(translate(-50%, -50%));
-	@include box-shadow(#00000099 0 0 10px 0);
-	@include box-sizing(border-box);
-	@include animation(appearPopup 0.5s ease-in-out);
-	display: grid;
-	grid-template-areas:
-		"heading"
-		"input"
-		"options";
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 400px;
-	height: 200px;
-	background: #333333;
-	color: #ffffff;
-	border-radius: 1vh;
-	outline: none;
-	padding: 1vh 2vh;
+.popupOverlay {
+	@include animation(appear 0.3s ease-in-out);
+	background: #00000088;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 	z-index: 1;
-
-	h2 {
-		margin: 0;
-	}
-
-	input {
-		margin: 1vh 0;
-		border-radius: 1vh;
-		padding: 1vh 0;
-		grid-area: input;
-		background: #4d4d4d;
-		border: none;
-		padding: 1vh;
-		outline: none;
-		color: #ffffff;
-		font-family: "Roboto Black";
-	}
-
-	.options {
-		@include display(flex);
-		@include align-items(center);
-		@include justify-content(flex-end);
-		grid-area: options;
-
-		button, a {
-			@include transition(0.2s ease-in-out);
-			font-family: "Roboto Black";
-			padding: 1vh 2vh;
-			border-radius: 1vh;
-			background: #222222;
-			transition-property: background, opacity;
-		}
-
-		button {
-			color: #ff6961;
-			background: transparent;
-
-			&:hover {
-				cursor: pointer;
-				color: #ff8b83;
-			}
-		}
-
-		a:hover {
-			background: #444444;
-		}
-	}
-
 }
 
 main {
@@ -255,15 +190,6 @@ main {
 	to {
 		@include transform(rotate(360deg));
 	}
-}
-
-@include keyframes(appearPopup) {
-	0% {
-		opacity: 0;
-		width: 0;
-	}
-	50% { width: 400px; }
-	100% { opacity: 1; }
 }
 
 @include keyframes(appear) {
