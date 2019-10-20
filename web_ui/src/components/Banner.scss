@@ -87,6 +87,7 @@
         border-radius: 1vh;
         text-shadow: none;
         outline: none;
+        cursor: pointer;
 
         &:focus,
         &:hover {
@@ -104,16 +105,6 @@
         background-position: 100% 100%;
     }
 
-}
-
-a {
-    margin: 0;
-    font-family: "Roboto Regular";
-    font-size: 0.9em;
-    
-    &:hover {
-        text-decoration: underline;
-    }
 }
 
 /*
