@@ -44,6 +44,7 @@ h1, h2, h3, h4, h5, h6, p {
 
 body {
 	margin: 0;
+	height: 100vh;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	background: #1a1a1a;
@@ -221,9 +222,14 @@ main {
 }
 
 .ScrollbarsCustom-TrackY {
+	top: 0 !important;
+	height: 100% !important;
+}
+
+.ScrollbarsCustom-TrackY {
     width: 5px !important;
 
-    &::hover {
+    &:hover {
         opacity: 1;
     }
 
