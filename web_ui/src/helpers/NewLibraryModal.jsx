@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from "react";
 import Modal from "react-modal";
 import { connect } from "react-redux";
+import { Scrollbar } from "react-scrollbars-custom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { fetchDirectories } from "../actions/fileBrowserActions.js";
@@ -169,7 +170,9 @@ class NewLibraryModal extends Component {
                     <div className="selection">
                         <div className="left">
                             <div className="dirs">
-                                {dirs}
+                                <Scrollbar>
+                                    {dirs}
+                                </Scrollbar>
                             </div>
                         </div>
                         <div className="right">
