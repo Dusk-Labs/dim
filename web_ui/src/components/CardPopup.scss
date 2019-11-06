@@ -258,18 +258,17 @@
     * == MEDIA QUERIES ===
 */
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 900px) {
 	%card-popup {
         width: 210px !important;
 
         .header {
             display: block !important;
-            font-size: 0.9em;
+            text-align: center;
+            font-size: 0.8em !important;
         }
 
         .content {
-            @include justify-content(end);
-            margin: 0 40px 0 20px !important;
             padding: 0 !important;
             grid-gap: 10px;
         }
@@ -281,10 +280,11 @@
         }
 
         .tags {
+            margin: 5px 0 !important;
             @include flex-direction(column);
 
             p {
-                margin: 2px 0 !important;
+                margin: 4px 0 !important;
             }
         }
 
