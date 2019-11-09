@@ -16,4 +16,4 @@ before_script:
 test:cargo:
     script:
         - rustc --version && cargo --version  # Print version info for debugging
-        - cargo test --all --verbose
+        - cd src/database && cargo test --all --verbose
