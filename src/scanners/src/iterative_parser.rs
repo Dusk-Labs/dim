@@ -1,22 +1,24 @@
 use crate::api::APIExec;
 use crate::tmdb::TMDbSearch;
 use crate::EventTx;
-use chrono::prelude::Utc;
-use chrono::Datelike;
-use chrono::NaiveDate;
+use chrono::{prelude::Utc, Datelike, NaiveDate};
 use diesel::pg::PgConnection;
-use dim_database::episode::{Episode, InsertableEpisode};
-use dim_database::genre::*;
-use dim_database::media::{InsertableMedia, Media};
-use dim_database::movie::InsertableMovie;
-use dim_database::season::{InsertableSeason, Season};
-use dim_database::tv::InsertableTVShow;
-use dim_database::{get_conn, library::Library, mediafile::*};
+use dim_database::{
+    episode::{Episode, InsertableEpisode},
+    genre::*,
+    get_conn,
+    library::Library,
+    media::{InsertableMedia, Media},
+    mediafile::*,
+    movie::InsertableMovie,
+    season::{InsertableSeason, Season},
+    tv::InsertableTVShow,
+};
 use dim_events::*;
 use dim_streamer::{ffprobe::FFProbeCtx, FFPROBE_BIN};
 use pushevent::Event;
 use rayon::prelude::*;
-use slog::Logger;
+use slog::{debug, error, info, Logger};
 use std::path::PathBuf;
 use torrent_name_parser::Metadata;
 use walkdir::WalkDir;
