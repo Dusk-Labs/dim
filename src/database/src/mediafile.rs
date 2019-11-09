@@ -210,7 +210,6 @@ impl MediaFile {
 
         // TODO: Figure out why the fuck .filter against mediafile::corrupted doesnt fucking work.
         // Fuck you.
-        println!("{}", media.id);
         let result = Self::belonging_to(&streamable_media).first::<Self>(conn)?;
 
         Ok(result)

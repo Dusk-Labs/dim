@@ -134,7 +134,7 @@ pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
 
 #[get("/filebrowser/<path..>")]
 pub fn get_directory_structure(path: PathBuf) -> Result<Json<Vec<String>>, Status> {
-    let dirs: Vec<String> = WalkDir::new(format!("/{}", path.to_str().unwrap()))
+    let mut dirs: Vec<String> = WalkDir::new(format!("/{}", path.to_str().unwrap()))
         .max_depth(1usize)
         .into_iter()
         .filter_map(|x| x.ok())
@@ -147,6 +147,8 @@ pub fn get_directory_structure(path: PathBuf) -> Result<Json<Vec<String>>, Statu
         .filter(|x| !x.path().is_file())
         .map(|x| x.path().to_str().unwrap().to_owned())
         .collect::<Vec<_>>();
+
+    dirs.sort();
 
     Ok(Json(dirs))
 }

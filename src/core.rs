@@ -7,18 +7,11 @@ use rocket_contrib::{json, json::JsonValue};
 use rocket_cors::{AllowedHeaders, AllowedOrigins, CorsOptions};
 use rocket_slog::SlogFairing;
 use slog::Logger;
-use sloggers::{
-    terminal::{Destination, TerminalLoggerBuilder},
-    types::Severity,
-    Build,
-};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 #[allow(unused_imports)]
 use crate::routes;
-
-embed_migrations!();
 
 #[database("openflix")]
 pub struct DbConnection(PgConnection);
@@ -47,18 +40,6 @@ fn unprocessable_entity() -> JsonValue {
     })
 }
 
-fn run_db_migrations(log: Logger) {
-    slog::slog_info!(log, "Running database migrations");
-    if let Ok(conn) = dim_database::get_conn() {
-        if let Err(e) = embedded_migrations::run(&conn) {
-            panic!("Failed to run database migrations: {:?}", e);
-        }
-    } else {
-        panic!("Failed to get database connection");
-    }
-    slog::slog_info!(log, "Database migrations ready");
-}
-
 lazy_static! {
     static ref LIB_SCANNERS: Mutex<HashMap<i32, std::thread::JoinHandle<()>>> =
         Mutex::new(HashMap::new());
@@ -83,19 +64,53 @@ fn run_scanners(log: Logger, tx: EventTx) {
 }
 
 fn start_event_server(_log: Logger) -> EventTx {
-    let server = pushevent::server::Server::new("127.0.0.1:3012");
+    let server = pushevent::server::Server::new("0.0.0.0:3012");
     server.get_tx()
 }
 
-pub(crate) fn rocket_pad() -> rocket::Rocket {
-    let mut builder = TerminalLoggerBuilder::new();
-    builder.level(Severity::Debug);
-    builder.destination(Destination::Stdout);
+/**
+fn set_panic_hook(logger: slog::Logger) {
+    use slog::error;
+    use std::panic;
 
-    let logger = builder.build().unwrap();
+    panic::set_hook(Box::new(|x| {
+        if let Some(s) = x.payload().downcast_ref::<&str>() {
+            error!(logger, "Panicd!!! {:?}", s);
+        }
+        println!("!!! DIM HAS PANIC'd, PLEASE PROVIDE LOG TO DEVELOPER !!!");
+    }));
+}
+**/
+
+fn build_logger(debug: bool) -> slog::Logger {
+    use chrono::Utc;
+    use slog::Drain;
+    use slog_async::Async;
+    use slog_json::Json as slog_json_default;
+    use slog_term::{FullFormat, TermDecorator};
+    use std::fs::{create_dir, File};
+    let date_now = Utc::now();
+
+    let decorator = TermDecorator::new().build();
+    let drain = FullFormat::new(decorator).build().fuse();
+    let drain = Async::new(drain).build().fuse();
+
+    let _ = create_dir("logs");
+    let file = File::create(format!("logs/dim-log-{}.log", date_now.to_rfc3339()))
+        .expect("Couldnt open log file");
+    let json_drain = Mutex::new(slog_json_default::default(file)).map(slog::Fuse);
+
+    if debug {
+        return slog::Logger::root(slog::Duplicate::new(drain, json_drain).fuse(), slog::o!());
+    }
+
+    slog::Logger::root(json_drain, slog::o!())
+}
+
+pub(crate) fn rocket_pad(debug: bool) -> rocket::Rocket {
+    let logger = build_logger(debug);
 
     let event_tx = start_event_server(logger.clone());
-    run_db_migrations(logger.clone());
     run_scanners(logger.clone(), event_tx.clone());
 
     let fairing = SlogFairing::new(logger);
@@ -169,8 +184,8 @@ pub(crate) fn rocket_pad() -> rocket::Rocket {
         .manage(Arc::new(Mutex::new(event_tx)))
 }
 
-pub fn launch() {
-    rocket_pad().launch();
+pub fn launch(debug: bool) {
+    rocket_pad(debug).launch();
 
     for (_, thread) in LIB_SCANNERS.lock().unwrap().drain().take(1) {
         thread.join().unwrap();
