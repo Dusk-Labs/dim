@@ -1,7 +1,9 @@
 use diesel::prelude::*;
+use lazy_static::lazy_static;
 use rocket::http::Method;
 use rocket::Request;
-use rocket_contrib::json::JsonValue;
+use rocket_contrib::databases::diesel;
+use rocket_contrib::{json, json::JsonValue};
 use rocket_cors;
 use rocket_slog::SlogFairing;
 use slog::Logger;
@@ -62,7 +64,7 @@ lazy_static! {
         Mutex::new(HashMap::new());
 }
 
-pub type EventTx = std::sync::mpsc::Sender<dim_events::server::EventType>;
+pub type EventTx = std::sync::mpsc::Sender<pushevent::Event>;
 fn run_scanners(log: Logger, tx: EventTx) {
     if let Ok(conn) = dim_database::get_conn() {
         for lib in dim_database::library::Library::get_all(&conn) {
@@ -81,7 +83,7 @@ fn run_scanners(log: Logger, tx: EventTx) {
 }
 
 fn start_event_server(_log: Logger) -> EventTx {
-    let server = dim_events::server::Server::new();
+    let server = pushevent::server::Server::new("127.0.0.1:3012");
     server.get_tx()
 }
 

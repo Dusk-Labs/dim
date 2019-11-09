@@ -5,6 +5,7 @@ use dim_database::media::Media;
 use dim_database::mediafile::MediaFile;
 use rocket::http::RawStr;
 use rocket::http::Status;
+use rocket_contrib::json;
 use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
 use std::path::PathBuf;
@@ -12,7 +13,7 @@ use walkdir::WalkDir;
 
 pub fn construct_standard(conn: &DbConnection, data: &Media, quick: Option<bool>) -> JsonValue {
     let duration = match MediaFile::get_of_media(&conn, &data) {
-        Ok(x) => x.duration.unwrap(),
+        Ok(x) => x.duration.unwrap_or(0),
         Err(_) => 0,
     };
 
@@ -104,7 +105,7 @@ pub fn banners(conn: DbConnection) -> Result<Json<Vec<JsonValue>>, Status> {
         .filter(|x| x.backdrop_path.is_some())
         .map(|x| {
             let duration = match MediaFile::get_of_media(&*conn, &x) {
-                Ok(x) => x.duration.unwrap(),
+                Ok(x) => x.duration.unwrap_or(0),
                 Err(_) => 0,
             };
 
@@ -159,7 +160,7 @@ pub fn search(
     genre: Option<String>,
     quick: Option<bool>,
 ) -> Result<Json<Vec<JsonValue>>, Status> {
-    use crate::dim_database::schema::genre_media;
+    use dim_database::schema::genre_media;
     use dim_database::schema::media;
 
     let mut result = media::table.into_boxed();
