@@ -4,7 +4,7 @@ use rocket::http::Method;
 use rocket::Request;
 use rocket_contrib::databases::diesel;
 use rocket_contrib::{json, json::JsonValue};
-use rocket_cors;
+use rocket_cors::{AllowedHeaders, AllowedOrigins, CorsOptions};
 use rocket_slog::SlogFairing;
 use slog::Logger;
 use sloggers::{
@@ -100,15 +100,15 @@ pub(crate) fn rocket_pad() -> rocket::Rocket {
 
     let fairing = SlogFairing::new(logger);
 
-    let allowed_origins = rocket_cors::AllowedOrigins::all();
+    let allowed_origins = AllowedOrigins::all();
 
-    let cors = rocket_cors::CorsOptions {
+    let cors = CorsOptions {
         allowed_origins,
         allowed_methods: vec![Method::Get, Method::Post, Method::Delete, Method::Patch]
             .into_iter()
             .map(From::from)
             .collect(),
-        allowed_headers: rocket_cors::AllowedHeaders::all(),
+        allowed_headers: AllowedHeaders::all(),
         allow_credentials: true,
         ..Default::default()
     }
