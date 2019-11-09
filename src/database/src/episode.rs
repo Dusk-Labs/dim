@@ -1,6 +1,6 @@
 use crate::media::InsertableMedia;
-use crate::media::UpdateMedia;
 use crate::media::Media;
+use crate::media::UpdateMedia;
 use crate::movie::InsertableMovie;
 use crate::schema::episode;
 use crate::season::Season;
@@ -29,9 +29,8 @@ pub struct EpisodeWrapper {
     pub episode: i32,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug)]
 pub struct InsertableEpisode {
-    #[serde(flatten)]
     pub media: InsertableMedia,
     pub episode: i32,
 }
