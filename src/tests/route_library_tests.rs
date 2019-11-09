@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
     use crate::core::rocket_pad;
-    use crate::macros::DB_LOCK;
     use crate::tests::drop_all_data;
+    use crate::{macros::DB_LOCK, run_test};
     use rocket::http::ContentType;
     use rocket::http::Status;
     use rocket::local::Client;

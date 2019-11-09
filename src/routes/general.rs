@@ -187,7 +187,11 @@ pub fn search(
     }
 
     if let Some(x) = genre {
-        let genre_row = Genre::get_by_name(&*conn, x).unwrap().id;
+        let genre_row = match Genre::get_by_name(&*conn, x) {
+            Ok(x) => x.id,
+            Err(_) => return Err(Status::NotFound),
+        };
+
         let new_result = result
             .inner_join(genre_media::table)
             .filter(genre_media::genre_id.eq(genre_row));
