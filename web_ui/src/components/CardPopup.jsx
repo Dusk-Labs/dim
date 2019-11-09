@@ -70,17 +70,18 @@ class CardPopup extends Component {
             <div className={this.state.class} ref={this.popup}>
                 <div className="clipped"></div>
                 <section className="header">
-                    {!this.state.overflowing && <h1>{name}</h1>}
+                    <h1><TruncText content={name} max={8}/></h1>
                     <div className="rating">
-                        <img alt="imdb" src={IMDbLogo}></img><p>{rating}/10</p>
+                        <img alt="imdb" src={IMDbLogo}></img>
+                        <p>{rating}</p>
+                        <p>10</p>
                     </div>
-                    {this.state.overflowing && <h1>{name}</h1>}
                 </section>
                 <section className="content">
                     <section className="description">
-                        <h4>Description</h4>
+                        <h4>DESCRIPTION</h4>
                         {description.length > 0
-                            ? <TruncText content={description} max={21}/>
+                            ? <p><TruncText content={description} max={21}/></p>
                             : <p>No description found.</p>
                         }
                     </section>
@@ -89,9 +90,7 @@ class CardPopup extends Component {
                             <p style={accentCSS}>{year}</p>
                             <p style={accentCSS}>{genre}</p>
                         </div>
-                        <div className="options">
-                            <button><FontAwesomeIcon icon="pen"/></button>
-                        </div>
+                        <FontAwesomeIcon className="edit" icon="edit"/>
                     </section>
                     <section className="separator"></section>
                     <section className="footer">
@@ -101,16 +100,14 @@ class CardPopup extends Component {
                         </div>
                         <a
                             onClick={() => window.open(`/play/${id}`, "_blank")}
-                            style={accentCSS}
                             className="play-btn"
                             rel="noopener noreferrer"
                         >
-                            PLAY
-                            <FontAwesomeIcon icon="arrow-alt-circle-right"/>
+                        <p style={accentCSS}>PLAY</p>
+                        <FontAwesomeIcon icon="play"/>
                         </a>
                     </section>
                 </section>
-
             </div>
         );
     }
