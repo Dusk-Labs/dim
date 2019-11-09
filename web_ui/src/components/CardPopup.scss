@@ -1,23 +1,19 @@
 @import "../mixins.scss";
 
 %card-popup {
-    @include align-items(center);
+    @include display(flex);
+    @include flex-direction(column);
+    @include justify-content(center);
     @include box-sizing(border-box);
     @include transition(width 0.3s ease-in-out);
     @include animation(CardPopupAppear 0.5s ease-in-out);
     position: absolute;
-    padding: 30px 0;
-    align-content: space-between;
-    top: -20px;
-    height: 360px;
+    top: -10px;
+    height: 340px;
     width: 500px;
     background: transparent;
     pointer-events: none;
     z-index: 2;
-    display: grid;
-    grid-template-areas:
-        "header"
-        "content";
     font-family: "Roboto Black";
 
     .clipped {
@@ -39,29 +35,50 @@
         @include display(flex);
         @include justify-content(space-between);
         @include align-items(center);
-        @include box-shadow(0 0 30px 0 #00000055);
-        padding: 10px 30px;
-        -webkit-clip-path: unset;
-        clip-path: unset;
-        border-radius: 10px;
-        background: #4d4d4d;
-        width: 85%;
+        width: 100%;
+
+        h1 {
+            font-size: 1.4em;
+        }
     }
 
     .rating {
+        @include display(flex);
+        @include flex-direction(column);
         @include align-items(center);
-        display: inline-grid;
-        grid-template-columns: repeat(4, auto);
-        grid-gap: 10px;
-        color: #f2f2f2;
+
+        p {
+            margin: 0;
+            font-size: 0.7em;
+        }
+
+        img,
+        p:not(:nth-child(2)) {
+            padding: 4px;
+            z-index: 1;
+            background: #333333;
+        }
+
+        p:nth-child(2) {
+            margin: 5px 0;
+            position: relative;
+            font-size: 0.9em;
+
+            &::after {
+                content: "";
+                border: 3px solid #f7931e;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                border-radius: 50%;
+                height: 40px;
+                width: 40px;
+                position: absolute;
+            }
+        }
 
         img {
-            width: 20px;
-
-            /* IMDB LOGO */
-            &:nth-child(1) {
-                width: 30px;
-            }
+            width: 30px;
         }
     }
 
@@ -81,11 +98,12 @@
             h4 {
                 margin: 0;
                 margin-bottom: 5px;
+                font-family: "Roboto Bold";
             }
 
             p {
                 margin: 0;
-                font-family: "Roboto Regular";
+                font-family: "Roboto Thin";
             }
         }
 
@@ -106,8 +124,10 @@
                     text-overflow: ellipsis;
                     margin-right: 10px;
                     background: #f7931e;
-                    padding: 5px 10px;
-                    border-radius: 10px;
+                    padding: 5px 8px;
+                    border-radius: 5px;
+                    font-size: 0.9em;
+                    font-family: "Roboto Bold";
                 }
 
                 // YEAR
@@ -116,20 +136,13 @@
                 }
             }
 
-            .options {
-                button {
-                    @include transition(background 0.3s ease-in-out);
-                    background: transparent;
-                    padding: 5px 10px;
-                    border-radius: 10px;
-                    color: #ffffff;
+            .edit {
+                margin: 0;
 
-                    &:hover {
-                        background: #555555;
-                    }
+                &:hover {
+                    cursor: pointer;
                 }
             }
-
         }
 
         .footer {
@@ -144,15 +157,30 @@
 
             // PLAY BUTTON
             a {
+                @include display(flex);
+                @include align-items(center);
                 @include filter(saturate(0.7));
                 @include transition(filter 0.3s ease-in-out);
-                padding: 10px 30px;
-                background: #f7931e;
-                border-radius: 10px;
+                background: #555555;
+                border-radius: 5px;
+                overflow: hidden;
 
                 &:hover {
                     @include filter(saturate(1));
                     cursor: pointer;
+                }
+
+                // PLAY
+                p {
+                    padding: 7px 10px;
+                    background: #f7931e;
+                }
+
+                // >
+                svg {
+                    margin: 0;
+                    padding: 10px;
+                    font-size: 0.6em;
                 }
             }
         }
@@ -187,41 +215,29 @@
 
 .card-popup-right {
     @extend %card-popup;
-    left: 50%;
+    @include filter(drop-shadow(-5px 0 10px #111111));
+    left: 80%;
     right: unset;
+    padding: 0 50px 0 60px;
 
     .clipped {
-        clip-path: polygon(10% 0, 100% 0, 100% 100%, 5% 100%);
+        clip-path: polygon(5% 0, 100% 0, 100% 100%, 0 100%);
         border-radius: 0 10px 10px 0;
-    }
-
-    .header {
-        justify-self: end;
-        transform: translateX(-40px);
-    }
-
-    .content {
-        margin: 0 40px 0 70px;
+        border-right: 4px solid #555555;
     }
 }
 
 .card-popup-left {
     @extend %card-popup;
+    @include filter(drop-shadow(5px 0 10px #111111));
     left: unset;
     right: 50%;
+    padding: 0 60px 0 50px;
 
     .clipped {
-        clip-path: polygon(0 0, 90% 0, 95% 100%, 0 100%);
+        clip-path: polygon(0 0, 95% 0, 100% 100%, 0 100%);
         border-radius: 10px 0 0 10px;
-    }
-
-    .header {
-        justify-self: start;
-        transform: translateX(40px);
-    }
-
-    .content {
-        margin: 0 70px 0 40px;
+        border-left: 4px solid #555555;
     }
 }
 
@@ -242,25 +258,17 @@
     * == MEDIA QUERIES ===
 */
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 900px) {
 	%card-popup {
         width: 210px !important;
 
         .header {
-            font-size: 0.9em;
-            padding: 10px 20px !important;
-
-            h1, p {
-                margin: 2px 0 !important;
-            }
-
-            text-align: center;
             display: block !important;
+            text-align: center;
+            font-size: 0.8em !important;
         }
 
         .content {
-            @include justify-content(end);
-            margin: 0 40px 0 20px !important;
             padding: 0 !important;
             grid-gap: 10px;
         }
@@ -272,10 +280,11 @@
         }
 
         .tags {
+            margin: 5px 0 !important;
             @include flex-direction(column);
 
             p {
-                margin: 2px 0 !important;
+                margin: 4px 0 !important;
             }
         }
 

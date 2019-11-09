@@ -107,7 +107,7 @@ class Banner extends PureComponent {
                     <h1>{title}</h1>
                     <div className="description">
                         <h5>{banner_caption}</h5>
-                        <TruncText content={synopsis} max={35}/>
+                        <p><TruncText content={synopsis} max={35}/></p>
                     </div>
                     <a
                         onClick={() => window.open(`/play/${id}`, "_blank")}
