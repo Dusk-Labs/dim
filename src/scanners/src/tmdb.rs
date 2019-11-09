@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex};
 
 type CacheType = Arc<Mutex<HashMap<(String, Option<i32>, bool), SearchResult>>>;
 
-lazy_static! {
+lazy_static::lazy_static! {
     static ref CACHE: CacheType = Arc::new(Mutex::new(HashMap::new()));
 }
 
