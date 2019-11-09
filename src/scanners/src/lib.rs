@@ -14,6 +14,7 @@ extern crate rocket_slog;
 extern crate torrent_name_parser;
 
 use dim_database::get_conn;
+use pushevent::Event;
 use slog::Logger;
 use std::thread;
 
@@ -25,7 +26,7 @@ pub mod tmdb;
 use crate::iterative_parser::IterativeScanner;
 use crate::parser_daemon::ParserDaemon;
 
-pub type EventTx = std::sync::mpsc::Sender<dim_events::server::EventType>;
+pub type EventTx = std::sync::mpsc::Sender<Event>;
 
 pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> std::result::Result<(), ()> {
     let mut threads = Vec::new();

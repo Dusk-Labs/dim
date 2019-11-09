@@ -3,7 +3,7 @@ use diesel::prelude::*;
 use dim_streamer::{ffmpeg::FFmpeg, FFMPEG_BIN};
 use rocket::http::Status;
 use rocket::response::NamedFile;
-use rocket_contrib::json::JsonValue;
+use rocket_contrib::{json, json::JsonValue};
 use std::path::{Path, PathBuf};
 
 #[get("/stream/start/<_id>")]

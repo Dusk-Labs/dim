@@ -1,9 +1,12 @@
 use crate::core::DbConnection;
-use crate::dim_database::genre::Genre;
-use crate::dim_database::media::{Media, UpdateMedia};
-use crate::dim_database::mediafile::MediaFile;
+use dim_database::genre::Genre;
+use dim_database::media::{Media, UpdateMedia};
+use dim_database::mediafile::MediaFile;
 use rocket::http::Status;
-use rocket_contrib::json::{Json, JsonValue};
+use rocket_contrib::{
+    json,
+    json::{Json, JsonValue},
+};
 
 #[get("/<id>")]
 pub fn get_media_by_id(conn: DbConnection, id: i32) -> Result<JsonValue, Status> {

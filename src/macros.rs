@@ -1,7 +1,6 @@
 extern crate diesel;
-extern crate parking_lot;
 
-use crate::macros::parking_lot::Mutex;
+use parking_lot::Mutex;
 
 pub static DB_LOCK: Mutex<()> = Mutex::new(());
 

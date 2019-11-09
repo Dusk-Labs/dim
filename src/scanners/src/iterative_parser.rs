@@ -12,8 +12,9 @@ use dim_database::movie::InsertableMovie;
 use dim_database::season::{InsertableSeason, Season};
 use dim_database::tv::InsertableTVShow;
 use dim_database::{get_conn, library::Library, mediafile::*};
-use dim_events::event::*;
+use dim_events::*;
 use dim_streamer::{ffprobe::FFProbeCtx, FFPROBE_BIN};
+use pushevent::Event;
 use rayon::prelude::*;
 use slog::Logger;
 use std::path::PathBuf;
@@ -242,6 +243,7 @@ impl<'a> IterativeScanner {
                     |x| x.id,
                 );
 
+        // TODO: use .map instead of if let
         if let Some(genres) = genres {
             for genre in genres {
                 let genre = InsertableGenre {
@@ -264,12 +266,12 @@ impl<'a> IterativeScanner {
     }
 
     fn push_event(&self, media_id: i32) {
-        let event_msg = Message {
+        let event_msg = Box::new(Message {
             id: media_id,
             event_type: PushEventType::EventNewCard,
-        };
+        });
 
-        let new_event = Event::new(&format!("/events/library/{}", self.lib.id), event_msg);
+        let new_event = Event::new(format!("/events/library/{}", self.lib.id), event_msg);
         let _ = self.event_tx.send(new_event);
     }
 }

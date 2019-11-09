@@ -8,33 +8,30 @@ edition = "2018"
 rocket = { version = "*" }
 rocket_codegen = "*"
 diesel = { version = "*", features = ["postgres"] }
-dotenv = "*"
-r2d2-diesel = "*"
 r2d2 = "*"
 serde = { version = "*", features = ["derive"] }
 serde_derive = "*"
-serde_json = { version = "*", features = ["preserve_order"] }
+serde_json = { version = "*" }
 diesel_migrations = "*"
 log = "*"
 rocket_cors = "0.5.0"
 lazy_static = "1.3.0"
 dim-database = { path = "./src/database" }
+dim-events = { path = "./src/events" }
 dim-scanners = { path = "./src/scanners" }
 dim-streamer = { path = "./src/streaming" }
-dim-events = { path = "./src/events" }
 walkdir = "2.2.9"
 rand = "0.7.0"
 rocket-slog = "0.4.0"
 slog = "2.5.2"
 sloggers = "0.3.3"
+pushevent = "*"
+parking_lot = { version = "0.9.0", features = ["nightly"] }
 
 [dependencies.rocket_contrib]
 version = "*"
 default-features = false
 features = ["json", "diesel_postgres_pool"]
-
-[dev-dependencies]
-parking_lot = { version = "*", features = ["nightly"] }
 
 [profile.release]
 lto = true
