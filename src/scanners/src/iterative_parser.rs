@@ -165,7 +165,15 @@ impl<'a> IterativeScanner {
         let media_id =
             Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.clone().as_str())
                 .map_or_else(
-                    |_| media.into_static::<InsertableTVShow>(&self.conn).unwrap(),
+                    |_| {
+                        media
+                            .into_static::<InsertableTVShow>(&self.conn)
+                            .and_then(|x| {
+                                self.push_event(x);
+                                Ok(x)
+                            })
+                            .unwrap()
+                    },
                     |x| x.id,
                 );
 

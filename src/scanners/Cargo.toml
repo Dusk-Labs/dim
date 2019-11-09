@@ -19,4 +19,4 @@ diesel = { version = "1.4.2", default-features = false, features = ["postgres"] 
 slog = "2.5.2"
 lazy_static = "1.4.0"
 rayon = "1.2.0"
-pushevent = "0.1.2"
+pushevent = "0.1.3"

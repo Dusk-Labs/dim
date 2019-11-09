@@ -45,7 +45,6 @@ impl StaticTrait for InsertableTVShow {
     }
 
     fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
-        println!("Called insert tv");
         diesel::insert_into(tv_show::table)
             .values(self)
             .returning(tv_show::id)
