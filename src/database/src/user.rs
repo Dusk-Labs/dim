@@ -167,19 +167,19 @@ impl InsertableUser {
     /// let conn = get_conn().unwrap();
     ///
     /// let new_user = InsertableUser {
-    ///     username: "test".to_string(),
-    ///     password: "test".to_string(),
+    ///     username: "test_insert".to_string(),
+    ///     password: "test_insert".to_string(),
     ///     roles: vec!["user".to_string()],
     /// };
     ///
     /// let res = new_user.insert(&conn).unwrap();
-    /// assert_eq!(res, "test".to_string());
+    /// assert_eq!(res, "test_insert".to_string());
     ///
-    /// let user = User::get_one(&conn, "test".to_string(), "test".to_string()).unwrap();
-    /// assert_eq!(user.username, "test".to_string());
+    /// let user = User::get_one(&conn, "test_insert".to_string(), "test_insert".to_string()).unwrap();
+    /// assert_eq!(user.username, "test_insert".to_string());
     /// assert_eq!(user.roles, vec!["user".to_string()]);
     ///
-    /// let _ = User::delete(&conn, "test".to_string()).unwrap();
+    /// let _ = User::delete(&conn, "test_insert".to_string()).unwrap();
     /// ```
     pub fn insert(self, conn: &diesel::PgConnection) -> Result<String, DieselError> {
         use crate::schema::users;
