@@ -1,4 +1,5 @@
-image: "rustlang/rust:nightly"
+# image: "rustlang/rust:nightly" build seems to fail under this
+image: "shepmaster/rust-nightly"
 
 services:
     - postgres:latest
