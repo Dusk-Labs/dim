@@ -1,4 +1,4 @@
-use crate::library::Library;
+use crate::library::{Library, MediaType};
 use crate::schema::media;
 use crate::streamablemedia::InsertableStreamableMedia;
 use crate::streamablemedia::StreamableTrait;
@@ -37,7 +37,8 @@ pub struct Media {
     pub backdrop_path: Option<String>,
     /// Media type encoded as a string. Either movie/tv/episode or none.
     // TODO: Use a enum instead of a string
-    pub media_type: Option<String>,
+    #[serde(flatten)]
+    pub media_type: Option<MediaType>,
 }
 
 impl PartialEq for Media {
@@ -60,13 +61,13 @@ pub struct InsertableMedia {
     pub added: String,
     pub poster_path: Option<String>,
     pub backdrop_path: Option<String>,
-    pub media_type: String,
+    pub media_type: MediaType,
 }
 
 /// Struct which is used when we need to update information about a media object. Same as
 /// [`InsertableMedia`](InsertableMedia) except `library_id` cannot be changed and everything field
 /// is a `Option<T>`.
-#[derive(Default, AsChangeset, Deserialize, PartialEq, Debug)]
+#[derive(Default, AsChangeset, Deserialize, Debug)]
 #[table_name = "media"]
 pub struct UpdateMedia {
     pub name: Option<String>,
@@ -76,7 +77,7 @@ pub struct UpdateMedia {
     pub added: Option<String>,
     pub poster_path: Option<String>,
     pub backdrop_path: Option<String>,
-    pub media_type: Option<String>,
+    pub media_type: Option<MediaType>,
 }
 
 impl Media {
@@ -92,13 +93,13 @@ impl Media {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::media::{InsertableMedia, Media};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -127,7 +128,7 @@ impl Media {
         library: Library,
     ) -> Result<Vec<Self>, diesel::result::Error> {
         let result = Self::belonging_to(&library)
-            .filter(media::media_type.ne("episode"))
+            .filter(media::media_type.ne(MediaType::Episode))
             .load::<Self>(conn)?;
         Ok(result)
     }
@@ -141,13 +142,13 @@ impl Media {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::media::{InsertableMedia, Media};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -186,13 +187,13 @@ impl Media {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::media::{InsertableMedia, Media};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -245,13 +246,13 @@ impl Media {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::media::{InsertableMedia, Media};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -294,13 +295,13 @@ impl InsertableMedia {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::media::{InsertableMedia, Media};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -352,7 +353,7 @@ impl InsertableMedia {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::media::{InsertableMedia, Media};
     /// use dim_database::movie::{InsertableMovie, Movie};
     /// use dim_database::streamablemedia::StreamableTrait;
@@ -360,7 +361,7 @@ impl InsertableMedia {
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -403,7 +404,7 @@ impl InsertableMedia {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::media::{InsertableMedia, Media};
     /// use dim_database::tv::{InsertableTVShow, TVShow};
     /// use dim_database::tv::StaticTrait;
@@ -411,7 +412,7 @@ impl InsertableMedia {
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "tv".to_string(),
+    ///     media_type: MediaType::Tv,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -450,13 +451,13 @@ impl UpdateMedia {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::media::{InsertableMedia, Media, UpdateMedia};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();

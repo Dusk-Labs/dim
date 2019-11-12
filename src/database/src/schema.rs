@@ -26,7 +26,7 @@ table! {
         id -> Int4,
         name -> Varchar,
         location -> Varchar,
-        media_type -> Varchar,
+        media_type -> crate::library::MediaTypeMapping,
     }
 }
 
@@ -41,7 +41,7 @@ table! {
         added -> Nullable<Text>,
         poster_path -> Nullable<Text>,
         backdrop_path -> Nullable<Text>,
-        media_type -> Nullable<Varchar>,
+        media_type -> Nullable<crate::library::MediaTypeMapping>,
     }
 }
 
@@ -98,6 +98,14 @@ table! {
 table! {
     tv_show (id) {
         id -> Int4,
+    }
+}
+
+table! {
+    users (username) {
+        username -> Text,
+        password -> Text,
+        roles -> Array<Text>,
     }
 }
 

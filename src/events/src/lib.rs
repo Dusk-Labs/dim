@@ -4,6 +4,7 @@ use serde::Serialize;
 #[derive(Serialize)]
 pub struct Message {
     pub id: i32,
+    #[serde(flatten)]
     pub event_type: PushEventType,
 }
 

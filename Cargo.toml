@@ -19,6 +19,7 @@ dim-database = { path = "./src/database" }
 dim-events = { path = "./src/events" }
 dim-scanners = { path = "./src/scanners" }
 dim-streamer = { path = "./src/streaming" }
+auth = { path = "./src/auth" }
 walkdir = "2.2.9"
 rand = "0.7.0"
 rocket-slog = "0.4.0"

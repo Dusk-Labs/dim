@@ -6,7 +6,7 @@ use diesel::prelude::*;
 
 /// MediaFile struct which represents a media file on the filesystem. This struct holds some basic
 /// information which the video player on the front end might require.
-#[derive(Identifiable, Queryable, Serialize, PartialEq, Debug, Associations)]
+#[derive(Identifiable, Queryable, Serialize, PartialEq, Debug, Associations, Clone)]
 #[belongs_to(Library, foreign_key = "library_id")]
 #[belongs_to(StreamableMedia, foreign_key = "media_id")]
 #[table_name = "mediafile"]
@@ -114,13 +114,13 @@ impl MediaFile {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::mediafile::{InsertableMediaFile, MediaFile};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -159,7 +159,7 @@ impl MediaFile {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::mediafile::{InsertableMediaFile, MediaFile};
     /// use dim_database::media::{InsertableMedia, Media};
     /// use dim_database::movie::{InsertableMovie, Movie};
@@ -168,7 +168,7 @@ impl MediaFile {
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -191,7 +191,7 @@ impl MediaFile {
     /// };
     ///
     /// let mediafile_id = new_mediafile.insert(&conn).unwrap();
-    /// let mediafile = MediaFile::get_of_media(&conn, &media).unwrap();
+    /// let mediafile = MediaFile::get_of_media(&conn, &media).unwrap().pop().unwrap();
     ///
     /// assert_eq!(mediafile.library_id, library_id);
     /// assert_eq!(mediafile.media_id.unwrap(), new_media_id);
@@ -203,14 +203,13 @@ impl MediaFile {
     pub fn get_of_media(
         conn: &diesel::PgConnection,
         media: &Media,
-    ) -> Result<Self, diesel::result::Error> {
-        // TODO: Return Result<Vec<Self>, Error> instead of Result<Self, Error>
+    ) -> Result<Vec<Self>, diesel::result::Error> {
         let streamable_media =
             StreamableMedia::belonging_to(media).first::<StreamableMedia>(conn)?;
 
         // TODO: Figure out why the fuck .filter against mediafile::corrupted doesnt fucking work.
         // Fuck you.
-        let result = Self::belonging_to(&streamable_media).first::<Self>(conn)?;
+        let result = Self::belonging_to(&streamable_media).load::<Self>(conn)?;
 
         Ok(result)
     }
@@ -224,13 +223,13 @@ impl MediaFile {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::mediafile::{InsertableMediaFile, MediaFile};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -276,13 +275,13 @@ impl MediaFile {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::mediafile::{InsertableMediaFile, MediaFile};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -326,13 +325,13 @@ impl MediaFile {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::mediafile::{InsertableMediaFile, MediaFile};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -377,13 +376,13 @@ impl InsertableMediaFile {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::mediafile::{InsertableMediaFile, MediaFile};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -431,7 +430,7 @@ impl UpdateMediaFile {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library};
+    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
     /// use dim_database::mediafile::{InsertableMediaFile, MediaFile, UpdateMediaFile};
     /// use dim_database::media::{InsertableMedia, Media};
     /// use dim_database::movie::{InsertableMovie, Movie};
@@ -440,7 +439,7 @@ impl UpdateMediaFile {
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();

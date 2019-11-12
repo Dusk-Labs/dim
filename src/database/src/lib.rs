@@ -8,6 +8,8 @@ extern crate serde;
 extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
+#[macro_use]
+extern crate diesel_derive_enum;
 
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -21,6 +23,7 @@ pub mod schema;
 pub mod season;
 pub mod streamablemedia;
 pub mod tv;
+pub mod user;
 
 lazy_static::lazy_static! {
     static ref MIGRATIONS_FLAG: AtomicBool = AtomicBool::new(false);

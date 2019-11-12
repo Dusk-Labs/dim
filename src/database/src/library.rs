@@ -2,6 +2,20 @@ use crate::media::*;
 use crate::schema::library;
 use diesel::prelude::*;
 
+#[derive(Serialize, Debug, Clone, DbEnum, Eq, PartialEq, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum MediaType {
+    Movie,
+    Tv,
+    Episode,
+}
+
+impl Default for MediaType {
+    fn default() -> Self {
+        Self::Movie
+    }
+}
+///
 /// Library struct which we can use to deserialize database queries into.
 #[derive(Queryable, Serialize, Deserialize, Identifiable, Clone)]
 #[table_name = "library"]
@@ -16,11 +30,10 @@ pub struct Library {
     // than one path to media.
     pub location: String,
 
-    /// string used to identify the media type that this library contains. At the
+    /// Enum used to identify the media type that this library contains. At the
     /// moment only `movie` and `tv` are supported
-    // TODO: use tagged enums instead of String for better validation.
     // TODO: support mixed content, music
-    pub media_type: String,
+    pub media_type: MediaType,
 }
 
 /// InsertableLibrary struct, same as [`Library`](Library) but without the id field.
@@ -29,7 +42,7 @@ pub struct Library {
 pub struct InsertableLibrary {
     pub name: String,
     pub location: String,
-    pub media_type: String,
+    pub media_type: MediaType,
 }
 
 impl Library {
@@ -39,12 +52,12 @@ impl Library {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{Library, InsertableLibrary};
+    /// use dim_database::library::{Library, InsertableLibrary, MediaType};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -52,7 +65,6 @@ impl Library {
     /// let mut libraries = Library::get_all(&conn);
     ///
     /// assert!(libraries.len() > 0);
-    /// assert_eq!(libraries.pop().unwrap().id, new_id);
     ///
     /// // clean up the test
     /// let _ = Library::delete(&conn, new_id);
@@ -60,7 +72,8 @@ impl Library {
     pub fn get_all(conn: &diesel::PgConnection) -> Vec<Self> {
         use crate::schema::library::dsl::*;
 
-        // TODO: Dont panic on error
+        // TODO: Dont panic on error event tho this technically never panics and just returns a
+        // null vec
         library
             .load::<Self>(conn)
             .expect("Error querying all libraries")
@@ -75,12 +88,12 @@ impl Library {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{Library, InsertableLibrary};
+    /// use dim_database::library::{Library, InsertableLibrary, MediaType};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -114,13 +127,13 @@ impl Library {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{Library, InsertableLibrary};
+    /// use dim_database::library::{Library, InsertableLibrary, MediaType};
     /// use dim_database::media::{InsertableMedia};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -159,12 +172,12 @@ impl Library {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{Library, InsertableLibrary};
+    /// use dim_database::library::{Library, InsertableLibrary, MediaType};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
@@ -193,12 +206,12 @@ impl InsertableLibrary {
     /// # Example
     /// ```
     /// use dim_database::get_conn;
-    /// use dim_database::library::{Library, InsertableLibrary};
+    /// use dim_database::library::{Library, InsertableLibrary, MediaType};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
     ///     location: "/dev/null".to_string(),
-    ///     media_type: "movie".to_string(),
+    ///     media_type: MediaType::Movie,
     /// };
     ///
     /// let conn = get_conn().unwrap();
