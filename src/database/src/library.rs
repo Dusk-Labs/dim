@@ -67,7 +67,7 @@ impl Library {
     /// assert!(libraries.len() > 0);
     ///
     /// // clean up the test
-    /// let _ = Library::delete(&conn, new_id);
+    /// let _ = Library::delete(&conn, new_id).unwrap();
     /// ```
     pub fn get_all(conn: &diesel::PgConnection) -> Vec<Self> {
         use crate::schema::library::dsl::*;
@@ -106,7 +106,7 @@ impl Library {
     /// assert_eq!(library.media_type, new_library.media_type);
     ///
     /// // clean up the test
-    /// let _ = Library::delete(&conn, new_id);
+    /// let _ = Library::delete(&conn, new_id).unwrap();
     /// ```
     pub fn get_one(
         conn: &diesel::PgConnection,
