@@ -1,5 +1,4 @@
-# image: "rustlang/rust:nightly" build seems to fail under thi
-image: "htli/rust-nightly"
+image: "rustlang/rust:nightly"
 
 services:
     - postgres:latest

@@ -1,5 +1,4 @@
 #![feature(rustc_private)]
-#![feature(custom_attribute)]
 #![feature(proc_macro_hygiene, decl_macro)]
 
 #[macro_use]
