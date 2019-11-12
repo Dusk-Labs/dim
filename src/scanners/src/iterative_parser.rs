@@ -1,5 +1,5 @@
-use crate::api::APIExec;
 use crate::tmdb::TMDbSearch;
+use crate::APIExec;
 use crate::EventTx;
 use chrono::{prelude::Utc, Datelike, NaiveDate};
 use diesel::pg::PgConnection;
@@ -7,7 +7,7 @@ use dim_database::{
     episode::{Episode, InsertableEpisode},
     genre::*,
     get_conn,
-    library::Library,
+    library::{Library, MediaType},
     media::{InsertableMedia, Media},
     mediafile::*,
     movie::InsertableMovie,
@@ -101,8 +101,8 @@ impl<'a> IterativeScanner {
 
         for orphan in &orphans {
             if orphan.media_id.is_none() {
-                let q_type = match self.lib.media_type.as_str() {
-                    "tv" => true,
+                let q_type = match self.lib.media_type {
+                    MediaType::Tv => true,
                     _ => false,
                 };
 
@@ -189,7 +189,7 @@ impl<'a> IterativeScanner {
             }
         };
 
-        let _season_id = Season::get(&self.conn, orphan.season.unwrap(), media_id).map_or_else(
+        let seasonid = Season::get(&self.conn, media_id, orphan.season.unwrap()).map_or_else(
             |_| {
                 let season = InsertableSeason {
                     season_number: orphan.season.unwrap(),
@@ -212,18 +212,17 @@ impl<'a> IterativeScanner {
             |_| {
                 let episode = InsertableEpisode {
                     episode: orphan.episode.unwrap(),
+                    seasonid,
                     media: InsertableMedia {
                         library_id: orphan.library_id,
                         name: format!("{}", orphan.episode.unwrap()),
                         added: Utc::now().to_string(),
-                        media_type: String::from("episode"),
+                        media_type: MediaType::Episode,
                         ..Default::default()
                     },
                 };
 
-                episode
-                    .insert(&self.conn, media_id, orphan.season.unwrap())
-                    .unwrap()
+                episode.insert(&self.conn, media_id).unwrap()
             },
             |x| x.id,
         );

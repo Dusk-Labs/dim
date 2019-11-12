@@ -8,7 +8,7 @@ use crate::streamablemedia::StreamableMedia;
 use crate::tv::TVShow;
 use diesel::prelude::*;
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct Episode {
     #[serde(skip_serializing)]
     pub id: i32,
@@ -19,7 +19,7 @@ pub struct Episode {
     pub media: Media,
 }
 
-#[derive(Identifiable, Associations, Queryable, PartialEq, Debug)]
+#[derive(Identifiable, Associations, Queryable, PartialEq, Debug, Copy, Clone)]
 #[belongs_to(StreamableMedia, foreign_key = "id")]
 #[belongs_to(Season, foreign_key = "seasonid")]
 #[table_name = "episode"]
@@ -32,6 +32,7 @@ pub struct EpisodeWrapper {
 #[derive(Debug)]
 pub struct InsertableEpisode {
     pub media: InsertableMedia,
+    pub seasonid: i32,
     pub episode: i32,
 }
 
@@ -41,7 +42,7 @@ pub struct InsertableEpisodeWrapper {
     pub episode_: i32,
 }
 
-#[derive(Deserialize, PartialEq, Debug)]
+#[derive(Deserialize, Debug)]
 pub struct UpdateEpisode {
     pub seasonid: Option<i32>,
     pub episode: Option<i32>,
@@ -58,6 +59,61 @@ pub struct UpdateEpisodeWrapper {
 }
 
 impl Episode {
+    pub fn get_all_of_tv(
+        conn: &diesel::PgConnection,
+        media: &Media,
+    ) -> Result<Vec<Episode>, diesel::result::Error> {
+        use crate::schema::media;
+
+        let tv_show = TVShow::belonging_to(media).first::<TVShow>(conn).unwrap();
+        Ok(Season::belonging_to(&tv_show)
+            .load::<Season>(conn)
+            .unwrap()
+            .iter()
+            .map(|x| {
+                EpisodeWrapper::belonging_to(x)
+                    .load::<EpisodeWrapper>(conn)
+                    .unwrap()
+                    .iter()
+                    .map(|l| {
+                        (
+                            *l,
+                            media::dsl::media
+                                .filter(media::dsl::id.eq(l.id))
+                                .first::<Media>(conn)
+                                .unwrap(),
+                        )
+                    })
+                    .map(|(l, z)| l.into(z))
+                    .collect::<Vec<Episode>>()
+            })
+            .flatten()
+            .collect::<Vec<Episode>>())
+    }
+
+    pub fn get_all_of_season(
+        conn: &diesel::PgConnection,
+        media: &Season,
+    ) -> Result<Vec<Episode>, diesel::result::Error> {
+        use crate::schema::media;
+
+        Ok(EpisodeWrapper::belonging_to(media)
+            .load::<EpisodeWrapper>(conn)
+            .unwrap()
+            .iter()
+            .map(|l| {
+                (
+                    *l,
+                    media::dsl::media
+                        .filter(media::dsl::id.eq(l.id))
+                        .first::<Media>(conn)
+                        .unwrap(),
+                )
+            })
+            .map(|(l, z)| l.into(z))
+            .collect::<Vec<Episode>>())
+    }
+
     pub fn get(
         conn: &diesel::PgConnection,
         id: i32,
@@ -115,16 +171,13 @@ impl InsertableEpisode {
         &self,
         conn: &diesel::PgConnection,
         id: i32,
-        season_num: i32,
     ) -> Result<i32, diesel::result::Error> {
         use crate::schema::season;
         use crate::schema::tv_show;
 
-        let tv_show = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
+        let _tv_show = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
 
-        let season = Season::belonging_to(&tv_show)
-            .filter(season::dsl::season_number.eq(season_num))
-            .first::<Season>(conn)?;
+        let season = season::table.find(self.seasonid).first::<Season>(conn)?;
 
         let media_id = self
             .media

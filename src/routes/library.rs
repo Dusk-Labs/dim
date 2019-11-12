@@ -1,6 +1,7 @@
 use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::routes::general::construct_standard;
+use auth::Wrapper as Auth;
 use dim_database::library::{InsertableLibrary, Library};
 use dim_events::{Message, PushEventType};
 use dim_scanners;
@@ -13,7 +14,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 #[get("/")]
-pub fn library_get(conn: DbConnection, _log: SyncLogger) -> Json<Vec<Library>> {
+pub fn library_get(conn: DbConnection, _log: SyncLogger, _user: Auth) -> Json<Vec<Library>> {
     Json({
         let mut x = Library::get_all(&conn);
         x.sort_by(|a, b| a.name.cmp(&b.name));
@@ -27,6 +28,7 @@ pub fn library_post(
     new_library: Json<InsertableLibrary>,
     log: SyncLogger,
     event_tx: State<Arc<Mutex<EventTx>>>,
+    _user: Auth,
 ) -> Result<Status, Status> {
     match new_library.insert(&conn) {
         Ok(id) => {
@@ -54,6 +56,7 @@ pub fn library_delete(
     conn: DbConnection,
     id: i32,
     event_tx: State<Arc<Mutex<EventTx>>>,
+    _user: Auth,
 ) -> Result<Status, Status> {
     match Library::delete(&conn, id) {
         Ok(_) => {
@@ -71,7 +74,7 @@ pub fn library_delete(
 }
 
 #[get("/<id>")]
-pub fn get_self(conn: DbConnection, id: i32) -> Result<Json<Library>, Status> {
+pub fn get_self(conn: DbConnection, id: i32, _user: Auth) -> Result<Json<Library>, Status> {
     match Library::get_one(&conn, id) {
         Ok(data) => Ok(Json(data)),
         Err(_) => Err(Status::NotFound),
@@ -82,6 +85,7 @@ pub fn get_self(conn: DbConnection, id: i32) -> Result<Json<Library>, Status> {
 pub fn get_all_library(
     conn: DbConnection,
     id: i32,
+    _user: Auth,
 ) -> Result<Json<HashMap<String, Vec<JsonValue>>>, Status> {
     let mut result: HashMap<String, Vec<JsonValue>> = HashMap::new();
     if let Ok(lib) = Library::get_one(&conn, id) {

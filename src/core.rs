@@ -163,6 +163,7 @@ pub(crate) fn rocket_pad(debug: bool) -> rocket::Rocket {
             "/api/v1/media",
             routes![
                 routes::media::get_media_by_id,
+                routes::media::get_extra_info_by_id,
                 routes::media::update_media_by_id,
                 routes::media::delete_media_by_id,
             ],
@@ -180,6 +181,7 @@ pub(crate) fn rocket_pad(debug: bool) -> rocket::Rocket {
                 routes::tv::delete_episode_by_id,
             ],
         )
+        .mount("/api/v1/auth", routes![routes::auth::login])
         .attach(cors)
         .manage(Arc::new(Mutex::new(event_tx)))
 }
