@@ -2,12 +2,12 @@ use crate::core::DbConnection;
 use auth::Wrapper as Auth;
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
-use dim_database::episode::Episode;
-use dim_database::genre::*;
-use dim_database::library::MediaType;
-use dim_database::media::Media;
-use dim_database::mediafile::MediaFile;
-use dim_database::season::Season;
+use database::episode::Episode;
+use database::genre::*;
+use database::library::MediaType;
+use database::media::Media;
+use database::mediafile::MediaFile;
+use database::season::Season;
 use rocket::http::RawStr;
 use rocket::http::Status;
 use rocket_contrib::json;
@@ -35,7 +35,7 @@ pub fn get_top_duration(conn: &DbConnection, data: &Media) -> i32 {
 }
 
 pub fn get_season(conn: &DbConnection, data: &Media) -> Result<Season, DieselError> {
-    use dim_database::schema::season;
+    use database::schema::season;
 
     let season = season::table
         .filter(season::tvshowid.eq(data.id))
@@ -111,7 +111,7 @@ pub fn construct_standard(conn: &DbConnection, data: &Media, quick: Option<bool>
 
 #[get("/dashboard")]
 pub fn dashboard(conn: DbConnection, _user: Auth) -> Result<JsonValue, Status> {
-    use dim_database::schema::media;
+    use database::schema::media;
 
     let mut top_rated = media::table
         .filter(media::media_type.ne(MediaType::Episode))
@@ -149,7 +149,7 @@ pub fn dashboard(conn: DbConnection, _user: Auth) -> Result<JsonValue, Status> {
 
 #[get("/dashboard/banner")]
 pub fn banners(conn: DbConnection, _user: Auth) -> Result<Json<Vec<JsonValue>>, Status> {
-    use dim_database::schema::media;
+    use database::schema::media;
     use rand::distributions::{Distribution, Uniform};
 
     no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
@@ -241,8 +241,8 @@ pub fn search(
     quick: Option<bool>,
     _user: Auth,
 ) -> Result<Json<Vec<JsonValue>>, Status> {
-    use dim_database::schema::genre_media;
-    use dim_database::schema::media;
+    use database::schema::genre_media;
+    use database::schema::media;
 
     let mut result = media::table.into_boxed();
 

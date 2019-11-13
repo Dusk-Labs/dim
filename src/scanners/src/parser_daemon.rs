@@ -1,7 +1,7 @@
 use crate::iterative_parser::IterativeScanner;
 use crate::EventTx;
 use crossbeam_channel::unbounded;
-use dim_database::{get_conn, library::Library};
+use database::{get_conn, library::Library};
 use notify::event::{EventKind::*, ModifyKind::*};
 use notify::{RecommendedWatcher, RecursiveMode, Result as nResult, Watcher};
 use slog::{debug, error, Logger};

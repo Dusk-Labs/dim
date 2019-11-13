@@ -5,8 +5,8 @@ use rocket::local::Client;
 pub fn drop_all_data() {
     use diesel::prelude::*;
     use diesel::sql_query;
-    use dim_database::get_conn;
-    use dim_database::schema::*;
+    use database::get_conn;
+    use database::schema::*;
 
     let conn = get_conn().expect("Failed to get db");
 

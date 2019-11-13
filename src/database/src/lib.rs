@@ -41,7 +41,7 @@ pub fn run_migrations(
 ///
 /// # Example
 /// ```
-/// use dim_database::get_conn;
+/// use database::get_conn;
 ///
 /// let conn = get_conn().unwrap(); // panics if connection failed.
 /// ```

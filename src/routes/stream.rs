@@ -1,15 +1,20 @@
 use crate::core::DbConnection;
 use auth::Wrapper as Auth;
 use diesel::prelude::*;
-use dim_streamer::{ffmpeg::FFmpeg, FFMPEG_BIN};
 use rocket::http::Status;
 use rocket::response::NamedFile;
 use rocket_contrib::{json, json::JsonValue};
 use std::path::{Path, PathBuf};
+use streamer::{ffmpeg::FFmpeg, FFMPEG_BIN};
 
-#[get("/stream/start/<_id>")]
-pub fn start_stream(conn: DbConnection, _id: i32, _user: Auth) -> Result<JsonValue, Status> {
-    use dim_database::schema::mediafile::dsl::*;
+#[get("/stream/start/<_id>?<seek>")]
+pub fn start_stream(
+    conn: DbConnection,
+    _id: i32,
+    seek: Option<u64>,
+    _user: Auth,
+) -> Result<JsonValue, Status> {
+    use database::schema::mediafile::dsl::*;
     let media_inst = mediafile
         .filter(media_id.eq(Some(_id)))
         .select(id)
@@ -21,7 +26,7 @@ pub fn start_stream(conn: DbConnection, _id: i32, _user: Auth) -> Result<JsonVal
             Err(_) => return Err(Status::NotFound),
         };
 
-        let uuid = match stream.stream() {
+        let uuid = match stream.stream(seek) {
             Ok(uuid) => uuid,
             Err(_) => return Err(Status::NotFound),
         };
@@ -41,6 +46,6 @@ pub fn stop_stream(uuid: String, _user: Auth) -> Result<Status, Status> {
 
 #[get("/stream/static/<uuid>/<path..>")]
 pub fn return_static(uuid: String, path: PathBuf, _user: Auth) -> Option<NamedFile> {
-    let full_path = Path::new("/home/hinach4n/media/media1/transcoding").join(uuid);
+    let full_path = Path::new("./transcoding").join(uuid);
     NamedFile::open(full_path.join(path)).ok()
 }

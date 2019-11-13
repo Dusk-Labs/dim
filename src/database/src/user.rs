@@ -41,8 +41,8 @@ impl User {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::user::{User, InsertableUser};
+    /// use database::get_conn;
+    /// use database::user::{User, InsertableUser};
     ///
     /// let conn = get_conn().unwrap();
     ///
@@ -75,8 +75,8 @@ impl User {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::user::{User, InsertableUser};
+    /// use database::get_conn;
+    /// use database::user::{User, InsertableUser};
     ///
     /// let conn = get_conn().unwrap();
     ///
@@ -126,8 +126,8 @@ impl User {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::user::{User, InsertableUser};
+    /// use database::get_conn;
+    /// use database::user::{User, InsertableUser};
     ///
     /// let conn = get_conn().unwrap();
     ///
@@ -161,8 +161,8 @@ impl InsertableUser {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::user::{User, InsertableUser, Role};
+    /// use database::get_conn;
+    /// use database::user::{User, InsertableUser, Role};
     ///
     /// let conn = get_conn().unwrap();
     ///

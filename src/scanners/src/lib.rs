@@ -1,5 +1,5 @@
 #![feature(result_map_or_else)]
-use dim_database::get_conn;
+use database::get_conn;
 use pushevent::Event;
 use slog::Logger;
 use slog::{error, info};
@@ -7,15 +7,16 @@ use std::thread;
 
 pub mod iterative_parser;
 pub mod parser_daemon;
-pub mod tmdb;
+pub mod tmdb_api;
 
 use crate::iterative_parser::IterativeScanner;
 use crate::parser_daemon::ParserDaemon;
-use crate::tmdb::QueryResult;
+use crate::tmdb_api::Media;
+use crate::tmdb_api::MediaType;
 
 pub trait APIExec<'a> {
     fn new(api_key: &'a str) -> Self;
-    fn search(&mut self, title: String, year: Option<i32>, tv: bool) -> Option<QueryResult>;
+    fn search(&mut self, title: String, year: Option<i32>, media_type: MediaType) -> Option<Media>;
 }
 
 pub type EventTx = std::sync::mpsc::Sender<Event>;

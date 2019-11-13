@@ -2,9 +2,9 @@ use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::routes::general::construct_standard;
 use auth::Wrapper as Auth;
-use dim_database::library::{InsertableLibrary, Library};
-use dim_events::{Message, PushEventType};
-use dim_scanners;
+use database::library::{InsertableLibrary, Library};
+use events::{Message, PushEventType};
+use scanners;
 use pushevent::Event;
 use rocket::http::Status;
 use rocket::State;
@@ -35,7 +35,7 @@ pub fn library_post(
             let tx = event_tx.lock().unwrap();
             let tx_clone = tx.clone();
             std::thread::spawn(move || {
-                dim_scanners::start(id, log.get(), tx_clone).unwrap();
+                scanners::start(id, log.get(), tx_clone).unwrap();
             });
 
             let event_message = Box::new(Message {

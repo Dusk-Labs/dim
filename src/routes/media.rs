@@ -1,8 +1,8 @@
 use crate::core::DbConnection;
 use auth::Wrapper as Auth;
-use dim_database::genre::Genre;
-use dim_database::media::{Media, UpdateMedia};
-use dim_database::mediafile::MediaFile;
+use database::genre::Genre;
+use database::media::{Media, UpdateMedia};
+use database::mediafile::MediaFile;
 use rocket::http::Status;
 use rocket_contrib::{
     json,

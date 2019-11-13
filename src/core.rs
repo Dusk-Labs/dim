@@ -47,8 +47,8 @@ lazy_static! {
 
 pub type EventTx = std::sync::mpsc::Sender<pushevent::Event>;
 fn run_scanners(log: Logger, tx: EventTx) {
-    if let Ok(conn) = dim_database::get_conn() {
-        for lib in dim_database::library::Library::get_all(&conn) {
+    if let Ok(conn) = database::get_conn() {
+        for lib in database::library::Library::get_all(&conn) {
             slog::slog_info!(log, "Starting scanner for {} with id: {}", lib.name, lib.id);
             let log_clone = log.clone();
             let library_id = lib.id;
@@ -56,7 +56,7 @@ fn run_scanners(log: Logger, tx: EventTx) {
             LIB_SCANNERS.lock().unwrap().insert(
                 library_id,
                 std::thread::spawn(move || {
-                    dim_scanners::start(library_id, &log_clone, tx_clone).unwrap();
+                    scanners::start(library_id, &log_clone, tx_clone).unwrap();
                 }),
             );
         }

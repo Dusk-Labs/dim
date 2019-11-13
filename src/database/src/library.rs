@@ -51,8 +51,8 @@ impl Library {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::library::{Library, InsertableLibrary, MediaType};
+    /// use database::get_conn;
+    /// use database::library::{Library, InsertableLibrary, MediaType};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
@@ -87,8 +87,8 @@ impl Library {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::library::{Library, InsertableLibrary, MediaType};
+    /// use database::get_conn;
+    /// use database::library::{Library, InsertableLibrary, MediaType};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
@@ -126,9 +126,9 @@ impl Library {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::library::{Library, InsertableLibrary, MediaType};
-    /// use dim_database::media::{InsertableMedia};
+    /// use database::get_conn;
+    /// use database::library::{Library, InsertableLibrary, MediaType};
+    /// use database::media::{InsertableMedia};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
@@ -171,8 +171,8 @@ impl Library {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::library::{Library, InsertableLibrary, MediaType};
+    /// use database::get_conn;
+    /// use database::library::{Library, InsertableLibrary, MediaType};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
@@ -205,8 +205,8 @@ impl InsertableLibrary {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::library::{Library, InsertableLibrary, MediaType};
+    /// use database::get_conn;
+    /// use database::library::{Library, InsertableLibrary, MediaType};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
