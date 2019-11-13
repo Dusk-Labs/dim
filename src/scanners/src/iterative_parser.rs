@@ -1,9 +1,8 @@
-use crate::tmdb::TMDbSearch;
+use crate::tmdb_api::TMDbSearch;
 use crate::APIExec;
 use crate::EventTx;
 use chrono::{prelude::Utc, Datelike, NaiveDate};
-use diesel::pg::PgConnection;
-use dim_database::{
+use database::{
     episode::{Episode, InsertableEpisode},
     genre::*,
     get_conn,
@@ -14,12 +13,13 @@ use dim_database::{
     season::{InsertableSeason, Season},
     tv::InsertableTVShow,
 };
-use dim_events::*;
-use dim_streamer::{ffprobe::FFProbeCtx, FFPROBE_BIN};
+use diesel::pg::PgConnection;
+use events::*;
 use pushevent::Event;
 use rayon::prelude::*;
 use slog::{debug, error, info, Logger};
 use std::path::PathBuf;
+use streamer::{ffprobe::FFProbeCtx, FFPROBE_BIN};
 use torrent_name_parser::Metadata;
 use walkdir::WalkDir;
 
@@ -101,22 +101,27 @@ impl<'a> IterativeScanner {
 
         for orphan in &orphans {
             if orphan.media_id.is_none() {
-                let q_type = match self.lib.media_type {
-                    MediaType::Tv => true,
-                    _ => false,
+                let mediatype = match self.lib.media_type {
+                    MediaType::Tv => crate::tmdb_api::MediaType::Tv,
+                    _ => crate::MediaType::Movie,
                 };
 
                 info!(self.log, "Scanning {} orphan", orphan.raw_name.clone());
                 if let Some(result) =
-                    tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year, q_type)
+                    tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year, mediatype)
                 {
-                    self.match_media_to_tmdb(result, &orphan, q_type);
+                    self.match_media_to_tmdb(result, &orphan, mediatype);
                 }
             }
         }
     }
 
-    fn match_media_to_tmdb(&self, result: crate::tmdb::QueryResult, orphan: &MediaFile, tv: bool) {
+    fn match_media_to_tmdb(
+        &self,
+        result: crate::tmdb_api::Media,
+        orphan: &MediaFile,
+        mediatype: crate::tmdb_api::MediaType,
+    ) {
         let name = result.get_title().unwrap();
 
         let year: Option<i32> = result
@@ -130,16 +135,18 @@ impl<'a> IterativeScanner {
 
         let poster_path = result
             .poster_path
+            .clone()
             .map(|s| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s));
 
         let backdrop_path = result
             .backdrop_path
+            .clone()
             .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s));
 
         let media = InsertableMedia {
             library_id: self.lib.id,
             name,
-            description: result.overview,
+            description: result.overview.clone(),
             rating,
             year,
             added: Utc::now().to_string(),
@@ -148,19 +155,22 @@ impl<'a> IterativeScanner {
             media_type: self.lib.media_type.clone(),
         };
 
-        if tv {
-            self.insert_tv(orphan, media, result.genres);
-            return;
+        match mediatype {
+            crate::tmdb_api::MediaType::Tv => {
+                self.insert_tv(orphan, media, result);
+                return;
+            }
+            _ => {}
         }
 
-        self.insert_movie(orphan, media, result.genres);
+        self.insert_movie(orphan, media, result);
     }
 
     fn insert_tv(
         &self,
         orphan: &MediaFile,
         media: InsertableMedia,
-        genres: Option<Vec<crate::tmdb::Genre>>,
+        search: crate::tmdb_api::Media,
     ) {
         let media_id =
             Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.clone().as_str())
@@ -177,7 +187,7 @@ impl<'a> IterativeScanner {
                     |x| x.id,
                 );
 
-        if let Some(genres) = genres {
+        if let Some(genres) = search.genres.clone() {
             for genre in genres {
                 let genre = InsertableGenre {
                     name: genre.name.clone(),
@@ -189,6 +199,7 @@ impl<'a> IterativeScanner {
             }
         };
 
+        let season = search.get_season(orphan.season.unwrap());
         let seasonid = Season::get(&self.conn, media_id, orphan.season.unwrap()).map_or_else(
             |_| {
                 let season = InsertableSeason {
@@ -210,6 +221,7 @@ impl<'a> IterativeScanner {
         )
         .map_or_else(
             |_| {
+                let search_ep = season.get_episode(orphan.episode.unwrap());
                 let episode = InsertableEpisode {
                     episode: orphan.episode.unwrap(),
                     seasonid,
@@ -218,6 +230,8 @@ impl<'a> IterativeScanner {
                         name: format!("{}", orphan.episode.unwrap()),
                         added: Utc::now().to_string(),
                         media_type: MediaType::Episode,
+                        description: search_ep.overview,
+                        backdrop_path: search_ep.still_path,
                         ..Default::default()
                     },
                 };
@@ -239,7 +253,7 @@ impl<'a> IterativeScanner {
         &self,
         orphan: &MediaFile,
         media: InsertableMedia,
-        genres: Option<Vec<crate::tmdb::Genre>>,
+        search: crate::tmdb_api::Media,
     ) {
         let media_id =
             Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.clone().as_str())
@@ -253,7 +267,7 @@ impl<'a> IterativeScanner {
                 );
 
         // TODO: use .map instead of if let
-        if let Some(genres) = genres {
+        if let Some(genres) = search.genres {
             for genre in genres {
                 let genre = InsertableGenre {
                     name: genre.name.clone(),

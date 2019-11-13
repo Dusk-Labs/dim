@@ -1,5 +1,5 @@
 [package]
-name = "dim-events"
+name = "events"
 version = "0.1.0"
 authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"

@@ -1,4 +1,4 @@
-use dim_database::{get_conn, mediafile::MediaFile};
+use database::{get_conn, mediafile::MediaFile};
 use std::collections::HashMap;
 use std::fs;
 use std::process::{Child, Command};
@@ -31,24 +31,23 @@ impl FFmpeg {
                 Err(_) => return Err(()),
             },
             uuid: uuid.to_hyphenated().to_string(),
-            out_dir: format!(
-                "/home/hinach4n/media/media1/transcoding/{}",
-                uuid.to_hyphenated().to_string()
-            ),
+            out_dir: format!("transcoding/{}", uuid.to_hyphenated().to_string()),
         })
     }
 
     /// TODO: Add params to select codec out and in, seek, and further params.
-    pub fn stream(&mut self) -> Result<String, ()> {
+    pub fn stream(&mut self, seek: Option<u64>) -> Result<String, ()> {
         let input = format!("file:{}", self.mediafile.target_file.clone().as_str());
         let manifest = format!("{}/index.m3u8", self.out_dir);
         let chunks = format!("{}/%d.ts", self.out_dir);
+
+        let time_seek = format!("-ss {}", seek.unwrap_or(0));
 
         let _ = fs::create_dir(self.out_dir.clone());
 
         let mut process = Command::new(self.bin.clone());
         process
-            .args(&["-fflags", "+genpts", "-noaccurate_seek"])
+            .args(&[time_seek.as_str(), "-fflags", "+genpts", "-noaccurate_seek"])
             .args(&["-f", "matroska,webm", "-i", input.as_str()])
             .args(&["-map_metadata", "-1"])
             .args(&["-map_chapters", "-1"])

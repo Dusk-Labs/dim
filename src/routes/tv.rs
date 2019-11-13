@@ -1,9 +1,9 @@
 use crate::core::DbConnection;
 use auth::Wrapper as Auth;
-use dim_database::episode::{Episode, UpdateEpisode};
-use dim_database::media::Media;
-use dim_database::season::{Season, UpdateSeason};
-use dim_database::tv::TVShow;
+use database::episode::{Episode, UpdateEpisode};
+use database::media::Media;
+use database::season::{Season, UpdateSeason};
+use database::tv::TVShow;
 use rocket::http::Status;
 use rocket_contrib::json::Json;
 

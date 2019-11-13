@@ -92,9 +92,9 @@ impl Media {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
-    /// use dim_database::media::{InsertableMedia, Media};
+    /// use database::get_conn;
+    /// use database::library::{InsertableLibrary, Library, MediaType};
+    /// use database::media::{InsertableMedia, Media};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
@@ -141,9 +141,9 @@ impl Media {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
-    /// use dim_database::media::{InsertableMedia, Media};
+    /// use database::get_conn;
+    /// use database::library::{InsertableLibrary, Library, MediaType};
+    /// use database::media::{InsertableMedia, Media};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
@@ -186,9 +186,9 @@ impl Media {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
-    /// use dim_database::media::{InsertableMedia, Media};
+    /// use database::get_conn;
+    /// use database::library::{InsertableLibrary, Library, MediaType};
+    /// use database::media::{InsertableMedia, Media};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
@@ -245,9 +245,9 @@ impl Media {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
-    /// use dim_database::media::{InsertableMedia, Media};
+    /// use database::get_conn;
+    /// use database::library::{InsertableLibrary, Library, MediaType};
+    /// use database::media::{InsertableMedia, Media};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
@@ -294,9 +294,9 @@ impl InsertableMedia {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
-    /// use dim_database::media::{InsertableMedia, Media};
+    /// use database::get_conn;
+    /// use database::library::{InsertableLibrary, Library, MediaType};
+    /// use database::media::{InsertableMedia, Media};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
@@ -352,11 +352,11 @@ impl InsertableMedia {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
-    /// use dim_database::media::{InsertableMedia, Media};
-    /// use dim_database::movie::{InsertableMovie, Movie};
-    /// use dim_database::streamablemedia::StreamableTrait;
+    /// use database::get_conn;
+    /// use database::library::{InsertableLibrary, Library, MediaType};
+    /// use database::media::{InsertableMedia, Media};
+    /// use database::movie::{InsertableMovie, Movie};
+    /// use database::streamablemedia::StreamableTrait;
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
@@ -403,11 +403,11 @@ impl InsertableMedia {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
-    /// use dim_database::media::{InsertableMedia, Media};
-    /// use dim_database::tv::{InsertableTVShow, TVShow};
-    /// use dim_database::tv::StaticTrait;
+    /// use database::get_conn;
+    /// use database::library::{InsertableLibrary, Library, MediaType};
+    /// use database::media::{InsertableMedia, Media};
+    /// use database::tv::{InsertableTVShow, TVShow};
+    /// use database::tv::StaticTrait;
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),
@@ -450,9 +450,9 @@ impl UpdateMedia {
     ///
     /// # Example
     /// ```
-    /// use dim_database::get_conn;
-    /// use dim_database::library::{InsertableLibrary, Library, MediaType};
-    /// use dim_database::media::{InsertableMedia, Media, UpdateMedia};
+    /// use database::get_conn;
+    /// use database::library::{InsertableLibrary, Library, MediaType};
+    /// use database::media::{InsertableMedia, Media, UpdateMedia};
     ///
     /// let new_library = InsertableLibrary {
     ///     name: "test".to_string(),

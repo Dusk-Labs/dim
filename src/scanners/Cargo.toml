@@ -1,5 +1,5 @@
 [package]
-name = "dim-scanners"
+name = "scanners"
 version = "0.1.0"
 authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
@@ -12,9 +12,9 @@ torrent-name-parser = "0.2.0"
 reqwest = "0.9.19"
 serde = "1.0.98"
 chrono = "0.4.7"
-dim-database = { path = "../database" }
-dim-streamer = { path = "../streaming" }
-dim-events = { path = "../events" }
+database = { path = "../database" }
+streamer = { path = "../streaming" }
+events = { path = "../events" }
 diesel = { version = "1.4.2", default-features = false, features = ["postgres"] }
 slog = "2.5.2"
 lazy_static = "1.4.0"
