@@ -41,13 +41,19 @@ impl FFmpeg {
         let manifest = format!("{}/index.m3u8", self.out_dir);
         let chunks = format!("{}/%d.ts", self.out_dir);
 
-        let time_seek = format!("-ss {}", seek.unwrap_or(0));
+        let time_seek = format!("{}", seek.unwrap_or(0));
 
         let _ = fs::create_dir(self.out_dir.clone());
 
         let mut process = Command::new(self.bin.clone());
         process
-            .args(&[time_seek.as_str(), "-fflags", "+genpts", "-noaccurate_seek"])
+            .args(&[
+                "-ss",
+                time_seek.as_str(),
+                "-fflags",
+                "+genpts",
+                "-noaccurate_seek",
+            ])
             .args(&["-f", "matroska,webm", "-i", input.as_str()])
             .args(&["-map_metadata", "-1"])
             .args(&["-map_chapters", "-1"])
