@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import * as Vibrant from 'node-vibrant';
@@ -9,7 +9,7 @@ import TruncText from "../helpers/TruncText.jsx";
 
 import "./Banner.scss";
 
-class Banner extends PureComponent {
+class Banner extends Component {
     constructor(props) {
         super(props);
 
@@ -110,11 +110,9 @@ class Banner extends PureComponent {
                         <p><TruncText content={synopsis} max={35}/></p>
                     </div>
                     <a
-                        onClick={() => window.open(`/play/${id}`, "_blank")}
-                        style={{color: textColor, background: backgroundColor}}
                         className="play-btn"
-                        rel="noopener noreferrer"
-                        target="_blank"
+                        href={`/play/${id}`}
+                        style={{color: textColor, background: backgroundColor}}
                     >
                         PLAY
                         <FontAwesomeIcon icon="arrow-alt-circle-right"/>
