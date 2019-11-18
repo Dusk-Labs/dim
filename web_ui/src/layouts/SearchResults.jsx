@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { connect } from "react-redux";
 
+import { search } from "../actions/searchActions.js";
 import CardList from "./CardList.jsx";
 
 class SearchResults extends Component {
@@ -111,4 +113,10 @@ class SearchResults extends Component {
     }
 }
 
-export default SearchResults;
+const mapStateToProps = (state) => ({
+    search: state.searchReducer
+});
+
+const actions = { search };
+
+export default connect(mapStateToProps, actions)(SearchResults);
