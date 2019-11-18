@@ -3,46 +3,27 @@ import { connect } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { fetchDashboard } from "../actions/dashboardActions.js";
-import { fetchBanners } from "../actions/dashboardActions.js";
 
 import CardList from "../layouts/CardList.jsx";
-import Banner from "../components/Banner.jsx";
 import BannerPage from "../components/BannerPage.jsx";
 
 class Dashboard extends Component {
     componentDidMount() {
         document.title = "Dim - Dashboard";
         this.props.fetchDashboard();
-        this.props.fetchBanners();
     }
 
     render() {
-        let banners;
         let cards;
-
-        // FETCH_BANNERS_START
-        if (this.props.banners.fetching) {
-            banners = <div className="banner-wrapper"></div>;
-        }
-
-        // FETCH_BANNERS_OK
-        if (this.props.banners.fetched && !this.props.dashboard.error) {
-            banners = <BannerPage>{this.props.banners.items.map((banner, i) => <Banner key={i} banner={banner}/>)}</BannerPage>
-        }
 
         // FETCH_DASHBOARD_START
         if (this.props.dashboard.fetching) {
-            cards = <div className="spinner"></div>;
+            cards = <CardList placeholder={{failed: false}}/>;
         }
 
         // FETCH_DASHBOARD_ERR
         if (this.props.dashboard.fetched && this.props.dashboard.error) {
-            cards = (
-                <div className="empty">
-                    <FontAwesomeIcon icon="question-circle"/>
-                    <p>FAILED TO LOAD</p>
-                </div>
-            );
+            cards = <CardList placeholder={{failed: true}}/>;
         }
 
         // FETCH_DASHBOARD_OK
@@ -52,7 +33,7 @@ class Dashboard extends Component {
 
         return (
             <main>
-                {banners}
+                <BannerPage/>
                 {cards}
             </main>
         );
@@ -60,13 +41,11 @@ class Dashboard extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    dashboard: state.dashboard,
-    banners: state.banners
+    dashboard: state.dashboard
 });
 
 const mapActionstoProps = {
-    fetchDashboard,
-    fetchBanners
+    fetchDashboard
 };
 
 export default connect(mapStateToProps, mapActionstoProps)(Dashboard);
