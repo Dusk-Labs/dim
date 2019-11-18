@@ -136,6 +136,10 @@
             margin: 5px 0;
         }
 
+        .horizontal-err {
+            margin: 5px auto;
+        }
+
         .item-wrapper {
             @include align-items(center);
             height: 40px;
