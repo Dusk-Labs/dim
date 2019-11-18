@@ -1,6 +1,9 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { HashLink } from 'react-router-hash-link';
 import { withRouter } from "react-router-dom";
+
+import { quickSearch } from "../actions/searchActions.js";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./SidebarSearch.scss";
@@ -21,7 +24,6 @@ class SidebarSearch extends Component {
         this.state = {
             query: "",
             showSearchFor: false,
-            results: null,
             showPlaceholder: true
         };
     }
@@ -38,14 +40,6 @@ class SidebarSearch extends Component {
         this.inputBox.current.removeEventListener("keydown", this.handleKeyPress);
     }
 
-    async handle_req(promise) {
-        try {
-            return await (await promise).json();
-        } catch (err) {
-            return { err: err };
-        }
-    }
-
     // hides popups if clicked outside component
     handleDocumentClick(e) {
         if (!this.searchBox.current.contains(e.target)) {
@@ -60,12 +54,11 @@ class SidebarSearch extends Component {
     onChange = (e) => {
         this.setState({
             query: e.target.textContent.substr(0, 20),
-            showSearchFor: e.target.textContent.length !== 0,
-            results: <p id="response">LOADING</p>
+            showSearchFor: e.target.textContent.length !== 0
         });
 
         if (this.state.query.length >= 1) {
-            this.getResults();
+            this.props.quickSearch(this.state.query);
 
             this.setState({
                 showPlaceholder: false
@@ -80,42 +73,6 @@ class SidebarSearch extends Component {
     togglePlaceholder() {
         this.setState({
             showPlaceholder: !this.state.showPlaceholder
-        });
-    }
-
-    async getResults() {
-        if (this.state.query.length === 0) return;
-
-        const reqResults = fetch(`http://86.21.150.167:8000/api/v1/search?query=${this.state.query}&quick=true`);
-        const results = await this.handle_req(reqResults);
-
-        if (results.err) {
-            return this.setState({
-                results: <p id="response">FAILED TO LOAD</p>
-            });
-        }
-
-        const list = results.map((
-            { name, library_id, id }, i
-        ) => <HashLink
-                to={`/library/${library_id}#${id}`}
-                scroll={elm => {
-                    elm.scrollIntoView({ behavior: "smooth", block: "center" });
-                    elm.style.animation = "cardGlow 3s ease-in-out infinite";
-                }}
-                onClick={this.toggleShowSearchFor}
-                key={i}>
-                {name}
-            </HashLink>
-        );
-
-        this.setState({
-            results: (
-                <div className="results">
-                    <p>{list.length} RESULTS</p>
-                    <div className="result-list">{list}</div>
-                </div>
-            )
         });
     }
 
@@ -141,6 +98,47 @@ class SidebarSearch extends Component {
     }
 
     render() {
+        let results = <p></p>;
+
+        // SEARCH_START
+        if (this.props.quick_search.fetching) {
+            results = <p id="response">LOADING</p>;
+        }
+
+        // SEARCH_ERR
+        if (this.props.quick_search.fetched && this.props.quick_search.error) {
+            results = (
+                <div className="horizontal-err">
+                    <FontAwesomeIcon icon="times-circle"/>
+                    <p>FAILED TO LOAD</p>
+                </div>
+            );
+        }
+
+        // SEARCH_OK
+        if (this.props.quick_search.fetched && !this.props.quick_search.error) {
+            const list = this.props.quick_search.items.map((
+                { name, library_id, id }, i
+            ) => <HashLink
+                    to={`/library/${library_id}#${id}`}
+                    scroll={elm => {
+                        elm.scrollIntoView({ behavior: "smooth", block: "center" });
+                        elm.style.animation = "cardGlow 3s ease-in-out infinite";
+                    }}
+                    onClick={this.toggleShowSearchFor}
+                    key={i}>
+                    {name}
+                </HashLink>
+            );
+
+            results = (
+                <div className="results">
+                    <p>{list.length} RESULTS</p>
+                    <div className="result-list">{list}</div>
+                </div>
+            );
+        }
+
         return (
             <div className="search-box" ref={this.searchBox}>
                 <div className="search-box-wrapper">
@@ -161,11 +159,18 @@ class SidebarSearch extends Component {
                 {this.state.showSearchFor &&
                     <div className="search-box-search-for">
                         <p>SEARCH FOR: <span id="query">{this.state.query}</span></p>
-                        {this.state.results}
-                    </div>}
+                        {results}
+                    </div>
+                }
             </div>
         );
     }
 }
 
-export default withRouter(SidebarSearch)
+const mapStateToProps = (state) => ({
+    quick_search: state.searchReducer.quick_search
+});
+
+const actions = { quickSearch };
+
+export default connect(mapStateToProps, actions)(withRouter(SidebarSearch));

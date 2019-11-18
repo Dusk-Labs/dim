@@ -8,6 +8,20 @@ export const FETCH_USER_OK = "FETCH_USER_OK";
 export const FETCH_USER_ERR = "FETCH_USER_ERR";
 
 /*
+    * == SEARCH ACTIONS ==
+*/
+
+// [GET] SEARCH
+export const SEARCH_START = "SEARCH_START";
+export const SEARCH_OK = "SEARCH_OK";
+export const SEARCH_ERR = "SEARCH_ERR";
+
+// [GET] QUICK SEARCH
+export const QUICK_SEARCH_START = "QUICK_SEARCH_START";
+export const QUICK_SEARCH_OK = "QUICK_SEARCH_OK";
+export const QUICK_SEARCH_ERR = "QUICK_SEARCH_ERR";
+
+/*
     * == LIBRARY ACTIONS ==
 */
 
