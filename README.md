@@ -13,4 +13,3 @@ To achieve this the application is split up into two parts. We have the front-en
 - Be able to transcode if theres a need for example if the device doesnt support the codec
 - Present a clean UI to see the media
 - Allow you to remotely control the streaming session, for example to seek, pause, play, increase/decrease volume, or play something else
-- Drag and Drop media upload/scan ( ie youre in the UI, you can drag and drop a file from your hard disk which will either get uploaded or if its from the same PC inserted into the library it was dragged to)
