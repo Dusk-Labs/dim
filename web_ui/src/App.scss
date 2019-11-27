@@ -152,18 +152,10 @@ button {
 }
 
 .placeholder {
-	@include transition(background-position 0.3s ease-in-out);
 	@include animation(appear 0.5s ease-in-out);
 	position: relative;
     height: 100%;
-	background: #555555;
-	background: linear-gradient(to bottom, #222222 50%, transparent 100%);
-	background-size: 200% 200%;
-	background-position: 100% 100%;
-
-    &:hover {
-		background-position: 0 0;
-    }
+	background: #222222;
 }
 
 .spinner {
