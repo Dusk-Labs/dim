@@ -28,7 +28,7 @@ class App extends Component {
 							<Sidebar/>
 							<main>
 								<BannerPage/>
-								<CardList path="http://86.21.150.167:8000/api/v1/dashboard"/>
+								<CardList path="http://127.0.0.1:8000/api/v1/dashboard"/>
 							</main>
 						</div>
 					);
@@ -37,7 +37,7 @@ class App extends Component {
 					<div className="App">
 						<Sidebar/>
 						<main>
-							<CardList path={`http://86.21.150.167:8000/api/v1/library/${props.match.params.id}/media`}/>
+							<CardList path={`http://127.0.0.1:8000/api/v1/library/${props.match.params.id}/media`}/>
 						</main>
 					</div>
 				}/>

@@ -11,7 +11,7 @@ export const search = (params) => async (dispatch) => {
     dispatch({ type: SEARCH_START });
 
     try {
-        const res = await fetch(`http://86.21.150.167:8000/api/v1/search?${params}`);
+        const res = await fetch(`http://127.0.0.1:8000/api/v1/search?${params}`);
 
         if (res.status !== 200) {
             return dispatch({
