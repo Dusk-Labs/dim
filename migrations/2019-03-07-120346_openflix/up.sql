@@ -1,9 +1,12 @@
+-- Media type enum
+CREATE TYPE media_type AS ENUM ('movie', 'tv', 'episode');
+
 -- Library table
 CREATE TABLE library (
     id SERIAL PRIMARY KEY,
     name VARCHAR NOT NULL,
     location VARCHAR NOT NULL,
-    media_type VARCHAR(50) NOT NULL
+    media_type media_type NOT NULL
 );
 
 -- Media table
@@ -23,7 +26,7 @@ CREATE TABLE media (
     added TEXT,
     poster_path TEXT,
     backdrop_path TEXT,
-    media_type VARCHAR(50),
+    media_type media_type,
     genres TEXT[], -- NOTE: Use a separate table for genres
     PRIMARY KEY (id),
     CONSTRAINT fk_library FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE

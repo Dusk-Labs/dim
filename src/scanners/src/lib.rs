@@ -1,31 +1,25 @@
 #![feature(result_map_or_else)]
-#[macro_use]
-extern crate slog;
-#[macro_use]
-extern crate lazy_static;
-
-extern crate clap;
-extern crate crossbeam_channel;
-extern crate diesel;
-extern crate notify;
-extern crate rayon;
-extern crate reqwest;
-extern crate rocket_slog;
-extern crate torrent_name_parser;
-
-use dim_database::get_conn;
+use database::get_conn;
+use pushevent::Event;
 use slog::Logger;
+use slog::{error, info};
 use std::thread;
 
-pub mod api;
 pub mod iterative_parser;
 pub mod parser_daemon;
-pub mod tmdb;
+pub mod tmdb_api;
 
 use crate::iterative_parser::IterativeScanner;
 use crate::parser_daemon::ParserDaemon;
+use crate::tmdb_api::Media;
+use crate::tmdb_api::MediaType;
 
-pub type EventTx = std::sync::mpsc::Sender<dim_events::server::EventType>;
+pub trait APIExec<'a> {
+    fn new(api_key: &'a str) -> Self;
+    fn search(&mut self, title: String, year: Option<i32>, media_type: MediaType) -> Option<Media>;
+}
+
+pub type EventTx = std::sync::mpsc::Sender<Event>;
 
 pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> std::result::Result<(), ()> {
     let mut threads = Vec::new();

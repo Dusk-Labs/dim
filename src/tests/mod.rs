@@ -3,16 +3,10 @@ use rocket::local::Client;
 
 #[cfg(test)]
 pub fn drop_all_data() {
-    use crate::dim_database::get_conn;
-    use crate::dim_database::schema::episode;
-    use crate::dim_database::schema::genre;
-    use crate::dim_database::schema::library;
-    use crate::dim_database::schema::media;
-    use crate::dim_database::schema::mediafile;
-    use crate::dim_database::schema::season;
-    use crate::dim_database::schema::tv_show;
     use diesel::prelude::*;
     use diesel::sql_query;
+    use database::get_conn;
+    use database::schema::*;
 
     let conn = get_conn().expect("Failed to get db");
 

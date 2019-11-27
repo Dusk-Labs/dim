@@ -1,9 +1,11 @@
 use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::routes::general::construct_standard;
-use dim_database::library::{InsertableLibrary, Library};
-use dim_events::event::{Event, Message, PushEventType};
-use dim_scanners;
+use auth::Wrapper as Auth;
+use database::library::{InsertableLibrary, Library};
+use events::{Message, PushEventType};
+use scanners;
+use pushevent::Event;
 use rocket::http::Status;
 use rocket::State;
 use rocket_contrib::json::{Json, JsonValue};
@@ -12,7 +14,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 #[get("/")]
-pub fn library_get(conn: DbConnection, _log: SyncLogger) -> Json<Vec<Library>> {
+pub fn library_get(conn: DbConnection, _log: SyncLogger, _user: Auth) -> Json<Vec<Library>> {
     Json({
         let mut x = Library::get_all(&conn);
         x.sort_by(|a, b| a.name.cmp(&b.name));
@@ -26,21 +28,22 @@ pub fn library_post(
     new_library: Json<InsertableLibrary>,
     log: SyncLogger,
     event_tx: State<Arc<Mutex<EventTx>>>,
+    _user: Auth,
 ) -> Result<Status, Status> {
     match new_library.insert(&conn) {
         Ok(id) => {
             let tx = event_tx.lock().unwrap();
             let tx_clone = tx.clone();
             std::thread::spawn(move || {
-                dim_scanners::start(id, log.get(), tx_clone).unwrap();
+                scanners::start(id, log.get(), tx_clone).unwrap();
             });
 
-            let event_message = Message {
+            let event_message = Box::new(Message {
                 id,
                 event_type: PushEventType::EventNewLibrary,
-            };
+            });
 
-            let event = Event::new("/events/library", event_message);
+            let event = Event::new("/events/library".to_string(), event_message);
             let _ = tx.send(event);
             Ok(Status::Created)
         }
@@ -53,15 +56,16 @@ pub fn library_delete(
     conn: DbConnection,
     id: i32,
     event_tx: State<Arc<Mutex<EventTx>>>,
+    _user: Auth,
 ) -> Result<Status, Status> {
     match Library::delete(&conn, id) {
         Ok(_) => {
-            let event_message = Message {
+            let event_message = Box::new(Message {
                 id,
                 event_type: PushEventType::EventRemoveLibrary,
-            };
+            });
 
-            let event = Event::new("/events/library", event_message);
+            let event = Event::new("/events/library".to_string(), event_message);
             let _ = event_tx.lock().unwrap().send(event);
             Ok(Status::NoContent)
         }
@@ -70,7 +74,7 @@ pub fn library_delete(
 }
 
 #[get("/<id>")]
-pub fn get_self(conn: DbConnection, id: i32) -> Result<Json<Library>, Status> {
+pub fn get_self(conn: DbConnection, id: i32, _user: Auth) -> Result<Json<Library>, Status> {
     match Library::get_one(&conn, id) {
         Ok(data) => Ok(Json(data)),
         Err(_) => Err(Status::NotFound),
@@ -81,6 +85,7 @@ pub fn get_self(conn: DbConnection, id: i32) -> Result<Json<Library>, Status> {
 pub fn get_all_library(
     conn: DbConnection,
     id: i32,
+    _user: Auth,
 ) -> Result<Json<HashMap<String, Vec<JsonValue>>>, Status> {
     let mut result: HashMap<String, Vec<JsonValue>> = HashMap::new();
     if let Ok(lib) = Library::get_one(&conn, id) {

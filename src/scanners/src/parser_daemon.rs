@@ -1,10 +1,10 @@
 use crate::iterative_parser::IterativeScanner;
 use crate::EventTx;
 use crossbeam_channel::unbounded;
-use dim_database::{get_conn, library::Library};
+use database::{get_conn, library::Library};
 use notify::event::{EventKind::*, ModifyKind::*};
 use notify::{RecommendedWatcher, RecursiveMode, Result as nResult, Watcher};
-use slog::Logger;
+use slog::{debug, error, Logger};
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -26,18 +26,11 @@ impl ParserDaemon {
     }
 
     pub fn start_daemon(&self) -> nResult<()> {
-        // create channel to send and receive events over
         let (tx, rx) = unbounded();
-        // Automatically select the best implementation for your platform.
-        // You can also access each implementation directly e.g. INotifyWatcher.
         let mut watcher: RecommendedWatcher = Watcher::new(tx, Duration::from_secs(1))?;
-        //
-        // Add a path to be watched. All files and directories at that path and
-        // below will be monitored for changes.
+
         watcher.watch(&self.lib.location, RecursiveMode::Recursive)?;
 
-        // This is a simple loop, but you may want to use more complex logic here,
-        // for example to handle I/O.
         loop {
             match rx.recv() {
                 Ok(event) => self.handle_event(event.unwrap()),
