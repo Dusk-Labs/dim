@@ -13,6 +13,15 @@
 
     > section {
         margin-bottom: 10vh;
+
+        .placeholder-name {
+            @include display(flex);
+            @include align-items(center);
+
+            .placeholder-text {
+                margin-right: 10px;
+            }
+        }
     }
 
     .floating-bar {
@@ -52,5 +61,5 @@
     margin: 50px 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, 200px);
-    grid-gap: 10vh 5vh;
+    grid-gap: 100px 50px;
 }
