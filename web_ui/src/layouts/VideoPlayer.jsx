@@ -335,13 +335,13 @@ class Play extends Component {
     render() {
         const coverLoading = (
             <div className="placeholder">
-                <div className="spinner"></div>
+                <div className="spinner"/>
             </div>
         );
 
         return (
             <div className="video-wrapper">
-                <video ref={this.video}></video>
+                <video ref={this.video}/>
                 <div className="overlay" ref={this.overlay}>
                     <section className="cover">
                         <div className="card-wrapper">
@@ -375,7 +375,7 @@ class Play extends Component {
                         <div className="center">
                             <div className="video-progress-wrapper" ref={this.progressBar}>
                                 <div className="video-progress-inner" style={{width: this.state.progressWidth}}>
-                                    <div className="video-progress-dragger"></div>
+                                    <div className="video-progress-dragger"/>
                                 </div>
                             </div>
                         </div>
@@ -386,7 +386,7 @@ class Play extends Component {
                                 </div>
                                 <div className="video-progress-wrapper">
                                     <div className="video-progress-inner" style={{width: this.state.progressWidth}}>
-                                        <div className="video-progress-dragger"></div>
+                                        <div className="video-progress-dragger"/>
                                     </div>
                                 </div>
                             </div>
