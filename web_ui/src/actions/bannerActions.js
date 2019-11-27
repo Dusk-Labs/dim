@@ -8,7 +8,7 @@ export const fetchBanners = () => async (dispatch) => {
     dispatch({ type: FETCH_BANNERS_START });
 
     try {
-        const res = await fetch("http://86.21.150.167:8000/api/v1/dashboard/banner");
+        const res = await fetch("http://127.0.0.1:8000/api/v1/dashboard/banner");
 
         if (res.status !== 200) {
             return dispatch({
