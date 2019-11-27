@@ -144,6 +144,7 @@ class NewLibraryModal extends Component {
             if (items.length === 0) {
                 dirs = (
                     <div className="empty">
+                        <FontAwesomeIcon icon="times-circle"/>
                         <p>NO FOLDERS</p>
                     </div>
                 );
@@ -172,9 +173,7 @@ class NewLibraryModal extends Component {
                     <div className="selection">
                         <div className="left">
                             <div className="dirs">
-                                <Scrollbar>
-                                    {dirs}
-                                </Scrollbar>
+                                <Scrollbar>{dirs}</Scrollbar>
                             </div>
                         </div>
                         <div className="right">
