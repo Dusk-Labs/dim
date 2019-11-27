@@ -25,11 +25,11 @@ export const fetchLibraries = () => async (dispatch) => {
             });
         }
 
-        const libs = await res.json();
+        const payload = await res.json();
 
         dispatch({
             type: FETCH_LIBRARIES_OK,
-            payload: libs
+            payload
         });
     } catch(err) {
         dispatch({
