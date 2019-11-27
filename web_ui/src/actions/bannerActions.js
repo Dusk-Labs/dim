@@ -17,11 +17,11 @@ export const fetchBanners = () => async (dispatch) => {
             });
         }
 
-        const banners = await res.json();
+        const payload = await res.json();
 
         dispatch({
             type: FETCH_BANNERS_OK,
-            payload: banners
+            payload
         });
     } catch(err) {
         dispatch({
