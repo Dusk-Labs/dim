@@ -127,7 +127,7 @@ class SidebarSearch extends Component {
                     }}
                     onClick={this.toggleShowSearchFor}
                     key={i}>
-                    {name}
+                        {name}
                 </HashLink>
             );
 
@@ -171,6 +171,6 @@ const mapStateToProps = (state) => ({
     quick_search: state.searchReducer.quick_search
 });
 
-const actions = { quickSearch };
+const mapActionsToProps = { quickSearch };
 
-export default connect(mapStateToProps, actions)(withRouter(SidebarSearch));
+export default connect(mapStateToProps, mapActionsToProps)(withRouter(SidebarSearch));
