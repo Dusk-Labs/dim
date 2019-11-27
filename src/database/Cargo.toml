@@ -1,14 +1,13 @@
 [package]
-name = "dim-database"
+name = "database"
 version = "0.1.0"
 authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
 
 [dependencies]
-diesel = { version = "1.4.2", features = ["sqlite", "postgres"] }
-r2d2 = "0.8.5"
-r2d2-diesel = "1.0.0"
-serde = { version  = "*", features = ["derive"] }
+diesel = { version = "1.4.2", default-features = false, features = ["postgres"] }
+serde = { version = "1.0.102", features = ["derive"] }
 serde_derive = "1.0.98"
-serde_json = "1.0.40"
 diesel_migrations = "1.4.0"
+lazy_static = "1.4.0"
+diesel-derive-enum = { version = "0.4.4", features = ["postgres"] }

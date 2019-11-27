@@ -9,3 +9,6 @@ build/*
 web_ui/package-lock.json
 web_ui/yarn.lock
 *.lock
+static/
+logs/
+*.jpg

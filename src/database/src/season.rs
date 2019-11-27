@@ -2,7 +2,7 @@ use crate::schema::season;
 use crate::tv::TVShow;
 use diesel::prelude::*;
 
-#[derive(Identifiable, Associations, Queryable, Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Identifiable, Associations, Queryable, Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[belongs_to(TVShow, foreign_key = "tvshowid")]
 #[table_name = "season"]
 pub struct Season {
@@ -56,11 +56,9 @@ impl Season {
             .find(tv_id)
             .get_result::<TVShow>(conn)?;
 
-        let result = Self::belonging_to(&tv_show)
+        Self::belonging_to(&tv_show)
             .filter(season_number.eq(season_num))
-            .first::<Self>(conn)?;
-
-        Ok(result)
+            .first::<Self>(conn)
     }
 
     pub fn delete(

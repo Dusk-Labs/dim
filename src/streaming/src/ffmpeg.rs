@@ -1,12 +1,17 @@
-use dim_database::{get_conn, mediafile::MediaFile};
+use database::{get_conn, mediafile::MediaFile};
+use std::collections::HashMap;
 use std::fs;
 use std::process::{Child, Command};
+use std::sync::{Arc, Mutex};
 use uuid::Uuid;
+
+lazy_static::lazy_static! {
+    static ref STREAMS: Arc<Mutex<HashMap<String, Child>>> = Arc::new(Mutex::new(HashMap::new()));
+}
 
 pub struct FFmpeg {
     bin: String,
     mediafile: MediaFile,
-    process: Option<Child>,
     uuid: String,
     out_dir: String,
 }
@@ -25,25 +30,30 @@ impl FFmpeg {
                 Ok(x) => x,
                 Err(_) => return Err(()),
             },
-            process: None,
             uuid: uuid.to_hyphenated().to_string(),
-            out_dir: format!(
-                "/home/hinach4n/media/media1/transcoding/{}",
-                uuid.to_hyphenated().to_string()
-            ),
+            out_dir: format!("transcoding/{}", uuid.to_hyphenated().to_string()),
         })
     }
 
-    pub fn stream(&mut self) -> Result<String, ()> {
+    /// TODO: Add params to select codec out and in, seek, and further params.
+    pub fn stream(&mut self, seek: Option<u64>) -> Result<String, ()> {
         let input = format!("file:{}", self.mediafile.target_file.clone().as_str());
         let manifest = format!("{}/index.m3u8", self.out_dir);
         let chunks = format!("{}/%d.ts", self.out_dir);
+
+        let time_seek = format!("{}", seek.unwrap_or(0));
 
         let _ = fs::create_dir(self.out_dir.clone());
 
         let mut process = Command::new(self.bin.clone());
         process
-            .args(&["-fflags", "+genpts", "-noaccurate_seek"])
+            .args(&[
+                "-ss",
+                time_seek.as_str(),
+                "-fflags",
+                "+genpts",
+                "-noaccurate_seek",
+            ])
             .args(&["-f", "matroska,webm", "-i", input.as_str()])
             .args(&["-map_metadata", "-1"])
             .args(&["-map_chapters", "-1"])
@@ -60,13 +70,23 @@ impl FFmpeg {
             .args(&["-segment_list_type", "m3u8", "-segment_start_number", "0"])
             .args(&["-segment_list", manifest.as_str(), "-y", chunks.as_str()]);
 
-        println!("{:?}", process);
-
-        self.process = match process.spawn() {
-            Ok(pid) => Some(pid),
+        let process = match process.spawn() {
+            Ok(pid) => pid,
             Err(_) => return Err(()),
         };
 
+        {
+            STREAMS.lock().unwrap().insert(self.uuid.clone(), process);
+        }
+
         Ok(self.uuid.clone())
+    }
+
+    pub fn stop(uuid: String) -> Result<(), std::io::Error> {
+        if let Some(mut proc) = STREAMS.lock().unwrap().remove(&uuid) {
+            return proc.kill();
+        }
+
+        Ok(())
     }
 }
