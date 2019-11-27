@@ -3,6 +3,7 @@
 .sidebar {
     @include box-shadow(0 0 10px 5px #00000055);
     @include transition(width 0.3s ease-in-out);
+    @include animation(appear 0.3s ease-in-out);
     min-height: 100vh;
     height: 100%;
     width: 300px;
@@ -81,7 +82,7 @@
             }
 
             img {
-                @include animation(SidebarProfileIconLoad 0.5s ease-in);
+                @include animation(SidebarProfileIconLoad 0.3s ease-in);
             }
 
             img, .default-icon {
@@ -96,6 +97,7 @@
             }
 
             .info {
+                @include animation(appear 0.3s ease-in-out);
                 // USERNAME
                 h4 {
                     font-family: "Roboto Black";
@@ -142,6 +144,7 @@
 
         .item-wrapper {
             @include align-items(center);
+            @include animation(appear 0.3s ease-in-out);
             height: 40px;
             display: grid;
             grid-template-columns: auto 20px 1px;
