@@ -47,6 +47,15 @@ export const DEL_LIBRARY_OK = "DEL_LIBRARY_OK";
 export const DEL_LIBRARY_ERR = "DEL_LIBRARY_ERR";
 
 /*
+    * == CARD ACTIONS ==
+*/
+
+// [GET] ALL LIBRARIES
+export const FETCH_CARDS_START = "FETCH_CARDS_START";
+export const FETCH_CARDS_OK = "FETCH_CARDS_OK";
+export const FETCH_CARDS_ERR = "FETCH_CARDS_ERR";
+
+/*
     * == HOST ACTIONS ==
 */
 
