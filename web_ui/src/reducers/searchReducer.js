@@ -32,9 +32,10 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 search: {
-                    ...search,
+                    items: [],
                     fetching: true,
-                    fetched: false
+                    fetched: false,
+                    error: null
                 }
             }
         case SEARCH_OK:
@@ -42,7 +43,7 @@ export default function(state = initialState, action) {
                 ...state,
                 search: {
                     ...search,
-                    items: action.payload,
+                    items: {"RESULTS": action.payload},
                     fetching: false,
                     fetched: true
                 }
@@ -61,9 +62,10 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 quick_search: {
-                    ...quick_search,
+                    items: [],
                     fetching: true,
-                    fetched: false
+                    fetched: false,
+                    error: null
                 }
             }
         case QUICK_SEARCH_OK:
