@@ -15,8 +15,10 @@ export default function(state = initialState, action) {
     switch(action.type) {
         case FETCH_HOSTS_START:
             return {
-                ...state,
-                fetching: true
+                items: [],
+                fetching: true,
+                fetched: false,
+                error: null
             }
         case FETCH_HOSTS_OK:
             return {

@@ -104,13 +104,14 @@ class NewLibraryModal extends Component {
         if (!this.state.cache) {
             // FETCH_DIRECTORIES_START
             if (this.props.fileBrowser.fetching) {
-                dirs = <div className="spinner"></div>;
+                dirs = <div className="spinner"/>;
             }
 
             // FETCH_DIRECTORIES_ERR
             if (this.props.fileBrowser.fetched && this.props.fileBrowser.error) {
                 dirs = (
                     <div className="empty">
+                        <FontAwesomeIcon icon="times-circle"/>
                         <p>FAILED TO LOAD</p>
                     </div>
                 );
@@ -123,7 +124,8 @@ class NewLibraryModal extends Component {
                 if (items.length === 0) {
                     dirs = (
                         <div className="empty">
-                            <p>EMPTY</p>
+                            <FontAwesomeIcon icon="times-circle"/>
+                            <p>NO FOLDERS</p>
                         </div>
                     );
                 } else {
@@ -142,7 +144,8 @@ class NewLibraryModal extends Component {
             if (items.length === 0) {
                 dirs = (
                     <div className="empty">
-                        <p>EMPTY</p>
+                        <FontAwesomeIcon icon="times-circle"/>
+                        <p>NO FOLDERS</p>
                     </div>
                 );
             } else {
@@ -170,9 +173,7 @@ class NewLibraryModal extends Component {
                     <div className="selection">
                         <div className="left">
                             <div className="dirs">
-                                <Scrollbar>
-                                    {dirs}
-                                </Scrollbar>
+                                <Scrollbar>{dirs}</Scrollbar>
                             </div>
                         </div>
                         <div className="right">
@@ -217,9 +218,9 @@ const mapStateToProps = (state) => ({
     library: state.libraryReducer.new_library
 });
 
-const actions = {
+const mapActionsToProps = {
     newLibrary,
     fetchDirectories
 };
 
-export default connect(mapStateToProps, actions)(NewLibraryModal);
+export default connect(mapStateToProps, mapActionsToProps)(NewLibraryModal);

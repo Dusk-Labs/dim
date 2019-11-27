@@ -16,7 +16,7 @@ export const fetchLibraries = () => async (dispatch) => {
     dispatch({ type: FETCH_LIBRARIES_START });
 
     try {
-        const res = await fetch("http://86.21.150.167:8000/api/v1/library");
+        const res = await fetch("http://127.0.0.1:8000/api/v1/library");
 
         if (res.status !== 200) {
             return dispatch({
@@ -25,11 +25,11 @@ export const fetchLibraries = () => async (dispatch) => {
             });
         }
 
-        const libs = await res.json();
+        const payload = await res.json();
 
         dispatch({
             type: FETCH_LIBRARIES_OK,
-            payload: libs
+            payload
         });
     } catch(err) {
         dispatch({
@@ -51,7 +51,7 @@ export const newLibrary = (data) => async (dispatch) => {
     };
 
     try {
-        const res = await fetch(`http://86.21.150.167:8000/api/v1/library`, options);
+        const res = await fetch(`http://127.0.0.1:8000/api/v1/library`, options);
 
         if (res.status !== 201) {
             return dispatch({
@@ -77,7 +77,7 @@ export const delLibrary = (id) => async (dispatch) => {
     };
 
     try {
-        const res = await fetch(`http://86.21.150.167:8000/api/v1/library/${id}`, options);
+        const res = await fetch(`http://127.0.0.1:8000/api/v1/library/${id}`, options);
 
         if (res.status !== 204) {
             return dispatch({

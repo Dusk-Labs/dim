@@ -31,7 +31,7 @@ class Card extends Component {
         this.cardWrapper.current.addEventListener("focusin", this.handleMouseHover);
         this.cardWrapper.current.addEventListener("focusout", this.handleMouseHover);
     }
-    
+
     componentWillUnmount() {
         this.cardWrapper.current.removeEventListener("mouseenter", this.handleMouseHover);
         this.cardWrapper.current.removeEventListener("mouseleave", this.handleMouseHover);

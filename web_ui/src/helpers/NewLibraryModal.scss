@@ -65,7 +65,6 @@
 				}
 			}
 		}
-
 	}
 
 	.dirs {
@@ -77,6 +76,13 @@
 
 		&::-webkit-scrollbar-track {
 			background: #4d4d4d;
+		}
+
+
+		.empty {
+			position: absolute;
+			left: 50%;
+			transform: translate(-50%);
 		}
 
 		.dir {

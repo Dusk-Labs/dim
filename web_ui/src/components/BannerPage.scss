@@ -1,7 +1,7 @@
 @import "../mixins.scss";
 
 .banner-wrapper {
-    @include animation(bannerAppear 2.5s ease-in-out);
+    @include animation(bannerAppear 0.3s ease-in-out);
     position: relative;
     z-index: 0;
 
@@ -35,6 +35,8 @@
     }
 
     .pages {
+        height: 100%;
+
         .banner {
             position: absolute;
             height: 100%;
@@ -42,30 +44,25 @@
             opacity: 0;
         }
 
-        .active, .hidden {
+        .active, .hide {
             display: contents;
         }
 
-        .hidden {
-            opacity: 0;
+        // ! FIX LATER | causes dodgy on load animation.
+        // .hide .banner {
+        //     @include animation(onHideBanner 0.3s ease-in-out forwards);
 
-            .banner {
-                @include animation(onHideBanner 0.7s ease-in-out forwards);
+        //     img {
+        //         @include animation(onHideBannerImage 0.3s ease-in-out forwards);
+        //     }
+        // }
 
-                img {
-                    @include animation(onHideBannerImage 0.7s ease-in-out forwards);
-                }
-            }
-        }
+        .active .banner {
+            @include animation(onActiveBanner 0.7s ease-in-out forwards);
+            z-index: 1;
 
-        .active {
-            .banner {
-                @include animation(onActiveBanner 0.7s ease-in-out forwards);
-                z-index: 1;
-
-                img {
-                    @include animation(onActiveBannerImage 0.7s ease-in-out forwards);
-                }
+            img {
+                @include animation(onActiveBannerImage 0.7s ease-in-out forwards);
             }
         }
     }
@@ -76,9 +73,18 @@
     * == KEYFRAMES ==
 */
 
+@include keyframes(bannerAppear) {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
 @include keyframes(onActiveBannerImage) {
     0% {
-        @include transform(scale(1.05));
+        @include transform(scale(1.1));
     }
     100% {
         @include transform(scale(1));
@@ -94,22 +100,9 @@
     }
 }
 
-@include keyframes(bannerAppear) {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
 @include keyframes(onHideBanner) {
     0% {
         opacity: 1;
-    }
-    50% {
-        -webkit-filter: blur(3px);
-                filter: blur(3px);
     }
     100% {
         opacity: 0;

@@ -34,7 +34,7 @@ class ProgressBar extends Component {
                         <p>min</p>
                     </div>
                     <div className="bar">
-                        <span className="progress-fill" style={{ width: width, background: textColor }}></span>
+                        <span className="progress-fill" style={{ width: width, background: textColor }}/>
                     </div>
                     <div className="duration">
                         <p>{duration}</p>

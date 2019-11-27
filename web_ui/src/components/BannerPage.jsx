@@ -1,4 +1,10 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import Banner from "../components/Banner.jsx";
+import { fetchBanners } from "../actions/bannerActions.js";
+
 import "./BannerPage.scss";
 
 class BannerPage extends Component {
@@ -7,55 +13,97 @@ class BannerPage extends Component {
 
         this.state = {
             activeIndex: 0,
-            interval: 14000
+            interval: 14000,
         };
 
         this.interval = setInterval(this.next.bind(this), this.state.interval);
     }
 
-    next = async () => {
-        let { length } = this.props.children;
-        const index = this.state.activeIndex;
-        const nextIndex = index < --length ? index + 1 : 0
-
-        this.setState({
-            activeIndex: nextIndex,
-        });
-    }
-
-    toggle = async (e) => {
-        clearInterval(this.interval);
-
-        this.setState({
-            activeIndex: parseInt(e.currentTarget.dataset.key)
-        });
-
-        this.interval = setInterval(this.next.bind(this), this.state.interval);
+    componentDidMount() {
+        this.props.fetchBanners();
     }
 
     componentWillUnmount() {
         clearInterval(this.interval);
     }
 
+    next = async () => {
+        // FETCH_BANNERS_OK
+        if (this.props.banners.fetched && !this.props.banners.error) {
+            if (this.props.banners.items.length > 0) {
+                let { length } = this.props.banners.items;
+                const index = this.state.activeIndex;
+                const nextIndex = index < --length ? index + 1 : 0
+
+                this.setState({
+                    activeIndex: nextIndex
+                });
+            } else clearInterval(this.interval);
+        }
+    }
+
+    toggle = async (e) => {
+        // FETCH_BANNERS_OK
+        if (this.props.banners.fetched && !this.props.banners.error) {
+            clearInterval(this.interval);
+
+            this.setState({
+                activeIndex: parseInt(e.currentTarget.dataset.key)
+            });
+
+            this.interval = setInterval(this.next.bind(this), this.state.interval);
+        }
+    }
+
     render() {
-        const { activeIndex } = this.state;
-        const banners = [];
         const crumbs = [];
+        let banners = <div className="placeholder"/>;
 
-        // eslint-disable-next-line
-        for (const child in this.props.children) {
-            const active = activeIndex === parseInt(child) ? "active" : "hidden";
-
-            banners.push(
-                <div className={active} key={child}>
-                    {this.props.children[child]}
+        // FETCH_BANNERS_ERR
+        if (this.props.banners.fetched && this.props.banners.error) {
+            banners = (
+                <div className="placeholder">
+                    <div className="empty">
+                        <FontAwesomeIcon icon="times-circle"/>
+                        <p>FAILED TO LOAD BANNER</p>
+                    </div>
                 </div>
             );
+        }
 
-            crumbs.push(
-                <span className={active} key={child} data-key={child} onClick={this.toggle}></span>
-            );
-        };
+        // FETCH_BANNERS_OK
+        if (this.props.banners.fetched && !this.props.banners.error) {
+            if (this.props.banners.items.length > 0) {
+                const { activeIndex } = this.state;
+
+                banners = this.props.banners.items.map((banner, i) => (
+                    <div className={activeIndex === i ? "active" : "hide"} key={i}>
+                        <Banner key={i} banner={banner}/>
+                    </div>
+                ));
+
+                // eslint-disable-next-line
+                for (let x = 0; x < banners.length; x++) {
+                    crumbs.push(
+                        <span
+                            className={activeIndex === x ? "active" : "hidden"}
+                            key={x}
+                            data-key={x}
+                            onClick={this.toggle}
+                        ></span>
+                    );
+                }
+            } else {
+                banners = (
+                    <div className="placeholder">
+                        <div className="empty">
+                            <FontAwesomeIcon icon="times-circle"/>
+                            <p>NO BANNERS FOUND</p>
+                        </div>
+                    </div>
+                );
+            }
+        }
 
         return (
             <div className="banner-wrapper">
@@ -66,4 +114,10 @@ class BannerPage extends Component {
     }
 }
 
-export default BannerPage;
+const mapStateToProps = (state) => ({
+    banners: state.bannerReducer
+});
+
+const mapActionstoProps = { fetchBanners };
+
+export default connect(mapStateToProps, mapActionstoProps)(BannerPage);

@@ -1,11 +1,11 @@
 import {
-    FETCH_DASHBOARD_START,
-    FETCH_DASHBOARD_OK,
-    FETCH_DASHBOARD_ERR
-} from "../actions/types.js";
+    FETCH_CARDS_START,
+    FETCH_CARDS_OK,
+    FETCH_CARDS_ERR
+ } from "../actions/types.js";
 
 const initialState = {
-    sections: {},
+    items: [],
     fetching: false,
     fetched: false,
     error: null
@@ -13,21 +13,23 @@ const initialState = {
 
 export default function(state = initialState, action) {
     switch(action.type) {
-        case FETCH_DASHBOARD_START:
+        case FETCH_CARDS_START:
             return {
-                ...state,
-                fetching: true
+                items: [],
+                fetching: true,
+                fetched: false,
+                error: null
             }
-        case FETCH_DASHBOARD_OK:
+        case FETCH_CARDS_OK:
             return {
-                ...state,
+                items: action.payload,
                 fetching: false,
                 fetched: true,
-                sections: action.payload
+                error: null
             }
-        case FETCH_DASHBOARD_ERR:
+        case FETCH_CARDS_ERR:
             return {
-                ...state,
+                items: [],
                 fetching: false,
                 fetched: true,
                 error: action.payload

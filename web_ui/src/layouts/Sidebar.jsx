@@ -23,8 +23,8 @@ class Sidebar extends Component {
     constructor(props) {
         super(props);
 
-        this.library_ws = new WebSocket('ws://86.21.150.167:3012/events/library');
-        this.library_ws.addEventListener('message', this.handle_ws_msg);
+        this.library_ws = new WebSocket("ws://86.21.150.167:3012/events/library");
+        this.library_ws.addEventListener("message", this.handle_ws_msg);
     }
 
     async componentDidMount() {
@@ -61,7 +61,10 @@ class Sidebar extends Component {
                     <div className="profile-icon">
                         <div className="default-icon"></div>
                     </div>
-                    <p id="response">FAILED TO LOAD</p>
+                    <div className="horizontal-err">
+                        <FontAwesomeIcon icon="times-circle"/>
+                        <p>FAILED TO LOAD</p>
+                    </div>
                 </div>
             );
         }
@@ -97,12 +100,25 @@ class Sidebar extends Component {
 
         // FETCH_HOSTS_START
         if (this.props.hosts.fetching) {
-            hosts = <p id="response">LOADING</p>;
+            hosts = (
+                <div className="item-wrapper">
+                    <div className="status">
+                        <p id="response">LOADING</p>
+                    </div>
+                </div>
+            );
         }
 
         // FETCH_HOSTS_ERR
         if (this.props.hosts.fetched && this.props.hosts.error) {
-            hosts = <p id="response">FAILED TO LOAD</p>
+            hosts = (
+                <div className="item-wrapper">
+                    <div className="horizontal-err">
+                        <FontAwesomeIcon icon="times-circle"/>
+                        <p>FAILED TO LOAD</p>
+                    </div>
+                </div>
+            );
         }
 
         // FETCH_HOSTS_OK
@@ -120,7 +136,15 @@ class Sidebar extends Component {
                         </NavLink>
                     </div>
                 ));
-            } else hosts = <p id="response">NO HOSTS</p>
+            } else {
+                hosts = (
+                    <div className="item-wrapper">
+                        <div className="horizontal-err">
+                            <p>NO HOSTS</p>
+                        </div>
+                    </div>
+                );
+            }
         }
 
         /*
@@ -129,12 +153,25 @@ class Sidebar extends Component {
 
         // FETCH_LIBRARIES_START
         if (this.props.libraries.fetching) {
-            libraries = <p id="response">LOADING</p>;
+            libraries = (
+                <div className="item-wrapper">
+                    <div className="status">
+                        <p id="response">LOADING</p>
+                    </div>
+                </div>
+            );
         }
 
         // FETCH_LIBRARIES_ERR
         if (this.props.libraries.fetched && this.props.libraries.error) {
-            libraries = <p id="response">FAILED TO LOAD</p>
+            libraries = (
+                <div className="item-wrapper">
+                    <div className="horizontal-err">
+                        <FontAwesomeIcon icon="times-circle"/>
+                        <p>FAILED TO LOAD</p>
+                    </div>
+                </div>
+            );
         }
 
         // FETCH_LIBRARIES_OK
@@ -153,15 +190,23 @@ class Sidebar extends Component {
                         <button onClick={() => this.props.delLibrary(id)}>-</button>
                     </div>
                 ));
-            } else libraries = <p id="response">NO LIBRARIES</p>
+            } else {
+                libraries = (
+                    <div className="item-wrapper">
+                        <div className="horizontal-err">
+                            <p>NO LIBRARIES</p>
+                        </div>
+                    </div>
+                );
+            }
         }
 
         return (
             <nav className="sidebar">
                 <section className="main-part">
-                    { user }
-                    <div className="separator"></div>
-                    <SidebarSearch></SidebarSearch>
+                    {user}
+                    <div className="separator"/>
+                    <SidebarSearch/>
                 </section>
 
                 <section className="connected-hosts">
@@ -169,9 +214,7 @@ class Sidebar extends Component {
                         <h4>CONNECTED HOSTS</h4>
                     </header>
                     <div className="list">
-                        <Scrollbar>
-                            {hosts}
-                        </Scrollbar>
+                        <Scrollbar>{hosts}</Scrollbar>
                     </div>
                 </section>
 
@@ -218,16 +261,16 @@ class Sidebar extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    user: state.user,
-    hosts: state.hosts,
+    user: state.userReducer,
+    hosts: state.hostReducer,
     libraries: state.libraryReducer.fetch_libraries
 });
 
-const actions = {
+const mapActionsToProps = {
     fetchLibraries,
     fetchHosts,
     fetchUser,
     delLibrary
 };
 
-export default connect(mapStateToProps, actions)(Sidebar);
+export default connect(mapStateToProps, mapActionsToProps)(Sidebar);
