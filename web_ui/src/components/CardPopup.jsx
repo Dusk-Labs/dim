@@ -68,11 +68,11 @@ class CardPopup extends Component {
 
         return (
             <div className={this.state.class} ref={this.popup}>
-                <div className="clipped"></div>
+                <div className="clipped"/>
                 <section className="header">
                     <h1><TruncText content={name} max={8}/></h1>
                     <div className="rating">
-                        <img alt="imdb" src={IMDbLogo}></img>
+                        <img alt="imdb" src={IMDbLogo}/>
                         <p>{rating}</p>
                         <p>10</p>
                     </div>
@@ -92,19 +92,15 @@ class CardPopup extends Component {
                         </div>
                         <FontAwesomeIcon className="edit" icon="edit"/>
                     </section>
-                    <section className="separator"></section>
+                    <section className="separator"/>
                     <section className="footer">
                         <div className="length">
                             <p>{length.hh}:{length.mm}:{length.ss}</p>
                             <p>HH MM SS</p>
                         </div>
-                        <a
-                            onClick={() => window.open(`/play/${id}`, "_blank")}
-                            className="play-btn"
-                            rel="noopener noreferrer"
-                        >
-                        <p style={accentCSS}>PLAY</p>
-                        <FontAwesomeIcon icon="play"/>
+                        <a href={`/play/${id}`} className="play-btn">
+                            <p style={accentCSS}>PLAY</p>
+                            <FontAwesomeIcon icon="play"/>
                         </a>
                     </section>
                 </section>

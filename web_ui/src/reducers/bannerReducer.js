@@ -15,8 +15,10 @@ export default function(state = initialState, action) {
     switch(action.type) {
         case FETCH_BANNERS_START:
             return {
-                ...state,
-                fetching: true
+                items: [],
+                fetching: true,
+                fetched: false,
+                error: null
             }
         case FETCH_BANNERS_OK:
             return {

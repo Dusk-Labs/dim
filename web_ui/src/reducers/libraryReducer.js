@@ -43,8 +43,10 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 fetch_libraries: {
-                    ...fetch_libraries,
-                    fetching: true
+                    items: [],
+                    fetching: true,
+                    fetched: false,
+                    error: null
                 }
             }
         case FETCH_LIBRARIES_OK:
@@ -75,8 +77,9 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 new_library: {
-                    ...new_library,
                     creating: true,
+                    created: false,
+                    error: null
                 }
             }
         case NEW_LIBRARY_OK:
@@ -101,8 +104,9 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 del_library: {
-                    ...del_library,
                     deleting: true,
+                    deleted: false,
+                    error: null
                 }
             }
         case DEL_LIBRARY_OK:

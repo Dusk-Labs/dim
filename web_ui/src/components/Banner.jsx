@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import * as Vibrant from 'node-vibrant';
@@ -9,7 +9,7 @@ import TruncText from "../helpers/TruncText.jsx";
 
 import "./Banner.scss";
 
-class Banner extends PureComponent {
+class Banner extends Component {
     constructor(props) {
         super(props);
 
@@ -17,7 +17,6 @@ class Banner extends PureComponent {
 
         this.imageWrapper = React.createRef();
         this.getImageWrapperRef = this.getImageWrapperRef.bind(this);
-        this.handleScroll = this.handleScroll.bind(this);
 
         this.state = {
             backgroundColor: "#f7931e",
@@ -27,23 +26,10 @@ class Banner extends PureComponent {
 
     componentDidMount() {
         this._isMounted = true;
-        window.addEventListener("scroll", this.handleScroll);
     }
 
     componentWillUnmount() {
         this._isMounted = false;
-        window.removeEventListener("scroll", this.handleScroll);
-    }
-
-    handleScroll() {
-        const scrolled = window.pageYOffset;
-        const rate = scrolled * 0.2;
-
-        if (this.imageWrapper.current) {
-            this.imageWrapper.current.style.webkitTransform = `translate3d(0px, ${rate}px, 0px)`;
-            this.imageWrapper.current.style.MozTransform = `translate3d(0px, ${rate}px, 0px)`;
-            this.imageWrapper.current.style.transform = `translate3d(0px, ${rate}px, 0px)`;
-        }
     }
 
     onLoadBanner = async (blob) => {
@@ -110,11 +96,9 @@ class Banner extends PureComponent {
                         <p><TruncText content={synopsis} max={35}/></p>
                     </div>
                     <a
-                        onClick={() => window.open(`/play/${id}`, "_blank")}
-                        style={{color: textColor, background: backgroundColor}}
                         className="play-btn"
-                        rel="noopener noreferrer"
-                        target="_blank"
+                        href={`/play/${id}`}
+                        style={{color: textColor, background: backgroundColor}}
                     >
                         PLAY
                         <FontAwesomeIcon icon="arrow-alt-circle-right"/>

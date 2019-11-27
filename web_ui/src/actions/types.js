@@ -8,6 +8,20 @@ export const FETCH_USER_OK = "FETCH_USER_OK";
 export const FETCH_USER_ERR = "FETCH_USER_ERR";
 
 /*
+    * == SEARCH ACTIONS ==
+*/
+
+// [GET] SEARCH
+export const SEARCH_START = "SEARCH_START";
+export const SEARCH_OK = "SEARCH_OK";
+export const SEARCH_ERR = "SEARCH_ERR";
+
+// [GET] QUICK SEARCH
+export const QUICK_SEARCH_START = "QUICK_SEARCH_START";
+export const QUICK_SEARCH_OK = "QUICK_SEARCH_OK";
+export const QUICK_SEARCH_ERR = "QUICK_SEARCH_ERR";
+
+/*
     * == LIBRARY ACTIONS ==
 */
 
@@ -31,6 +45,15 @@ export const NEW_LIBRARY_ERR = "NEW_LIBRARY_ERR";
 export const DEL_LIBRARY_START = "DEL_LIBRARY_START";
 export const DEL_LIBRARY_OK = "DEL_LIBRARY_OK";
 export const DEL_LIBRARY_ERR = "DEL_LIBRARY_ERR";
+
+/*
+    * == CARD ACTIONS ==
+*/
+
+// [GET] ALL LIBRARIES
+export const FETCH_CARDS_START = "FETCH_CARDS_START";
+export const FETCH_CARDS_OK = "FETCH_CARDS_OK";
+export const FETCH_CARDS_ERR = "FETCH_CARDS_ERR";
 
 /*
     * == HOST ACTIONS ==
