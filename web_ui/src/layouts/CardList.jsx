@@ -1,6 +1,8 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
+import { fetchCards } from "../actions/cardActions.js";
 import Card from "../components/Card.jsx";
 import "./CardList.scss";
 
@@ -9,48 +11,31 @@ class CardList extends Component {
         super(props);
 
         this._isMounted = false;
-
-        this.state = {
-            cards: {},
-            fetching: false,
-            fetched: false,
-            error: null
-        };
+        this.cardList = React.createRef();
     }
 
     componentDidMount() {
         this._isMounted = true;
 
-        this.getCards();
+        if (this.props.path) {
+            return this.props.fetchCards(this.props.path);
+        }
 
         if (this.props.id) {
-            this.mount_websocket();
+            return this.mount_websocket();
+        }
+    }
+
+    async componentDidUpdate(prevProps) {
+        if (this.props.path) {
+            if (this.props.path !== prevProps.path) {
+                return this.props.fetchCards(this.props.path);
+            }
         }
     }
 
     componentWillUnmount() {
         this._isMounted = false;
-    }
-
-    async componentDidUpdate(prevProps) {
-        if (this.props.path !== prevProps.path) {
-            return this.getCards();
-        }
-
-        if (this.props.cards) {
-            if (this.props.cards.length !== prevProps.cards.length) {
-                return this.getCards();
-            }
-
-            // eslint-disable-next-line
-            for (const section in this.props.cards) {
-                const equal = this.props.cards[section].every((card, i) => {
-                    return card.id === prevProps.cards[section][i].id;
-                });
-
-                if (!equal) this.getCards();
-            }
-        }
     }
 
     mount_websocket() {
@@ -95,99 +80,100 @@ class CardList extends Component {
         }
     }
 
-    async getCards() {
-        this.setState({
-            fetching: true
-        });
-
-        if (this.props.path) {
-            const res = await fetch(this.props.path);
-
-            if (res.status !== 200 && this._isMounted) {
-                return this.setState({
-                    fetching: false,
-                    fetched: true,
-                    error: true
-                });
-            }
-
-            const payload = await res.json();
-
-            if (this._isMounted) {
-                this.setState({
-                    fetching: false,
-                    fetched: true,
-                    cards: payload
-                });
-
-                document.title = `Dim - ${Object.keys(payload)[0]}`;
-            }
-        } else {
-            this.setState({
-                fetching: false,
-                fetched: true,
-                cards: this.props.cards
-            })
-        }
-    }
-
     render() {
+        const cards = [];
+        let cardCount = 0;
         let card_list;
 
-        // FETCHING
-        if (this.state.fetching) {
-            return <div className="spinner"></div>
+        if (this.cardList.current) {
+            cardCount = Math.floor(this.cardList.current.offsetWidth / 240) * 2;
         }
 
-        // ERR
-        if (this.state.fetched && this.state.error) {
-            card_list = (
-                <div className="empty">
-                    <FontAwesomeIcon icon="question-circle"/>
-                    <p>FAILED TO LOAD</p>
+        for (let x = 0; x < cardCount; x++) {
+            cards.push(
+                <div key={x} className="card-wrapper" style={{overflow: "hidden"}}>
+                    <div className="card">
+                        <div className="placeholder"/>
+                    </div>
                 </div>
             );
         }
 
-        // OK
-        if (this.state.fetched && !this.state.error) {
-            const { cards } = this.state;
+        // FETCH_CARDS_START
+        if (this.props.cards.fetching) {
+            card_list = (
+                <section>
+                    <div className="placeholder-name">
+                        <div className="placeholder-text"/>
+                    </div>
+                    <div className="cards">{cards}</div>
+                </section>
+            );
+        }
+
+        // FETCH_CARDS_ERR
+        if (this.props.cards.fetched && this.props.cards.error) {
+            card_list = (
+                <section>
+                    <div className="placeholder-name">
+                        <div className="placeholder-text"/>
+                            <div className="horizontal-err">
+                                <FontAwesomeIcon icon="times-circle"/>
+                                <p>FAILED TO LOAD CARDS</p>
+                            </div>
+                    </div>
+                    <div className="cards">{cards}</div>
+                </section>
+            );
+        }
+
+        // FETCH_CARDS_OK
+        if (this.props.cards.fetched && !this.props.cards.error) {
+            const { items } = this.props.cards;
             let sections = {};
 
             // eslint-disable-next-line
-            for (const section in cards) {
-                if (cards[section].length > 0) {
+            for (const section in items) {
+                if (items[section].length > 0) {
                     sections[section] = (
-                        cards[section].map((card, i) => <Card key={i} data={card}/>)
+                        items[section].map((card, i) => <Card key={i} data={card}/>)
                     );
                 }
             }
 
             if (Object.keys(sections).length === 0) {
                 card_list = (
-                    <div className="empty">
-                        <FontAwesomeIcon icon="question-circle"/>
-                        <p>LIBRARY EMPTY</p>
-                    </div>
+                    <section>
+                        <div className="placeholder-name">
+                            <div className="placeholder-text"/>
+                            <div className="horizontal-err">
+                                <FontAwesomeIcon icon="times-circle"/>
+                                <p>NO MEDIA HAS BEEN FOUND</p>
+                            </div>
+                        </div>
+                        <div className="cards">{cards}</div>
+                    </section>
                 );
             } else {
                 card_list = Object.keys(sections).map(section => (
                     <section key={section}>
                         <h1>{section}</h1>
                         <div className="cards">
-                            { sections[section] }
+                            {sections[section]}
                         </div>
                     </section>
                 ));
             }
         }
 
-        return (
-            <div className="card_list">
-                {card_list}
-            </div>
-        );
+        return <div className="card_list" ref={this.cardList}>{card_list}</div>;
     }
 }
 
-export default CardList;
+const mapStateToProps = (state) => ({
+    cards: state.cardReducer
+});
+
+const mapActionsToProps = { fetchCards };
+
+export default connect(mapStateToProps, mapActionsToProps)(CardList);
