@@ -6,10 +6,10 @@ import { fas } from "@fortawesome/free-solid-svg-icons";
 import { far } from "@fortawesome/free-regular-svg-icons";
 
 import Sidebar from "./layouts/Sidebar.jsx";
-import Dashboard from "./layouts/Dashboard.jsx";
 import CardList from "./layouts/CardList.jsx";
 import VideoPlayer from "./layouts/VideoPlayer.jsx";
 import SearchResults from "./layouts/SearchResults";
+import BannerPage from "./components/BannerPage.jsx";
 
 import './App.scss';
 
@@ -20,12 +20,19 @@ class App extends Component {
 		return (
 			<Router>
 			<Switch>
-				<Route exact path="/" render={() =>
-					<div className="App">
-						<Sidebar/>
-						<Dashboard/>
-					</div>
-				}/>
+				<Route exact path="/" render={() => {
+					document.title = "Dim - Dashboard";
+
+					return (
+						<div className="App">
+							<Sidebar/>
+							<main>
+								<BannerPage/>
+								<CardList path="http://86.21.150.167:8000/api/v1/dashboard"/>
+							</main>
+						</div>
+					);
+				}}/>
 				<Route exact path="/library/:id" render={props =>
 					<div className="App">
 						<Sidebar/>
