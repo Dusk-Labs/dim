@@ -72,7 +72,7 @@ class LazyImage extends Component {
             if (!this.props.loading) {
                 return (
                     <div className="placeholder">
-                        <div className="spinner"></div>
+                        <div className="spinner"/>
                     </div>
                 );
             } else return this.props.loading;
@@ -96,12 +96,12 @@ class LazyImage extends Component {
         if (this.state.fetched && !this.state.error) {
             return (
                 <div className="image-wrapper" ref={this.props.imageWrapperRef}>
-                    <img src={this.state.objectUrl} alt={this.props.alt}></img>
+                    <img src={this.state.objectUrl} alt={this.props.alt}/>
                 </div>
             );
         }
 
-        return <div className="placeholder"></div>;
+        return <div className="placeholder"/>;
     }
 }
 
