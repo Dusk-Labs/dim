@@ -17,8 +17,10 @@ export default function(state = initialState, action) {
         case FETCH_DIRECTORIES_START:
             return {
                 ...state,
+                items: [],
                 fetching: true,
-                fetched: false
+                fetched: false,
+                error: null
             }
         case FETCH_DIRECTORIES_OK:
             const items = action.payload.dirs.slice(1);
