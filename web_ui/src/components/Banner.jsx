@@ -17,7 +17,6 @@ class Banner extends Component {
 
         this.imageWrapper = React.createRef();
         this.getImageWrapperRef = this.getImageWrapperRef.bind(this);
-        this.handleScroll = this.handleScroll.bind(this);
 
         this.state = {
             backgroundColor: "#f7931e",
@@ -27,23 +26,10 @@ class Banner extends Component {
 
     componentDidMount() {
         this._isMounted = true;
-        window.addEventListener("scroll", this.handleScroll);
     }
 
     componentWillUnmount() {
         this._isMounted = false;
-        window.removeEventListener("scroll", this.handleScroll);
-    }
-
-    handleScroll() {
-        const scrolled = window.pageYOffset;
-        const rate = scrolled * 0.2;
-
-        if (this.imageWrapper.current) {
-            this.imageWrapper.current.style.webkitTransform = `translate3d(0px, ${rate}px, 0px)`;
-            this.imageWrapper.current.style.MozTransform = `translate3d(0px, ${rate}px, 0px)`;
-            this.imageWrapper.current.style.transform = `translate3d(0px, ${rate}px, 0px)`;
-        }
     }
 
     onLoadBanner = async (blob) => {
