@@ -4,12 +4,12 @@ use crate::routes::general::construct_standard;
 use auth::Wrapper as Auth;
 use database::library::{InsertableLibrary, Library};
 use events::{Message, PushEventType};
-use scanners;
 use pushevent::Event;
 use rocket::http::Status;
 use rocket::State;
 use rocket_contrib::json::{Json, JsonValue};
 use rocket_slog::SyncLogger;
+use scanners;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 

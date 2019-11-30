@@ -24,7 +24,7 @@ pub fn get_top_duration(conn: &DbConnection, data: &Media) -> i32 {
                 .iter()
                 .filter(|x| x.corrupt != Some(true))
                 .collect::<Vec<&MediaFile>>();
-            if x.len() > 0 {
+            if !x.is_empty() {
                 x.pop().unwrap().duration.unwrap_or(0)
             } else {
                 0

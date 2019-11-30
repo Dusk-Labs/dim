@@ -130,7 +130,7 @@ impl FFPWrapper {
 
     pub fn get_container(&self) -> Option<String> {
         if let Some(ctx) = self.ffpstream.clone() {
-            Some(ctx.format.format_name.clone())
+            Some(ctx.format.format_name)
         } else {
             None
         }

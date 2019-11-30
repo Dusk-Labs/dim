@@ -1,6 +1,5 @@
 use jsonwebtoken::{decode, encode, Algorithm, Header, TokenData, Validation};
 use rocket::{
-    http::Status,
     request::{self, FromRequest, Request},
     Outcome,
 };
@@ -8,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use time::get_time;
 
 // Change this to something more secure but this should do for testing
-static KEY: &'static [u8; 16] = &[
+static KEY: &[u8; 16] = &[
     25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25,
 ];
 static ONE_WEEK: i64 = 60 * 60 * 24 * 7;
@@ -52,8 +51,8 @@ pub fn jwt_generate(user: String, roles: Vec<String>) -> String {
     let payload = UserRolesToken {
         iat: now,
         exp: now + ONE_WEEK,
-        user: user,
-        roles: roles,
+        user,
+        roles,
     };
 
     encode(&Header::new(Algorithm::HS512), &payload, KEY).unwrap()
@@ -71,8 +70,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for Wrapper {
         Outcome::Success(Wrapper(TokenData {
             header: Header::new(Algorithm::HS512),
             claims: UserRolesToken {
-                iat: 999999,
-                exp: 999999,
+                iat: 999_999,
+                exp: 999_999,
                 user: "Test User".to_string(),
                 roles: vec!["Owner".to_string()],
             },

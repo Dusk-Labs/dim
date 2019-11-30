@@ -82,7 +82,7 @@ pub struct Genre {
 }
 
 impl MediaType {
-    pub fn to_string(&self) -> String {
+    pub fn to_string(self) -> String {
         match self {
             MediaType::Movie => "movie".to_string(),
             MediaType::Tv => "tv".to_string(),
@@ -129,7 +129,7 @@ impl TMDbSearch {
 
         {
             let mut cache = CACHE.lock().unwrap();
-            let key = (title.clone(), year, media_type);
+            let key = (title, year, media_type);
 
             cache.insert(key, resp.clone());
         }
@@ -205,7 +205,7 @@ impl TMDbSearch {
                         .genres
                         .iter()
                         .filter(|y| genre_ids.contains(&y.id))
-                        .map(|x| x.clone())
+                        .cloned()
                         .collect::<Vec<Genre>>(),
                 );
             }
@@ -232,7 +232,7 @@ impl TMDbSearch {
                         x.genres
                             .iter()
                             .filter(|y| genre_ids.contains(&y.id))
-                            .map(|x| x.clone())
+                            .cloned()
                             .collect::<Vec<Genre>>(),
                     );
                 }
@@ -259,9 +259,8 @@ impl Seasons {
         );
 
         if let Ok(mut d) = req {
-            match d.json::<Seasons>() {
-                Ok(x) => self.episodes = x.episodes,
-                Err(_) => {}
+            if let Ok(x) = d.json::<Seasons>() {
+                self.episodes = x.episodes;
             }
         }
     }
@@ -283,12 +282,11 @@ impl<'a> APIExec<'a> for TMDbSearch {
 impl Media {
     pub fn get_season(&self, num: i32) -> Seasons {
         if let Some(seasons) = self.seasons.as_ref() {
-            match seasons
+            if let Some(x) = seasons
                 .iter()
                 .find(|x| x.season_number.eq(&Some(num as u64)))
             {
-                Some(x) => return x.clone(),
-                None => {}
+                return x.clone();
             }
         }
         Seasons::default()
@@ -312,12 +310,11 @@ impl Media {
 impl Seasons {
     pub fn get_episode(&self, num: i32) -> Episode {
         if let Some(episodes) = self.episodes.as_ref() {
-            match episodes
+            if let Some(x) = episodes
                 .iter()
                 .find(|x| x.episode_number.eq(&Some(num as u64)))
             {
-                Some(x) => return x.clone(),
-                None => {}
+                return x.clone();
             }
         }
         Episode::default()
