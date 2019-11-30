@@ -155,12 +155,9 @@ impl<'a> IterativeScanner {
             media_type: self.lib.media_type.clone(),
         };
 
-        match mediatype {
-            crate::tmdb_api::MediaType::Tv => {
-                self.insert_tv(orphan, media, result);
-                return;
-            }
-            _ => {}
+        if let crate::tmdb_api::MediaType::Tv = mediatype {
+            self.insert_tv(orphan, media, result);
+            return;
         }
 
         self.insert_movie(orphan, media, result);

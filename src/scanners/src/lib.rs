@@ -34,9 +34,8 @@ pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> std::result::Result<
         }));
 
         let log_clone = log.clone();
-        let tx_clone = tx.clone();
         threads.push(thread::spawn(move || {
-            let daemon = ParserDaemon::new(library_id, log_clone, tx_clone).unwrap();
+            let daemon = ParserDaemon::new(library_id, log_clone, tx).unwrap();
             daemon.start_daemon().unwrap();
         }));
     } else {

@@ -60,10 +60,8 @@ pub fn get_conn() -> Result<diesel::PgConnection, diesel::result::ConnectionErro
         PgConnection::establish("postgres://postgres:dimpostgres@127.0.0.1/dim")
     }?;
 
-    if !MIGRATIONS_FLAG.load(Ordering::SeqCst) {
-        if run_migrations(&conn).is_ok() {
-            MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
-        }
+    if !MIGRATIONS_FLAG.load(Ordering::SeqCst) && run_migrations(&conn).is_ok() {
+        MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
     }
 
     Ok(conn)
