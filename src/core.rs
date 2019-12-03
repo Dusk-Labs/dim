@@ -12,6 +12,12 @@ use std::sync::{Arc, Mutex};
 #[database("openflix")]
 pub struct DbConnection(PgConnection);
 
+impl AsRef<PgConnection> for DbConnection {
+    fn as_ref(&self) -> &PgConnection {
+        &*self
+    }
+}
+
 pub type EventTx = std::sync::mpsc::Sender<pushevent::Event>;
 
 lazy_static! {

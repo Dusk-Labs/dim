@@ -1,5 +1,7 @@
 use crate::core::DbConnection;
+use crate::errors;
 use auth::Wrapper as Auth;
+use database::schema::mediafile::dsl::*;
 use diesel::prelude::*;
 use rocket::http::Status;
 use rocket::response::NamedFile;
@@ -13,35 +15,21 @@ pub fn start_stream(
     _id: i32,
     seek: Option<u64>,
     _user: Auth,
-) -> Result<JsonValue, Status> {
-    use database::schema::mediafile::dsl::*;
-    let media_inst = mediafile
+) -> Result<JsonValue, errors::DimError> {
+    let mediafile_id = mediafile
         .filter(media_id.eq(Some(_id)))
         .select(id)
-        .first::<i32>(&*conn);
+        .first::<i32>(conn.as_ref())?;
 
-    if let Ok(m_id) = media_inst {
-        let mut stream = match FFmpeg::new(FFMPEG_BIN, m_id) {
-            Ok(x) => x,
-            Err(_) => return Err(Status::NotFound),
-        };
-
-        let uuid = match stream.stream(seek) {
-            Ok(uuid) => uuid,
-            Err(_) => return Err(Status::NotFound),
-        };
-
-        return Ok(json!({ "uuid": uuid }));
-    }
-    Err(Status::NotFound)
+    let mut stream = FFmpeg::new(FFMPEG_BIN, mediafile_id)?;
+    let uuid = stream.stream(seek)?;
+    return Ok(json!({ "uuid": uuid }));
 }
 
 #[delete("/stream/<uuid>")]
-pub fn stop_stream(uuid: String, _user: Auth) -> Result<Status, Status> {
-    match FFmpeg::stop(uuid) {
-        Ok(_) => Ok(Status::Ok),
-        Err(_) => Err(Status::NotFound),
-    }
+pub fn stop_stream(uuid: String, _user: Auth) -> Result<Status, errors::DimError> {
+    FFmpeg::stop(uuid)?;
+    Ok(Status::Ok)
 }
 
 #[get("/stream/static/<uuid>/<path..>")]

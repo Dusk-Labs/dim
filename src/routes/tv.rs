@@ -1,4 +1,5 @@
 use crate::core::DbConnection;
+use crate::errors;
 use auth::Wrapper as Auth;
 use database::episode::{Episode, UpdateEpisode};
 use database::media::Media;
@@ -8,11 +9,12 @@ use rocket::http::Status;
 use rocket_contrib::json::Json;
 
 #[get("/<id>")]
-pub fn get_tv_by_id(conn: DbConnection, id: i32, _user: Auth) -> Result<Json<Media>, Status> {
-    match TVShow::get(&conn, id) {
-        Ok(data) => Ok(Json(data)),
-        Err(_) => Err(Status::NotFound),
-    }
+pub fn get_tv_by_id(
+    conn: DbConnection,
+    id: i32,
+    _user: Auth,
+) -> Result<Json<Media>, errors::DimError> {
+    Ok(Json(TVShow::get(conn.as_ref(), id)?))
 }
 
 #[get("/<id>/season")]
@@ -20,11 +22,8 @@ pub fn get_tv_seasons(
     conn: DbConnection,
     id: i32,
     _user: Auth,
-) -> Result<Json<Vec<Season>>, Status> {
-    match Season::get_all(&conn, id) {
-        Ok(data) => Ok(Json(data)),
-        Err(_) => Err(Status::NotFound),
-    }
+) -> Result<Json<Vec<Season>>, errors::DimError> {
+    Ok(Json(Season::get_all(conn.as_ref(), id)?))
 }
 
 #[get("/<id>/season/<season_num>")]
@@ -33,11 +32,8 @@ pub fn get_season_by_num(
     id: i32,
     season_num: i32,
     _user: Auth,
-) -> Result<Json<Season>, Status> {
-    match Season::get(&conn, id, season_num) {
-        Ok(data) => Ok(Json(data)),
-        Err(_) => Err(Status::NotFound),
-    }
+) -> Result<Json<Season>, errors::DimError> {
+    Ok(Json(Season::get(conn.as_ref(), id, season_num)?))
 }
 
 #[patch(
@@ -51,11 +47,9 @@ pub fn patch_season_by_num(
     season_num: i32,
     data: Json<UpdateSeason>,
     _user: Auth,
-) -> Result<Status, Status> {
-    match data.update(&conn, id, season_num) {
-        Ok(_) => Ok(Status::NoContent),
-        Err(_) => Err(Status::NotModified),
-    }
+) -> Result<Status, errors::DimError> {
+    data.update(conn.as_ref(), id, season_num)?;
+    Ok(Status::NoContent)
 }
 
 #[delete("/<id>/season/<season_num>")]
@@ -64,11 +58,9 @@ pub fn delete_season_by_num(
     id: i32,
     season_num: i32,
     _user: Auth,
-) -> Result<Status, Status> {
-    match Season::delete(&conn, id, season_num) {
-        Ok(_) => Ok(Status::Ok),
-        Err(_) => Err(Status::NotModified),
-    }
+) -> Result<Status, errors::DimError> {
+    Season::delete(conn.as_ref(), id, season_num)?;
+    Ok(Status::Ok)
 }
 
 #[get("/<id>/season/<season_num>/episode/<ep_num>")]
@@ -78,11 +70,8 @@ pub fn get_episode_by_id(
     season_num: i32,
     ep_num: i32,
     _user: Auth,
-) -> Result<Json<Episode>, Status> {
-    match Episode::get(&conn, id, season_num, ep_num) {
-        Ok(data) => Ok(Json(data)),
-        Err(_) => Err(Status::NotFound),
-    }
+) -> Result<Json<Episode>, errors::DimError> {
+    Ok(Json(Episode::get(conn.as_ref(), id, season_num, ep_num)?))
 }
 
 #[patch(
@@ -97,11 +86,9 @@ pub fn patch_episode_by_id(
     ep_num: i32,
     episode: Json<UpdateEpisode>,
     _user: Auth,
-) -> Result<Status, Status> {
-    match episode.update(&conn, id, season_num, ep_num) {
-        Ok(_) => Ok(Status::NoContent),
-        Err(_) => Err(Status::NotModified),
-    }
+) -> Result<Status, errors::DimError> {
+    episode.update(conn.as_ref(), id, season_num, ep_num)?;
+    Ok(Status::NoContent)
 }
 
 #[delete("/<id>/season/<season_num>/episode/<ep_num>")]
@@ -111,9 +98,7 @@ pub fn delete_episode_by_id(
     season_num: i32,
     ep_num: i32,
     _user: Auth,
-) -> Result<Status, Status> {
-    match Episode::delete(&conn, id, season_num, ep_num) {
-        Ok(_) => Ok(Status::Ok),
-        Err(_) => Err(Status::NotModified),
-    }
+) -> Result<Status, errors::DimError> {
+    Episode::delete(conn.as_ref(), id, season_num, ep_num)?;
+    Ok(Status::Ok)
 }
