@@ -30,9 +30,10 @@ lazy_static::lazy_static! {
 
 embed_migrations!("../../migrations");
 
-pub fn run_migrations(
+fn run_migrations(
     conn: &diesel::PgConnection,
 ) -> Result<(), diesel_migrations::RunMigrationsError> {
+    // TODO: Move the init.sql queries into here.
     embedded_migrations::run(conn)
 }
 

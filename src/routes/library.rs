@@ -1,5 +1,6 @@
 use crate::core::DbConnection;
 use crate::core::EventTx;
+use crate::errors;
 use crate::routes::general::construct_standard;
 use auth::Wrapper as Auth;
 use database::library::{InsertableLibrary, Library};
@@ -16,7 +17,7 @@ use std::sync::{Arc, Mutex};
 #[get("/")]
 pub fn library_get(conn: DbConnection, _log: SyncLogger, _user: Auth) -> Json<Vec<Library>> {
     Json({
-        let mut x = Library::get_all(&conn);
+        let mut x = Library::get_all(conn.as_ref());
         x.sort_by(|a, b| a.name.cmp(&b.name));
         x
     })
@@ -29,26 +30,24 @@ pub fn library_post(
     log: SyncLogger,
     event_tx: State<Arc<Mutex<EventTx>>>,
     _user: Auth,
-) -> Result<Status, Status> {
-    match new_library.insert(&conn) {
-        Ok(id) => {
-            let tx = event_tx.lock().unwrap();
-            let tx_clone = tx.clone();
-            std::thread::spawn(move || {
-                scanners::start(id, log.get(), tx_clone).unwrap();
-            });
+) -> Result<Status, errors::DimError> {
+    let id = new_library.insert(conn.as_ref())?;
+    let tx = event_tx.lock().unwrap();
+    let tx_clone = tx.clone();
 
-            let event_message = Box::new(Message {
-                id,
-                event_type: PushEventType::EventNewLibrary,
-            });
+    // TODO: Throw this into the thread map
+    std::thread::spawn(move || {
+        scanners::start(id, log.get(), tx_clone).unwrap();
+    });
 
-            let event = Event::new("/events/library".to_string(), event_message);
-            let _ = tx.send(event);
-            Ok(Status::Created)
-        }
-        Err(_) => Err(Status::NotImplemented),
-    }
+    let event_message = Box::new(Message {
+        id,
+        event_type: PushEventType::EventNewLibrary,
+    });
+
+    let event = Event::new("/events/library".to_string(), event_message);
+    let _ = tx.send(event);
+    Ok(Status::Created)
 }
 
 #[delete("/<id>")]
@@ -57,28 +56,25 @@ pub fn library_delete(
     id: i32,
     event_tx: State<Arc<Mutex<EventTx>>>,
     _user: Auth,
-) -> Result<Status, Status> {
-    match Library::delete(&conn, id) {
-        Ok(_) => {
-            let event_message = Box::new(Message {
-                id,
-                event_type: PushEventType::EventRemoveLibrary,
-            });
+) -> Result<Status, errors::DimError> {
+    let _ = Library::delete(conn.as_ref(), id)?;
+    let event_message = Box::new(Message {
+        id,
+        event_type: PushEventType::EventRemoveLibrary,
+    });
 
-            let event = Event::new("/events/library".to_string(), event_message);
-            let _ = event_tx.lock().unwrap().send(event);
-            Ok(Status::NoContent)
-        }
-        Err(_) => Err(Status::InternalServerError),
-    }
+    let event = Event::new("/events/library".to_string(), event_message);
+    let _ = event_tx.lock().unwrap().send(event);
+    Ok(Status::NoContent)
 }
 
 #[get("/<id>")]
-pub fn get_self(conn: DbConnection, id: i32, _user: Auth) -> Result<Json<Library>, Status> {
-    match Library::get_one(&conn, id) {
-        Ok(data) => Ok(Json(data)),
-        Err(_) => Err(Status::NotFound),
-    }
+pub fn get_self(
+    conn: DbConnection,
+    id: i32,
+    _user: Auth,
+) -> Result<Json<Library>, errors::DimError> {
+    Ok(Json(Library::get_one(conn.as_ref(), id)?))
 }
 
 #[get("/<id>/media")]
@@ -86,22 +82,16 @@ pub fn get_all_library(
     conn: DbConnection,
     id: i32,
     _user: Auth,
-) -> Result<Json<HashMap<String, Vec<JsonValue>>>, Status> {
-    let mut result: HashMap<String, Vec<JsonValue>> = HashMap::new();
-    if let Ok(lib) = Library::get_one(&conn, id) {
-        match Library::get(&conn, id) {
-            Ok(mut data) => {
-                data.sort_by(|a, b| a.name.cmp(&b.name));
-                let out = data
-                    .iter()
-                    .map(|x| construct_standard(&conn, x, None))
-                    .collect::<Vec<JsonValue>>();
-                result.insert(lib.name, out);
-                Ok(Json(result))
-            }
-            Err(_) => Err(Status::NotFound),
-        }
-    } else {
-        Err(Status::NotFound)
-    }
+) -> Result<Json<HashMap<String, Vec<JsonValue>>>, errors::DimError> {
+    let mut result = HashMap::new();
+    let lib = Library::get_one(conn.as_ref(), id)?;
+    let mut data = Library::get(conn.as_ref(), id)?;
+
+    data.sort_by(|a, b| a.name.cmp(&b.name));
+    let out = data
+        .iter()
+        .map(|x| construct_standard(&conn, x, false))
+        .collect::<Vec<JsonValue>>();
+    result.insert(lib.name, out);
+    Ok(Json(result))
 }

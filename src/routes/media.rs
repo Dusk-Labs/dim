@@ -1,4 +1,5 @@
 use crate::core::DbConnection;
+use crate::errors;
 use auth::Wrapper as Auth;
 use database::genre::Genre;
 use database::media::{Media, UpdateMedia};
@@ -10,21 +11,21 @@ use rocket_contrib::{
 };
 
 #[get("/<id>")]
-pub fn get_media_by_id(conn: DbConnection, id: i32, _user: Auth) -> Result<JsonValue, Status> {
-    let data = match Media::get(&conn, id) {
-        Ok(data) => data,
-        Err(_) => return Err(Status::NotFound),
-    };
+pub fn get_media_by_id(
+    conn: DbConnection,
+    id: i32,
+    _user: Auth,
+) -> Result<JsonValue, errors::DimError> {
+    let data = Media::get(conn.as_ref(), id)?;
 
-    let duration = match MediaFile::get_of_media(&conn, &data) {
-        Ok(mut x) => x.pop().unwrap().duration.unwrap(),
+    let duration = match MediaFile::get_of_media(conn.as_ref(), &data) {
+        Ok(mut x) => x.pop()?.duration?,
         Err(_) => 0,
     };
 
-    let genres = Genre::get_by_media(&conn, data.id)
-        .unwrap()
-        .iter()
-        .map(|x| x.name.clone())
+    let genres = Genre::get_by_media(conn.as_ref(), data.id)?
+        .into_iter()
+        .map(|x| x.name)
         .collect::<Vec<String>>();
 
     Ok(json!({
@@ -44,16 +45,14 @@ pub fn get_media_by_id(conn: DbConnection, id: i32, _user: Auth) -> Result<JsonV
 }
 
 #[get("/<id>/info")]
-pub fn get_extra_info_by_id(conn: DbConnection, id: i32, _user: Auth) -> Result<JsonValue, Status> {
-    let media = match Media::get(&conn, id) {
-        Ok(data) => data,
-        Err(_) => return Err(Status::NotFound),
-    };
+pub fn get_extra_info_by_id(
+    conn: DbConnection,
+    id: i32,
+    _user: Auth,
+) -> Result<JsonValue, errors::DimError> {
+    let media = Media::get(conn.as_ref(), id)?;
 
-    let media_files = match MediaFile::get_of_media(&conn, &media) {
-        Ok(x) => x,
-        Err(_) => return Err(Status::NotFound),
-    };
+    let media_files = MediaFile::get_of_media(conn.as_ref(), &media)?;
 
     Ok(json!({
         "versions": media_files.iter().map(|x| json!({
@@ -76,16 +75,18 @@ pub fn update_media_by_id(
     data: Json<UpdateMedia>,
     _user: Auth,
 ) -> Result<Status, Status> {
-    match data.update(&conn, id) {
+    match data.update(conn.as_ref(), id) {
         Ok(_) => Ok(Status::NoContent),
         Err(_) => Err(Status::NotModified),
     }
 }
 
 #[delete("/<id>")]
-pub fn delete_media_by_id(conn: DbConnection, id: i32, _user: Auth) -> Result<Status, Status> {
-    match Media::delete(&conn, id) {
-        Ok(_) => Ok(Status::Ok),
-        Err(_) => Err(Status::NotFound),
-    }
+pub fn delete_media_by_id(
+    conn: DbConnection,
+    id: i32,
+    _user: Auth,
+) -> Result<Status, errors::DimError> {
+    Media::delete(conn.as_ref(), id)?;
+    Ok(Status::Ok)
 }

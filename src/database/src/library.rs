@@ -15,7 +15,7 @@ impl Default for MediaType {
         Self::Movie
     }
 }
-///
+
 /// Library struct which we can use to deserialize database queries into.
 #[derive(Queryable, Serialize, Deserialize, Identifiable, Clone)]
 #[table_name = "library"]
