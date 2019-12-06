@@ -1,5 +1,7 @@
 #![feature(rustc_private)]
 #![feature(proc_macro_hygiene, decl_macro)]
+#![feature(result_map_or_else)]
+#![feature(try_trait)]
 
 #[macro_use]
 extern crate diesel;
@@ -18,6 +20,7 @@ use std::fs::{create_dir, File};
 use std::sync::Mutex;
 
 pub mod core;
+pub mod errors;
 pub mod macros;
 pub mod routes;
 pub mod schema;
