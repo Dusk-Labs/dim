@@ -1,3 +1,4 @@
+use crate::tmdb_api;
 use crate::tmdb_api::TMDbSearch;
 use crate::APIExec;
 use crate::EventTx;
@@ -18,7 +19,6 @@ use events::*;
 use pushevent::Event;
 use rayon::prelude::*;
 use slog::{debug, error, info, Logger};
-use std::path::PathBuf;
 use streamer::{ffprobe::FFProbeCtx, FFPROBE_BIN};
 use torrent_name_parser::Metadata;
 use walkdir::WalkDir;
@@ -30,7 +30,7 @@ pub struct IterativeScanner {
     event_tx: EventTx,
 }
 
-impl<'a> IterativeScanner {
+impl IterativeScanner {
     pub fn new(library_id: i32, log: Logger, event_tx: EventTx) -> Result<Self, ()> {
         let conn = get_conn().expect("Failed to get a valid connection to db");
 
@@ -46,7 +46,7 @@ impl<'a> IterativeScanner {
         Err(())
     }
 
-    pub fn start(&self, custom_path: Option<&'a str>) {
+    pub fn start(&self, custom_path: Option<&str>) {
         debug!(self.log, "Starting Movie scanner iterate");
         let path = match custom_path {
             Some(x) => x,
@@ -66,47 +66,67 @@ impl<'a> IterativeScanner {
             .filter(|x| {
                 let ext = x.path().extension();
                 match ext {
-                    Some(e) => ["mkv", "mp4", "avi"].contains(&e.to_str().unwrap()),
+                    Some(e) => {
+                        ["mkv", "mp4", "avi"].contains(&e.to_string_lossy().into_owned().as_str())
+                    }
                     None => false,
                 }
             })
-            .map(|f| f.into_path().to_str().unwrap().to_owned())
+            .filter_map(|f| {
+                f.into_path().to_str().map_or_else(
+                    || {
+                        println!("Failed to unwrap full path");
+                        None
+                    },
+                    |x| Some(x.to_owned()),
+                )
+            })
             .collect::<Vec<_>>();
 
         let logger = self.log.clone();
         let lib_id = self.lib.id;
-        files
-            .par_iter()
-            .for_each(|x| mount_file(logger.clone(), x.clone(), lib_id).unwrap());
+        files.par_iter().for_each(|x| {
+            let _ = mount_file(logger.clone(), x.clone(), lib_id).map_err(|e| {
+                slog::error!(logger, "Failed mounting file into the database: {:?}", e)
+            });
+        });
 
         self.fix_orphans();
     }
 
-    pub fn mount_file(&self, file: PathBuf) -> Result<(), diesel::result::Error> {
-        mount_file(
-            self.log.clone(),
-            file.to_str().unwrap().to_owned(),
-            self.lib.id,
-        )
+    pub fn mount_file<T: std::string::ToString>(
+        &self,
+        file: T,
+    ) -> Result<(), &dyn std::error::Error> {
+        mount_file(self.log.clone(), file.to_string(), self.lib.id)
     }
 
     pub fn fix_orphans(&self) {
         let mut tmdb_session = TMDbSearch::new("38c372f5bc572c8aadde7a802638534e");
-        let orphans = MediaFile::get_by_lib(&self.conn, &self.lib).unwrap();
+        let orphans = match MediaFile::get_by_lib(&self.conn, &self.lib) {
+            Ok(x) => x,
+            Err(e) => {
+                slog::error!(self.log, "Database fucked up somehow: {:?}", e);
+                return;
+            }
+        };
 
         info!(
             self.log,
             "Starting orphan scanner for library: {}", self.lib.id
         );
 
-        for orphan in &orphans {
+        for orphan in orphans {
             if orphan.media_id.is_none() {
                 let mediatype = match self.lib.media_type {
-                    MediaType::Tv => crate::tmdb_api::MediaType::Tv,
-                    _ => crate::MediaType::Movie,
+                    MediaType::Tv => tmdb_api::MediaType::Tv,
+                    _ => tmdb_api::MediaType::Movie,
                 };
 
-                info!(self.log, "Scanning {} orphan", orphan.raw_name.clone());
+                info!(
+                    self.log,
+                    "Scanning orphan with raw name: {}", orphan.raw_name
+                );
                 if let Some(result) =
                     tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year, mediatype)
                 {
@@ -118,11 +138,17 @@ impl<'a> IterativeScanner {
 
     fn match_media_to_tmdb(
         &self,
-        result: crate::tmdb_api::Media,
+        result: tmdb_api::Media,
         orphan: &MediaFile,
-        mediatype: crate::tmdb_api::MediaType,
+        mediatype: tmdb_api::MediaType,
     ) {
-        let name = result.get_title().unwrap();
+        let name = match result.get_title() {
+            Some(x) => x,
+            None => {
+                println!("TMDBApi returned a None title");
+                return;
+            }
+        };
 
         let year: Option<i32> = result
             .get_release_date()
@@ -163,12 +189,7 @@ impl<'a> IterativeScanner {
         self.insert_movie(orphan, media, result);
     }
 
-    fn insert_tv(
-        &self,
-        orphan: &MediaFile,
-        media: InsertableMedia,
-        search: crate::tmdb_api::Media,
-    ) {
+    fn insert_tv(&self, orphan: &MediaFile, media: InsertableMedia, search: tmdb_api::Media) {
         let media_id =
             Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.clone().as_str())
                 .map_or_else(
@@ -296,8 +317,12 @@ impl<'a> IterativeScanner {
     }
 }
 
-fn mount_file(log: Logger, file: String, lib_id: i32) -> Result<(), diesel::result::Error> {
-    let file = std::path::PathBuf::from(file);
+fn mount_file(
+    log: Logger,
+    file: String,
+    lib_id: i32,
+) -> Result<(), &'static dyn std::error::Error> {
+    let file = std::path::PathBuf::from(file.to_string());
     let conn = get_conn().unwrap();
     let path = file.clone().into_os_string().into_string().unwrap();
 

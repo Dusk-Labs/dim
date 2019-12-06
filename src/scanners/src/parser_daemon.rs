@@ -64,7 +64,7 @@ impl ParserDaemon {
             if path.is_file()
                 && [".avi", ".mkv", ".mp4"].contains(&path.extension().unwrap().to_str().unwrap())
             {
-                parser.mount_file(path).unwrap();
+                parser.mount_file(path.to_string_lossy()).unwrap();
             } else if path.is_dir() {
                 parser.start(path.to_str());
             }

@@ -1,29 +1,32 @@
 use crate::core::DbConnection;
+use crate::errors;
 use auth::Wrapper as Auth;
+use database::{
+    episode::Episode,
+    genre::*,
+    library::MediaType,
+    media::Media,
+    mediafile::MediaFile,
+    schema::{genre_media, media, season},
+    season::Season,
+};
 use diesel::prelude::*;
-use diesel::result::Error as DieselError;
-use database::episode::Episode;
-use database::genre::*;
-use database::library::MediaType;
-use database::media::Media;
-use database::mediafile::MediaFile;
-use database::season::Season;
+use rand::distributions::{Distribution, Uniform};
 use rocket::http::RawStr;
-use rocket::http::Status;
-use rocket_contrib::json;
-use rocket_contrib::json::Json;
-use rocket_contrib::json::JsonValue;
+use rocket_contrib::json::{Json, JsonValue};
 use std::path::PathBuf;
 use walkdir::WalkDir;
+
+no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
 
 /// TODO: Refactor this function into something that is less fucked than this jesus
 pub fn get_top_duration(conn: &DbConnection, data: &Media) -> i32 {
     match MediaFile::get_of_media(conn, data) {
         Ok(x) => {
             let mut x = x
-                .iter()
+                .into_iter()
                 .filter(|x| x.corrupt != Some(true))
-                .collect::<Vec<&MediaFile>>();
+                .collect::<Vec<MediaFile>>();
             if !x.is_empty() {
                 x.pop().unwrap().duration.unwrap_or(0)
             } else {
@@ -34,9 +37,7 @@ pub fn get_top_duration(conn: &DbConnection, data: &Media) -> i32 {
     }
 }
 
-pub fn get_season(conn: &DbConnection, data: &Media) -> Result<Season, DieselError> {
-    use database::schema::season;
-
+pub fn get_season(conn: &DbConnection, data: &Media) -> Result<Season, errors::DimError> {
     let season = season::table
         .filter(season::tvshowid.eq(data.id))
         .order(season::season_number.asc())
@@ -45,7 +46,7 @@ pub fn get_season(conn: &DbConnection, data: &Media) -> Result<Season, DieselErr
     Ok(season)
 }
 
-pub fn get_episode(conn: &DbConnection, data: &Season) -> Result<Episode, DieselError> {
+pub fn get_episode(conn: &DbConnection, data: &Season) -> Result<Episode, errors::DimError> {
     let mut episodes = Episode::get_all_of_season(conn, data)?;
 
     episodes.sort_by(|a, b| a.episode.cmp(&b.episode));
@@ -53,19 +54,19 @@ pub fn get_episode(conn: &DbConnection, data: &Season) -> Result<Episode, Diesel
     Ok(episodes.pop().unwrap())
 }
 
-pub fn construct_standard(conn: &DbConnection, data: &Media, quick: Option<bool>) -> JsonValue {
+/// Function takes
+pub fn construct_standard(conn: &DbConnection, data: &Media, quick: bool) -> JsonValue {
     // TODO: convert to enums
-
     let duration = get_top_duration(conn, data);
     let season_episode_pair =
         get_season(conn, data).and_then(|x| Ok((x.clone(), get_episode(&conn, &x))));
     let genres = Genre::get_by_media(&conn, data.id)
         .unwrap()
-        .iter()
-        .map(|x| x.name.clone())
+        .into_iter()
+        .map(|x| x.name)
         .collect::<Vec<String>>();
 
-    if quick.unwrap_or(false) {
+    if quick {
         return json!({
             "id": data.id,
             "name": data.name,
@@ -110,50 +111,40 @@ pub fn construct_standard(conn: &DbConnection, data: &Media, quick: Option<bool>
 }
 
 #[get("/dashboard")]
-pub fn dashboard(conn: DbConnection, _user: Auth) -> Result<JsonValue, Status> {
-    use database::schema::media;
-
+pub fn dashboard(conn: DbConnection, _user: Auth) -> Result<JsonValue, errors::DimError> {
     let mut top_rated = media::table
         .filter(media::media_type.ne(MediaType::Episode))
         .group_by((media::id, media::name))
         .order(media::rating.desc())
-        .load::<Media>(&*conn)
-        .unwrap();
+        .load::<Media>(conn.as_ref())?;
 
     top_rated.dedup_by(|a, b| a.name.eq(&b.name));
 
     let top_rated = top_rated
         .iter()
-        .map(|x| construct_standard(&conn, x, None))
+        .map(|x| construct_standard(&conn, x, false))
         .collect::<Vec<JsonValue>>();
 
     let recently_added = media::table
         .filter(media::media_type.ne(MediaType::Episode))
         .group_by((media::id, media::name))
         .order(media::added.desc())
-        .load::<Media>(&*conn)
-        .unwrap()
+        .load::<Media>(conn.as_ref())?
         .iter()
-        .map(|x| construct_standard(&conn, x, None))
+        .map(|x| construct_standard(&conn, x, false))
         .collect::<Vec<JsonValue>>();
 
     if top_rated.len() >= 10 && recently_added.len() >= 10 {
-        Ok(json!({
+        return Ok(json!({
             "TOP RATED": top_rated[0..10].to_vec(),
             "FRESHLY ADDED": recently_added[0..10].to_vec(),
-        }))
-    } else {
-        Ok(json!({}))
+        }));
     }
+    Ok(json!({}))
 }
 
 #[get("/dashboard/banner")]
-pub fn banners(conn: DbConnection, _user: Auth) -> Result<Json<Vec<JsonValue>>, Status> {
-    use database::schema::media;
-    use rand::distributions::{Distribution, Uniform};
-
-    no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
-
+pub fn banners(conn: DbConnection, _user: Auth) -> Result<Json<Vec<JsonValue>>, errors::DimError> {
     let sampler = Uniform::new(0, 240);
     let mut rng = rand::thread_rng();
     let results = media::table
@@ -161,20 +152,18 @@ pub fn banners(conn: DbConnection, _user: Auth) -> Result<Json<Vec<JsonValue>>, 
         .group_by(media::id)
         .order(RANDOM)
         .limit(3)
-        .load::<Media>(&*conn)
-        .expect("unable to load banners")
+        .load::<Media>(conn.as_ref())?
         .iter()
         .filter(|x| x.backdrop_path.is_some())
         .map(|x| {
             let duration = get_top_duration(&conn, &x);
-            // let (is_show, (season, episode)) = get_episode(&conn, &x);
             let season_episode_pair =
                 get_season(&conn, &x).and_then(|x| Ok((x.clone(), get_episode(&conn, &x))));
-            let genres: Vec<String> = Genre::get_by_media(&*conn, x.id)
-                .unwrap()
-                .iter()
-                .map(|x| x.name.clone())
-                .collect::<Vec<_>>();
+
+            let genres = Genre::get_by_media(conn.as_ref(), x.id).map_or_else(
+                |_| vec![],
+                |y| y.into_iter().map(|x| x.name).collect::<Vec<_>>(),
+            );
 
             if let Ok(pair) = season_episode_pair {
                 let episode = pair.1.unwrap();
@@ -210,9 +199,13 @@ pub fn banners(conn: DbConnection, _user: Auth) -> Result<Json<Vec<JsonValue>>, 
     Ok(Json(results))
 }
 
+// TODO: Audit the security of this.
 #[get("/filebrowser/<path..>")]
-pub fn get_directory_structure(path: PathBuf, _user: Auth) -> Result<Json<Vec<String>>, Status> {
-    let mut dirs: Vec<String> = WalkDir::new(format!("/{}", path.to_str().unwrap()))
+pub fn get_directory_structure(
+    path: PathBuf,
+    _user: Auth,
+) -> Result<Json<Vec<String>>, errors::DimError> {
+    let mut dirs: Vec<String> = WalkDir::new(format!("/{}", path.to_str()?))
         .max_depth(1usize)
         .into_iter()
         .filter_map(|x| x.ok())
@@ -221,9 +214,9 @@ pub fn get_directory_structure(path: PathBuf, _user: Auth) -> Result<Json<Vec<St
                 .to_str()
                 .map(|s| s.starts_with('.'))
                 .unwrap_or(false)
+                && !x.path().is_file()
         })
-        .filter(|x| !x.path().is_file())
-        .map(|x| x.path().to_str().unwrap().to_owned())
+        .map(|x| x.path().to_string_lossy().to_string())
         .collect::<Vec<_>>();
 
     dirs.sort();
@@ -240,10 +233,8 @@ pub fn search(
     genre: Option<String>,
     quick: Option<bool>,
     _user: Auth,
-) -> Result<Json<Vec<JsonValue>>, Status> {
-    use database::schema::genre_media;
-    use database::schema::media;
-
+) -> Result<Json<Vec<JsonValue>>, errors::DimError> {
+    let quick = quick.unwrap_or(false);
     let mut result = media::table.into_boxed();
 
     result = result.filter(media::media_type.ne(MediaType::Episode));
@@ -268,33 +259,26 @@ pub fn search(
     }
 
     if let Some(x) = genre {
-        let genre_row = match Genre::get_by_name(&*conn, x) {
-            Ok(x) => x.id,
-            Err(_) => return Err(Status::NotFound),
-        };
+        let genre_row = Genre::get_by_name(conn.as_ref(), x)?.id;
 
         let new_result = result
             .inner_join(genre_media::table)
             .filter(genre_media::genre_id.eq(genre_row));
 
-        match new_result.load::<Media>(&*conn) {
-            Ok(x) => {
-                return Ok(Json(
-                    x.iter()
-                        .map(|x| construct_standard(&conn, x, quick))
-                        .collect::<Vec<JsonValue>>(),
-                ))
-            }
-            Err(_) => return Err(Status::NotFound),
-        }
-    }
-
-    if let Ok(x) = result.load::<Media>(&*conn) {
+        let new_result = new_result.load::<Media>(conn.as_ref())?;
         return Ok(Json(
-            x.iter()
+            new_result
+                .iter()
                 .map(|x| construct_standard(&conn, x, quick))
                 .collect::<Vec<JsonValue>>(),
         ));
     }
-    Err(Status::NotFound)
+
+    let result = result.load::<Media>(conn.as_ref())?;
+    return Ok(Json(
+        result
+            .iter()
+            .map(|x| construct_standard(&conn, x, quick))
+            .collect::<Vec<JsonValue>>(),
+    ));
 }
