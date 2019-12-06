@@ -12,3 +12,5 @@ web_ui/yarn.lock
 static/
 logs/
 *.jpg
+web_ui/fuckoff.json
+transcoding
