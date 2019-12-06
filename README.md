@@ -47,7 +47,6 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 - [ ] Server support for Windows (needs testing)
 - [ ] Server support for BSD (needs testing)
 - [ ] Better docs and more unit tests (coverage is quite small atm, only covering a good half of the database module)
-- [ ] MVP UI
 - [ ] More streamlined build process
 - [ ] Precompiled binaries
 ### Longterm
@@ -59,6 +58,7 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 ### Dependencies
 1. libpg, libpg-dev
 2. ffmpeg, ffprobe
+3. rustc nightly >= 1.40.0
 
 1. First set up the database with docker: `docker-compose up -d postgres`
 2. Next build the UI: `cd web_ui && yarn build`
