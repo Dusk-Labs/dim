@@ -1,15 +1,45 @@
 # Dark Powered media Manager written in rust
-
-## Current Design
 ![Design 1](./docs/design/design3.jpg?raw=true)
 
-## Specification
+## What is Dim?
+
 Dim is a media manager powered by the dark forces. It is able to automatically scan the filesystem for movies, tv shows and and other planned media types. These items are then automatically added to their specific libraries which can then be accessed through a native or a comfy web ui.
-To achieve this the application is split up into two parts. We have the front-end web-ui which is based on React.js, the backend server written in Rust utilizing the rocket web framework, diesel for the ORM and postgres as the database.
+
+## Tech stack
+Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with Diesel as the ORM. For the Web UI we use React.js. The current database system is PostgreSQL. Dim is currently in Alpha testing with some features not complete yet.
 
 ## Features
-- Scan and automatically add, filter and fix media on your device
-- Allow you to stream it over the network with no set up
-- Be able to transcode if theres a need for example if the device doesnt support the codec
-- Present a clean UI to see the media
-- Allow you to remotely control the streaming session, for example to seek, pause, play, increase/decrease volume, or play something else
+### Server
+- [x] Movie and TV Show scanners
+- [x] Media matcher w/ resource fetch
+- [x] Library APIs(add new, delete, rename)
+- [x] Media APIs
+- [x] Streaming APIs(start, stop)
+- [x] Event APIs(new_library, delete_library, new_media, delete_media)
+- [x] Title Search
+- [ ] Auth (registration not done, login done)
+- [ ] Advanced Search
+### Web UI
+- [x] Dashboard w/ banners
+- [x] Library views
+- [x] New library modals
+- [x] Card popouts
+- [x] Search
+- [ ] Video player (partially done, awaiting API integration)
+- [ ] Live events (awaiting API integration)
+- [ ] Extended Media pages
+- [ ] Authentication
+### General
+- [ ] More streamlined build process
+- [ ] Precompiled binaries
+
+## Installation
+### Dependencies
+1. libpg, libpg-dev
+2. ffmpeg, ffprobe
+
+First set up the database with docker: `docker-compose up -d postgres`
+Next build the UI: `cd web_ui && yarn build`
+Lastly run Dim: `cargo run --release`
+
+Dim runs by default on port 8000.
