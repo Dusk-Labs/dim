@@ -204,7 +204,7 @@ main {
 	@include box-sizing(border-box);
 	@include transition(margin 0.3s ease-in-out);
 	position: relative;
-    margin-left: 300px;
+	margin-left: 300px;
     color: #ffffff;
     display: grid;
     grid-template-areas:
@@ -214,9 +214,31 @@ main {
 	min-height: 100vh;
 
 	> section h1 {
-		margin: 50px 0;
-		padding: 0 5%;
+		margin: 50px 90px;
 	}
+}
+
+.item-wrapper {
+    & > a::after, & > a::before {
+        content: unset !important;
+    }
+}
+
+.ScrollbarsCustom-TrackY {
+	top: 0 !important;
+	height: 100% !important;
+}
+
+.ScrollbarsCustom-TrackY {
+    width: 5px !important;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    & > .ScrollbarsCustom-Thumb {
+        background: #f7931e none repeat scroll 0% 0% !important;
+    }
 }
 
 /*
@@ -266,6 +288,12 @@ main {
     * == MEDIA QUERIES
 */
 
+@media only screen and (max-width: 1080px) {
+    main {
+        margin-left: 150px;
+	}
+}
+
 @media only screen and (max-width: 654px) {
 	main .cards {
 		-webkit-box-pack: center !important;
@@ -273,27 +301,4 @@ main {
 		    -ms-flex-pack: center !important;
 		        justify-content: center !important;
 	}
-}
-
-.item-wrapper {
-    & > a::after, & > a::before {
-        content: unset !important;
-    }
-}
-
-.ScrollbarsCustom-TrackY {
-	top: 0 !important;
-	height: 100% !important;
-}
-
-.ScrollbarsCustom-TrackY {
-    width: 5px !important;
-
-    &:hover {
-        opacity: 1;
-    }
-
-    & > .ScrollbarsCustom-Thumb {
-        background: #f7931e none repeat scroll 0% 0% !important;
-    }
 }
