@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import { NavLink } from "react-router-dom";
 import Modal from "react-modal";
 import { connect } from "react-redux";
@@ -19,18 +19,47 @@ import "./Sidebar.scss";
 
 Modal.setAppElement("body");
 
-class Sidebar extends Component {
+class Sidebar extends PureComponent {
     constructor(props) {
         super(props);
 
+        this.sidebar = React.createRef();
+        this.toggleSidebar = this.toggleSidebar.bind(this);
+
         this.library_ws = new WebSocket("ws://86.21.150.167:3012/events/library");
         this.library_ws.addEventListener("message", this.handle_ws_msg);
+
+        this.state = {
+            show: true
+        };
     }
 
     async componentDidMount() {
         this.props.fetchUser();
         this.props.fetchHosts();
         this.props.fetchLibraries();
+    }
+
+    toggleSidebar() {
+        this.setState({
+            show: !this.state.show
+        });
+
+        if (this.props.main.current) {
+            const marginLeft = this.sidebar.current.offsetWidth;
+
+            this.state.show
+                ? this.props.main.current.style["margin-left"] = "0px"
+                : this.props.main.current.style["margin-left"] = `${marginLeft}px`;
+        }
+
+        if (!this.state.show) {
+            this.sidebar.current.classList.remove("hide");
+            this.sidebar.current.classList.add("show");
+        } else {
+            this.sidebar.current.classList.remove("show");
+            this.sidebar.current.classList.add("hide");
+        }
     }
 
     render() {
@@ -202,59 +231,65 @@ class Sidebar extends Component {
         }
 
         return (
-            <nav className="sidebar">
-                <section className="main-part">
-                    {user}
-                    <div className="separator"/>
-                    <SidebarSearch/>
-                </section>
+            <nav className="sidebar" ref={this.sidebar}>
+                <div className="toggle" onClick={this.toggleSidebar}>
+                    <FontAwesomeIcon icon="angle-left"/>
+                </div>
+                <Scrollbar>
+                    <section className="main-part">
+                        {user}
+                        <div className="separator"/>
+                        <SidebarSearch/>
+                    </section>
 
-                <section className="connected-hosts">
-                    <header>
-                        <h4>CONNECTED HOSTS</h4>
-                    </header>
-                    <div className="list">
-                        <Scrollbar>{hosts}</Scrollbar>
-                    </div>
-                </section>
+                    <section className="connected-hosts">
+                        <header>
+                            <h4>CONNECTED HOSTS</h4>
+                        </header>
+                        <div className="list">
+                            <Scrollbar>{hosts}</Scrollbar>
+                        </div>
+                    </section>
 
-                <section className="local-libraries">
-                    <header>
-                        <h4>LOCAL LIBRARIES</h4>
-                        <NewLibraryModal/>
-                    </header>
-                    <div className="list">
-                        <Scrollbar>
+                    <section className="local-libraries">
+                        <header>
+                            <h4>LOCAL LIBRARIES</h4>
+                            <NewLibraryModal/>
+                        </header>
+                        <div className="list">
+                            <Scrollbar>
+                                <div className="item-wrapper">
+                                    <NavLink to="/" exact>
+                                        <FontAwesomeIcon icon="home"/>
+                                        <p>Dashboard</p>
+                                    </NavLink>
+                                </div>
+                                {libraries}
+                            </Scrollbar>
+                        </div>
+                    </section>
+
+                    <section className="your-account">
+                        <header>
+                            <h4>YOUR ACCOUNT</h4>
+                        </header>
+                        <div className="list">
                             <div className="item-wrapper">
-                                <NavLink to="/" exact>
-                                    <FontAwesomeIcon icon="home"/>
-                                    <p>Dashboard</p>
+                                <NavLink to="/preferences">
+                                    <FontAwesomeIcon icon="wrench"/>
+                                    <p>Preferences</p>
                                 </NavLink>
                             </div>
-                            {libraries}
-                        </Scrollbar>
-                    </div>
-                </section>
+                            <div className="item-wrapper">
+                                <NavLink to="/logout">
+                                    <FontAwesomeIcon icon="door-open"/>
+                                    <p>Logout</p>
+                                </NavLink>
+                            </div>
+                        </div>
+                    </section>
 
-                <section className="your-account">
-                    <header>
-                        <h4>YOUR ACCOUNT</h4>
-                    </header>
-                    <div className="list">
-                        <div className="item-wrapper">
-                            <NavLink to="/preferences">
-                                <FontAwesomeIcon icon="wrench"/>
-                                <p>Preferences</p>
-                            </NavLink>
-                        </div>
-                        <div className="item-wrapper">
-                            <NavLink to="/logout">
-                                <FontAwesomeIcon icon="door-open"/>
-                                <p>Logout</p>
-                            </NavLink>
-                        </div>
-                    </div>
-                </section>
+                </Scrollbar>
             </nav>
         );
     }
