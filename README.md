@@ -14,8 +14,6 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 ## Features
 ### Server
 - [x] Movie and TV Show scanners
-- [ ] Mixed content type library support (properly scan and display)
-- [ ] Anime scanners
 - [x] Media matcher w/ resource fetch
 - [x] Library APIs(add new, delete, rename)
 - [x] Media APIs
@@ -25,10 +23,12 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 - [x] Event APIs(new_library, delete_library, new_media, delete_media)
 - [x] Title Search
 - [ ] Auth (registration not done, login done)
-- [ ] Advanced Search
-- [ ] Chromecast support
-- [ ] Offline mode post scan
+- [x] Advanced Search (by genre, year, title, or all three at once)
+- [x] Offline mode post scan
 - [ ] Offline mode prescan
+- [ ] Chromecast support
+- [ ] Mixed content type library support (properly scan and display)
+- [ ] Anime scanners
 - [ ] Server stats for the dashboard etc..
 ### Web UI
 - [x] Dashboard w/ banners
@@ -41,7 +41,6 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 - [ ] Extended Media pages
 - [ ] Authentication
 - [ ] Server stats in dashboard
-- [ ] Nicer UI on vertical displays and phones (partially done).
 ### General
 - [x] Server support for Linux
 - [ ] Server support for WSL (partial, database setup is a bit hacky)
