@@ -56,12 +56,11 @@ impl IterativeScanner {
         let files: Vec<String> = WalkDir::new(path)
             .follow_links(true)
             .into_iter()
-            .filter_map(|f| f.ok())
+            .filter_map(Result::ok)
             .filter(|f| {
-                !f.file_name()
-                    .to_str()
-                    .map(|s| s.starts_with('.'))
-                    .unwrap_or(false)
+                !f.path()
+                    .into_iter()
+                    .any(|s| s.to_str().unwrap().starts_with('.'))
             })
             .filter(|x| {
                 let ext = x.path().extension();
