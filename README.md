@@ -50,7 +50,6 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 - [ ] More streamlined build process
 - [ ] Precompiled binaries
 ### Longterm
-- [ ] MVP UI
 - [ ] Phone apps (Android, ios)
 - [ ] Roku, nvidia shield, firestick apps
 
