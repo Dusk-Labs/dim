@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -16,47 +16,56 @@ import './App.scss';
 library.add(fas, far);
 
 class App extends Component {
+	constructor(props) {
+		super(props);
+
+		this.main = React.createRef();
+	}
+
 	render() {
 		return (
 			<Router>
-			<Switch>
-				<Route exact path="/" render={() => {
-					document.title = "Dim - Dashboard";
+			<div className="App">
+				<Switch>
+					<Route exact path="/" render={_ => {
+						document.title = "Dim - Dashboard";
 
-					return (
-						<div className="App">
-							<Sidebar/>
-							<main>
-								<BannerPage/>
-								<CardList path="http://127.0.0.1:8000/api/v1/dashboard"/>
+						return (
+							<Fragment>
+								<Sidebar main={this.main}/>
+								<main ref={this.main}>
+									<BannerPage/>
+									<CardList path="http://127.0.0.1:8000/api/v1/dashboard"/>
+								</main>
+							</Fragment>
+						);
+					}}/>
+
+					<Route exact path="/library/:id" render={props =>
+						<Fragment>
+							<Sidebar main={this.main}/>
+							<main ref={this.main}>
+								<CardList path={`http://127.0.0.1:8000/api/v1/library/${props.match.params.id}/media`}/>
 							</main>
-						</div>
-					);
-				}}/>
-				<Route exact path="/library/:id" render={props =>
-					<div className="App">
-						<Sidebar/>
-						<main>
-							<CardList path={`http://127.0.0.1:8000/api/v1/library/${props.match.params.id}/media`}/>
-						</main>
-					</div>
-				}/>
-				<Route exact path="/search" render={props =>
-					<div className="App">
-						<Sidebar/>
-						<main>
-							<SearchResults {...props}/>
-						</main>
-					</div>
-				}/>
-				<Route exact path="/play/:id" render={props =>
-					<div className="App">
+						</Fragment>
+					}/>
+
+					<Route exact path="/search" render={props =>
+						<Fragment>
+							<Sidebar main={this.main}/>
+							<main ref={this.main}>
+								<SearchResults {...props}/>
+							</main>
+						</Fragment>
+					}/>
+
+					<Route exact path="/play/:id" render={props =>
 						<main>
 							<VideoPlayer {...props}/>
 						</main>
-					</div>
-				}/>
-			</Switch>
+					}/>
+				</Switch>
+			</div>
 			</Router>
 		);
 	}

@@ -11,6 +11,44 @@
     background: linear-gradient(315deg, #333333 0%, #363636 100%);
     z-index: 1;
 
+    .toggle {
+        @include transition(0.3s ease-in-out);
+        transition-property: transform, background;
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+        background: #444444;
+        position: absolute;
+        bottom: 2%;
+        right: 10%;
+        color: #ffffff;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+
+        &:hover {
+            background: #555555;
+        }
+    }
+
+    &.show {
+        @include animation(showSidebar .3s ease-in-out);
+
+        .toggle {
+            @include animation(sidebarToggleOff 0.3s ease-in-out forwards);
+        }
+    }
+
+    &.hide {
+        @include animation(hideSidebar 0.3s ease-in-out forwards);
+
+        .toggle {
+            @include animation(sidebarToggleOn 0.3s ease-in-out forwards);
+        }
+    }
+
     section {
         @include transition(color 0.3s ease-in-out);
         margin: 50px auto;
@@ -61,14 +99,12 @@
         grid-gap: 15px;
 
         .profile {
-            @include justify-content(left);
+            @include justify-content(flex-start);
             @include align-items(center);
-            display: grid;
-            grid-gap: 10px;
-            grid-template-columns: auto auto;
+            display: flex;
 
             .profile-icon {
-                margin: 0 auto;
+                margin-right: 10px;
                 height: 31px;
                 width: 31px;
                 padding: 4px;
@@ -82,7 +118,7 @@
             }
 
             img {
-                @include animation(SidebarProfileIconLoad 0.3s ease-in);
+                @include animation(sidebarProfileIconLoad 0.3s ease-in);
             }
 
             img, .default-icon {
@@ -98,6 +134,7 @@
 
             .info {
                 @include animation(appear 0.3s ease-in-out);
+
                 // USERNAME
                 h4 {
                     font-family: "Roboto Black";
@@ -222,11 +259,62 @@
     * == KEYFRAMES ==
 */
 
-@include keyframes(SidebarProfileIconLoad) {
+@include keyframes(sidebarProfileIconLoad) {
     0% {
         opacity: 0;
     }
     100% {
+        opacity: 1;
+    }
+}
+
+@include keyframes(showSidebar) {
+    0% {
+        @include transform(translateX(-100%));
+    }
+    100% {
+        @include transform(translateX(0));
+    }
+}
+
+@include keyframes(hideSidebar) {
+    0% {
+        @include transform(translateX(0));
+    }
+    100% {
+        @include transform(translateX(-100%));
+    }
+}
+
+@include keyframes(sidebarToggleOn) {
+    0% {
+        @include transform(translateX(0));
+        right: 10%;
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        @include transform(rotate(180deg));
+        right: -60px;
+        opacity: 1;
+    }
+}
+
+@include keyframes(sidebarToggleOff) {
+    0% {
+        @include transform(rotate(180deg));
+        right: -60px;
+        opacity: 1;
+
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        @include transform(rotate(360deg));
+        right: 10%;
         opacity: 1;
     }
 }
@@ -236,25 +324,21 @@
 */
 
 @media only screen and (max-width: 1080px) {
-    body main {
-        margin-left: 150px;
-    }
-
     .sidebar {
-        width: 150px !important;
-        text-align: center !important;
+        width: 150px;
+        text-align: center;
 
         .main-part {
-            display: block !important;
+            grid-template-columns: 100%;
+            // flex-direction: column;
 
             .profile {
-                margin: 10px 0 !important;
-                display: block !important;
-            }
-        }
+                @include flex-direction(column);
 
-        .search-box input {
-            width: 50% !important;
+                .profile-icon {
+                    margin-bottom: 10px;
+                }
+            }
         }
 
         .separator {
