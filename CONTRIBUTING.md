@@ -1,3 +1,3 @@
 Valerian G. (Lead Developer and maintainer) \
-Eray
+Eray \
 IGI-111
