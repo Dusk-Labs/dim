@@ -54,10 +54,6 @@ impl FFmpeg {
         let input = format!("file:{}", self.mediafile.target_file.clone().as_str());
         let manifest = format!("{}/index.m3u8", self.out_dir);
         let chunks = format!("{}/%d.ts", self.out_dir);
-        /*
-        let progress_url = format!("http://127.0.0.1:8000/api/v1/stream/{}/progress", self.uuid);
-        let progress_url = format!("./logs/ffmpeg-{}.log", self.uuid);
-        */
         let progress_url = "pipe:1".to_string();
 
         let time_seek = format!("{}", seek);
@@ -74,7 +70,7 @@ impl FFmpeg {
                 "+genpts",
                 "-noaccurate_seek",
             ])
-            .args(&["-f", "matroska,webm", "-i", input.as_str()])
+            .args(&["-i", input.as_str()])
             .args(&["-map_metadata", "-1"])
             .args(&["-map_chapters", "-1"])
             .args(&["-threads", "0"])
