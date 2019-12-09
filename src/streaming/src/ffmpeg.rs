@@ -142,7 +142,7 @@ impl FFmpeg {
         };
         let mut out: [u8; 256] = [0; 256];
 
-        while !signal.get() {
+        'stdout: while !signal.get() {
             let _ = stdio.read_exact(&mut out);
             let output = String::from_utf8_lossy(&out);
             let mut pairs = output
@@ -168,6 +168,12 @@ impl FFmpeg {
                 format!("/events/stream/{}", stream_uuid),
                 new_event,
             ));
+
+            match proc.try_wait() {
+                Ok(Some(_)) => break 'stdout,
+                Ok(None) => {}
+                Err(x) => println!("handle_stdout got err on try_wait(): {:?}", x),
+            }
         }
 
         let _ = proc.kill();
