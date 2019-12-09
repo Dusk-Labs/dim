@@ -77,7 +77,6 @@ fn rocket_pad(logger: slog::Logger, event_tx: EventTx) -> rocket::Rocket {
                 routes::stream::start_stream,
                 routes::stream::stop_stream,
                 routes::stream::return_static,
-                routes::stream::ffmpeg_progress,
                 routes::general::search,
             ],
         )
