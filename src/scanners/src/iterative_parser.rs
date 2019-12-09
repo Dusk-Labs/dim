@@ -59,7 +59,7 @@ impl IterativeScanner {
             .filter_map(Result::ok)
             .filter(|f| {
                 !f.path()
-                    .into_iter()
+                    .iter()
                     .any(|s| s.to_str().unwrap().starts_with('.'))
             })
             .filter(|x| {
@@ -321,7 +321,7 @@ fn mount_file(
     file: String,
     lib_id: i32,
 ) -> Result<(), &'static dyn std::error::Error> {
-    let file = std::path::PathBuf::from(file.to_string());
+    let file = std::path::PathBuf::from(file);
     let conn = get_conn().unwrap();
     let path = file.clone().into_os_string().into_string().unwrap();
 

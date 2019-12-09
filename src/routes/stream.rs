@@ -8,6 +8,7 @@ use rocket::http::Status;
 use rocket::response::NamedFile;
 use rocket::State;
 use rocket_contrib::{json, json::JsonValue};
+use rocket_slog::SyncLogger;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use streamer::{ffmpeg::FFmpeg, FFMPEG_BIN};
@@ -22,6 +23,7 @@ pub fn start_stream(
     acodec: Option<String>,
     _brate: Option<u64>,
     _res: Option<u64>,
+    log: SyncLogger,
     event_tx: State<Arc<Mutex<EventTx>>>,
 ) -> Result<JsonValue, errors::DimError> {
     let mediafile_id = mediafile
@@ -30,14 +32,14 @@ pub fn start_stream(
         .first::<i32>(conn.as_ref())?;
 
     let seek = seek.unwrap_or(0);
-    let _vcodec = vcodec.unwrap_or("copy".to_string());
-    let _acodec = acodec.unwrap_or("aac".to_string());
+    let _vcodec = vcodec.unwrap_or_else(|| "copy".to_string());
+    let _acodec = acodec.unwrap_or_else(|| "aac".to_string());
 
     let event_tx = event_tx.lock().unwrap().clone();
 
-    let mut stream = FFmpeg::new(FFMPEG_BIN, mediafile_id, event_tx)?;
+    let mut stream = FFmpeg::new(FFMPEG_BIN, mediafile_id, event_tx, log.get().clone())?;
     let uuid = stream.stream(seek)?;
-    return Ok(json!({ "uuid": uuid }));
+    Ok(json!({ "uuid": uuid }))
 }
 
 #[delete("/stream/<uuid>")]
