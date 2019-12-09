@@ -93,7 +93,10 @@ class CardPopup extends Component {
                             }
                             <p style={accentCSS}>{genre}</p>
                         </div>
-                        <FontAwesomeIcon className="edit" icon="edit"/>
+                        <div className="actions">
+                            <FontAwesomeIcon className="edit" icon="edit"/>
+                            <FontAwesomeIcon className="delete" icon="trash"/>
+                        </div>
                     </section>
                     <section className="separator"/>
                     <section className="footer">
