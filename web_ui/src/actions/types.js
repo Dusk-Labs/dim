@@ -55,6 +55,11 @@ export const FETCH_CARDS_START = "FETCH_CARDS_START";
 export const FETCH_CARDS_OK = "FETCH_CARDS_OK";
 export const FETCH_CARDS_ERR = "FETCH_CARDS_ERR";
 
+// [GET] ONE MEDIA
+export const FETCH_CARD_START = "FETCH_CARD_START";
+export const FETCH_CARD_OK = "FETCH_CARD_OK";
+export const FETCH_CARD_ERR = "FETCH_CARD_ERR";
+
 /*
     * == HOST ACTIONS ==
 */
