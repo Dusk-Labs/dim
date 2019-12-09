@@ -1,5 +1,6 @@
 use pushevent::SerializableEvent;
 use serde::Serialize;
+use std::collections::HashMap;
 
 #[derive(Serialize)]
 pub struct Message {
@@ -15,6 +16,8 @@ pub enum PushEventType {
     EventRemoveCard,
     EventNewLibrary,
     EventRemoveLibrary,
+    EventStreamIsReady,
+    EventStreamStats(HashMap<String, String>),
 }
 
 impl SerializableEvent for Message {

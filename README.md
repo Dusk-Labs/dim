@@ -11,6 +11,12 @@ This project was started after seeing how other media managers like Plex and Emb
 ## Tech stack
 Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with Diesel as the ORM. For the Web UI we use React.js. The current database system is PostgreSQL. Dim is currently in Alpha testing with some features not complete yet.
 
+## MVP Release at
+- [x] TV Show/Movie scanners
+- [x] Basic webui with dashboard, ability to add libraries etc...
+- [ ] Video player with transmuxing/transcoding (server + ui)
+- [ ] 90% of unwraps removed from the server codebase
+
 ## Features
 ### Server
 - [x] Movie and TV Show scanners
