@@ -3,7 +3,10 @@ use crate::core::EventTx;
 use crate::errors;
 use crate::routes::general::construct_standard;
 use auth::Wrapper as Auth;
-use database::library::{InsertableLibrary, Library};
+use database::{
+    library::{InsertableLibrary, Library},
+    mediafile::MediaFile,
+};
 use events::{Message, PushEventType};
 use pushevent::Event;
 use rocket::http::Status;
@@ -92,6 +95,17 @@ pub fn get_all_library(
         .iter()
         .map(|x| construct_standard(&conn, x, false))
         .collect::<Vec<JsonValue>>();
-    result.insert(lib.name, out);
+
+    result.insert(lib.name.clone(), out);
+
+    if let Ok(x) = MediaFile::get_by_lib_null_media(conn.as_ref(), &lib) {
+        result.insert(
+            "Unmatched Media".into(),
+            x.into_iter()
+                .map(|x| construct_standard(&conn, &x.into(), false))
+                .collect::<Vec<JsonValue>>(),
+        );
+    }
+
     Ok(Json(result))
 }
