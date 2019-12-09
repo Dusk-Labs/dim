@@ -73,21 +73,24 @@ class CardPopup extends Component {
                     <h1><TruncText content={name} max={8}/></h1>
                     <div className="rating">
                         <img alt="imdb" src={IMDbLogo}/>
-                        <p>{rating}</p>
+                        <p>{rating | 0}</p>
                         <p>10</p>
                     </div>
                 </section>
                 <section className="content">
                     <section className="description">
                         <h4>DESCRIPTION</h4>
-                        {description.length > 0
+                        {description !== null && description.length > 0
                             ? <p><TruncText content={description} max={21}/></p>
                             : <p>No description found.</p>
                         }
                     </section>
                     <section className="info">
                         <div className="tags">
-                            <p style={accentCSS}>{year}</p>
+                            {year !== null
+                                ? <p style={accentCSS}>{year}</p>
+                                : <div/>
+                            }
                             <p style={accentCSS}>{genre}</p>
                         </div>
                         <FontAwesomeIcon className="edit" icon="edit"/>
