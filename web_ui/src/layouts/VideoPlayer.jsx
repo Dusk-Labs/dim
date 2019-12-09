@@ -1,10 +1,12 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import * as Vibrant from "node-vibrant";
 import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import HLS from "hls.js";
 
 import "./VideoPlayer.scss";
+import { fetchCard } from "../actions/cardActions.js";
 import LazyImage from "../helpers/LazyImage.jsx";
 
 class Play extends Component {
@@ -14,8 +16,10 @@ class Play extends Component {
         this.video = React.createRef();
         this.progressBar = React.createRef();
         this.overlay = React.createRef();
-        this.navLinks = React.createRef();
-        this.navPages = React.createRef();
+
+        // ! RE-IMPLEMENT POST-MVP
+        // this.navLinks = React.createRef();
+        // this.navPages = React.createRef();
 
         this.body = document.getElementsByTagName("body")[0];
 
@@ -44,6 +48,7 @@ class Play extends Component {
     }
 
     async componentDidMount() {
+        // ! USE REACT REF
         document.querySelector("meta[name='theme-color']").setAttribute("content", "#000000");
         document.getElementsByTagName("main")[0].style["margin-left"] = "0";
 
@@ -59,20 +64,23 @@ class Play extends Component {
         this.progressBar.current.addEventListener("click", this.handleProgressbarMouseClick.bind(this));
         document.addEventListener("fullscreenchange", this.handlePageFullscreen.bind(this));
 
-        // const reqSourceID = await fetch(`http://86.21.150.167:8000/api/v1/stream/start/${this.props.match.params.id}`);
-        // const sourceID = await reqSourceID.json();
+        const { id } = this.props.match.params;
 
-        const sourceID = "66232264-6baf-4dc6-bf3a-6bc6cc6a0131"; // ! TEMPORARY - FOR TESTING
-        const source = `http://86.21.150.167:8000/api/v1/stream/static/${sourceID}/index.m3u8`;
+        this.props.fetchCard(id);
 
-        const config = {
-            autoStartLoad: true,
-            startPosition: 0,
-            debug: false,
-        };
+        const reqUUID = await fetch(`http://86.21.150.167:8000/api/v1/stream/start/${id}`);
+        const { uuid } = await reqUUID.json();
+
+        const source = `http://86.21.150.167:8000/api/v1/stream/static/${uuid}/index.m3u8`;
 
         // ! FIXME: USING OLD VER (0.8.8) (OUTDATED)
         if (HLS.isSupported()) {
+            const config = {
+                autoStartLoad: true,
+                startPosition: 0,
+                debug: false,
+            };
+
             const hls = new HLS(config);
 
             hls.attachMedia(this.video.current);
@@ -83,64 +91,11 @@ class Play extends Component {
         }
         // !
 
-        // ! TO BE REPLACED WITH API
-        let versions = [
-            {
-                file: "FILENAME",
-                codec: "H624",
-                videoBitrate: "200 KB/S",
-                audio: "AAC",
-                audioBitrate: "192 KB/S",
-                library: "2"
-            },
-            {
-                file: "FILENAME",
-                codec: "H624",
-                videoBitrate: "200 KB/S",
-                audio: "AAC",
-                audioBitrate: "192 KB/S",
-                library: "3"
-            },
-            {
-                file: "FILENAME",
-                codec: "H624",
-                videoBitrate: "200 KB/S",
-                audio: "AAC",
-                audioBitrate: "192 KB/S",
-                library: "4"
-            },
-            {
-                file: "FILENAME",
-                codec: "H624",
-                videoBitrate: "200 KB/S",
-                audio: "AAC",
-                audioBitrate: "192 KB/S",
-                library: "5"
-            }
-        ];
-        // !
-
-        versions = versions.map((
-            { file, codec, videoBitrate, audio, audioBitrate, library }, i
-        ) => (
-            <NavLink className="version" key={i} to="#">
-                <FontAwesomeIcon icon="file-video"/>
-                <p>{file} - {codec}@{videoBitrate} {audio}@{audioBitrate} - Library {library}</p>
-            </NavLink>
-        ));
-
-        const media_info = {
-            name: "Gravity",
-            cover: "https://images-na.ssl-images-amazon.com/images/I/41qngCO1gzL.jpg",
-            versions
-        };
-
-        this.setState(media_info);
-
-        document.title = `Dim - Playing '${media_info.name}'`;
+        this.setState({ uuid });
     }
 
-    componentWillUnmount() {
+    async componentWillUnmount() {
+        // ! USE REACT REF
         document.querySelector("meta[name='theme-color']").setAttribute("content", "#333333");
 
         this.video.current.removeEventListener("loadeddata", this.handleVideoLoaded);
@@ -154,41 +109,49 @@ class Play extends Component {
 
         this.progressBar.current.removeEventListener("click", this.handleProgressbarMouseClick);
         document.removeEventListener("fullscreenchange", this.handlePageFullscreen);
+
+        await fetch(`http://86.21.150.167:8000/api/v1/stream/${this.state.uuid}`, { method: "DELETE"});
     }
 
     handleVideoLoaded() {
-        const currentDate = new Date();
-        const { duration } = this.video.current;
+        // FETCH_CARD_OK
+        if (this.props.card.fetched && !this.props.card.error) {
+            const currentDate = new Date();
+            const { duration } = this.props.card.info;
 
-        const { hh, mm, ss } = {
-            hh: ("0" + Math.floor(duration / 3600)).slice(-2),
-            mm: ("0" + Math.floor(duration % 3600 / 60)).slice(-2),
-            ss: ("0" + Math.floor(duration % 3600 % 60)).slice(-2)
-        };
+            const { hh, mm, ss } = {
+                hh: ("0" + Math.floor(duration / 3600)).slice(-2),
+                mm: ("0" + Math.floor(duration % 3600 / 60)).slice(-2),
+                ss: ("0" + Math.floor(duration % 3600 % 60)).slice(-2)
+            };
 
-        currentDate.setSeconds(currentDate.getSeconds() + duration);
+            currentDate.setSeconds(currentDate.getSeconds() + duration);
 
-        this.setState({
-            duration: `${hh}:${mm}:${ss}`,
-            endsAt: currentDate.toLocaleString("en-US", { hour: "numeric", minute: "numeric", hour12: true }),
-            resolution: "1080p"
-        });
+            this.setState({
+                duration: `${hh}:${mm}:${ss}`,
+                endsAt: currentDate.toLocaleString("en-US", { hour: "numeric", minute: "numeric", hour12: true })
+            });
+        }
     }
 
     handleVideoTimeUpdate() {
-        const { currentTime, duration } = this.video.current;
-        const width = 100 * (currentTime / duration);
+        // FETCH_CARD_OK
+        if (this.props.card.fetched && !this.props.card.error) {
+            const { duration } = this.props.card.info;
+            const { currentTime } = this.video.current;
+            const width = 100 * (currentTime / duration);
 
-        const { hh, mm, ss } = {
-            hh: ("0" + Math.floor(currentTime / 3600)).slice(-2),
-            mm: ("0" + Math.floor(currentTime % 3600 / 60)).slice(-2),
-            ss: ("0" + Math.floor(currentTime % 3600 % 60)).slice(-2)
-        };
+            const { hh, mm, ss } = {
+                hh: ("0" + Math.floor(currentTime / 3600)).slice(-2),
+                mm: ("0" + Math.floor(currentTime % 3600 / 60)).slice(-2),
+                ss: ("0" + Math.floor(currentTime % 3600 % 60)).slice(-2)
+            };
 
-        this.setState({
-            current: `${hh}:${mm}:${ss}`,
-            progressWidth: `${width}%`
-        });
+            this.setState({
+                current: `${hh}:${mm}:${ss}`,
+                progressWidth: `${width}%`
+            });
+        }
     }
 
     handleMouseMove() {
@@ -231,10 +194,14 @@ class Play extends Component {
     handleVideoVolumeChange(e) { }
 
     handleProgressbarMouseClick(e) {
-        const clicked_pos_x = e.pageX - e.target.offsetLeft;
-        const percentage = 100 * clicked_pos_x / e.target.offsetWidth;
+        // FETCH_CARD_OK
+        if (this.props.card.fetched && !this.props.card.error) {
+            const clicked_pos_x = e.pageX - e.target.offsetLeft;
+            const percentage = 100 * clicked_pos_x / e.target.offsetWidth;
+            const { duration } = this.props.card.info;
 
-        this.video.current.currentTime = percentage * (this.video.current.duration / 100);
+            this.video.current.currentTime = percentage * (duration / 100);
+        }
     }
 
     toggleVideoVolume() {
@@ -294,50 +261,67 @@ class Play extends Component {
         root.style.setProperty("--accent-text", color.Vibrant.getTitleTextColor());
     }
 
-    navSelect(e, index) {
-        if (this.state.navIndex === index) {
-            e.target.classList.add("inActive");
-            e.target.classList.remove("active");
+    // ! RE-IMPLEMENT POST-MVP
+    // navSelect(e, index) {
+    //     if (this.state.navIndex === index) {
+    //         e.target.classList.add("inActive");
+    //         e.target.classList.remove("active");
 
-            this.navPages.current.children[index].classList.add("hidden");
-            this.navPages.current.children[index].classList.remove("shown");
+    //         this.navPages.current.children[index].classList.add("hidden");
+    //         this.navPages.current.children[index].classList.remove("shown");
 
-            return this.setState({navIndex: -1});
-        }
+    //         return this.setState({navIndex: -1});
+    //     }
 
-        this.setState({navIndex: index});
+    //     this.setState({navIndex: index});
 
-        // eslint-disable-next-line
-        for (let [i, navLink] of [...this.navLinks.current.children].entries()) {
-            if (i === index) {
-                navLink.classList.add("active");
-                navLink.classList.remove("inActive");
-                continue;
-            };
+    //     // eslint-disable-next-line
+    //     for (let [i, navLink] of [...this.navLinks.current.children].entries()) {
+    //         if (i === index) {
+    //             navLink.classList.add("active");
+    //             navLink.classList.remove("inActive");
+    //             continue;
+    //         };
 
-            navLink.classList.add("inActive");
-            navLink.classList.remove("active");
-        }
+    //         navLink.classList.add("inActive");
+    //         navLink.classList.remove("active");
+    //     }
 
-        // eslint-disable-next-line
-        for (let [i, navPage] of [...this.navPages.current.children].entries()) {
-            if (i === index) {
-                navPage.classList.add("shown");
-                navPage.classList.remove("hidden");
-                continue;
-            };
+    //     // eslint-disable-next-line
+    //     for (let [i, navPage] of [...this.navPages.current.children].entries()) {
+    //         if (i === index) {
+    //             navPage.classList.add("shown");
+    //             navPage.classList.remove("hidden");
+    //             continue;
+    //         };
 
-            navPage.classList.add("hidden");
-            navPage.classList.remove("shown");
-        }
-    }
+    //         navPage.classList.add("hidden");
+    //         navPage.classList.remove("shown");
+    //     }
+    // }
 
     render() {
-        const coverLoading = (
-            <div className="placeholder">
-                <div className="spinner"/>
-            </div>
-        );
+        let mediaName;
+        let posterPath;
+
+        // FETCH_CARD_START
+        if (this.props.card.fetching) {
+            mediaName = "LOADING";
+        }
+
+        // FETCH_CARD_ERR
+        if (this.props.card.fetched && this.props.card.error) {
+            mediaName = "FAILED TO LOAD";
+        }
+
+        // FETCH_CARD_OK
+        if (this.props.card.fetched && !this.props.card.error) {
+            const { name, poster_path } = this.props.card.info;
+
+            mediaName = name;
+            posterPath = poster_path;
+            document.title = `Dim - Playing '${name}'`;
+        }
 
         return (
             <div className="video-wrapper">
@@ -346,9 +330,7 @@ class Play extends Component {
                     <section className="cover">
                         <div className="card-wrapper">
                             <div className="card">
-                            <a href={this.state.cover} rel="noopener noreferrer" target="_blank">
-                                <LazyImage alt="cover" src={this.state.cover} onLoad={this.onCoverLoad} loading={coverLoading}/>
-                            </a>
+                                <LazyImage alt="cover" src={posterPath} onLoad={this.onCoverLoad}/>
                             </div>
                         </div>
                     </section>
@@ -363,7 +345,7 @@ class Play extends Component {
                                     </div>
                                 }
                                 <div className="name">
-                                    <p>{this.state.name}</p>
+                                    <p>{mediaName}</p>
                                 </div>
                             </div>
                             <div className="right">
@@ -408,9 +390,10 @@ class Play extends Component {
                                 </div>
                             </div>
                             <div className="right">
-                                <div className="captions">
+                                { // ! RE-IMPLEMENT POST-MVP
+                                /* <div className="captions">
                                     <FontAwesomeIcon icon="closed-captioning"/>
-                                </div>
+                                </div> */}
                                 <div className="fullscreen" onClick={this.toggleFullscreen}>
                                     <FontAwesomeIcon icon={this.state.fullscreen ? "compress" : "expand"}/>
                                 </div>
@@ -421,7 +404,8 @@ class Play extends Component {
                         <p>ENDS AT</p>
                         <p>{this.state.endsAt}</p>
                     </section>
-                    <section ref={this.navLinks} className="video-nav">
+                    { // ! RE-IMPLEMENT POST-MVP
+                    /* <section ref={this.navLinks} className="video-nav">
                         <p onClick={(e) => this.navSelect(e, 0)} className="inActive">VERSIONS</p>
                         <p onClick={(e) => this.navSelect(e, 1)} className="inActive">CAST</p>
                         <p onClick={(e) => this.navSelect(e, 2)} className="inActive">DIRECTORS</p>
@@ -430,9 +414,6 @@ class Play extends Component {
                     <section ref={this.navPages} className="pages">
                         <div className="page hidden select-version">
                             <h3>VERSIONS</h3>
-                            <div className="versions">
-                                {this.state.versions}
-                            </div>
                         </div>
                         <div className="page hidden cast">
                             <h3>CAST</h3>
@@ -443,11 +424,19 @@ class Play extends Component {
                         <div className="page hidden media-info">
                             <h3>MEDIA INFO</h3>
                         </div>
-                    </section>
+                    </section> */}
                 </div>
             </div>
         );
     }
 }
 
-export default Play;
+const mapStateToProps = (state) => ({
+    card: state.cardReducer.fetch_card
+});
+
+const mapActionsToProps = {
+    fetchCard
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(Play);
