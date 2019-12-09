@@ -17,3 +17,4 @@ nix = "0.16.0"
 stoppable_thread = "0.2.1"
 toml = "0.5.5"
 events = { path = "../events" }
+slog = "2.5.2"
