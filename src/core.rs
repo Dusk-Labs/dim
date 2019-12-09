@@ -26,7 +26,7 @@ lazy_static! {
 }
 
 pub(crate) fn run_scanners(log: Logger, tx: EventTx) {
-    if let Ok(conn) = database::get_conn() {
+    if let Ok(conn) = database::get_conn_logged(&log) {
         for lib in database::library::Library::get_all(&conn) {
             slog::info!(log, "Starting scanner for {} with id: {}", lib.name, lib.id);
             let log_clone = log.clone();

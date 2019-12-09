@@ -275,10 +275,10 @@ pub fn search(
     }
 
     let result = result.load::<Media>(conn.as_ref())?;
-    return Ok(Json(
+    Ok(Json(
         result
             .iter()
             .map(|x| construct_standard(&conn, x, quick))
             .collect::<Vec<JsonValue>>(),
-    ));
+    ))
 }
