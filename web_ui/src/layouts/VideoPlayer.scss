@@ -124,7 +124,7 @@ video {
                 }
 
                 .video-progress-inner {
-                    @include transition(width 1s ease-in-out);
+                    @include transition(width 0.3s ease-in-out);
                     background: var(--accent-background);
                     border-radius: 10px;
                     height: 12px;
@@ -155,8 +155,7 @@ video {
             width: 100%;
 
             svg {
-                -webkit-transition: color 0.3s ease-in-out;
-                transition: color 0.3s ease-in-out;
+                @include transition(color 0.3s ease-in-out);
 
                 &:hover {
                     cursor: pointer;
