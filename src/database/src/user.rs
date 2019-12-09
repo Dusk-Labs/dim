@@ -29,7 +29,7 @@ pub struct Login {
 }
 
 // TODO: replace with a proper hashing function after mocking is done.
-fn hash(s: String) -> String {
+pub fn hash(s: String) -> String {
     s
 }
 
@@ -183,17 +183,14 @@ impl InsertableUser {
     /// ```
     pub fn insert(self, conn: &diesel::PgConnection) -> Result<String, DieselError> {
         use crate::schema::users;
-        use diesel::debug_query;
-        let query = diesel::insert_into(users::table)
+
+        diesel::insert_into(users::table)
             .values((
                 users::dsl::username.eq(self.username),
                 users::dsl::password.eq(hash(self.password)),
                 users::dsl::roles.eq(self.roles),
             ))
-            .returning(users::dsl::username);
-
-        let q = debug_query::<diesel::pg::Pg, _>(&query);
-        println!("{}", q.to_string());
-        query.get_result(conn)
+            .returning(users::dsl::username)
+            .get_result(conn)
     }
 }

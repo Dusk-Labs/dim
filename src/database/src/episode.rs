@@ -8,17 +8,24 @@ use crate::streamablemedia::StreamableMedia;
 use crate::tv::TVShow;
 use diesel::prelude::*;
 
+/// Episode struct encapsulates a media entry representing a episode
 #[derive(Serialize, Debug)]
 pub struct Episode {
     #[serde(skip_serializing)]
+    /// Unique id provided by postgres
     pub id: i32,
+    /// Season id foreign_key
     pub seasonid: i32,
+    /// episode number
     pub episode: i32,
 
+    /// Regerence to a media object which represents this epsiode.
     #[serde(flatten)]
     pub media: Media,
 }
 
+/// This struct is purely used for querying episodes which later gets converted into a Episode
+/// struct
 #[derive(Identifiable, Associations, Queryable, PartialEq, Debug, Copy, Clone)]
 #[belongs_to(StreamableMedia, foreign_key = "id")]
 #[belongs_to(Season, foreign_key = "seasonid")]

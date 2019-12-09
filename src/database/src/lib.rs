@@ -30,6 +30,10 @@ lazy_static::lazy_static! {
 
 embed_migrations!("../../migrations");
 
+/// Function runs all migrations embedded to make sure the database works as expected.
+///
+/// # Arguments
+/// * `conn` - diesel connection
 fn run_migrations(
     conn: &diesel::PgConnection,
 ) -> Result<(), diesel_migrations::RunMigrationsError> {
