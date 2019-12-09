@@ -11,7 +11,7 @@ pub trait MediaTrait {}
 
 /// Media struct that represents a media object, usually a movie, tv show or a episode of a tv
 /// show. This struct is returned by several methods and can be serialized to json.
-#[derive(Clone, Identifiable, Queryable, Serialize, Debug, Associations)]
+#[derive(Clone, Identifiable, Queryable, Serialize, Debug, Associations, Default)]
 #[belongs_to(Library, foreign_key = "library_id")]
 #[table_name = "media"]
 pub struct Media {

@@ -26,7 +26,7 @@ lazy_static! {
 }
 
 pub(crate) fn run_scanners(log: Logger, tx: EventTx) {
-    if let Ok(conn) = database::get_conn() {
+    if let Ok(conn) = database::get_conn_logged(&log) {
         for lib in database::library::Library::get_all(&conn) {
             slog::info!(log, "Starting scanner for {} with id: {}", lib.name, lib.id);
             let log_clone = log.clone();
@@ -75,6 +75,7 @@ fn rocket_pad(logger: slog::Logger, event_tx: EventTx) -> rocket::Rocket {
                 routes::general::banners,
                 routes::general::get_directory_structure,
                 routes::stream::start_stream,
+                routes::stream::stop_stream,
                 routes::stream::return_static,
                 routes::general::search,
             ],
@@ -111,7 +112,10 @@ fn rocket_pad(logger: slog::Logger, event_tx: EventTx) -> rocket::Rocket {
                 routes::tv::delete_episode_by_id,
             ],
         )
-        .mount("/api/v1/auth", routes![routes::auth::login])
+        .mount(
+            "/api/v1/auth",
+            routes![routes::auth::login, routes::auth::register],
+        )
         .attach(cors)
         .manage(Arc::new(Mutex::new(event_tx)))
 }

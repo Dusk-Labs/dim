@@ -56,12 +56,11 @@ impl IterativeScanner {
         let files: Vec<String> = WalkDir::new(path)
             .follow_links(true)
             .into_iter()
-            .filter_map(|f| f.ok())
+            .filter_map(Result::ok)
             .filter(|f| {
-                !f.file_name()
-                    .to_str()
-                    .map(|s| s.starts_with('.'))
-                    .unwrap_or(false)
+                !f.path()
+                    .iter()
+                    .any(|s| s.to_str().unwrap().starts_with('.'))
             })
             .filter(|x| {
                 let ext = x.path().extension();
@@ -322,7 +321,7 @@ fn mount_file(
     file: String,
     lib_id: i32,
 ) -> Result<(), &'static dyn std::error::Error> {
-    let file = std::path::PathBuf::from(file.to_string());
+    let file = std::path::PathBuf::from(file);
     let conn = get_conn().unwrap();
     let path = file.clone().into_os_string().into_string().unwrap();
 

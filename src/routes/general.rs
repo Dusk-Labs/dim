@@ -121,8 +121,9 @@ pub fn dashboard(conn: DbConnection, _user: Auth) -> Result<JsonValue, errors::D
     top_rated.dedup_by(|a, b| a.name.eq(&b.name));
 
     let top_rated = top_rated
-        .iter()
-        .map(|x| construct_standard(&conn, x, false))
+        .into_iter()
+        .map(|ref x| construct_standard(&conn, x, false))
+        .take(10)
         .collect::<Vec<JsonValue>>();
 
     let recently_added = media::table
@@ -130,17 +131,15 @@ pub fn dashboard(conn: DbConnection, _user: Auth) -> Result<JsonValue, errors::D
         .group_by((media::id, media::name))
         .order(media::added.desc())
         .load::<Media>(conn.as_ref())?
-        .iter()
-        .map(|x| construct_standard(&conn, x, false))
+        .into_iter()
+        .map(|ref x| construct_standard(&conn, x, false))
+        .take(10)
         .collect::<Vec<JsonValue>>();
 
-    if top_rated.len() >= 10 && recently_added.len() >= 10 {
-        return Ok(json!({
-            "TOP RATED": top_rated[0..10].to_vec(),
-            "FRESHLY ADDED": recently_added[0..10].to_vec(),
-        }));
-    }
-    Ok(json!({}))
+    Ok(json!({
+        "TOP RATED": top_rated,
+        "FRESHLY ADDED": recently_added,
+    }))
 }
 
 #[get("/dashboard/banner")]
@@ -275,10 +274,10 @@ pub fn search(
     }
 
     let result = result.load::<Media>(conn.as_ref())?;
-    return Ok(Json(
+    Ok(Json(
         result
             .iter()
             .map(|x| construct_standard(&conn, x, quick))
             .collect::<Vec<JsonValue>>(),
-    ));
+    ))
 }
