@@ -1,4 +1,4 @@
-use database::{get_conn, mediafile::MediaFile};
+use database::{get_conn_logged, mediafile::MediaFile};
 use events::{Message, PushEventType};
 use pushevent::Event;
 use std::collections::HashMap;
@@ -25,9 +25,14 @@ pub struct FFmpeg {
 }
 
 impl FFmpeg {
-    pub fn new(ffmpeg_bin: &'static str, mediafile: i32, event_tx: EventTx) -> Result<Self, ()> {
+    pub fn new(
+        ffmpeg_bin: &'static str,
+        mediafile: i32,
+        event_tx: EventTx,
+        log: slog::Logger,
+    ) -> Result<Self, ()> {
         let uuid = Uuid::new_v4();
-        let conn = match get_conn() {
+        let conn = match get_conn_logged(&log) {
             Ok(x) => x,
             Err(err) => panic!("[FFMPEG] New panic'd with {:?}", err),
         };
