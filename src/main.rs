@@ -1,7 +1,7 @@
 #![feature(rustc_private)]
 #![feature(proc_macro_hygiene, decl_macro)]
-#![feature(result_map_or_else)]
 #![feature(try_trait)]
+#![feature(result_map_or_else)]
 
 #[macro_use]
 extern crate diesel;
@@ -9,9 +9,12 @@ extern crate diesel;
 extern crate rocket_codegen;
 #[macro_use]
 extern crate rocket_contrib;
+#[macro_use]
+extern crate rust_embed;
 
 use chrono::Utc;
 use clap::{App, Arg};
+use rocket::config::{ConfigBuilder, Environment, LoggingLevel};
 use slog::Drain;
 use slog_async::Async;
 use slog_json::Json as slog_json_default;
@@ -29,7 +32,7 @@ pub mod tests;
 const VERSION: &str = "0.0.3";
 const DESCRIPTION: &str = "Dim, a media manager fueled by dark forces.";
 
-fn build_logger(debug: bool) -> slog::Logger {
+fn build_logger(_debug: bool) -> slog::Logger {
     let date_now = Utc::now();
 
     let decorator = TermDecorator::new().build();
@@ -41,11 +44,7 @@ fn build_logger(debug: bool) -> slog::Logger {
         .expect("Couldnt open log file");
     let json_drain = Mutex::new(slog_json_default::default(file)).map(slog::Fuse);
 
-    if debug {
-        return slog::Logger::root(slog::Duplicate::new(drain, json_drain).fuse(), slog::o!());
-    }
-
-    slog::Logger::root(json_drain, slog::o!())
+    return slog::Logger::root(slog::Duplicate::new(drain, json_drain).fuse(), slog::o!());
 }
 
 fn main() {
@@ -81,6 +80,21 @@ fn main() {
     slog::info!(logger, "Booting scanners up");
     core::run_scanners(logger.clone(), event_tx.clone());
 
+    let rocket_config = ConfigBuilder::new(Environment::Development)
+        .address("0.0.0.0")
+        .port(8000)
+        .workers(64)
+        .log_level(LoggingLevel::Off)
+        .extra("databases", {
+            let mut db_conf = std::collections::HashMap::new();
+            let mut m = std::collections::HashMap::new();
+            m.insert("url", "postgres://postgres:dimpostgres@127.0.0.1/dim");
+            db_conf.insert("dimpostgres", m);
+            db_conf
+        })
+        .finalize()
+        .unwrap();
+
     slog::info!(logger, "Booting Dim... Standby...");
-    core::launch(logger, event_tx);
+    core::launch(logger, event_tx, rocket_config);
 }
