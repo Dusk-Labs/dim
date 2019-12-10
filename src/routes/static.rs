@@ -1,5 +1,4 @@
-use rocket::http::{ContentType, Status};
-use rocket::response;
+use rocket::{http::{ContentType, Status}, response};
 use std::ffi::OsStr;
 use std::io::Cursor;
 use std::path::PathBuf;
@@ -25,7 +24,7 @@ pub fn index<'r>() -> response::Result<'r> {
 pub fn dist_file<'r>(file: PathBuf) -> response::Result<'r> {
     let filename = file.display().to_string();
     Asset::get(&filename).map_or_else(
-        || Err(Status::NotFound),
+        || index(),
         |d| {
             let ext = file
                 .as_path()
