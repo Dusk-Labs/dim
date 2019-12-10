@@ -8,7 +8,7 @@ export const fetchDirectories = (path) => async (dispatch) => {
     dispatch({ type: FETCH_DIRECTORIES_START });
 
     try {
-        const res = await fetch(`http://127.0.0.1:8000/api/v1/filebrowser/${path}`);
+        const res = await fetch(`http://${window.host}:8000/api/v1/filebrowser/${path}`);
 
         if (res.status !== 200) {
             return dispatch({
