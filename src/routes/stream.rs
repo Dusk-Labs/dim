@@ -37,7 +37,7 @@ pub fn start_stream(
 
     let event_tx = event_tx.lock().unwrap().clone();
 
-    let mut stream = FFmpeg::new(FFMPEG_BIN, mediafile_id, event_tx, log.get().clone())?;
+    let mut stream = FFmpeg::new(&FFMPEG_BIN, mediafile_id, event_tx, log.get().clone())?;
     let uuid = stream.stream(seek)?;
     Ok(json!({ "uuid": uuid }))
 }
