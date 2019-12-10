@@ -61,15 +61,16 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 
 ## Installation
 ### Dependencies
-1. libpg, libpg-dev
-2. ffmpeg, ffprobe
-3. rustc nightly >= 1.40.0
+1. docker
 
-1. First set up the database with docker: `docker-compose up -d postgres`
-2. Next build the UI: `cd web_ui && yarn build`
-3. Lastly run Dim: `cargo run --release`
+To run we do \
+`docker volume create dim` \
+`docker run -d -p 8000:8000/tcp -p 3012:3012/tcp \
+        --mount source=dim,target="/var/lib/postgresql/" \
+        --mount type=bind,source="$HOME/media",target=/media \
+        vgarleanu/dim-server:latest`
 
-Dim runs by default on port 8000.
+Dim runs by on port 8000.
 
 ## Contributing
 Contributions are absolutely, positively welcome and encouraged! Contributions
