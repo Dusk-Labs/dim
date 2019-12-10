@@ -75,6 +75,19 @@ fn main() {
 
     let logger = build_logger(debug);
 
+    {
+        let mut bucket: Vec<Box<str>> = Vec::new();
+        if let Err(why) = streamer::ffcheck(&mut bucket) {
+            eprintln!("Could not find: {}", why);
+            slog::error!(logger, "Could not find: {}", why);
+            std::process::exit(1);
+        }
+
+        for item in bucket.iter() {
+            slog::info!(logger, "\n{}", item);
+        }
+    }
+
     slog::info!(logger, "Starting the WS service on port 3012");
     let event_tx = core::start_event_server(logger.clone());
 
