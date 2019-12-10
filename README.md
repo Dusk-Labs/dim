@@ -53,8 +53,9 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 - [ ] Server support for Windows (needs testing)
 - [ ] Server support for BSD (needs testing)
 - [ ] Better docs and more unit tests (coverage is quite small atm, only covering a good half of the database module)
-- [ ] More streamlined build process
+- [x] More streamlined build process
 - [ ] Precompiled binaries
+- [x] Docker images
 ### Longterm
 - [ ] Phone apps (Android, ios)
 - [ ] Roku, nvidia shield, firestick apps
