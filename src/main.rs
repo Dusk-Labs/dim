@@ -1,7 +1,6 @@
 #![feature(rustc_private)]
 #![feature(proc_macro_hygiene, decl_macro)]
 #![feature(try_trait)]
-#![feature(result_map_or_else)]
 
 #[macro_use]
 extern crate diesel;

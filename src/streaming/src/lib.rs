@@ -1,4 +1,3 @@
-#![feature(result_map_or_else)]
 extern crate database;
 extern crate serde;
 extern crate serde_derive;

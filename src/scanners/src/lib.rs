@@ -1,4 +1,3 @@
-#![feature(result_map_or_else)]
 use database::get_conn;
 use pushevent::Event;
 use slog::Logger;

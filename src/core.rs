@@ -82,6 +82,7 @@ fn rocket_pad(
                 routes::general::dashboard,
                 routes::general::banners,
                 routes::general::get_directory_structure,
+                routes::general::get_root_directory_structure,
                 routes::stream::start_stream,
                 routes::stream::stop_stream,
                 routes::stream::return_static,
