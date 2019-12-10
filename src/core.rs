@@ -9,7 +9,7 @@ use slog::Logger;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-#[database("openflix")]
+#[database("dimpostgres")]
 pub struct DbConnection(PgConnection);
 
 impl AsRef<PgConnection> for DbConnection {
@@ -47,7 +47,11 @@ pub(crate) fn start_event_server(_log: Logger) -> EventTx {
     server.get_tx()
 }
 
-fn rocket_pad(logger: slog::Logger, event_tx: EventTx) -> rocket::Rocket {
+fn rocket_pad(
+    logger: slog::Logger,
+    event_tx: EventTx,
+    config: rocket::config::Config,
+) -> rocket::Rocket {
     let fairing = SlogFairing::new(logger);
 
     let allowed_origins = AllowedOrigins::all();
@@ -65,15 +69,20 @@ fn rocket_pad(logger: slog::Logger, event_tx: EventTx) -> rocket::Rocket {
     .to_cors()
     .unwrap();
 
-    rocket::ignite()
+    rocket::custom(config)
         .attach(DbConnection::fairing())
         .attach(fairing)
+        .mount(
+            "/",
+            routes![routes::r#static::index, routes::r#static::dist_file,],
+        )
         .mount(
             "/api/v1/",
             routes![
                 routes::general::dashboard,
                 routes::general::banners,
                 routes::general::get_directory_structure,
+                routes::general::get_root_directory_structure,
                 routes::stream::start_stream,
                 routes::stream::stop_stream,
                 routes::stream::return_static,
@@ -120,8 +129,8 @@ fn rocket_pad(logger: slog::Logger, event_tx: EventTx) -> rocket::Rocket {
         .manage(Arc::new(Mutex::new(event_tx)))
 }
 
-pub fn launch(log: slog::Logger, event_tx: EventTx) {
-    rocket_pad(log, event_tx).launch();
+pub fn launch(log: slog::Logger, event_tx: EventTx, config: rocket::config::Config) {
+    rocket_pad(log, event_tx, config).launch();
 
     for (_, thread) in LIB_SCANNERS.lock().unwrap().drain().take(1) {
         thread.join().unwrap();

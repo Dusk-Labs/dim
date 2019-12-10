@@ -1,5 +1,3 @@
-#![feature(result_map_or_else)]
-
 pub mod ffmpeg;
 pub mod ffprobe;
 

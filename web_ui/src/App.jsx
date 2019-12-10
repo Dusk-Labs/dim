@@ -15,6 +15,8 @@ import './App.scss';
 
 library.add(fas, far);
 
+window.host = window.location.hostname; // quick hack to get proper requests
+
 class App extends Component {
 	render() {
 		return (
@@ -28,7 +30,7 @@ class App extends Component {
 							<Sidebar/>
 							<main>
 								<BannerPage/>
-								<CardList path="http://127.0.0.1:8000/api/v1/dashboard"/>
+								<CardList path={`http://${window.host}:8000/api/v1/dashboard`}/>
 							</main>
 						</div>
 					);
@@ -37,7 +39,7 @@ class App extends Component {
 					<div className="App">
 						<Sidebar/>
 						<main>
-							<CardList path={`http://127.0.0.1:8000/api/v1/library/${props.match.params.id}/media`}/>
+							<CardList path={`http://${window.host}:8000/api/v1/library/${props.match.params.id}/media`}/>
 						</main>
 					</div>
 				}/>
