@@ -79,6 +79,7 @@ fn main() {
         let mut bucket: Vec<Box<str>> = Vec::new();
         if let Err(why) = streamer::ffcheck(&mut bucket) {
             eprintln!("Could not find: {}", why);
+            slog::error!(logger, "Could not find: {}", why);
             std::process::exit(1);
         }
 

@@ -1,10 +1,4 @@
 #![feature(result_map_or_else)]
-extern crate database;
-extern crate lazy_static;
-extern crate serde;
-extern crate serde_derive;
-extern crate serde_json;
-extern crate uuid;
 
 pub mod ffmpeg;
 pub mod ffprobe;
@@ -26,6 +20,31 @@ lazy_static! {
 
 use std::process::Command;
 
+/// ffcheck - Check if "ffmpeg" and "ffprobe" are accessable through `std::process::Command`.
+///
+/// This will run `ffmpeg -version` and `ffprobe -version` and push their stdout's
+/// onto the provided `bucket`.
+///
+/// # Arguments
+///  - `bucket` - a `Vec<Box<str>>` to push the commands stdout's onto
+///
+/// # Example
+///
+/// ```
+/// use streamer::ffcheck;
+///
+/// fn main() {
+///     let mut bucket: Vec<Box<str>> = Vec::new();
+///     if let Err(why) = ffcheck(&mut bucket) {
+///         eprintln!("Could not find: {}", why);
+///         std::process::exit(1);
+///     }
+///
+///     for item in bucket.iter() {
+///         println!("\n{}", item);
+///     }    
+/// }
+/// ```
 pub fn ffcheck<'a>(bucket: &'a mut Vec<Box<str>>) -> Result<(), Box<&str>> {
     for program in ["ffmpeg", "ffprobe"].iter() {
         if let Ok(output) = Command::new(program).arg("-version").output() {
