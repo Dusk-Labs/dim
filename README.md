@@ -61,15 +61,11 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 - [ ] Roku, nvidia shield, firestick apps
 
 ## Installation
-### Dependencies
-1. docker
-
-To run we do \
-`docker volume create dim` \
-`docker run -d -p 8000:8000/tcp -p 3012:3012/tcp \
-        --mount source=dim,target="/var/lib/postgresql/" \
-        --mount type=bind,source="$HOME/media",target=/media \
-        vgarleanu/dim-server:latest`
+  1. `docker volume create dim` \
+  2. `docker run -d -p 8000:8000/tcp -p 3012:3012/tcp \` \
+`        --mount source=dim,target="/var/lib/postgresql/" \` \
+`        --mount type=bind,source="$HOME/media",target=/media \` \
+`        vgarleanu/dim-server:latest`
 
 Dim runs by on port 8000.
 
