@@ -35,11 +35,15 @@ slog-json = "2.3.0"
 slog-async = "2.3.0"
 chrono = "0.4.9"
 err-derive = "0.2.1"
+rust-embed = "5.1.0"
 
 [dependencies.rocket_contrib]
 version = "0.4.2"
 default-features = false
 features = ["json", "diesel_postgres_pool"]
+
+[build-dependencies]
+fs_extra = "1.1.0"
 
 [profile.release]
 lto = true

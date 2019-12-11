@@ -24,7 +24,7 @@ class NewLibraryModal extends Component {
         // ! UPDATE this.state.root ON componentDidMount WITH /api/v1/filebrowser/
         this.state = {
             visible: false,
-            root: "/home",
+            root: "/",
             current: "",
             previous: "",
             cache: false,

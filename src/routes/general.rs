@@ -19,6 +19,25 @@ use walkdir::WalkDir;
 
 no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
 
+pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> Vec<String> {
+    let mut dirs: Vec<String> = WalkDir::new(path)
+        .max_depth(1usize)
+        .into_iter()
+        .filter_map(|x| x.ok())
+        .filter(|x| {
+            !x.file_name()
+                .to_str()
+                .map(|s| s.starts_with('.'))
+                .unwrap_or(false)
+                && !x.path().is_file()
+        })
+        .map(|x| x.path().to_string_lossy().to_string())
+        .collect::<Vec<_>>();
+
+    dirs.sort();
+    dirs
+}
+
 /// TODO: Refactor this function into something that is less fucked than this jesus
 pub fn get_top_duration(conn: &DbConnection, data: &Media) -> i32 {
     match MediaFile::get_of_media(conn, data) {
@@ -199,28 +218,23 @@ pub fn banners(conn: DbConnection, _user: Auth) -> Result<Json<Vec<JsonValue>>, 
 }
 
 // TODO: Audit the security of this.
+#[get("/filebrowser")]
+pub fn get_root_directory_structure(_user: Auth) -> Result<Json<Vec<String>>, errors::DimError> {
+    Ok(Json(enumerate_directory("/")))
+}
+
+// TODO: Audit the security of this.
 #[get("/filebrowser/<path..>")]
 pub fn get_directory_structure(
-    path: PathBuf,
+    path: Option<PathBuf>,
     _user: Auth,
 ) -> Result<Json<Vec<String>>, errors::DimError> {
-    let mut dirs: Vec<String> = WalkDir::new(format!("/{}", path.to_str()?))
-        .max_depth(1usize)
-        .into_iter()
-        .filter_map(|x| x.ok())
-        .filter(|x| {
-            !x.file_name()
-                .to_str()
-                .map(|s| s.starts_with('.'))
-                .unwrap_or(false)
-                && !x.path().is_file()
-        })
-        .map(|x| x.path().to_string_lossy().to_string())
-        .collect::<Vec<_>>();
+    let path = path.map_or_else(
+        || "/".into(),
+        |x| format!("/{}", x.to_string_lossy().to_owned()),
+    );
 
-    dirs.sort();
-
-    Ok(Json(dirs))
+    Ok(Json(enumerate_directory(path)))
 }
 
 #[get("/search?<query>&<year>&<library_id>&<genre>&<quick>")]
