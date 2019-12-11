@@ -11,7 +11,7 @@ export const search = (params) => async (dispatch) => {
     dispatch({ type: SEARCH_START });
 
     try {
-        const res = await fetch(`http://127.0.0.1:8000/api/v1/search?${params}`);
+        const res = await fetch(`http://${window.host}:8000/api/v1/search?${params}`);
 
         if (res.status !== 200) {
             return dispatch({
@@ -38,7 +38,7 @@ export const quickSearch = (query) => async (dispatch) => {
     dispatch({ type: QUICK_SEARCH_START });
 
     try {
-        const res = await fetch(`http://86.21.150.167:8000/api/v1/search?query=${query}&quick=true`);
+        const res = await fetch(`http://${window.host}:8000/api/v1/search?query=${query}&quick=true`);
 
         if (res.status !== 200) {
             return dispatch({

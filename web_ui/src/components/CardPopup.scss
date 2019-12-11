@@ -136,11 +136,13 @@
                 }
             }
 
-            .edit {
-                margin: 0;
+            .actions {
+                svg {
+                    margin-right: 5px;
 
-                &:hover {
-                    cursor: pointer;
+                    &:hover {
+                        cursor: pointer;
+                    }
                 }
             }
         }
