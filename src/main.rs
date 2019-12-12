@@ -101,6 +101,7 @@ fn main() {
             let mut db_conf = std::collections::HashMap::new();
             let mut m = std::collections::HashMap::new();
             m.insert("url", "postgres://postgres:dimpostgres@127.0.0.1/dim");
+            //            m.insert("url", "postgres://postgres:dimpostgres@127.0.0.1/dim_debug");
             db_conf.insert("dimpostgres", m);
             db_conf
         })
