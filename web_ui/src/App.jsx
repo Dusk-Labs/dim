@@ -10,6 +10,7 @@ import CardList from "./layouts/CardList.jsx";
 import VideoPlayer from "./layouts/VideoPlayer.jsx";
 import SearchResults from "./layouts/SearchResults";
 import BannerPage from "./components/BannerPage.jsx";
+import MediaPage from "./layouts/MediaPage.jsx";
 
 import './App.scss';
 
@@ -58,6 +59,14 @@ class App extends Component {
 						</main>
 					</div>
 				}/>
+                <Route exact path="/media/:id" render={props =>
+					<div className="App">
+					    <Sidebar/>
+                        <main>
+                            <MediaPage {...props}/>
+                        </main>
+                    </div>
+                }/>
 			</Switch>
 			</Router>
 		);

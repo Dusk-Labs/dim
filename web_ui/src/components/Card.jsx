@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import * as Vibrant from 'node-vibrant';
 
 import CardPopup from "./CardPopup.jsx";
@@ -88,14 +89,14 @@ class Card extends Component {
         return (
             <div className="card-wrapper" ref={this.cardWrapper}>
                 <div id={id} className="card" ref={this.card}>
-                    <a href={poster_path} rel="noopener noreferrer" target="_blank">
+                    <Link to={`/media/${id}`}>
                         <LazyImage
                             alt={"cover-" + name}
                             src={poster_path}
                             onLoad={this.onLoadPoster}
                         />
                         <p style={{opacity: + !this.state.hovering}}>{name}</p>
-                    </a>
+                    </Link>
                 </div>
                 {this.state.hovering && <CardPopup data={this.props.data} accent={accent}/>}
             </div>
