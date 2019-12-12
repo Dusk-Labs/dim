@@ -279,11 +279,11 @@ impl IterativeScanner {
             }
         };
 
-        let season = search.get_season(orphan.season.unwrap());
+        let season = search.get_season(orphan.season.unwrap_or(0));
         let seasonid = Season::get(&self.conn, media_id, orphan.season.unwrap()).map_or_else(
             |_| {
                 let season = InsertableSeason {
-                    season_number: orphan.season.unwrap(),
+                    season_number: orphan.season.unwrap_or(0),
                     added: Utc::now().to_string(),
                     poster: String::from(""),
                 };
@@ -296,18 +296,18 @@ impl IterativeScanner {
         let episode_id = Episode::get(
             &self.conn,
             media_id,
-            orphan.season.unwrap(),
-            orphan.episode.unwrap(),
+            orphan.season.unwrap_or(0),
+            orphan.episode.unwrap_or(0),
         )
         .map_or_else(
             |_| {
-                let search_ep = season.get_episode(orphan.episode.unwrap());
+                let search_ep = season.get_episode(orphan.episode.unwrap_or(0));
                 let episode = InsertableEpisode {
-                    episode: orphan.episode.unwrap(),
+                    episode: orphan.episode.unwrap_or(0),
                     seasonid,
                     media: InsertableMedia {
                         library_id: orphan.library_id,
-                        name: format!("{}", orphan.episode.unwrap()),
+                        name: format!("{}", orphan.episode.unwrap_or(0)),
                         added: Utc::now().to_string(),
                         media_type: MediaType::Episode,
                         description: search_ep.overview,

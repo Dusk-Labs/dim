@@ -69,6 +69,9 @@ pub fn get_episode(conn: &DbConnection, data: &Season) -> Result<Episode, errors
     let mut episodes = Episode::get_all_of_season(conn, data)?;
 
     episodes.sort_by(|a, b| a.episode.cmp(&b.episode));
+    if episodes.len() < 1 {
+        println!("{:?}", data);
+    }
 
     Ok(episodes.pop().unwrap())
 }
