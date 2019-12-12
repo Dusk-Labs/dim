@@ -1,5 +1,5 @@
 use crate::APIExec;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, Mutex};
 
@@ -22,13 +22,13 @@ pub struct TMDbSearch {
     api_key: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SearchResult {
     total_results: u64,
     results: VecDeque<Option<Media>>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Media {
     pub id: u64,
     pub title: Option<String>,
@@ -44,7 +44,7 @@ pub struct Media {
     pub seasons: Option<Vec<Seasons>>,
 }
 
-#[derive(Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Seasons {
     pub id: u64,
     pub air_date: Option<String>,
@@ -56,17 +56,17 @@ pub struct Seasons {
     pub episodes: Option<Vec<Episode>>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Wrapper {
     pub seasons: Option<Vec<Seasons>>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GenreWrapper {
     pub genres: Vec<Genre>,
 }
 
-#[derive(Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Episode {
     pub id: u64,
     pub name: Option<String>,
@@ -75,7 +75,7 @@ pub struct Episode {
     pub still_path: Option<String>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Genre {
     pub id: u64,
     pub name: String,
@@ -91,6 +91,43 @@ impl MediaType {
 }
 
 impl TMDbSearch {
+    fn internal_search_by_id(
+        &self,
+        id: i32,
+        media_type: MediaType,
+    ) -> Result<SearchResult, reqwest::Error> {
+        let mut res = reqwest::get(
+            format!(
+                "https://api.themoviedb.org/3/{}/{}?api_key={}",
+                media_type.to_string(),
+                id,
+                self.api_key
+            )
+            .as_str(),
+        )?;
+
+        if res.status().as_u16() == 429u16 {
+            std::thread::sleep(std::time::Duration::from_millis(1000));
+            return self.internal_search_by_id(id, media_type);
+        }
+
+        let result = SearchResult {
+            total_results: 1,
+            results: {
+                let mut deque = VecDeque::new();
+                deque.push_back(Some(res.json()?));
+                deque
+            },
+        };
+
+        let resp = match media_type {
+            MediaType::Tv => self.fill_details(result),
+            _ => result,
+        };
+
+        Ok(resp)
+    }
+
     fn internal_search(
         &self,
         title: String,
@@ -277,6 +314,22 @@ impl<'a> APIExec<'a> for TMDbSearch {
         self.internal_search(title, year, media_type)
             .map_or_else(|_| None, |mut x| x.pop_front())
     }
+
+    fn search_many(
+        &mut self,
+        title: String,
+        year: Option<i32>,
+        media_type: MediaType,
+        result_num: usize,
+    ) -> Vec<Media> {
+        self.internal_search(title, year, media_type)
+            .map_or_else(|_| Vec::new(), |x| x.pop_many(result_num))
+    }
+
+    fn search_by_id(&mut self, id: i32, media_type: MediaType) -> Option<Media> {
+        self.internal_search_by_id(id, media_type)
+            .map_or_else(|_| None, |mut x| x.pop_front())
+    }
 }
 
 impl Media {
@@ -323,9 +376,15 @@ impl Seasons {
 
 impl SearchResult {
     fn pop_front(&mut self) -> Option<Media> {
-        match self.results.pop_front() {
-            Some(x) => x,
-            None => None,
-        }
+        self.results.pop_front().map_or_else(|| None, |x| x)
+    }
+
+    fn pop_many(&self, num: usize) -> Vec<Media> {
+        self.results
+            .clone()
+            .into_iter()
+            .take(num)
+            .filter_map(|x| x)
+            .collect::<Vec<Media>>()
     }
 }
