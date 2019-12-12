@@ -10,7 +10,7 @@ walkdir = "2.2.9"
 notify = "5.0.0-pre.1"
 torrent-name-parser = "0.2.0"
 reqwest = "0.9.19"
-serde = "1.0.98"
+serde = { version = "1.0.98", features = ["derive"] }
 chrono = "0.4.7"
 database = { path = "../database" }
 streamer = { path = "../streaming" }
