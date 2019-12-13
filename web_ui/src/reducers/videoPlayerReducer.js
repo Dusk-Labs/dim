@@ -2,9 +2,9 @@ import {
     TRANSCODE_START,
     TRANSCODE_OK,
     TRANSCODE_ERR,
-    FETCH_FILE_START,
-    FETCH_FILE_OK,
-    FETCH_FILE_ERR
+    DEL_TRANSCODE_START,
+    DEL_TRANSCODE_OK,
+    DEL_TRANSCODE_ERR
 } from "../actions/types.js";
 
 const start_transcode = {
@@ -14,17 +14,16 @@ const start_transcode = {
     error: null
 };
 
-const fetch_file = {
-    info: "",
+const del_transcode = {
+    data: {},
     fetching: false,
     fetched: false,
     error: null
 };
 
-
 const initialState = {
     start_transcode,
-    fetch_file
+    del_transcode
 };
 
 export default function(state = initialState, action) {
@@ -43,7 +42,7 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 start_transcode: {
-                    uuid: action.payload,
+                    uuid: action.payload.uuid,
                     fetching: false,
                     fetched: true,
                     error: null
@@ -59,31 +58,31 @@ export default function(state = initialState, action) {
                     error: action.payload
                 }
             }
-        case FETCH_FILE_START:
+        case DEL_TRANSCODE_START:
             return {
                 ...state,
-                fetch_file: {
-                    info: "",
+                del_transcode: {
+                    data: {},
                     fetching: true,
                     fetched: false,
                     error: null
                 }
             }
-        case FETCH_FILE_OK:
+        case DEL_TRANSCODE_OK:
             return {
                 ...state,
-                fetch_file: {
-                    info: action.payload,
+                del_transcode: {
+                    data: action.payload,
                     fetching: false,
                     fetched: true,
                     error: null
                 }
             }
-        case FETCH_FILE_ERR:
+        case DEL_TRANSCODE_ERR:
             return {
                 ...state,
-                fetch_file: {
-                    info: "",
+                del_transcode: {
+                    data: {},
                     fetching: false,
                     fetched: true,
                     error: action.payload
