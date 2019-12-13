@@ -62,40 +62,42 @@ class VideoPlayer extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (!this.state.uuid) {
-            // START_TRANSCODE_START
-            if (this.props.stream.start_transcode.fetching) {
-                console.log("[FETCHING] START TRANSCODE");
-            }
+        if (prevProps.stream.start_transcode.fetched !== this.props.stream.start_transcode.fetched) {
+            if (!this.state.uuid) {
+                // START_TRANSCODE_START
+                if (this.props.stream.start_transcode.fetching) {
+                    console.log("[FETCHING] START TRANSCODE");
+                }
 
-            // START_TRANSCODE_ERR
-            if (this.props.stream.start_transcode.fetched && this.props.stream.start_transcode.error) {
-                console.log("[ERR] START TRANSCODE", this.props.stream.start_transcode);
-            }
+                // START_TRANSCODE_ERR
+                if (this.props.stream.start_transcode.fetched && this.props.stream.start_transcode.error) {
+                    console.log("[ERR] START TRANSCODE", this.props.stream.start_transcode);
+                }
 
-            // START_TRANSCODE_OK
-            if (this.props.stream.start_transcode.fetched && !this.props.stream.start_transcode.error) {
-                console.log("[OK] START TRANSCODE");
-                const { uuid } = this.props.stream.start_transcode;
+                // START_TRANSCODE_OK
+                if (this.props.stream.start_transcode.fetched && !this.props.stream.start_transcode.error) {
+                    console.log("[OK] START TRANSCODE");
+                    const { uuid } = this.props.stream.start_transcode;
 
-                const ws = new WebSocket(`ws://86.21.150.167:3012/events/stream/${uuid}`);
+                    const ws = new WebSocket(`ws://86.21.150.167:3012/events/stream/${uuid}`);
 
-                ws.addEventListener("message", ({data}) => {
-                    const payload = JSON.parse(data);
+                    ws.addEventListener("message", ({data}) => {
+                        const payload = JSON.parse(data);
 
-                    if (payload.type === "EventStreamStats") {
-                        console.log("[WS] [EventStreamStats] FRAME", payload.frame);
+                        if (payload.type === "EventStreamStats") {
+                            console.log("[WS] [EventStreamStats] FRAME", payload.frame);
 
-                        if (payload.frame >= 700) {
-                            console.log("[WS] [EventStreamStats] ENOUGH FRAMES, CLOSING CONNECTION.");
+                            if (payload.frame >= 700) {
+                                console.log("[WS] [EventStreamStats] ENOUGH FRAMES, CLOSING CONNECTION.");
 
-                            this.fetchFile(uuid);
-                            ws.close();
+                                this.fetchFile(uuid);
+                                ws.close();
+                            }
                         }
-                    }
-                });
+                    });
 
-                this.setState({uuid});
+                    this.setState({uuid});
+                }
             }
         }
 
