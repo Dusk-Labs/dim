@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import * as Vibrant from "node-vibrant";
+import { connect } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import { delTranscode } from "../actions/videoPlayerActions.js";
 
 import "./VideoPlayerControls.scss";
 
@@ -8,24 +11,22 @@ class VideoPlayerControls extends Component {
     constructor(props) {
         super(props);
 
-        this.progressBar = React.createRef();
-        this.overlay = React.createRef();
+        this.seekBar = React.createRef();
 
-        this.body = document.getElementsByTagName("body")[0];
-
-        this.onCoverLoad = this.onCoverLoad.bind(this);
         this.toggleVideoPlay = this.toggleVideoPlay.bind(this);
         this.toggleFullscreen = this.toggleFullscreen.bind(this);
         this.toggleVideoVolume = this.toggleVideoVolume.bind(this);
         this.videoSkip = this.videoSkip.bind(this);
 
         /*
+            ! POST-MVP
             TODO: centerBox - container that appears in the center to show current actions
             E.G. if user presses pause, it will display a temporary box in the middle with pause glyph.
         */
         this.state = {
             play: true,
             skip: 15,
+            timeStamp: 0,
             current: "00:00:00",
             duration: "00:00:00",
             progressWidth: "0%",
@@ -37,84 +38,92 @@ class VideoPlayerControls extends Component {
 
     async componentDidMount() {
         // ! USE REACT REF
-        document.getElementsByTagName("main")[0].style["margin-left"] = "0";
         document.addEventListener("fullscreenchange", this.handlePageFullscreen.bind(this));
 
-        this.props.video.current.addEventListener("timeupdate", this.handleVideoTimeUpdate.bind(this));
-
-        // * VIDEO CONTROLS
-        this.props.video.current.addEventListener("play", this.videoPlay.bind(this));
-        this.props.video.current.addEventListener("pause", this.videoPause.bind(this));
-        this.props.video.current.addEventListener("click", this.toggleVideoPlay.bind(this));
-        this.props.video.current.addEventListener("volumechange", this.handleVideoVolumeChange.bind(this));
-        this.progressBar.current.addEventListener("click", this.handleProgressbarMouseClick.bind(this));
+        this.props.video.addEventListener("timeupdate", this.handleVideoTimeUpdate.bind(this));
+        this.props.video.addEventListener("play", this.videoPlay.bind(this));
+        this.props.video.addEventListener("pause", this.videoPause.bind(this));
+        this.props.video.addEventListener("click", this.toggleVideoPlay.bind(this));
+        this.props.video.addEventListener("volumechange", this.handleVideoVolumeChange.bind(this));
+        this.seekBar.current.addEventListener("click", this.handleSeekBarMouseClick.bind(this));
     }
 
     async componentWillUnmount() {
         // ! USE REACT REF
         document.removeEventListener("fullscreenchange", this.handlePageFullscreen);
 
-        this.props.video.current.removeEventListener("timeupdate", this.handleVideoTimeUpdate);
-
-        // * VIDEO CONTROLS
-        this.props.video.current.removeEventListener("play", this.videoPlay);
-        this.props.video.current.removeEventListener("pause", this.videoPause);
-        this.props.video.current.removeEventListener("click", this.toggleVideoPlay);
-        this.props.video.current.removeEventListener("volumechange", this.handleVideoVolumeChange);
-        this.progressBar.current.removeEventListener("click", this.handleProgressbarMouseClick);
-
-        const reqDelTranscode = await fetch(`http://86.21.150.167:8000/api/v1/stream/${this.state.uuid}`, { method: "DELETE"});
-        const transcodeDeleted = await reqDelTranscode.json();
-
-        console.log(`[DELETE] TRANSCODING STREAM ${transcodeDeleted}`);
+        this.props.video.removeEventListener("timeupdate", this.handleVideoTimeUpdate);
+        this.props.video.removeEventListener("play", this.videoPlay);
+        this.props.video.removeEventListener("pause", this.videoPause);
+        this.props.video.removeEventListener("click", this.toggleVideoPlay);
+        this.props.video.removeEventListener("volumechange", this.handleVideoVolumeChange);
+        this.seekBar.current.removeEventListener("click", this.handleSeekBarMouseClick);
     }
 
-    handleVideoTimeUpdate() {
-        console.log("[EVENT] VIDEO TIME UPDATE");
-
-        // FETCH_CARD_OK
-        if (this.props.card.fetched && !this.props.card.error) {
+    componentDidUpdate(prevProps) {
+        if (prevProps.card.info !== this.props.card.info) {
             const { duration } = this.props.card.info;
-            const { currentTime } = this.props.video.current;
-            const width = 100 * (currentTime / duration);
 
             const { hh, mm, ss } = {
-                hh: ("0" + Math.floor(currentTime / 3600)).slice(-2),
-                mm: ("0" + Math.floor(currentTime % 3600 / 60)).slice(-2),
-                ss: ("0" + Math.floor(currentTime % 3600 % 60)).slice(-2)
+                hh: ("0" + Math.floor(duration / 3600)).slice(-2),
+                mm: ("0" + Math.floor(duration % 3600 / 60)).slice(-2),
+                ss: ("0" + Math.floor(duration % 3600 % 60)).slice(-2)
             };
 
             this.setState({
-                current: `${hh}:${mm}:${ss}`,
-                progressWidth: `${width}%`
+                duration: `${hh}:${mm}:${ss}`
             });
         }
     }
 
+    handleVideoTimeUpdate(e) {
+        const timeStamp = Math.floor(e.timeStamp / 1000);
+
+        if (this.state.timeStamp < timeStamp) {
+            // FETCH_CARD_OK
+            if (this.props.card.fetched && !this.props.card.error) {
+                const { duration } = this.props.card.info;
+                const { currentTime } = this.props.video;
+                const width = 100 * (currentTime / duration);
+
+                const { hh, mm, ss } = {
+                    hh: ("0" + Math.floor(currentTime / 3600)).slice(-2),
+                    mm: ("0" + Math.floor(currentTime % 3600 / 60)).slice(-2),
+                    ss: ("0" + Math.floor(currentTime % 3600 % 60)).slice(-2)
+                };
+
+                this.setState({
+                    timeStamp,
+                    current: `${hh}:${mm}:${ss}`,
+                    progressWidth: `${width}%`
+                });
+            }
+        }
+
+    }
+
     videoPlay() {
         console.log("[EVENT] VIDEO PLAY TRIGGERED");
-
         this.setState({ play: false });
     }
 
     videoPause() {
         console.log("[EVENT] VIDEO PAUSE TRIGGERED");
-
         this.setState({ play: true });
     }
 
     toggleVideoPlay() {
         console.log("[EVENT] VIDEO PLAY/PAUSE TOGGLED");
 
-        if (this.props.video.current.readyState === 4) {
-            this.props.video.current[this.props.video.current.paused ? "play" : "pause"]();
+        if (this.props.video.readyState === 4) {
+            this.props.video[this.props.video.paused ? "play" : "pause"]();
         }
     }
 
     // FOR WHEN IMPLEMENTING VOLUME SLIDER
     handleVideoVolumeChange(e) { }
 
-    handleProgressbarMouseClick(e) {
+    async handleSeekBarMouseClick(e) {
         console.log("[EVENT] SEEK BAR CLICKED");
 
         // FETCH_CARD_OK
@@ -123,7 +132,17 @@ class VideoPlayerControls extends Component {
             const percentage = 100 * clicked_pos_x / e.target.offsetWidth;
             const { duration } = this.props.card.info;
 
-            this.props.video.current.currentTime = percentage * (duration / 100);
+            const newCurrentTime = Math.floor(percentage * (duration / 100));
+
+            console.log("TESTING", newCurrentTime);
+
+            // START_TRANSCODE_OK
+            if (this.props.stream.start_transcode.fetched && !this.props.stream.start_transcode.error) {
+                this.props.updateSeekTo(newCurrentTime);
+                this.props.delTranscode(this.props.stream.start_transcode.uuid);
+            }
+
+            // this.props.video.currentTime = newCurrentTime;
         }
     }
 
@@ -134,16 +153,16 @@ class VideoPlayerControls extends Component {
             mute: !this.state.mute
         });
 
-        this.props.video.current.volume = !this.state.mute ? 0 : 1;
+        this.props.video.volume = !this.state.mute ? 0 : 1;
     }
 
     videoSkip(direction) {
         console.log("[EVENT] VIDEO SKIP TRIGGERED");
 
-        if (this.props.video.current.readyState === 4) {
+        if (this.props.video.readyState === 4) {
             direction
-                ? this.props.video.current.currentTime += this.state.skip
-                : this.props.video.current.currentTime -= this.state.skip;
+                ? this.props.video.currentTime += this.state.skip
+                : this.props.video.currentTime -= this.state.skip;
         }
     }
 
@@ -209,8 +228,7 @@ class VideoPlayerControls extends Component {
 
         // FETCH_CARD_OK
         if (this.props.card.fetched && !this.props.card.error) {
-            const { name, poster_path } = this.props.card.info;
-
+            const { name } = this.props.card.info;
             mediaName = name;
         }
 
@@ -236,7 +254,7 @@ class VideoPlayerControls extends Component {
                     </div>
                 </div>
                 <div className="center">
-                    <div className="video-progress-wrapper" ref={this.progressBar}>
+                    <div className="video-progress-wrapper" ref={this.seekBar}>
                         <div className="video-progress-inner" style={{width: this.state.progressWidth}}>
                             <div className="video-progress-dragger"/>
                         </div>
@@ -285,4 +303,12 @@ class VideoPlayerControls extends Component {
     }
 }
 
-export default VideoPlayerControls;
+const mapStateToProps = (state) => ({
+    stream: state.videoPlayerReducer
+});
+
+const mapActionsToProps = {
+    delTranscode
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(VideoPlayerControls);
