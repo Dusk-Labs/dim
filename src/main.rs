@@ -62,6 +62,11 @@ fn main() {
                 .short("p")
                 .long("port")
                 .help("Specify the port to use for the HTTP/S service"),
+        )
+        .arg(
+            Arg::with_name("no-scanners")
+                .long("no-scan")
+                .help("Disable the library scanners on boot"),
         );
 
     let matches = matches.get_matches();
@@ -89,8 +94,10 @@ fn main() {
     slog::info!(logger, "Starting the WS service on port 3012");
     let event_tx = core::start_event_server(logger.clone());
 
-    slog::info!(logger, "Booting scanners up");
-    core::run_scanners(logger.clone(), event_tx.clone());
+    if !matches.is_present("no-scanners") {
+        slog::info!(logger, "Booting scanners up");
+        core::run_scanners(logger.clone(), event_tx.clone());
+    }
 
     let rocket_config = ConfigBuilder::new(Environment::Development)
         .address("0.0.0.0")
@@ -101,6 +108,7 @@ fn main() {
             let mut db_conf = std::collections::HashMap::new();
             let mut m = std::collections::HashMap::new();
             m.insert("url", "postgres://postgres:dimpostgres@127.0.0.1/dim");
+            //            m.insert("url", "postgres://postgres:dimpostgres@127.0.0.1/dim_debug");
             db_conf.insert("dimpostgres", m);
             db_conf
         })
