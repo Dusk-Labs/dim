@@ -38,7 +38,7 @@ export const fetchCard = (id) => async (dispatch) => {
     dispatch({ type: FETCH_CARD_START });
 
     try {
-        const res = await fetch(`http://127.0.0.1:8000/api/v1/media/${id}`);
+        const res = await fetch(`http://${window.host}:8000/api/v1/media/${id}`);
 
         if (res.status !== 200) {
             return dispatch({
