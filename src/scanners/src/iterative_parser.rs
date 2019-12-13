@@ -47,7 +47,10 @@ impl IterativeScanner {
     }
 
     pub fn start(&self, custom_path: Option<&str>) {
-        debug!(self.log, "Starting Movie scanner iterate");
+        debug!(
+            self.log,
+            "Enumerating files on filesystem for library: {}", self.lib.id
+        );
         let path = match custom_path {
             Some(x) => x,
             None => self.lib.location.as_str(),
@@ -101,6 +104,11 @@ impl IterativeScanner {
     }
 
     pub fn fix_orphans(&self) {
+        info!(
+            self.log,
+            "Starting orphan scanner for library: {}", self.lib.id
+        );
+
         let mut tmdb_session = TMDbSearch::new("38c372f5bc572c8aadde7a802638534e");
         let orphans = match MediaFile::get_by_lib(&self.conn, &self.lib) {
             Ok(x) => x,
@@ -109,11 +117,6 @@ impl IterativeScanner {
                 return;
             }
         };
-
-        info!(
-            self.log,
-            "Starting orphan scanner for library: {}", self.lib.id
-        );
 
         for orphan in orphans {
             if orphan.media_id.is_none() {
@@ -132,6 +135,66 @@ impl IterativeScanner {
                     self.match_media_to_tmdb(result, &orphan, mediatype);
                 }
             }
+        }
+    }
+
+    pub fn match_media_to_tmdb_id(&self, media: Media, tmdb_id: i32) {
+        info!(
+            self.log,
+            "Rematching a media entry, media_id: {} tmdb_id: {}", media.id, tmdb_id
+        );
+        let mut tmdb_session = TMDbSearch::new("38c372f5bc572c8aadde7a802638534e");
+        let mediafiles = match MediaFile::get_of_media(&self.conn, &media) {
+            Ok(x) => x,
+            Err(e) => {
+                slog::error!(
+                    self.log,
+                    "Failed to get mediafiles of media, media_id: {} e: {:?}",
+                    media.id,
+                    e
+                );
+                return;
+            }
+        };
+
+        let media_type = match self.lib.media_type {
+            MediaType::Movie => tmdb_api::MediaType::Movie,
+            MediaType::Tv => tmdb_api::MediaType::Tv,
+            _ => {
+                return;
+            }
+        };
+
+        if let Some(result) = tmdb_session.search_by_id(tmdb_id, media_type) {
+            let ret = Media::delete(&self.conn, tmdb_id);
+            slog::info!(
+                self.log,
+                "Deleting media for a full rebase match, delete ret: {:?}",
+                ret
+            );
+            for mediafile in mediafiles {
+                self.match_media_to_tmdb(result.clone(), &mediafile, media_type);
+            }
+        }
+    }
+
+    pub fn match_mediafile_to_tmdb_id(&self, media: MediaFile, tmdb_id: i32) {
+        info!(
+            self.log,
+            "Rematching a mediafile entry, mediafile_id: {} tmdb_id: {}", media.id, tmdb_id
+        );
+        let mut tmdb_session = TMDbSearch::new("38c372f5bc572c8aadde7a802638534e");
+
+        let media_type = match self.lib.media_type {
+            MediaType::Movie => tmdb_api::MediaType::Movie,
+            MediaType::Tv => tmdb_api::MediaType::Tv,
+            _ => {
+                return;
+            }
+        };
+
+        if let Some(result) = tmdb_session.search_by_id(tmdb_id, media_type) {
+            self.match_media_to_tmdb(result.clone(), &media, media_type);
         }
     }
 
@@ -216,11 +279,11 @@ impl IterativeScanner {
             }
         };
 
-        let season = search.get_season(orphan.season.unwrap());
+        let season = search.get_season(orphan.season.unwrap_or(0));
         let seasonid = Season::get(&self.conn, media_id, orphan.season.unwrap()).map_or_else(
             |_| {
                 let season = InsertableSeason {
-                    season_number: orphan.season.unwrap(),
+                    season_number: orphan.season.unwrap_or(0),
                     added: Utc::now().to_string(),
                     poster: String::from(""),
                 };
@@ -233,18 +296,18 @@ impl IterativeScanner {
         let episode_id = Episode::get(
             &self.conn,
             media_id,
-            orphan.season.unwrap(),
-            orphan.episode.unwrap(),
+            orphan.season.unwrap_or(0),
+            orphan.episode.unwrap_or(0),
         )
         .map_or_else(
             |_| {
-                let search_ep = season.get_episode(orphan.episode.unwrap());
+                let search_ep = season.get_episode(orphan.episode.unwrap_or(0));
                 let episode = InsertableEpisode {
-                    episode: orphan.episode.unwrap(),
+                    episode: orphan.episode.unwrap_or(0),
                     seasonid,
                     media: InsertableMedia {
                         library_id: orphan.library_id,
-                        name: format!("{}", orphan.episode.unwrap()),
+                        name: format!("{}", orphan.episode.unwrap_or(0)),
                         added: Utc::now().to_string(),
                         media_type: MediaType::Episode,
                         description: search_ep.overview,

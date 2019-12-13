@@ -106,7 +106,12 @@ fn rocket_pad(
                 routes::media::get_extra_info_by_id,
                 routes::media::update_media_by_id,
                 routes::media::delete_media_by_id,
+                routes::media::tmdb_search,
             ],
+        )
+        .mount(
+            "/api/v1/mediafile",
+            routes![routes::media::rematch_mediafile,],
         )
         .mount(
             "/api/v1/tv",
