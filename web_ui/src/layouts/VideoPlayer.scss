@@ -24,7 +24,6 @@ video {
     @include transition(opacity 0.3s ease-in-out);
     @include justify-content(space-between);
     position: absolute;
-    background: radial-gradient(circle, transparent 0, black 100%);
     top: 0;
     height: 100%;
     width: 100%;
@@ -39,6 +38,22 @@ video {
         "middle-left middle middle-right"
         "bottom-left bottom bottom-right";
     pointer-events: none;
+    z-index: 1;
+
+    // OVERLAY SIDE SHADOWS
+    &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background:
+            linear-gradient(90deg, #000000, transparent 20%),
+            linear-gradient(-90deg, #000000, transparent 20%),
+            linear-gradient(180deg, #000000, transparent 40%),
+            linear-gradient(0deg, #000000, transparent 40%);
+        z-index: -1;
+    }
 
     .cover {
         grid-area: bottom-left;
