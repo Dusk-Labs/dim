@@ -103,7 +103,7 @@ class CardPopup extends Component {
                             <p>{length.hh}:{length.mm}:{length.ss}</p>
                             <p>HH MM SS</p>
                         </div>
-                        <Link to={`/play/${id}`} className="play-btn">
+                        <Link to={`/play/${id}`}>
                             <p style={accentCSS}>PLAY</p>
                             <FontAwesomeIcon icon="play"/>
                         </Link>
