@@ -1,89 +1,88 @@
 import {
-    FETCH_CARDS_START,
-    FETCH_CARDS_OK,
-    FETCH_CARDS_ERR,
-    FETCH_CARD_START,
-    FETCH_CARD_OK,
-    FETCH_CARD_ERR
+    TRANSCODE_START,
+    TRANSCODE_OK,
+    TRANSCODE_ERR,
+    DEL_TRANSCODE_START,
+    DEL_TRANSCODE_OK,
+    DEL_TRANSCODE_ERR
 } from "../actions/types.js";
 
-const fetch_cards = {
-    items: [],
+const start_transcode = {
+    uuid: "",
     fetching: false,
     fetched: false,
     error: null
 };
 
-const fetch_card = {
-    info: {},
+const del_transcode = {
+    data: {},
     fetching: false,
     fetched: false,
     error: null
 };
-
 
 const initialState = {
-    fetch_cards,
-    fetch_card
+    start_transcode,
+    del_transcode
 };
 
 export default function(state = initialState, action) {
     switch(action.type) {
-        case FETCH_CARDS_START:
+        case TRANSCODE_START:
             return {
                 ...state,
-                fetch_cards: {
-                    items: [],
+                start_transcode: {
+                    uuid: "",
                     fetching: true,
                     fetched: false,
                     error: null
                 }
             }
-        case FETCH_CARDS_OK:
+        case TRANSCODE_OK:
             return {
                 ...state,
-                fetch_cards: {
-                    items: action.payload,
+                start_transcode: {
+                    uuid: action.payload.uuid,
                     fetching: false,
                     fetched: true,
                     error: null
                 }
             }
-        case FETCH_CARDS_ERR:
+        case TRANSCODE_ERR:
             return {
                 ...state,
-                fetch_cards: {
-                    items: [],
+                start_transcode: {
+                    uuid: "",
                     fetching: false,
                     fetched: true,
                     error: action.payload
                 }
             }
-        case FETCH_CARD_START:
+        case DEL_TRANSCODE_START:
             return {
                 ...state,
-                fetch_card: {
-                    info: {},
+                del_transcode: {
+                    data: {},
                     fetching: true,
                     fetched: false,
                     error: null
                 }
             }
-        case FETCH_CARD_OK:
+        case DEL_TRANSCODE_OK:
             return {
                 ...state,
-                fetch_card: {
-                    info: action.payload,
+                del_transcode: {
+                    data: action.payload,
                     fetching: false,
                     fetched: true,
                     error: null
                 }
             }
-        case FETCH_CARD_ERR:
+        case DEL_TRANSCODE_ERR:
             return {
                 ...state,
-                fetch_card: {
-                    info: {},
+                del_transcode: {
+                    data: {},
                     fetching: false,
                     fetched: true,
                     error: action.payload
