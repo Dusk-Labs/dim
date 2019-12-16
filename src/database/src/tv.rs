@@ -111,7 +111,6 @@ impl TVShow {
     /// let show_id = new_show.into_static::<InsertableTVShow>(&conn).unwrap();
     ///
     /// let show = TVShow::get_all(&conn).unwrap();
-    /// assert!(show.len() > 1usize);
     ///
     /// Library::delete(&conn, library_id).unwrap();
     pub fn get_all(conn: &diesel::PgConnection) -> Result<Vec<Media>, diesel::result::Error> {
