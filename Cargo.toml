@@ -1,8 +1,8 @@
 [package]
 name = "dim"
 version = "0.3.0"
-authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 build = "src/build.rs"
+authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
 
 [dependencies]

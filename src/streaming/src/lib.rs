@@ -1,5 +1,6 @@
 pub mod ffmpeg;
 pub mod ffprobe;
+pub mod transcode;
 
 use lazy_static::lazy_static;
 
@@ -25,10 +26,9 @@ use std::process::Command;
 /// onto the provided `bucket`.
 ///
 /// # Arguments
-///  - `bucket` - a `Vec<Box<str>>` to push the commands stdout's onto
+/// - `bucket` - a `Vec<Box<str>>` to push the commands stdout's onto
 ///
 /// # Example
-///
 /// ```
 /// use streamer::ffcheck;
 ///
