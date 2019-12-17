@@ -47,6 +47,11 @@ class Sidebar extends Component {
         this.props.fetchLibraries();
     }
 
+    async componentWillUnmount() {
+        this.library_ws.removeEventListener("message");
+        this.library_ws.close();
+    }
+
     render() {
         let user;
         let hosts;
