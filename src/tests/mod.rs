@@ -1,14 +1,44 @@
+use lazy_static::lazy_static;
 #[allow(unused_imports)]
-use rocket::local::Client;
+use {
+    rocket::config::{ConfigBuilder, Environment, LoggingLevel},
+    rocket::local::Client,
+};
+
+use std::sync::{Arc, Mutex};
+
+lazy_static! { pub static ref CLIENT: Arc<Mutex<Client>> = {
+        let _ = database::get_conn_devel().unwrap(); // Force dim to apply migrations before mounting rocket
+        let logger = crate::build_logger(true);
+        let event_tx = crate::core::start_event_server(logger.clone(), "0.0.0.0:3013");
+        let rocket_config = ConfigBuilder::new(Environment::Development)
+            .address("0.0.0.0")
+            .port(8001)
+            .workers(64)
+            .log_level(LoggingLevel::Off)
+            .extra("databases", {
+                let mut db_conf = std::collections::HashMap::new();
+                let mut m = std::collections::HashMap::new();
+                m.insert("url", "postgres://postgres:dimpostgres@127.0.0.1/dim_devel");
+                db_conf.insert("dimpostgres", m);
+                db_conf
+            })
+            .finalize()
+            .unwrap();
+
+        let rocket = crate::core::rocket_pad(logger, event_tx, rocket_config);
+        Arc::new(Mutex::new(Client::new(rocket).expect("Rocket client")))
+    };
+}
 
 #[cfg(test)]
 pub fn drop_all_data() {
+    use database::get_conn_devel;
+    use database::schema::*;
     use diesel::prelude::*;
     use diesel::sql_query;
-    use database::get_conn;
-    use database::schema::*;
 
-    let conn = get_conn().expect("Failed to get db");
+    let conn = get_conn_devel().expect("Failed to get db");
 
     diesel::delete(library::table).execute(&conn).unwrap();
     diesel::delete(media::table).execute(&conn).unwrap();
@@ -19,6 +49,35 @@ pub fn drop_all_data() {
     diesel::delete(mediafile::table).execute(&conn).unwrap();
 
     let _ = sql_query("ALTER SEQUENCE library_id_seq RESTART WITH 1").execute(&conn);
+    let _ = sql_query("ALTER SEQUENCE media_id_seq RESTART WITH 1").execute(&conn);
+}
+
+pub fn put_garbage() {
+    use database::get_conn_devel;
+    use database::{
+        library::{InsertableLibrary, MediaType},
+        media::InsertableMedia,
+    };
+
+    let conn = get_conn_devel().unwrap();
+
+    let library_id = InsertableLibrary {
+        name: "unittest".into(),
+        location: "/dev/null".into(),
+        media_type: MediaType::Movie,
+    }
+    .insert(&conn)
+    .unwrap();
+
+    let _media_id = InsertableMedia {
+        library_id,
+        name: "unittest".into(),
+        added: "unittest".into(),
+        media_type: MediaType::Movie,
+        ..Default::default()
+    }
+    .insert(&conn)
+    .unwrap();
 }
 
 pub mod route_library_tests;
