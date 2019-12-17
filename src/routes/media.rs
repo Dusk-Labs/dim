@@ -82,6 +82,7 @@ pub fn get_extra_info_by_id(
 
     Ok(json!({
         "versions": media_files.iter().map(|x| json!({
+            "id": x.id,
             "file": x.target_file,
             "display_name": format!("{} - {} - {} - Library {}",
                                     x.codec.as_ref().unwrap_or(&"Unknown VC".to_string()),
