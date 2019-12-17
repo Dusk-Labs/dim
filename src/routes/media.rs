@@ -150,7 +150,7 @@ pub fn tmdb_search(
     let media_type = match media_type.as_ref() {
         "movie" => TmdbMediaType::Movie,
         "tv" => TmdbMediaType::Tv,
-        _ => return Err(errors::DimError::NotFoundError),
+        _ => return Err(errors::DimError::InvalidMediaType),
     };
 
     Ok(json!(
