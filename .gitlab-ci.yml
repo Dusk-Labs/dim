@@ -17,3 +17,5 @@ test:cargo:
     script:
         - rustc --version && cargo --version  # Print version info for debugging
         - cd src/database && cargo test --all --verbose
+          && cd ../src/auth && cargo test --all --verbose
+          && cd ../src/ && cargo test --all --verbose
