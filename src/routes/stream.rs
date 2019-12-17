@@ -1,15 +1,20 @@
-use crate::core::DbConnection;
-use crate::errors;
-use chrono::prelude::*;
-use chrono::{NaiveDateTime, Utc};
+use crate::{
+    core::DbConnection,
+    errors,
+    streaming::{ffprobe::FFProbeCtx, transcode::Session},
+};
+use chrono::{prelude::*, NaiveDateTime, Utc};
 use database::mediafile::MediaFile;
-use rocket::http::ContentType;
-use rocket::response::{NamedFile, Response};
-use std::collections::HashMap;
-use std::io::Cursor;
-use std::path::{Path, PathBuf};
-use std::sync::{Arc, Mutex};
-use streamer::transcode::Session;
+use rocket::{
+    http::ContentType,
+    response::{NamedFile, Response},
+};
+use std::{
+    collections::HashMap,
+    io::Cursor,
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex},
+};
 
 lazy_static::lazy_static! {
     static ref STREAMS: Arc<Mutex<HashMap<i32, Session>>> = Arc::new(Mutex::new(HashMap::new()));
@@ -18,7 +23,7 @@ lazy_static::lazy_static! {
 #[get("/stream/<id>/manifest.mpd")]
 pub fn return_manifest(conn: DbConnection, id: i32) -> Result<Response<'static>, errors::DimError> {
     let media = MediaFile::get_one(conn.as_ref(), id)?;
-    let info = streamer::ffprobe::FFProbeCtx::new("/usr/bin/ffprobe")
+    let info = FFProbeCtx::new("/usr/bin/ffprobe")
         .get_meta(&std::path::PathBuf::from(media.target_file))
         .unwrap();
 
@@ -41,7 +46,7 @@ pub fn return_manifest(conn: DbConnection, id: i32) -> Result<Response<'static>,
     );
 
     let formatted = format!(
-        include_str!("../streaming/static/manifest.mpd"),
+        include_str!("../static/manifest.mpd"),
         duration_string,
         duration_string,
         info.get_bitrate().as_str().parse::<u64>().unwrap()
