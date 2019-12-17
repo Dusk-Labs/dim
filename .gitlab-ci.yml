@@ -4,7 +4,7 @@ services:
     - postgres:latest
 
 variables:
-    POSTGRES_DB: dim 
+    POSTGRES_DB: dim_devel
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: "dimpostgres"
 
