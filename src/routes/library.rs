@@ -17,6 +17,13 @@ use scanners;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
+/// Method maps to `GET /api/v1/library` and returns a list of all libraries in te database.
+/// This method can only be accessed by authenticated users.
+///
+/// # Arguments
+/// * `conn` - database connection
+/// * `_log` - logger
+/// * `_user` - Authentication middleware
 #[get("/")]
 pub fn library_get(conn: DbConnection, _log: SyncLogger, _user: Auth) -> Json<Vec<Library>> {
     Json({
@@ -26,6 +33,15 @@ pub fn library_get(conn: DbConnection, _log: SyncLogger, _user: Auth) -> Json<Ve
     })
 }
 
+/// Method maps to `POST /api/v1/library`, it adds a new library to the database, starts a new
+/// scanner for it, then dispatches a event to all clients notifying them that a new library has
+/// been created. This method can only be accessed by authenticated users. Method returns 200 OK
+///
+/// # Arguments
+/// * `conn` - database connection
+/// * `new_library` - new library information posted by client
+/// * `log` - logger
+/// * `_user` - Auth middleware
 #[post("/", format = "application/json", data = "<new_library>")]
 pub fn library_post(
     conn: DbConnection,
@@ -53,6 +69,17 @@ pub fn library_post(
     Ok(Status::Created)
 }
 
+/// Method mapped to `DELETE /api/v1/library/<id>` is used to delete a library from the database.
+/// It deletes the database based on the parameter `id`, then dispatches a event notifying all
+/// clients that the database with this id has been removed. Method can only be accessed by
+/// authenticated users.
+///
+/// # Arguments:
+/// * `conn` - database connection
+/// * `id` - id of the library we want to delete
+/// * `event_tx` - channel over which to dispatch events
+/// * `_user` - Auth middleware
+// NOTE: Should we only allow the owner to add/remove libraries?
 #[delete("/<id>")]
 pub fn library_delete(
     conn: DbConnection,
@@ -71,6 +98,13 @@ pub fn library_delete(
     Ok(Status::NoContent)
 }
 
+/// Method mapped to `GET /api/v1/library/<id>` returns info about the library with the supplied
+/// id. Method can only be accessed by authenticated users.
+///
+/// # Arguments
+/// * `conn` - database connection
+/// * `id` - id of the library we want info of
+/// * `_user` - Auth middleware
 #[get("/<id>")]
 pub fn get_self(
     conn: DbConnection,
@@ -80,6 +114,13 @@ pub fn get_self(
     Ok(Json(Library::get_one(conn.as_ref(), id)?))
 }
 
+/// Method mapped to `GET /api/v1/library/<id>/media` returns all the movies/tv shows that belong
+/// to the library with the id supplied. Method can only be accessed by authenticated users.
+///
+/// # Arguments
+/// * `conn` - database connection
+/// * `id` - id of the library we want media of
+/// * `_user` - Auth middleware
 #[get("/<id>/media")]
 pub fn get_all_library(
     conn: DbConnection,

@@ -51,7 +51,7 @@ impl Library {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     ///
     /// let new_library = InsertableLibrary {
@@ -87,7 +87,7 @@ impl Library {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     ///
     /// let new_library = InsertableLibrary {
@@ -126,7 +126,7 @@ impl Library {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia};
     ///
@@ -171,7 +171,7 @@ impl Library {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     ///
     /// let new_library = InsertableLibrary {
@@ -205,7 +205,7 @@ impl InsertableLibrary {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     ///
     /// let new_library = InsertableLibrary {

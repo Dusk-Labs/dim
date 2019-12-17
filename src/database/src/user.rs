@@ -41,7 +41,7 @@ impl User {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::user::{User, InsertableUser};
     ///
     /// let conn = get_conn().unwrap();
@@ -75,7 +75,7 @@ impl User {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::user::{User, InsertableUser};
     ///
     /// let conn = get_conn().unwrap();
@@ -126,7 +126,7 @@ impl User {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::user::{User, InsertableUser};
     ///
     /// let conn = get_conn().unwrap();
@@ -161,7 +161,7 @@ impl InsertableUser {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::user::{User, InsertableUser, Role};
     ///
     /// let conn = get_conn().unwrap();
