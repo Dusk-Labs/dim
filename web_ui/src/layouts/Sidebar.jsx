@@ -23,7 +23,7 @@ class Sidebar extends Component {
     constructor(props) {
         super(props);
 
-        this.library_ws = new WebSocket("ws://86.21.150.167:3012/events/library");
+        this.library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
         this.library_ws.addEventListener("message", this.handle_ws_msg);
     }
 
