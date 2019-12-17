@@ -1,7 +1,9 @@
-use crate::core::DbConnection;
-use crate::core::EventTx;
-use crate::errors;
-use crate::routes::general::construct_standard;
+use crate::{
+    core::{DbConnection, EventTx},
+    errors,
+    routes::general::construct_standard,
+    scanners,
+};
 use auth::Wrapper as Auth;
 use database::{
     library::{InsertableLibrary, Library},
@@ -9,13 +11,13 @@ use database::{
 };
 use events::{Message, PushEventType};
 use pushevent::Event;
-use rocket::http::Status;
-use rocket::State;
+use rocket::{http::Status, State};
 use rocket_contrib::json::{Json, JsonValue};
 use rocket_slog::SyncLogger;
-use scanners;
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 /// Method maps to `GET /api/v1/library` and returns a list of all libraries in te database.
 /// This method can only be accessed by authenticated users.

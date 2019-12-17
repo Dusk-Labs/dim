@@ -5,24 +5,23 @@
 	xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011 http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-DASH_schema_files/DASH-MPD.xsd"
 	profiles="urn:mpeg:dash:profile:isoff-live:2011"
 	type="static"
-    minBufferTime="PT10S"
     mediaPresentationDuration="{}"
-	maxSegmentDuration="PT5S">
+	maxSegmentDuration="PT20S">
     <Period start="PT0S" id="0" duration="{}">
 		<AdaptationSet contentType="video">
 			<Representation
 					id="video"
 					mimeType="video/mp4"
-                    codecs="avc1.640029" height="1080" bandwidth="{}">
-            <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/video/init.mp4" media="chunks/video/$Number$.m4s" startNumber="0">
+					codecs="avc1.640029">
+            <SegmentTemplate timescale="1000" duration="12000" initialization="chunks/video/init.mp4" media="chunks/video/$Number$.m4s" startNumber="0">
 				</SegmentTemplate>
 			</Representation>
 		</AdaptationSet>
 		<AdaptationSet contentType="audio" lang="eng">
 			<Representation
                     id="audio"
-					mimeType="audio/mp4" codecs="mp4a.40.2" bandwidth="120000">
-            <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/audio/init.mp4" media="chunks/audio/$Number$.m4s" startNumber="0">
+					mimeType="audio/mp4" codecs="mp4a.40.2">
+            <SegmentTemplate timescale="1000" duration="12000" initialization="chunks/audio/init.mp4" media="chunks/audio/$Number$.m4s" startNumber="0">
 				</SegmentTemplate>
 			</Representation>
 		</AdaptationSet>
