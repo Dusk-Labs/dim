@@ -14,8 +14,8 @@ macro_rules! which {
 }
 
 lazy_static! {
-    pub static ref FFMPEG_BIN: Box<str> = { which!("ffmpeg") };
-    pub static ref FFPROBE_BIN: Box<str> = { which!("ffprobe") };
+    pub static ref FFMPEG_BIN: Box<str> = { which!("utils/ffmpeg") };
+    pub static ref FFPROBE_BIN: Box<str> = { which!("utils/ffprobe") };
 }
 
 use std::process::Command;
@@ -45,7 +45,7 @@ use std::process::Command;
 /// }
 /// ```
 pub fn ffcheck<'a>(bucket: &'a mut Vec<Box<str>>) -> Result<(), Box<&str>> {
-    for program in ["ffmpeg", "ffprobe"].iter() {
+    for program in ["utils/ffmpeg", "utils/ffprobe"].iter() {
         if let Ok(output) = Command::new(program).arg("-version").output() {
             let stdout = String::from_utf8(output.stdout)
                 .expect("Failed to decode subprocess stdout.")
