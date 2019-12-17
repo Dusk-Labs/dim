@@ -43,7 +43,7 @@ pub(crate) fn run_scanners(log: Logger, tx: EventTx) {
             LIB_SCANNERS.lock().unwrap().insert(
                 library_id,
                 std::thread::spawn(move || {
-                    scanners::start(library_id, &log_clone, tx_clone).unwrap();
+                    crate::scanners::start(library_id, &log_clone, tx_clone).unwrap();
                 }),
             );
         }
