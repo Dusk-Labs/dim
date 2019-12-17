@@ -15,7 +15,7 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 - [x] TV Show/Movie scanners
 - [x] Basic webui with dashboard, ability to add libraries etc...
 - [ ] Video player with transmuxing/transcoding (server + ui)
-- [ ] 90% of unwraps removed from the server codebase
+- [x] 90% of unwraps removed from the server codebase
 
 ## Features
 ### Server
