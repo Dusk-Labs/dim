@@ -24,8 +24,7 @@ lazy_static::lazy_static! {
 pub fn return_manifest(conn: DbConnection, id: i32) -> Result<Response<'static>, errors::DimError> {
     let media = MediaFile::get_one(conn.as_ref(), id)?;
     let info = FFProbeCtx::new("/usr/bin/ffprobe")
-        .get_meta(&std::path::PathBuf::from(media.target_file))
-        .unwrap();
+        .get_meta(&std::path::PathBuf::from(media.target_file))?;
 
     let mut ms = info.get_ms().unwrap().to_string();
     ms.truncate(4);
@@ -34,8 +33,6 @@ pub fn return_manifest(conn: DbConnection, id: i32) -> Result<Response<'static>,
         NaiveDateTime::from_timestamp(info.get_duration().unwrap() as i64, 0),
         Utc,
     );
-
-    println!("{:#?}", info);
 
     let duration_string = format!(
         "PT{}H{}M{}.{}S",
@@ -49,7 +46,7 @@ pub fn return_manifest(conn: DbConnection, id: i32) -> Result<Response<'static>,
         include_str!("../static/manifest.mpd"),
         duration_string,
         duration_string,
-        info.get_bitrate().as_str().parse::<u64>().unwrap()
+        info.get_bitrate().as_str().parse::<u64>().unwrap_or(0)
     );
 
     Response::build()
@@ -64,27 +61,25 @@ pub fn return_static(
     id: i32,
     path: String,
     chunk: PathBuf,
-) -> Option<NamedFile> {
-    let extension = match chunk.extension() {
-        Some(x) => x.to_string_lossy().into_owned(),
-        None => return None,
-    };
+) -> Result<Option<NamedFile>, errors::DimError> {
+    let extension = chunk.extension()?.to_string_lossy().into_owned();
 
     // Chunks will always be m4s or mp4
     if !["m4s", "mp4"].contains(&extension.as_str()) {
-        println!("{:?}", chunk.file_stem());
-        return None;
+        return Ok(None);
     }
 
     // Parse the chunk filename into a u64, we unwrap_or because sometimes it can be a init chunk,
     // if its a init chunk we assume a chunk index of 0 because we are fetching the first few
     // chunks.
-    let chunk_num = match chunk.file_stem() {
-        Some(x) => x.to_string_lossy().into_owned().parse::<u64>().unwrap_or(0),
-        None => return None,
-    };
+    let chunk_num = chunk
+        .file_stem()?
+        .to_string_lossy()
+        .into_owned()
+        .parse::<u64>()
+        .unwrap_or(0);
 
-    let media = MediaFile::get_one(conn.as_ref(), id).unwrap();
+    let media = MediaFile::get_one(conn.as_ref(), id)?;
     let mut lock = STREAMS.lock().unwrap();
 
     let full_path = Path::new("./transcoding").join(id.to_string());
@@ -92,7 +87,7 @@ pub fn return_static(
     if let Some(_) = lock.get(&id) {
         for _ in 0..30 {
             if let Ok(x) = NamedFile::open(full_path.join(path.clone()).join(chunk.clone())) {
-                return Some(x);
+                return Ok(Some(x));
             }
             // TODO: Replace this with a dameon that monitors a file with a timeout then returns Option<T>
             std::thread::sleep(std::time::Duration::from_millis(100));
@@ -108,17 +103,16 @@ pub fn return_static(
         None,
         chunk_num,
         full_path.clone().into_os_string().into_string().unwrap(),
-    )
-    .unwrap();
+    )?;
 
     lock.insert(id, session);
 
     for _ in 0..40 {
         if let Ok(x) = NamedFile::open(full_path.join(path.clone()).join(chunk.clone())) {
-            return Some(x);
+            return Ok(Some(x));
         }
         // TODO: Replace this with a dameon that monitors a file with a timeout then returns Option<T>
         std::thread::sleep(std::time::Duration::from_millis(200));
     }
-    None
+    Ok(None)
 }
