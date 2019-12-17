@@ -1,3 +1,4 @@
+use crate::errors;
 use std::process::{Child, Command, Stdio};
 
 const CHUNK_SIZE: u64 = 5;
@@ -31,7 +32,7 @@ impl<'a> Session {
         profile: Option<Profile>,
         start_number: u64,
         outdir: String,
-    ) -> Result<Self, ()> {
+    ) -> Result<Self, errors::StreamingErrors> {
         let file = format!("file://{}", file);
         let profile_args = profile.map_or_else(
             || vec!["-c:0", "copy"],
@@ -77,15 +78,8 @@ impl<'a> Session {
         println!("{:?}", video_args);
         println!("{:?}", audio_args);
 
-        let video_process = match video_process.spawn() {
-            Ok(x) => x,
-            Err(_) => return Err(()),
-        };
-
-        let audio_process = match audio_process.spawn() {
-            Ok(x) => x,
-            Err(_) => return Err(()),
-        };
+        let video_process = video_process.spawn()?;
+        let audio_process = audio_process.spawn()?;
 
         Ok(Self {
             video_process,

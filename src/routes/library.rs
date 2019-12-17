@@ -136,7 +136,7 @@ pub fn get_all_library(
     data.sort_by(|a, b| a.name.cmp(&b.name));
     let out = data
         .iter()
-        .map(|x| construct_standard(&conn, x, false))
+        .filter_map(|x| construct_standard(&conn, x, false).ok())
         .collect::<Vec<JsonValue>>();
 
     result.insert(lib.name.clone(), out);
@@ -145,7 +145,7 @@ pub fn get_all_library(
         result.insert(
             "Unmatched Media".into(),
             x.into_iter()
-                .map(|x| construct_standard(&conn, &x.into(), false))
+                .filter_map(|x| construct_standard(&conn, &x.into(), false).ok())
                 .collect::<Vec<JsonValue>>(),
         );
     }
