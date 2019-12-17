@@ -41,6 +41,9 @@ impl<'a> Session {
             },
         );
 
+        let _ = std::fs::create_dir_all(format!("{}/video", outdir.clone()));
+        let _ = std::fs::create_dir(format!("{}/audio", outdir.clone()));
+
         let mut video_args = Self::build_video(
             string_to_static_str(file.clone()),
             start_number,

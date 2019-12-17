@@ -85,12 +85,12 @@ pub fn return_static(
     let full_path = Path::new("./transcoding").join(id.to_string());
 
     if let Some(_) = lock.get(&id) {
-        for _ in 0..3 {
+        for _ in 0..30 {
             if let Ok(x) = NamedFile::open(full_path.join(path.clone()).join(chunk.clone())) {
                 return Some(x);
             }
             // TODO: Replace this with a dameon that monitors a file with a timeout then returns Option<T>
-            std::thread::sleep(std::time::Duration::from_millis(1000));
+            std::thread::sleep(std::time::Duration::from_millis(100));
         }
     }
 
@@ -108,12 +108,12 @@ pub fn return_static(
 
     lock.insert(id, session);
 
-    for _ in 0..10 {
+    for _ in 0..40 {
         if let Ok(x) = NamedFile::open(full_path.join(path.clone()).join(chunk.clone())) {
             return Some(x);
         }
         // TODO: Replace this with a dameon that monitors a file with a timeout then returns Option<T>
-        std::thread::sleep(std::time::Duration::from_millis(1000));
+        std::thread::sleep(std::time::Duration::from_millis(200));
     }
     None
 }
