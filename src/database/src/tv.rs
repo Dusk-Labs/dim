@@ -42,7 +42,7 @@ impl TVShow {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::{InsertableTVShow, TVShow};
@@ -85,7 +85,7 @@ impl TVShow {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::{InsertableTVShow, TVShow};
@@ -135,7 +135,7 @@ impl StaticTrait for InsertableTVShow {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::InsertableTVShow;

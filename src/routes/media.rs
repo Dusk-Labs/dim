@@ -19,6 +19,13 @@ use scanners::{
 };
 use std::sync::{Arc, Mutex};
 
+/// Method mapped to `GET /api/v1/media/<id>` returns info about a media based on the id queried.
+/// This method can only be accessed by authenticated users.
+///
+/// # Arguments
+/// * `conn` - database connection
+/// * `id` - id of the media we want to query info of
+/// * `_user` - Auth middleware
 #[get("/<id>")]
 pub fn get_media_by_id(
     conn: DbConnection,
@@ -53,6 +60,14 @@ pub fn get_media_by_id(
     }))
 }
 
+/// Method mapped to `GET /api/v1/media/<id>/info` returns extra information about the media object
+/// such as casts, directors, and mediafiles. This method can only be accessed by authenticated
+/// users.
+///
+/// # Arguments
+/// * `conn` - database connection
+/// * `id` - id of the media we want to query info of
+/// * `_user` - Auth middleware
 #[get("/<id>/info")]
 pub fn get_extra_info_by_id(
     conn: DbConnection,
@@ -77,6 +92,14 @@ pub fn get_extra_info_by_id(
     }))
 }
 
+/// Method mapped to `PATCH /api/v1/media/<id>` is used to edit information about a media entry
+/// manually. It is used in the web ui to manually edit metadata of a media.
+///
+/// # Arguments
+/// * `conn` - database connection
+/// * `id` - id of the media we want to edit
+/// * `data` - the info that we changed about the media entry
+/// * `_user` - Auth middleware
 #[patch("/<id>", format = "application/json", data = "<data>")]
 pub fn update_media_by_id(
     conn: DbConnection,
@@ -90,6 +113,13 @@ pub fn update_media_by_id(
     }
 }
 
+/// Method mapped to `DELETE /api/v1/media/<id>` is used to delete a media entry for the library.
+/// ONly authenticated users can query this.
+///
+/// # Arguments
+/// * `conn` - database connection
+/// * `id` - id of the media we want to delete
+/// * `_user` - auth middleware
 #[delete("/<id>")]
 pub fn delete_media_by_id(
     conn: DbConnection,
@@ -100,6 +130,13 @@ pub fn delete_media_by_id(
     Ok(Status::Ok)
 }
 
+/// Method mapped to `GET /api/v1/media/tmdb_search` is used to quickly search TMDB based on 3
+/// params, one of which is optional. This is used client side in the rematch utility
+///
+/// # Arguments
+/// * `query` - the query we want to send to tmdb, ie movie title, tv show title
+/// * `year` - optional parameter specifying the release year of the media we want to look up
+/// * `media_type` - parameter that tells us what media type we are querying, ie movie or tv show
 #[get("/tmdb_search?<query>&<year>&<media_type>")]
 pub fn tmdb_search(
     query: String,
@@ -119,6 +156,16 @@ pub fn tmdb_search(
     ))
 }
 
+/// Method mapped to `PATCH /api/v1/media/<id>/match` used to rematch a media entry to a new tmdb
+/// id passed in as the paramter `tmdb_id`.
+///
+/// # Arguments
+/// * `conn` - database connection
+/// * `log` - logger
+/// * `event_tx` - websocket channel over which we dispatch a event notifying other clients of the
+/// new metadata
+/// * `id` - id of the media we want to rematch
+/// * `tmdb_id` - the tmdb id of the proper metadata we want to fetch for the media
 #[patch("/<id>/match?<tmdb_id>")]
 pub fn rematch(
     conn: DbConnection,
@@ -136,6 +183,16 @@ pub fn rematch(
     Ok(Status::Ok)
 }
 
+/// Method mapped to `PATCH /api/v1/mediafile/<id>/match` used to match a unmatched(orphan)
+/// mediafile to a tmdb id.
+///
+/// # Arguments
+/// * `conn` - database connection
+/// * `log` - logger
+/// * `event_tx` - websocket channel over which we dispatch a event notifying other clients of the
+/// new metadata
+/// * `id` - id of the orphan mediafile we want to rematch
+/// * `tmdb_id` - the tmdb id of the proper metadata we want to fetch for the media
 // Part of /api/v1/mediafile route
 #[patch("/<id>/match?<tmdb_id>")]
 pub fn rematch_mediafile(

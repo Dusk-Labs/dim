@@ -34,6 +34,7 @@ embed_migrations!("../../migrations");
 
 fn create_database(conn: &diesel::PgConnection) -> Result<(), diesel::result::Error> {
     let _ = diesel::sql_query("CREATE DATABASE dim").execute(conn)?;
+    let _ = diesel::sql_query("CREATE DATABASE dim_devel").execute(conn)?;
     let _ = diesel::sql_query("CREATE DATABASE pg_trgm").execute(conn)?;
     Ok(())
 }
@@ -69,6 +70,22 @@ pub fn get_conn() -> Result<diesel::PgConnection, diesel::result::ConnectionErro
     Ok(conn)
 }
 
+/// Function returns a connection to the development table of dim. This is mainly used for unit
+/// tests.
+pub fn get_conn_devel() -> Result<diesel::PgConnection, diesel::result::ConnectionError> {
+    let conn = internal_get_conn_custom(
+        None,
+        "postgres://postgres:dimpostgres@127.0.0.1/dim_devel",
+        "postgres://postgres:dimpostgres@postgres/dim_devel",
+    )?;
+
+    if !MIGRATIONS_FLAG.load(Ordering::SeqCst) && run_migrations(&conn).is_ok() {
+        MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
+    }
+
+    Ok(conn)
+}
+
 /// Function which returns a Result<T, E> where T is a new connection session or E is a connection
 /// error. It takes in a logger instance.
 ///
@@ -91,14 +108,24 @@ pub fn get_conn_logged(
 fn internal_get_conn(
     log: Option<&Logger>,
 ) -> Result<diesel::PgConnection, diesel::result::ConnectionError> {
-    let conn = PgConnection::establish("postgres://postgres:dimpostgres@postgres/dim");
+    internal_get_conn_custom(
+        log,
+        "postgres://postgres:dimpostgres@127.0.0.1/dim",
+        "postgres://postgres:dimpostgres@postgres/dim",
+    )
+}
+
+fn internal_get_conn_custom(
+    log: Option<&Logger>,
+    main: &str,
+    fallback: &str,
+) -> Result<diesel::PgConnection, diesel::result::ConnectionError> {
+    let conn = PgConnection::establish(main);
 
     let conn = if conn.is_ok() {
         conn
     } else {
-        // If we cant connect to the docker URL, assume we are not running inside docker and
-        // connect to localhost instead.
-        PgConnection::establish("postgres://postgres:dimpostgres@127.0.0.1/dim")
+        PgConnection::establish(fallback)
     };
 
     if conn.is_ok() {
@@ -107,12 +134,12 @@ fn internal_get_conn(
 
     if let Err(e) = conn {
         if let ConnectionError::BadConnection(_) = e {
-            let conn = PgConnection::establish("postgres://postgres:dimpostgres@postgres/");
+            let conn = PgConnection::establish("postgres://postgres:dimpostgres@127.0.0.1/");
 
             let conn = if conn.is_ok() {
                 conn
             } else {
-                PgConnection::establish("postgres://postgres:dimpostgres@127.0.0.1/")
+                PgConnection::establish("postgres://postgres:dimpostgres@postgres/")
             }?;
 
             if let Some(log) = log {
