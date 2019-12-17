@@ -9,7 +9,9 @@ import {
     NEW_LIBRARY_ERR,
     DEL_LIBRARY_START,
     DEL_LIBRARY_OK,
-    DEL_LIBRARY_ERR
+    DEL_LIBRARY_ERR,
+    RM_LIBRARY,
+    ADD_LIBRARY
 } from "./types.js";
 
 export const fetchLibraries = () => async (dispatch) => {
@@ -106,3 +108,32 @@ export const fetchLibraryMedia = () => async (dispatch) => {
         type: FETCH_LIBRARY_MEDIA
     });
 };
+
+export const handleWsDelLibrary = (id) => async (dispatch) => {
+    dispatch({
+        type: RM_LIBRARY,
+        id: id,
+    });
+}
+
+export const handleWsNewLibrary = (id) => async (dispatch) => {
+    const options = {
+        methid: "GET"
+    };
+
+    try {
+        const res = await fetch(`http://${window.host}:8000/api/v1/library/${id}`, options);
+
+        if (res.status !== 200) {
+            return;
+        }
+
+        const info = await res.json();
+
+        dispatch({
+            type: ADD_LIBRARY,
+            payload: info
+        });
+    } catch(err) {
+    }
+}

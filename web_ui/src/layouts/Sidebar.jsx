@@ -4,7 +4,7 @@ import Modal from "react-modal";
 import { connect } from "react-redux";
 import { Scrollbar } from "react-scrollbars-custom";
 
-import { fetchLibraries, delLibrary } from "../actions/libraryActions.js";
+import { fetchLibraries, delLibrary, handleWsNewLibrary, handleWsDelLibrary } from "../actions/libraryActions.js";
 import { fetchHosts } from "../actions/hostActions.js";
 import { fetchUser } from "../actions/userActions.js";
 
@@ -26,6 +26,20 @@ class Sidebar extends Component {
         this.library_ws = new WebSocket("ws://86.21.150.167:3012/events/library");
         this.library_ws.addEventListener("message", this.handle_ws_msg);
     }
+
+    handle_ws_msg = async (e) => {
+        const message = JSON.parse(e.data);
+        switch(message.type) {
+            case "EventRemoveLibrary":
+                this.props.handleWsDelLibrary(message.id)
+                break
+            case "EventNewLibrary":
+                this.props.handleWsNewLibrary(message.id)
+                break
+            default:
+                break
+        }
+    };
 
     async componentDidMount() {
         this.props.fetchUser();
@@ -270,7 +284,9 @@ const mapActionsToProps = {
     fetchLibraries,
     fetchHosts,
     fetchUser,
-    delLibrary
+    delLibrary,
+    handleWsDelLibrary,
+    handleWsNewLibrary,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(Sidebar);
