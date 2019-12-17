@@ -65,14 +65,14 @@ impl<'a> Session {
             outdir
         )));
 
-        let mut video_process = Command::new("/usr/local/bin/ffmpeg");
+        let mut video_process = Command::new("./ffmpeg");
         video_process
-            .stdout(Stdio::piped())
+            .stdout(Stdio::null())
             .args(video_args.as_slice());
 
-        let mut audio_process = Command::new("/usr/local/bin/ffmpeg");
+        let mut audio_process = Command::new("./ffmpeg");
         audio_process
-            .stdout(Stdio::piped())
+            .stdout(Stdio::null())
             .args(audio_args.as_slice());
 
         println!("{:?}", video_args);
