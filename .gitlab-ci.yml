@@ -19,4 +19,3 @@ test:cargo:
         - rustc --version && cargo --version  # Print version info for debugging
         - cd src/database && cargo test --all --verbose
           && cd ../auth && cargo test --all --verbose
-          && cd ../ && cargo test --all --verbose
