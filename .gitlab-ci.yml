@@ -11,6 +11,7 @@ variables:
 before_script:
     - apt-get update -yqq
     - apt-get install -yqq --no-install-recommends build-essential
+    - mkdir /builds/dusk-media/dim/web_ui/build
 
 # Use cargo to test the project
 test:cargo:
