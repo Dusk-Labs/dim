@@ -65,14 +65,16 @@ impl<'a> Session {
             outdir
         )));
 
-        let mut video_process = Command::new("./ffmpeg");
+        let mut video_process = Command::new(super::FFMPEG_BIN.as_ref());
         video_process
-            .stdout(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null())
             .args(video_args.as_slice());
 
-        let mut audio_process = Command::new("./ffmpeg");
+        let mut audio_process = Command::new(super::FFMPEG_BIN.as_ref());
         audio_process
-            .stdout(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null())
             .args(audio_args.as_slice());
 
         println!("{:?}", video_args);
