@@ -113,7 +113,7 @@ impl MediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile};
     ///
@@ -159,7 +159,7 @@ impl MediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile};
     ///
@@ -205,7 +205,7 @@ impl MediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile};
     /// use database::media::{InsertableMedia, Media};
@@ -269,7 +269,7 @@ impl MediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile};
     ///
@@ -321,7 +321,7 @@ impl MediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile};
     ///
@@ -371,7 +371,7 @@ impl MediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile};
     ///
@@ -422,7 +422,7 @@ impl InsertableMediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile};
     ///
@@ -476,7 +476,7 @@ impl UpdateMediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile, UpdateMediaFile};
     /// use database::media::{InsertableMedia, Media};

@@ -1,3 +1,23 @@
+//! Dim is a media manager written in rust.
+//! It uses Diesel as the ORM and rocket for the http/s server
+//!
+//! The project is split up into several crates:
+//! * [`auth`](auth) - Holds all the auth stuff that we might need
+//! * [`database`](database) - Holds all the database models including some frequently used db operations
+//! * [`events`](events) - Holds the events that we can dispatch over a websocket connection
+//! * [`routes`](routes) - All of the routes that we expose over http are stored in there
+//! * [`scanners`](scanners) - The filesystem scanner and daemon code is located here
+//! * [`streaming`](streamer) - All streaming code is located here, including some wrappers around ffprobe and
+//! ffmpeg that is used by several parts of dim
+//!
+//! # Building
+//! Dim can easily be built with cargo build --release.
+//! When built with --release, build.rs will compile the web ui and embed it into dim.
+//!
+//! # To run
+//! Dim can be ran using docker, by pulling vgarleanu/dim-server, or locally.
+//! If ran locally, make sure PostgreSQL is running with the password for postgres: dimpostgres
+
 #![feature(rustc_private)]
 #![feature(proc_macro_hygiene, decl_macro)]
 #![feature(try_trait)]
@@ -31,6 +51,7 @@ pub mod tests;
 const VERSION: &str = "0.0.3";
 const DESCRIPTION: &str = "Dim, a media manager fueled by dark forces.";
 
+/// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.
 fn build_logger(_debug: bool) -> slog::Logger {
     let date_now = Utc::now();
 
@@ -41,6 +62,7 @@ fn build_logger(_debug: bool) -> slog::Logger {
     let _ = create_dir("logs");
     let file = File::create(format!("logs/dim-log-{}.log", date_now.to_rfc3339()))
         .expect("Couldnt open log file");
+
     let json_drain = Mutex::new(slog_json_default::default(file)).map(slog::Fuse);
 
     return slog::Logger::root(slog::Duplicate::new(drain, json_drain).fuse(), slog::o!());
@@ -79,6 +101,7 @@ fn main() {
     let logger = build_logger(debug);
 
     {
+        // We check if ffmpeg and ffprobe binaries exist and exit gracefully if they dont exist.
         let mut bucket: Vec<Box<str>> = Vec::new();
         if let Err(why) = streamer::ffcheck(&mut bucket) {
             eprintln!("Could not find: {}", why);
@@ -92,13 +115,15 @@ fn main() {
     }
 
     slog::info!(logger, "Starting the WS service on port 3012");
-    let event_tx = core::start_event_server(logger.clone());
+    let event_tx = core::start_event_server(logger.clone(), "0.0.0.0:3012");
 
     if !matches.is_present("no-scanners") {
         slog::info!(logger, "Booting scanners up");
         core::run_scanners(logger.clone(), event_tx.clone());
     }
 
+    // By default rocket starts on port 8000, maybe we should have it be default 8000 but accept a
+    // custom port over cmd args?
     let rocket_config = ConfigBuilder::new(Environment::Development)
         .address("0.0.0.0")
         .port(8000)
@@ -108,7 +133,6 @@ fn main() {
             let mut db_conf = std::collections::HashMap::new();
             let mut m = std::collections::HashMap::new();
             m.insert("url", "postgres://postgres:dimpostgres@127.0.0.1/dim");
-            //            m.insert("url", "postgres://postgres:dimpostgres@127.0.0.1/dim_debug");
             db_conf.insert("dimpostgres", m);
             db_conf
         })

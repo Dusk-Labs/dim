@@ -49,7 +49,7 @@ impl Season {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::InsertableTVShow;
@@ -117,7 +117,7 @@ impl Season {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::InsertableTVShow;
@@ -184,7 +184,7 @@ impl Season {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::InsertableTVShow;
@@ -260,7 +260,7 @@ impl InsertableSeason {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::InsertableTVShow;
@@ -332,7 +332,7 @@ impl UpdateSeason {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::InsertableTVShow;

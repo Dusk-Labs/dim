@@ -76,7 +76,7 @@ impl Episode {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::InsertableTVShow;
@@ -175,7 +175,7 @@ impl Episode {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::InsertableTVShow;
@@ -267,7 +267,7 @@ impl Episode {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::InsertableTVShow;
@@ -362,7 +362,7 @@ impl Episode {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::InsertableTVShow;
@@ -453,7 +453,7 @@ impl InsertableEpisode {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::InsertableTVShow;
@@ -572,7 +572,7 @@ impl UpdateEpisode {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media, UpdateMedia};
     /// use database::tv::InsertableTVShow;

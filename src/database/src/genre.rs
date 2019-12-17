@@ -44,7 +44,7 @@ impl Genre {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::genre::{InsertableGenre, Genre};
     ///
     /// let conn = get_conn().unwrap();
@@ -77,7 +77,7 @@ impl Genre {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::genre::{InsertableGenre, Genre, InsertableGenreMedia};
@@ -142,7 +142,7 @@ impl Genre {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::genre::{InsertableGenre, Genre, InsertableGenreMedia};
@@ -207,7 +207,7 @@ impl Genre {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::genre::{InsertableGenre, Genre};
     ///
     /// let conn = get_conn().unwrap();
@@ -244,7 +244,7 @@ impl InsertableGenre {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::genre::{InsertableGenre, Genre};
     ///
     /// let conn = get_conn().unwrap();
@@ -290,7 +290,7 @@ impl InsertableGenreMedia {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::genre::{InsertableGenre, Genre, InsertableGenreMedia};
@@ -348,7 +348,7 @@ impl InsertableGenreMedia {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{Library, InsertableLibrary, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::genre::{InsertableGenre, Genre, InsertableGenreMedia};
