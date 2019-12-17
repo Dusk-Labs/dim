@@ -45,7 +45,9 @@ pub mod core;
 pub mod errors;
 pub mod macros;
 pub mod routes;
+pub mod scanners;
 pub mod schema;
+pub mod streaming;
 pub mod tests;
 
 const VERSION: &str = "0.0.3";
@@ -86,24 +88,34 @@ fn main() {
                 .help("Specify the port to use for the HTTP/S service"),
         )
         .arg(
+            Arg::with_name("enable-ssl")
+                .long("enable-ssl")
+                .help("Enable ssl within rocket"),
+        )
+        .arg(
+            Arg::with_name("priv-key")
+                .long("priv-key")
+                .help("Path to the private key to use with the ssl module"),
+        )
+        .arg(
+            Arg::with_name("ssl-cert")
+                .long("ssl-cert")
+                .help("Path to the SSL certificate we want to use"),
+        )
+        .arg(
             Arg::with_name("no-scanners")
                 .long("no-scan")
                 .help("Disable the library scanners on boot"),
         );
 
     let matches = matches.get_matches();
-    let debug = if cfg!(debug_assertions) {
-        true
-    } else {
-        matches.is_present("debug")
-    };
-
+    let debug = cfg!(debug_assertions) || matches.is_present("debug");
     let logger = build_logger(debug);
 
     {
         // We check if ffmpeg and ffprobe binaries exist and exit gracefully if they dont exist.
         let mut bucket: Vec<Box<str>> = Vec::new();
-        if let Err(why) = streamer::ffcheck(&mut bucket) {
+        if let Err(why) = streaming::ffcheck(&mut bucket) {
             eprintln!("Could not find: {}", why);
             slog::error!(logger, "Could not find: {}", why);
             std::process::exit(1);

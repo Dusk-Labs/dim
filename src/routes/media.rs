@@ -1,22 +1,24 @@
-use crate::core::DbConnection;
-use crate::core::EventTx;
-use crate::errors;
+use crate::{
+    core::{DbConnection, EventTx},
+    errors,
+    scanners::{
+        iterative_parser::IterativeScanner,
+        tmdb_api::{MediaType as TmdbMediaType, TMDbSearch},
+        APIExec,
+    },
+};
 use auth::Wrapper as Auth;
-use database::genre::Genre;
-use database::media::{Media, UpdateMedia};
-use database::mediafile::MediaFile;
-use rocket::http::Status;
-use rocket::State;
+use database::{
+    genre::Genre,
+    media::{Media, UpdateMedia},
+    mediafile::MediaFile,
+};
+use rocket::{http::Status, State};
 use rocket_contrib::{
     json,
     json::{Json, JsonValue},
 };
 use rocket_slog::SyncLogger;
-use scanners::iterative_parser::IterativeScanner;
-use scanners::{
-    tmdb_api::{MediaType as TmdbMediaType, TMDbSearch},
-    APIExec,
-};
 use std::sync::{Arc, Mutex};
 
 /// Method mapped to `GET /api/v1/media/<id>` returns info about a media based on the id queried.
