@@ -46,6 +46,10 @@ export const DEL_LIBRARY_START = "DEL_LIBRARY_START";
 export const DEL_LIBRARY_OK = "DEL_LIBRARY_OK";
 export const DEL_LIBRARY_ERR = "DEL_LIBRARY_ERR";
 
+// [WEBSOCKET] LIBRARY
+export const RM_LIBRARY = "RM_LIBRARY";
+export const ADD_LIBRARY = "ADD_LIBRARY";
+
 /*
     * == CARD ACTIONS ==
 */
