@@ -28,7 +28,7 @@ pub struct UserRolesToken {
     roles: Vec<String>,
 }
 
-pub struct Wrapper(TokenData<UserRolesToken>);
+pub struct Wrapper(pub TokenData<UserRolesToken>);
 
 #[derive(Debug)]
 pub enum JWTError {
@@ -53,6 +53,11 @@ impl UserRolesToken {
     /// Method checks if the user holding this token has a specific role.
     pub fn has_role(&self, role: &str) -> bool {
         self.roles.contains(&role.to_string())
+    }
+
+    /// Method returns the username from the token
+    pub fn get_user(&self) -> String {
+        self.user.clone()
     }
 }
 
