@@ -28,7 +28,7 @@ pub struct UserRolesToken {
     roles: Vec<String>,
 }
 
-pub struct Wrapper(TokenData<UserRolesToken>);
+pub struct Wrapper(pub TokenData<UserRolesToken>);
 
 #[derive(Debug)]
 pub enum JWTError {
@@ -53,6 +53,11 @@ impl UserRolesToken {
     /// Method checks if the user holding this token has a specific role.
     pub fn has_role(&self, role: &str) -> bool {
         self.roles.contains(&role.to_string())
+    }
+
+    /// Method returns the username from the token
+    pub fn get_user(&self) -> String {
+        self.user.clone()
     }
 }
 
@@ -101,6 +106,7 @@ pub fn jwt_check(token: String) -> Result<TokenData<UserRolesToken>, jsonwebtoke
 impl<'a, 'r> FromRequest<'a, 'r> for Wrapper {
     type Error = JWTError;
 
+    /*
     fn from_request(_: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
         Outcome::Success(Wrapper(TokenData {
             header: Header::new(Algorithm::HS512),
@@ -112,8 +118,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for Wrapper {
             },
         }))
     }
+    */
 
-    /*
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
         let keys: Vec<_> = request.headers().get("authorization").collect();
         match keys.len() {
@@ -125,5 +131,4 @@ impl<'a, 'r> FromRequest<'a, 'r> for Wrapper {
             _ => Outcome::Failure((Status::BadRequest, JWTError::BadCount)),
         }
     }
-    */
 }

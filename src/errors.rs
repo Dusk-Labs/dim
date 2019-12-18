@@ -36,6 +36,10 @@ pub enum AuthError {
     FailedAuth,
     #[error(display = "A database error occured")]
     DatabaseError,
+    #[error(display = "No invite token was supplied, when required")]
+    NoTokenError,
+    #[error(display = "Admin role required to access this route")]
+    Unauthorized,
 }
 
 #[derive(Debug, Error, Serialize)]
@@ -108,8 +112,9 @@ impl Responder<'static> for DimError {
 impl Responder<'static> for AuthError {
     fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
         let status = match self {
-            Self::FailedAuth => Status::Ok,
+            Self::FailedAuth | Self::NoTokenError => Status::Ok,
             Self::DatabaseError => Status::InternalServerError,
+            Self::Unauthorized => Status::Unauthorized,
         };
 
         Response::build()
