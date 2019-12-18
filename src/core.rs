@@ -141,7 +141,14 @@ pub fn rocket_pad(
         )
         .mount(
             "/api/v1/auth",
-            routes![routes::auth::login, routes::auth::register],
+            routes![
+                routes::auth::login,
+                routes::auth::register,
+                routes::auth::whoami,
+                routes::auth::admin_exists,
+                routes::auth::get_all_invites,
+                routes::auth::generate_invite
+            ],
         )
         .attach(cors)
         .manage(Arc::new(Mutex::new(event_tx)))
