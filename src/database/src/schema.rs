@@ -109,6 +109,13 @@ table! {
     }
 }
 
+table! {
+    invites (id) {
+        id -> Int4,
+        token -> Text,
+    }
+}
+
 joinable!(episode -> season (seasonid));
 joinable!(episode -> streamable_media (id));
 joinable!(genre_media -> genre (genre_id));
@@ -126,6 +133,7 @@ allow_tables_to_appear_in_same_query!(
     episode,
     genre,
     genre_media,
+    invites,
     library,
     media,
     mediafile,
@@ -134,4 +142,5 @@ allow_tables_to_appear_in_same_query!(
     season,
     streamable_media,
     tv_show,
+    users,
 );
