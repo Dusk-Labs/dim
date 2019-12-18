@@ -14,7 +14,7 @@ pub enum Role {
     User,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Debug)]
 pub struct User {
     pub username: String,
     pub roles: Vec<String>,
@@ -103,7 +103,7 @@ impl User {
     /// # Example
     /// ```
     /// use database::get_conn_devel as get_conn;
-    /// use database::user::{User, InsertableUser};
+    /// use database::user::{User, hash, InsertableUser};
     ///
     /// let conn = get_conn().unwrap();
     ///
@@ -131,14 +131,14 @@ impl User {
     pub fn get_one(
         conn: &diesel::PgConnection,
         uname: String,
-        pw_hash: String,
+        pw: String,
     ) -> Result<Self, DieselError> {
         use crate::schema::users;
         users::table
             .filter(
                 users::dsl::username
-                    .eq(uname)
-                    .and(users::dsl::password.eq(pw_hash)),
+                    .eq(uname.clone())
+                    .and(users::dsl::password.eq(hash(uname, pw))),
             )
             .select((users::dsl::username, users::dsl::roles))
             .first::<Self>(conn)
