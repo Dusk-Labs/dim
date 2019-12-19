@@ -7,6 +7,7 @@ import { Scrollbar } from "react-scrollbars-custom";
 import { fetchLibraries, delLibrary, handleWsNewLibrary, handleWsDelLibrary } from "../actions/libraryActions.js";
 import { fetchHosts } from "../actions/hostActions.js";
 import { fetchUser } from "../actions/userActions.js";
+import { logout } from "../actions/authActions.js";
 
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -42,13 +43,13 @@ class Sidebar extends Component {
     };
 
     async componentDidMount() {
-        this.props.fetchUser();
-        this.props.fetchHosts();
-        this.props.fetchLibraries();
+        this.props.fetchUser(this.props.auth.token);
+        this.props.fetchHosts(this.props.auth.token);
+        this.props.fetchLibraries(this.props.auth.token);
     }
 
     async componentWillUnmount() {
-        this.library_ws.removeEventListener("message");
+        this.library_ws.removeEventListener("message", this.handle_ws_msg);
         this.library_ws.close();
     }
 
@@ -267,10 +268,10 @@ class Sidebar extends Component {
                             </NavLink>
                         </div>
                         <div className="item-wrapper">
-                            <NavLink to="/logout">
+                            <a onClick={() => {this.props.logout()}}>
                                 <FontAwesomeIcon icon="door-open"/>
                                 <p>Logout</p>
-                            </NavLink>
+                            </a>
                         </div>
                     </div>
                 </section>
@@ -280,12 +281,14 @@ class Sidebar extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    auth: state.authReducer,
     user: state.userReducer,
     hosts: state.hostReducer,
     libraries: state.libraryReducer.fetch_libraries
 });
 
 const mapActionsToProps = {
+    logout,
     fetchLibraries,
     fetchHosts,
     fetchUser,

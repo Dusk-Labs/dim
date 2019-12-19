@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { connect } from "react-redux";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
@@ -10,6 +11,9 @@ import CardList from "./layouts/CardList.jsx";
 import VideoPlayer from "./layouts/VideoPlayer.jsx";
 import SearchResults from "./layouts/SearchResults";
 import BannerPage from "./components/BannerPage.jsx";
+import Login from "./layouts/Login.jsx";
+
+import { authenticate } from "./actions/authActions.js";
 
 import './App.scss';
 
@@ -18,7 +22,17 @@ library.add(fas, far);
 window.host = window.location.hostname; // quick hack to get proper requests
 
 class App extends Component {
+    constructor(props) {
+        super(props);
+    }
+
 	render() {
+        if(!this.props.auth.logged_in) {
+            return (
+                <Login/>
+            );
+        }
+
 		return (
 			<Router>
 			<Switch>
@@ -30,7 +44,7 @@ class App extends Component {
 							<Sidebar/>
 							<main>
 								<BannerPage/>
-								<CardList path={`http://${window.host}:8000/api/v1/dashboard`}/>
+								<CardList path={`//${window.host}:8000/api/v1/dashboard`}/>
 							</main>
 						</div>
 					);
@@ -39,7 +53,7 @@ class App extends Component {
 					<div className="App">
 						<Sidebar/>
 						<main>
-							<CardList path={`http://${window.host}:8000/api/v1/library/${props.match.params.id}/media`}/>
+							<CardList path={`//${window.host}:8000/api/v1/library/${props.match.params.id}/media`}/>
 						</main>
 					</div>
 				}/>
@@ -64,4 +78,12 @@ class App extends Component {
 	}
 }
 
-export default App;
+const mapStateToProps = (state) => ({
+    auth: state.authReducer,
+});
+
+const mapActionsToProps = {
+    authenticate,
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(App);

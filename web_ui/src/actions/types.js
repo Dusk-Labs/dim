@@ -106,3 +106,11 @@ export const TRANSCODE_ERR = "TRANSCODE_ERR";
 export const DEL_TRANSCODE_START = "DEL_TRANSCODE_START";
 export const DEL_TRANSCODE_OK = "DEL_TRANSCODE_OK";
 export const DEL_TRANSCODE_ERR = "DEL_TRANSCODE_ERR";
+
+/*
+    * Auth actions
+*/
+export const AUTH_OK = "AUTH_OK";
+export const AUTH_ERR = "AUTH_ERR";
+export const START_AUTH = "START_AUTH";
+export const AUTH_LOGOUT = "AUTH_LOGOUT";

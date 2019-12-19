@@ -18,7 +18,7 @@ class CardList extends Component {
         this._isMounted = true;
 
         if (this.props.path) {
-            return this.props.fetchCards(this.props.path);
+            return this.props.fetchCards(this.props.auth.token, this.props.path);
         }
 
         if (this.props.id) {
@@ -29,7 +29,7 @@ class CardList extends Component {
     async componentDidUpdate(prevProps) {
         if (this.props.path) {
             if (this.props.path !== prevProps.path) {
-                return this.props.fetchCards(this.props.path);
+                return this.props.fetchCards(this.props.auth.token, this.props.path);
             }
         }
     }
@@ -41,7 +41,7 @@ class CardList extends Component {
     mount_websocket() {
         window.library = this;
 
-        this.websocket = new WebSocket(`ws://86.21.150.167:3012/events/library/${this.props.id}`);
+        this.websocket = new WebSocket(`ws://${window.host}:3012/events/library/${this.props.id}`);
         this.websocket.addEventListener("message", this.handle_ws_msg);
     }
 
@@ -51,7 +51,12 @@ class CardList extends Component {
         if (msg.res !== `/events/library/${this.props.id}`) return;
 
         if (msg.message.event_type.type === "EventNewCard") {
-            const new_card = await this.handle_req(fetch(`http://86.21.150.167:8000/api/v1/media/${msg.message.id}`));
+            const config = {
+                headers: {
+                    "authorization": this.props.auth.token,
+                }
+            }
+            const new_card = await this.handle_req(fetch(`//${window.host}:8000/api/v1/media/${msg.message.id}`, config));
 
             if (!new_card.err) {
                 const key = Object.keys(this.state.cards)[0];
@@ -171,6 +176,7 @@ class CardList extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    auth: state.authReducer,
     cards: state.cardReducer.fetch_cards
 });
 
