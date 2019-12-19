@@ -20,10 +20,28 @@
 		</AdaptationSet>
 		<AdaptationSet contentType="video">
 			<Representation
+					id="4000kb"
+					mimeType="video/mp4"
+                    codecs="avc1.640029" height="1080" bandwidth="4000000">
+            <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/video/4000kb/init.mp4" media="chunks/video/4000kb/$Number$.m4s" startNumber="0">
+				</SegmentTemplate>
+			</Representation>
+		</AdaptationSet>
+		<AdaptationSet contentType="video">
+			<Representation
 					id="2000kb"
 					mimeType="video/mp4"
                     codecs="avc1.640029" height="1080" bandwidth="2000000">
             <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/video/2000kb/init.mp4" media="chunks/video/2000kb/$Number$.m4s" startNumber="0">
+				</SegmentTemplate>
+			</Representation>
+		</AdaptationSet>
+		<AdaptationSet contentType="video">
+			<Representation
+					id="1000kb"
+					mimeType="video/mp4"
+                    codecs="avc1.640029" height="1080" bandwidth="1000000">
+            <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/video/1000kb/init.mp4" media="chunks/video/1000kb/$Number$.m4s" startNumber="0">
 				</SegmentTemplate>
 			</Representation>
 		</AdaptationSet>

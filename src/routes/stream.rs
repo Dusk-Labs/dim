@@ -1,7 +1,10 @@
 use crate::{
     core::DbConnection,
     errors,
-    streaming::{ffprobe::FFProbeCtx, transcode::Session},
+    streaming::{
+        ffprobe::FFProbeCtx,
+        transcode::{Profile, Session},
+    },
 };
 use chrono::{prelude::*, NaiveDateTime, Utc};
 use database::mediafile::MediaFile;
@@ -17,7 +20,7 @@ use std::{
 };
 
 lazy_static::lazy_static! {
-    static ref STREAMS: Arc<Mutex<HashMap<i32, Session>>> = Arc::new(Mutex::new(HashMap::new()));
+    static ref STREAMS: Arc<Mutex<HashMap<i32, HashMap<String, Session>>>> = Arc::new(Mutex::new(HashMap::new()));
 }
 
 #[get("/stream/<id>/manifest.mpd")]
@@ -55,13 +58,20 @@ pub fn return_manifest(conn: DbConnection, id: i32) -> Result<Response<'static>,
         .ok()
 }
 
-#[get("/stream/<id>/chunks/<path>/<chunk..>")]
+#[get("/stream/<id>/chunks/<map>/<profile>/<chunk..>")]
 pub fn return_static(
     conn: DbConnection,
     id: i32,
-    path: String,
+    map: String,
+    profile: String,
     chunk: PathBuf,
 ) -> Result<Option<NamedFile>, errors::DimError> {
+    let asserted_profile = if map == "audio" {
+        Profile::Audio
+    } else {
+        Profile::from_string(profile.clone())?
+    };
+
     let extension = chunk.extension()?.to_string_lossy().into_owned();
 
     // Chunks will always be m4s or mp4
@@ -86,7 +96,12 @@ pub fn return_static(
 
     if let Some(_) = lock.get(&id) {
         for _ in 0..30 {
-            if let Ok(x) = NamedFile::open(full_path.join(path.clone()).join(chunk.clone())) {
+            if let Ok(x) = NamedFile::open(
+                full_path
+                    .join(map.clone())
+                    .join(profile.clone())
+                    .join(chunk.clone()),
+            ) {
                 return Ok(Some(x));
             }
             // TODO: Replace this with a dameon that monitors a file with a timeout then returns Option<T>
@@ -94,21 +109,48 @@ pub fn return_static(
         }
     }
 
-    if let Some(x) = lock.remove(&id) {
-        x.join();
+    if let Some(mut x) = lock.remove(&id) {
+        if let Some(y) = x.remove(&map) {
+            y.join();
+        }
     }
 
-    let session = Session::new(
-        media.target_file,
-        None,
-        chunk_num,
-        full_path.clone().into_os_string().into_string().unwrap(),
-    )?;
+    let session = if map == "video" {
+        Session::new_video(
+            media.target_file,
+            asserted_profile,
+            chunk_num,
+            full_path.clone().into_os_string().into_string().unwrap(),
+        )?
+    } else if map == "audio" {
+        Session::new_audio(
+            media.target_file,
+            chunk_num,
+            full_path.clone().into_os_string().into_string().unwrap(),
+        )?
+    } else {
+        return Err(errors::DimError::StreamingError(
+            errors::StreamingErrors::InvalidProfile,
+        ));
+    };
 
-    lock.insert(id, session);
+    if let Some(v) = lock.get_mut(&id) {
+        v.insert(map.clone(), session);
+    } else {
+        lock.insert(id, {
+            let mut m = HashMap::new();
+            m.insert(map.clone(), session);
+            m
+        });
+    };
 
     for _ in 0..40 {
-        if let Ok(x) = NamedFile::open(full_path.join(path.clone()).join(chunk.clone())) {
+        if let Ok(x) = NamedFile::open(
+            full_path
+                .join(map.clone())
+                .join(profile.clone())
+                .join(chunk.clone()),
+        ) {
             return Ok(Some(x));
         }
         // TODO: Replace this with a dameon that monitors a file with a timeout then returns Option<T>
