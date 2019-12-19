@@ -88,17 +88,14 @@ fn main() {
                 .help("Specify the port to use for the HTTP/S service"),
         )
         .arg(
-            Arg::with_name("enable-ssl")
-                .long("enable-ssl")
-                .help("Enable ssl within rocket"),
-        )
-        .arg(
             Arg::with_name("priv-key")
+                .takes_value(true)
                 .long("priv-key")
                 .help("Path to the private key to use with the ssl module"),
         )
         .arg(
             Arg::with_name("ssl-cert")
+                .takes_value(true)
                 .long("ssl-cert")
                 .help("Path to the SSL certificate we want to use"),
         )
@@ -136,7 +133,13 @@ fn main() {
 
     // By default rocket starts on port 8000, maybe we should have it be default 8000 but accept a
     // custom port over cmd args?
-    let rocket_config = ConfigBuilder::new(Environment::Development)
+    let env = if cfg!(debug_assertions) {
+        Environment::Development
+    } else {
+        Environment::Production
+    };
+
+    let mut rocket_config = ConfigBuilder::new(env)
         .address("0.0.0.0")
         .port(8000)
         .workers(64)
@@ -150,6 +153,15 @@ fn main() {
         })
         .finalize()
         .unwrap();
+
+    if let Some(cert) = matches.value_of("ssl-cert") {
+        if let Some(key) = matches.value_of("priv-key") {
+            slog::info!(logger, "Enabling ssl...");
+            rocket_config.set_tls(cert, key).unwrap();
+        }
+    } else {
+        slog::warn!(logger, "Disabling ssl...");
+    }
 
     slog::info!(logger, "Booting Dim... Standby...");
     core::launch(logger, event_tx, rocket_config);
