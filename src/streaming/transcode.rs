@@ -1,11 +1,21 @@
 use crate::errors;
+use std::collections::HashMap;
+use std::io::Read;
 use std::process::{Child, Command, Stdio};
+use stoppable_thread::{self, SimpleAtomicBool, StoppableHandle};
 
 const CHUNK_SIZE: u64 = 5;
 
 pub struct Session {
-    audio_process: Child,
-    video_process: Child,
+    pub video_process_id: String,
+    pub audio_process_id: String,
+    audio_process: StoppableHandle<()>,
+    video_process: StoppableHandle<()>,
+}
+
+struct TranscodeHandler {
+    id: String,
+    process: Child,
 }
 
 pub enum Profile {
@@ -68,24 +78,29 @@ impl<'a> Session {
         let mut video_process = Command::new(super::FFMPEG_BIN.as_ref());
         video_process
             .stdout(Stdio::piped())
-            .stderr(Stdio::null())
             .args(video_args.as_slice());
 
         let mut audio_process = Command::new(super::FFMPEG_BIN.as_ref());
         audio_process
             .stdout(Stdio::piped())
-            .stderr(Stdio::null())
             .args(audio_args.as_slice());
 
         println!("{:?}", video_args);
         println!("{:?}", audio_args);
 
-        let video_process = video_process.spawn()?;
-        let audio_process = audio_process.spawn()?;
+        let video_process_id = uuid::Uuid::new_v4().to_hyphenated().to_string();
+        let audio_process_id = uuid::Uuid::new_v4().to_hyphenated().to_string();
+
+        let mut video_process =
+            TranscodeHandler::new(video_process_id.clone(), video_process.spawn()?);
+        let mut audio_process =
+            TranscodeHandler::new(audio_process_id.clone(), audio_process.spawn()?);
 
         Ok(Self {
-            video_process,
-            audio_process,
+            video_process: stoppable_thread::spawn(move |signal| video_process.handle(signal)),
+            audio_process: stoppable_thread::spawn(move |signal| audio_process.handle(signal)),
+            video_process_id,
+            audio_process_id,
         })
     }
 
@@ -142,12 +157,72 @@ impl<'a> Session {
         args
     }
 
-    pub fn join(mut self) {
-        let _ = self.audio_process.kill();
-        let _ = self.audio_process.wait();
+    pub fn join(self) {
+        let _ = self.audio_process.stop().join().unwrap();
+        let _ = self.video_process.stop().join().unwrap();
+    }
+}
 
-        let _ = self.video_process.kill();
-        let _ = self.video_process.wait();
+impl TranscodeHandler {
+    fn new(id: String, process: Child) -> Self {
+        Self { id, process }
+    }
+
+    fn handle(&mut self, signal: &SimpleAtomicBool) {
+        use crate::streaming::STREAMING_SESSION;
+        use std::io::BufReader;
+        let mut stdio = BufReader::new(self.process.stdout.take().unwrap());
+        let mut map: HashMap<String, String> = {
+            let mut map = HashMap::new();
+            map.insert("frame".into(), "0".into());
+            map.insert("fps".into(), "0.0".into());
+            map.insert("stream_0_0_q".into(), "0.0".into());
+            map.insert("bitrate".into(), "0.0kbits/s".into());
+            map.insert("total_size".into(), "0".into());
+            map.insert("out_time_ms".into(), "0".into());
+            map.insert("out_time".into(), "00:00:00.000000".into());
+            map.insert("dup_frames".into(), "0".into());
+            map.insert("drop_frames".into(), "0".into());
+            map.insert("speed".into(), "0.00x".into());
+            map.insert("progress".into(), "continue".into());
+            map
+        };
+        let mut out: [u8; 256] = [0; 256];
+
+        'stdout: while !signal.get() {
+            let _ = stdio.read_exact(&mut out);
+            let output = String::from_utf8_lossy(&out);
+            let mut pairs = output
+                .lines()
+                .map(|x| x.split('=').filter(|x| x.len() > 1).collect::<Vec<&str>>())
+                .filter(|x| x.len() == 2)
+                .collect::<Vec<Vec<&str>>>();
+
+            pairs.dedup_by(|a, b| a[0].eq(b[0]));
+
+            for pair in pairs {
+                if let Some(v) = map.get_mut(&pair[0].to_string()) {
+                    *v = pair[1].into();
+                }
+            }
+
+            {
+                let mut lock = STREAMING_SESSION.lock().unwrap();
+                let _ = lock.insert(self.id.clone(), map.clone());
+            }
+
+            match self.process.try_wait() {
+                Ok(Some(_)) => break 'stdout,
+                Ok(None) => {}
+                Err(x) => println!("handle_stdout got err on try_wait(): {:?}", x),
+            }
+        }
+
+        let _ = self.process.kill();
+        let _ = self.process.wait();
+
+        let mut lock = STREAMING_SESSION.lock().unwrap();
+        let _ = lock.remove(&self.id);
     }
 }
 
