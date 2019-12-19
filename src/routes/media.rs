@@ -9,9 +9,12 @@ use crate::{
 };
 use auth::Wrapper as Auth;
 use database::{
+    episode::Episode,
     genre::Genre,
+    library::MediaType,
     media::{Media, UpdateMedia},
     mediafile::MediaFile,
+    season::Season,
 };
 use rocket::{http::Status, State};
 use rocket_contrib::{
@@ -78,6 +81,13 @@ pub fn get_extra_info_by_id(
 ) -> Result<JsonValue, errors::DimError> {
     let media = Media::get(conn.as_ref(), id)?;
 
+    match media.media_type {
+        Some(MediaType::Movie) | Some(MediaType::Episode) | None => get_for_streamable(conn, media),
+        Some(MediaType::Tv) => get_for_show(conn, media),
+    }
+}
+
+fn get_for_streamable(conn: DbConnection, media: Media) -> Result<JsonValue, errors::DimError> {
     let media_files = MediaFile::get_of_media(conn.as_ref(), &media)?;
 
     Ok(json!({
@@ -90,8 +100,45 @@ pub fn get_extra_info_by_id(
                                     x.original_resolution.as_ref().unwrap_or(&"Unknown res".to_string()),
                                     x.library_id)
         })).collect::<Vec<_>>(),
-        "cast": [],
-        "directors": []
+    }))
+}
+
+fn get_for_episode(conn: &DbConnection, media: Episode) -> Result<JsonValue, errors::DimError> {
+    let media_files = MediaFile::get_of_media(conn.as_ref(), &media.media)?;
+
+    Ok(json!({
+        "episode": media.episode,
+        "description": media.media.description,
+        "rating": media.media.rating,
+        "backdrop": media.media.backdrop_path,
+        "versions": media_files.iter().map(|x| json!({
+            "id": x.id,
+            "file": x.target_file,
+            "display_name": format!("{} - {} - {} - Library {}",
+                                    x.codec.as_ref().unwrap_or(&"Unknown VC".to_string()),
+                                    x.audio.as_ref().unwrap_or(&"Unknwon AC".to_string()),
+                                    x.original_resolution.as_ref().unwrap_or(&"Unknown res".to_string()),
+                                    x.library_id)
+        })).collect::<Vec<_>>(),
+    }))
+}
+
+fn get_for_show(conn: DbConnection, media: Media) -> Result<JsonValue, errors::DimError> {
+    Ok(json!({
+        "seasons":
+            Season::get_all(conn.as_ref(), media.id)?
+                .into_iter()
+                .filter_map(|x| Episode::get_all_of_season(&conn, &x).map(|y| (x, y)).ok())
+                .map(|(x, y)| {
+                    json!({
+                        "id": x.id,
+                        "season_number": x.season_number,
+                        "added": x.added,
+                        "poster": x.poster,
+                        "episodes": y.into_iter().filter_map(|z| get_for_episode(&conn, z).ok()).collect::<Vec<JsonValue>>()
+                    })
+                })
+                .collect::<Vec<JsonValue>>()
     }))
 }
 
