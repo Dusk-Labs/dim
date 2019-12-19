@@ -7,10 +7,8 @@ use stoppable_thread::{self, SimpleAtomicBool, StoppableHandle};
 const CHUNK_SIZE: u64 = 5;
 
 pub struct Session {
-    pub video_process_id: String,
-    pub audio_process_id: String,
-    audio_process: StoppableHandle<()>,
-    video_process: StoppableHandle<()>,
+    pub process_id: String,
+    process: StoppableHandle<()>,
 }
 
 struct TranscodeHandler {
@@ -19,88 +17,152 @@ struct TranscodeHandler {
 }
 
 pub enum Profile {
+    Direct,
     High,
     Medium,
     Low,
+    Audio,
 }
 
 impl Profile {
-    fn to_params(self) -> (&'static str, &'static str) {
+    fn to_params(self) -> (Vec<&'static str>, &'static str) {
         match self {
-            Self::High => ("4M", "scale=1080:-n"),
-            Self::Medium => ("2M", "scale=720:-n"),
-            Self::Low => ("1M", "scale=480:-m"),
+            Self::Direct => (vec!["-c:0", "copy"], "direct"),
+            Self::High => (
+                vec![
+                    "-c:0",
+                    "libx264",
+                    "-b:v",
+                    "4M",
+                    "-preset",
+                    "ultrafast",
+                    "-vf",
+                    "scale=1080:-1",
+                ],
+                "4000kb",
+            ),
+            Self::Medium => (
+                vec![
+                    "-c:0",
+                    "libx264",
+                    "-b:v",
+                    "2M",
+                    "-preset",
+                    "ultrafast",
+                    "-vf",
+                    "scale=720:-1",
+                ],
+                "2000kb",
+            ),
+            Self::Low => (
+                vec![
+                    "-c:0",
+                    "libx264",
+                    "-b:v",
+                    "1M",
+                    "-preset",
+                    "ultrafast",
+                    "-vf",
+                    "scale=480:-1",
+                ],
+                "1000kb",
+            ),
+            Self::Audio => (vec![], "120kb"),
         }
+    }
+
+    pub fn from_string<T: AsRef<str>>(profile: T) -> Result<Self, errors::StreamingErrors> {
+        Ok(match profile.as_ref() {
+            "direct" => Self::Direct,
+            "4000kb" => Self::High,
+            "2000kb" => Self::Medium,
+            "1000kb" => Self::Low,
+            _ => return Err(errors::StreamingErrors::InvalidProfile),
+        })
     }
 }
 
 impl<'a> Session {
     /// Function returns a new transcoding session based on the params passed, it also
     /// automatically calculates the hls_start attribute for streams started at an offset
-    pub fn new(
+    pub fn new_video(
         file: String,
-        profile: Option<Profile>,
+        profile: Profile,
         start_number: u64,
         outdir: String,
     ) -> Result<Self, errors::StreamingErrors> {
         let file = format!("file://{}", file);
-        let profile_args = profile.map_or_else(
-            || vec!["-c:0", "copy"],
-            |x| {
-                let x = x.to_params();
-                vec!["-c:0", "libx264", "-b:v", x.0, "-preset", "veryfast"]
-            },
-        );
+        let profile_args = profile.to_params();
 
-        let _ = std::fs::create_dir_all(format!("{}/video", outdir.clone()));
-        let _ = std::fs::create_dir(format!("{}/audio", outdir.clone()));
+        let _ = std::fs::create_dir_all(format!("{}/video/{}", outdir.clone(), profile_args.1));
 
         let mut video_args = Self::build_video(
             string_to_static_str(file.clone()),
             start_number,
-            profile_args,
+            profile_args.0,
         );
-        let mut audio_args = Self::build_audio(string_to_static_str(file.clone()), start_number);
 
         video_args.push("-hls_segment_filename");
-        audio_args.push("-hls_segment_filename");
-        video_args.push(string_to_static_str(format!("{}/video/%d.m4s", outdir)));
-        audio_args.push(string_to_static_str(format!("{}/audio/%d.m4s", outdir)));
         video_args.push(string_to_static_str(format!(
-            "{}/video/playlist.m3u8",
-            outdir
+            "{}/video/{}/%d.m4s",
+            outdir, profile_args.1
         )));
-        audio_args.push(string_to_static_str(format!(
-            "{}/audio/playlist.m3u8",
-            outdir
+        video_args.push(string_to_static_str(format!(
+            "{}/video/{}/playlist.m3u8",
+            outdir, profile_args.1
         )));
-
         let mut video_process = Command::new(super::FFMPEG_BIN.as_ref());
         video_process
             .stdout(Stdio::piped())
             .args(video_args.as_slice());
+
+        println!("{:?}", video_args);
+
+        let process_id = uuid::Uuid::new_v4().to_hyphenated().to_string();
+
+        let mut video_process = TranscodeHandler::new(process_id.clone(), video_process.spawn()?);
+
+        Ok(Self {
+            process: stoppable_thread::spawn(move |signal| video_process.handle(signal)),
+            process_id,
+        })
+    }
+    /// Function returns a new transcoding session based on the params passed, it also
+    /// automatically calculates the hls_start attribute for streams started at an offset
+    pub fn new_audio(
+        file: String,
+        start_number: u64,
+        outdir: String,
+    ) -> Result<Self, errors::StreamingErrors> {
+        let file = format!("file://{}", file);
+
+        let _ = std::fs::create_dir_all(format!("{}/audio/120kb", outdir.clone()));
+        let mut audio_args = Self::build_audio(string_to_static_str(file.clone()), start_number);
+
+        audio_args.push("-hls_segment_filename");
+        audio_args.push(string_to_static_str(format!(
+            "{}/audio/120kb/%d.m4s",
+            outdir
+        )));
+        audio_args.push(string_to_static_str(format!(
+            "{}/audio/120kb/playlist.m3u8",
+            outdir
+        )));
 
         let mut audio_process = Command::new(super::FFMPEG_BIN.as_ref());
         audio_process
             .stdout(Stdio::piped())
             .args(audio_args.as_slice());
 
-        println!("{:?}", video_args);
         println!("{:?}", audio_args);
 
-        let video_process_id = uuid::Uuid::new_v4().to_hyphenated().to_string();
-        let audio_process_id = uuid::Uuid::new_v4().to_hyphenated().to_string();
+        let process_id = uuid::Uuid::new_v4().to_hyphenated().to_string();
 
-        let mut video_process =
-            TranscodeHandler::new(video_process_id.clone(), video_process.spawn()?);
-        let mut audio_process =
-            TranscodeHandler::new(audio_process_id.clone(), audio_process.spawn()?);
+        let mut audio_process = TranscodeHandler::new(process_id.clone(), audio_process.spawn()?);
 
         Ok(Self {
-            video_process: stoppable_thread::spawn(move |signal| video_process.handle(signal)),
-            audio_process: stoppable_thread::spawn(move |signal| audio_process.handle(signal)),
-            video_process_id,
-            audio_process_id,
+            process: stoppable_thread::spawn(move |signal| audio_process.handle(signal)),
+            process_id,
         })
     }
 
@@ -158,8 +220,7 @@ impl<'a> Session {
     }
 
     pub fn join(self) {
-        let _ = self.audio_process.stop().join().unwrap();
-        let _ = self.video_process.stop().join().unwrap();
+        let _ = self.process.stop().join().unwrap();
     }
 }
 

@@ -46,6 +46,8 @@ pub enum AuthError {
 pub enum StreamingErrors {
     #[error(display = "Failed to start process")]
     ProcFailed,
+    #[error(display = "The video profile requested doesnt exist")]
+    InvalidProfile,
 }
 
 impl From<std::io::Error> for StreamingErrors {

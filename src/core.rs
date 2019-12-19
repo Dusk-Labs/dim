@@ -109,7 +109,8 @@ pub fn rocket_pad(
                 routes::library::get_self,
                 routes::library::library_post,
                 routes::library::library_delete,
-                routes::library::get_all_library
+                routes::library::get_all_library,
+                routes::library::get_all_unmatched_media,
             ],
         )
         .mount(

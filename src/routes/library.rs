@@ -141,14 +141,32 @@ pub fn get_all_library(
 
     result.insert(lib.name.clone(), out);
 
-    if let Ok(x) = MediaFile::get_by_lib_null_media(conn.as_ref(), &lib) {
-        result.insert(
-            "Unmatched Media".into(),
-            x.into_iter()
-                .filter_map(|x| construct_standard(&conn, &x.into(), false).ok())
-                .collect::<Vec<JsonValue>>(),
-        );
-    }
+    Ok(Json(result))
+}
+
+/// Method mapped to `GET` /api/v1/library/<id>/unmatched` returns a list of all unmatched medias
+/// to be displayed in the library pages.
+///
+/// # Arguments
+/// * `conn` - database connection
+/// * `id` - id of the library
+/// * `_user` - auth middleware
+#[get("/<id>/unmatched")]
+pub fn get_all_unmatched_media(
+    conn: DbConnection,
+    id: i32,
+    _user: Auth,
+) -> Result<Json<HashMap<String, Vec<JsonValue>>>, errors::DimError> {
+    let mut result = HashMap::new();
+    let lib = Library::get_one(conn.as_ref(), id)?;
+
+    let data = MediaFile::get_by_lib_null_media(conn.as_ref(), &lib)?;
+    result.insert(
+        "Unmatched Media".into(),
+        data.into_iter()
+            .filter_map(|x| construct_standard(&conn, &x.into(), false).ok())
+            .collect::<Vec<JsonValue>>(),
+    );
 
     Ok(Json(result))
 }
