@@ -1,8 +1,11 @@
-pub mod ffmpeg;
 pub mod ffprobe;
 pub mod transcode;
 
 use lazy_static::lazy_static;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 macro_rules! which {
     ($prog:expr) => {
@@ -16,6 +19,8 @@ macro_rules! which {
 lazy_static! {
     pub static ref FFMPEG_BIN: Box<str> = { which!("utils/ffmpeg") };
     pub static ref FFPROBE_BIN: Box<str> = { which!("utils/ffprobe") };
+    pub static ref STREAMING_SESSION: Arc<Mutex<HashMap<String, HashMap<String, String>>>> =
+        Arc::new(Mutex::new(HashMap::new()));
 }
 
 use std::process::Command;
