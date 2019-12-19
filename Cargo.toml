@@ -6,7 +6,7 @@ authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
 
 [dependencies]
-rocket = { version = "0.4.2", default-features = false }
+rocket = { version = "0.4.2", default-features = false, features = ["tls"] }
 rocket_codegen = { version = "0.4.2", default-features = false }
 diesel = { version = "1.4.3", default-features = false, features = ["postgres"] }
 serde = { version = "1.0.102", default-features = false, features = ["derive", "std"] }
