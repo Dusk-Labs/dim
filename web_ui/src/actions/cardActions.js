@@ -7,11 +7,16 @@ import {
     FETCH_CARD_ERR
 } from "./types.js";
 
-export const fetchCards = (path) => async (dispatch) => {
+export const fetchCards = (token, path) => async (dispatch) => {
     dispatch({ type: FETCH_CARDS_START });
 
     try {
-        const res = await fetch(path);
+        const config = {
+            headers: {
+                "authorization": token,
+            }
+        };
+        const res = await fetch(path, config);
 
         if (res.status !== 200) {
             return dispatch({
@@ -34,11 +39,16 @@ export const fetchCards = (path) => async (dispatch) => {
     }
 }
 
-export const fetchCard = (id) => async (dispatch) => {
+export const fetchCard = (token, id) => async (dispatch) => {
     dispatch({ type: FETCH_CARD_START });
 
     try {
-        const res = await fetch(`http://${window.host}:8000/api/v1/media/${id}`);
+        const config = {
+            headers: {
+                "authorization": token,
+            }
+        };
+        const res = await fetch(`//${window.host}:8000/api/v1/media/${id}`, config);
 
         if (res.status !== 200) {
             return dispatch({
