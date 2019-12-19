@@ -115,59 +115,6 @@ class Sidebar extends Component {
         }
 
         /*
-            * == HOSTS ==
-        */
-
-        // FETCH_HOSTS_START
-        if (this.props.hosts.fetching) {
-            hosts = (
-                <div className="item-wrapper">
-                    <div className="status">
-                        <p id="response">LOADING</p>
-                    </div>
-                </div>
-            );
-        }
-
-        // FETCH_HOSTS_ERR
-        if (this.props.hosts.fetched && this.props.hosts.error) {
-            hosts = (
-                <div className="item-wrapper">
-                    <div className="horizontal-err">
-                        <FontAwesomeIcon icon="times-circle"/>
-                        <p>FAILED TO LOAD</p>
-                    </div>
-                </div>
-            );
-        }
-
-        // FETCH_HOSTS_OK
-        if (this.props.hosts.fetched && !this.props.hosts.error) {
-            const { items } = this.props.hosts;
-
-            if (items.length > 0) {
-                hosts = items.map((
-                    { name, id, media_type }, i
-                ) => (
-                    <div className="item-wrapper" key={i}>
-                        <NavLink to={"/device/" + id}>
-                            <SidebarIcon icon={media_type || name}/>
-                            <p>{name}</p>
-                        </NavLink>
-                    </div>
-                ));
-            } else {
-                hosts = (
-                    <div className="item-wrapper">
-                        <div className="horizontal-err">
-                            <p>NO HOSTS</p>
-                        </div>
-                    </div>
-                );
-            }
-        }
-
-        /*
             * == LIBRARIES ==
         */
 
@@ -227,15 +174,6 @@ class Sidebar extends Component {
                     {user}
                     <div className="separator"/>
                     <SidebarSearch/>
-                </section>
-
-                <section className="connected-hosts">
-                    <header>
-                        <h4>CONNECTED HOSTS</h4>
-                    </header>
-                    <div className="list">
-                        <Scrollbar>{hosts}</Scrollbar>
-                    </div>
                 </section>
 
                 <section className="local-libraries">
