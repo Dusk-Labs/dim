@@ -74,8 +74,8 @@ RUN apt-get update && \
 
 COPY --from=build /src/dim/target/release/dim /opt/dim/dim
 COPY --from=build /src/dim/start.sh /opt/dim/start.sh
-COPY --from=ffbuild /ffmpeg-static/bin/ffmpeg /opt/dim/utils
-COPY --from=ffbuild /ffmpeg-static/bin/ffprobe /opt/dim/utils
+COPY --from=ffbuild /ffmpeg-static/bin/ffmpeg /opt/dim/utils/ffmpeg
+COPY --from=ffbuild /ffmpeg-static/bin/ffprobe /opt/dim/utils/ffprobe
 
 RUN chmod +x /opt/dim/start.sh
 
