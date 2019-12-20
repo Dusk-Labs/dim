@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import * as Vibrant from "node-vibrant";
 import HLS from "hls.js";
 
-import { fetchCard } from "../actions/cardActions.js";
+import { fetchMediaInfo } from "../actions/cardActions.js";
 import { startTranscode } from "../actions/videoPlayerActions.js";
 
 import LazyImage from "../helpers/LazyImage.jsx";
@@ -49,7 +49,7 @@ class VideoPlayer extends Component {
 
         const { id } = this.props.match.params;
 
-        this.props.fetchCard(id);
+        this.props.fetchMediaInfo(id);
         this.props.startTranscode(id);
     }
 
@@ -328,7 +328,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapActionsToProps = {
-    fetchCard,
+    fetchMediaInfo,
     startTranscode
 };
 

@@ -20,7 +20,9 @@ import './App.scss';
 
 library.add(fas, far);
 
-window.host = window.location.hostname; // quick hack to get proper requests
+// quick hack to get proper requests
+window.host = window.location.hostname;
+window.host = "86.21.150.167";
 
 class App extends Component {
     constructor(props) {
@@ -28,7 +30,7 @@ class App extends Component {
     }
 
 	render() {
-        if(!this.props.auth.logged_in) {
+        if (!this.props.auth.logged_in) {
             return (
                 <Login/>
             );

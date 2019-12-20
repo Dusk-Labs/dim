@@ -8,6 +8,8 @@ import {
 export const authenticate = (username, password) => async (dispatch) => {
     dispatch({ type: START_AUTH });
 
+    console.log("AUTH STARTED", username, password);
+
     const config = {
         method: "POST",
         headers: {
@@ -22,6 +24,8 @@ export const authenticate = (username, password) => async (dispatch) => {
     try {
         const res = await fetch(`//${window.host}:8000/api/v1/auth/login`, config);
 
+        console.log("AUTH", res);
+
         if (res.status !== 200) {
             return dispatch({
                 type: AUTH_ERR,
@@ -30,6 +34,8 @@ export const authenticate = (username, password) => async (dispatch) => {
         }
 
         const payload = await res.json();
+
+        console.log("AUTH PAYLOAD", payload);
 
         dispatch({
             type: AUTH_OK,
