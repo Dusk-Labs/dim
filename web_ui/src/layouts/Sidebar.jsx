@@ -5,7 +5,6 @@ import { connect } from "react-redux";
 import { Scrollbar } from "react-scrollbars-custom";
 
 import { fetchLibraries, delLibrary } from "../actions/libraryActions.js";
-import { fetchHosts } from "../actions/hostActions.js";
 import { fetchUser } from "../actions/userActions.js";
 
 
@@ -29,13 +28,11 @@ class Sidebar extends Component {
 
     async componentDidMount() {
         this.props.fetchUser();
-        this.props.fetchHosts();
         this.props.fetchLibraries();
     }
 
     render() {
         let user;
-        let hosts;
         let libraries;
 
         /*
@@ -92,59 +89,6 @@ class Sidebar extends Component {
                     </div>
                 </div>
             );
-        }
-
-        /*
-            * == HOSTS ==
-        */
-
-        // FETCH_HOSTS_START
-        if (this.props.hosts.fetching) {
-            hosts = (
-                <div className="item-wrapper">
-                    <div className="status">
-                        <p id="response">LOADING</p>
-                    </div>
-                </div>
-            );
-        }
-
-        // FETCH_HOSTS_ERR
-        if (this.props.hosts.fetched && this.props.hosts.error) {
-            hosts = (
-                <div className="item-wrapper">
-                    <div className="horizontal-err">
-                        <FontAwesomeIcon icon="times-circle"/>
-                        <p>FAILED TO LOAD</p>
-                    </div>
-                </div>
-            );
-        }
-
-        // FETCH_HOSTS_OK
-        if (this.props.hosts.fetched && !this.props.hosts.error) {
-            const { items } = this.props.hosts;
-
-            if (items.length > 0) {
-                hosts = items.map((
-                    { name, id, media_type }, i
-                ) => (
-                    <div className="item-wrapper" key={i}>
-                        <NavLink to={"/device/" + id}>
-                            <SidebarIcon icon={media_type || name}/>
-                            <p>{name}</p>
-                        </NavLink>
-                    </div>
-                ));
-            } else {
-                hosts = (
-                    <div className="item-wrapper">
-                        <div className="horizontal-err">
-                            <p>NO HOSTS</p>
-                        </div>
-                    </div>
-                );
-            }
         }
 
         /*
@@ -209,18 +153,9 @@ class Sidebar extends Component {
                     <SidebarSearch/>
                 </section>
 
-                <section className="connected-hosts">
+                <section className="libraries">
                     <header>
-                        <h4>CONNECTED HOSTS</h4>
-                    </header>
-                    <div className="list">
-                        <Scrollbar>{hosts}</Scrollbar>
-                    </div>
-                </section>
-
-                <section className="local-libraries">
-                    <header>
-                        <h4>LOCAL LIBRARIES</h4>
+                        <h4>LIBRARIES</h4>
                         <NewLibraryModal/>
                     </header>
                     <div className="list">
@@ -262,13 +197,11 @@ class Sidebar extends Component {
 
 const mapStateToProps = (state) => ({
     user: state.userReducer,
-    hosts: state.hostReducer,
     libraries: state.libraryReducer.fetch_libraries
 });
 
 const mapActionsToProps = {
     fetchLibraries,
-    fetchHosts,
     fetchUser,
     delLibrary
 };
