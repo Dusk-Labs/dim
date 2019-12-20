@@ -125,10 +125,19 @@ impl IterativeScanner {
                     _ => tmdb_api::MediaType::Movie,
                 };
 
-                info!(
-                    self.log,
-                    "Scanning orphan with raw name: {}", orphan.raw_name
-                );
+                match self.lib.media_type {
+                    MediaType::Tv => info!(
+                        self.log,
+                        "Scanning orphan with raw name: {}, ep: {:?}, season: {:?}",
+                        orphan.raw_name,
+                        orphan.episode,
+                        orphan.season
+                    ),
+                    _ => info!(
+                        self.log,
+                        "Scanning orphan with raw name: {}", orphan.raw_name
+                    ),
+                };
                 if let Some(result) =
                     tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year, mediatype)
                 {
@@ -285,7 +294,11 @@ impl IterativeScanner {
                 let season = InsertableSeason {
                     season_number: orphan.season.unwrap_or(0),
                     added: Utc::now().to_string(),
-                    poster: String::from(""),
+                    poster: season
+                        .poster_path
+                        .clone()
+                        .map(|s| format!("https://images.tmdb.org/t/p/original/{}", s))
+                        .unwrap_or("".into()),
                 };
 
                 season.insert(&self.conn, media_id).unwrap()
@@ -307,11 +320,18 @@ impl IterativeScanner {
                     seasonid,
                     media: InsertableMedia {
                         library_id: orphan.library_id,
-                        name: format!("{}", orphan.episode.unwrap_or(0)),
+                        name: format!(
+                            "{}",
+                            search_ep
+                                .name
+                                .unwrap_or(orphan.episode.unwrap_or(0).to_string())
+                        ),
                         added: Utc::now().to_string(),
                         media_type: MediaType::Episode,
                         description: search_ep.overview,
-                        backdrop_path: search_ep.still_path,
+                        backdrop_path: search_ep
+                            .still_path
+                            .map(|s| format!("https://images.tmdb.org/t/p/original/{}", s)),
                         ..Default::default()
                     },
                 };

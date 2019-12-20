@@ -187,7 +187,7 @@ pub fn banners(conn: DbConnection, _user: Auth) -> Result<Json<Vec<JsonValue>>, 
 
             if let Ok(pair) = season_episode_pair {
                 let episode = pair.1.unwrap();
-                let duration = get_top_duration(&conn, &episode.media);
+                let duration = get_top_duration(&conn, &episode.media).unwrap();
                 return json!({
                     "id": media.id,
                     "title": media.name,
