@@ -209,37 +209,38 @@ class MediaPage extends Component {
         if (this.props.fetch_extra_media_info.fetched && !this.props.fetch_extra_media_info.error) {
             console.log("[FETCH EXTRA MEDIA INFO] OK", this.props.fetch_extra_media_info);
 
-            const { seasons } = this.props.fetch_extra_media_info.info;
+            if (this.props.fetch_extra_media_info.info.seasons) {
+                const { seasons } = this.props.fetch_extra_media_info.info;
 
-            seasons.sort((a, b) => {
-                return a.season_number - b.season_number;
-            });
-
-            console.log("SEASONS", seasons);
-
-            mediaSeasons = seasons.map((season, si) => {
-                return (
-                    <div className="season" key={si} onClick={() => this.showSeason(season.season_number)}>
-                        <LazyImage src={season.poster}/>
-                        <p>SEASON {season.season_number}</p>
-                    </div>
-                );
-            });
-
-            for (let x = 0; x < seasons.length; x++) {
-                seasons[x].episodes.sort((a, b) => {
-                    return a.episode - b.episode;
+                seasons.sort((a, b) => {
+                    return a.season_number - b.season_number;
                 });
 
-                mediaEpisodes[seasons[x].season_number] = seasons[x].episodes.map((episode, i) => {
+                mediaSeasons = seasons.map((season, si) => {
                     return (
-                        <Link to={`/play/${episode.versions[0].id}`} className="episode" key={i}>
-                            <LazyImage src={episode.backdrop}/>
-                            <p>EPISODE {episode.episode}</p>
-                        </Link>
+                        <div className="season" key={si} onClick={() => this.showSeason(season.season_number)}>
+                            <LazyImage src={season.poster}/>
+                            <p>SEASON {season.season_number}</p>
+                        </div>
                     );
                 });
+
+                for (let x = 0; x < seasons.length; x++) {
+                    seasons[x].episodes.sort((a, b) => {
+                        return a.episode - b.episode;
+                    });
+
+                    mediaEpisodes[seasons[x].season_number] = seasons[x].episodes.map((episode, i) => {
+                        return (
+                            <Link to={`/play/${episode.versions[0].id}`} className="episode" key={i}>
+                                <LazyImage src={episode.backdrop}/>
+                                <p>EPISODE {episode.episode}</p>
+                            </Link>
+                        );
+                    });
+                }
             }
+
         }
 
         return (
@@ -248,24 +249,26 @@ class MediaPage extends Component {
                     {backdrop}
                 </div>
                 {metaContent}
-                <div className="content">
-                    <div className="se-ep">
-                        <div className="seasons">
-                            <h2>SEASONS</h2>
-                            <div className="list">
-                                {mediaSeasons}
-                            </div>
-                        </div>
-                        {this.state.season !== undefined &&
-                            <div className="episodes">
-                                <h2>SEASON {this.state.season} EPISODES</h2>
+                {this.props.fetch_extra_media_info.info.seasons &&
+                    <div className="content">
+                        <div className="se-ep">
+                            <div className="seasons">
+                                <h2>SEASONS</h2>
                                 <div className="list">
-                                    {mediaEpisodes[this.state.season]}
+                                    {mediaSeasons}
                                 </div>
                             </div>
-                        }
+                            {this.state.season !== undefined &&
+                                <div className="episodes">
+                                    <h2>SEASON {this.state.season} EPISODES</h2>
+                                    <div className="list">
+                                        {mediaEpisodes[this.state.season]}
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
-                </div>
+                }
             </div>
         );
     }
