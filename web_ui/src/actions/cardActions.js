@@ -13,16 +13,16 @@ import {
     FETCH_MEDIA_SEASONS_ERR,
     FETCH_MEDIA_SEASON_EPISODES_START,
     FETCH_MEDIA_SEASON_EPISODES_OK,
-    FETCH_MEDIA_SEASON_EPISODES_ERR,
+    FETCH_MEDIA_SEASON_EPISODES_ERR
 } from "./types.js";
 
-export const fetchCards = (path) => async (dispatch) => {
+export const fetchCards = (token, path) => async (dispatch) => {
     dispatch({ type: FETCH_CARDS_START });
 
     try {
         const config = {
             headers: {
-                Authorization: window.token
+                "authorization": token,
             }
         };
 
@@ -49,15 +49,13 @@ export const fetchCards = (path) => async (dispatch) => {
     }
 };
 
-export const fetchMediaInfo = (id) => async (dispatch) => {
+export const fetchMediaInfo = (token, id) => async (dispatch) => {
     dispatch({ type: FETCH_MEDIA_INFO_START });
-
-    // await new Promise(_ => setTimeout(_, 3000));
 
     try {
         const config = {
             headers: {
-                Authorization: window.token
+                "authorization": token
             }
         };
 
@@ -72,8 +70,6 @@ export const fetchMediaInfo = (id) => async (dispatch) => {
 
         const payload = await res.json();
 
-        // await new Promise(_ => setTimeout(_, 3000));
-
         dispatch({
             type: FETCH_MEDIA_INFO_OK,
             payload
@@ -86,13 +82,13 @@ export const fetchMediaInfo = (id) => async (dispatch) => {
     }
 };
 
-export const fetchExtraMediaInfo = (id) => async (dispatch) => {
+export const fetchExtraMediaInfo = (token, id) => async (dispatch) => {
     dispatch({ type: FETCH_EXTRA_MEDIA_INFO_START });
 
     try {
         const config = {
             headers: {
-                Authorization: window.token
+                "authorization": token
             }
         };
 
@@ -126,13 +122,13 @@ export const fetchExtraMediaInfo = (id) => async (dispatch) => {
     }
 };
 
-export const fetchMediaSeasons = (id) => async (dispatch) => {
+export const fetchMediaSeasons = (token, id) => async (dispatch) => {
     dispatch({ type: FETCH_MEDIA_SEASONS_START });
 
     try {
         const config = {
             headers: {
-                Authorization: window.token
+                "authorization": token
             }
         };
 
@@ -159,13 +155,13 @@ export const fetchMediaSeasons = (id) => async (dispatch) => {
     }
 };
 
-export const fetchMediaSeasonEpisodes = (id, season) => async (dispatch) => {
+export const fetchMediaSeasonEpisodes = (token, id, season) => async (dispatch) => {
     dispatch({ type: FETCH_MEDIA_SEASON_EPISODES_START });
 
     try {
         const config = {
             headers: {
-                Authorization: window.token
+                "authorization": token
             }
         };
 

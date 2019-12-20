@@ -20,7 +20,7 @@ class BannerPage extends Component {
     }
 
     componentDidMount() {
-        this.props.fetchBanners();
+        this.props.fetchBanners(this.props.auth.token);
     }
 
     componentWillUnmount() {
@@ -115,6 +115,7 @@ class BannerPage extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    auth: state.authReducer,
     banners: state.bannerReducer
 });
 

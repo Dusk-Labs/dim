@@ -27,8 +27,8 @@ class MediaPage extends Component {
     async componentDidMount() {
         const { id } = this.props.match.params;
 
-        this.props.fetchMediaInfo(id);
-        this.props.fetchExtraMediaInfo(id);
+        this.props.fetchMediaInfo(this.props.auth.token, id);
+        this.props.fetchExtraMediaInfo(this.props.auth.token, id);
     }
 
     componentDidUpdate() {
@@ -50,8 +50,6 @@ class MediaPage extends Component {
 
         // FETCH_MEDIA_INFO_START
         if (this.props.fetch_media_info.fetching) {
-            backdrop = <div className="placeholder"/>;
-
             metaContent = (
                 <div className="meta-content">
                     <div className="cover">
@@ -94,8 +92,6 @@ class MediaPage extends Component {
         // FETCH_MEDIA_INFO_ERR
         if (this.props.fetch_media_info.fetched && this.props.fetch_media_info.error) {
             console.log("[FETCH MEDIA INFO] ERR", this.props.fetch_media_info);
-
-            backdrop = <div className="placeholder"/>;
 
             metaContent = (
                 <div className="meta-content">
@@ -276,6 +272,7 @@ class MediaPage extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    auth: state.authReducer,
     fetch_media_info: state.cardReducer.fetch_media_info,
     fetch_extra_media_info: state.cardReducer.fetch_extra_media_info,
     fetch_media_seasons_info: state.cardReducer.fetch_media_seasons_info,

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router-dom";
 
 import TruncText from "../helpers/TruncText.jsx";
 import IMDbLogo from "../assets/imdb.png";
@@ -19,6 +20,10 @@ class CardPopup extends Component {
     }
 
     componentDidMount() {
+        if (this.popup.current) {
+            this.props.setCardPopup(this.popup.current);
+        }
+
         const { x, width } = this.popup.current.getBoundingClientRect();
         const overflowing = (x + width > window.innerWidth - 5);
 
@@ -33,12 +38,6 @@ class CardPopup extends Component {
             class: "card-popup-left"
         });
 
-    }
-
-    static getDerivedStateFromProps(nextProps) {
-        return {
-            accent: nextProps.accent,
-        };
     }
 
     render() {
@@ -104,10 +103,10 @@ class CardPopup extends Component {
                             <p>{length.hh}:{length.mm}:{length.ss}</p>
                             <p>HH MM SS</p>
                         </div>
-                        <a href={`/play/${id}`} className="play-btn">
+                        <Link to={`/play/${id}`}>
                             <p style={accentCSS}>PLAY</p>
                             <FontAwesomeIcon icon="play"/>
-                        </a>
+                        </Link>
                     </section>
                 </section>
             </div>
