@@ -48,9 +48,12 @@
 	background: none;
 }
 
-body {
+* {
 	margin: 0;
-	height: 100vh;
+	padding: 0;
+}
+
+body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	background: #1a1a1a;
@@ -68,7 +71,8 @@ a {
 	color: #ffffff;
 }
 
-h1, h2, h3, h4, h5, h6, p {
+h1, h2, h3,
+h4, h5, h6, p {
 	font-weight: normal;
 }
 
@@ -121,6 +125,7 @@ img {
 
     svg {
 		@include animation(shake 0.5s ease-in-out);
+		margin-bottom: 15px;
         color: #f39c12;
         width: 1.5em !important;
 		height: 1.5em !important;
