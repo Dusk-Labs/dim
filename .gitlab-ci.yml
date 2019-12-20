@@ -4,16 +4,18 @@ services:
     - postgres:latest
 
 variables:
-    POSTGRES_DB: dim 
+    POSTGRES_DB: dim_devel
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: "dimpostgres"
 
 before_script:
     - apt-get update -yqq
     - apt-get install -yqq --no-install-recommends build-essential
+    - mkdir /builds/dusk-media/dim/web_ui/build
 
 # Use cargo to test the project
 test:cargo:
     script:
         - rustc --version && cargo --version  # Print version info for debugging
         - cd src/database && cargo test --all --verbose
+          && cd ../auth && cargo test --all --verbose
