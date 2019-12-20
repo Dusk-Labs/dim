@@ -13,6 +13,8 @@ class Card extends Component {
 
         this.cardWrapper = React.createRef();
         this.card = React.createRef();
+
+        this.setCardPopup = this.setCardPopup.bind(this);
         this.handleMouseHover = this.handleMouseHover.bind(this);
 
         this.state = {
@@ -44,14 +46,18 @@ class Card extends Component {
         this.card.current.style.animation = "none";
 
         if (this.state.hoverTimeout != null) {
-            clearTimeout(this.state.hoverTimeout);
+            if (this.cardPopup) {
+                this.cardPopup.classList.add("hideCardPopup");
+            }
 
-            this.setState({
-                hoverTimeout: null,
-                hovering: false
-            });
+            return setTimeout(() => {
+                clearTimeout(this.state.hoverTimeout);
 
-            return;
+                this.setState({
+                    hoverTimeout: null,
+                    hovering: false
+                });
+            }, 300);
         }
 
         this.setState({
@@ -82,6 +88,10 @@ class Card extends Component {
         });
     }
 
+    setCardPopup(ref) {
+        this.cardPopup = ref;
+    }
+
     render() {
         const { accent } = this.state
         const { name, poster_path, id } = this.props.data;
@@ -98,7 +108,7 @@ class Card extends Component {
                         <p style={{opacity: + !this.state.hovering}}>{name}</p>
                     </Link>
                 </div>
-                {this.state.hovering && <CardPopup data={this.props.data} accent={accent}/>}
+                {this.state.hovering && <CardPopup setCardPopup={this.setCardPopup} data={this.props.data} accent={accent}/>}
             </div>
         );
     }

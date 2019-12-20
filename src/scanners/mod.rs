@@ -8,10 +8,11 @@ pub mod iterative_parser;
 pub mod parser_daemon;
 pub mod tmdb_api;
 
-use crate::iterative_parser::IterativeScanner;
-use crate::parser_daemon::ParserDaemon;
-use crate::tmdb_api::Media;
-use crate::tmdb_api::MediaType;
+use self::{
+    iterative_parser::IterativeScanner,
+    parser_daemon::ParserDaemon,
+    tmdb_api::{Media, MediaType},
+};
 
 pub trait APIExec<'a> {
     fn new(api_key: &'a str) -> Self;

@@ -1,6 +1,11 @@
 use diesel::prelude::*;
 use diesel::result::Error as DieselError;
+use ring::{digest, pbkdf2};
 use serde::{Deserialize, Serialize};
+
+static PBKDF2_ALG: &'static digest::Algorithm = &digest::SHA256;
+const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
+pub type Credential = [u8; CREDENTIAL_LEN];
 
 // Figure out the bug with this not being a valid postgres type
 #[derive(Serialize, Deserialize, Debug, DbEnum, Eq, PartialEq)]
@@ -9,7 +14,7 @@ pub enum Role {
     User,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Debug)]
 pub struct User {
     pub username: String,
     pub roles: Vec<String>,
@@ -26,11 +31,33 @@ pub struct InsertableUser {
 pub struct Login {
     pub username: String,
     pub password: String,
+    pub invite_token: Option<String>,
 }
 
-// TODO: replace with a proper hashing function after mocking is done.
-pub fn hash(s: String) -> String {
-    s
+pub fn hash(salt: String, s: String) -> String {
+    let mut to_store: Credential = [0u8; CREDENTIAL_LEN];
+    pbkdf2::derive(
+        PBKDF2_ALG,
+        100_000,
+        &salt.as_bytes(),
+        s.as_bytes(),
+        &mut to_store,
+    );
+    base64::encode(&to_store)
+}
+
+pub fn verify(salt: String, password: String, attempted_password: String) -> bool {
+    let real_pwd = base64::decode(&password).unwrap();
+    if let Ok(_) = pbkdf2::verify(
+        PBKDF2_ALG,
+        100_000,
+        &salt.as_bytes(),
+        attempted_password.as_bytes(),
+        real_pwd.as_slice(),
+    ) {
+        return true;
+    }
+    false
 }
 
 impl User {
@@ -41,7 +68,7 @@ impl User {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::user::{User, InsertableUser};
     ///
     /// let conn = get_conn().unwrap();
@@ -75,8 +102,8 @@ impl User {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
-    /// use database::user::{User, InsertableUser};
+    /// use database::get_conn_devel as get_conn;
+    /// use database::user::{User, hash, InsertableUser};
     ///
     /// let conn = get_conn().unwrap();
     ///
@@ -104,14 +131,14 @@ impl User {
     pub fn get_one(
         conn: &diesel::PgConnection,
         uname: String,
-        pw_hash: String,
+        pw: String,
     ) -> Result<Self, DieselError> {
         use crate::schema::users;
         users::table
             .filter(
                 users::dsl::username
-                    .eq(uname)
-                    .and(users::dsl::password.eq(pw_hash)),
+                    .eq(uname.clone())
+                    .and(users::dsl::password.eq(hash(uname, pw))),
             )
             .select((users::dsl::username, users::dsl::roles))
             .first::<Self>(conn)
@@ -126,7 +153,7 @@ impl User {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::user::{User, InsertableUser};
     ///
     /// let conn = get_conn().unwrap();
@@ -161,7 +188,7 @@ impl InsertableUser {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::user::{User, InsertableUser, Role};
     ///
     /// let conn = get_conn().unwrap();
@@ -186,11 +213,54 @@ impl InsertableUser {
 
         diesel::insert_into(users::table)
             .values((
-                users::dsl::username.eq(self.username),
-                users::dsl::password.eq(hash(self.password)),
+                users::dsl::username.eq(self.username.clone()),
+                users::dsl::password.eq(hash(self.username, self.password)),
                 users::dsl::roles.eq(self.roles),
             ))
             .returning(users::dsl::username)
             .get_result(conn)
+    }
+}
+
+impl Login {
+    pub fn invite_token_valid(&self, conn: &diesel::PgConnection) -> Result<bool, DieselError> {
+        use crate::schema::invites;
+
+        if let Some(ref x) = self.invite_token {
+            return diesel::select(diesel::dsl::exists(
+                invites::table.filter(invites::token.eq(x)),
+            ))
+            .get_result(conn);
+        }
+        Ok(false)
+    }
+
+    pub fn invalidate_token(&self, conn: &diesel::PgConnection) -> Result<usize, DieselError> {
+        use crate::schema::invites;
+
+        if let Some(ref x) = self.invite_token {
+            return diesel::delete(invites::table.filter(invites::token.eq(x))).execute(conn);
+        }
+
+        Ok(0usize)
+    }
+
+    pub fn new_invite(conn: &diesel::PgConnection) -> Result<String, DieselError> {
+        use crate::schema::invites;
+
+        let token = uuid::Uuid::new_v4().to_hyphenated().to_string();
+
+        diesel::insert_into(invites::table)
+            .values(invites::token.eq(token))
+            .returning(invites::token)
+            .get_result(conn)
+    }
+
+    pub fn get_all_invites(conn: &diesel::PgConnection) -> Result<Vec<String>, DieselError> {
+        use crate::schema::invites;
+
+        invites::table
+            .select(invites::dsl::token)
+            .load::<String>(conn)
     }
 }

@@ -21,6 +21,12 @@ pub enum DimError {
     IOError,
     #[error(display = "Database failed to fetch such item")]
     NotFoundError,
+    #[error(display = "Authentication is required for this route")]
+    AuthRequired,
+    #[error(display = "Invalid media_type supplied, options are [movie, tv]")]
+    InvalidMediaType,
+    #[error(display = "A error in the streaming library has occured")]
+    StreamingError(#[error(source)] StreamingErrors),
 }
 
 #[derive(Debug, Error, Serialize)]
@@ -30,6 +36,24 @@ pub enum AuthError {
     FailedAuth,
     #[error(display = "A database error occured")]
     DatabaseError,
+    #[error(display = "No invite token was supplied, when required")]
+    NoTokenError,
+    #[error(display = "Admin role required to access this route")]
+    Unauthorized,
+}
+
+#[derive(Debug, Error, Serialize)]
+pub enum StreamingErrors {
+    #[error(display = "Failed to start process")]
+    ProcFailed,
+    #[error(display = "The video profile requested doesnt exist")]
+    InvalidProfile,
+}
+
+impl From<std::io::Error> for StreamingErrors {
+    fn from(_: std::io::Error) -> Self {
+        Self::ProcFailed
+    }
 }
 
 impl From<DieselError> for DimError {
@@ -70,7 +94,17 @@ impl From<DieselError> for AuthError {
 
 impl Responder<'static> for DimError {
     fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
+        let status = match self {
+            Self::NoneError | Self::NotFoundError => Status::NotFound,
+            Self::StreamingError(_) | Self::DatabaseError | Self::UnknownError | Self::IOError => {
+                Status::InternalServerError
+            }
+            Self::AuthRequired => Status::Unauthorized,
+            Self::InvalidMediaType => Status::NotModified,
+        };
+
         Response::build()
+            .status(status)
             .header(ContentType::JSON)
             .sized_body(Cursor::new(serde_json::to_string(&self).unwrap()))
             .ok()
@@ -79,7 +113,14 @@ impl Responder<'static> for DimError {
 
 impl Responder<'static> for AuthError {
     fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
+        let status = match self {
+            Self::FailedAuth | Self::NoTokenError => Status::Ok,
+            Self::DatabaseError => Status::InternalServerError,
+            Self::Unauthorized => Status::Unauthorized,
+        };
+
         Response::build()
+            .status(status)
             .header(ContentType::JSON)
             .sized_body(Cursor::new(serde_json::to_string(&self).unwrap()))
             .ok()

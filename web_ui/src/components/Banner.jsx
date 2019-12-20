@@ -76,6 +76,11 @@ class Banner extends Component {
             delta
         };
 
+        const accentCSS = {
+            background: backgroundColor,
+            color: textColor
+        };
+
         return (
             <div className="banner">
                 <LazyImage
@@ -95,14 +100,10 @@ class Banner extends Component {
                         <h5>{banner_caption}</h5>
                         <p><TruncText content={synopsis} max={35}/></p>
                     </div>
-                    <a
-                        className="play-btn"
-                        href={`/play/${id}`}
-                        style={{color: textColor, background: backgroundColor}}
-                    >
+                    <Link to={`/play/${id}`} className="play-btn" style={accentCSS}>
                         PLAY
                         <FontAwesomeIcon icon="arrow-alt-circle-right"/>
-                    </a>
+                    </Link>
                 </div>
                 <ProgressBar data={progressBarData}/>
             </div>

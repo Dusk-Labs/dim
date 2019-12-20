@@ -1,4 +1,7 @@
-use rocket::{http::{ContentType, Status}, response};
+use rocket::{
+    http::{ContentType, Status},
+    response,
+};
 use std::ffi::OsStr;
 use std::io::Cursor;
 use std::path::PathBuf;

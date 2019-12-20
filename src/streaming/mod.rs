@@ -1,7 +1,11 @@
-pub mod ffmpeg;
 pub mod ffprobe;
+pub mod transcode;
 
 use lazy_static::lazy_static;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 macro_rules! which {
     ($prog:expr) => {
@@ -13,8 +17,10 @@ macro_rules! which {
 }
 
 lazy_static! {
-    pub static ref FFMPEG_BIN: Box<str> = { which!("ffmpeg") };
-    pub static ref FFPROBE_BIN: Box<str> = { which!("ffprobe") };
+    pub static ref FFMPEG_BIN: Box<str> = { which!("utils/ffmpeg") };
+    pub static ref FFPROBE_BIN: Box<str> = { which!("utils/ffprobe") };
+    pub static ref STREAMING_SESSION: Arc<Mutex<HashMap<String, HashMap<String, String>>>> =
+        Arc::new(Mutex::new(HashMap::new()));
 }
 
 use std::process::Command;
@@ -25,10 +31,9 @@ use std::process::Command;
 /// onto the provided `bucket`.
 ///
 /// # Arguments
-///  - `bucket` - a `Vec<Box<str>>` to push the commands stdout's onto
+/// - `bucket` - a `Vec<Box<str>>` to push the commands stdout's onto
 ///
 /// # Example
-///
 /// ```
 /// use streamer::ffcheck;
 ///
@@ -45,7 +50,7 @@ use std::process::Command;
 /// }
 /// ```
 pub fn ffcheck<'a>(bucket: &'a mut Vec<Box<str>>) -> Result<(), Box<&str>> {
-    for program in ["ffmpeg", "ffprobe"].iter() {
+    for program in ["utils/ffmpeg", "utils/ffprobe"].iter() {
         if let Ok(output) = Command::new(program).arg("-version").output() {
             let stdout = String::from_utf8(output.stdout)
                 .expect("Failed to decode subprocess stdout.")

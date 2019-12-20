@@ -46,6 +46,10 @@ export const DEL_LIBRARY_START = "DEL_LIBRARY_START";
 export const DEL_LIBRARY_OK = "DEL_LIBRARY_OK";
 export const DEL_LIBRARY_ERR = "DEL_LIBRARY_ERR";
 
+// [WEBSOCKET] LIBRARY
+export const RM_LIBRARY = "RM_LIBRARY";
+export const ADD_LIBRARY = "ADD_LIBRARY";
+
 /*
     * == CARD ACTIONS ==
 */
@@ -54,6 +58,11 @@ export const DEL_LIBRARY_ERR = "DEL_LIBRARY_ERR";
 export const FETCH_CARDS_START = "FETCH_CARDS_START";
 export const FETCH_CARDS_OK = "FETCH_CARDS_OK";
 export const FETCH_CARDS_ERR = "FETCH_CARDS_ERR";
+
+// [GET] ONE MEDIA
+export const FETCH_CARD_START = "FETCH_CARD_START";
+export const FETCH_CARD_OK = "FETCH_CARD_OK";
+export const FETCH_CARD_ERR = "FETCH_CARD_ERR";
 
 /*
     * == HOST ACTIONS ==
@@ -85,3 +94,23 @@ export const FETCH_BANNERS_ERR = "FETCH_BANNERS_ERR";
 export const FETCH_DIRECTORIES_START = "FETCH_DIRECTORIES_START";
 export const FETCH_DIRECTORIES_OK = "FETCH_DIRECTORIES_OK";
 export const FETCH_DIRECTORIES_ERR = "FETCH_DIRECTORIES_ERR";
+
+/*
+    * == VIDEO PLAYER ACTIONS ==
+*/
+
+export const TRANSCODE_START = "TRANSCODE_START";
+export const TRANSCODE_OK = "TRANSCODE_OK";
+export const TRANSCODE_ERR = "TRANSCODE_ERR";
+
+export const DEL_TRANSCODE_START = "DEL_TRANSCODE_START";
+export const DEL_TRANSCODE_OK = "DEL_TRANSCODE_OK";
+export const DEL_TRANSCODE_ERR = "DEL_TRANSCODE_ERR";
+
+/*
+    * Auth actions
+*/
+export const AUTH_OK = "AUTH_OK";
+export const AUTH_ERR = "AUTH_ERR";
+export const START_AUTH = "START_AUTH";
+export const AUTH_LOGOUT = "AUTH_LOGOUT";

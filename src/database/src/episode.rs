@@ -20,6 +20,8 @@ pub struct Episode {
     pub episode: i32,
 
     /// Regerence to a media object which represents this epsiode.
+    /// We are essnetially aliasing and wrapping around Media transparently, behind the
+    /// scene in the db episode inherits all fields from media.
     #[serde(flatten)]
     pub media: Media,
 }
@@ -66,6 +68,73 @@ pub struct UpdateEpisodeWrapper {
 }
 
 impl Episode {
+    /// Method returns all of the episodes belonging to a tv show.
+    ///
+    /// # Arguments
+    /// * `conn` - diesel connection reference to postgres
+    /// * `media` - reference to a media object which should be a tv show.
+    ///
+    /// # Example
+    /// ```
+    /// use database::get_conn_devel as get_conn;
+    /// use database::library::{Library, InsertableLibrary, MediaType};
+    /// use database::media::{InsertableMedia, Media};
+    /// use database::tv::InsertableTVShow;
+    /// use database::season::InsertableSeason;
+    /// use database::episode::{InsertableEpisode, Episode};
+    ///
+    /// let conn = get_conn().unwrap();
+    ///
+    /// let library = InsertableLibrary {
+    ///     name: "test".into(),
+    ///     location: "/dev/null".to_string(),
+    ///     media_type: MediaType::Tv,
+    /// };
+    ///
+    /// let library_id = library.insert(&conn).unwrap();
+    ///
+    /// let new_show = InsertableMedia {
+    ///     library_id: library_id,
+    ///     name: "test".into(),
+    ///     added: "test".into(),
+    ///     media_type: MediaType::Tv,
+    ///     ..Default::default()
+    /// };
+    ///
+    /// let show_id = new_show.into_static::<InsertableTVShow>(&conn).unwrap();
+    ///
+    /// let new_season = InsertableSeason {
+    ///     season_number: 1,
+    ///     added: "test".into(),
+    ///     poster: "test".into(),
+    /// };
+    ///
+    /// let season_id = new_season.insert(&conn, show_id).unwrap();
+    ///
+    /// let new_episode = InsertableEpisode {
+    ///     media: InsertableMedia {
+    ///         library_id: library_id,
+    ///         name: "test_episode".into(),
+    ///         added: "test".into(),
+    ///         media_type: MediaType::Episode,
+    ///         ..Default::default()
+    ///     },
+    ///     seasonid: season_id,
+    ///     episode: 1,
+    /// };
+    ///
+    /// let episode_id = new_episode.insert(&conn, show_id).unwrap();
+    ///
+    /// let show = Media::get(&conn, show_id).unwrap();
+    /// let all_episodes = Episode::get_all_of_tv(&conn, &show).unwrap();
+    ///
+    /// assert!(all_episodes.len() == 1);
+    ///
+    /// let episode = &all_episodes[0];
+    /// assert_eq!(episode.id, episode_id);
+    /// assert_eq!(episode.episode, 1);
+    ///
+    /// Library::delete(&conn, library_id).unwrap();
     pub fn get_all_of_tv(
         conn: &diesel::PgConnection,
         media: &Media,
@@ -98,6 +167,73 @@ impl Episode {
             .collect::<Vec<Episode>>())
     }
 
+    /// Method returns all of the episodes belonging to a season.
+    ///
+    /// # Arguments
+    /// * `conn` - diesel connection reference to postgres
+    /// * `media` - reference to a season object/entry.
+    ///
+    /// # Example
+    /// ```
+    /// use database::get_conn_devel as get_conn;
+    /// use database::library::{Library, InsertableLibrary, MediaType};
+    /// use database::media::{InsertableMedia, Media};
+    /// use database::tv::InsertableTVShow;
+    /// use database::season::{InsertableSeason, Season};
+    /// use database::episode::{InsertableEpisode, Episode};
+    ///
+    /// let conn = get_conn().unwrap();
+    ///
+    /// let library = InsertableLibrary {
+    ///     name: "test".into(),
+    ///     location: "/dev/null".to_string(),
+    ///     media_type: MediaType::Tv,
+    /// };
+    ///
+    /// let library_id = library.insert(&conn).unwrap();
+    ///
+    /// let new_show = InsertableMedia {
+    ///     library_id: library_id,
+    ///     name: "test".into(),
+    ///     added: "test".into(),
+    ///     media_type: MediaType::Tv,
+    ///     ..Default::default()
+    /// };
+    ///
+    /// let show_id = new_show.into_static::<InsertableTVShow>(&conn).unwrap();
+    ///
+    /// let new_season = InsertableSeason {
+    ///     season_number: 1,
+    ///     added: "test".into(),
+    ///     poster: "test".into(),
+    /// };
+    ///
+    /// let season_id = new_season.insert(&conn, show_id).unwrap();
+    ///
+    /// let new_episode = InsertableEpisode {
+    ///     media: InsertableMedia {
+    ///         library_id: library_id,
+    ///         name: "test_episode".into(),
+    ///         added: "test".into(),
+    ///         media_type: MediaType::Episode,
+    ///         ..Default::default()
+    ///     },
+    ///     seasonid: season_id,
+    ///     episode: 1,
+    /// };
+    ///
+    /// let episode_id = new_episode.insert(&conn, show_id).unwrap();
+    ///
+    /// let show = Media::get(&conn, show_id).unwrap();
+    /// let season = Season::get(&conn, show_id, 1).unwrap();
+    ///
+    /// let episodes = Episode::get_all_of_season(&conn, &season).unwrap();
+    ///
+    /// let episode = &episodes[0];
+    /// assert_eq!(episode.id, episode_id);
+    /// assert_eq!(episode.episode, 1);
+    ///
+    /// Library::delete(&conn, library_id).unwrap();
     pub fn get_all_of_season(
         conn: &diesel::PgConnection,
         media: &Season,
@@ -121,6 +257,72 @@ impl Episode {
             .collect::<Vec<Episode>>())
     }
 
+    /// Method returns a episodes discriminated by episode number, season number and tv show id
+    ///
+    /// # Arguments
+    /// * `conn` - diesel connection reference to postgres
+    /// * `id` - The id of a tv show we target
+    /// * `season_num` - The season we are targetting
+    /// * `ep_num` - Episode we are targetting
+    ///
+    /// # Example
+    /// ```
+    /// use database::get_conn_devel as get_conn;
+    /// use database::library::{Library, InsertableLibrary, MediaType};
+    /// use database::media::{InsertableMedia, Media};
+    /// use database::tv::InsertableTVShow;
+    /// use database::season::InsertableSeason;
+    /// use database::episode::{InsertableEpisode, Episode};
+    ///
+    /// let conn = get_conn().unwrap();
+    ///
+    /// let library = InsertableLibrary {
+    ///     name: "test".into(),
+    ///     location: "/dev/null".to_string(),
+    ///     media_type: MediaType::Tv,
+    /// };
+    ///
+    /// let library_id = library.insert(&conn).unwrap();
+    ///
+    /// let new_show = InsertableMedia {
+    ///     library_id: library_id,
+    ///     name: "test".into(),
+    ///     added: "test".into(),
+    ///     media_type: MediaType::Tv,
+    ///     ..Default::default()
+    /// };
+    ///
+    /// let show_id = new_show.into_static::<InsertableTVShow>(&conn).unwrap();
+    ///
+    /// let new_season = InsertableSeason {
+    ///     season_number: 1,
+    ///     added: "test".into(),
+    ///     poster: "test".into(),
+    /// };
+    ///
+    /// let season_id = new_season.insert(&conn, show_id).unwrap();
+    ///
+    /// let new_episode = InsertableEpisode {
+    ///     media: InsertableMedia {
+    ///         library_id: library_id,
+    ///         name: "test_episode".into(),
+    ///         added: "test".into(),
+    ///         media_type: MediaType::Episode,
+    ///         ..Default::default()
+    ///     },
+    ///     seasonid: season_id,
+    ///     episode: 1,
+    /// };
+    ///
+    /// let episode_id = new_episode.insert(&conn, show_id).unwrap();
+    ///
+    /// // Get episode with show.id, season 1 and episode 1
+    /// let episode = Episode::get(&conn, show_id, 1, 1).unwrap();
+    ///
+    /// assert_eq!(episode.id, episode_id);
+    /// assert_eq!(episode.episode, 1);
+    ///
+    /// Library::delete(&conn, library_id).unwrap();
     pub fn get(
         conn: &diesel::PgConnection,
         id: i32,
@@ -150,6 +352,75 @@ impl Episode {
         Ok(result)
     }
 
+    /// Method deletes a episode based on the tv show id, season number, and episode number
+    ///
+    /// # Arguments
+    /// * `conn` - diesel connection reference to postgres
+    /// * `id` - The id of a tv show we target
+    /// * `season_num` - The season we are targetting
+    /// * `ep_num` - Episode we are targetting
+    ///
+    /// # Example
+    /// ```
+    /// use database::get_conn_devel as get_conn;
+    /// use database::library::{Library, InsertableLibrary, MediaType};
+    /// use database::media::{InsertableMedia, Media};
+    /// use database::tv::InsertableTVShow;
+    /// use database::season::InsertableSeason;
+    /// use database::episode::{InsertableEpisode, Episode};
+    ///
+    /// let conn = get_conn().unwrap();
+    ///
+    /// let library = InsertableLibrary {
+    ///     name: "test".into(),
+    ///     location: "/dev/null".to_string(),
+    ///     media_type: MediaType::Tv,
+    /// };
+    ///
+    /// let library_id = library.insert(&conn).unwrap();
+    ///
+    /// let new_show = InsertableMedia {
+    ///     library_id: library_id,
+    ///     name: "test".into(),
+    ///     added: "test".into(),
+    ///     media_type: MediaType::Tv,
+    ///     ..Default::default()
+    /// };
+    ///
+    /// let show_id = new_show.into_static::<InsertableTVShow>(&conn).unwrap();
+    ///
+    /// let new_season = InsertableSeason {
+    ///     season_number: 1,
+    ///     added: "test".into(),
+    ///     poster: "test".into(),
+    /// };
+    ///
+    /// let season_id = new_season.insert(&conn, show_id).unwrap();
+    ///
+    /// let new_episode = InsertableEpisode {
+    ///     media: InsertableMedia {
+    ///         library_id: library_id,
+    ///         name: "test_episode".into(),
+    ///         added: "test".into(),
+    ///         media_type: MediaType::Episode,
+    ///         ..Default::default()
+    ///     },
+    ///     seasonid: season_id,
+    ///     episode: 1,
+    /// };
+    ///
+    /// let episode_id = new_episode.insert(&conn, show_id).unwrap();
+    ///
+    /// let show = Media::get(&conn, show_id).unwrap();
+    /// let all_episodes = Episode::get_all_of_tv(&conn, &show).unwrap();
+    ///
+    /// assert!(all_episodes.len() == 1);
+    ///
+    /// let res = Episode::delete(&conn, show_id, 1, 1).unwrap();
+    /// let all_episodes = Episode::get_all_of_tv(&conn, &show).unwrap();
+    /// assert!(all_episodes.len() == 0);
+    ///
+    /// Library::delete(&conn, library_id).unwrap();
     pub fn delete(
         conn: &diesel::PgConnection,
         id: i32,
@@ -174,6 +445,76 @@ impl Episode {
 }
 
 impl InsertableEpisode {
+    /// Method inserts a new episode into the database
+    ///
+    /// # Arguments
+    /// * `conn` - diesel connection reference to postgres
+    /// * `show_id` - the id of the tv show we are trying to asociate this episode with
+    ///
+    /// # Example
+    /// ```
+    /// use database::get_conn_devel as get_conn;
+    /// use database::library::{Library, InsertableLibrary, MediaType};
+    /// use database::media::{InsertableMedia, Media};
+    /// use database::tv::InsertableTVShow;
+    /// use database::season::InsertableSeason;
+    /// use database::episode::{InsertableEpisode, Episode};
+    ///
+    /// let conn = get_conn().unwrap();
+    ///
+    /// let library = InsertableLibrary {
+    ///     name: "test".into(),
+    ///     location: "/dev/null".to_string(),
+    ///     media_type: MediaType::Tv,
+    /// };
+    ///
+    /// let library_id = library.insert(&conn).unwrap();
+    ///
+    /// let new_show = InsertableMedia {
+    ///     library_id: library_id,
+    ///     name: "test".into(),
+    ///     added: "test".into(),
+    ///     media_type: MediaType::Tv,
+    ///     ..Default::default()
+    /// };
+    ///
+    /// let show_id = new_show.into_static::<InsertableTVShow>(&conn).unwrap();
+    ///
+    /// let new_season = InsertableSeason {
+    ///     season_number: 1,
+    ///     added: "test".into(),
+    ///     poster: "test".into(),
+    /// };
+    ///
+    /// let season_id = new_season.insert(&conn, show_id).unwrap();
+    ///
+    /// let new_episode = InsertableEpisode {
+    ///     media: InsertableMedia {
+    ///         library_id: library_id,
+    ///         name: "test_episode".into(),
+    ///         added: "test".into(),
+    ///         media_type: MediaType::Episode,
+    ///         ..Default::default()
+    ///     },
+    ///     seasonid: season_id,
+    ///     episode: 1,
+    /// };
+    ///
+    /// let show = Media::get(&conn, show_id).unwrap();
+    /// let all_episodes = Episode::get_all_of_tv(&conn, &show).unwrap();
+    /// assert!(all_episodes.len() == 0);
+    ///
+    /// let episode_id = new_episode.insert(&conn, show_id).unwrap();
+    ///
+    /// let show = Media::get(&conn, show_id).unwrap();
+    /// let all_episodes = Episode::get_all_of_tv(&conn, &show).unwrap();
+    /// assert!(all_episodes.len() == 1);
+    ///
+    /// let episode = &all_episodes[0];
+    /// assert_eq!(episode.id, episode_id);
+    /// assert_eq!(episode.episode, 1);
+    ///
+    /// Library::delete(&conn, library_id).unwrap();
     pub fn insert(
         &self,
         conn: &diesel::PgConnection,
@@ -221,6 +562,83 @@ impl EpisodeWrapper {
 }
 
 impl UpdateEpisode {
+    /// Method updates the rows of a episode.
+    ///
+    /// # Arguments
+    /// * `conn` - diesel connection reference to postgres
+    /// * `id` - id of the tv show we'd like to discriminate against
+    /// * `season_num` - the season number we want to discriminate against
+    /// * `ep_num` - episode number of the entry that we want to update info of
+    ///
+    /// # Example
+    /// ```
+    /// use database::get_conn_devel as get_conn;
+    /// use database::library::{Library, InsertableLibrary, MediaType};
+    /// use database::media::{InsertableMedia, Media, UpdateMedia};
+    /// use database::tv::InsertableTVShow;
+    /// use database::season::InsertableSeason;
+    /// use database::episode::{InsertableEpisode, Episode, UpdateEpisode};
+    ///
+    /// let conn = get_conn().unwrap();
+    ///
+    /// let library = InsertableLibrary {
+    ///     name: "test".into(),
+    ///     location: "/dev/null".to_string(),
+    ///     media_type: MediaType::Tv,
+    /// };
+    ///
+    /// let library_id = library.insert(&conn).unwrap();
+    ///
+    /// let new_show = InsertableMedia {
+    ///     library_id: library_id,
+    ///     name: "test".into(),
+    ///     added: "test".into(),
+    ///     media_type: MediaType::Tv,
+    ///     ..Default::default()
+    /// };
+    ///
+    /// let show_id = new_show.into_static::<InsertableTVShow>(&conn).unwrap();
+    ///
+    /// let new_season = InsertableSeason {
+    ///     season_number: 1,
+    ///     added: "test".into(),
+    ///     poster: "test".into(),
+    /// };
+    ///
+    /// let season_id = new_season.insert(&conn, show_id).unwrap();
+    ///
+    /// let new_episode = InsertableEpisode {
+    ///     media: InsertableMedia {
+    ///         library_id: library_id,
+    ///         name: "test_episode".into(),
+    ///         added: "test".into(),
+    ///         media_type: MediaType::Episode,
+    ///         ..Default::default()
+    ///     },
+    ///     seasonid: season_id,
+    ///     episode: 1,
+    /// };
+    ///
+    /// let episode_id = new_episode.insert(&conn, show_id).unwrap();
+    ///
+    /// let update_episode = UpdateEpisode {
+    ///     episode: Some(2),
+    ///     seasonid: None,
+    ///     media: UpdateMedia {
+    ///         ..Default::default()
+    ///     },
+    /// };
+    /// let _ = update_episode.update(&conn, show_id, 1, 1).unwrap();
+    /// let old_episode = Episode::get(&conn, show_id, 1, 1);
+    ///
+    /// assert!(old_episode.is_err());
+    ///
+    /// let episode = Episode::get(&conn, show_id, 1, 2).unwrap();
+    ///
+    /// assert_eq!(episode.id, episode_id);
+    /// assert_eq!(episode.episode, 2);
+    ///
+    /// Library::delete(&conn, library_id).unwrap();
     pub fn update(
         &self,
         conn: &diesel::PgConnection,
