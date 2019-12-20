@@ -5,10 +5,12 @@ import { authenticate } from "../actions/authActions.js";
 class Login extends Component {
     constructor(props) {
         super(props);
+
         this.state = {
             username: "",
             password: "",
         };
+
         this.updateUsername = this.updateUsername.bind(this);
         this.updatePassword = this.updatePassword.bind(this);
     }
