@@ -10,6 +10,8 @@ import {
     DEL_LIBRARY_START,
     DEL_LIBRARY_OK,
     DEL_LIBRARY_ERR,
+    RM_LIBRARY,
+    ADD_LIBRARY,
 } from "../actions/types.js";
 
 const fetch_libraries = {
@@ -125,6 +127,22 @@ export default function(state = initialState, action) {
                     deleting: false,
                     deleted: false,
                     error: action.payload
+                }
+            }
+        case RM_LIBRARY:
+            return {
+                ...state,
+                fetch_libraries: {
+                    ...state.fetch_libraries,
+                    items: state.fetch_libraries.items.filter(item => item.id !== action.id)
+                }
+            }
+        case ADD_LIBRARY:
+            return {
+                ...state,
+                fetch_libraries: {
+                    ...state.fetch_libraries,
+                    items: [...state.fetch_libraries.items, action.payload]
                 }
             }
         default:

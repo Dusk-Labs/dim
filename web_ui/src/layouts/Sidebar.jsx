@@ -4,9 +4,10 @@ import Modal from "react-modal";
 import { connect } from "react-redux";
 import { Scrollbar } from "react-scrollbars-custom";
 
-import { fetchLibraries, delLibrary } from "../actions/libraryActions.js";
+import { fetchLibraries, delLibrary, handleWsNewLibrary, handleWsDelLibrary } from "../actions/libraryActions.js";
 import { fetchHosts } from "../actions/hostActions.js";
 import { fetchUser } from "../actions/userActions.js";
+import { logout } from "../actions/authActions.js";
 
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -23,14 +24,33 @@ class Sidebar extends Component {
     constructor(props) {
         super(props);
 
-        this.library_ws = new WebSocket("ws://86.21.150.167:3012/events/library");
+        this.library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
         this.library_ws.addEventListener("message", this.handle_ws_msg);
     }
 
+    handle_ws_msg = async (e) => {
+        const message = JSON.parse(e.data);
+        switch(message.type) {
+            case "EventRemoveLibrary":
+                this.props.handleWsDelLibrary(message.id)
+                break
+            case "EventNewLibrary":
+                this.props.handleWsNewLibrary(message.id)
+                break
+            default:
+                break
+        }
+    };
+
     async componentDidMount() {
-        this.props.fetchUser();
-        this.props.fetchHosts();
-        this.props.fetchLibraries();
+        this.props.fetchUser(this.props.auth.token);
+        this.props.fetchHosts(this.props.auth.token);
+        this.props.fetchLibraries(this.props.auth.token);
+    }
+
+    async componentWillUnmount() {
+        this.library_ws.removeEventListener("message", this.handle_ws_msg);
+        this.library_ws.close();
     }
 
     render() {
@@ -95,59 +115,6 @@ class Sidebar extends Component {
         }
 
         /*
-            * == HOSTS ==
-        */
-
-        // FETCH_HOSTS_START
-        if (this.props.hosts.fetching) {
-            hosts = (
-                <div className="item-wrapper">
-                    <div className="status">
-                        <p id="response">LOADING</p>
-                    </div>
-                </div>
-            );
-        }
-
-        // FETCH_HOSTS_ERR
-        if (this.props.hosts.fetched && this.props.hosts.error) {
-            hosts = (
-                <div className="item-wrapper">
-                    <div className="horizontal-err">
-                        <FontAwesomeIcon icon="times-circle"/>
-                        <p>FAILED TO LOAD</p>
-                    </div>
-                </div>
-            );
-        }
-
-        // FETCH_HOSTS_OK
-        if (this.props.hosts.fetched && !this.props.hosts.error) {
-            const { items } = this.props.hosts;
-
-            if (items.length > 0) {
-                hosts = items.map((
-                    { name, id, media_type }, i
-                ) => (
-                    <div className="item-wrapper" key={i}>
-                        <NavLink to={"/device/" + id}>
-                            <SidebarIcon icon={media_type || name}/>
-                            <p>{name}</p>
-                        </NavLink>
-                    </div>
-                ));
-            } else {
-                hosts = (
-                    <div className="item-wrapper">
-                        <div className="horizontal-err">
-                            <p>NO HOSTS</p>
-                        </div>
-                    </div>
-                );
-            }
-        }
-
-        /*
             * == LIBRARIES ==
         */
 
@@ -209,15 +176,6 @@ class Sidebar extends Component {
                     <SidebarSearch/>
                 </section>
 
-                <section className="connected-hosts">
-                    <header>
-                        <h4>CONNECTED HOSTS</h4>
-                    </header>
-                    <div className="list">
-                        <Scrollbar>{hosts}</Scrollbar>
-                    </div>
-                </section>
-
                 <section className="local-libraries">
                     <header>
                         <h4>LOCAL LIBRARIES</h4>
@@ -248,10 +206,10 @@ class Sidebar extends Component {
                             </NavLink>
                         </div>
                         <div className="item-wrapper">
-                            <NavLink to="/logout">
+                            <a onClick={() => {this.props.logout()}}>
                                 <FontAwesomeIcon icon="door-open"/>
                                 <p>Logout</p>
-                            </NavLink>
+                            </a>
                         </div>
                     </div>
                 </section>
@@ -261,16 +219,20 @@ class Sidebar extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    auth: state.authReducer,
     user: state.userReducer,
     hosts: state.hostReducer,
     libraries: state.libraryReducer.fetch_libraries
 });
 
 const mapActionsToProps = {
+    logout,
     fetchLibraries,
     fetchHosts,
     fetchUser,
-    delLibrary
+    delLibrary,
+    handleWsDelLibrary,
+    handleWsNewLibrary,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(Sidebar);

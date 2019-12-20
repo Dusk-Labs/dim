@@ -1,4 +1,4 @@
-use crate::APIExec;
+use super::APIExec;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, Mutex};
@@ -149,7 +149,7 @@ impl TMDbSearch {
                 "https://api.themoviedb.org/3/search/{}?api_key={}&language=en-US&query={}&page=1&include_adult=false{}", 
                 media_type.to_string(),
                 self.api_key,
-                title, 
+                title,
                 year_query).as_str())?;
         if res.status().as_u16() == 429u16 {
             std::thread::sleep(std::time::Duration::from_millis(1000));

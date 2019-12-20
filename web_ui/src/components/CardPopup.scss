@@ -6,7 +6,7 @@
     @include justify-content(center);
     @include box-sizing(border-box);
     @include transition(width 0.3s ease-in-out);
-    @include animation(CardPopupAppear 0.5s ease-in-out);
+    @include animation(CardPopupAppear 0.3s ease-in-out);
     position: absolute;
     top: -10px;
     height: 340px;
@@ -166,6 +166,7 @@
                 background: #555555;
                 border-radius: 5px;
                 overflow: hidden;
+                pointer-events: all;
 
                 &:hover {
                     @include filter(saturate(1));
@@ -215,6 +216,10 @@
     }
 }
 
+.hideCardPopup {
+    @include animation(CardPopupHide 0.3s ease-in-out forwards);
+}
+
 .card-popup-right {
     @extend %card-popup;
     @include filter(drop-shadow(-5px 0 10px #111111));
@@ -253,6 +258,15 @@
     }
     100% {
         opacity: 1;
+    }
+}
+
+@include keyframes(CardPopupHide) {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
     }
 }
 
