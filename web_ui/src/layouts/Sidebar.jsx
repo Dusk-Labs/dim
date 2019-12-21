@@ -5,10 +5,8 @@ import { connect } from "react-redux";
 import { Scrollbar } from "react-scrollbars-custom";
 
 import { fetchLibraries, delLibrary, handleWsNewLibrary, handleWsDelLibrary } from "../actions/libraryActions.js";
-import { fetchHosts } from "../actions/hostActions.js";
 import { fetchUser } from "../actions/userActions.js";
 import { logout } from "../actions/authActions.js";
-
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SidebarSearch from "../helpers/SidebarSearch.jsx";
@@ -44,7 +42,6 @@ class Sidebar extends Component {
 
     async componentDidMount() {
         this.props.fetchUser(this.props.auth.token);
-        this.props.fetchHosts(this.props.auth.token);
         this.props.fetchLibraries(this.props.auth.token);
     }
 
@@ -55,7 +52,6 @@ class Sidebar extends Component {
 
     render() {
         let user;
-        let hosts;
         let libraries;
 
         /*
@@ -176,9 +172,9 @@ class Sidebar extends Component {
                     <SidebarSearch/>
                 </section>
 
-                <section className="local-libraries">
+                <section className="libraries">
                     <header>
-                        <h4>LOCAL LIBRARIES</h4>
+                        <h4>LIBRARIES</h4>
                         <NewLibraryModal/>
                     </header>
                     <div className="list">
@@ -221,14 +217,12 @@ class Sidebar extends Component {
 const mapStateToProps = (state) => ({
     auth: state.authReducer,
     user: state.userReducer,
-    hosts: state.hostReducer,
     libraries: state.libraryReducer.fetch_libraries
 });
 
 const mapActionsToProps = {
     logout,
     fetchLibraries,
-    fetchHosts,
     fetchUser,
     delLibrary,
     handleWsDelLibrary,
