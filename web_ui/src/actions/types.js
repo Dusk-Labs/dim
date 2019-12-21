@@ -114,9 +114,9 @@ export const DEL_TRANSCODE_OK = "DEL_TRANSCODE_OK";
 export const DEL_TRANSCODE_ERR = "DEL_TRANSCODE_ERR";
 
 /*
-    * Auth actions
+    * AUTH ACTIONS
 */
-export const AUTH_OK = "AUTH_OK";
-export const AUTH_ERR = "AUTH_ERR";
-export const START_AUTH = "START_AUTH";
-export const AUTH_LOGOUT = "AUTH_LOGOUT";
+
+export const AUTH_LOGIN_START = "AUTH_LOGIN_START";
+export const AUTH_LOGIN_OK = "AUTH_LOGIN_OK";
+export const AUTH_LOGIN_ERR = "AUTH_LOGIN_ERR";

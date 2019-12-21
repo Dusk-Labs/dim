@@ -1,14 +1,11 @@
 import {
-    AUTH_OK,
-    AUTH_ERR,
-    AUTH_LOGOUT,
-    START_AUTH
+    AUTH_LOGIN_START,
+    AUTH_LOGIN_ERR,
+    AUTH_LOGIN_OK
 } from "./types";
 
 export const authenticate = (username, password) => async (dispatch) => {
-    dispatch({ type: START_AUTH });
-
-    console.log("AUTH STARTED", username, password);
+    dispatch({ type: AUTH_LOGIN_START });
 
     const config = {
         method: "POST",
@@ -24,33 +21,25 @@ export const authenticate = (username, password) => async (dispatch) => {
     try {
         const res = await fetch(`//${window.host}:8000/api/v1/auth/login`, config);
 
-        console.log("AUTH", res);
-
         if (res.status !== 200) {
             return dispatch({
-                type: AUTH_ERR,
+                type: AUTH_LOGIN_ERR,
                 payload: res.statusText,
             });
         }
 
         const payload = await res.json();
 
-        console.log("AUTH PAYLOAD", payload);
-
         dispatch({
-            type: AUTH_OK,
+            type: AUTH_LOGIN_OK,
             payload
         });
     } catch(err) {
         dispatch({
-            type: AUTH_ERR,
+            type: AUTH_LOGIN_ERR,
             payload: err
         });
     }
 };
 
-export const logout = () => async (dispatch) => {
-    dispatch({
-        type: AUTH_LOGOUT
-    });
-}
+export const logout = () => async (dispatch) => {};
