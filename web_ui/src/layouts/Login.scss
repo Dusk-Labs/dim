@@ -4,21 +4,21 @@
     @include transition(0.3s ease-in-out);
     @include transform(translate(-50%, -50%));
     @include box-sizing(border-box);
-    @include box-shadow(0 0 50px -20px rgba(255, 255, 255s, 0.1));
+    @include box-shadow(0 0 20px 0 rgba(255, 255, 255s, 0.05));
     position: absolute;
     padding: 50px;
     top: 50%;
     left: 50%;
-    height: 450px;
+    height: 480px;
     width: 550px;
     background: #333333;
     display: flex;
     justify-content: space-between;
-    border-radius: 5px;
+    border-radius: 10px;
     flex-direction: column;
     color: #ffffff;
     align-items: center;
-    transition-property: width, height;
+    transition-property: width, height, border-radius;
 
     header {
         text-align: center;
@@ -29,7 +29,7 @@
         }
     }
 
-    form {
+    .fields {
         @include display(flex);
         @include justify-content(center);
         @include align-items(center);
@@ -46,17 +46,21 @@
                 @include align-items(center);
 
                 svg {
-                    margin-right: 5px;
                     font-size: 0.8em;
                 }
 
                 p {
+                    margin: 0 5px;
                     font-family: "Roboto Condensed Regular";
+                }
+
+                .horizontal-err {
+                    background: #ee4740;
                 }
             }
 
-
             input {
+                @include transition(background 0.3s ease-in-out);
                 @include box-sizing(border-box);
                 margin-top: 10px;
                 background: #4d4d4d;
@@ -69,25 +73,44 @@
                 height: 40px;
                 overflow: hidden;
                 white-space: nowrap;
+
+                &:focus,
+                &:hover {
+                    background: #5d5d5d;
+                }
+            }
+        }
+    }
+
+    footer {
+        width: 100%;
+
+        button {
+            @include transition(background 0.3s ease-in-out);
+            margin-bottom: 10px;
+            padding: 10px 20px;
+            width: 100%;
+            font-family: "Roboto Black";
+            font-size: 1.1em;
+            background: #f7931e;
+            color: #ffffff;
+            border-radius: 5px;
+
+            &:hover {
+                background: #e6820d;
             }
         }
 
-    }
+        a {
+            @include transition(color 0.2s ease-in-out);
+            // color: #f7931e;
 
-    button {
-        @include transition(background 0.3s ease-in-out);
-        font-family: "Roboto Black";
-        font-size: 1.1em;
-        align-self: flex-end;
-        background: #f7931e;
-        color: #ffffff;
-        border-radius: 5px;
-        padding: 10px 20px;
-
-        &:hover {
-            background: #e6820d;
+            &:hover {
+                color: #f7931e;
+            }
         }
     }
+
 }
 
 /*
@@ -98,5 +121,6 @@
     .auth {
         width: 100%;
         height: 100%;
+        border-radius: unset;
     }
 }
