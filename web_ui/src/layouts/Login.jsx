@@ -1,6 +1,10 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import { authenticate } from "../actions/authActions.js";
+
+import "./Login.scss";
 
 class Login extends Component {
     constructor(props) {
@@ -31,10 +35,28 @@ class Login extends Component {
         const { username, password } = this.state;
 
         return (
-            <div className="auth-form">
-                <input type="text" name="login" id="login" onChange={this.updateUsername}/>
-                <input type="password" name="pass" id="pass" onChange={this.updatePassword}/>
-                <button type="submit" value="ok" onClick={() => this.props.authenticate(username, password)}>Log in</button>
+            <div className="auth">
+                <header>
+                    <h1>Welcome to Dim</h1>
+                    <h3>A media manager fueled by dark forces</h3>
+                </header>
+                <form>
+                    <div className="field">
+                        <label>
+                            <FontAwesomeIcon icon="user"/>
+                            <p>USERNAME</p>
+                        </label>
+                        <input type="text" name="login" id="login" onChange={this.updateUsername}/>
+                    </div>
+                    <div className="field">
+                        <label>
+                            <FontAwesomeIcon icon="key"/>
+                            <p>PASSWORD</p>
+                        </label>
+                        <input type="password" name="pass" id="pass" onChange={this.updatePassword}/>
+                    </div>
+                </form>
+                <button type="submit" value="ok" onClick={() => this.props.authenticate(username, password)}>Login</button>
             </div>
         );
     }

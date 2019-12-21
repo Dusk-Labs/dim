@@ -1,0 +1,102 @@
+@import "../mixins.scss";
+
+.auth {
+    @include transition(0.3s ease-in-out);
+    @include transform(translate(-50%, -50%));
+    @include box-sizing(border-box);
+    @include box-shadow(0 0 50px -20px rgba(255, 255, 255s, 0.1));
+    position: absolute;
+    padding: 50px;
+    top: 50%;
+    left: 50%;
+    height: 450px;
+    width: 550px;
+    background: #333333;
+    display: flex;
+    justify-content: space-between;
+    border-radius: 5px;
+    flex-direction: column;
+    color: #ffffff;
+    align-items: center;
+    transition-property: width, height;
+
+    header {
+        text-align: center;
+
+        h3 {
+            margin-top: 5px;
+            color: #aaaaaa;
+        }
+    }
+
+    form {
+        @include display(flex);
+        @include justify-content(center);
+        @include align-items(center);
+        @include flex-direction(column);
+        border-radius: 10px;
+        width: 100%;
+
+        .field {
+            margin: 10px 0;
+            width: 100%;
+
+            label {
+                @include display(flex);
+                @include align-items(center);
+
+                svg {
+                    margin-right: 5px;
+                    font-size: 0.8em;
+                }
+
+                p {
+                    font-family: "Roboto Condensed Regular";
+                }
+            }
+
+
+            input {
+                @include box-sizing(border-box);
+                margin-top: 10px;
+                background: #4d4d4d;
+                outline: none;
+                border: none;
+                border-radius: 5px;
+                padding: 10px 20px;
+                color: #ffffff;
+                width: 100%;
+                height: 40px;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+        }
+
+    }
+
+    button {
+        @include transition(background 0.3s ease-in-out);
+        font-family: "Roboto Black";
+        font-size: 1.1em;
+        align-self: flex-end;
+        background: #f7931e;
+        color: #ffffff;
+        border-radius: 5px;
+        padding: 10px 20px;
+
+        &:hover {
+            background: #e6820d;
+        }
+    }
+}
+
+/*
+    * == MEDIA QUERIES
+*/
+
+@media only screen and (max-width: 580px) {
+    .auth {
+        width: 100%;
+        height: 100%;
+    }
+}
