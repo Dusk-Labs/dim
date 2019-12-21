@@ -16,8 +16,8 @@ export default function(state = initialState, action) {
         case AUTH_LOGIN_START:
             return {
                 token: null,
-                logging_in: false,
-                logged_in: true,
+                logging_in: true,
+                logged_in: false,
                 error: null,
             };
         case AUTH_LOGIN_ERR:
