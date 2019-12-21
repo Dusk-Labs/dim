@@ -2,9 +2,18 @@ import {
     FETCH_CARDS_START,
     FETCH_CARDS_OK,
     FETCH_CARDS_ERR,
-    FETCH_CARD_START,
-    FETCH_CARD_OK,
-    FETCH_CARD_ERR
+    FETCH_MEDIA_INFO_START,
+    FETCH_MEDIA_INFO_OK,
+    FETCH_MEDIA_INFO_ERR,
+    FETCH_EXTRA_MEDIA_INFO_START,
+    FETCH_EXTRA_MEDIA_INFO_OK,
+    FETCH_EXTRA_MEDIA_INFO_ERR,
+    FETCH_MEDIA_SEASONS_START,
+    FETCH_MEDIA_SEASONS_OK,
+    FETCH_MEDIA_SEASONS_ERR,
+    FETCH_MEDIA_SEASON_EPISODES_START,
+    FETCH_MEDIA_SEASON_EPISODES_OK,
+    FETCH_MEDIA_SEASON_EPISODES_ERR
 } from "./types.js";
 
 export const fetchCards = (token, path) => async (dispatch) => {
@@ -16,6 +25,7 @@ export const fetchCards = (token, path) => async (dispatch) => {
                 "authorization": token,
             }
         };
+
         const res = await fetch(path, config);
 
         if (res.status !== 200) {
@@ -37,22 +47,23 @@ export const fetchCards = (token, path) => async (dispatch) => {
             payload: err
         });
     }
-}
+};
 
-export const fetchCard = (token, id) => async (dispatch) => {
-    dispatch({ type: FETCH_CARD_START });
+export const fetchMediaInfo = (token, id) => async (dispatch) => {
+    dispatch({ type: FETCH_MEDIA_INFO_START });
 
     try {
         const config = {
             headers: {
-                "authorization": token,
+                "authorization": token
             }
         };
-        const res = await fetch(`//${window.host}:8000/api/v1/media/${id}`, config);
+
+        const res = await fetch(`http://${window.host}:8000/api/v1/media/${id}`, config);
 
         if (res.status !== 200) {
             return dispatch({
-                type: FETCH_CARD_ERR,
+                type: FETCH_MEDIA_INFO_ERR,
                 payload: res.statusText
             });
         }
@@ -60,13 +71,119 @@ export const fetchCard = (token, id) => async (dispatch) => {
         const payload = await res.json();
 
         dispatch({
-            type: FETCH_CARD_OK,
+            type: FETCH_MEDIA_INFO_OK,
             payload
         });
     } catch(err) {
         dispatch({
-            type: FETCH_CARD_ERR,
+            type: FETCH_MEDIA_INFO_ERR,
             payload: err
         });
     }
-}
+};
+
+export const fetchExtraMediaInfo = (token, id) => async (dispatch) => {
+    dispatch({ type: FETCH_EXTRA_MEDIA_INFO_START });
+
+    try {
+        const config = {
+            headers: {
+                "authorization": token
+            }
+        };
+
+        const res = await fetch(`http://${window.host}:8000/api/v1/media/${id}/info`, config);
+
+        if (res.status !== 200) {
+            return dispatch({
+                type: FETCH_EXTRA_MEDIA_INFO_ERR,
+                payload: res.statusText
+            });
+        }
+
+        const payload = await res.json();
+
+        if (payload.error) {
+            return dispatch({
+                type: FETCH_EXTRA_MEDIA_INFO_ERR,
+                payload: payload.error
+            });
+        }
+
+        dispatch({
+            type: FETCH_EXTRA_MEDIA_INFO_OK,
+            payload
+        });
+    } catch(err) {
+        dispatch({
+            type: FETCH_EXTRA_MEDIA_INFO_ERR,
+            payload: err
+        });
+    }
+};
+
+export const fetchMediaSeasons = (token, id) => async (dispatch) => {
+    dispatch({ type: FETCH_MEDIA_SEASONS_START });
+
+    try {
+        const config = {
+            headers: {
+                "authorization": token
+            }
+        };
+
+        const res = await fetch(`http://${window.host}:8000/api/v1/tv/${id}/season`, config);
+
+        if (res.status !== 200) {
+            return dispatch({
+                type: FETCH_MEDIA_SEASONS_ERR,
+                payload: res.statusText
+            });
+        }
+
+        const payload = await res.json();
+
+        dispatch({
+            type: FETCH_MEDIA_SEASONS_OK,
+            payload
+        });
+    } catch(err) {
+        dispatch({
+            type: FETCH_MEDIA_SEASONS_ERR,
+            payload: err
+        });
+    }
+};
+
+export const fetchMediaSeasonEpisodes = (token, id, season) => async (dispatch) => {
+    dispatch({ type: FETCH_MEDIA_SEASON_EPISODES_START });
+
+    try {
+        const config = {
+            headers: {
+                "authorization": token
+            }
+        };
+
+        const res = await fetch(`http://${window.host}:8000/api/v1/tv/${id}/season/${season}/episode`, config);
+
+        if (res.status !== 200) {
+            return dispatch({
+                type: FETCH_MEDIA_SEASON_EPISODES_ERR,
+                payload: res.statusText
+            });
+        }
+
+        const payload = await res.json();
+
+        dispatch({
+            type: FETCH_MEDIA_SEASON_EPISODES_OK,
+            payload
+        });
+    } catch(err) {
+        dispatch({
+            type: FETCH_MEDIA_SEASON_EPISODES_ERR,
+            payload: err
+        });
+    }
+};

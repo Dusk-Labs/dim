@@ -1,12 +1,11 @@
 import {
-    AUTH_OK,
-    AUTH_ERR,
-    AUTH_LOGOUT,
-    START_AUTH
+    AUTH_LOGIN_START,
+    AUTH_LOGIN_ERR,
+    AUTH_LOGIN_OK
 } from "./types";
 
 export const authenticate = (username, password) => async (dispatch) => {
-    dispatch({ type: START_AUTH });
+    dispatch({ type: AUTH_LOGIN_START });
 
     const config = {
         method: "POST",
@@ -24,7 +23,7 @@ export const authenticate = (username, password) => async (dispatch) => {
 
         if (res.status !== 200) {
             return dispatch({
-                type: AUTH_ERR,
+                type: AUTH_LOGIN_ERR,
                 payload: res.statusText,
             });
         }
@@ -32,19 +31,15 @@ export const authenticate = (username, password) => async (dispatch) => {
         const payload = await res.json();
 
         dispatch({
-            type: AUTH_OK,
+            type: AUTH_LOGIN_OK,
             payload
         });
     } catch(err) {
         dispatch({
-            type: AUTH_ERR,
+            type: AUTH_LOGIN_ERR,
             payload: err
         });
     }
 };
 
-export const logout = () => async (dispatch) => {
-    dispatch({
-        type: AUTH_LOGOUT
-    });
-}
+export const logout = () => async (dispatch) => {};

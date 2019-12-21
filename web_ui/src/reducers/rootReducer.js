@@ -1,7 +1,6 @@
 import { combineReducers } from "redux";
 
 import libraryReducer from "./libraryReducer.js";
-import hostReducer from "./hostReducer.js";
 import userReducer from "./userReducer.js";
 import bannerReducer from "./bannerReducer.js";
 import fileBrowserReducer from "./fileBrowserReducer.js";
@@ -13,7 +12,6 @@ import authReducer from "./authReducer";
 export default combineReducers({
     authReducer,
     userReducer,
-    hostReducer,
     libraryReducer,
     fileBrowserReducer,
     searchReducer,
