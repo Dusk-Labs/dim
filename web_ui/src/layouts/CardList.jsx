@@ -177,7 +177,7 @@ class CardList extends Component {
 
 const mapStateToProps = (state) => ({
     auth: state.authReducer,
-    cards: state.cardReducer.fetch_cards
+    cards: state.cardReducer.cards
 });
 
 const mapActionsToProps = { fetchCards };

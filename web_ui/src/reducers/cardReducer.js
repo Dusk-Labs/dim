@@ -16,35 +16,35 @@ import {
     FETCH_MEDIA_SEASON_EPISODES_ERR,
 } from "../actions/types.js";
 
-const fetch_cards = {
+const cards = {
     items: [],
     fetching: false,
     fetched: false,
     error: null
 };
 
-const fetch_media_info = {
+const media_info = {
     info: {},
     fetching: false,
     fetched: false,
     error: null
 };
 
-const fetch_extra_media_info = {
+const extra_media_info = {
     info: {},
     fetching: false,
     fetched: false,
     error: null
 };
 
-const fetch_media_seasons = {
+const media_seasons = {
     items: [],
     fetching: false,
     fetched: false,
     error: null
 };
 
-const fetch_media_season_episodes = {
+const media_season_episodes = {
     items: [],
     fetching: false,
     fetched: false,
@@ -52,11 +52,11 @@ const fetch_media_season_episodes = {
 };
 
 const initialState = {
-    fetch_cards,
-    fetch_media_info,
-    fetch_extra_media_info,
-    fetch_media_seasons,
-    fetch_media_season_episodes
+    cards,
+    media_info,
+    extra_media_info,
+    media_seasons,
+    media_season_episodes
 };
 
 export default function(state = initialState, action) {
@@ -64,8 +64,8 @@ export default function(state = initialState, action) {
         case FETCH_CARDS_START:
             return {
                 ...state,
-                fetch_cards: {
-                    ...fetch_cards,
+                cards: {
+                    ...cards,
                     items: [],
                     fetching: true,
                     fetched: false,
@@ -75,8 +75,8 @@ export default function(state = initialState, action) {
         case FETCH_CARDS_OK:
             return {
                 ...state,
-                fetch_cards: {
-                    ...fetch_cards,
+                cards: {
+                    ...cards,
                     items: action.payload,
                     fetching: false,
                     fetched: true,
@@ -86,8 +86,8 @@ export default function(state = initialState, action) {
         case FETCH_CARDS_ERR:
             return {
                 ...state,
-                fetch_cards: {
-                    ...fetch_cards,
+                cards: {
+                    ...cards,
                     items: [],
                     fetching: false,
                     fetched: true,
@@ -97,8 +97,8 @@ export default function(state = initialState, action) {
         case FETCH_MEDIA_INFO_START:
             return {
                 ...state,
-                fetch_media_info: {
-                    ...fetch_media_info,
+                media_info: {
+                    ...media_info,
                     info: {},
                     fetching: true,
                     fetched: false,
@@ -108,8 +108,8 @@ export default function(state = initialState, action) {
         case FETCH_MEDIA_INFO_OK:
             return {
                 ...state,
-                fetch_media_info: {
-                    ...fetch_media_info,
+                media_info: {
+                    ...media_info,
                     info: action.payload,
                     fetching: false,
                     fetched: true,
@@ -119,8 +119,8 @@ export default function(state = initialState, action) {
         case FETCH_MEDIA_INFO_ERR:
             return {
                 ...state,
-                fetch_media_info: {
-                    ...fetch_media_info,
+                media_info: {
+                    ...media_info,
                     info: {},
                     fetching: false,
                     fetched: true,
@@ -130,8 +130,8 @@ export default function(state = initialState, action) {
         case FETCH_EXTRA_MEDIA_INFO_START:
             return {
                 ...state,
-                fetch_extra_media_info: {
-                    ...fetch_extra_media_info,
+                extra_media_info: {
+                    ...extra_media_info,
                     info: {},
                     fetching: true,
                     fetched: false,
@@ -141,8 +141,8 @@ export default function(state = initialState, action) {
         case FETCH_EXTRA_MEDIA_INFO_OK:
             return {
                 ...state,
-                fetch_extra_media_info: {
-                    ...fetch_extra_media_info,
+                extra_media_info: {
+                    ...extra_media_info,
                     info: action.payload,
                     fetching: false,
                     fetched: true,
@@ -152,8 +152,8 @@ export default function(state = initialState, action) {
         case FETCH_EXTRA_MEDIA_INFO_ERR:
             return {
                 ...state,
-                fetch_extra_media_info: {
-                    ...fetch_extra_media_info,
+                extra_media_info: {
+                    ...extra_media_info,
                     info: {},
                     fetching: false,
                     fetched: true,
@@ -163,8 +163,8 @@ export default function(state = initialState, action) {
         case FETCH_MEDIA_SEASONS_START:
             return {
                 ...state,
-                fetch_media_seasons: {
-                    ...fetch_media_seasons,
+                media_seasons: {
+                    ...media_seasons,
                     items: [],
                     fetching: true,
                     fetched: false,
@@ -174,8 +174,8 @@ export default function(state = initialState, action) {
         case FETCH_MEDIA_SEASONS_OK:
             return {
                 ...state,
-                fetch_media_seasons: {
-                    ...fetch_media_seasons,
+                media_seasons: {
+                    ...media_seasons,
                     items: action.payload,
                     fetching: false,
                     fetched: true,
@@ -185,8 +185,8 @@ export default function(state = initialState, action) {
         case FETCH_MEDIA_SEASONS_ERR:
             return {
                 ...state,
-                fetch_media_seasons: {
-                    ...fetch_media_seasons,
+                media_seasons: {
+                    ...media_seasons,
                     items: [],
                     fetching: false,
                     fetched: true,
@@ -196,8 +196,8 @@ export default function(state = initialState, action) {
         case FETCH_MEDIA_SEASON_EPISODES_START:
             return {
                 ...state,
-                fetch_media_season_episodes: {
-                    ...fetch_media_season_episodes,
+                media_season_episodes: {
+                    ...media_season_episodes,
                     items: [],
                     fetching: true,
                     fetched: false,
@@ -207,8 +207,8 @@ export default function(state = initialState, action) {
         case FETCH_MEDIA_SEASON_EPISODES_OK:
             return {
                 ...state,
-                fetch_media_season_episodes: {
-                    ...fetch_media_seasons,
+                media_season_episodes: {
+                    ...media_seasons,
                     items: action.payload,
                     fetching: false,
                     fetched: true,
@@ -218,8 +218,8 @@ export default function(state = initialState, action) {
         case FETCH_MEDIA_SEASON_EPISODES_ERR:
             return {
                 ...state,
-                fetch_media_season_episodes: {
-                    ...fetch_media_season_episodes,
+                media_season_episodes: {
+                    ...media_season_episodes,
                     items: [],
                     fetching: false,
                     fetched: true,

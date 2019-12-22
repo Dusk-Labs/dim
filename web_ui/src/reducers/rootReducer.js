@@ -6,7 +6,6 @@ import bannerReducer from "./bannerReducer.js";
 import fileBrowserReducer from "./fileBrowserReducer.js";
 import searchReducer from "./searchReducer.js";
 import cardReducer from "./cardReducer.js";
-import videoPlayerReducer from "./videoPlayerReducer.js";
 import authReducer from "./authReducer";
 
 export default combineReducers({
@@ -17,5 +16,4 @@ export default combineReducers({
     searchReducer,
     cardReducer,
     bannerReducer,
-    videoPlayerReducer
 });

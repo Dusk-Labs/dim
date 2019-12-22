@@ -1,7 +1,8 @@
 import {
     AUTH_LOGIN_START,
     AUTH_LOGIN_ERR,
-    AUTH_LOGIN_OK
+    AUTH_LOGIN_OK,
+    AUTH_UPDATE_TOKEN
 } from "./types";
 
 export const authenticate = (username, password) => async (dispatch) => {
@@ -43,3 +44,10 @@ export const authenticate = (username, password) => async (dispatch) => {
 };
 
 export const logout = () => async (dispatch) => {};
+
+export const updateAuthToken = (token) => (dispatch) => {
+    dispatch({
+        type: AUTH_UPDATE_TOKEN,
+        payload: token
+    });
+};
