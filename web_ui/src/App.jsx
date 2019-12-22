@@ -14,6 +14,8 @@ import BannerPage from "./components/BannerPage.jsx";
 import MediaPage from "./layouts/MediaPage.jsx";
 import Login from "./layouts/Login.jsx";
 
+import { updateAuthToken } from "./actions/authActions.js";
+
 import './App.scss';
 
 library.add(fas, far);
@@ -25,6 +27,14 @@ window.host = "86.21.150.167";
 class App extends Component {
     constructor(props) {
         super(props);
+	}
+
+	componentDidMount() {
+		const token = document.cookie.split("=")[1];
+
+		if (token) {
+			this.props.updateAuthToken(token);
+		}
 	}
 
 	dashboard() {
@@ -84,6 +94,18 @@ class App extends Component {
 		);
 	}
 
+	componentDidUpdate(prevProps) {
+		if (prevProps.auth.logged_in !== this.props.auth.logged_in) {
+			const token = document.cookie.split("=")[1];
+
+			if (!this.props.auth.error && !token) {
+				const dateExpires = new Date();
+				dateExpires.setTime(dateExpires.getTime() + 604800000);
+				document.cookie = `token=${this.props.auth.token};expires=${dateExpires.toGMTString()};`;
+			}
+		}
+	}
+
 	render() {
 		let app;
 
@@ -118,4 +140,8 @@ const mapStateToProps = (state) => ({
     auth: state.authReducer,
 });
 
-export default connect(mapStateToProps)(App);
+const mapActionsToProps = ({
+    updateAuthToken,
+});
+
+export default connect(mapStateToProps, mapActionsToProps)(App);
