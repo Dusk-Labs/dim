@@ -33,8 +33,8 @@ class MediaPage extends Component {
 
     componentDidUpdate() {
         // FETCH_MEDIA_INFO_OK
-        if (this.props.fetch_media_info.fetched && !this.props.fetch_media_info.error) {
-            document.title = `Dim - ${this.props.fetch_media_info.info.name}`;
+        if (this.props.media_info.fetched && !this.props.media_info.error) {
+            document.title = `Dim - ${this.props.media_info.info.name}`;
         }
     }
 
@@ -49,7 +49,7 @@ class MediaPage extends Component {
         let metaContent;
 
         // FETCH_MEDIA_INFO_START
-        if (this.props.fetch_media_info.fetching) {
+        if (this.props.media_info.fetching) {
             metaContent = (
                 <div className="meta-content">
                     <div className="cover">
@@ -90,8 +90,8 @@ class MediaPage extends Component {
         }
 
         // FETCH_MEDIA_INFO_ERR
-        if (this.props.fetch_media_info.fetched && this.props.fetch_media_info.error) {
-            console.log("[FETCH MEDIA INFO] ERR", this.props.fetch_media_info);
+        if (this.props.media_info.fetched && this.props.media_info.error) {
+            console.log("[FETCH MEDIA INFO] ERR", this.props.media_info);
 
             metaContent = (
                 <div className="meta-content">
@@ -136,8 +136,8 @@ class MediaPage extends Component {
         }
 
         // FETCH_MEDIA_INFO_OK
-        if (this.props.fetch_media_info.fetched && !this.props.fetch_media_info.error) {
-            console.log("[FETCH MEDIA INFO] OK", this.props.fetch_media_info.info);
+        if (this.props.media_info.fetched && !this.props.media_info.error) {
+            console.log("[FETCH MEDIA INFO] OK", this.props.media_info.info);
 
             const {
                 backdrop_path,
@@ -150,7 +150,7 @@ class MediaPage extends Component {
                 year,
                 media_type,
                 id
-            } = this.props.fetch_media_info.info;
+            } = this.props.media_info.info;
 
             backdrop = <LazyImage src={backdrop_path}/>;
 
@@ -196,21 +196,21 @@ class MediaPage extends Component {
         let mediaEpisodes = {};
 
         // FETCH_EXTRA_MEDIA_INFO_START
-        if (this.props.fetch_extra_media_info.fetching) {
+        if (this.props.extra_media_info.fetching) {
             console.log("[FETCH EXTRA MEDIA INFO] FETCHING");
         }
 
         // FETCH_EXTRA_MEDIA_INFO_ERR
-        if (this.props.fetch_extra_media_info.fetched && this.props.fetch_extra_media_info.error) {
-            console.table("[FETCH EXTRA MEDIA INFO] ERR", this.props.fetch_extra_media_info);
+        if (this.props.extra_media_info.fetched && this.props.extra_media_info.error) {
+            console.table("[FETCH EXTRA MEDIA INFO] ERR", this.props.extra_media_info);
         }
 
         // FETCH_EXTRA_MEDIA_INFO_OK
-        if (this.props.fetch_extra_media_info.fetched && !this.props.fetch_extra_media_info.error) {
-            console.log("[FETCH EXTRA MEDIA INFO] OK", this.props.fetch_extra_media_info);
+        if (this.props.extra_media_info.fetched && !this.props.extra_media_info.error) {
+            console.log("[FETCH EXTRA MEDIA INFO] OK", this.props.extra_media_info);
 
-            if (this.props.fetch_extra_media_info.info.seasons) {
-                const { seasons } = this.props.fetch_extra_media_info.info;
+            if (this.props.extra_media_info.info.seasons) {
+                const { seasons } = this.props.extra_media_info.info;
 
                 seasons.sort((a, b) => {
                     return a.season_number - b.season_number;
@@ -249,7 +249,7 @@ class MediaPage extends Component {
                     {backdrop}
                 </div>
                 {metaContent}
-                {this.props.fetch_extra_media_info.info.seasons &&
+                {this.props.extra_media_info.info.seasons &&
                     <div className="content">
                         <div className="se-ep">
                             <div className="seasons">
@@ -276,10 +276,8 @@ class MediaPage extends Component {
 
 const mapStateToProps = (state) => ({
     auth: state.authReducer,
-    fetch_media_info: state.cardReducer.fetch_media_info,
-    fetch_extra_media_info: state.cardReducer.fetch_extra_media_info,
-    fetch_media_seasons_info: state.cardReducer.fetch_media_seasons_info,
-    fetch_media_season_episodes_info: state.cardReducer.fetch_media_season_episodes_info,
+    media_info: state.cardReducer.media_info,
+    extra_media_info: state.cardReducer.extra_media_info,
 });
 
 const mapActionsToProps = {
