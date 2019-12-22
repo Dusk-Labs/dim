@@ -1,7 +1,8 @@
 import {
     AUTH_LOGIN_START,
     AUTH_LOGIN_OK,
-    AUTH_LOGIN_ERR
+    AUTH_LOGIN_ERR,
+    AUTH_UPDATE_TOKEN
 } from "../actions/types.js";
 
 const initialState = {
@@ -34,6 +35,13 @@ export default function(state = initialState, action) {
                 logged_in: true,
                 logging_in: false,
             };
+        case AUTH_UPDATE_TOKEN:
+            return {
+                token: action.payload,
+                logging_in: false,
+                logged_in: true,
+                error: null,
+            }
         default:
             return state;
     }
