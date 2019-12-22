@@ -1,10 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import * as Vibrant from "node-vibrant";
-import HLS from "hls.js";
+import videojs from "video.js";
 
-import { fetchMediaInfo } from "../actions/cardActions.js";
-import { startTranscode } from "../actions/videoPlayerActions.js";
+import { fetchMediaInfo, fetchExtraMediaInfo } from "../actions/cardActions.js";
 
 import LazyImage from "../helpers/LazyImage.jsx";
 import VideoPlayerControls from "./VideoPlayerControls.jsx";
@@ -26,105 +25,44 @@ class VideoPlayer extends Component {
 
         this.onCoverLoad = this.onCoverLoad.bind(this);
         this.handleVideoLoaded = this.handleVideoLoaded.bind(this);
-        this.updateSeekTo = this.updateSeekTo.bind(this);
 
-        /*
-            TODO: centerBox - container that appears in the center to show current actions
-            E.G. if user presses pause, it will display a temporary box in the middle with pause glyph.
-        */
         this.state = {
-            seekTo: 0,
-            mouseMoveTimeout: null,
+            userActiveTimeout: null,
             navIndex: -1
         };
     }
 
-    async componentDidMount() {
-        // ! USE REACT REF
+    componentDidMount() {
+        document.title = "Dim - Playing";
+
         document.querySelector("meta[name='theme-color']").setAttribute("content", "#000000");
         document.getElementsByTagName("main")[0].style["margin-left"] = "0";
+        document.addEventListener("mousemove", this.throttle(this.triggerUserActive.bind(this), 300));
 
         this.video.current.addEventListener("loadeddata", this.handleVideoLoaded.bind(this));
-        this.video.current.addEventListener("mousemove", this.handleMouseMove.bind(this));
 
         const { id } = this.props.match.params;
 
-        this.props.fetchMediaInfo(id);
-        this.props.startTranscode(id);
+        this.props.fetchMediaInfo(this.props.auth.token, id);
+        this.props.fetchExtraMediaInfo(this.props.auth.token, id);
     }
 
-    async componentWillUnmount() {
-        // ! USE REACT REF
+    componentWillUnmount() {
         document.querySelector("meta[name='theme-color']").setAttribute("content", "#333333");
+        document.removeEventListener("mousemove");
 
-        this.video.current.removeEventListener("loadeddata", this.handleVideoLoaded);
-        this.video.current.removeEventListener("mousemove", this.handleMouseMove);
+        this.video.current.removeEventListener("loadeddata");
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.stream.start_transcode.fetched !== this.props.stream.start_transcode.fetched) {
-            if (!this.state.uuid) {
-                // START_TRANSCODE_START
-                if (this.props.stream.start_transcode.fetching) {
-                    console.log("[FETCHING] START TRANSCODE");
-                }
-
-                // START_TRANSCODE_ERR
-                if (this.props.stream.start_transcode.fetched && this.props.stream.start_transcode.error) {
-                    console.log("[ERR] START TRANSCODE", this.props.stream.start_transcode);
-                }
-
-                // START_TRANSCODE_OK
-                if (this.props.stream.start_transcode.fetched && !this.props.stream.start_transcode.error) {
-                    console.log("[OK] START TRANSCODE");
-                    const { uuid } = this.props.stream.start_transcode;
-
-                    const ws = new WebSocket(`ws://86.21.150.167:3012/events/stream/${uuid}`);
-
-                    ws.addEventListener("message", ({data}) => {
-                        const payload = JSON.parse(data);
-
-                        if (payload.type === "EventStreamStats") {
-                            console.log("[WS] [EventStreamStats] FRAME", payload.frame);
-
-                            if (payload.frame >= 700) {
-                                console.log("[WS] [EventStreamStats] ENOUGH FRAMES, CLOSING CONNECTION.");
-
-                                this.fetchFile(uuid);
-                                ws.close();
-                            }
-                        }
-                    });
-
-                    this.setState({uuid});
-                }
-            }
-        }
-
-        if (prevProps.stream.del_transcode.fetched !== this.props.stream.del_transcode.fetched) {
-            // DEL_TRANSCODE_START
-            if (this.props.stream.del_transcode.fetching) {
-                console.log("[DELETING] TRANSCODE STREAM.");
-            }
-
-            // DEL_TRANSCODE_ERR
-            if (this.props.stream.del_transcode.fetched && this.props.stream.del_transcode.error) {
-                console.log("[ERR] DELETING TRANSCODE STREAM.", this.props.stream.del_transcode);
-            }
-
-            // DEL_TRANSCODE_OK
-            if (this.props.stream.del_transcode.fetched && !this.props.stream.del_transcode.error) {
-                console.log("[OK] TRANSCODE DELETED.", this.state.seekTo);
-                this.setState({uuid: undefined});
-                this.hls.destroy();
-                this.props.startTranscode(this.props.match.params.id, `?seek=${this.state.seekTo}`);
-            }
-        }
-
-        // FETCH_CARD_OK
-        if (!this.state.endsAt && this.props.card.fetched && !this.props.card.error) {
+        // FETCH_MEDIA_INFO_OK
+        if (
+            prevProps.media_info.fetched !== this.props.media_info.fetched
+            && !this.props.media_info.error
+            && !this.state.endsAt
+        ) {
             const currentDate = new Date();
-            const { duration } = this.props.card.info;
+            const { duration } = this.props.media_info.info;
 
             currentDate.setSeconds(currentDate.getSeconds() + duration);
 
@@ -132,89 +70,55 @@ class VideoPlayer extends Component {
 
             this.setState({endsAt});
         }
-    }
 
-    fetchFile(uuid) {
-        console.log("[FETCH FILE] BEGINNING TO FETCH TRANSCODED FILE.");
+        // FETCH_MEDIA_EXTRA_INFO_OK
+        if (prevProps.extra_media_info.fetched !== this.props.extra_media_info.fetched && !this.props.extra_media_info.error) {
+            const { id } = this.props.extra_media_info.info.versions[0];
 
-        // ! FIXME: USING OLD VER (0.8.8) (OUTDATED)
-        if (HLS.isSupported()) {
-            const config = {
-                autoStartLoad: true,
-                startPosition: this.state.seekTo,
-                debug: false,
-            };
+            this.player = videojs(this.video.current);
 
-            const source = `http://86.21.150.167:8000/api/v1/stream/static/${uuid}/index.m3u8`;
-
-            this.hls = new HLS(config);
-
-            this.hls.attachMedia(this.video.current);
-
-            this.hls.on(HLS.Events.MEDIA_ATTACHED, () => {
-                console.log("[EVENT] VID COMPONENT AND HLS BOUND.");
-
-                this.hls.loadSource(source);
-
-                this.hls.on(HLS.Events.MANIFEST_PARSED, (_, data) => {
-                    console.log("[HLS] MANIFEST LOADED, FOUND " + data.levels.length + " QUALITY LEVEL.");
+            this.player.ready(() => {
+                this.player.src({
+                    src: `//${window.host}:8000/api/v1/stream/${id}/manifest.mpd`,
+                    type: "application/dash+xml"
                 });
             });
-
-            this.hls.on(HLS.Events.ERROR, (_, data) => {
-                if (data.fatal) {
-                    switch(data.type) {
-                        case HLS.ErrorTypes.NETWORK_ERROR:
-                            console.log("[HLS] FATAL NETWORK ERROR, TRYING TO RECOVER.");
-                            this.hls.startLoad();
-                            break;
-                        case HLS.ErrorTypes.MEDIA_ERROR:
-                            console.log("[HLS] FATAL MEDIA ERROR, TRYING TO RECOVER.");
-                            this.hls.recoverMediaError();
-                            break;
-                        default:
-                            console.log("[HLS] CANNOT RECOVER, DESTROYING.");
-                            this.hls.destroy();
-                            break;
-                        }
-                    }
-            });
         }
-        // !
     }
 
-    updateSeekTo(secs) {
-        this.setState({
-            seekTo: secs
-        });
+    throttle(callback, interval) {
+        let enableCall = true;
+
+        return function(...args) {
+            if (!enableCall) return;
+
+            enableCall = false;
+            callback.apply(this, args);
+
+            setTimeout(() => enableCall = true, interval);
+        }
     }
 
     handleVideoLoaded() {
-        console.log("[EVENT] VIDEO LOADED");
         this.video.current.play();
+        this.triggerUserActive();
     }
 
-    handleMouseMove() {
-        if (this.state.mouseMoveTimeout !== null) {
-            clearTimeout(this.state.mouseMoveTimeout);
+    triggerUserActive() {
+        this.overlay.current.style.opacity = 1;
+        this.body.style.cursor = "default";
 
-            this.setState({
-                mouseMoveTimeout: null
-            });
+        if (this.state.userActiveTimeout) {
+            clearInterval(this.state.userActiveTimeout);
+        }
 
-            this.overlay.current.style.opacity = 1;
-            this.body.style.cursor = "default";
-        } else {
-            if (this.video.current.readyState >= 1 && !this.video.current.paused) {
-                const mouseMoveTimeout = setTimeout(_ => {
-                    this.overlay.current.style.opacity = 0;
-                    this.body.style.cursor = "none";
-                }, 3000);
+        if (this.video.current.readyState === 4 && !this.video.current.paused) {
+            const userActiveTimeout = setTimeout(_ => {
+                this.overlay.current.style.opacity = 0;
+                this.body.style.cursor = "none";
+            }, 3000);
 
-                this.setState({
-                    mouseMoveTimeout
-                });
-            }
+            this.setState({userActiveTimeout});
         }
     }
 
@@ -241,7 +145,6 @@ class VideoPlayer extends Component {
 
     //     this.setState({navIndex: index});
 
-    //     // eslint-disable-next-line
     //     for (let [i, navLink] of [...this.navLinks.current.children].entries()) {
     //         if (i === index) {
     //             navLink.classList.add("active");
@@ -253,7 +156,6 @@ class VideoPlayer extends Component {
     //         navLink.classList.remove("active");
     //     }
 
-    //     // eslint-disable-next-line
     //     for (let [i, navPage] of [...this.navPages.current.children].entries()) {
     //         if (i === index) {
     //             navPage.classList.add("shown");
@@ -269,9 +171,9 @@ class VideoPlayer extends Component {
     render() {
         let posterPath;
 
-        // FETCH_CARD_OK
-        if (this.props.card.fetched && !this.props.card.error) {
-            const { name, poster_path } = this.props.card.info;
+        // FETCH_MEDIA_INFO_OK
+        if (this.props.media_info.fetched && !this.props.media_info.error) {
+            const { name, poster_path } = this.props.media_info.info;
 
             posterPath = poster_path;
             document.title = `Dim - Playing '${name}'`;
@@ -289,7 +191,7 @@ class VideoPlayer extends Component {
                         </div>
                     </section>
                     {this.video.current &&
-                        <VideoPlayerControls video={this.video.current} card={this.props.card} updateSeekTo={this.updateSeekTo}/>
+                        <VideoPlayerControls video={this.video.current} card={this.props.media_info}/>
                     }
                     <section className="ends-at">
                         <p>ENDS AT</p>
@@ -323,13 +225,14 @@ class VideoPlayer extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    card: state.cardReducer.fetch_card,
-    stream: state.videoPlayerReducer
+    auth: state.authReducer,
+    media_info: state.cardReducer.media_info,
+    extra_media_info: state.cardReducer.extra_media_info
 });
 
 const mapActionsToProps = {
     fetchMediaInfo,
-    startTranscode
+    fetchExtraMediaInfo
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(VideoPlayer);
