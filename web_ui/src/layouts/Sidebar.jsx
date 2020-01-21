@@ -129,10 +129,18 @@ class Sidebar extends Component {
         // FETCH_LIBRARIES_ERR
         if (this.props.libraries.fetched && this.props.libraries.error) {
             libraries = (
-                <div className="item-wrapper">
-                    <div className="horizontal-err">
-                        <FontAwesomeIcon icon="times-circle"/>
-                        <p>FAILED TO LOAD</p>
+                <div>
+                    <div className="item-wrapper">
+                        <div className="placeholder-medium placeholder-light">
+                            <div className="placeholder-inner-icon"/>
+                            <div className="placeholder-inner"/>
+                        </div>
+                    </div>
+                    <div className="item-wrapper">
+                        <div className="placeholder-medium placeholder-light">
+                            <div className="placeholder-inner-icon"/>
+                            <div className="placeholder-inner"/>
+                        </div>
                     </div>
                 </div>
             );
