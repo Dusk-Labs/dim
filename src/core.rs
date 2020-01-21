@@ -72,10 +72,16 @@ pub fn rocket_pad(
     let allowed_origins = AllowedOrigins::all();
     let cors = CorsOptions {
         allowed_origins,
-        allowed_methods: vec![Method::Get, Method::Post, Method::Delete, Method::Patch]
-            .into_iter()
-            .map(From::from)
-            .collect(),
+        allowed_methods: vec![
+            Method::Options,
+            Method::Get,
+            Method::Post,
+            Method::Delete,
+            Method::Patch,
+        ]
+        .into_iter()
+        .map(From::from)
+        .collect(),
         allowed_headers: AllowedHeaders::all(),
         allow_credentials: true,
         ..Default::default()
@@ -121,6 +127,7 @@ pub fn rocket_pad(
                 routes::media::update_media_by_id,
                 routes::media::delete_media_by_id,
                 routes::media::tmdb_search,
+                routes::media::map_progress,
             ],
         )
         .mount(

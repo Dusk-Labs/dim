@@ -91,7 +91,9 @@ class Sidebar extends Component {
                     <div className="profile-icon">
                         <div className="default-icon"></div>
                     </div>
-                    <p id="response">LOADING</p>
+                    <div className="info">
+                        <div className="placeholder-text-light placeholder-small placeholder-small-animate"/>
+                    </div>
                 </div>
             );
         }
@@ -103,9 +105,8 @@ class Sidebar extends Component {
                     <div className="profile-icon">
                         <div className="default-icon"></div>
                     </div>
-                    <div className="horizontal-err">
-                        <FontAwesomeIcon icon="times-circle"/>
-                        <p>FAILED TO LOAD</p>
+                    <div className="info">
+                        <div className="placeholder-text-light placeholder-small"/>
                     </div>
                 </div>
             );
@@ -123,7 +124,7 @@ class Sidebar extends Component {
                 <div className="profile">
                     <div className="profile-icon">
                         <LazyImage
-                            alt="profile-icon"
+                            alt=" "
                             src={picture}
                             loading={loading}
                         />
@@ -154,10 +155,18 @@ class Sidebar extends Component {
         // FETCH_LIBRARIES_ERR
         if (this.props.libraries.fetched && this.props.libraries.error) {
             libraries = (
-                <div className="item-wrapper">
-                    <div className="horizontal-err">
-                        <FontAwesomeIcon icon="times-circle"/>
-                        <p>FAILED TO LOAD</p>
+                <div>
+                    <div className="item-wrapper">
+                        <div className="placeholder-medium placeholder-light">
+                            <div className="placeholder-inner-icon"/>
+                            <div className="placeholder-inner"/>
+                        </div>
+                    </div>
+                    <div className="item-wrapper">
+                        <div className="placeholder-medium placeholder-light">
+                            <div className="placeholder-inner-icon"/>
+                            <div className="placeholder-inner"/>
+                        </div>
                     </div>
                 </div>
             );
@@ -232,10 +241,10 @@ class Sidebar extends Component {
                             </NavLink>
                         </div>
                         <div className="item-wrapper">
-                            <a onClick={() => {this.props.logout()}}>
+                            <NavLink to="/login" onClick={() => this.props.logout()}>
                                 <FontAwesomeIcon icon="door-open"/>
                                 <p>Logout</p>
-                            </a>
+                            </NavLink>
                         </div>
                     </div>
                 </section>
