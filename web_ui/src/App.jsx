@@ -73,11 +73,9 @@ class App extends Component {
 
 	play(props) {
 		return (
-			<Fragment>
-				<main>
-					<VideoPlayer {...props}/>
-				</main>
-			</Fragment>
+			<main className="full">
+				<VideoPlayer {...props}/>
+			</main>
 		);
 	}
 
@@ -94,21 +92,17 @@ class App extends Component {
 
 	login() {
 		return (
-			<Fragment>
-				<main>
-					<Login/>
-				</main>
-			</Fragment>
+			<main className="full">
+				<Login/>
+			</main>
 		);
 	}
 
 	register() {
 		return (
-			<Fragment>
-				<main>
-					<Register/>
-				</main>
-			</Fragment>
+			<main className="full">
+				<Register/>
+			</main>
 		);
 	}
 
@@ -154,9 +148,7 @@ class App extends Component {
 
 		return (
 			<Router>
-				<div className="App">
-					{app}
-				</div>
+				<div className="App">{app}</div>
 			</Router>
 		);
 	}

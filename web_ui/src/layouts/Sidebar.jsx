@@ -65,16 +65,13 @@ class Sidebar extends Component {
         });
 
         const main = document.querySelectorAll("main")[0];
-        const marginLeft = this.sidebar.current.offsetWidth;
-
-        this.state.show
-            ? main.style["margin-left"] = "0px"
-            : main.style["margin-left"] = `${marginLeft}px`;
 
         this.sidebar.current.classList.toggle("hide", this.state.show);
         this.sidebar.current.classList.toggle("show", !this.state.show);
-    }
 
+        main.classList.toggle("full", this.state.show);
+        main.classList.toggle("shrunk", !this.state.show);
+    }
 
     render() {
         let user;
@@ -92,7 +89,7 @@ class Sidebar extends Component {
                         <div className="default-icon"></div>
                     </div>
                     <div className="info">
-                        <div className="placeholder-text-light placeholder-small placeholder-small-animate"/>
+                        <p id="response">LOADING</p>
                     </div>
                 </div>
             );
@@ -105,8 +102,10 @@ class Sidebar extends Component {
                     <div className="profile-icon">
                         <div className="default-icon"></div>
                     </div>
-                    <div className="info">
-                        <div className="placeholder-text-light placeholder-small"/>
+                    <div className="item-wrapper">
+                        <div className="horizontal-err">
+                            <p>FAILED TO FETCH</p>
+                        </div>
                     </div>
                 </div>
             );
@@ -124,7 +123,7 @@ class Sidebar extends Component {
                 <div className="profile">
                     <div className="profile-icon">
                         <LazyImage
-                            alt=" "
+                            alt=""
                             src={picture}
                             loading={loading}
                         />
@@ -155,18 +154,9 @@ class Sidebar extends Component {
         // FETCH_LIBRARIES_ERR
         if (this.props.libraries.fetched && this.props.libraries.error) {
             libraries = (
-                <div>
-                    <div className="item-wrapper">
-                        <div className="placeholder-medium placeholder-light">
-                            <div className="placeholder-inner-icon"/>
-                            <div className="placeholder-inner"/>
-                        </div>
-                    </div>
-                    <div className="item-wrapper">
-                        <div className="placeholder-medium placeholder-light">
-                            <div className="placeholder-inner-icon"/>
-                            <div className="placeholder-inner"/>
-                        </div>
+                <div className="item-wrapper">
+                    <div className="status">
+                        <p id="response">FAILED TO FETCH</p>
                     </div>
                 </div>
             );

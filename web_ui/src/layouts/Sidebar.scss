@@ -335,7 +335,6 @@
 
         .main-part {
             grid-template-columns: 100%;
-            // flex-direction: column;
 
             .profile {
                 @include flex-direction(column);
@@ -386,56 +385,4 @@
             }
         }
     }
-}
-
-.placeholder-small {
-    height: 20px;
-    width: 150px;
-    border-radius: 10px;
-    margin-bottom: 5px;
-    animation: 2.2s cubic-bezier(0.19, 1, 0.22, 1) placeholderSmall;
-}
-
-.placeholder-small-animate {
-    animation: 2.2s cubic-bezier(0.19, 1, 0.22, 1) infinite placeholderSmall;
-}
-
-.placeholder-medium {
-    height: 30px;
-    width: 190px;
-    border-radius: 10px;
-    margin-bottom: 5px;
-}
-
-.placeholder-inner {
-    position: absolute;
-    height: 15px;
-    width: 80px;
-    border-radius: 8px;
-    margin-top: 7px;
-    margin-left: 50px;
-    background: #606060;
-}
-
-.placeholder-inner-icon {
-    position: absolute;
-    height: 15px;
-    width: 15px;
-    border-radius: 8px;
-    margin-top: 7px;
-    margin-left: 14px;
-    background: #606060;
-}
-
-.placeholder-light {
-    background: #404040;
-}
-
-.placeholder-small-animate {
-    animation: 2.2s cubic-bezier(0.19, 1, 0.22, 1) infinite placeholderSmall;
-}
-
-@keyframes placeholderSmall {
-  0% { width: 40px; }
-  100% { width: 150px; }
 }
