@@ -7,11 +7,17 @@ import {
     SEARCH_ERR
 } from "./types.js";
 
-export const search = (params) => async (dispatch) => {
+export const search = (params, token) => async (dispatch) => {
     dispatch({ type: SEARCH_START });
 
     try {
-        const res = await fetch(`http://${window.host}:8000/api/v1/search?${params}`);
+        const config = {
+            headers: {
+                "authorization": token,
+            }
+        };
+
+        const res = await fetch(`http://${window.host}:8000/api/v1/search?${params}`, config);
 
         if (res.status !== 200) {
             return dispatch({
@@ -34,11 +40,17 @@ export const search = (params) => async (dispatch) => {
     }
 };
 
-export const quickSearch = (query) => async (dispatch) => {
+export const quickSearch = (query, token) => async (dispatch) => {
     dispatch({ type: QUICK_SEARCH_START });
 
     try {
-        const res = await fetch(`http://${window.host}:8000/api/v1/search?query=${query}&quick=true`);
+        const config = {
+            headers: {
+                "authorization": token,
+            }
+        };
+
+        const res = await fetch(`http://${window.host}:8000/api/v1/search?query=${query}&quick=true`, config);
 
         if (res.status !== 200) {
             return dispatch({
