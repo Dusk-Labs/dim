@@ -59,7 +59,7 @@ class NewLibraryModal extends Component {
             });
         }
 
-        this.props.fetchDirectories(path);
+        this.props.fetchDirectories(path, this.props.auth.token);
 
         this.setState({
             current: path,
@@ -214,6 +214,7 @@ class NewLibraryModal extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    auth: state.authReducer,
     fileBrowser: state.fileBrowserReducer,
     library: state.libraryReducer.new_library
 });

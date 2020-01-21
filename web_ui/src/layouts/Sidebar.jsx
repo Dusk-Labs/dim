@@ -202,10 +202,10 @@ class Sidebar extends Component {
                             </NavLink>
                         </div>
                         <div className="item-wrapper">
-                            <a onClick={() => {this.props.logout()}}>
+                            <NavLink to="/login" onClick={() => this.props.logout()}>
                                 <FontAwesomeIcon icon="door-open"/>
                                 <p>Logout</p>
-                            </a>
+                            </NavLink>
                         </div>
                     </div>
                 </section>
