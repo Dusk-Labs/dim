@@ -58,7 +58,7 @@ class SidebarSearch extends Component {
         });
 
         if (this.state.query.length >= 1) {
-            this.props.quickSearch(this.state.query);
+            this.props.quickSearch(this.state.query, this.props.auth.token);
 
             this.setState({
                 showPlaceholder: false
@@ -168,6 +168,7 @@ class SidebarSearch extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    auth: state.authReducer,
     quick_search: state.searchReducer.quick_search
 });
 

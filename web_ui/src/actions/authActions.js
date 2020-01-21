@@ -2,7 +2,8 @@ import {
     AUTH_LOGIN_START,
     AUTH_LOGIN_ERR,
     AUTH_LOGIN_OK,
-    AUTH_UPDATE_TOKEN
+    AUTH_UPDATE_TOKEN,
+    AUTH_LOGOUT
 } from "./types";
 
 export const authenticate = (username, password) => async (dispatch) => {
@@ -43,7 +44,15 @@ export const authenticate = (username, password) => async (dispatch) => {
     }
 };
 
-export const logout = () => async (dispatch) => {};
+export const logout = () => async (dispatch) => {
+    // Remove all cookies
+    // FIXME: Is this the proper place to place shit like this?
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+    dispatch({
+        type: AUTH_LOGOUT
+    });
+};
 
 export const updateAuthToken = (token) => (dispatch) => {
     dispatch({
