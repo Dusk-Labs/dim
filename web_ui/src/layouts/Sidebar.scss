@@ -215,6 +215,7 @@
         }
 
         // ITEM NAME
+
          p {
             margin: 0;
             padding: 10px 0;
@@ -308,6 +309,7 @@
     width: 150px;
     border-radius: 10px;
     margin-bottom: 5px;
+    animation: 2.2s cubic-bezier(0.19, 1, 0.22, 1) placeholderSmall;
 }
 
 .placeholder-small-animate {
