@@ -73,11 +73,9 @@ class App extends Component {
 
 	play(props) {
 		return (
-			<Fragment>
-				<main>
-					<VideoPlayer {...props}/>
-				</main>
-			</Fragment>
+			<main className="full">
+				<VideoPlayer {...props}/>
+			</main>
 		);
 	}
 
@@ -89,6 +87,22 @@ class App extends Component {
 					<MediaPage {...props}/>
 				</main>
 			</Fragment>
+		);
+	}
+
+	login() {
+		return (
+			<main className="full">
+				<Login/>
+			</main>
+		);
+	}
+
+	register() {
+		return (
+			<main className="full">
+				<Register/>
+			</main>
 		);
 	}
 
@@ -107,11 +121,12 @@ class App extends Component {
 	render() {
 		let app;
 
+		// AUTH_LOGIN_CHECK
 		if ((!this.props.auth.logged_in && !this.props.auth.token) || this.props.auth.error) {
             app = (
                 <Switch>
-                    <Route exact path="/login" render={() => <Login/>}/>
-                    <Route exact path="/register" render={() => <Register/>}/>
+                    <Route exact path="/login" render={this.login}/>
+                    <Route exact path="/register" render={this.register}/>
                     <Redirect to="/login"/>
                 </Switch>
             );
@@ -133,9 +148,7 @@ class App extends Component {
 
 		return (
 			<Router>
-				<div className="App">
-					{app}
-				</div>
+				<div className="App">{app}</div>
 			</Router>
 		);
 	}

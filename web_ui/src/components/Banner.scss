@@ -31,7 +31,7 @@
         @include display(flex);
         @include align-items(center);
         top: 10%;
-        left: 5%;
+        left: 90px;
         position: absolute;
         -ms-flex-wrap: wrap;
             flex-wrap: wrap;
@@ -53,7 +53,7 @@
         @include transform(translate(0, -30%));
         width: 450px;
         position: absolute;
-        left: 5%;
+        left: 90px;
         top: 50%;
         text-shadow: 2px 4px 3px rgba(0, 0, 0, 0.3);
 

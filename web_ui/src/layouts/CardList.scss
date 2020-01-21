@@ -1,10 +1,10 @@
 @import "../mixins.scss";
 
 .card_list {
-    margin: 50px 0;
-    padding: 0 5%;
+    margin: 50px 90px;
     z-index: 1;
     position: relative;
+    pointer-events: none;
 
     h1 {
         text-transform: uppercase;
@@ -12,6 +12,7 @@
     }
 
     > section {
+        pointer-events: all;
         margin-bottom: 10vh;
 
         .placeholder-name {
@@ -61,5 +62,5 @@
     margin: 50px 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, 200px);
-    grid-gap: 100px 50px;
+    grid-gap: 100px 40px;
 }

@@ -22,21 +22,30 @@ class Sidebar extends Component {
     constructor(props) {
         super(props);
 
+        this.sidebar = React.createRef();
+
+        this.toggleSidebar = this.toggleSidebar.bind(this);
+
         this.library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
         this.library_ws.addEventListener("message", this.handle_ws_msg);
+
+        this.state = {
+            show: true
+        };
     }
 
     handle_ws_msg = async (e) => {
         const message = JSON.parse(e.data);
+
         switch(message.type) {
             case "EventRemoveLibrary":
-                this.props.handleWsDelLibrary(message.id)
-                break
+                this.props.handleWsDelLibrary(message.id);
+                break;
             case "EventNewLibrary":
-                this.props.handleWsNewLibrary(message.id)
-                break
+                this.props.handleWsNewLibrary(message.id);
+                break;
             default:
-                break
+                break;
         }
     };
 
@@ -48,6 +57,20 @@ class Sidebar extends Component {
     async componentWillUnmount() {
         this.library_ws.removeEventListener("message", this.handle_ws_msg);
         this.library_ws.close();
+    }
+
+    toggleSidebar() {
+        this.setState({
+            show: !this.state.show
+        });
+
+        const main = document.querySelectorAll("main")[0];
+
+        this.sidebar.current.classList.toggle("hide", this.state.show);
+        this.sidebar.current.classList.toggle("show", !this.state.show);
+
+        main.classList.toggle("full", this.state.show);
+        main.classList.toggle("shrunk", !this.state.show);
     }
 
     render() {
@@ -66,7 +89,7 @@ class Sidebar extends Component {
                         <div className="default-icon"></div>
                     </div>
                     <div className="info">
-                        <div className="placeholder-text-light placeholder-small placeholder-small-animate"/>
+                        <p id="response">LOADING</p>
                     </div>
                 </div>
             );
@@ -79,8 +102,10 @@ class Sidebar extends Component {
                     <div className="profile-icon">
                         <div className="default-icon"></div>
                     </div>
-                    <div className="info">
-                        <div className="placeholder-text-light placeholder-small"/>
+                    <div className="item-wrapper">
+                        <div className="horizontal-err">
+                            <p>FAILED TO FETCH</p>
+                        </div>
                     </div>
                 </div>
             );
@@ -98,7 +123,7 @@ class Sidebar extends Component {
                 <div className="profile">
                     <div className="profile-icon">
                         <LazyImage
-                            alt=" "
+                            alt=""
                             src={picture}
                             loading={loading}
                         />
@@ -129,18 +154,9 @@ class Sidebar extends Component {
         // FETCH_LIBRARIES_ERR
         if (this.props.libraries.fetched && this.props.libraries.error) {
             libraries = (
-                <div>
-                    <div className="item-wrapper">
-                        <div className="placeholder-medium placeholder-light">
-                            <div className="placeholder-inner-icon"/>
-                            <div className="placeholder-inner"/>
-                        </div>
-                    </div>
-                    <div className="item-wrapper">
-                        <div className="placeholder-medium placeholder-light">
-                            <div className="placeholder-inner-icon"/>
-                            <div className="placeholder-inner"/>
-                        </div>
+                <div className="item-wrapper">
+                    <div className="status">
+                        <p id="response">FAILED TO FETCH</p>
                     </div>
                 </div>
             );
@@ -174,7 +190,11 @@ class Sidebar extends Component {
         }
 
         return (
-            <nav className="sidebar">
+            <nav className="sidebar" ref={this.sidebar}>
+                 <div className="toggle" onClick={this.toggleSidebar}>
+                    <FontAwesomeIcon icon="angle-left"/>
+                </div>
+
                 <section className="main-part">
                     {user}
                     <div className="separator"/>
