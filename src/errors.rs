@@ -1,4 +1,4 @@
-use diesel::result::Error as DieselError;
+use diesel::result::{DatabaseErrorKind, Error as DieselError};
 use err_derive::Error;
 use rocket::{
     http::{ContentType, Status},
@@ -42,6 +42,8 @@ pub enum AuthError {
     Unauthorized,
     #[error(display = "Wrong password")]
     WrongPassword,
+    #[error(display = "Username Taken")]
+    UsernameTaken,
 }
 
 #[derive(Debug, Error, Serialize)]
@@ -89,6 +91,9 @@ impl From<DieselError> for AuthError {
     fn from(e: DieselError) -> Self {
         match e {
             DieselError::NotFound => Self::FailedAuth,
+            DieselError::DatabaseError(DatabaseErrorKind::UniqueViolation, _) => {
+                Self::UsernameTaken
+            }
             _ => Self::DatabaseError,
         }
     }
@@ -117,6 +122,7 @@ impl Responder<'static> for AuthError {
     fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
         let status = match self {
             Self::NoTokenError => Status::Ok,
+            Self::UsernameTaken => Status::Ok,
             Self::DatabaseError => Status::InternalServerError,
             Self::Unauthorized => Status::Unauthorized,
             Self::WrongPassword | Self::FailedAuth => Status::Forbidden,

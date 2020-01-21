@@ -43,6 +43,10 @@ pub fn register(conn: DbConnection, new_user: Json<Login>) -> Result<JsonValue, 
         return Err(errors::AuthError::NoTokenError);
     }
 
+    if !new_user.invite_token_valid(conn.as_ref()).unwrap_or(false) {
+        return Err(errors::AuthError::NoTokenError);
+    }
+
     let roles = if user_count > 0 {
         vec!["user".to_string()]
     } else {
