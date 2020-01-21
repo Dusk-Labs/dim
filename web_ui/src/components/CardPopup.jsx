@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router-dom";
 
 import TruncText from "../helpers/TruncText.jsx";
 import IMDbLogo from "../assets/imdb.png";
@@ -19,6 +20,10 @@ class CardPopup extends Component {
     }
 
     componentDidMount() {
+        if (this.popup.current) {
+            this.props.setCardPopup(this.popup.current);
+        }
+
         const { x, width } = this.popup.current.getBoundingClientRect();
         const overflowing = (x + width > window.innerWidth - 5);
 
@@ -33,12 +38,6 @@ class CardPopup extends Component {
             class: "card-popup-left"
         });
 
-    }
-
-    static getDerivedStateFromProps(nextProps) {
-        return {
-            accent: nextProps.accent,
-        };
     }
 
     render() {
@@ -73,24 +72,30 @@ class CardPopup extends Component {
                     <h1><TruncText content={name} max={8}/></h1>
                     <div className="rating">
                         <img alt="imdb" src={IMDbLogo}/>
-                        <p>{rating}</p>
+                        <p>{rating | 0}</p>
                         <p>10</p>
                     </div>
                 </section>
                 <section className="content">
                     <section className="description">
                         <h4>DESCRIPTION</h4>
-                        {description.length > 0
+                        {description !== null && description.length > 0
                             ? <p><TruncText content={description} max={21}/></p>
                             : <p>No description found.</p>
                         }
                     </section>
                     <section className="info">
                         <div className="tags">
-                            <p style={accentCSS}>{year}</p>
+                            {year !== null
+                                ? <p style={accentCSS}>{year}</p>
+                                : <div/>
+                            }
                             <p style={accentCSS}>{genre}</p>
                         </div>
-                        <FontAwesomeIcon className="edit" icon="edit"/>
+                        <div className="actions">
+                            <FontAwesomeIcon className="edit" icon="edit"/>
+                            <FontAwesomeIcon className="delete" icon="trash"/>
+                        </div>
                     </section>
                     <section className="separator"/>
                     <section className="footer">
@@ -98,10 +103,10 @@ class CardPopup extends Component {
                             <p>{length.hh}:{length.mm}:{length.ss}</p>
                             <p>HH MM SS</p>
                         </div>
-                        <a href={`/play/${id}`} className="play-btn">
+                        <Link to={`/play/${id}`}>
                             <p style={accentCSS}>PLAY</p>
                             <FontAwesomeIcon icon="play"/>
-                        </a>
+                        </Link>
                     </section>
                 </section>
             </div>

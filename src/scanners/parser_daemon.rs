@@ -1,12 +1,12 @@
-use crate::iterative_parser::IterativeScanner;
-use crate::EventTx;
+use super::{iterative_parser::IterativeScanner, EventTx};
 use crossbeam_channel::unbounded;
 use database::{get_conn, library::Library};
-use notify::event::{EventKind::*, ModifyKind::*};
-use notify::{RecommendedWatcher, RecursiveMode, Result as nResult, Watcher};
+use notify::{
+    event::{EventKind::*, ModifyKind::*},
+    RecommendedWatcher, RecursiveMode, Result as nResult, Watcher,
+};
 use slog::{debug, error, Logger};
-use std::path::PathBuf;
-use std::time::Duration;
+use std::{path::PathBuf, time::Duration};
 
 pub struct ParserDaemon {
     lib: Library,

@@ -113,7 +113,7 @@ impl MediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile};
     ///
@@ -150,6 +150,53 @@ impl MediaFile {
         Self::belonging_to(lib).load::<Self>(conn)
     }
 
+    /// Method returns all mediafiles associated with a library and filters for those not
+    /// associated with a media
+    ///
+    /// # Arguments
+    /// * `conn` - postgres connection
+    /// * `lib` - reference to a Library object that we will match against
+    ///
+    /// # Example
+    /// ```
+    /// use database::get_conn_devel as get_conn;
+    /// use database::library::{InsertableLibrary, Library, MediaType};
+    /// use database::mediafile::{InsertableMediaFile, MediaFile};
+    ///
+    /// let new_library = InsertableLibrary {
+    ///     name: "test".to_string(),
+    ///     location: "/dev/null".to_string(),
+    ///     media_type: MediaType::Movie,
+    /// };
+    ///
+    /// let conn = get_conn().unwrap();
+    /// let library_id = new_library.insert(&conn).unwrap();
+    /// let library = Library::get_one(&conn, library_id).unwrap();
+    ///
+    /// let new_mediafile = InsertableMediaFile {
+    ///     library_id,
+    ///     target_file: format!("/dev/null/{}", library_id).to_string(),
+    ///     raw_name: "nullfile".to_string(),
+    ///     ..Default::default()
+    /// };
+    ///
+    /// let mediafile_id = new_mediafile.insert(&conn).unwrap();
+    /// let media = MediaFile::get_by_lib_null_media(&conn, &library).unwrap().pop().unwrap();
+    ///
+    /// assert_eq!(media.library_id, library_id);
+    ///
+    /// // clean up the test
+    /// let _ = Library::delete(&conn, library_id);
+    /// let _ = MediaFile::delete(&conn, media.id);
+    /// ```
+    pub fn get_by_lib_null_media(
+        conn: &diesel::PgConnection,
+        lib: &Library,
+    ) -> Result<Vec<Self>, diesel::result::Error> {
+        Self::belonging_to(lib)
+            .filter(mediafile::media_id.is_null())
+            .load::<Self>(conn)
+    }
     /// Method returns all mediafiles associated with a Media object.
     ///
     /// # Arguments
@@ -158,7 +205,7 @@ impl MediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile};
     /// use database::media::{InsertableMedia, Media};
@@ -222,7 +269,7 @@ impl MediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile};
     ///
@@ -274,7 +321,7 @@ impl MediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile};
     ///
@@ -324,7 +371,7 @@ impl MediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile};
     ///
@@ -375,7 +422,7 @@ impl InsertableMediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile};
     ///
@@ -429,7 +476,7 @@ impl UpdateMediaFile {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::mediafile::{InsertableMediaFile, MediaFile, UpdateMediaFile};
     /// use database::media::{InsertableMedia, Media};
@@ -491,5 +538,16 @@ impl UpdateMediaFile {
         let entry = mediafile.filter(id.eq(_id));
 
         diesel::update(entry).set(self).execute(conn)
+    }
+}
+
+impl Into<Media> for MediaFile {
+    fn into(self) -> Media {
+        Media {
+            id: self.id,
+            library_id: self.library_id,
+            name: self.raw_name,
+            ..Default::default()
+        }
     }
 }

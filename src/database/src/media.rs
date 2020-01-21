@@ -11,7 +11,7 @@ pub trait MediaTrait {}
 
 /// Media struct that represents a media object, usually a movie, tv show or a episode of a tv
 /// show. This struct is returned by several methods and can be serialized to json.
-#[derive(Clone, Identifiable, Queryable, Serialize, Debug, Associations)]
+#[derive(Clone, Identifiable, Queryable, Serialize, Deserialize, Debug, Associations, Default)]
 #[belongs_to(Library, foreign_key = "library_id")]
 #[table_name = "media"]
 pub struct Media {
@@ -92,7 +92,7 @@ impl Media {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::media::{InsertableMedia, Media};
     ///
@@ -141,7 +141,7 @@ impl Media {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::media::{InsertableMedia, Media};
     ///
@@ -186,7 +186,7 @@ impl Media {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::media::{InsertableMedia, Media};
     ///
@@ -245,7 +245,7 @@ impl Media {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::media::{InsertableMedia, Media};
     ///
@@ -294,7 +294,7 @@ impl InsertableMedia {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::media::{InsertableMedia, Media};
     ///
@@ -352,7 +352,7 @@ impl InsertableMedia {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::movie::{InsertableMovie, Movie};
@@ -403,7 +403,7 @@ impl InsertableMedia {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::media::{InsertableMedia, Media};
     /// use database::tv::{InsertableTVShow, TVShow};
@@ -450,7 +450,7 @@ impl UpdateMedia {
     ///
     /// # Example
     /// ```
-    /// use database::get_conn;
+    /// use database::get_conn_devel as get_conn;
     /// use database::library::{InsertableLibrary, Library, MediaType};
     /// use database::media::{InsertableMedia, Media, UpdateMedia};
     ///

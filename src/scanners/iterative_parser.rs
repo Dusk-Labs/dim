@@ -1,7 +1,8 @@
-use crate::tmdb_api;
-use crate::tmdb_api::TMDbSearch;
-use crate::APIExec;
-use crate::EventTx;
+use super::{
+    tmdb_api::{self, TMDbSearch},
+    APIExec, EventTx,
+};
+use crate::streaming::{ffprobe::FFProbeCtx, FFPROBE_BIN};
 use chrono::{prelude::Utc, Datelike, NaiveDate};
 use database::{
     episode::{Episode, InsertableEpisode},
@@ -19,7 +20,6 @@ use events::*;
 use pushevent::Event;
 use rayon::prelude::*;
 use slog::{debug, error, info, Logger};
-use streamer::{ffprobe::FFProbeCtx, FFPROBE_BIN};
 use torrent_name_parser::Metadata;
 use walkdir::WalkDir;
 
@@ -47,7 +47,10 @@ impl IterativeScanner {
     }
 
     pub fn start(&self, custom_path: Option<&str>) {
-        debug!(self.log, "Starting Movie scanner iterate");
+        debug!(
+            self.log,
+            "Enumerating files on filesystem for library: {}", self.lib.id
+        );
         let path = match custom_path {
             Some(x) => x,
             None => self.lib.location.as_str(),
@@ -56,12 +59,11 @@ impl IterativeScanner {
         let files: Vec<String> = WalkDir::new(path)
             .follow_links(true)
             .into_iter()
-            .filter_map(|f| f.ok())
+            .filter_map(Result::ok)
             .filter(|f| {
-                !f.file_name()
-                    .to_str()
-                    .map(|s| s.starts_with('.'))
-                    .unwrap_or(false)
+                !f.path()
+                    .iter()
+                    .any(|s| s.to_str().unwrap().starts_with('.'))
             })
             .filter(|x| {
                 let ext = x.path().extension();
@@ -102,6 +104,11 @@ impl IterativeScanner {
     }
 
     pub fn fix_orphans(&self) {
+        info!(
+            self.log,
+            "Starting orphan scanner for library: {}", self.lib.id
+        );
+
         let mut tmdb_session = TMDbSearch::new("38c372f5bc572c8aadde7a802638534e");
         let orphans = match MediaFile::get_by_lib(&self.conn, &self.lib) {
             Ok(x) => x,
@@ -111,11 +118,6 @@ impl IterativeScanner {
             }
         };
 
-        info!(
-            self.log,
-            "Starting orphan scanner for library: {}", self.lib.id
-        );
-
         for orphan in orphans {
             if orphan.media_id.is_none() {
                 let mediatype = match self.lib.media_type {
@@ -123,16 +125,85 @@ impl IterativeScanner {
                     _ => tmdb_api::MediaType::Movie,
                 };
 
-                info!(
-                    self.log,
-                    "Scanning orphan with raw name: {}", orphan.raw_name
-                );
+                match self.lib.media_type {
+                    MediaType::Tv => info!(
+                        self.log,
+                        "Scanning orphan with raw name: {}, ep: {:?}, season: {:?}",
+                        orphan.raw_name,
+                        orphan.episode,
+                        orphan.season
+                    ),
+                    _ => info!(
+                        self.log,
+                        "Scanning orphan with raw name: {}", orphan.raw_name
+                    ),
+                };
                 if let Some(result) =
                     tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year, mediatype)
                 {
                     self.match_media_to_tmdb(result, &orphan, mediatype);
                 }
             }
+        }
+    }
+
+    pub fn match_media_to_tmdb_id(&self, media: Media, tmdb_id: i32) {
+        info!(
+            self.log,
+            "Rematching a media entry, media_id: {} tmdb_id: {}", media.id, tmdb_id
+        );
+        let mut tmdb_session = TMDbSearch::new("38c372f5bc572c8aadde7a802638534e");
+        let mediafiles = match MediaFile::get_of_media(&self.conn, &media) {
+            Ok(x) => x,
+            Err(e) => {
+                slog::error!(
+                    self.log,
+                    "Failed to get mediafiles of media, media_id: {} e: {:?}",
+                    media.id,
+                    e
+                );
+                return;
+            }
+        };
+
+        let media_type = match self.lib.media_type {
+            MediaType::Movie => tmdb_api::MediaType::Movie,
+            MediaType::Tv => tmdb_api::MediaType::Tv,
+            _ => {
+                return;
+            }
+        };
+
+        if let Some(result) = tmdb_session.search_by_id(tmdb_id, media_type) {
+            let ret = Media::delete(&self.conn, tmdb_id);
+            slog::info!(
+                self.log,
+                "Deleting media for a full rebase match, delete ret: {:?}",
+                ret
+            );
+            for mediafile in mediafiles {
+                self.match_media_to_tmdb(result.clone(), &mediafile, media_type);
+            }
+        }
+    }
+
+    pub fn match_mediafile_to_tmdb_id(&self, media: MediaFile, tmdb_id: i32) {
+        info!(
+            self.log,
+            "Rematching a mediafile entry, mediafile_id: {} tmdb_id: {}", media.id, tmdb_id
+        );
+        let mut tmdb_session = TMDbSearch::new("38c372f5bc572c8aadde7a802638534e");
+
+        let media_type = match self.lib.media_type {
+            MediaType::Movie => tmdb_api::MediaType::Movie,
+            MediaType::Tv => tmdb_api::MediaType::Tv,
+            _ => {
+                return;
+            }
+        };
+
+        if let Some(result) = tmdb_session.search_by_id(tmdb_id, media_type) {
+            self.match_media_to_tmdb(result.clone(), &media, media_type);
         }
     }
 
@@ -181,7 +252,7 @@ impl IterativeScanner {
             media_type: self.lib.media_type.clone(),
         };
 
-        if let crate::tmdb_api::MediaType::Tv = mediatype {
+        if let super::tmdb_api::MediaType::Tv = mediatype {
             self.insert_tv(orphan, media, result);
             return;
         }
@@ -217,13 +288,17 @@ impl IterativeScanner {
             }
         };
 
-        let season = search.get_season(orphan.season.unwrap());
+        let season = search.get_season(orphan.season.unwrap_or(0));
         let seasonid = Season::get(&self.conn, media_id, orphan.season.unwrap()).map_or_else(
             |_| {
                 let season = InsertableSeason {
-                    season_number: orphan.season.unwrap(),
+                    season_number: orphan.season.unwrap_or(0),
                     added: Utc::now().to_string(),
-                    poster: String::from(""),
+                    poster: season
+                        .poster_path
+                        .clone()
+                        .map(|s| format!("https://images.tmdb.org/t/p/original/{}", s))
+                        .unwrap_or("".into()),
                 };
 
                 season.insert(&self.conn, media_id).unwrap()
@@ -234,22 +309,29 @@ impl IterativeScanner {
         let episode_id = Episode::get(
             &self.conn,
             media_id,
-            orphan.season.unwrap(),
-            orphan.episode.unwrap(),
+            orphan.season.unwrap_or(0),
+            orphan.episode.unwrap_or(0),
         )
         .map_or_else(
             |_| {
-                let search_ep = season.get_episode(orphan.episode.unwrap());
+                let search_ep = season.get_episode(orphan.episode.unwrap_or(0));
                 let episode = InsertableEpisode {
-                    episode: orphan.episode.unwrap(),
+                    episode: orphan.episode.unwrap_or(0),
                     seasonid,
                     media: InsertableMedia {
                         library_id: orphan.library_id,
-                        name: format!("{}", orphan.episode.unwrap()),
+                        name: format!(
+                            "{}",
+                            search_ep
+                                .name
+                                .unwrap_or(orphan.episode.unwrap_or(0).to_string())
+                        ),
                         added: Utc::now().to_string(),
                         media_type: MediaType::Episode,
                         description: search_ep.overview,
-                        backdrop_path: search_ep.still_path,
+                        backdrop_path: search_ep
+                            .still_path
+                            .map(|s| format!("https://images.tmdb.org/t/p/original/{}", s)),
                         ..Default::default()
                     },
                 };
@@ -271,7 +353,7 @@ impl IterativeScanner {
         &self,
         orphan: &MediaFile,
         media: InsertableMedia,
-        search: crate::tmdb_api::Media,
+        search: super::tmdb_api::Media,
     ) {
         let media_id =
             Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.clone().as_str())
@@ -322,7 +404,7 @@ fn mount_file(
     file: String,
     lib_id: i32,
 ) -> Result<(), &'static dyn std::error::Error> {
-    let file = std::path::PathBuf::from(file.to_string());
+    let file = std::path::PathBuf::from(file);
     let conn = get_conn().unwrap();
     let path = file.clone().into_os_string().into_string().unwrap();
 
@@ -332,7 +414,7 @@ fn mount_file(
 
     info!(log, "Scanning file: {}", &path);
 
-    let ctx = FFProbeCtx::new(FFPROBE_BIN);
+    let ctx = FFProbeCtx::new(&FFPROBE_BIN);
     let metadata = Metadata::from(file.file_name().unwrap().to_str().unwrap()).unwrap();
     let ffprobe_data = ctx.get_meta(&file).unwrap();
 

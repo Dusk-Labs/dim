@@ -98,17 +98,29 @@ impl FFProbeCtx {
 
         let json = String::from_utf8_lossy(probe.stdout.as_slice());
 
-        let de: FFPWrapper = serde_json::from_str(&json)
-            .map_or_else(
-                |_| { FFPWrapper { ffpstream: None, corrupt: Some(true) } },
-                |x| { FFPWrapper { ffpstream: Some(x), corrupt: None } }
-                );
+        let de: FFPWrapper = serde_json::from_str(&json).map_or_else(
+            |_| FFPWrapper {
+                ffpstream: None,
+                corrupt: Some(true),
+            },
+            |x| FFPWrapper {
+                ffpstream: Some(x),
+                corrupt: None,
+            },
+        );
 
         Ok(de)
     }
 }
 
 impl FFPWrapper {
+    pub fn get_bitrate(&self) -> String {
+        if let Some(ctx) = self.ffpstream.clone() {
+            return ctx.format.bit_rate.clone();
+        }
+        "0".into()
+    }
+
     pub fn get_quality(&self) -> Option<String> {
         if let Some(ctx) = self.ffpstream.clone() {
             match ctx.streams[0].height {
@@ -159,6 +171,14 @@ impl FFPWrapper {
     pub fn get_duration(&self) -> Option<i32> {
         if let Some(ctx) = self.ffpstream.clone() {
             Some(ctx.format.duration.parse::<f64>().unwrap() as i32)
+        } else {
+            None
+        }
+    }
+
+    pub fn get_ms(&self) -> Option<u128> {
+        if let Some(ctx) = self.ffpstream.clone() {
+            Some((ctx.format.duration.parse::<f64>().unwrap().trunc() * 1000000.0) as u128)
         } else {
             None
         }

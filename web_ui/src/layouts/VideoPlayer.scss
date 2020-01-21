@@ -15,7 +15,7 @@
 
 video {
     height: 100vh;
-    width: 100%;
+    width: 100vw;
     outline: none;
 }
 
@@ -24,7 +24,6 @@ video {
     @include transition(opacity 0.3s ease-in-out);
     @include justify-content(space-between);
     position: absolute;
-    background: radial-gradient(circle, transparent 0, black 100%);
     top: 0;
     height: 100%;
     width: 100%;
@@ -39,157 +38,26 @@ video {
         "middle-left middle middle-right"
         "bottom-left bottom bottom-right";
     pointer-events: none;
+    z-index: 1;
+
+    // OVERLAY SIDE SHADOWS
+    &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background:
+            linear-gradient(90deg, #000000, transparent 20%),
+            linear-gradient(-90deg, #000000, transparent 20%),
+            linear-gradient(180deg, #000000, transparent 40%),
+            linear-gradient(0deg, #000000, transparent 40%);
+        z-index: -1;
+    }
 
     .cover {
         grid-area: bottom-left;
         pointer-events: all;
-    }
-
-    .controls {
-        @include display(flex);
-        @include flex-direction(column);
-        @include align-items(center);
-        @include transition(opacity 0.3s ease-in-out);
-        align-self: flex-end;
-        grid-area: bottom;
-        pointer-events: all;
-        opacity: 1;
-
-        &:hover {
-            opacity: 1;
-        }
-
-        svg {
-            padding: 0 10px;
-        }
-
-        .upper {
-            @include display(flex);
-            @include justify-content(space-between);
-            @include align-items(flex-end);
-            width: 100%;
-            font-family: "Roboto Condensed Bold";
-
-            p {
-                margin: 0;
-            }
-
-            // S1 . E1 separator
-            svg {
-                font-size: 0.4em;
-                color: var(--accent-background);
-                padding: 0 5px;
-            }
-
-            // S1 . E1 + movie name
-            .left {
-                text-transform: uppercase;
-
-                .se-ep {
-                    margin-bottom: 5px;
-                    @include display(flex);
-                    @include align-items(center);
-                    font-family: "Roboto Condensed";
-                }
-            }
-
-            // video current time and duration
-            .right {
-                @include display(flex);
-                @include align-items(center);
-                @include justify-content(space-between);
-            }
-        }
-
-        .center {
-            margin: 25px 0;
-            width: 100%;
-
-            .video-progress-wrapper {
-                border-radius: 10px;
-                background: linear-gradient(315deg, #333333 0%, #363636 100%);
-                width: 100%;
-                height: 12px;
-                position: relative;
-                display:inline-block;
-                overflow: hidden;
-
-                &:hover {
-                    cursor: pointer;
-                    background: linear-gradient(315deg, #444444 0%, #363636 100%);
-                }
-
-                span {
-                    font-family: "Roboto Condensed Bold";
-                }
-
-                .video-progress-inner {
-                    @include transition(width 1s ease-in-out);
-                    background: var(--accent-background);
-                    border-radius: 10px;
-                    height: 12px;
-                    width: 0;
-                    position: relative;
-                    pointer-events: none;
-
-                    .video-progress-dragger {
-                        position: absolute;
-                        top: 0;
-                        right: 0;
-                        background: #ffffff;
-                        height: 12px;
-                        width: 18px;
-                        border-radius: 10px;
-
-                        &:hover {
-                            cursor: pointer;
-                        }
-                    }
-                }
-            }
-        }
-
-        .lower {
-            @include display(flex);
-            @include justify-content(space-between);
-            width: 100%;
-
-            svg {
-                -webkit-transition: color 0.3s ease-in-out;
-                transition: color 0.3s ease-in-out;
-
-                &:hover {
-                    cursor: pointer;
-                    color: var(--accent-background);
-                }
-            }
-
-            // volume slider
-            .left {
-                @include display(flex);
-                @include justify-content(flex-start);
-
-                svg {
-                    padding: 0 10px 0 0;
-                }
-            }
-
-            // video skip + play/pause
-            .middle {
-                @include display(flex);
-                @include justify-content(center);
-            }
-
-            // fullscreen toggle
-            .right {
-                @include display(flex);
-                @include justify-content(flex-end);
-
-                svg {
-                    padding: 0 0 0 10px;
-                }
-            }
-        }
     }
 
     .ends-at {
