@@ -6,7 +6,8 @@ import {
     AUTH_LOGOUT,
     AUTH_REGISTER_ERR,
     AUTH_REGISTER_OK,
-    AUTH_REGISTER_START
+    AUTH_REGISTER_START,
+    AUTH_CHECK_ADMIN_OK,
 } from "../actions/types.js";
 
 const initialState = {
@@ -14,6 +15,7 @@ const initialState = {
     logging_in: false,
     logged_in: false,
     error: null,
+    admin_exists: false,
 };
 
 export default function(state = initialState, action) {
@@ -61,6 +63,11 @@ export default function(state = initialState, action) {
                 logging_in: false,
                 logged_in: false,
                 error: action.payload,
+            };
+        case AUTH_CHECK_ADMIN_OK:
+            return {
+                ...state,
+                admin_exists: action.payload.exists,
             };
         default:
             return state;
