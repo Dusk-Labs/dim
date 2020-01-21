@@ -12,7 +12,7 @@ class SearchResults extends Component {
 
     componentDidUpdate(prevProps) {
         if (this.props.location.search !== prevProps.location.search) {
-            this.getResults();
+            this.getResults(this.props.auth.token);
         }
     }
 
@@ -40,6 +40,7 @@ class SearchResults extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    auth: state.authReducer,
     searchList: state.searchReducer.search
 });
 
