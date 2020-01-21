@@ -3,9 +3,9 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { authenticate, register } from "../actions/authActions.js";
+import { authenticate, register, checkAdminExists } from "../actions/authActions.js";
 
-import "./Login.scss";
+import "./Register.scss";
 
 class Register extends Component {
     constructor(props) {
@@ -17,6 +17,10 @@ class Register extends Component {
                 err: ""
             },
             password: {
+                value: "",
+                err: ""
+            },
+            confirm_password: {
                 value: "",
                 err: ""
             },
@@ -32,6 +36,7 @@ class Register extends Component {
 
     componentDidMount() {
 		document.title = "Dim - Register";
+        this.props.checkAdminExists();
     }
 
     componentDidUpdate(prevProps) {
@@ -66,9 +71,12 @@ class Register extends Component {
     }
 
     async authorize() {
-        const { username, password, invite } = this.state;
+        const { username, password, confirm_password, invite } = this.state;
 
-        if (username.value.length <= 3 || password.value.length <= 3 || invite.value.length !== 36) {
+        if (password.value !== confirm_password.value )
+            this.warn("confirm_password", "Passwords must match");
+
+        if (username.value.length <= 3 || password.value.length <= 3 || (this.props.auth.admin_exists && invite.value.length !== 36)) {
             if (username.value.length <= 3) {
                 this.warn("username", "Too short, min. 4 chars.");
             }
@@ -77,7 +85,7 @@ class Register extends Component {
                 this.warn("password", "Too short, min. 4 chars.");
             }
 
-            if (invite.value.length !== 36) {
+            if (this.props.auth.admin_exists && invite.value.length !== 36) {
                 this.warn("invite", "Should be 36 chars.");
             }
         } else {
@@ -89,16 +97,21 @@ class Register extends Component {
     }
 
     render() {
+        const { admin_exists } = this.props.auth;
+
         // AUTH_LOGIN_ERR
         if (this.props.auth.error) {
             console.log("[AUTH] REGISTER ERROR", this.props.auth);
         }
 
         return (
-            <div className="auth">
+            <div className="register">
                 <header>
                     <h1>Welcome to Dim</h1>
-                    <h3>A media manager fueled by dark forces</h3>
+                    {admin_exists ?
+                        <h3>A media manager fueled by dark forces</h3> 
+                        : <h3> Warning: You are making a admin account! </h3>
+                    }
                 </header>
                 <div className="fields">
                     <div className="field">
@@ -129,6 +142,20 @@ class Register extends Component {
                     </div>
                     <div className="field">
                         <label>
+                            <FontAwesomeIcon icon="key"/>
+                            <p>CONFIRM YOUR PASSWORD</p>
+                            {this.state.confirm_password.err.length > 0 &&
+                                <div className="horizontal-err">
+                                    <FontAwesomeIcon icon="times-circle"/>
+                                    <p>{this.state.confirm_password.err}</p>
+                                </div>
+                            }
+                        </label>
+                        <input type="password" name="confirm_password" onChange={this.updateField}/>
+                    </div>
+                    {admin_exists ?
+                    <div className="field">
+                        <label>
                             <FontAwesomeIcon icon="tag"/>
                             <p>INVITE TOKEN</p>
                             {this.state.invite.err.length > 0 &&
@@ -139,7 +166,8 @@ class Register extends Component {
                             }
                         </label>
                         <input type="invite" name="invite" onChange={this.updateField}/>
-                    </div>
+                    </div> : <div/>
+                    }
                 </div>
                 <footer>
                     <button onClick={this.authorize}>Register</button>
@@ -155,7 +183,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapActionsToProps = {
-    authenticate, register
+    authenticate, register, checkAdminExists
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(Register);
