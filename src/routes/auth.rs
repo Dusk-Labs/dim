@@ -18,7 +18,7 @@ pub fn login(conn: DbConnection, new_login: Json<Login>) -> Result<JsonValue, er
         }));
     }
 
-    Err(errors::AuthError::FailedAuth)
+    Err(errors::AuthError::WrongPassword)
 }
 
 #[get("/whoami")]

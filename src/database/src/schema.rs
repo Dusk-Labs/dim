@@ -74,8 +74,9 @@ table! {
 table! {
     progress (id) {
         id -> Int4,
-        delta -> Nullable<Int4>,
-        media_id -> Nullable<Int4>,
+        delta -> Int4,
+        media_id -> Int4,
+        user_id -> Text,
     }
 }
 
@@ -125,6 +126,7 @@ joinable!(mediafile -> library (library_id));
 joinable!(mediafile -> streamable_media (media_id));
 joinable!(movie -> streamable_media (id));
 joinable!(progress -> media (media_id));
+joinable!(progress -> users (user_id));
 joinable!(season -> tv_show (tvshowid));
 joinable!(streamable_media -> media (id));
 joinable!(tv_show -> media (id));

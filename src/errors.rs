@@ -40,6 +40,8 @@ pub enum AuthError {
     NoTokenError,
     #[error(display = "Admin role required to access this route")]
     Unauthorized,
+    #[error(display = "Wrong password")]
+    WrongPassword,
 }
 
 #[derive(Debug, Error, Serialize)]
@@ -114,9 +116,10 @@ impl Responder<'static> for DimError {
 impl Responder<'static> for AuthError {
     fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
         let status = match self {
-            Self::FailedAuth | Self::NoTokenError => Status::Ok,
+            Self::NoTokenError => Status::Ok,
             Self::DatabaseError => Status::InternalServerError,
             Self::Unauthorized => Status::Unauthorized,
+            Self::WrongPassword | Self::FailedAuth => Status::Forbidden,
         };
 
         Response::build()
