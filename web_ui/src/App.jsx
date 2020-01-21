@@ -13,6 +13,7 @@ import SearchResults from "./layouts/SearchResults";
 import BannerPage from "./components/BannerPage.jsx";
 import MediaPage from "./layouts/MediaPage.jsx";
 import Login from "./layouts/Login.jsx";
+import Register from "./layouts/Register.jsx";
 
 import { updateAuthToken } from "./actions/authActions.js";
 
@@ -107,7 +108,13 @@ class App extends Component {
 		let app;
 
 		if ((!this.props.auth.logged_in && !this.props.auth.token) || this.props.auth.error) {
-            app = <Login/>;
+            app = (
+                <Switch>
+                    <Route exact path="/login" render={() => <Login/>}/>
+                    <Route exact path="/register" render={() => <Register/>}/>
+                    <Redirect to="/login"/>
+                </Switch>
+            );
 		}
 
 		// AUTH_LOGIN_OK
