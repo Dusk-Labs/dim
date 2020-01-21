@@ -26,7 +26,11 @@ class Sidebar extends Component {
 
         this.toggleSidebar = this.toggleSidebar.bind(this);
 
-        this.library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
+        if (window.location.protocol === 'https:')
+            this.library_ws = new WebSocket(`wss://${window.host}:3012/events/library`);
+        else
+            this.library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
+
         this.library_ws.addEventListener("message", this.handle_ws_msg);
 
         this.state = {

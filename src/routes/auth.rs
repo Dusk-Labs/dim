@@ -25,7 +25,7 @@ pub fn login(conn: DbConnection, new_login: Json<Login>) -> Result<JsonValue, er
 pub fn whoami(user: Auth) -> JsonValue {
     json!({
         "username": user.0.claims.get_user(),
-        "picture": "/static/media/profile_icon.6cf7338f.jpg",
+        "picture": "https://i.redd.it/3n1if40vxxv31.png",
         "spentWatching": 12
     })
 }
@@ -41,11 +41,10 @@ pub fn admin_exists(conn: DbConnection) -> Result<JsonValue, errors::DimError> {
 pub fn register(conn: DbConnection, new_user: Json<Login>) -> Result<JsonValue, errors::AuthError> {
     let user_count = User::get_all(conn.as_ref())?.len();
 
-    if user_count > 0 && new_user.invite_token.is_none() {
-        return Err(errors::AuthError::NoTokenError);
-    }
-
-    if !new_user.invite_token_valid(conn.as_ref()).unwrap_or(false) {
+    if user_count > 0
+        && (new_user.invite_token.is_none()
+            || !new_user.invite_token_valid(conn.as_ref()).unwrap_or(false))
+    {
         return Err(errors::AuthError::NoTokenError);
     }
 

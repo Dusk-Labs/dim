@@ -7,6 +7,8 @@ import {
     AUTH_REGISTER_START,
     AUTH_REGISTER_ERR,
     AUTH_REGISTER_OK,
+    AUTH_CHECK_ADMIN_ERR,
+    AUTH_CHECK_ADMIN_OK,
 } from "./types";
 
 export const authenticate = (username, password) => async (dispatch) => {
@@ -106,3 +108,22 @@ export const register = (username, password, invite) => async (dispatch) => {
         });
     }
 };
+
+export const checkAdminExists = () => async (dispatch) => {
+    try {
+        const res = await fetch(`//${window.host}:8000/api/v1/auth/admin_exists`);
+        if (res.status !== 200)
+            return dispatch({
+                type: AUTH_CHECK_ADMIN_ERR,
+                payload: res.statusText
+            })
+
+        const payload = await res.json();
+
+        dispatch({
+            type: AUTH_CHECK_ADMIN_OK,
+            payload: payload,
+        });
+    } catch {
+    }
+}
