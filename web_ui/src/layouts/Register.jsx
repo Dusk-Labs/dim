@@ -3,11 +3,11 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { authenticate } from "../actions/authActions.js";
+import { authenticate, register } from "../actions/authActions.js";
 
 import "./Login.scss";
 
-class Login extends Component {
+class Register extends Component {
     constructor(props) {
         super(props);
 
@@ -19,7 +19,11 @@ class Login extends Component {
             password: {
                 value: "",
                 err: ""
-            }
+            },
+            invite: {
+                value: "",
+                err: ""
+            },
         };
 
         this.updateField = this.updateField.bind(this);
@@ -27,13 +31,16 @@ class Login extends Component {
     }
 
     componentDidMount() {
-		document.title = "Dim - Login";
+		document.title = "Dim - Register";
     }
 
     componentDidUpdate(prevProps) {
         if (prevProps.auth.error !== this.props.auth.error) {
-            if (this.props.auth.error === "Forbidden") {
-                this.warn("password", "Wrong password");
+            if (this.props.auth.error === "NoTokenError") {
+                this.warn("invite", "Wrong invite token");
+            }
+            if (this.props.auth.error === "UsernameTaken") {
+                this.warn("username", "Username is already taken");
             }
         }
     }
@@ -58,10 +65,10 @@ class Login extends Component {
         });
     }
 
-    authorize() {
-        const { username, password } = this.state;
+    async authorize() {
+        const { username, password, invite } = this.state;
 
-        if (username.value.length <= 3 || password.value.length <= 3) {
+        if (username.value.length <= 3 || password.value.length <= 3 || invite.value.length !== 36) {
             if (username.value.length <= 3) {
                 this.warn("username", "Too short, min. 4 chars.");
             }
@@ -69,17 +76,22 @@ class Login extends Component {
             if (password.value.length <= 3) {
                 this.warn("password", "Too short, min. 4 chars.");
             }
+
+            if (invite.value.length !== 36) {
+                this.warn("invite", "Should be 36 chars.");
+            }
         } else {
             // FIXME: Track down why token remains as a null after logout
             document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            this.props.authenticate(username.value, password.value);
+            await this.props.register(username.value, password.value, invite.value);
+            await this.props.authenticate(username.value, password.value);
         }
     }
 
     render() {
         // AUTH_LOGIN_ERR
         if (this.props.auth.error) {
-            console.log("[AUTH] ERROR", this.props.auth);
+            console.log("[AUTH] REGISTER ERROR", this.props.auth);
         }
 
         return (
@@ -115,10 +127,23 @@ class Login extends Component {
                         </label>
                         <input type="password" name="password" onChange={this.updateField}/>
                     </div>
+                    <div className="field">
+                        <label>
+                            <FontAwesomeIcon icon="tag"/>
+                            <p>INVITE TOKEN</p>
+                            {this.state.invite.err.length > 0 &&
+                                <div className="horizontal-err">
+                                    <FontAwesomeIcon icon="times-circle"/>
+                                    <p>{this.state.invite.err}</p>
+                                </div>
+                            }
+                        </label>
+                        <input type="invite" name="invite" onChange={this.updateField}/>
+                    </div>
                 </div>
                 <footer>
-                    <button onClick={this.authorize}>Login</button>
-                    <Link to="/register">Create an account</Link>
+                    <button onClick={this.authorize}>Register</button>
+                    <Link to="/login">Already have an account?</Link>
                 </footer>
             </div>
         );
@@ -130,7 +155,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapActionsToProps = {
-    authenticate,
+    authenticate, register
 };
 
-export default connect(mapStateToProps, mapActionsToProps)(Login);
+export default connect(mapStateToProps, mapActionsToProps)(Register);

@@ -7,11 +7,11 @@ use database::{
     library::MediaType,
     media::Media,
     mediafile::MediaFile,
+    progress::Progress,
     schema::{genre_media, media, season},
     season::Season,
 };
 use diesel::prelude::*;
-use rand::distributions::{Distribution, Uniform};
 use rocket::http::RawStr;
 use rocket_contrib::json::{Json, JsonValue};
 use std::path::PathBuf;
@@ -67,7 +67,7 @@ pub fn get_season(conn: &DbConnection, data: &Media) -> Result<Season, errors::D
 
 pub fn get_episode(conn: &DbConnection, data: &Season) -> Result<Episode, errors::DimError> {
     let mut episodes = Episode::get_all_of_season(conn, data)?;
-    episodes.sort_by(|a, b| a.episode.cmp(&b.episode));
+    episodes.sort_by(|b, a| a.episode.cmp(&b.episode));
 
     Ok(episodes.pop()?)
 }
@@ -76,6 +76,7 @@ pub fn get_episode(conn: &DbConnection, data: &Season) -> Result<Episode, errors
 pub fn construct_standard(
     conn: &DbConnection,
     data: &Media,
+    user: &Auth,
     quick: bool,
 ) -> Result<JsonValue, errors::DimError> {
     // TODO: convert to enums
@@ -96,6 +97,9 @@ pub fn construct_standard(
     } else {
         if let Ok(pair) = season_episode_pair {
             let episode = pair.1?;
+            let progress =
+                Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), episode.id)
+                    .unwrap_or(0);
             let duration = get_top_duration(&conn, &episode.media)?;
             return Ok(json!({
                 "id": data.id,
@@ -111,9 +115,13 @@ pub fn construct_standard(
                 "genres": genres,
                 "duration": duration,
                 "episode": episode.episode,
-                "season": pair.0.season_number
+                "season": pair.0.season_number,
+                "progress": progress
             }));
         }
+        let progress =
+            Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), data.id)
+                .unwrap_or(0);
         return Ok(json!({
             "id": data.id,
             "library_id": data.library_id,
@@ -126,13 +134,14 @@ pub fn construct_standard(
             "backdrop_path": data.backdrop_path,
             "media_type": data.media_type,
             "genres": genres,
-            "duration": duration
+            "duration": duration,
+            "progress": progress,
         }));
     }
 }
 
 #[get("/dashboard")]
-pub fn dashboard(conn: DbConnection, _user: Auth) -> Result<JsonValue, errors::DimError> {
+pub fn dashboard(conn: DbConnection, user: Auth) -> Result<JsonValue, errors::DimError> {
     let mut top_rated = media::table
         .filter(media::media_type.ne(MediaType::Episode))
         .group_by((media::id, media::name))
@@ -143,7 +152,7 @@ pub fn dashboard(conn: DbConnection, _user: Auth) -> Result<JsonValue, errors::D
 
     let top_rated = top_rated
         .into_iter()
-        .filter_map(|ref x| construct_standard(&conn, x, false).ok())
+        .filter_map(|ref x| construct_standard(&conn, x, &user, false).ok())
         .take(10)
         .collect::<Vec<JsonValue>>();
 
@@ -153,7 +162,7 @@ pub fn dashboard(conn: DbConnection, _user: Auth) -> Result<JsonValue, errors::D
         .order(media::added.desc())
         .load::<Media>(conn.as_ref())?
         .into_iter()
-        .filter_map(|ref x| construct_standard(&conn, x, false).ok())
+        .filter_map(|ref x| construct_standard(&conn, x, &user, false).ok())
         .take(10)
         .collect::<Vec<JsonValue>>();
 
@@ -164,9 +173,7 @@ pub fn dashboard(conn: DbConnection, _user: Auth) -> Result<JsonValue, errors::D
 }
 
 #[get("/dashboard/banner")]
-pub fn banners(conn: DbConnection, _user: Auth) -> Result<Json<Vec<JsonValue>>, errors::DimError> {
-    let sampler = Uniform::new(0, 240);
-    let mut rng = rand::thread_rng();
+pub fn banners(conn: DbConnection, user: Auth) -> Result<Json<Vec<JsonValue>>, errors::DimError> {
     let results = media::table
         .filter(media::media_type.ne(MediaType::Episode))
         .group_by(media::id)
@@ -187,6 +194,12 @@ pub fn banners(conn: DbConnection, _user: Auth) -> Result<Json<Vec<JsonValue>>, 
 
             if let Ok(pair) = season_episode_pair {
                 let episode = pair.1.unwrap();
+                let progress = Progress::get_for_media_user(
+                    conn.as_ref(),
+                    user.0.claims.get_user(),
+                    episode.id,
+                )
+                .unwrap_or(0);
                 let duration = get_top_duration(&conn, &episode.media).unwrap();
                 return json!({
                     "id": media.id,
@@ -196,12 +209,15 @@ pub fn banners(conn: DbConnection, _user: Auth) -> Result<Json<Vec<JsonValue>>, 
                     "backdrop": media.backdrop_path,
                     "duration": duration,
                     "genres": genres,
-                    "delta": sampler.sample(&mut rng),
+                    "delta": progress,
                     "banner_caption": "WATCH SOMETHING FRESH",
                     "episode": episode.episode,
                     "season": pair.0.season_number
                 });
             }
+            let progress =
+                Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), media.id)
+                    .unwrap_or(0);
             return json!({
                 "id": media.id,
                 "title": media.name,
@@ -210,7 +226,7 @@ pub fn banners(conn: DbConnection, _user: Auth) -> Result<Json<Vec<JsonValue>>, 
                 "backdrop": media.backdrop_path,
                 "duration": media_duration,
                 "genres": genres,
-                "delta": sampler.sample(&mut rng),
+                "delta": progress,
                 "banner_caption": "WATCH SOMETHING FRESH"
             });
         })
@@ -248,7 +264,7 @@ pub fn search(
     library_id: Option<i32>,
     genre: Option<String>,
     quick: Option<bool>,
-    _user: Auth,
+    user: Auth,
 ) -> Result<Json<Vec<JsonValue>>, errors::DimError> {
     let quick = quick.unwrap_or(false);
     let mut result = media::table.into_boxed();
@@ -285,7 +301,7 @@ pub fn search(
         return Ok(Json(
             new_result
                 .iter()
-                .filter_map(|x| construct_standard(&conn, x, quick).ok())
+                .filter_map(|x| construct_standard(&conn, x, &user, quick).ok())
                 .collect::<Vec<JsonValue>>(),
         ));
     }
@@ -294,7 +310,7 @@ pub fn search(
     Ok(Json(
         result
             .iter()
-            .filter_map(|x| construct_standard(&conn, x, quick).ok())
+            .filter_map(|x| construct_standard(&conn, x, &user, quick).ok())
             .collect::<Vec<JsonValue>>(),
     ))
 }

@@ -33,13 +33,13 @@ impl Profile {
                     "-c:0",
                     "libx264",
                     "-b:v",
-                    "4M",
-                    "-preset",
-                    "ultrafast",
+                    "5M",
+                    "-preset:0",
+                    "veryfast",
                     "-vf",
-                    "scale=1080:-1",
+                    "scale=1280:-1",
                 ],
-                "4000kb",
+                "5000kb",
             ),
             Self::Medium => (
                 vec![
@@ -74,7 +74,7 @@ impl Profile {
     pub fn from_string<T: AsRef<str>>(profile: T) -> Result<Self, errors::StreamingErrors> {
         Ok(match profile.as_ref() {
             "direct" => Self::Direct,
-            "4000kb" => Self::High,
+            "5000kb" => Self::High,
             "2000kb" => Self::Medium,
             "1000kb" => Self::Low,
             _ => return Err(errors::StreamingErrors::InvalidProfile),

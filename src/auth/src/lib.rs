@@ -28,6 +28,7 @@ pub struct UserRolesToken {
     roles: Vec<String>,
 }
 
+#[derive(Debug)]
 pub struct Wrapper(pub TokenData<UserRolesToken>);
 
 #[derive(Debug)]

@@ -14,6 +14,7 @@ use database::{
     library::MediaType,
     media::{Media, UpdateMedia},
     mediafile::MediaFile,
+    progress::Progress,
     season::Season,
 };
 use rocket::{http::Status, State};
@@ -61,7 +62,7 @@ pub fn get_media_by_id(
         "backdrop_path": data.backdrop_path,
         "media_type": data.media_type,
         "genres": genres,
-        "duration": duration
+        "duration": duration,
     }))
 }
 
@@ -77,20 +78,27 @@ pub fn get_media_by_id(
 pub fn get_extra_info_by_id(
     conn: DbConnection,
     id: i32,
-    _user: Auth,
+    user: Auth,
 ) -> Result<JsonValue, errors::DimError> {
     let media = Media::get(conn.as_ref(), id)?;
 
     match media.media_type {
-        Some(MediaType::Movie) | Some(MediaType::Episode) | None => get_for_streamable(conn, media),
-        Some(MediaType::Tv) => get_for_show(conn, media),
+        Some(MediaType::Movie) | Some(MediaType::Episode) | None => {
+            get_for_streamable(conn, media, user)
+        }
+        Some(MediaType::Tv) => get_for_show(conn, media, user),
     }
 }
 
-fn get_for_streamable(conn: DbConnection, media: Media) -> Result<JsonValue, errors::DimError> {
+fn get_for_streamable(
+    conn: DbConnection,
+    media: Media,
+    user: Auth,
+) -> Result<JsonValue, errors::DimError> {
     let media_files = MediaFile::get_of_media(conn.as_ref(), &media)?;
 
     Ok(json!({
+        "progress": Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), media.id).unwrap_or(0),
         "versions": media_files.iter().map(|x| json!({
             "id": x.id,
             "file": x.target_file,
@@ -103,10 +111,15 @@ fn get_for_streamable(conn: DbConnection, media: Media) -> Result<JsonValue, err
     }))
 }
 
-fn get_for_episode(conn: &DbConnection, media: Episode) -> Result<JsonValue, errors::DimError> {
+fn get_for_episode(
+    conn: &DbConnection,
+    media: Episode,
+    user: &Auth,
+) -> Result<JsonValue, errors::DimError> {
     let media_files = MediaFile::get_of_media(conn.as_ref(), &media.media)?;
 
     Ok(json!({
+        "progress": Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), media.id).unwrap_or(0),
         "episode": media.episode,
         "description": media.media.description,
         "rating": media.media.rating,
@@ -123,7 +136,11 @@ fn get_for_episode(conn: &DbConnection, media: Episode) -> Result<JsonValue, err
     }))
 }
 
-fn get_for_show(conn: DbConnection, media: Media) -> Result<JsonValue, errors::DimError> {
+fn get_for_show(
+    conn: DbConnection,
+    media: Media,
+    user: Auth,
+) -> Result<JsonValue, errors::DimError> {
     Ok(json!({
         "seasons":
             Season::get_all(conn.as_ref(), media.id)?
@@ -135,7 +152,7 @@ fn get_for_show(conn: DbConnection, media: Media) -> Result<JsonValue, errors::D
                         "season_number": x.season_number,
                         "added": x.added,
                         "poster": x.poster,
-                        "episodes": y.into_iter().filter_map(|z| get_for_episode(&conn, z).ok()).collect::<Vec<JsonValue>>()
+                        "episodes": y.into_iter().filter_map(|z| get_for_episode(&conn, z, &user).ok()).collect::<Vec<JsonValue>>()
                     })
                 })
                 .collect::<Vec<JsonValue>>()
@@ -258,5 +275,19 @@ pub fn rematch_mediafile(
     std::thread::spawn(move || {
         scanner.match_mediafile_to_tmdb_id(mediafile, tmdb_id);
     });
+    Ok(Status::Ok)
+}
+
+/// Method mapped to `POST /api/v1/media/<id>/progress` is used to map progress for a certain media
+/// to the user. This is useful for remembering progress for a movie etc.
+///
+#[post("/<id>/progress?<offset>")]
+pub fn map_progress(
+    conn: DbConnection,
+    id: i32,
+    offset: i32,
+    user: Auth,
+) -> Result<Status, errors::DimError> {
+    let _ = Progress::set(conn.as_ref(), offset, user.0.claims.get_user(), id)?;
     Ok(Status::Ok)
 }

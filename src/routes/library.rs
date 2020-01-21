@@ -127,7 +127,7 @@ pub fn get_self(
 pub fn get_all_library(
     conn: DbConnection,
     id: i32,
-    _user: Auth,
+    user: Auth,
 ) -> Result<Json<HashMap<String, Vec<JsonValue>>>, errors::DimError> {
     let mut result = HashMap::new();
     let lib = Library::get_one(conn.as_ref(), id)?;
@@ -136,7 +136,7 @@ pub fn get_all_library(
     data.sort_by(|a, b| a.name.cmp(&b.name));
     let out = data
         .iter()
-        .filter_map(|x| construct_standard(&conn, x, false).ok())
+        .filter_map(|x| construct_standard(&conn, x, &user, false).ok())
         .collect::<Vec<JsonValue>>();
 
     result.insert(lib.name.clone(), out);
@@ -151,11 +151,12 @@ pub fn get_all_library(
 /// * `conn` - database connection
 /// * `id` - id of the library
 /// * `_user` - auth middleware
+// NOTE: construct_standard on a mediafile will yield buggy deltas
 #[get("/<id>/unmatched")]
 pub fn get_all_unmatched_media(
     conn: DbConnection,
     id: i32,
-    _user: Auth,
+    user: Auth,
 ) -> Result<Json<HashMap<String, Vec<JsonValue>>>, errors::DimError> {
     let mut result = HashMap::new();
     let lib = Library::get_one(conn.as_ref(), id)?;
@@ -164,7 +165,7 @@ pub fn get_all_unmatched_media(
     result.insert(
         "Unmatched Media".into(),
         data.into_iter()
-            .filter_map(|x| construct_standard(&conn, &x.into(), false).ok())
+            .filter_map(|x| construct_standard(&conn, &x.into(), &user, false).ok())
             .collect::<Vec<JsonValue>>(),
     );
 

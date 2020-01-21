@@ -4,11 +4,17 @@ import {
     FETCH_DIRECTORIES_ERR
 } from "./types.js";
 
-export const fetchDirectories = (path) => async (dispatch) => {
+export const fetchDirectories = (path, token) => async (dispatch) => {
     dispatch({ type: FETCH_DIRECTORIES_START });
 
     try {
-        const res = await fetch(`http://${window.host}:8000/api/v1/filebrowser/${path}`);
+        const config = {
+            headers: {
+                "authorization": token,
+            }
+        }
+
+        const res = await fetch(`http://${window.host}:8000/api/v1/filebrowser/${path}`, config);
 
         if (res.status !== 200) {
             return dispatch({
