@@ -11,6 +11,12 @@ This project was started after seeing how other media managers like Plex and Emb
 ## Tech stack
 Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with Diesel as the ORM. For the Web UI we use React.js. The current database system is PostgreSQL. Dim is currently in Alpha testing with some features not complete yet.
 
+## MVP Release at
+- [x] TV Show/Movie scanners
+- [x] Basic webui with dashboard, ability to add libraries etc...
+- [ ] Video player with transmuxing/transcoding (server + ui)
+- [x] 90% of unwraps removed from the server codebase
+
 ## Features
 ### Server
 - [x] Movie and TV Show scanners
@@ -47,23 +53,21 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 - [ ] Server support for Windows (needs testing)
 - [ ] Server support for BSD (needs testing)
 - [ ] Better docs and more unit tests (coverage is quite small atm, only covering a good half of the database module)
-- [ ] More streamlined build process
+- [x] More streamlined build process
 - [ ] Precompiled binaries
+- [x] Docker images
 ### Longterm
 - [ ] Phone apps (Android, ios)
 - [ ] Roku, nvidia shield, firestick apps
 
 ## Installation
-### Dependencies
-1. libpg, libpg-dev
-2. ffmpeg, ffprobe
-3. rustc nightly >= 1.40.0
+  1. `docker volume create dim` \
+  2. `docker run -d -p 8000:8000/tcp -p 3012:3012/tcp \` \
+`        --mount source=dim,target="/var/lib/postgresql/" \` \
+`        --mount type=bind,source="$HOME/media",target=/media \` \
+`        vgarleanu/dim-server:latest`
 
-1. First set up the database with docker: `docker-compose up -d postgres`
-2. Next build the UI: `cd web_ui && yarn build`
-3. Lastly run Dim: `cargo run --release`
-
-Dim runs by default on port 8000.
+Dim runs by on port 8000.
 
 ## Contributing
 Contributions are absolutely, positively welcome and encouraged! Contributions

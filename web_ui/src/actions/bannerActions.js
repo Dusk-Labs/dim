@@ -4,11 +4,16 @@ import {
     FETCH_BANNERS_ERR
 } from "./types.js";
 
-export const fetchBanners = () => async (dispatch) => {
+export const fetchBanners = (token) => async (dispatch) => {
     dispatch({ type: FETCH_BANNERS_START });
 
     try {
-        const res = await fetch("http://127.0.0.1:8000/api/v1/dashboard/banner");
+        const config = {
+            headers: {
+                "authorization": token,
+            }
+        }
+        const res = await fetch(`//${window.host}:8000/api/v1/dashboard/banner`, config);
 
         if (res.status !== 200) {
             return dispatch({

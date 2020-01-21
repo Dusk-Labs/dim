@@ -9,14 +9,21 @@ import {
     NEW_LIBRARY_ERR,
     DEL_LIBRARY_START,
     DEL_LIBRARY_OK,
-    DEL_LIBRARY_ERR
+    DEL_LIBRARY_ERR,
+    RM_LIBRARY,
+    ADD_LIBRARY
 } from "./types.js";
 
-export const fetchLibraries = () => async (dispatch) => {
+export const fetchLibraries = (token) => async (dispatch) => {
     dispatch({ type: FETCH_LIBRARIES_START });
 
     try {
-        const res = await fetch("http://127.0.0.1:8000/api/v1/library");
+        const config = {
+            headers: {
+                "authorization": token
+            }
+        };
+        const res = await fetch(`//${window.host}:8000/api/v1/library`, config);
 
         if (res.status !== 200) {
             return dispatch({
@@ -39,19 +46,20 @@ export const fetchLibraries = () => async (dispatch) => {
     }
 };
 
-export const newLibrary = (data) => async (dispatch) => {
+export const newLibrary = (token, data) => async (dispatch) => {
     dispatch({ type: NEW_LIBRARY_START });
 
     const options = {
         method: "POST",
         headers: {
+            "Authorization": token,
             "Content-Type": "application/json"
         },
         body: JSON.stringify(data)
     };
 
     try {
-        const res = await fetch(`http://127.0.0.1:8000/api/v1/library`, options);
+        const res = await fetch(`//${window.host}:8000/api/v1/library`, options);
 
         if (res.status !== 201) {
             return dispatch({
@@ -69,15 +77,18 @@ export const newLibrary = (data) => async (dispatch) => {
     }
 };
 
-export const delLibrary = (id) => async (dispatch) => {
+export const delLibrary = (token, id) => async (dispatch) => {
     dispatch({ type: DEL_LIBRARY_START });
 
     const options = {
+        headers: {
+            "authorization": token
+        },
         method: "DELETE"
     };
 
     try {
-        const res = await fetch(`http://127.0.0.1:8000/api/v1/library/${id}`, options);
+        const res = await fetch(`//${window.host}:8000/api/v1/library/${id}`, options);
 
         if (res.status !== 204) {
             return dispatch({
@@ -106,3 +117,35 @@ export const fetchLibraryMedia = () => async (dispatch) => {
         type: FETCH_LIBRARY_MEDIA
     });
 };
+
+export const handleWsDelLibrary = (id) => async (dispatch) => {
+    dispatch({
+        type: RM_LIBRARY,
+        id: id,
+    });
+}
+
+export const handleWsNewLibrary = (token, id) => async (dispatch) => {
+    const options = {
+        headers: {
+            "Authorization": token
+        },
+        methid: "GET"
+    };
+
+    try {
+        const res = await fetch(`//${window.host}:8000/api/v1/library/${id}`, options);
+
+        if (res.status !== 200) {
+            return;
+        }
+
+        const info = await res.json();
+
+        dispatch({
+            type: ADD_LIBRARY,
+            payload: info
+        });
+    } catch(err) {
+    }
+}

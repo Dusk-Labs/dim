@@ -18,7 +18,6 @@ services:
         restart: always
         volumes:
             - pgdata:/var/lib/postgresql/data/pgdata
-            - ./src/database/src/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
         environment:
             POSTGRES_PASSWORD: dimpostgres
             PGDATA: /var/lib/postgresql/data/pgdata

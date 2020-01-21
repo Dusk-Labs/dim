@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { connect } from "react-redux";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
@@ -10,65 +11,143 @@ import CardList from "./layouts/CardList.jsx";
 import VideoPlayer from "./layouts/VideoPlayer.jsx";
 import SearchResults from "./layouts/SearchResults";
 import BannerPage from "./components/BannerPage.jsx";
+import MediaPage from "./layouts/MediaPage.jsx";
+import Login from "./layouts/Login.jsx";
+
+import { updateAuthToken } from "./actions/authActions.js";
 
 import './App.scss';
 
 library.add(fas, far);
 
-class App extends Component {
-	constructor(props) {
-		super(props);
+// quick hack to get proper requests
+window.host = window.location.hostname;
+window.host = "86.21.150.167";
 
-		this.main = React.createRef();
+class App extends Component {
+    constructor(props) {
+        super(props);
+	}
+
+	componentDidMount() {
+		const token = document.cookie.split("=")[1];
+
+		if (token) {
+			this.props.updateAuthToken(token);
+		}
+	}
+
+	dashboard() {
+		document.title = "Dim - Dashboard";
+
+		return (
+			<Fragment>
+				<Sidebar/>
+				<main>
+					<BannerPage/>
+					<CardList path={`//${window.host}:8000/api/v1/dashboard`}/>
+				</main>
+			</Fragment>
+		);
+	}
+
+	library(props) {
+		return (
+			<Fragment>
+				<Sidebar/>
+				<main>
+					<CardList path={`//${window.host}:8000/api/v1/library/${props.match.params.id}/media`}/>
+				</main>
+			</Fragment>
+		);
+	}
+
+	search(props) {
+		return (
+			<Fragment>
+				<Sidebar/>
+				<main>
+					<SearchResults {...props}/>
+				</main>
+			</Fragment>
+		);
+	}
+
+	play(props) {
+		return (
+			<Fragment>
+				<main>
+					<VideoPlayer {...props}/>
+				</main>
+			</Fragment>
+		);
+	}
+
+	media(props) {
+		return (
+			<Fragment>
+				<Sidebar/>
+				<main>
+					<MediaPage {...props}/>
+				</main>
+			</Fragment>
+		);
+	}
+
+	componentDidUpdate(prevProps) {
+		if (prevProps.auth.logged_in !== this.props.auth.logged_in) {
+			const token = document.cookie.split("=")[1];
+
+			if (!this.props.auth.error && !token) {
+				const dateExpires = new Date();
+				dateExpires.setTime(dateExpires.getTime() + 604800000);
+				document.cookie = `token=${this.props.auth.token};expires=${dateExpires.toGMTString()};`;
+			}
+		}
 	}
 
 	render() {
+		let app;
+
+		if (!this.props.auth.logged_in && !this.props.auth.token || this.props.auth.error) {
+            app = (
+				<Fragment>
+					<main>
+						<Login/>
+					</main>
+				</Fragment>
+			);
+		}
+
+		// AUTH_LOGIN_OK
+		if (this.props.auth.logged_in && this.props.auth.token && !this.props.auth.error) {
+			app = (
+				<Switch>
+					<Route exact path="/" render={this.dashboard}/>
+					<Route exact path="/library/:id" render={props => this.library(props)}/>
+					<Route exact path="/search" render={props => this.search(props)}/>
+					<Route exact path="/play/:id" render={props => this.play(props)}/>
+					<Route exact path="/media/:id" render={props => this.media(props)}/>
+				</Switch>
+			);
+		}
+
 		return (
 			<Router>
-			<div className="App">
-				<Switch>
-					<Route exact path="/" render={_ => {
-						document.title = "Dim - Dashboard";
-
-						return (
-							<Fragment>
-								<Sidebar main={this.main}/>
-								<main ref={this.main}>
-									<BannerPage/>
-									<CardList path="http://127.0.0.1:8000/api/v1/dashboard"/>
-								</main>
-							</Fragment>
-						);
-					}}/>
-
-					<Route exact path="/library/:id" render={props =>
-						<Fragment>
-							<Sidebar main={this.main}/>
-							<main ref={this.main}>
-								<CardList path={`http://127.0.0.1:8000/api/v1/library/${props.match.params.id}/media`}/>
-							</main>
-						</Fragment>
-					}/>
-
-					<Route exact path="/search" render={props =>
-						<Fragment>
-							<Sidebar main={this.main}/>
-							<main ref={this.main}>
-								<SearchResults {...props}/>
-							</main>
-						</Fragment>
-					}/>
-
-					<Route exact path="/play/:id" render={props =>
-						<main>
-							<VideoPlayer {...props}/>
-						</main>
-					}/>
-				</Switch>
-			</div>
+				<div className="App">
+					{app}
+				</div>
 			</Router>
 		);
 	}
 }
 
-export default App;
+const mapStateToProps = (state) => ({
+    auth: state.authReducer,
+});
+
+const mapActionsToProps = ({
+    updateAuthToken,
+});
+
+export default connect(mapStateToProps, mapActionsToProps)(App);

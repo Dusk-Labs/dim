@@ -1,287 +1,124 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import * as Vibrant from "node-vibrant";
-import { NavLink } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import HLS from "hls.js";
+import videojs from "video.js";
+
+import { fetchMediaInfo, fetchExtraMediaInfo } from "../actions/cardActions.js";
+
+import LazyImage from "../helpers/LazyImage.jsx";
+import VideoPlayerControls from "./VideoPlayerControls.jsx";
 
 import "./VideoPlayer.scss";
-import LazyImage from "../helpers/LazyImage.jsx";
 
-class Play extends Component {
+class VideoPlayer extends Component {
     constructor(props) {
         super(props);
 
         this.video = React.createRef();
-        this.progressBar = React.createRef();
         this.overlay = React.createRef();
-        this.navLinks = React.createRef();
-        this.navPages = React.createRef();
+
+        // ! RE-IMPLEMENT POST-MVP
+        // this.navLinks = React.createRef();
+        // this.navPages = React.createRef();
 
         this.body = document.getElementsByTagName("body")[0];
 
         this.onCoverLoad = this.onCoverLoad.bind(this);
-        this.toggleVideoPlay = this.toggleVideoPlay.bind(this);
         this.handleVideoLoaded = this.handleVideoLoaded.bind(this);
-        this.toggleFullscreen = this.toggleFullscreen.bind(this);
-        this.toggleVideoVolume = this.toggleVideoVolume.bind(this);
-        this.videoSkip = this.videoSkip.bind(this);
 
-        /*
-            TODO: centerBox - container that appears in the center to show current actions
-            E.G. if user presses pause, it will display a temporary box in the middle with pause glyph.
-        */
         this.state = {
-            play: true,
-            skip: 15,
-            current: "00:00:00",
-            duration: "00:00:00",
-            progressWidth: "0%",
-            fullscreen: false,
-            mouseMoveTimeout: null,
-            mute: false,
+            userActiveTimeout: null,
             navIndex: -1
         };
     }
 
-    async componentDidMount() {
+    componentDidMount() {
+        document.title = "Dim - Playing";
+
         document.querySelector("meta[name='theme-color']").setAttribute("content", "#000000");
         document.getElementsByTagName("main")[0].style["margin-left"] = "0";
+        document.addEventListener("mousemove", this.throttle(this.triggerUserActive.bind(this), 300));
 
         this.video.current.addEventListener("loadeddata", this.handleVideoLoaded.bind(this));
-        this.video.current.addEventListener("timeupdate", this.handleVideoTimeUpdate.bind(this));
-        this.video.current.addEventListener("mousemove", this.handleMouseMove.bind(this));
 
-        this.video.current.addEventListener("play", this.videoPlay.bind(this));
-        this.video.current.addEventListener("pause", this.videoPause.bind(this));
-        this.video.current.addEventListener("click", this.toggleVideoPlay.bind(this));
-        this.video.current.addEventListener("volumechange", this.handleVideoVolumeChange.bind(this));
+        const { id } = this.props.match.params;
 
-        this.progressBar.current.addEventListener("click", this.handleProgressbarMouseClick.bind(this));
-        document.addEventListener("fullscreenchange", this.handlePageFullscreen.bind(this));
-
-        // const reqSourceID = await fetch(`http://86.21.150.167:8000/api/v1/stream/start/${this.props.match.params.id}`);
-        // const sourceID = await reqSourceID.json();
-
-        const sourceID = "66232264-6baf-4dc6-bf3a-6bc6cc6a0131"; // ! TEMPORARY - FOR TESTING
-        const source = `http://86.21.150.167:8000/api/v1/stream/static/${sourceID}/index.m3u8`;
-
-        const config = {
-            autoStartLoad: true,
-            startPosition: 0,
-            debug: false,
-        };
-
-        // ! FIXME: USING OLD VER (0.8.8) (OUTDATED)
-        if (HLS.isSupported()) {
-            const hls = new HLS(config);
-
-            hls.attachMedia(this.video.current);
-            hls.on(HLS.Events.MEDIA_ATTACHED, () => hls.loadSource(source));
-
-            window.hls = hls;
-            window.player = this.video.current;
-        }
-        // !
-
-        // ! TO BE REPLACED WITH API
-        let versions = [
-            {
-                file: "FILENAME",
-                codec: "H624",
-                videoBitrate: "200 KB/S",
-                audio: "AAC",
-                audioBitrate: "192 KB/S",
-                library: "2"
-            },
-            {
-                file: "FILENAME",
-                codec: "H624",
-                videoBitrate: "200 KB/S",
-                audio: "AAC",
-                audioBitrate: "192 KB/S",
-                library: "3"
-            },
-            {
-                file: "FILENAME",
-                codec: "H624",
-                videoBitrate: "200 KB/S",
-                audio: "AAC",
-                audioBitrate: "192 KB/S",
-                library: "4"
-            },
-            {
-                file: "FILENAME",
-                codec: "H624",
-                videoBitrate: "200 KB/S",
-                audio: "AAC",
-                audioBitrate: "192 KB/S",
-                library: "5"
-            }
-        ];
-        // !
-
-        versions = versions.map((
-            { file, codec, videoBitrate, audio, audioBitrate, library }, i
-        ) => (
-            <NavLink className="version" key={i} to="#">
-                <FontAwesomeIcon icon="file-video"/>
-                <p>{file} - {codec}@{videoBitrate} {audio}@{audioBitrate} - Library {library}</p>
-            </NavLink>
-        ));
-
-        const media_info = {
-            name: "Gravity",
-            cover: "https://images-na.ssl-images-amazon.com/images/I/41qngCO1gzL.jpg",
-            versions
-        };
-
-        this.setState(media_info);
-
-        document.title = `Dim - Playing '${media_info.name}'`;
+        this.props.fetchMediaInfo(this.props.auth.token, id);
+        this.props.fetchExtraMediaInfo(this.props.auth.token, id);
     }
 
     componentWillUnmount() {
         document.querySelector("meta[name='theme-color']").setAttribute("content", "#333333");
+        document.removeEventListener("mousemove");
 
-        this.video.current.removeEventListener("loadeddata", this.handleVideoLoaded);
-        this.video.current.removeEventListener("timeupdate", this.handleVideoTimeUpdate);
-        this.video.current.removeEventListener("mousemove", this.handleMouseMove);
+        this.video.current.removeEventListener("loadeddata");
+    }
 
-        this.video.current.removeEventListener("play", this.videoPlay);
-        this.video.current.removeEventListener("pause", this.videoPause);
-        this.video.current.removeEventListener("click", this.toggleVideoPlay);
-        this.video.current.removeEventListener("volumechange", this.handleVideoVolumeChange);
+    componentDidUpdate(prevProps) {
+        // FETCH_MEDIA_INFO_OK
+        if (
+            prevProps.media_info.fetched !== this.props.media_info.fetched
+            && !this.props.media_info.error
+            && !this.state.endsAt
+        ) {
+            const currentDate = new Date();
+            const { duration } = this.props.media_info.info;
 
-        this.progressBar.current.removeEventListener("click", this.handleProgressbarMouseClick);
-        document.removeEventListener("fullscreenchange", this.handlePageFullscreen);
+            currentDate.setSeconds(currentDate.getSeconds() + duration);
+
+            const endsAt = currentDate.toLocaleString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
+
+            this.setState({endsAt});
+        }
+
+        // FETCH_MEDIA_EXTRA_INFO_OK
+        if (prevProps.extra_media_info.fetched !== this.props.extra_media_info.fetched && !this.props.extra_media_info.error) {
+            const { id } = this.props.extra_media_info.info.versions[0];
+
+            this.player = videojs(this.video.current);
+
+            this.player.ready(() => {
+                this.player.src({
+                    src: `//${window.host}:8000/api/v1/stream/${id}/manifest.mpd`,
+                    type: "application/dash+xml"
+                });
+            });
+        }
+    }
+
+    throttle(callback, interval) {
+        let enableCall = true;
+
+        return function(...args) {
+            if (!enableCall) return;
+
+            enableCall = false;
+            callback.apply(this, args);
+
+            setTimeout(() => enableCall = true, interval);
+        }
     }
 
     handleVideoLoaded() {
-        const currentDate = new Date();
-        const { duration } = this.video.current;
-
-        const { hh, mm, ss } = {
-            hh: ("0" + Math.floor(duration / 3600)).slice(-2),
-            mm: ("0" + Math.floor(duration % 3600 / 60)).slice(-2),
-            ss: ("0" + Math.floor(duration % 3600 % 60)).slice(-2)
-        };
-
-        currentDate.setSeconds(currentDate.getSeconds() + duration);
-
-        this.setState({
-            duration: `${hh}:${mm}:${ss}`,
-            endsAt: currentDate.toLocaleString("en-US", { hour: "numeric", minute: "numeric", hour12: true }),
-            resolution: "1080p"
-        });
+        this.video.current.play();
+        this.triggerUserActive();
     }
 
-    handleVideoTimeUpdate() {
-        const { currentTime, duration } = this.video.current;
-        const width = 100 * (currentTime / duration);
+    triggerUserActive() {
+        this.overlay.current.style.opacity = 1;
+        this.body.style.cursor = "default";
 
-        const { hh, mm, ss } = {
-            hh: ("0" + Math.floor(currentTime / 3600)).slice(-2),
-            mm: ("0" + Math.floor(currentTime % 3600 / 60)).slice(-2),
-            ss: ("0" + Math.floor(currentTime % 3600 % 60)).slice(-2)
-        };
-
-        this.setState({
-            current: `${hh}:${mm}:${ss}`,
-            progressWidth: `${width}%`
-        });
-    }
-
-    handleMouseMove() {
-        if (this.state.mouseMoveTimeout !== null) {
-            clearTimeout(this.state.mouseMoveTimeout);
-
-            this.setState({
-                mouseMoveTimeout: null
-            });
-
-            this.overlay.current.style.opacity = 1;
-            this.body.style.cursor = "default";
-        } else {
-            if (!this.state.play) {
-                this.setState({
-                    mouseMoveTimeout: setTimeout(() => {
-                        this.overlay.current.style.opacity = 0;
-                        this.body.style.cursor = "none";
-                    }, 2000)
-                });
-            }
+        if (this.state.userActiveTimeout) {
+            clearInterval(this.state.userActiveTimeout);
         }
-    }
 
-    videoPlay() {
-        this.setState({ play: false });
-    }
+        if (this.video.current.readyState === 4 && !this.video.current.paused) {
+            const userActiveTimeout = setTimeout(_ => {
+                this.overlay.current.style.opacity = 0;
+                this.body.style.cursor = "none";
+            }, 3000);
 
-    videoPause() {
-        this.setState({ play: true });
-    }
-
-    toggleVideoPlay() {
-        if (this.video.current.readyState === 4) {
-            this.video.current[this.video.current.paused ? "play" : "pause"]();
-        }
-    }
-
-    // FOR WHEN IMPLEMENTING VOLUME SLIDER
-    handleVideoVolumeChange(e) { }
-
-    handleProgressbarMouseClick(e) {
-        const clicked_pos_x = e.pageX - e.target.offsetLeft;
-        const percentage = 100 * clicked_pos_x / e.target.offsetWidth;
-
-        this.video.current.currentTime = percentage * (this.video.current.duration / 100);
-    }
-
-    toggleVideoVolume() {
-        this.setState({
-            mute: !this.state.mute
-        });
-
-        this.video.current.volume = !this.state.mute ? 0 : 1;
-    }
-
-    videoSkip(direction) {
-        if (this.video.current.readyState === 4) {
-            direction
-                ? this.video.current.currentTime += this.state.skip
-                : this.video.current.currentTime -= this.state.skip;
-        }
-    }
-
-    handlePageFullscreen() {
-        this.setState({
-            fullscreen: (
-                document.webkitIsFullScreen || document.mozFullScreen
-            )
-        });
-    }
-
-    toggleFullscreen() {
-        if (this.state.fullscreen) {
-            const [w3, moz, webkit] = [
-                document.exitFullscreen,
-                document.mozCancelFullScreen,
-                document.webkitExitFullscreen,
-            ];
-
-            if (w3) return document.exitFullscreen();
-            if (moz) return document.mozCancelFullScreen();
-            if (webkit) return document.webkitExitFullscreen();
-        } else {
-            const [w3, moz, webkit] = [
-                document.documentElement.requestFullscreen,
-                document.documentElement.mozRequestFullScreen,
-                document.documentElement.webkitRequestFullscreen,
-            ];
-
-            if (w3) return document.documentElement.requestFullscreen();
-            if (moz) return document.documentElement.mozRequestFullScreen();
-            if (webkit) return document.documentElement.webkitRequestFullscreen();
+            this.setState({userActiveTimeout});
         }
     }
 
@@ -294,50 +131,53 @@ class Play extends Component {
         root.style.setProperty("--accent-text", color.Vibrant.getTitleTextColor());
     }
 
-    navSelect(e, index) {
-        if (this.state.navIndex === index) {
-            e.target.classList.add("inActive");
-            e.target.classList.remove("active");
+    // ! RE-IMPLEMENT POST-MVP
+    // navSelect(e, index) {
+    //     if (this.state.navIndex === index) {
+    //         e.target.classList.add("inActive");
+    //         e.target.classList.remove("active");
 
-            this.navPages.current.children[index].classList.add("hidden");
-            this.navPages.current.children[index].classList.remove("shown");
+    //         this.navPages.current.children[index].classList.add("hidden");
+    //         this.navPages.current.children[index].classList.remove("shown");
 
-            return this.setState({navIndex: -1});
-        }
+    //         return this.setState({navIndex: -1});
+    //     }
 
-        this.setState({navIndex: index});
+    //     this.setState({navIndex: index});
 
-        // eslint-disable-next-line
-        for (let [i, navLink] of [...this.navLinks.current.children].entries()) {
-            if (i === index) {
-                navLink.classList.add("active");
-                navLink.classList.remove("inActive");
-                continue;
-            };
+    //     for (let [i, navLink] of [...this.navLinks.current.children].entries()) {
+    //         if (i === index) {
+    //             navLink.classList.add("active");
+    //             navLink.classList.remove("inActive");
+    //             continue;
+    //         };
 
-            navLink.classList.add("inActive");
-            navLink.classList.remove("active");
-        }
+    //         navLink.classList.add("inActive");
+    //         navLink.classList.remove("active");
+    //     }
 
-        // eslint-disable-next-line
-        for (let [i, navPage] of [...this.navPages.current.children].entries()) {
-            if (i === index) {
-                navPage.classList.add("shown");
-                navPage.classList.remove("hidden");
-                continue;
-            };
+    //     for (let [i, navPage] of [...this.navPages.current.children].entries()) {
+    //         if (i === index) {
+    //             navPage.classList.add("shown");
+    //             navPage.classList.remove("hidden");
+    //             continue;
+    //         };
 
-            navPage.classList.add("hidden");
-            navPage.classList.remove("shown");
-        }
-    }
+    //         navPage.classList.add("hidden");
+    //         navPage.classList.remove("shown");
+    //     }
+    // }
 
     render() {
-        const coverLoading = (
-            <div className="placeholder">
-                <div className="spinner"/>
-            </div>
-        );
+        let posterPath;
+
+        // FETCH_MEDIA_INFO_OK
+        if (this.props.media_info.fetched && !this.props.media_info.error) {
+            const { name, poster_path } = this.props.media_info.info;
+
+            posterPath = poster_path;
+            document.title = `Dim - Playing '${name}'`;
+        }
 
         return (
             <div className="video-wrapper">
@@ -346,82 +186,19 @@ class Play extends Component {
                     <section className="cover">
                         <div className="card-wrapper">
                             <div className="card">
-                            <a href={this.state.cover} rel="noopener noreferrer" target="_blank">
-                                <LazyImage alt="cover" src={this.state.cover} onLoad={this.onCoverLoad} loading={coverLoading}/>
-                            </a>
+                                <LazyImage alt="cover" src={posterPath} onLoad={this.onCoverLoad}/>
                             </div>
                         </div>
                     </section>
-                    <section className="controls">
-                        <div className="upper">
-                            <div className="left">
-                                {this.state.season && this.state.episode &&
-                                    <div className="se-ep">
-                                        <p>S{this.state.season}</p>
-                                        <FontAwesomeIcon icon="circle"/>
-                                        <p>E{this.state.episode}</p>
-                                    </div>
-                                }
-                                <div className="name">
-                                    <p>{this.state.name}</p>
-                                </div>
-                            </div>
-                            <div className="right">
-                                <p>{this.state.current}</p>
-                                <FontAwesomeIcon icon="circle"/>
-                                <p>{this.state.duration}</p>
-                            </div>
-                        </div>
-                        <div className="center">
-                            <div className="video-progress-wrapper" ref={this.progressBar}>
-                                <div className="video-progress-inner" style={{width: this.state.progressWidth}}>
-                                    <div className="video-progress-dragger"/>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="lower">
-                            <div className="left">
-                                <div className="volume" onClick={this.toggleVideoVolume}>
-                                    <FontAwesomeIcon icon={this.state.mute ? "volume-mute" : "volume-up"}/>
-                                </div>
-                                <div className="video-progress-wrapper">
-                                    <div className="video-progress-inner" style={{width: this.state.progressWidth}}>
-                                        <div className="video-progress-dragger"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="middle">
-                                <div className="backward">
-                                    <FontAwesomeIcon icon="backward"/>
-                                </div>
-                                <div className="skip-backwards" onClick={() => this.videoSkip(false)}>
-                                    <FontAwesomeIcon icon="fast-backward" onClick={() => this.videoSkip(false)}/>
-                                </div>
-                                <div className="state" onClick={this.toggleVideoPlay}>
-                                    <FontAwesomeIcon icon={this.state.play ? "play" : "pause"}/>
-                                </div>
-                                <div className="skip-forwards" onClick={() => this.videoSkip(true)}>
-                                    <FontAwesomeIcon icon="fast-forward"/>
-                                </div>
-                                <div className="forward">
-                                    <FontAwesomeIcon icon="forward"/>
-                                </div>
-                            </div>
-                            <div className="right">
-                                <div className="captions">
-                                    <FontAwesomeIcon icon="closed-captioning"/>
-                                </div>
-                                <div className="fullscreen" onClick={this.toggleFullscreen}>
-                                    <FontAwesomeIcon icon={this.state.fullscreen ? "compress" : "expand"}/>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+                    {this.video.current &&
+                        <VideoPlayerControls video={this.video.current} card={this.props.media_info}/>
+                    }
                     <section className="ends-at">
                         <p>ENDS AT</p>
                         <p>{this.state.endsAt}</p>
                     </section>
-                    <section ref={this.navLinks} className="video-nav">
+                    { // ! RE-IMPLEMENT POST-MVP
+                    /* <section ref={this.navLinks} className="video-nav">
                         <p onClick={(e) => this.navSelect(e, 0)} className="inActive">VERSIONS</p>
                         <p onClick={(e) => this.navSelect(e, 1)} className="inActive">CAST</p>
                         <p onClick={(e) => this.navSelect(e, 2)} className="inActive">DIRECTORS</p>
@@ -430,9 +207,6 @@ class Play extends Component {
                     <section ref={this.navPages} className="pages">
                         <div className="page hidden select-version">
                             <h3>VERSIONS</h3>
-                            <div className="versions">
-                                {this.state.versions}
-                            </div>
                         </div>
                         <div className="page hidden cast">
                             <h3>CAST</h3>
@@ -443,11 +217,22 @@ class Play extends Component {
                         <div className="page hidden media-info">
                             <h3>MEDIA INFO</h3>
                         </div>
-                    </section>
+                    </section> */}
                 </div>
             </div>
         );
     }
 }
 
-export default Play;
+const mapStateToProps = (state) => ({
+    auth: state.authReducer,
+    media_info: state.cardReducer.media_info,
+    extra_media_info: state.cardReducer.extra_media_info
+});
+
+const mapActionsToProps = {
+    fetchMediaInfo,
+    fetchExtraMediaInfo
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(VideoPlayer);

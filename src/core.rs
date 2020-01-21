@@ -9,7 +9,7 @@ use slog::Logger;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-#[database("openflix")]
+#[database("dimpostgres")]
 pub struct DbConnection(PgConnection);
 
 impl AsRef<PgConnection> for DbConnection {
@@ -21,12 +21,20 @@ impl AsRef<PgConnection> for DbConnection {
 pub type EventTx = std::sync::mpsc::Sender<pushevent::Event>;
 
 lazy_static! {
+    /// Holds a map of all threads keyed against the library id that they were started for
     static ref LIB_SCANNERS: Mutex<HashMap<i32, std::thread::JoinHandle<()>>> =
         Mutex::new(HashMap::new());
 }
 
+/// Function dumps a list of all libraries in the database and starts a scanner for each which
+/// monitors for new files using fsnotify. It also scans all orphans on boot.
+///
+/// # Arguments
+/// * `log` - Logger to which to log shit
+/// * `tx` - this is the websocket channel to which we can send websocket events to which get
+/// dispatched to clients.
 pub(crate) fn run_scanners(log: Logger, tx: EventTx) {
-    if let Ok(conn) = database::get_conn() {
+    if let Ok(conn) = database::get_conn_logged(&log) {
         for lib in database::library::Library::get_all(&conn) {
             slog::info!(log, "Starting scanner for {} with id: {}", lib.name, lib.id);
             let log_clone = log.clone();
@@ -35,23 +43,33 @@ pub(crate) fn run_scanners(log: Logger, tx: EventTx) {
             LIB_SCANNERS.lock().unwrap().insert(
                 library_id,
                 std::thread::spawn(move || {
-                    scanners::start(library_id, &log_clone, tx_clone).unwrap();
+                    crate::scanners::start(library_id, &log_clone, tx_clone).unwrap();
                 }),
             );
         }
     }
 }
 
-pub(crate) fn start_event_server(_log: Logger) -> EventTx {
-    let server = pushevent::server::Server::new("0.0.0.0:3012");
+/// Function spins up a new Websocket server which we use to dispatch events over to clients
+/// discriminated by a URI
+// TODO: Handle launch failures and fallback to a new port.
+// TODO: Store the port of the server in a dynamic config which can be queried by clients in case
+// the port changes as we dont want this hardcoded in.
+pub(crate) fn start_event_server(_log: Logger, host: &'static str) -> EventTx {
+    let server = pushevent::server::Server::new(host);
     server.get_tx()
 }
 
-fn rocket_pad(logger: slog::Logger, event_tx: EventTx) -> rocket::Rocket {
+pub fn rocket_pad(
+    logger: slog::Logger,
+    event_tx: EventTx,
+    config: rocket::config::Config,
+) -> rocket::Rocket {
     let fairing = SlogFairing::new(logger);
 
+    // At the moment we dont really care if cors access is global so we create CORS options to
+    // target every route.
     let allowed_origins = AllowedOrigins::all();
-
     let cors = CorsOptions {
         allowed_origins,
         allowed_methods: vec![Method::Get, Method::Post, Method::Delete, Method::Patch]
@@ -65,16 +83,21 @@ fn rocket_pad(logger: slog::Logger, event_tx: EventTx) -> rocket::Rocket {
     .to_cors()
     .unwrap();
 
-    rocket::ignite()
+    rocket::custom(config)
         .attach(DbConnection::fairing())
         .attach(fairing)
+        .mount(
+            "/",
+            routes![routes::r#static::index, routes::r#static::dist_file,],
+        )
         .mount(
             "/api/v1/",
             routes![
                 routes::general::dashboard,
                 routes::general::banners,
                 routes::general::get_directory_structure,
-                routes::stream::start_stream,
+                routes::general::get_root_directory_structure,
+                routes::stream::return_manifest,
                 routes::stream::return_static,
                 routes::general::search,
             ],
@@ -86,7 +109,8 @@ fn rocket_pad(logger: slog::Logger, event_tx: EventTx) -> rocket::Rocket {
                 routes::library::get_self,
                 routes::library::library_post,
                 routes::library::library_delete,
-                routes::library::get_all_library
+                routes::library::get_all_library,
+                routes::library::get_all_unmatched_media,
             ],
         )
         .mount(
@@ -96,7 +120,12 @@ fn rocket_pad(logger: slog::Logger, event_tx: EventTx) -> rocket::Rocket {
                 routes::media::get_extra_info_by_id,
                 routes::media::update_media_by_id,
                 routes::media::delete_media_by_id,
+                routes::media::tmdb_search,
             ],
+        )
+        .mount(
+            "/api/v1/mediafile",
+            routes![routes::media::rematch_mediafile,],
         )
         .mount(
             "/api/v1/tv",
@@ -111,14 +140,25 @@ fn rocket_pad(logger: slog::Logger, event_tx: EventTx) -> rocket::Rocket {
                 routes::tv::delete_episode_by_id,
             ],
         )
-        .mount("/api/v1/auth", routes![routes::auth::login])
+        .mount(
+            "/api/v1/auth",
+            routes![
+                routes::auth::login,
+                routes::auth::register,
+                routes::auth::whoami,
+                routes::auth::admin_exists,
+                routes::auth::get_all_invites,
+                routes::auth::generate_invite
+            ],
+        )
         .attach(cors)
         .manage(Arc::new(Mutex::new(event_tx)))
 }
 
-pub fn launch(log: slog::Logger, event_tx: EventTx) {
-    rocket_pad(log, event_tx).launch();
+pub fn launch(log: slog::Logger, event_tx: EventTx, config: rocket::config::Config) {
+    rocket_pad(log, event_tx, config).launch();
 
+    // Join all threads started by dim, which usually are scanner/daemon threads
     for (_, thread) in LIB_SCANNERS.lock().unwrap().drain().take(1) {
         thread.join().unwrap();
     }
