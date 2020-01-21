@@ -170,6 +170,7 @@ button {
 
 .spinner {
 	@include transform(translate(-50%, -50%));
+	@include animation(appear 0.5s ease-in-out);
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -177,7 +178,6 @@ button {
 	width: 40px;
 	max-height:40px;
 	max-width: 40px;
-	animation: appear 0.5s ease-in-out;
 
 	&::after {
 		@include animation(spinner 0.6s linear infinite);
@@ -209,7 +209,7 @@ main {
 	@include box-sizing(border-box);
 	@include transition(margin 0.3s ease-in-out);
 	position: relative;
-    margin-left: 300px;
+	margin-left: 300px;
     color: #ffffff;
     display: grid;
     grid-template-areas:
@@ -219,9 +219,40 @@ main {
 	min-height: 100vh;
 
 	> section h1 {
-		margin: 50px 0;
-		padding: 0 5%;
+		margin: 50px 90px;
 	}
+
+	&.full {
+		margin-left: 0;
+	}
+
+	&.shrunk {
+		margin-left: 300px;
+	}
+}
+
+.item-wrapper {
+    & > a::after, & > a::before {
+        content: unset !important;
+    }
+}
+
+.ScrollbarsCustom-TrackY {
+	top: 0 !important;
+	height: 100% !important;
+}
+
+.ScrollbarsCustom-TrackY {
+    width: 5px !important;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    & > .ScrollbarsCustom-Thumb {
+		@include transition(height 0.3s ease-in-out);
+        background: #f7931e none repeat scroll 0% 0% !important;
+    }
 }
 
 /*
@@ -271,34 +302,18 @@ main {
     * == MEDIA QUERIES
 */
 
-@media only screen and (max-width: 654px) {
-	main .cards {
-		-webkit-box-pack: center !important;
-		   -moz-box-pack: center !important;
-		    -ms-flex-pack: center !important;
-		        justify-content: center !important;
+@media only screen and (max-width: 1080px) {
+	main {
+		margin-left: 150px;
+
+		&.shrunk {
+			margin-left: 150px;
+		}
 	}
 }
 
-.item-wrapper {
-    & > a::after, & > a::before {
-        content: unset !important;
-    }
-}
-
-.ScrollbarsCustom-TrackY {
-	top: 0 !important;
-	height: 100% !important;
-}
-
-.ScrollbarsCustom-TrackY {
-    width: 5px !important;
-
-    &:hover {
-        opacity: 1;
-    }
-
-    & > .ScrollbarsCustom-Thumb {
-        background: #f7931e none repeat scroll 0% 0% !important;
-    }
+@media only screen and (max-width: 654px) {
+	main .cards {
+		@include justify-content(center);
+	}
 }
