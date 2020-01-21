@@ -65,7 +65,9 @@ class Sidebar extends Component {
                     <div className="profile-icon">
                         <div className="default-icon"></div>
                     </div>
-                    <p id="response">LOADING</p>
+                    <div className="info">
+                        <div className="placeholder-text-light placeholder-small placeholder-small-animate"/>
+                    </div>
                 </div>
             );
         }
@@ -77,9 +79,8 @@ class Sidebar extends Component {
                     <div className="profile-icon">
                         <div className="default-icon"></div>
                     </div>
-                    <div className="horizontal-err">
-                        <FontAwesomeIcon icon="times-circle"/>
-                        <p>FAILED TO LOAD</p>
+                    <div className="info">
+                        <div className="placeholder-text-light placeholder-small"/>
                     </div>
                 </div>
             );
