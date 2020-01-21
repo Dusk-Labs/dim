@@ -81,5 +81,5 @@ RUN chmod +x /opt/dim/start.sh
 
 EXPOSE 8000
 EXPOSE 3012
-VOLUME ["/var/lib/postgresql", "/opt/dim/transcoding"]
+VOLUME ["/var/lib/postgresql", "/opt/dim/transcoding", "/opt/dim/config"]
 CMD ["/opt/dim/start.sh"]
