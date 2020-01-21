@@ -25,6 +25,7 @@ pub mod season;
 pub mod streamablemedia;
 pub mod tv;
 pub mod user;
+pub mod progress;
 
 lazy_static::lazy_static! {
     static ref MIGRATIONS_FLAG: AtomicBool = AtomicBool::new(false);

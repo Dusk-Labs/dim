@@ -95,7 +95,7 @@ pub fn return_static(
     let full_path = Path::new("./transcoding").join(id.to_string());
 
     if let Some(_) = lock.get(&id) {
-        for _ in 0..30 {
+        for _ in 0..20 {
             if let Ok(x) = NamedFile::open(
                 full_path
                     .join(map.clone())
@@ -144,7 +144,7 @@ pub fn return_static(
         });
     };
 
-    for _ in 0..40 {
+    for _ in 0..80 {
         if let Ok(x) = NamedFile::open(
             full_path
                 .join(map.clone())
@@ -154,7 +154,7 @@ pub fn return_static(
             return Ok(Some(x));
         }
         // TODO: Replace this with a dameon that monitors a file with a timeout then returns Option<T>
-        std::thread::sleep(std::time::Duration::from_millis(200));
+        std::thread::sleep(std::time::Duration::from_millis(100));
     }
     Ok(None)
 }
