@@ -98,7 +98,7 @@ class Sidebar extends Component {
                 <div className="profile">
                     <div className="profile-icon">
                         <LazyImage
-                            alt="profile-icon"
+                            alt=" "
                             src={picture}
                             loading={loading}
                         />
