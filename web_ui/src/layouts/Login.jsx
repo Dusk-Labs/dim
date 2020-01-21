@@ -70,6 +70,8 @@ class Login extends Component {
                 this.warn("password", "Too short, min. 4 chars.");
             }
         } else {
+            // FIXME: Track down why token remains as a null after logout
+            document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             this.props.authenticate(username.value, password.value);
         }
     }

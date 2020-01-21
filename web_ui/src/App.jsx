@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -22,17 +22,14 @@ library.add(fas, far);
 
 // quick hack to get proper requests
 window.host = window.location.hostname;
-window.host = "86.21.150.167";
 
 class App extends Component {
-    constructor(props) {
-        super(props);
-	}
-
 	componentDidMount() {
 		const token = document.cookie.split("=")[1];
 
-		if (token) {
+        // FIXME: Weird bug where the cookies on being cleared still holds a token with the value "null"
+        //        Someone needs to track this down
+		if (token && token !== "null") {
 			this.props.updateAuthToken(token);
 		}
 	}
@@ -109,7 +106,7 @@ class App extends Component {
 	render() {
 		let app;
 
-		if (!this.props.auth.logged_in && !this.props.auth.token || this.props.auth.error) {
+		if ((!this.props.auth.logged_in && !this.props.auth.token) || this.props.auth.error) {
             app = <Login/>;
 		}
 
@@ -122,6 +119,7 @@ class App extends Component {
 					<Route exact path="/search" render={props => this.search(props)}/>
 					<Route exact path="/play/:id" render={props => this.play(props)}/>
 					<Route exact path="/media/:id" render={props => this.media(props)}/>
+                    <Redirect to="/"/>
 				</Switch>
 			);
 		}
