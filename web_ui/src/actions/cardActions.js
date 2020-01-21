@@ -59,7 +59,7 @@ export const fetchMediaInfo = (token, id) => async (dispatch) => {
             }
         };
 
-        const res = await fetch(`http://${window.host}:8000/api/v1/media/${id}`, config);
+        const res = await fetch(`//${window.host}:8000/api/v1/media/${id}`, config);
 
         if (res.status !== 200) {
             return dispatch({
@@ -92,7 +92,7 @@ export const fetchExtraMediaInfo = (token, id) => async (dispatch) => {
             }
         };
 
-        const res = await fetch(`http://${window.host}:8000/api/v1/media/${id}/info`, config);
+        const res = await fetch(`//${window.host}:8000/api/v1/media/${id}/info`, config);
 
         if (res.status !== 200) {
             return dispatch({
@@ -132,7 +132,7 @@ export const fetchMediaSeasons = (token, id) => async (dispatch) => {
             }
         };
 
-        const res = await fetch(`http://${window.host}:8000/api/v1/tv/${id}/season`, config);
+        const res = await fetch(`//${window.host}:8000/api/v1/tv/${id}/season`, config);
 
         if (res.status !== 200) {
             return dispatch({
@@ -165,7 +165,7 @@ export const fetchMediaSeasonEpisodes = (token, id, season) => async (dispatch) 
             }
         };
 
-        const res = await fetch(`http://${window.host}:8000/api/v1/tv/${id}/season/${season}/episode`, config);
+        const res = await fetch(`//${window.host}:8000/api/v1/tv/${id}/season/${season}/episode`, config);
 
         if (res.status !== 200) {
             return dispatch({

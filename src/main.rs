@@ -50,7 +50,7 @@ pub mod schema;
 pub mod streaming;
 pub mod tests;
 
-const VERSION: &str = "0.0.3";
+const VERSION: &str = "0.0.4";
 const DESCRIPTION: &str = "Dim, a media manager fueled by dark forces.";
 
 /// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.
@@ -127,7 +127,7 @@ fn main() {
     let event_tx = core::start_event_server(logger.clone(), "0.0.0.0:3012");
 
     if !matches.is_present("no-scanners") {
-        slog::info!(logger, "Booting scanners up");
+        slog::info!(logger, "Transposing scanners from the netherworld...");
         core::run_scanners(logger.clone(), event_tx.clone());
     }
 
@@ -156,13 +156,15 @@ fn main() {
 
     if let Some(cert) = matches.value_of("ssl-cert") {
         if let Some(key) = matches.value_of("priv-key") {
-            slog::info!(logger, "Enabling ssl...");
-            rocket_config.set_tls(cert, key).unwrap();
+            let _ = rocket_config.set_tls(cert, key).map_or_else(
+                |e| slog::info!(logger, "Disabling SSL because {:?}", e),
+                |_| slog::info!(logger, "Enabled SSL... Standby for launch"),
+            );
         }
     } else {
-        slog::warn!(logger, "Disabling ssl...");
+        slog::warn!(logger, "Disabling SSL explicitly...");
     }
 
-    slog::info!(logger, "Booting Dim... Standby...");
+    slog::info!(logger, "Summoning Dim using the {} spell...", VERSION);
     core::launch(logger, event_tx, rocket_config);
 }

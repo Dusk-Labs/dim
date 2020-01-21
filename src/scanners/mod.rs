@@ -32,7 +32,7 @@ pub type EventTx = std::sync::mpsc::Sender<Event>;
 pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> std::result::Result<(), ()> {
     let mut threads = Vec::new();
 
-    info!(log, "Scanning library with id: {}", library_id);
+    info!(log, "Summoning scanner for Library with id: {}", library_id);
     if get_conn().is_ok() {
         let log_clone = log.clone();
         let tx_clone = tx.clone();

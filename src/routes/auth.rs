@@ -25,7 +25,7 @@ pub fn login(conn: DbConnection, new_login: Json<Login>) -> Result<JsonValue, er
 pub fn whoami(user: Auth) -> JsonValue {
     json!({
         "username": user.0.claims.get_user(),
-        "picture": "/static/media/profile_icon.6cf7338f.jpg",
+        "picture": "https://i.redd.it/3n1if40vxxv31.png",
         "spentWatching": 12
     })
 }

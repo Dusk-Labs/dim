@@ -14,7 +14,7 @@ export const fetchDirectories = (path, token) => async (dispatch) => {
             }
         }
 
-        const res = await fetch(`http://${window.host}:8000/api/v1/filebrowser/${path}`, config);
+        const res = await fetch(`//${window.host}:8000/api/v1/filebrowser/${path}`, config);
 
         if (res.status !== 200) {
             return dispatch({
