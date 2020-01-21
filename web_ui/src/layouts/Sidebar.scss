@@ -67,6 +67,10 @@
             grid-gap: 10px;
             grid-template-columns: auto auto;
 
+            .placeholder-text-light {
+                background: #505050;
+            }
+
             .profile-icon {
                 margin: 0 auto;
                 height: 31px;
@@ -297,4 +301,20 @@
             }
         }
     }
+}
+
+.placeholder-small {
+    height: 20px;
+    width: 150px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+}
+
+.placeholder-small-animate {
+    animation: 2.2s cubic-bezier(0.19, 1, 0.22, 1) infinite placeholderSmall;
+}
+
+@keyframes placeholderSmall {
+  0% { width: 40px; }
+  100% { width: 150px; }
 }
