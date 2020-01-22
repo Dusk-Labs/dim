@@ -102,7 +102,11 @@ class SidebarSearch extends Component {
 
         // SEARCH_START
         if (this.props.quick_search.fetching) {
-            results = <p id="response">LOADING</p>;
+            results = (
+                <div className="horizontal-err">
+                    <p>LOADING</p>
+                </div>
+            );
         }
 
         // SEARCH_ERR
@@ -147,7 +151,11 @@ class SidebarSearch extends Component {
                         onKeyDown={this.handleKeyPress}
                         contentEditable="true"
                         value={this.state.query}
-                        onChange={this.onChange}>
+                        onChange={this.onChange}
+                        autoComplete="off"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        spellCheck="false">
                     </div>
                     {this.state.showPlaceholder &&
                         <span id="placeholder">SEARCH</span>
