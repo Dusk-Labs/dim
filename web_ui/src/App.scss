@@ -33,24 +33,26 @@
 ::-webkit-scrollbar {
 	height: 5px;
 	width: 5px;
-}
 
-::-webkit-scrollbar-track {
-    background: #333333;
-}
+	&-track {
+		background: #333333;
+	}
 
-::-webkit-scrollbar-thumb {
-	background: #f7931e;
-	border-radius: 10px;
-}
+	&-thumb {
+		background: #f7931e;
+		border-radius: 10px;
+	}
 
-::-webkit-scrollbar-corner {
-	background: none;
+	&-corner {
+		background: none;
+	}
 }
 
 * {
+	@include box-sizing(border-box);
 	margin: 0;
 	padding: 0;
+	font-weight: normal;
 }
 
 body {
@@ -71,49 +73,32 @@ a {
 	color: #ffffff;
 }
 
-h1, h2, h3,
-h4, h5, h6, p {
-	font-weight: normal;
-}
-
 img {
 	background: #222222;
 }
 
-#response {
-	font-family: "Roboto Condensed Regular";
-	color: #ffffff;
-	font-size: 0.8em;
-	background: #f7931e;
-	display: inline-block;
-	padding: 5px;
-	border-radius: 10px;
-}
-
 .horizontal-err {
 	@include animation(appear 0.4s ease-in-out);
-	display: inline-block;
+	@include align-items(center);
+	display: inline-flex;
 	font-family: "Roboto Condensed Regular";
 	background: #f7931e;
 	border-radius: 10px;
 	padding: 5px;
 	font-size: 0.8em;
 	color: #ffffff;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 
     svg {
 		@include animation(shake 0.5s ease-in-out);
-		margin: 0 5px 0 0 !important;
+		margin-right: 5px;
 		animation-delay: 0.5s;
-    }
-
-    p {
-		margin: 0 !important;
-		padding: 0 !important;
-		display: inline;
     }
 }
 
-.empty {
+.vertical-err {
 	@include display(flex);
 	@include flex-direction(column);
 	@include justify-content(center);
@@ -140,10 +125,7 @@ img {
 button {
 	outline: none;
 	border: none;
-
-	&:hover {
-		cursor: pointer;
-	}
+	cursor: pointer;
 }
 
 .separator {
@@ -154,18 +136,19 @@ button {
 	border-radius: 2px;
 }
 
-.placeholder-text {
-	background: #222222;
-	border-radius: 10px;
-	height: 30px;
-	width: 150px;
-}
-
 .placeholder {
 	@include animation(appear 0.5s ease-in-out);
 	position: relative;
     height: 100%;
 	background: #222222;
+
+	&-text {
+		@include transition(width .3s ease-in-out);
+		background: #222222;
+		border-radius: 10px;
+		height: 30px;
+		width: 150px;
+	}
 }
 
 .spinner {
@@ -229,12 +212,6 @@ main {
 	&.shrunk {
 		margin-left: 300px;
 	}
-}
-
-.item-wrapper {
-    & > a::after, & > a::before {
-        content: unset !important;
-    }
 }
 
 .ScrollbarsCustom-TrackY {
