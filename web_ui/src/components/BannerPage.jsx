@@ -63,7 +63,7 @@ class BannerPage extends Component {
         if (this.props.banners.fetched && this.props.banners.error) {
             banners = (
                 <div className="placeholder">
-                    <div className="empty">
+                    <div className="vertical-err">
                         <FontAwesomeIcon icon="times-circle"/>
                         <p>FAILED TO LOAD BANNER</p>
                     </div>
@@ -96,7 +96,7 @@ class BannerPage extends Component {
             } else {
                 banners = (
                     <div className="placeholder">
-                        <div className="empty">
+                        <div className="vertical-err">
                             <FontAwesomeIcon icon="times-circle"/>
                             <p>NO BANNERS FOUND</p>
                         </div>

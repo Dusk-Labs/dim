@@ -2,14 +2,35 @@
 
 .sidebar {
     @include box-shadow(0 0 10px 5px #00000055);
-    @include transition(width 0.3s ease-in-out);
-    @include animation(appear 0.3s ease-in-out);
+    @include transition(width .3s ease-in-out);
+    @include animation(appear .3s ease-in-out);
     min-height: 100vh;
     height: 100%;
     width: 300px;
     position: fixed;
     background: linear-gradient(315deg, #333333 0%, #363636 100%);
     z-index: 1;
+
+    &.show {
+        @include animation(showSidebar .3s ease-in-out);
+
+        .toggle {
+            @include animation(sidebarToggleOff 0.3s ease-in-out forwards);
+        }
+    }
+
+    &.hide {
+        @include box-shadow(0 0 10px 5px #00000000);
+        @include animation(hideSidebar 0.3s ease-in-out forwards);
+
+        .toggle {
+            @include animation(sidebarToggleOn 0.3s ease-in-out forwards);
+        }
+    }
+
+    .placeholder-text {
+        background: #4d4d4d;
+    }
 
     .toggle {
         @include transition(0.3s ease-in-out);
@@ -33,26 +54,11 @@
         }
     }
 
-    &.show {
-        @include animation(showSidebar .3s ease-in-out);
-
-        .toggle {
-            @include animation(sidebarToggleOff 0.3s ease-in-out forwards);
-        }
-    }
-
-    &.hide {
-        @include animation(hideSidebar 0.3s ease-in-out forwards);
-
-        .toggle {
-            @include animation(sidebarToggleOn 0.3s ease-in-out forwards);
-        }
-    }
-
     section {
-        @include transition(color 0.3s ease-in-out);
+        @include transition(.3s ease-in-out);
         margin: 50px auto;
         width: 80%;
+        transition-property: color, margin;
 
         header {
             @include display(flex);
@@ -99,18 +105,14 @@
         grid-gap: 15px;
 
         .profile {
-            @include justify-content(flex-start);
             @include align-items(center);
             display: flex;
-
-            .placeholder-text-light {
-                background: #505050;
-            }
+            overflow: hidden;
 
             .profile-icon {
                 margin-right: 10px;
-                height: 31px;
-                width: 31px;
+                height: 40px;
+                width: 40px;
                 padding: 4px;
                 border-radius: 100%;
                 border: #ffffff 2px solid;
@@ -127,8 +129,8 @@
 
             img, .default-icon {
                 @include object-fit(cover);
-                height: 31px;
-                width: 31px;
+                height: 100%;
+                width: 100%;
                 border-radius: 50%;
             }
 
@@ -175,12 +177,8 @@
         height: 120px;
         overflow-y: auto;
 
-        #response {
-            margin: 5px 0;
-        }
-
         .horizontal-err {
-            margin: 5px auto;
+            margin: 0 auto;
         }
 
         .item-wrapper {
@@ -196,6 +194,14 @@
                 button {
                     opacity: 1;
                 }
+            }
+
+            .placeholder {
+                margin-top: 5px;
+                height: 30px;
+                width: 100%;
+                background: #4d4d4d;
+                border-radius: 10px;
             }
 
             // ITEM
@@ -247,13 +253,12 @@
         }
 
         // ITEM ICON
-        svg {
+        .item-wrapper-icon {
             margin: 0 auto;
         }
 
         // ITEM NAME
-
-         p {
+        .item-wrapper-name {
             margin: 0;
             padding: 10px 0;
         }
@@ -333,20 +338,23 @@
         width: 150px;
         text-align: center;
 
+        .placeholder-text {
+            width: 75px;
+        }
+
         .main-part {
-            grid-template-columns: 100%;
+            .separator {
+                display: none;
+            }
 
             .profile {
                 @include flex-direction(column);
 
                 .profile-icon {
+                    margin-right: 0;
                     margin-bottom: 10px;
                 }
             }
-        }
-
-        .separator {
-            display: none !important;
         }
 
         section {
@@ -369,6 +377,10 @@
             grid-template-columns: auto !important;
             grid-gap: 0 !important;
 
+            &-name {
+                padding: 10px 0 0 0 !important;
+            }
+
             button {
                 display: none !important;
             }
@@ -377,11 +389,6 @@
             a:nth-child(1) {
                 padding: 10px 0 !important;
                 display: block !important;
-            }
-
-            // ITEM NAME
-            p {
-                padding: 10px 0 0 0 !important;
             }
         }
     }

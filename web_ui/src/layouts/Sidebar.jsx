@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { NavLink } from "react-router-dom";
 import Modal from "react-modal";
 import { connect } from "react-redux";
@@ -92,9 +92,7 @@ class Sidebar extends Component {
                     <div className="profile-icon">
                         <div className="default-icon"></div>
                     </div>
-                    <div className="info">
-                        <p id="response">LOADING</p>
-                    </div>
+                    <div className="placeholder-text"/>
                 </div>
             );
         }
@@ -106,10 +104,9 @@ class Sidebar extends Component {
                     <div className="profile-icon">
                         <div className="default-icon"></div>
                     </div>
-                    <div className="item-wrapper">
-                        <div className="horizontal-err">
-                            <p>FAILED TO FETCH</p>
-                        </div>
+                    <div className="horizontal-err">
+                        <FontAwesomeIcon icon="times-circle"/>
+                        <p>FAILED TO FETCH</p>
                     </div>
                 </div>
             );
@@ -117,10 +114,7 @@ class Sidebar extends Component {
 
         // FETCH_USER_OK
         if (this.props.user.fetched && !this.props.user.error) {
-            const loading = (
-                <div className="default-icon"></div>
-            );
-
+            const loading = <div className="default-icon"/>;
             const { username, picture, spentWatching } = this.props.user.info;
 
             user = (
@@ -147,11 +141,14 @@ class Sidebar extends Component {
         // FETCH_LIBRARIES_START
         if (this.props.libraries.fetching) {
             libraries = (
-                <div className="item-wrapper">
-                    <div className="status">
-                        <p id="response">LOADING</p>
+                <Fragment>
+                    <div className="item-wrapper">
+                        <div className="placeholder"/>
                     </div>
-                </div>
+                    <div className="item-wrapper">
+                        <div className="placeholder"/>
+                    </div>
+                </Fragment>
             );
         }
 
@@ -159,8 +156,9 @@ class Sidebar extends Component {
         if (this.props.libraries.fetched && this.props.libraries.error) {
             libraries = (
                 <div className="item-wrapper">
-                    <div className="status">
-                        <p id="response">FAILED TO FETCH</p>
+                    <div className="horizontal-err">
+                        <FontAwesomeIcon icon="times-circle"/>
+                        <p>FAILED TO FETCH</p>
                     </div>
                 </div>
             );
@@ -177,7 +175,7 @@ class Sidebar extends Component {
                     <div className="item-wrapper" key={i}>
                         <NavLink to={"/library/" + id}>
                             <SidebarIcon icon={media_type || name}/>
-                            <p>{name}</p>
+                            <p classname="item-wrapper-name">{name}</p>
                         </NavLink>
                         <button onClick={() => this.props.delLibrary(id)}>-</button>
                     </div>
@@ -198,13 +196,11 @@ class Sidebar extends Component {
                  <div className="toggle" onClick={this.toggleSidebar}>
                     <FontAwesomeIcon icon="angle-left"/>
                 </div>
-
                 <section className="main-part">
                     {user}
                     <div className="separator"/>
                     <SidebarSearch/>
                 </section>
-
                 <section className="libraries">
                     <header>
                         <h4>LIBRARIES</h4>
@@ -214,15 +210,14 @@ class Sidebar extends Component {
                         <Scrollbar>
                             <div className="item-wrapper">
                                 <NavLink to="/" exact>
-                                    <FontAwesomeIcon icon="home"/>
-                                    <p>Dashboard</p>
+                                    <SidebarIcon icon="dashboard"/>
+                                    <p className="item-wrapper-name">Dashboard</p>
                                 </NavLink>
                             </div>
                             {libraries}
                         </Scrollbar>
                     </div>
                 </section>
-
                 <section className="your-account">
                     <header>
                         <h4>YOUR ACCOUNT</h4>
@@ -230,14 +225,14 @@ class Sidebar extends Component {
                     <div className="list">
                         <div className="item-wrapper">
                             <NavLink to="/preferences">
-                                <FontAwesomeIcon icon="wrench"/>
-                                <p>Preferences</p>
+                                <SidebarIcon icon="preferences"/>
+                                <p className="item-wrapper-name">Preferences</p>
                             </NavLink>
                         </div>
                         <div className="item-wrapper">
-                            <NavLink to="/login" onClick={() => this.props.logout()}>
-                                <FontAwesomeIcon icon="door-open"/>
-                                <p>Logout</p>
+                            <NavLink to="/login" onClick={this.props.logout}>
+                                <SidebarIcon icon="logout"/>
+                                <p className="item-wrapper-name">Logout</p>
                             </NavLink>
                         </div>
                     </div>
