@@ -83,7 +83,7 @@ class LazyImage extends Component {
             if (!this.props.onFail) {
                 return (
                     <div className="placeholder">
-                        <div className="empty">
+                        <div className="vertical-err">
                             <FontAwesomeIcon icon="question-circle"/>
                             <p>FAILED TO LOAD</p>
                         </div>

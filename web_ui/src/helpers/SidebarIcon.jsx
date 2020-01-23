@@ -24,12 +24,20 @@ class SidebarIcon extends Component {
             case "phone":
                 icon = "mobile-alt";
                 break;
+            case "dashboard":
+                icon = "home"
+                break;
+            case "preferences":
+                icon = "wrench";
+                break;
+            case "logout":
+                icon = "door-open"
             default:
                 icon = "folder";
                 break;
         }
 
-        return <FontAwesomeIcon icon={icon}/>
+        return <FontAwesomeIcon className="item-wrapper-icon" icon={icon}/>
     }
 }
 
