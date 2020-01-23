@@ -1,6 +1,6 @@
 @import "../mixins.scss";
 
-.register {
+.auth-form {
     @include transition(0.3s ease-in-out);
     @include transform(translate(-50%, -50%));
     @include box-sizing(border-box);
@@ -103,14 +103,12 @@
 
         a {
             @include transition(color 0.2s ease-in-out);
-            // color: #f7931e;
 
             &:hover {
                 color: #f7931e;
             }
         }
     }
-
 }
 
 /*
@@ -118,7 +116,7 @@
 */
 
 @media only screen and (max-width: 580px) {
-    .auth {
+    .auth-form {
         width: 100%;
         height: 100%;
         border-radius: unset;

@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { authenticate, register, checkAdminExists } from "../actions/authActions.js";
 
-import "./Register.scss";
+import "./AuthForm.scss";
 
 class Register extends Component {
     constructor(props) {
@@ -105,12 +105,12 @@ class Register extends Component {
         }
 
         return (
-            <div className="register">
+            <div className="auth-form">
                 <header>
                     <h1>Welcome to Dim</h1>
-                    {admin_exists ?
-                        <h3>A media manager fueled by dark forces</h3> 
-                        : <h3> Warning: You are making a admin account! </h3>
+                    {admin_exists
+                        ? <h3>A media manager fueled by dark forces</h3>
+                        : <h3>Warning: You are making a admin account! </h3>
                     }
                 </header>
                 <div className="fields">
