@@ -110,7 +110,7 @@ class NewLibraryModal extends Component {
             // FETCH_DIRECTORIES_ERR
             if (this.props.fileBrowser.fetched && this.props.fileBrowser.error) {
                 dirs = (
-                    <div className="empty">
+                    <div className="vertical-err">
                         <FontAwesomeIcon icon="times-circle"/>
                         <p>FAILED TO LOAD</p>
                     </div>
@@ -123,7 +123,7 @@ class NewLibraryModal extends Component {
 
                 if (items.length === 0) {
                     dirs = (
-                        <div className="empty">
+                        <div className="vertical-err">
                             <FontAwesomeIcon icon="times-circle"/>
                             <p>NO FOLDERS</p>
                         </div>
@@ -143,7 +143,7 @@ class NewLibraryModal extends Component {
 
             if (items.length === 0) {
                 dirs = (
-                    <div className="empty">
+                    <div className="vertical-err">
                         <FontAwesomeIcon icon="times-circle"/>
                         <p>NO FOLDERS</p>
                     </div>
