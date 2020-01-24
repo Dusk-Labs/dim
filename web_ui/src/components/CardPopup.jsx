@@ -27,17 +27,12 @@ class CardPopup extends Component {
         const { x, width } = this.popup.current.getBoundingClientRect();
         const overflowing = (x + width > window.innerWidth - 5);
 
-        this.setState({
-            accent: this.props.accent
-        });
-
         if (!overflowing) return;
 
         this.setState({
             overflowing: true,
             class: "card-popup-left"
         });
-
     }
 
     render() {
@@ -48,10 +43,10 @@ class CardPopup extends Component {
             description,
             genres,
             year,
-            duration
+            duration,
+            accent
         } = this.props.data;
 
-        const { accent } = this.props;
         const genre = genres[Math.floor(Math.random() * genres.length)];
 
         const length = {
