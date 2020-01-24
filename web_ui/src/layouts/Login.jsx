@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { authenticate } from "../actions/authActions.js";
 
-import "./Login.scss";
+import "./AuthForm.scss";
 
 class Login extends Component {
     constructor(props) {
@@ -83,7 +83,7 @@ class Login extends Component {
         }
 
         return (
-            <div className="auth">
+            <div className="auth-form">
                 <header>
                     <h1>Welcome to Dim</h1>
                     <h3>A media manager fueled by dark forces</h3>
