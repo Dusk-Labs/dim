@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import * as Vibrant from 'node-vibrant';
+import Vibrant from "node-vibrant";
 
 import CardPopup from "./CardPopup.jsx";
 import LazyImage from "../helpers/LazyImage.jsx";
@@ -20,12 +20,7 @@ class Card extends Component {
 
         this.state = {
             hovering: false,
-            hoverTimeout: null,
-            accentDone: false,
-            accent: {
-                background: "#f7931e",
-                text: "#ffffff"
-            }
+            hoverTimeout: null
         };
     }
 
@@ -57,35 +52,29 @@ class Card extends Component {
     }
 
     async renderCardPopout() {
-        if (!this.state.accentDone && this.state.posterBlob !== undefined) {
-            const color = await Vibrant.from(this.state.posterBlob).getPalette();
+        const color = await Vibrant.from(this.state.blob).getPalette();
 
-            this.setState({
-                accent: {
-                    background: color.Vibrant.getHex(),
-                    text: color.Vibrant.getTitleTextColor()
-                }
-            });
-        }
+        const accent = {
+            background: color.Vibrant.getHex(),
+            text: color.Vibrant.getTitleTextColor()
+        };
 
         this.setState({
             hovering: true,
+            accent
         });
     }
 
-    onLoadPoster = async (blob) => {
-        this.setState({
-            posterBlob: URL.createObjectURL(blob)
-        });
-    }
-
-    setCardPopup(ref) {
-        this.cardPopup = ref;
-    }
+    onLoadPoster = (blob) => this.setState({blob: URL.createObjectURL(blob)});
+    setCardPopup = (ref) => this.cardPopup = ref;
 
     render() {
-        const { accent } = this.state
         const { name, poster_path, id } = this.props.data;
+
+        const data = {
+            ...this.props.data,
+            accent: this.state?.accent
+        };
 
         return (
             <div className="card-wrapper" ref={this.cardWrapper}>
@@ -99,7 +88,9 @@ class Card extends Component {
                         <p style={{opacity: + !this.state.hovering}}>{name}</p>
                     </Link>
                 </div>
-                {this.state.hovering && <CardPopup setCardPopup={this.setCardPopup} data={this.props.data} accent={accent}/>}
+                {this.state.hovering &&
+                    <CardPopup setCardPopup={this.setCardPopup} data={data}/>
+                }
             </div>
         );
     }
