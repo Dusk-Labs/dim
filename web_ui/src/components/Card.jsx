@@ -15,11 +15,12 @@ class Card extends Component {
         this.card = React.createRef();
 
         this.setCardPopup = this.setCardPopup.bind(this);
-        this.handleMouseHover = this.handleMouseHover.bind(this);
+        this.handleMouseEnter = this.handleMouseEnter.bind(this);
+        this.handleMouseLeave = this.handleMouseLeave.bind(this);
 
         this.state = {
             hovering: false,
-            timeout: false,
+            hoverTimeout: null,
             accentDone: false,
             accent: {
                 background: "#f7931e",
@@ -29,39 +30,29 @@ class Card extends Component {
     }
 
     componentDidMount() {
-        this.cardWrapper.current.addEventListener("mouseenter", this.handleMouseHover);
-        this.cardWrapper.current.addEventListener("mouseleave", this.handleMouseHover);
-        this.cardWrapper.current.addEventListener("focusin", this.handleMouseHover);
-        this.cardWrapper.current.addEventListener("focusout", this.handleMouseHover);
+        this.card.current.addEventListener("mouseenter", this.handleMouseEnter);
+        this.cardWrapper.current.addEventListener("mouseleave", this.handleMouseLeave);
     }
 
     componentWillUnmount() {
-        this.cardWrapper.current.removeEventListener("mouseenter", this.handleMouseHover);
-        this.cardWrapper.current.removeEventListener("mouseleave", this.handleMouseHover);
-        this.cardWrapper.current.removeEventListener("focusin", this.handleMouseHover);
-        this.cardWrapper.current.removeEventListener("focusout", this.handleMouseHover);
+        this.card.current.removeEventListener("mouseenter", this.handleMouseEnter);
+        this.cardWrapper.current.removeEventListener("mouseleave", this.handleMouseLeave);
     }
 
-    handleMouseHover() {
-        this.card.current.style.animation = "none";
-
-        if (this.state.hoverTimeout != null) {
-            if (this.cardPopup) {
-                this.cardPopup.classList.add("hideCardPopup");
-            }
-
-            return setTimeout(() => {
-                clearTimeout(this.state.hoverTimeout);
-
-                this.setState({
-                    hoverTimeout: null,
-                    hovering: false
-                });
-            }, 300);
-        }
-
+    handleMouseEnter(e) {
         this.setState({
-            hoverTimeout: setTimeout(this.renderCardPopout.bind(this), 600),
+            hoverTimeout: setTimeout(this.renderCardPopout.bind(this), 600)
+        });
+    }
+
+    handleMouseLeave() {
+        clearTimeout(this.state.hoverTimeout);
+
+        this.cardPopup?.classList.add("hideCardPopup");
+
+        this.cardPopup?.addEventListener("animationend", (e) => {
+            if (e.animationName !== "CardPopupHide") return;
+            this.setState({hovering: false});
         });
     }
 
@@ -78,7 +69,7 @@ class Card extends Component {
         }
 
         this.setState({
-            hovering: !this.state.hovering,
+            hovering: true,
         });
     }
 
