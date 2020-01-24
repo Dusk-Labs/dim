@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import * as Vibrant from 'node-vibrant';
+import Vibrant from "node-vibrant";
 
 import CardPopup from "./CardPopup.jsx";
 import LazyImage from "../helpers/LazyImage.jsx";
@@ -15,86 +15,66 @@ class Card extends Component {
         this.card = React.createRef();
 
         this.setCardPopup = this.setCardPopup.bind(this);
-        this.handleMouseHover = this.handleMouseHover.bind(this);
+        this.handleMouseEnter = this.handleMouseEnter.bind(this);
+        this.handleMouseLeave = this.handleMouseLeave.bind(this);
 
         this.state = {
             hovering: false,
-            timeout: false,
-            accentDone: false,
-            accent: {
-                background: "#f7931e",
-                text: "#ffffff"
-            }
+            hoverTimeout: null
         };
     }
 
     componentDidMount() {
-        this.cardWrapper.current.addEventListener("mouseenter", this.handleMouseHover);
-        this.cardWrapper.current.addEventListener("mouseleave", this.handleMouseHover);
-        this.cardWrapper.current.addEventListener("focusin", this.handleMouseHover);
-        this.cardWrapper.current.addEventListener("focusout", this.handleMouseHover);
+        this.card.current.addEventListener("mouseenter", this.handleMouseEnter);
+        this.cardWrapper.current.addEventListener("mouseleave", this.handleMouseLeave);
     }
 
     componentWillUnmount() {
-        this.cardWrapper.current.removeEventListener("mouseenter", this.handleMouseHover);
-        this.cardWrapper.current.removeEventListener("mouseleave", this.handleMouseHover);
-        this.cardWrapper.current.removeEventListener("focusin", this.handleMouseHover);
-        this.cardWrapper.current.removeEventListener("focusout", this.handleMouseHover);
+        this.card.current.removeEventListener("mouseenter", this.handleMouseEnter);
+        this.cardWrapper.current.removeEventListener("mouseleave", this.handleMouseLeave);
     }
 
-    handleMouseHover() {
-        this.card.current.style.animation = "none";
-
-        if (this.state.hoverTimeout != null) {
-            if (this.cardPopup) {
-                this.cardPopup.classList.add("hideCardPopup");
-            }
-
-            return setTimeout(() => {
-                clearTimeout(this.state.hoverTimeout);
-
-                this.setState({
-                    hoverTimeout: null,
-                    hovering: false
-                });
-            }, 300);
-        }
-
+    handleMouseEnter(e) {
         this.setState({
-            hoverTimeout: setTimeout(this.renderCardPopout.bind(this), 600),
+            hoverTimeout: setTimeout(this.renderCardPopout.bind(this), 600)
+        });
+    }
+
+    handleMouseLeave() {
+        clearTimeout(this.state.hoverTimeout);
+
+        this.cardPopup?.classList.add("hideCardPopup");
+
+        this.cardPopup?.addEventListener("animationend", (e) => {
+            if (e.animationName !== "CardPopupHide") return;
+            this.setState({hovering: false});
         });
     }
 
     async renderCardPopout() {
-        if (!this.state.accentDone && this.state.posterBlob !== undefined) {
-            const color = await Vibrant.from(this.state.posterBlob).getPalette();
+        const color = await Vibrant.from(this.state.blob).getPalette();
 
-            this.setState({
-                accent: {
-                    background: color.Vibrant.getHex(),
-                    text: color.Vibrant.getTitleTextColor()
-                }
-            });
-        }
+        const accent = {
+            background: color.Vibrant.getHex(),
+            text: color.Vibrant.getTitleTextColor()
+        };
 
         this.setState({
-            hovering: !this.state.hovering,
+            hovering: true,
+            accent
         });
     }
 
-    onLoadPoster = async (blob) => {
-        this.setState({
-            posterBlob: URL.createObjectURL(blob)
-        });
-    }
-
-    setCardPopup(ref) {
-        this.cardPopup = ref;
-    }
+    onLoadPoster = (blob) => this.setState({blob: URL.createObjectURL(blob)});
+    setCardPopup = (ref) => this.cardPopup = ref;
 
     render() {
-        const { accent } = this.state
         const { name, poster_path, id } = this.props.data;
+
+        const data = {
+            ...this.props.data,
+            accent: this.state?.accent
+        };
 
         return (
             <div className="card-wrapper" ref={this.cardWrapper}>
@@ -108,7 +88,9 @@ class Card extends Component {
                         <p style={{opacity: + !this.state.hovering}}>{name}</p>
                     </Link>
                 </div>
-                {this.state.hovering && <CardPopup setCardPopup={this.setCardPopup} data={this.props.data} accent={accent}/>}
+                {this.state.hovering &&
+                    <CardPopup setCardPopup={this.setCardPopup} data={data}/>
+                }
             </div>
         );
     }
