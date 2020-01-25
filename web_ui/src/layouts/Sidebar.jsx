@@ -13,6 +13,7 @@ import SidebarSearch from "../helpers/SidebarSearch.jsx";
 import SidebarIcon from "../helpers/SidebarIcon.jsx";
 import LazyImage from "../helpers/LazyImage.jsx";
 import NewLibraryModal from "../helpers/NewLibraryModal.jsx";
+import ConfirmationBox from "../helpers/ConfirmationBox.jsx";
 
 import "./Sidebar.scss";
 
@@ -171,15 +172,25 @@ class Sidebar extends Component {
             if (items.length > 0) {
                 libraries = items.map((
                     { name, id, media_type }, i
-                ) => (
-                    <div className="item-wrapper" key={i}>
-                        <NavLink to={"/library/" + id}>
-                            <SidebarIcon icon={media_type || name}/>
-                            <p classname="item-wrapper-name">{name}</p>
-                        </NavLink>
-                        <button onClick={() => this.props.delLibrary(id)}>-</button>
-                    </div>
-                ));
+                ) => {
+                    const data = {
+                        action: "delete",
+                        message: `Delete library '${name}'.`,
+                        continue() {
+                            this.props.delLibrary(id);
+                        }
+                    };
+
+                    return (
+                        <div className="item-wrapper" key={i}>
+                            <NavLink to={"/library/" + id}>
+                                <SidebarIcon icon={media_type || name}/>
+                                <p classname="item-wrapper-name">{name}</p>
+                            </NavLink>
+                            <ConfirmationBox {...data}/>
+                        </div>
+                    )
+                });
             } else {
                 libraries = (
                     <div className="item-wrapper">
