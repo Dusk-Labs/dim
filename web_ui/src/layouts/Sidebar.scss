@@ -212,6 +212,7 @@
                 overflow: hidden;
                 display: grid;
                 grid-gap: 10px;
+                height: 100%;
                 grid-template-columns: 40px auto;
                 border-radius: 10px;
                 transition-property: padding, background, transform, font-size;
