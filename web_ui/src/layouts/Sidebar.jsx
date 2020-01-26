@@ -27,39 +27,35 @@ class Sidebar extends Component {
 
         this.toggleSidebar = this.toggleSidebar.bind(this);
 
-        if (window.location.protocol === 'https:')
-            this.library_ws = new WebSocket(`wss://${window.host}:3012/events/library`);
-        else
+        if (window.location.protocol !== "https:") {
             this.library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
+            this.library_ws.addEventListener("message", this.handle_ws_msg);
+        }
 
-        this.library_ws.addEventListener("message", this.handle_ws_msg);
-
-        this.state = {
-            show: true
-        };
+        this.state = {show: true};
     }
 
-    handle_ws_msg = async (e) => {
-        const message = JSON.parse(e.data);
+    handle_ws_msg = async ({data}) => {
+        const payload = JSON.parse(data);
 
-        switch(message.type) {
+        switch(payload.type) {
             case "EventRemoveLibrary":
-                this.props.handleWsDelLibrary(message.id);
+                this.props.handleWsDelLibrary(payload.id);
                 break;
             case "EventNewLibrary":
-                this.props.handleWsNewLibrary(message.id);
+                this.props.handleWsNewLibrary(this.props.auth.token, payload.id);
                 break;
             default:
                 break;
         }
     };
 
-    async componentDidMount() {
+    componentDidMount() {
         this.props.fetchUser(this.props.auth.token);
         this.props.fetchLibraries(this.props.auth.token);
     }
 
-    async componentWillUnmount() {
+    componentWillUnmount() {
         this.library_ws.removeEventListener("message", this.handle_ws_msg);
         this.library_ws.close();
     }
@@ -176,8 +172,8 @@ class Sidebar extends Component {
                     const data = {
                         action: "delete",
                         message: `Delete library '${name}'.`,
-                        continue() {
-                            this.props.delLibrary(id);
+                        continue: () => {
+                            this.props.delLibrary(this.props.auth.token, id);
                         }
                     };
 
@@ -185,7 +181,7 @@ class Sidebar extends Component {
                         <div className="item-wrapper" key={i}>
                             <NavLink to={"/library/" + id}>
                                 <SidebarIcon icon={media_type || name}/>
-                                <p classname="item-wrapper-name">{name}</p>
+                                <p className="item-wrapper-name">{name}</p>
                             </NavLink>
                             <ConfirmationBox {...data}/>
                         </div>
