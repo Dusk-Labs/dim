@@ -59,7 +59,7 @@ class NewLibraryModal extends Component {
             });
         }
 
-        this.props.fetchDirectories(path, this.props.auth.token);
+        this.props.fetchDirectories(this.props.auth.token, path);
 
         this.setState({
             current: path,
@@ -92,7 +92,7 @@ class NewLibraryModal extends Component {
                 media_type: this.state.media_type
             };
 
-            this.props.newLibrary(data);
+            this.props.newLibrary(this.props.auth.token, data);
             this.close();
         }
 

@@ -4,7 +4,7 @@ import {
     FETCH_DIRECTORIES_ERR
 } from "./types.js";
 
-export const fetchDirectories = (path, token) => async (dispatch) => {
+export const fetchDirectories = (token, path) => async (dispatch) => {
     dispatch({ type: FETCH_DIRECTORIES_START });
 
     try {
