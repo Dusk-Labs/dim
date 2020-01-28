@@ -35,6 +35,8 @@ class Card extends Component {
     }
 
     handleMouseEnter(e) {
+        if (this.state.hovering) return;
+
         this.setState({
             hoverTimeout: setTimeout(this.renderCardPopout.bind(this), 600)
         });
