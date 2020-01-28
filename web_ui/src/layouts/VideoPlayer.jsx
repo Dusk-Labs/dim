@@ -23,8 +23,9 @@ class VideoPlayer extends Component {
 
         this.body = document.getElementsByTagName("body")[0];
 
-        this.onCoverLoad = this.onCoverLoad.bind(this);
+        this.triggerUserActive = this.triggerUserActive.bind(this);
         this.handleVideoLoaded = this.handleVideoLoaded.bind(this);
+        this.onCoverLoad = this.onCoverLoad.bind(this);
 
         this.state = {
             userActiveTimeout: null,
@@ -37,9 +38,9 @@ class VideoPlayer extends Component {
 
         document.querySelector("meta[name='theme-color']").setAttribute("content", "#000000");
         document.getElementsByTagName("main")[0].style["margin-left"] = "0";
-        document.addEventListener("mousemove", this.throttle(this.triggerUserActive.bind(this), 300));
+        document.addEventListener("mousemove", this.triggerUserActive);
 
-        this.video.current.addEventListener("loadeddata", this.handleVideoLoaded.bind(this));
+        this.video.current.addEventListener("loadeddata", this.handleVideoLoaded);
 
         const { id } = this.props.match.params;
 
@@ -49,9 +50,11 @@ class VideoPlayer extends Component {
 
     componentWillUnmount() {
         document.querySelector("meta[name='theme-color']").setAttribute("content", "#333333");
-        document.removeEventListener("mousemove");
+        document.removeEventListener("mousemove", this.triggerUserActive);
 
-        this.video.current.removeEventListener("loadeddata");
+        this.video.current.removeEventListener("loadeddata", this.handleVideoLoaded);
+
+        this.player.dispose();
     }
 
     componentDidUpdate(prevProps) {
@@ -86,26 +89,18 @@ class VideoPlayer extends Component {
         }
     }
 
-    throttle(callback, interval) {
-        let enableCall = true;
-
-        return function(...args) {
-            if (!enableCall) return;
-
-            enableCall = false;
-            callback.apply(this, args);
-
-            setTimeout(() => enableCall = true, interval);
-        }
-    }
-
     handleVideoLoaded() {
         this.video.current.play();
         this.triggerUserActive();
     }
 
-    triggerUserActive() {
-        this.overlay.current.style.opacity = 1;
+    triggerUserActive(e) {
+        if (e?.x % 15 !== 0) return;
+
+        if (this.overlay.current) {
+            this.overlay.current.style.opacity = 1;
+        }
+
         this.body.style.cursor = "default";
 
         if (this.state.userActiveTimeout) {
