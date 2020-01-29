@@ -69,7 +69,11 @@ class VideoPlayer extends Component {
 
             currentDate.setSeconds(currentDate.getSeconds() + duration);
 
-            const endsAt = currentDate.toLocaleString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
+            const endsAt = currentDate.toLocaleString("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true
+            });
 
             this.setState({endsAt});
         }
@@ -88,6 +92,8 @@ class VideoPlayer extends Component {
             });
         }
     }
+
+    updateEndsAt = (endsAt) => this.setState({endsAt});
 
     handleVideoLoaded() {
         this.video.current.play();
@@ -186,7 +192,7 @@ class VideoPlayer extends Component {
                         </div>
                     </section>
                     {this.video.current &&
-                        <VideoPlayerControls video={this.video.current} card={this.props.media_info}/>
+                        <VideoPlayerControls video={this.video.current} card={this.props.media_info} updateEndsAt={this.updateEndsAt}/>
                     }
                     <section className="ends-at">
                         <p>ENDS AT</p>
