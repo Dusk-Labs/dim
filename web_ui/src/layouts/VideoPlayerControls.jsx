@@ -106,6 +106,19 @@ class VideoPlayerControls extends Component {
                 sec
             });
         }
+
+        const currentDate = new Date();
+        const { duration } = this.props.card.info;
+
+        currentDate.setSeconds(currentDate.getSeconds() + (duration - Math.floor(this.props.video.currentTime)));
+
+        const endsAt = currentDate.toLocaleString("en-US", {
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true
+        });
+
+        this.props.updateEndsAt(endsAt);
     }
 
     videoPlay() {
