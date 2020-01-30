@@ -113,14 +113,17 @@ class VideoPlayer extends Component {
             clearInterval(this.state.userActiveTimeout);
         }
 
-        if (this.video.current.readyState === 4 && !this.video.current.paused) {
-            const userActiveTimeout = setTimeout(_ => {
-                this.overlay.current.style.opacity = 0;
-                this.body.style.cursor = "none";
-            }, 3000);
+        if (this.video.current) {
+            if (this.video.current.readyState === 4 && !this.video.current.paused) {
+                const userActiveTimeout = setTimeout(_ => {
+                    this.overlay.current.style.opacity = 0;
+                    this.body.style.cursor = "none";
+                }, 3000);
 
-            this.setState({userActiveTimeout});
+                this.setState({userActiveTimeout});
+            }
         }
+
     }
 
     async onCoverLoad(blob) {
