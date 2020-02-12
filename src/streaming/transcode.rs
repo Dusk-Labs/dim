@@ -37,7 +37,7 @@ impl Profile {
                     "-preset:0",
                     "veryfast",
                     "-vf",
-                    "scale=1280:-1",
+                    "scale=1280:-2",
                 ],
                 "5000kb",
             ),
@@ -50,7 +50,7 @@ impl Profile {
                     "-preset",
                     "ultrafast",
                     "-vf",
-                    "scale=720:-1",
+                    "scale=720:-2",
                 ],
                 "2000kb",
             ),
@@ -63,7 +63,7 @@ impl Profile {
                     "-preset",
                     "ultrafast",
                     "-vf",
-                    "scale=480:-1",
+                    "scale=480:-2",
                 ],
                 "1000kb",
             ),
@@ -114,6 +114,7 @@ impl<'a> Session {
         let mut video_process = Command::new(super::FFMPEG_BIN.as_ref());
         video_process
             .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
             .args(video_args.as_slice());
 
         println!("{:?}", video_args);
