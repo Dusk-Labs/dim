@@ -28,7 +28,7 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 - [ ] Transcoding
 - [x] Event APIs(new_library, delete_library, new_media, delete_media)
 - [x] Title Search
-- [ ] Auth (registration not done, login done)
+- [x] Auth
 - [x] Advanced Search (by genre, year, title, or all three at once)
 - [x] Offline mode post scan
 - [ ] Offline mode prescan
@@ -43,9 +43,9 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 - [x] Card popouts
 - [x] Search
 - [ ] Video player (partially done, awaiting API integration)
-- [ ] Live events (awaiting API integration)
+- [x] Live events (awaiting API integration)
 - [ ] Extended Media pages
-- [ ] Authentication
+- [x] Authentication
 - [ ] Server stats in dashboard
 ### General
 - [x] Server support for Linux

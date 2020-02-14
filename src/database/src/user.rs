@@ -7,7 +7,7 @@ static PBKDF2_ALG: &'static digest::Algorithm = &digest::SHA256;
 const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
 pub type Credential = [u8; CREDENTIAL_LEN];
 
-// Figure out the bug with this not being a valid postgres type
+// NOTE: Figure out the bug with this not being a valid postgres type
 #[derive(Serialize, Deserialize, Debug, DbEnum, Eq, PartialEq)]
 pub enum Role {
     Owner,
