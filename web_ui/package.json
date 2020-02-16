@@ -6,6 +6,11 @@
     "Valerian Garleanu",
     "Eray Chumak"
   ],
+  "scripts": {
+    "start": "node scripts/start.js",
+    "build": "node scripts/build.js",
+    "test": "node scripts/test.js"
+  },
   "dependencies": {
     "@babel/core": "7.5.5",
     "@babel/plugin-transform-react-jsx": "^7.7.7",
@@ -20,24 +25,11 @@
     "@typescript-eslint/eslint-plugin": "2.0.0",
     "@typescript-eslint/parser": "2.0.0",
     "babel": "^6.23.0",
-    "babel-eslint": "10.0.2",
-    "babel-jest": "^24.9.0",
-    "babel-loader": "8.0.6",
-    "babel-plugin-named-asset-import": "^0.3.5",
-    "babel-preset-react-app": "^9.1.0",
     "camelcase": "^5.3.1",
     "case-sensitive-paths-webpack-plugin": "2.2.0",
-    "dashjs": "^3.0.1",
+    "dashjs": "^3.0.2",
     "dotenv": "8.1.0",
     "dotenv-expand": "5.1.0",
-    "eslint": "^6.8.0",
-    "eslint-config-react-app": "^5.1.0",
-    "eslint-loader": "2.2.1",
-    "eslint-plugin-flowtype": "4.2.0",
-    "eslint-plugin-import": "2.18.2",
-    "eslint-plugin-jsx-a11y": "6.2.3",
-    "eslint-plugin-react": "7.14.3",
-    "eslint-plugin-react-hooks": "^2.3.0",
     "file-loader": "4.2.0",
     "fs-extra": "8.1.0",
     "html-webpack-plugin": "4.0.0-beta.5",
@@ -81,10 +73,27 @@
     "videojs-contrib-dash": "^2.11.0",
     "workbox-webpack-plugin": "4.3.1"
   },
-  "scripts": {
-    "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+  "devDependencies": {
+    "babel-eslint": "10.0.2",
+    "babel-jest": "^24.9.0",
+    "babel-loader": "8.0.6",
+    "babel-plugin-named-asset-import": "^0.3.5",
+    "babel-preset-react-app": "^9.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-react-app": "^5.1.0",
+    "eslint-loader": "2.2.1",
+    "eslint-plugin-flowtype": "4.2.0",
+    "eslint-plugin-import": "2.18.2",
+    "eslint-plugin-jsx-a11y": "6.2.3",
+    "eslint-plugin-react": "7.14.3",
+    "eslint-plugin-react-hooks": "^2.3.0",
+    "css-loader": "^3.4.0",
+    "node-sass": "^4.13.0",
+    "sass-loader": "^7.3.1",
+    "style-loader": "^1.1.1",
+    "webpack": "^4.41.4",
+    "webpack-dev-server": "3.8.0",
+    "webpack-manifest-plugin": "2.0.4"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -100,15 +109,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "css-loader": "^3.4.0",
-    "node-sass": "^4.13.0",
-    "sass-loader": "^7.3.1",
-    "style-loader": "^1.1.1",
-    "webpack": "^4.41.4",
-    "webpack-dev-server": "3.8.0",
-    "webpack-manifest-plugin": "2.0.4"
   },
   "jest": {
     "collectCoverageFrom": [
