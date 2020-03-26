@@ -10,6 +10,13 @@ class VideoPlayerControls extends Component {
 
         this.seekBar = React.createRef();
 
+        this.handleVideoTimeUpdate = this.handleVideoTimeUpdate.bind(this);
+        this.handleVideoVolumeChange = this.handleVideoVolumeChange.bind(this);
+        this.handlePageFullscreen = this.handlePageFullscreen.bind(this);
+        this.handleSeekBarMouseClick = this.handleSeekBarMouseClick.bind(this);
+
+        this.videoPlay = this.videoPlay.bind(this);
+        this.videoPause = this.videoPause.bind(this);
         this.toggleVideoPlay = this.toggleVideoPlay.bind(this);
         this.toggleFullscreen = this.toggleFullscreen.bind(this);
         this.toggleVideoVolume = this.toggleVideoVolume.bind(this);
@@ -24,6 +31,7 @@ class VideoPlayerControls extends Component {
             play: true,
             skip: 15,
             timeStamp: 0,
+            sec: 0,
             current: "00:00:00",
             duration: "00:00:00",
             progressWidth: "0%",
@@ -34,27 +42,27 @@ class VideoPlayerControls extends Component {
     }
 
     componentDidMount() {
-        document.addEventListener("fullscreenchange", this.handlePageFullscreen.bind(this));
+        document.addEventListener("fullscreenchange", this.handlePageFullscreen);
 
-        this.props.video.addEventListener("click", this.toggleVideoPlay.bind(this));
-        this.props.video.addEventListener("timeupdate", this.throttle(this.handleVideoTimeUpdate.bind(this), 1000));
-        this.props.video.addEventListener("play", this.videoPlay.bind(this));
-        this.props.video.addEventListener("pause", this.videoPause.bind(this));
-        this.props.video.addEventListener("volumechange", this.handleVideoVolumeChange.bind(this));
+        this.props.video.addEventListener("click", this.toggleVideoPlay);
+        this.props.video.addEventListener("timeupdate", this.handleVideoTimeUpdate);
+        this.props.video.addEventListener("play", this.videoPlay);
+        this.props.video.addEventListener("pause", this.videoPause);
+        this.props.video.addEventListener("volumechange", this.handleVideoVolumeChange);
 
-        this.seekBar.current.addEventListener("click", this.handleSeekBarMouseClick.bind(this));
+        this.seekBar.current.addEventListener("click", this.handleSeekBarMouseClick);
     }
 
     componentWillUnmount() {
-        document.removeEventListener("fullscreenchange");
+        document.removeEventListener("fullscreenchange", this.handlePageFullscreen);
 
-        this.props.video.removeEventListener("click");
-        this.props.video.removeEventListener("timeupdate");
-        this.props.video.removeEventListener("play");
-        this.props.video.removeEventListener("pause");
-        this.props.video.removeEventListener("volumechange");
+        this.props.video.removeEventListener("click", this.toggleVideoPlay);
+        this.props.video.removeEventListener("timeupdate", this.handleVideoTimeUpdate);
+        this.props.video.removeEventListener("play", this.videoPlay);
+        this.props.video.removeEventListener("pause", this.videoPause);
+        this.props.video.removeEventListener("volumechange", this.handleVideoVolumeChange);
 
-        this.seekBar.current.removeEventListener("click");
+        this.seekBar.current.removeEventListener("click", this.handleSeekBarMouseClick);
     }
 
     componentDidUpdate(prevProps) {
@@ -73,43 +81,44 @@ class VideoPlayerControls extends Component {
         }
     }
 
-    throttle(callback, interval) {
-        let enableCall = true;
-
-        return function(...args) {
-            if (!enableCall) return;
-
-            enableCall = false;
-            callback.apply(this, args);
-
-            setTimeout(() => enableCall = true, interval);
-        }
-    }
-
     handleVideoTimeUpdate(e) {
-        const timeStamp = Math.floor(e.timeStamp / 1000);
+        const ts = Math.floor(e.timeStamp);
+        const timeStamp = ts.toString();
+        const sec = (ts - timeStamp.substr(timeStamp.length - 3)) / 1000;
 
-        if (this.state.timeStamp < timeStamp) {
-            // FETCH_CARD_OK
-            if (this.props.card.fetched && !this.props.card.error) {
-                const { duration } = this.props.card.info;
-                const { currentTime } = this.props.video;
-                const width = 100 * (currentTime / duration);
+        if (this.state.sec === sec) return;
 
-                const { hh, mm, ss } = {
-                    hh: ("0" + Math.floor(currentTime / 3600)).slice(-2),
-                    mm: ("0" + Math.floor(currentTime % 3600 / 60)).slice(-2),
-                    ss: ("0" + Math.floor(currentTime % 3600 % 60)).slice(-2)
-                };
+        // FETCH_CARD_OK
+        if (this.props.card.fetched && !this.props.card.error) {
+            const { duration } = this.props.card.info;
+            const { currentTime } = this.props.video;
+            const width = 100 * (currentTime / duration);
 
-                this.setState({
-                    timeStamp,
-                    current: `${hh}:${mm}:${ss}`,
-                    progressWidth: `${width}%`
-                });
-            }
+            const { hh, mm, ss } = {
+                hh: ("0" + Math.floor(currentTime / 3600)).slice(-2),
+                mm: ("0" + Math.floor(currentTime % 3600 / 60)).slice(-2),
+                ss: ("0" + Math.floor(currentTime % 3600 % 60)).slice(-2)
+            };
+
+            this.setState({
+                current: `${hh}:${mm}:${ss}`,
+                progressWidth: `${width}%`,
+                sec
+            });
         }
 
+        const currentDate = new Date();
+        const { duration } = this.props.card.info;
+
+        currentDate.setSeconds(currentDate.getSeconds() + (duration - Math.floor(this.props.video.currentTime)));
+
+        const endsAt = currentDate.toLocaleString("en-US", {
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true
+        });
+
+        this.props.updateEndsAt(endsAt);
     }
 
     videoPlay() {
