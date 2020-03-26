@@ -105,7 +105,7 @@ class VideoPlayer extends Component {
                         type: "application/dash+xml"
                     });
                 });
-            });
+            };
             window.player = this.player;
         }
     }
