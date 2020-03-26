@@ -1,9 +1,6 @@
 # Dark Powered media Manager written in rust (Alpha)
 ![Design 1](./docs/design/image6.jpg?raw=true)
 
-## Status
-Currently Dim's development is paused since we can't get fucking streaming to work.
-
 ## What is Dim?
 
 Dim is a self hosted media manager powered by the dark forces. It is able to automatically scan the filesystem for movies and tv shows. These items are then automatically added to their specific libraries which can then be accessed through a comfy web ui. It is an open source alternative to Plex, with straightforward media management features and no bloat.
