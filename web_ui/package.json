@@ -78,6 +78,7 @@
     "typescript-eslint": "0.0.1-alpha.0",
     "url-loader": "2.1.0",
     "video.js": "^7.6.6",
+    "videojs": "^1.0.0",
     "videojs-contrib-dash": "^2.11.0",
     "workbox-webpack-plugin": "4.3.1"
   },
