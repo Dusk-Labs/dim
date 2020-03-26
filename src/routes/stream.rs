@@ -94,7 +94,8 @@ pub fn return_static(
 
     let full_path = Path::new("./transcoding").join(id.to_string());
 
-    if let Some(_) = lock.get(&id) {
+    // If we are currently transcoding spin till a chunk is ready
+    if let Some(session) = lock.get(&id) {
         for _ in 0..20 {
             if let Ok(x) = NamedFile::open(
                 full_path
@@ -102,11 +103,29 @@ pub fn return_static(
                     .join(profile.clone())
                     .join(chunk.clone()),
             ) {
-                return Ok(Some(x));
+                // If we have a ongoing stream we check if the chunk is complete
+                // If we dont have a ongoing stream we assume the chunk is complete
+                if let Some(stream) = session.get(&map) {
+                    if stream.is_chunk_done(chunk_num) {
+                        return Ok(Some(x));
+                    }
+                } else {
+                    return Ok(Some(x));
+                }
+                // TODO: Replace this with a dameon that monitors a file with a timeout then returns Option<T>
+                std::thread::sleep(std::time::Duration::from_millis(100));
             }
-            // TODO: Replace this with a dameon that monitors a file with a timeout then returns Option<T>
-            std::thread::sleep(std::time::Duration::from_millis(100));
         }
+    }
+
+    // If we are not transcoding try to return a chunk
+    if let Ok(x) = NamedFile::open(
+        full_path
+            .join(map.clone())
+            .join(profile.clone())
+            .join(chunk.clone()),
+    ) {
+        return Ok(Some(x));
     }
 
     if let Some(mut x) = lock.remove(&id) {
@@ -144,17 +163,25 @@ pub fn return_static(
         });
     };
 
-    for _ in 0..80 {
-        if let Ok(x) = NamedFile::open(
-            full_path
-                .join(map.clone())
-                .join(profile.clone())
-                .join(chunk.clone()),
-        ) {
-            return Ok(Some(x));
+    if let Some(session) = lock.get(&id) {
+        if let Some(stream) = session.get(&map) {
+            println!("STREAM: {}", stream.process_id);
+            for _ in 0..80 {
+                if stream.is_chunk_done(chunk_num) {
+                    println!("Chunk is done");
+                    if let Ok(x) = NamedFile::open(
+                        full_path
+                            .join(map.clone())
+                            .join(profile.clone())
+                            .join(chunk.clone()),
+                    ) {
+                        return Ok(Some(x));
+                    }
+                }
+                // TODO: Replace this with a dameon that monitors a file with a timeout then returns Option<T>
+                std::thread::sleep(std::time::Duration::from_millis(100));
+            }
         }
-        // TODO: Replace this with a dameon that monitors a file with a timeout then returns Option<T>
-        std::thread::sleep(std::time::Duration::from_millis(100));
     }
     Ok(None)
 }
