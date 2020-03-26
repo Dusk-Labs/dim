@@ -68,7 +68,8 @@ class VideoPlayer extends Component {
         clearTimeout(this.state.userActiveTimeout);
         this.body.style.cursor = "default";
 
-        this.player.dispose();
+        if (typeof this.player !== "undefined")
+            this.player.dispose();
     }
 
     componentDidUpdate(prevProps) {
