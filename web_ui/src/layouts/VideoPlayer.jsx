@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import * as Vibrant from "node-vibrant";
+
+import "dashjs";
+import "videojs-contrib-dash";
 import videojs from "video.js";
 
 import { fetchMediaInfo, fetchExtraMediaInfo } from "../actions/cardActions.js";
@@ -23,7 +26,7 @@ class VideoPlayer extends Component {
 
         this.body = document.getElementsByTagName("body")[0];
 
-        this.onCoverLoad = this.onCoverLoad.bind(this);
+        this.triggerUserActive = this.triggerUserActive.bind(this);
         this.handleVideoLoaded = this.handleVideoLoaded.bind(this);
         this.hardSkip = this.hardSkip.bind(this);
 
@@ -38,9 +41,13 @@ class VideoPlayer extends Component {
 
         document.querySelector("meta[name='theme-color']").setAttribute("content", "#000000");
         document.getElementsByTagName("main")[0].style["margin-left"] = "0";
-        document.addEventListener("mousemove", this.throttle(this.triggerUserActive.bind(this), 300));
 
-        this.video.current.addEventListener("loadeddata", this.handleVideoLoaded.bind(this));
+        document.addEventListener("mousemove", this.triggerUserActive);
+        document.addEventListener("scroll", this.triggerUserActive);
+        document.addEventListener("keydown", this.triggerUserActive);
+        document.addEventListener("resize", this.triggerUserActive);
+
+        this.video.current.addEventListener("loadeddata", this.handleVideoLoaded);
 
         const { id } = this.props.match.params;
 
@@ -50,9 +57,18 @@ class VideoPlayer extends Component {
 
     componentWillUnmount() {
         document.querySelector("meta[name='theme-color']").setAttribute("content", "#333333");
-        document.removeEventListener("mousemove");
 
-        this.video.current.removeEventListener("loadeddata");
+        document.removeEventListener("mousemove", this.triggerUserActive);
+        document.removeEventListener("scroll", this.triggerUserActive);
+        document.removeEventListener("keydown", this.triggerUserActive);
+        document.removeEventListener("resize", this.triggerUserActive);
+
+        this.video.current.removeEventListener("loadeddata", this.handleVideoLoaded);
+
+        clearTimeout(this.state.userActiveTimeout);
+        this.body.style.cursor = "default";
+
+        this.player.dispose();
     }
 
     componentDidUpdate(prevProps) {
@@ -67,39 +83,34 @@ class VideoPlayer extends Component {
 
             currentDate.setSeconds(currentDate.getSeconds() + duration);
 
-            const endsAt = currentDate.toLocaleString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
+            const endsAt = currentDate.toLocaleString("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true
+            });
 
             this.setState({endsAt});
         }
 
         // FETCH_MEDIA_EXTRA_INFO_OK
         if (prevProps.extra_media_info.fetched !== this.props.extra_media_info.fetched && !this.props.extra_media_info.error) {
-            const { id } = this.props.extra_media_info.info.versions[0];
+            if (this.props.extra_media_info.info.versions) {
+                const { id } = this.props.extra_media_info.info.versions[0];
 
-            this.player = videojs(this.video.current);
+                this.player = videojs(this.video.current);
 
-            this.player.ready(() => {
-                this.player.src({
-                    src: `//${window.host}:8000/api/v1/stream/${id}/manifest.mpd`,
-                    type: "application/dash+xml"
+                this.player.ready(_ => {
+                    this.player.src({
+                        src: `//${window.host}:8000/api/v1/stream/${id}/manifest.mpd`,
+                        type: "application/dash+xml"
+                    });
                 });
             });
             window.player = this.player;
         }
     }
 
-    throttle(callback, interval) {
-        let enableCall = true;
-
-        return function(...args) {
-            if (!enableCall) return;
-
-            enableCall = false;
-            callback.apply(this, args);
-
-            setTimeout(() => enableCall = true, interval);
-        }
-    }
+    updateEndsAt = (endsAt) => this.setState({endsAt});
 
     hardSkip(skipTo) {
         this.player.currentTime(skipTo);
@@ -110,17 +121,26 @@ class VideoPlayer extends Component {
         this.triggerUserActive();
     }
 
-    triggerUserActive() {
-        this.overlay.current.style.opacity = 1;
-        this.body.style.cursor = "default";
-
-        if (this.state.userActiveTimeout) {
-            clearInterval(this.state.userActiveTimeout);
+    triggerUserActive(e) {
+        if (e?.type === "mousemove") {
+            if (e.x % 15 !== 0) return;
         }
 
-        if (this.video.current.readyState === 4 && !this.video.current.paused) {
+        if (this.overlay.current) {
+            this.overlay.current.style.opacity = 1;
+        }
+
+        if (this.state.userActiveTimeout) {
+            this.body.style.cursor = "unset";
+            clearTimeout(this.state.userActiveTimeout);
+        }
+
+        if (this.video.current?.readyState === 4 && !this.video.current?.paused) {
             const userActiveTimeout = setTimeout(_ => {
-                this.overlay.current.style.opacity = 0;
+                if (this.overlay.current) {
+                    this.overlay.current.style.opacity = 0;
+                }
+
                 this.body.style.cursor = "none";
             }, 3000);
 
@@ -131,8 +151,8 @@ class VideoPlayer extends Component {
     async onCoverLoad(blob) {
         const posterBlob = URL.createObjectURL(blob);
         const color = await Vibrant.from(posterBlob).getPalette();
-
         const root = document.documentElement;
+
         root.style.setProperty("--accent-background", color.Vibrant.getHex());
         root.style.setProperty("--accent-text", color.Vibrant.getTitleTextColor());
     }
@@ -204,27 +224,27 @@ class VideoPlayer extends Component {
                         <p>ENDS AT</p>
                         <p>{this.state.endsAt}</p>
                     </section>
-                    { // ! RE-IMPLEMENT POST-MVP
-                    /* <section ref={this.navLinks} className="video-nav">
-                        <p onClick={(e) => this.navSelect(e, 0)} className="inActive">VERSIONS</p>
-                        <p onClick={(e) => this.navSelect(e, 1)} className="inActive">CAST</p>
-                        <p onClick={(e) => this.navSelect(e, 2)} className="inActive">DIRECTORS</p>
-                        <p onClick={(e) => this.navSelect(e, 3)} className="inActive">MEDIA INFO</p>
-                    </section>
-                    <section ref={this.navPages} className="pages">
-                        <div className="page hidden select-version">
-                            <h3>VERSIONS</h3>
-                        </div>
-                        <div className="page hidden cast">
-                            <h3>CAST</h3>
-                        </div>
-                        <div className="page hidden directors">
-                            <h3>DIRECTORS</h3>
-                        </div>
-                        <div className="page hidden media-info">
-                            <h3>MEDIA INFO</h3>
-                        </div>
-                    </section> */}
+                     { // ! RE-IMPLEMENT POST-MVP
+                     /* <section ref={this.navLinks} className="video-nav">
+                         <p onClick={(e) => this.navSelect(e, 0)} className="inActive">VERSIONS</p>
+                         <p onClick={(e) => this.navSelect(e, 1)} className="inActive">CAST</p>
+                         <p onClick={(e) => this.navSelect(e, 2)} className="inActive">DIRECTORS</p>
+                         <p onClick={(e) => this.navSelect(e, 3)} className="inActive">MEDIA INFO</p>
+                     </section>
+                     <section ref={this.navPages} className="pages">
+                         <div className="page hidden select-version">
+                             <h3>VERSIONS</h3>
+                         </div>
+                         <div className="page hidden cast">
+                             <h3>CAST</h3>
+                         </div>
+                         <div className="page hidden directors">
+                             <h3>DIRECTORS</h3>
+                         </div>
+                         <div className="page hidden media-info">
+                             <h3>MEDIA INFO</h3>
+                         </div>
+                     </section> */}
                 </div>
             </div>
         );

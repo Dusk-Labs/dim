@@ -15,7 +15,7 @@
     }
 
     svg {
-        padding: 0 10px;
+        margin: 0 10px;
     }
 
     .upper {
@@ -33,7 +33,7 @@
         svg {
             font-size: 0.4em;
             color: var(--accent-background);
-            padding: 0 5px;
+            margin: 0 5px;
         }
 
         // S1 . E1 + movie name
@@ -111,9 +111,9 @@
 
         svg {
             @include transition(color 0.1s ease-in-out);
+            cursor: pointer;
 
             &:hover {
-                cursor: pointer;
                 color: var(--accent-background);
             }
         }
@@ -124,7 +124,7 @@
             @include justify-content(flex-start);
 
             svg {
-                padding: 0 10px 0 0;
+                margin: 0 10px 0 0;
             }
         }
 
@@ -140,7 +140,7 @@
             @include justify-content(flex-end);
 
             svg {
-                padding: 0 0 0 10px;
+                margin: 0 0 0 10px;
             }
         }
     }
