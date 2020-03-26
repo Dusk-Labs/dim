@@ -18,9 +18,7 @@
 //! Dim can be ran using docker, by pulling vgarleanu/dim-server, or locally.
 //! If ran locally, make sure PostgreSQL is running with the password for postgres: dimpostgres
 
-#![feature(rustc_private)]
-#![feature(proc_macro_hygiene, decl_macro)]
-#![feature(try_trait)]
+#![feature(rustc_private, proc_macro_hygiene, decl_macro, try_trait, let_chains)]
 
 #[macro_use]
 extern crate diesel;
