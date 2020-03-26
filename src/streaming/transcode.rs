@@ -1,6 +1,7 @@
 use crate::errors;
+use crate::streaming::STREAMING_SESSION;
 use std::collections::HashMap;
-use std::io::Read;
+use std::io::{BufReader, Read};
 use std::process::{Child, Command, Stdio};
 use stoppable_thread::{self, SimpleAtomicBool, StoppableHandle};
 
@@ -9,11 +10,18 @@ const CHUNK_SIZE: u64 = 5;
 pub struct Session {
     pub process_id: String,
     process: StoppableHandle<()>,
+    start_number: u64,
+    stream_type: StreamType,
 }
 
 struct TranscodeHandler {
     id: String,
     process: Child,
+}
+
+enum StreamType {
+    Video,
+    Audio,
 }
 
 pub enum Profile {
@@ -126,6 +134,8 @@ impl<'a> Session {
         Ok(Self {
             process: stoppable_thread::spawn(move |signal| video_process.handle(signal)),
             process_id,
+            start_number,
+            stream_type: StreamType::Video,
         })
     }
     /// Function returns a new transcoding session based on the params passed, it also
@@ -164,6 +174,8 @@ impl<'a> Session {
         Ok(Self {
             process: stoppable_thread::spawn(move |signal| audio_process.handle(signal)),
             process_id,
+            start_number,
+            stream_type: StreamType::Audio,
         })
     }
 
@@ -223,6 +235,33 @@ impl<'a> Session {
     pub fn join(self) {
         let _ = self.process.stop().join().unwrap();
     }
+
+    /// Method does some math magic to guess if a chunk has been fully written by ffmpeg yet
+    pub fn is_chunk_done(&self, chunk_num: u64) -> bool {
+        let frame = |k: &str| -> Result<u64, std::option::NoneError> {
+            {
+                let session = STREAMING_SESSION.lock().unwrap();
+                Ok(session
+                    .get(&self.process_id)?
+                    .get(k)?
+                    .parse::<u64>()
+                    .unwrap_or(0))
+            }
+        };
+
+        match self.stream_type {
+            StreamType::Audio => {
+                let current_ms =
+                    frame("out_time_ms").unwrap_or(0) / 5000 + (self.start_number * 5000);
+                return current_ms > (chunk_num + 1) * 5000;
+            }
+            StreamType::Video => {
+                let current_chunk = frame("frame").unwrap_or(0) / (5 * 24) + self.start_number;
+
+                return current_chunk > chunk_num + 1;
+            }
+        }
+    }
 }
 
 impl TranscodeHandler {
@@ -231,8 +270,6 @@ impl TranscodeHandler {
     }
 
     fn handle(&mut self, signal: &SimpleAtomicBool) {
-        use crate::streaming::STREAMING_SESSION;
-        use std::io::BufReader;
         let mut stdio = BufReader::new(self.process.stdout.take().unwrap());
         let mut map: HashMap<String, String> = {
             let mut map = HashMap::new();

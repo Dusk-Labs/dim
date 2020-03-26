@@ -19,6 +19,7 @@ macro_rules! which {
 lazy_static! {
     pub static ref FFMPEG_BIN: Box<str> = { which!("utils/ffmpeg") };
     pub static ref FFPROBE_BIN: Box<str> = { which!("utils/ffprobe") };
+    // TODO: Use RwLock instead of Mutex
     pub static ref STREAMING_SESSION: Arc<Mutex<HashMap<String, HashMap<String, String>>>> =
         Arc::new(Mutex::new(HashMap::new()));
 }
