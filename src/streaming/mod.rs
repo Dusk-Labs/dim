@@ -4,7 +4,7 @@ pub mod transcode;
 use lazy_static::lazy_static;
 use std::{
     collections::HashMap,
-    sync::{Arc, Mutex},
+    sync::{Arc, RwLock},
 };
 
 macro_rules! which {
@@ -19,9 +19,8 @@ macro_rules! which {
 lazy_static! {
     pub static ref FFMPEG_BIN: Box<str> = { which!("utils/ffmpeg") };
     pub static ref FFPROBE_BIN: Box<str> = { which!("utils/ffprobe") };
-    // TODO: Use RwLock instead of Mutex
-    pub static ref STREAMING_SESSION: Arc<Mutex<HashMap<String, HashMap<String, String>>>> =
-        Arc::new(Mutex::new(HashMap::new()));
+    pub static ref STREAMING_SESSION: Arc<RwLock<HashMap<String, HashMap<String, String>>>> =
+        Arc::new(RwLock::new(HashMap::new()));
 }
 
 use std::process::Command;
