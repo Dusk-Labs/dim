@@ -18,7 +18,7 @@
 //! Dim can be ran using docker, by pulling vgarleanu/dim-server, or locally.
 //! If ran locally, make sure PostgreSQL is running with the password for postgres: dimpostgres
 
-#![feature(rustc_private, proc_macro_hygiene, decl_macro, try_trait, let_chains)]
+#![feature(rustc_private, proc_macro_hygiene, decl_macro, try_trait)]
 
 #[macro_use]
 extern crate diesel;
@@ -32,12 +32,15 @@ extern crate rust_embed;
 use chrono::Utc;
 use clap::{App, Arg};
 use rocket::config::{ConfigBuilder, Environment, LoggingLevel};
-use slog::Drain;
+use slog::{error, info, o, warn, Drain, Duplicate, Fuse, Logger};
 use slog_async::Async;
 use slog_json::Json as slog_json_default;
 use slog_term::{FullFormat, TermDecorator};
-use std::fs::{create_dir, File};
-use std::sync::Mutex;
+use std::{
+    fs::{create_dir, File},
+    process,
+    sync::Mutex,
+};
 
 pub mod core;
 pub mod errors;
@@ -63,9 +66,9 @@ fn build_logger(_debug: bool) -> slog::Logger {
     let file = File::create(format!("logs/dim-log-{}.log", date_now.to_rfc3339()))
         .expect("Couldnt open log file");
 
-    let json_drain = Mutex::new(slog_json_default::default(file)).map(slog::Fuse);
+    let json_drain = Mutex::new(slog_json_default::default(file)).map(Fuse);
 
-    return slog::Logger::root(slog::Duplicate::new(drain, json_drain).fuse(), slog::o!());
+    return Logger::root(Duplicate::new(drain, json_drain).fuse(), o!());
 }
 
 fn main() {
@@ -112,24 +115,24 @@ fn main() {
         let mut bucket: Vec<Box<str>> = Vec::new();
         if let Err(why) = streaming::ffcheck(&mut bucket) {
             eprintln!("Could not find: {}", why);
-            slog::error!(logger, "Could not find: {}", why);
-            std::process::exit(1);
+            error!(logger, "Could not find: {}", why);
+            process::exit(1);
         }
 
         for item in bucket.iter() {
-            slog::info!(logger, "\n{}", item);
+            info!(logger, "\n{}", item);
         }
     }
 
-    slog::info!(logger, "Starting the WS service on port 3012");
+    info!(logger, "Starting the WS service on port 3012");
     let event_tx = core::start_event_server(logger.clone(), "0.0.0.0:3012");
 
     if !matches.is_present("no-scanners") {
-        slog::info!(logger, "Transposing scanners from the netherworld...");
+        info!(logger, "Transposing scanners from the netherworld...");
         core::run_scanners(logger.clone(), event_tx.clone());
     }
 
-    // By default rocket starts on port 8000, maybe we should have it be default 8000 but accept a
+    // NOTE: By default rocket starts on port 8000, maybe we should have it be default 8000 but accept a
     // custom port over cmd args?
     let env = if cfg!(debug_assertions) {
         Environment::Development
@@ -155,14 +158,14 @@ fn main() {
     if let Some(cert) = matches.value_of("ssl-cert") {
         if let Some(key) = matches.value_of("priv-key") {
             let _ = rocket_config.set_tls(cert, key).map_or_else(
-                |e| slog::info!(logger, "Disabling SSL because {:?}", e),
-                |_| slog::info!(logger, "Enabled SSL... Standby for launch"),
+                |e| info!(logger, "Disabling SSL because {:?}", e),
+                |_| info!(logger, "Enabled SSL... Standby for launch"),
             );
         }
     } else {
-        slog::warn!(logger, "Disabling SSL explicitly...");
+        warn!(logger, "Disabling SSL explicitly...");
     }
 
-    slog::info!(logger, "Summoning Dim using the {} spell...", VERSION);
+    info!(logger, "Summoning Dim using the {} spell...", VERSION);
     core::launch(logger, event_tx, rocket_config);
 }
