@@ -240,7 +240,7 @@ impl<'a> Session {
     pub fn is_chunk_done(&self, chunk_num: u64) -> bool {
         let frame = |k: &str| -> Result<u64, std::option::NoneError> {
             {
-                let session = STREAMING_SESSION.lock().unwrap();
+                let session = STREAMING_SESSION.read().unwrap();
                 Ok(session
                     .get(&self.process_id)?
                     .get(k)?
@@ -306,7 +306,7 @@ impl TranscodeHandler {
             }
 
             {
-                let mut lock = STREAMING_SESSION.lock().unwrap();
+                let mut lock = STREAMING_SESSION.write().unwrap();
                 let _ = lock.insert(self.id.clone(), map.clone());
             }
 
@@ -320,7 +320,7 @@ impl TranscodeHandler {
         let _ = self.process.kill();
         let _ = self.process.wait();
 
-        let mut lock = STREAMING_SESSION.lock().unwrap();
+        let mut lock = STREAMING_SESSION.write().unwrap();
         let _ = lock.remove(&self.id);
     }
 }
