@@ -1,9 +1,12 @@
-use crate::errors;
-use crate::streaming::STREAMING_SESSION;
-use std::collections::HashMap;
-use std::io::{BufReader, Read};
-use std::process::{Child, Command, Stdio};
+use crate::{errors, streaming::STREAMING_SESSION};
+use std::{
+    collections::HashMap,
+    fs,
+    io::{BufReader, Read},
+    process::{Child, Command, Stdio},
+};
 use stoppable_thread::{self, SimpleAtomicBool, StoppableHandle};
+use uuid::Uuid;
 
 const CHUNK_SIZE: u64 = 5;
 
@@ -33,7 +36,7 @@ pub enum Profile {
 }
 
 impl Profile {
-    fn to_params(self) -> (Vec<&'static str>, &'static str) {
+    fn to_params(&self) -> (Vec<&'static str>, &'static str) {
         match self {
             Self::Direct => (vec!["-c:0", "copy"], "direct"),
             Self::High => (
@@ -102,13 +105,10 @@ impl<'a> Session {
         let file = format!("file://{}", file);
         let profile_args = profile.to_params();
 
-        let _ = std::fs::create_dir_all(format!("{}/video/{}", outdir.clone(), profile_args.1));
+        let _ = fs::create_dir_all(format!("{}/video/{}", outdir.clone(), profile_args.1));
 
-        let mut video_args = Self::build_video(
-            string_to_static_str(file.clone()),
-            start_number,
-            profile_args.0,
-        );
+        let mut video_args =
+            Self::build_video(string_to_static_str(file), start_number, profile_args.0);
 
         video_args.push("-hls_segment_filename");
         video_args.push(string_to_static_str(format!(
@@ -127,7 +127,7 @@ impl<'a> Session {
 
         println!("{:?}", video_args);
 
-        let process_id = uuid::Uuid::new_v4().to_hyphenated().to_string();
+        let process_id = Uuid::new_v4().to_hyphenated().to_string();
 
         let mut video_process = TranscodeHandler::new(process_id.clone(), video_process.spawn()?);
 
@@ -147,8 +147,8 @@ impl<'a> Session {
     ) -> Result<Self, errors::StreamingErrors> {
         let file = format!("file://{}", file);
 
-        let _ = std::fs::create_dir_all(format!("{}/audio/120kb", outdir.clone()));
-        let mut audio_args = Self::build_audio(string_to_static_str(file.clone()), start_number);
+        let _ = fs::create_dir_all(format!("{}/audio/120kb", outdir.clone()));
+        let mut audio_args = Self::build_audio(string_to_static_str(file), start_number);
 
         audio_args.push("-hls_segment_filename");
         audio_args.push(string_to_static_str(format!(
@@ -167,7 +167,7 @@ impl<'a> Session {
 
         println!("{:?}", audio_args);
 
-        let process_id = uuid::Uuid::new_v4().to_hyphenated().to_string();
+        let process_id = Uuid::new_v4().to_hyphenated().to_string();
 
         let mut audio_process = TranscodeHandler::new(process_id.clone(), audio_process.spawn()?);
 
@@ -233,7 +233,7 @@ impl<'a> Session {
     }
 
     pub fn join(self) {
-        let _ = self.process.stop().join().unwrap();
+        let _ = self.process.stop().join();
     }
 
     /// Method does some math magic to guess if a chunk has been fully written by ffmpeg yet
@@ -251,14 +251,15 @@ impl<'a> Session {
 
         match self.stream_type {
             StreamType::Audio => {
-                let current_ms =
-                    frame("out_time_ms").unwrap_or(0) / 5000 + (self.start_number * 5000);
-                return current_ms > (chunk_num + 1) * 5000;
+                let current_ms = frame("out_time_ms").unwrap_or(0) / (CHUNK_SIZE * 1000)
+                    + (self.start_number * (CHUNK_SIZE * 1000));
+                 current_ms > (chunk_num + 1) * 5000
             }
             StreamType::Video => {
-                let current_chunk = frame("frame").unwrap_or(0) / (5 * 24) + self.start_number;
+                let current_chunk =
+                    frame("frame").unwrap_or(0) / (CHUNK_SIZE * 24) + self.start_number;
 
-                return current_chunk > chunk_num + 1;
+                 current_chunk > chunk_num + 1
             }
         }
     }

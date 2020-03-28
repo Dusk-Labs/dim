@@ -31,23 +31,21 @@ use std::process::Command;
 /// onto the provided `bucket`.
 ///
 /// # Arguments
-/// - `bucket` - a `Vec<Box<str>>` to push the commands stdout's onto
+/// * `bucket` - a `Vec<Box<str>>` to push the commands stdout's onto
 ///
 /// # Example
 /// ```
 /// use streamer::ffcheck;
 ///
-/// fn main() {
-///     let mut bucket: Vec<Box<str>> = Vec::new();
-///     if let Err(why) = ffcheck(&mut bucket) {
-///         eprintln!("Could not find: {}", why);
-///         std::process::exit(1);
-///     }
-///
-///     for item in bucket.iter() {
-///         println!("\n{}", item);
-///     }    
+/// let mut bucket: Vec<Box<str>> = Vec::new();
+/// if let Err(why) = ffcheck(&mut bucket) {
+///     eprintln!("Could not find: {}", why);
+///     std::process::exit(1);
 /// }
+///
+/// for item in bucket.iter() {
+///     println!("\n{}", item);
+/// }    
 /// ```
 pub fn ffcheck<'a>(bucket: &'a mut Vec<Box<str>>) -> Result<(), Box<&str>> {
     for program in ["utils/ffmpeg", "utils/ffprobe"].iter() {
