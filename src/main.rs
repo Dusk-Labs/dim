@@ -68,7 +68,7 @@ fn build_logger(_debug: bool) -> slog::Logger {
 
     let json_drain = Mutex::new(slog_json_default::default(file)).map(Fuse);
 
-    return Logger::root(Duplicate::new(drain, json_drain).fuse(), o!());
+    Logger::root(Duplicate::new(drain, json_drain).fuse(), o!())
 }
 
 fn main() {
@@ -157,7 +157,7 @@ fn main() {
 
     if let Some(cert) = matches.value_of("ssl-cert") {
         if let Some(key) = matches.value_of("priv-key") {
-            let _ = rocket_config.set_tls(cert, key).map_or_else(
+            rocket_config.set_tls(cert, key).map_or_else(
                 |e| info!(logger, "Disabling SSL because {:?}", e),
                 |_| info!(logger, "Enabled SSL... Standby for launch"),
             );

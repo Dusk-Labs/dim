@@ -1,7 +1,10 @@
 use super::APIExec;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, VecDeque};
-use std::sync::{Arc, Mutex};
+use std::{
+    collections::{HashMap, VecDeque},
+    fmt,
+    sync::{Arc, Mutex},
+};
 
 type CacheType = Arc<Mutex<HashMap<(String, Option<i32>, MediaType), SearchResult>>>;
 type GenreCache = Arc<Mutex<HashMap<MediaType, GenreWrapper>>>;
@@ -81,11 +84,11 @@ pub struct Genre {
     pub name: String,
 }
 
-impl MediaType {
-    pub fn to_string(self) -> String {
+impl fmt::Display for MediaType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            MediaType::Movie => "movie".to_string(),
-            MediaType::Tv => "tv".to_string(),
+            MediaType::Movie => write!(f, "movie"),
+            MediaType::Tv => write!(f, "tv"),
         }
     }
 }
