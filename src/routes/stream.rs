@@ -175,6 +175,8 @@ pub fn return_static(
     {
         let lock = STREAMS.read().unwrap();
 
+        // TODO: Mathematically determine if we are gonna get a chunk within the next 1.5k,
+        // otherwise start a new stream.
         // If we are currently transcoding spin till a chunk is ready
         if let Some(session) = lock.get(&(id, unique_id.clone())) {
             for _ in 0..200 {
