@@ -1,15 +1,15 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import * as Vibrant from "node-vibrant";
-
-import "dashjs";
-import "videojs-contrib-dash";
 import videojs from "video.js";
+import "videojs-contrib-dash";
+import "dashjs";
 
 import { fetchMediaInfo, fetchExtraMediaInfo } from "../actions/cardActions.js";
 
-import LazyImage from "../helpers/LazyImage.jsx";
+import WithOutSidebarLayout from "../Layouts/WithOutSidebarLayout.jsx";
 import VideoPlayerControls from "./VideoPlayerControls.jsx";
+import LazyImage from "../Helpers/LazyImage.jsx";
 
 import "./VideoPlayer.scss";
 
@@ -40,7 +40,6 @@ class VideoPlayer extends Component {
         document.title = "Dim - Playing";
 
         document.querySelector("meta[name='theme-color']").setAttribute("content", "#000000");
-        document.getElementsByTagName("main")[0].style["margin-left"] = "0";
 
         document.addEventListener("mousemove", this.triggerUserActive);
         document.addEventListener("scroll", this.triggerUserActive);
@@ -206,7 +205,7 @@ class VideoPlayer extends Component {
             document.title = `Dim - Playing '${name}'`;
         }
 
-        return (
+        const videoPlayer = (
             <div className="video-wrapper">
                 <video ref={this.video}/>
                 <div className="overlay" ref={this.overlay}>
@@ -249,6 +248,12 @@ class VideoPlayer extends Component {
                 </div>
             </div>
         );
+
+        return (
+            <WithOutSidebarLayout>
+                {videoPlayer}
+            </WithOutSidebarLayout>
+        )
     }
 }
 

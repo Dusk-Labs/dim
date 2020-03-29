@@ -3,8 +3,6 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import LazyImage from "../helpers/LazyImage.jsx";
-
 import {
     fetchMediaInfo,
     fetchExtraMediaInfo,
@@ -12,8 +10,12 @@ import {
     fetchMediaSeasonEpisodes
 } from "../actions/cardActions.js";
 
-import "./MediaPage.scss";
-class MediaPage extends Component {
+import MainLayout from "../Layouts/MainLayout.jsx";
+import LazyImage from "../Helpers/LazyImage.jsx";
+
+import "./Media.scss";
+
+class Media extends Component {
     constructor(props) {
         super(props);
 
@@ -247,7 +249,7 @@ class MediaPage extends Component {
             }
         }
 
-        return (
+        const media = (
             <div className="media-page">
                 <div className="backdrop">
                     {backdrop}
@@ -275,6 +277,12 @@ class MediaPage extends Component {
                 }
             </div>
         );
+
+        return (
+            <MainLayout>
+                {media}
+            </MainLayout>
+        )
     }
 }
 
@@ -291,4 +299,4 @@ const mapActionsToProps = {
     fetchMediaSeasonEpisodes
 };
 
-export default connect(mapStateToProps, mapActionsToProps)(MediaPage);
+export default connect(mapStateToProps, mapActionsToProps)(Media);

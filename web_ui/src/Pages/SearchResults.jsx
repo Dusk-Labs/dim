@@ -1,8 +1,10 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 
 import { search } from "../actions/searchActions.js";
-import PropCardList from "./PropCardList.jsx";
+
+import MainLayout from "../Layouts/MainLayout.jsx";
+import PropCardList from "../Components/PropCardList.jsx";
 
 class SearchResults extends Component {
     componentDidMount() {
@@ -35,7 +37,11 @@ class SearchResults extends Component {
     }
 
     render() {
-        return <PropCardList cards={this.props.searchList}/>
+        return (
+            <MainLayout>
+                <PropCardList cards={this.props.searchList}/>
+            </MainLayout>
+        )
     }
 }
 
