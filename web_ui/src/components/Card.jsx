@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import Vibrant from "node-vibrant";
 
 import CardPopup from "./CardPopup.jsx";
-import LazyImage from "../helpers/LazyImage.jsx";
+import LazyImage from "../Helpers/LazyImage.jsx";
 
 import "./Card.scss";
 

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import Banner from "../components/Banner.jsx";
+import Banner from "./Banner.jsx";
 import { fetchBanners } from "../actions/bannerActions.js";
 
 import "./BannerPage.scss";

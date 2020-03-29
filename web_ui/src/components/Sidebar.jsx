@@ -3,17 +3,17 @@ import { NavLink } from "react-router-dom";
 import Modal from "react-modal";
 import { connect } from "react-redux";
 import { Scrollbar } from "react-scrollbars-custom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { fetchLibraries, delLibrary, handleWsNewLibrary, handleWsDelLibrary } from "../actions/libraryActions.js";
 import { fetchUser } from "../actions/userActions.js";
 import { logout } from "../actions/authActions.js";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import SidebarSearch from "../helpers/SidebarSearch.jsx";
-import SidebarIcon from "../helpers/SidebarIcon.jsx";
-import LazyImage from "../helpers/LazyImage.jsx";
-import NewLibraryModal from "../helpers/NewLibraryModal.jsx";
-import ConfirmationBox from "../helpers/ConfirmationBox.jsx";
+import SidebarSearch from "../Helpers/SidebarSearch.jsx";
+import SidebarIcon from "../Helpers/SidebarIcon.jsx";
+import LazyImage from "../Helpers/LazyImage.jsx";
+import NewLibraryModal from "../Helpers/NewLibraryModal.jsx";
+import ConfirmationBox from "../Helpers/ConfirmationBox.jsx";
 
 import "./Sidebar.scss";
 
