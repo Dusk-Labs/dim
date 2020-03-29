@@ -5,8 +5,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { authenticate, register, checkAdminExists } from "../actions/authActions.js";
 
-import WithOutSidebarLayout from "../Layouts/WithOutSidebarLayout.jsx";
-
 import "./AuthForm.scss";
 
 class Register extends Component {
@@ -120,7 +118,7 @@ class Register extends Component {
             console.log("[AUTH] REGISTER ERROR", this.props.auth);
         }
 
-        const registerForm = (
+        return (
             <div className="auth-form">
                 <header>
                     <h1>Welcome to Dim</h1>
@@ -191,12 +189,6 @@ class Register extends Component {
                 </footer>
             </div>
         );
-
-        return (
-            <WithOutSidebarLayout>
-                {registerForm}
-            </WithOutSidebarLayout>
-        )
     }
 }
 

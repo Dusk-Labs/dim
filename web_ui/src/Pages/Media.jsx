@@ -10,7 +10,6 @@ import {
     fetchMediaSeasonEpisodes
 } from "../actions/cardActions.js";
 
-import MainLayout from "../Layouts/MainLayout.jsx";
 import LazyImage from "../Helpers/LazyImage.jsx";
 
 import "./Media.scss";
@@ -249,7 +248,7 @@ class Media extends Component {
             }
         }
 
-        const media = (
+        return (
             <div className="media-page">
                 <div className="backdrop">
                     {backdrop}
@@ -277,12 +276,6 @@ class Media extends Component {
                 }
             </div>
         );
-
-        return (
-            <MainLayout>
-                {media}
-            </MainLayout>
-        )
     }
 }
 

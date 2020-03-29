@@ -7,7 +7,6 @@ import "dashjs";
 
 import { fetchMediaInfo, fetchExtraMediaInfo } from "../actions/cardActions.js";
 
-import WithOutSidebarLayout from "../Layouts/WithOutSidebarLayout.jsx";
 import VideoPlayerControls from "./VideoPlayerControls.jsx";
 import LazyImage from "../Helpers/LazyImage.jsx";
 

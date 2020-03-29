@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 
 import { search } from "../actions/searchActions.js";
 
-import MainLayout from "../Layouts/MainLayout.jsx";
 import PropCardList from "../Components/PropCardList.jsx";
 
 class SearchResults extends Component {
@@ -19,29 +18,16 @@ class SearchResults extends Component {
     }
 
     getResults() {
-        const searchURL = new URLSearchParams(this.props.location.search);
+        const { query } = this.props.match.params;
 
-        let params = '';
-
-        // eslint-disable-next-line
-        for (const key of searchURL.keys()) {
-            if (searchURL.get(key) !== undefined) {
-                params += `${key}=${searchURL.get(key)}&`;
-            }
-        }
-
-        if (params.length > 0) {
-            document.title = `Dim - Results for '${searchURL.get("query")}'`;
-            this.props.search(params);
+        if (query.length > 0) {
+            document.title = `Dim - Results for '${query}'`;
+            this.props.search(query);
         }
     }
 
     render() {
-        return (
-            <MainLayout>
-                <PropCardList cards={this.props.searchList}/>
-            </MainLayout>
-        )
+        return <PropCardList cards={this.props.searchList}/>;
     }
 }
 

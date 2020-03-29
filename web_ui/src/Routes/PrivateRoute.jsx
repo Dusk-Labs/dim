@@ -31,9 +31,9 @@ class PrivateRoute extends Component {
 
         // LOGGED IN
 		if (this.props.auth.logged_in && this.props.auth.token && !this.props.auth.error) {
-            const { exact, path, component } = this.props;
+            const { exact, path, render, children } = this.props;
 
-            route = <Route exact={exact} path={path} component={component}/>;
+            route = <Route exact={exact} path={path} render={render} children={children}/>;
         }
 
         // NOT LOGGED IN
