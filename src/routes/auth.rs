@@ -42,16 +42,16 @@ pub fn admin_exists(conn: DbConnection) -> Result<JsonValue, errors::DimError> {
 
 #[post("/register", data = "<new_user>")]
 pub fn register(conn: DbConnection, new_user: Json<Login>) -> Result<JsonValue, errors::AuthError> {
-    let user_count = User::get_all(conn.as_ref())?.len();
+    let users_empty = User::get_all(&conn)?.is_empty();
 
-    if user_count > 0
+    if !users_empty
         && (new_user.invite_token.is_none()
             || !new_user.invite_token_valid(conn.as_ref()).unwrap_or(false))
     {
         return Err(errors::AuthError::NoTokenError);
     }
 
-    let roles = if user_count > 0 {
+    let roles = if !users_empty {
         vec!["user".to_string()]
     } else {
         vec!["owner".to_string()]
@@ -64,7 +64,7 @@ pub fn register(conn: DbConnection, new_user: Json<Login>) -> Result<JsonValue, 
     }
     .insert(conn.as_ref())?;
 
-    if user_count > 0 {
+    if users_empty {
         new_user.invalidate_token(conn.as_ref())?;
     }
 
