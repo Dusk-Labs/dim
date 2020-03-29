@@ -4,7 +4,7 @@ pub mod transcode;
 use lazy_static::lazy_static;
 use std::{
     collections::HashMap,
-    sync::{Arc, Mutex},
+    sync::{Arc, RwLock},
 };
 
 macro_rules! which {
@@ -19,9 +19,8 @@ macro_rules! which {
 lazy_static! {
     pub static ref FFMPEG_BIN: Box<str> = { which!("utils/ffmpeg") };
     pub static ref FFPROBE_BIN: Box<str> = { which!("utils/ffprobe") };
-    // TODO: Use RwLock instead of Mutex
-    pub static ref STREAMING_SESSION: Arc<Mutex<HashMap<String, HashMap<String, String>>>> =
-        Arc::new(Mutex::new(HashMap::new()));
+    pub static ref STREAMING_SESSION: Arc<RwLock<HashMap<String, HashMap<String, String>>>> =
+        Arc::new(RwLock::new(HashMap::new()));
 }
 
 use std::process::Command;
@@ -32,23 +31,21 @@ use std::process::Command;
 /// onto the provided `bucket`.
 ///
 /// # Arguments
-/// - `bucket` - a `Vec<Box<str>>` to push the commands stdout's onto
+/// * `bucket` - a `Vec<Box<str>>` to push the commands stdout's onto
 ///
 /// # Example
 /// ```
 /// use streamer::ffcheck;
 ///
-/// fn main() {
-///     let mut bucket: Vec<Box<str>> = Vec::new();
-///     if let Err(why) = ffcheck(&mut bucket) {
-///         eprintln!("Could not find: {}", why);
-///         std::process::exit(1);
-///     }
-///
-///     for item in bucket.iter() {
-///         println!("\n{}", item);
-///     }    
+/// let mut bucket: Vec<Box<str>> = Vec::new();
+/// if let Err(why) = ffcheck(&mut bucket) {
+///     eprintln!("Could not find: {}", why);
+///     std::process::exit(1);
 /// }
+///
+/// for item in bucket.iter() {
+///     println!("\n{}", item);
+/// }    
 /// ```
 pub fn ffcheck<'a>(bucket: &'a mut Vec<Box<str>>) -> Result<(), Box<&str>> {
     for program in ["utils/ffmpeg", "utils/ffprobe"].iter() {

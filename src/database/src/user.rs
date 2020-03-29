@@ -3,7 +3,7 @@ use diesel::result::Error as DieselError;
 use ring::{digest, pbkdf2};
 use serde::{Deserialize, Serialize};
 
-static PBKDF2_ALG: &'static digest::Algorithm = &digest::SHA256;
+static PBKDF2_ALG: &digest::Algorithm = &digest::SHA256;
 const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
 pub type Credential = [u8; CREDENTIAL_LEN];
 
@@ -48,16 +48,15 @@ pub fn hash(salt: String, s: String) -> String {
 
 pub fn verify(salt: String, password: String, attempted_password: String) -> bool {
     let real_pwd = base64::decode(&password).unwrap();
-    if let Ok(_) = pbkdf2::verify(
+
+    pbkdf2::verify(
         PBKDF2_ALG,
         100_000,
         &salt.as_bytes(),
         attempted_password.as_bytes(),
         real_pwd.as_slice(),
-    ) {
-        return true;
-    }
-    false
+    )
+    .is_ok()
 }
 
 impl User {

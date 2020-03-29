@@ -33,7 +33,7 @@ pub fn whoami(user: Auth) -> JsonValue {
 #[get("/admin_exists")]
 pub fn admin_exists(conn: DbConnection) -> Result<JsonValue, errors::DimError> {
     Ok(json!({
-        "exists": User::get_all(conn.as_ref())?.len() > 0
+        "exists": User::get_all(conn.as_ref())?.is_empty()
     }))
 }
 
