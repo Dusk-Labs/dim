@@ -257,20 +257,19 @@ impl IterativeScanner {
     }
 
     fn insert_tv(&self, orphan: &MediaFile, media: InsertableMedia, search: tmdb_api::Media) {
-        let media_id =
-            Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.clone().as_str())
-                .map_or_else(
-                    |_| {
-                        media
-                            .into_static::<InsertableTVShow>(&self.conn)
-                            .and_then(|x| {
-                                self.push_event(x);
-                                Ok(x)
-                            })
-                            .unwrap()
-                    },
-                    |x| x.id,
-                );
+        let media_id = Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.as_str())
+            .map_or_else(
+                |_| {
+                    media
+                        .into_static::<InsertableTVShow>(&self.conn)
+                        .and_then(|x| {
+                            self.push_event(x);
+                            Ok(x)
+                        })
+                        .unwrap()
+                },
+                |x| x.id,
+            );
 
         if let Some(genres) = search.genres.clone() {
             for genre in genres {
@@ -348,16 +347,15 @@ impl IterativeScanner {
         media: InsertableMedia,
         search: super::tmdb_api::Media,
     ) {
-        let media_id =
-            Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.clone().as_str())
-                .map_or_else(
-                    |_| {
-                        media
-                            .into_streamable::<InsertableMovie>(&self.conn, None)
-                            .unwrap()
-                    },
-                    |x| x.id,
-                );
+        let media_id = Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.as_str())
+            .map_or_else(
+                |_| {
+                    media
+                        .into_streamable::<InsertableMovie>(&self.conn, None)
+                        .unwrap()
+                },
+                |x| x.id,
+            );
 
         // TODO: use .map instead of if let
         if let Some(genres) = search.genres {

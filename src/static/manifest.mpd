@@ -14,7 +14,7 @@
 					id="5000kb"
 					mimeType="video/mp4"
                     codecs="avc1.640029" height="720" bandwidth="5000000">
-                <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/video/5000kb/init.mp4" media="chunks/video/5000kb/$Number$.m4s" startNumber="0">
+            <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/{}/video/5000kb/init.mp4" media="chunks/{}/video/5000kb/$Number$.m4s" startNumber="0">
 			    </SegmentTemplate>
 			</Representation>
 		</AdaptationSet>
@@ -22,7 +22,7 @@
 			<Representation
                     id="audio"
 					mimeType="audio/mp4" codecs="mp4a.40.2" bandwidth="120000">
-                <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/audio/120kb/init.mp4" media="chunks/audio/120kb/$Number$.m4s" startNumber="0">
+            <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/{}/audio/120kb/init.mp4" media="chunks/{}/audio/120kb/$Number$.m4s" startNumber="0">
 			    </SegmentTemplate>
 			</Representation>
 		</AdaptationSet>
