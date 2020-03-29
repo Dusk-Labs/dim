@@ -139,7 +139,7 @@ pub fn get_all_library(
         .filter_map(|x| construct_standard(&conn, x, &user, false).ok())
         .collect::<Vec<JsonValue>>();
 
-    result.insert(lib.name.clone(), out);
+    result.insert(lib.name, out);
 
     Ok(Json(result))
 }

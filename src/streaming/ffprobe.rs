@@ -1,6 +1,5 @@
-use std::path::PathBuf;
-use std::process::Command;
-use std::str;
+use std::{path::PathBuf, process::Command, str};
+use serde_derive::{Serialize, Deserialize};
 
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct FFPWrapper {
@@ -8,13 +7,13 @@ pub struct FFPWrapper {
     corrupt: Option<bool>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, serde_derive::Serialize, serde_derive::Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct FFPStream {
     streams: Vec<Stream>,
     format: Format,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, serde_derive::Serialize, serde_derive::Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct Stream {
     index: i64,
     codec_name: String,
@@ -39,7 +38,7 @@ struct Stream {
     color_space: Option<String>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, serde_derive::Serialize, serde_derive::Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct Tags {
     language: Option<String>,
     title: Option<String>,
@@ -61,7 +60,7 @@ struct Tags {
     mimetype: Option<String>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, serde_derive::Serialize, serde_derive::Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct Format {
     filename: String,
     nb_streams: i64,
@@ -116,7 +115,7 @@ impl FFProbeCtx {
 impl FFPWrapper {
     pub fn get_bitrate(&self) -> String {
         if let Some(ctx) = self.ffpstream.clone() {
-            return ctx.format.bit_rate.clone();
+            return ctx.format.bit_rate;
         }
         "0".into()
     }
@@ -178,7 +177,7 @@ impl FFPWrapper {
 
     pub fn get_ms(&self) -> Option<u128> {
         if let Some(ctx) = self.ffpstream.clone() {
-            Some((ctx.format.duration.parse::<f64>().unwrap().trunc() * 1000000.0) as u128)
+            Some((ctx.format.duration.parse::<f64>().unwrap().trunc() * 1_000_000.0) as u128)
         } else {
             None
         }

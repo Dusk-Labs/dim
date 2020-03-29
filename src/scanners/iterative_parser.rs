@@ -88,9 +88,8 @@ impl IterativeScanner {
         let logger = self.log.clone();
         let lib_id = self.lib.id;
         files.par_iter().for_each(|x| {
-            let _ = mount_file(logger.clone(), x.clone(), lib_id).map_err(|e| {
-                slog::error!(logger, "Failed mounting file into the database: {:?}", e)
-            });
+            let _ = mount_file(logger.clone(), x.clone(), lib_id)
+                .map_err(|e| error!(logger, "Failed mounting file into the database: {:?}", e));
         });
 
         self.fix_orphans();
@@ -113,7 +112,7 @@ impl IterativeScanner {
         let orphans = match MediaFile::get_by_lib(&self.conn, &self.lib) {
             Ok(x) => x,
             Err(e) => {
-                slog::error!(self.log, "Database fucked up somehow: {:?}", e);
+                error!(self.log, "Database fucked up somehow: {:?}", e);
                 return;
             }
         };
@@ -156,11 +155,9 @@ impl IterativeScanner {
         let mediafiles = match MediaFile::get_of_media(&self.conn, &media) {
             Ok(x) => x,
             Err(e) => {
-                slog::error!(
+                error!(
                     self.log,
-                    "Failed to get mediafiles of media, media_id: {} e: {:?}",
-                    media.id,
-                    e
+                    "Failed to get mediafiles of media, media_id: {} e: {:?}", media.id, e
                 );
                 return;
             }
@@ -176,10 +173,9 @@ impl IterativeScanner {
 
         if let Some(result) = tmdb_session.search_by_id(tmdb_id, media_type) {
             let ret = Media::delete(&self.conn, tmdb_id);
-            slog::info!(
+            info!(
                 self.log,
-                "Deleting media for a full rebase match, delete ret: {:?}",
-                ret
+                "Deleting media for a full rebase match, delete ret: {:?}", ret
             );
             for mediafile in mediafiles {
                 self.match_media_to_tmdb(result.clone(), &mediafile, media_type);
@@ -203,7 +199,7 @@ impl IterativeScanner {
         };
 
         if let Some(result) = tmdb_session.search_by_id(tmdb_id, media_type) {
-            self.match_media_to_tmdb(result.clone(), &media, media_type);
+            self.match_media_to_tmdb(result, &media, media_type);
         }
     }
 
@@ -298,7 +294,7 @@ impl IterativeScanner {
                         .poster_path
                         .clone()
                         .map(|s| format!("https://images.tmdb.org/t/p/original/{}", s))
-                        .unwrap_or("".into()),
+                        .unwrap_or_else(|| "".into()),
                 };
 
                 season.insert(&self.conn, media_id).unwrap()
@@ -320,12 +316,9 @@ impl IterativeScanner {
                     seasonid,
                     media: InsertableMedia {
                         library_id: orphan.library_id,
-                        name: format!(
-                            "{}",
-                            search_ep
-                                .name
-                                .unwrap_or(orphan.episode.unwrap_or(0).to_string())
-                        ),
+                        name: search_ep
+                            .name
+                            .unwrap_or_else(|| orphan.episode.unwrap_or(0).to_string()),
                         added: Utc::now().to_string(),
                         media_type: MediaType::Episode,
                         description: search_ep.overview,
