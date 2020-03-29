@@ -9,7 +9,7 @@
     padding: 50px;
     top: 50%;
     left: 50%;
-    height: 600px;
+    overflow-y: auto;
     width: 550px;
     background: #333333;
     display: flex;
@@ -34,6 +34,7 @@
         @include justify-content(center);
         @include align-items(center);
         @include flex-direction(column);
+        margin: 2rem 0;
         border-radius: 10px;
         width: 100%;
 
