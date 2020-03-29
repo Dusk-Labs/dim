@@ -40,7 +40,6 @@ pub fn get_media_by_id(
 ) -> Result<JsonValue, errors::DimError> {
     let data = Media::get(conn.as_ref(), id)?;
 
-    // FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
     let duration = match MediaFile::get_of_media(conn.as_ref(), &data) {
         Ok(mut x) => x.pop()?.duration?,
         Err(_) => 0,
@@ -67,6 +66,7 @@ pub fn get_media_by_id(
         }
     };
 
+    // FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
     Ok(json!({
         "id": data.id,
         "library_id": data.library_id,
@@ -137,6 +137,7 @@ fn get_for_episode(
     let media_files = MediaFile::get_of_media(conn.as_ref(), &media.media)?;
 
     Ok(json!({
+        "id": media.id,
         "progress": Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), media.id).unwrap_or(0),
         "episode": media.episode,
         "description": media.media.description,
@@ -298,7 +299,6 @@ pub fn rematch_mediafile(
 
 /// Method mapped to `POST /api/v1/media/<id>/progress` is used to map progress for a certain media
 /// to the user. This is useful for remembering progress for a movie etc.
-///
 #[post("/<id>/progress?<offset>")]
 pub fn map_progress(
     conn: DbConnection,
