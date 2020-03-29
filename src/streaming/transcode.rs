@@ -122,7 +122,7 @@ impl<'a> Session {
         let mut video_process = Command::new(super::FFMPEG_BIN.as_ref());
         video_process
             .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
+            .stderr(Stdio::null())
             .args(video_args.as_slice());
 
         println!("{:?}", video_args);
@@ -163,6 +163,7 @@ impl<'a> Session {
         let mut audio_process = Command::new(super::FFMPEG_BIN.as_ref());
         audio_process
             .stdout(Stdio::piped())
+            .stderr(Stdio::null())
             .args(audio_args.as_slice());
 
         println!("{:?}", audio_args);
@@ -253,13 +254,13 @@ impl<'a> Session {
             StreamType::Audio => {
                 let current_ms = frame("out_time_ms").unwrap_or(0) / (CHUNK_SIZE * 1000)
                     + (self.start_number * (CHUNK_SIZE * 1000));
-                 current_ms > (chunk_num + 1) * 5000
+                current_ms > (chunk_num + 1) * 5000
             }
             StreamType::Video => {
                 let current_chunk =
                     frame("frame").unwrap_or(0) / (CHUNK_SIZE * 24) + self.start_number;
 
-                 current_chunk > chunk_num + 1
+                current_chunk > chunk_num
             }
         }
     }
