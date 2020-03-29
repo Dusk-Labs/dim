@@ -9,12 +9,17 @@ use stoppable_thread::{self, SimpleAtomicBool, StoppableHandle};
 use uuid::Uuid;
 
 const CHUNK_SIZE: u64 = 5;
+/// Represents how many chunks we encode before we require a timeout reset.
+/// Basically if within MAX_CHUNKS_AHEAD we do not get a timeout reset we kill the stream.
+/// This can be tuned
+const MAX_CHUNKS_AHEAD: u64 = 20;
 
 pub struct Session {
     pub process_id: String,
     process: StoppableHandle<()>,
     start_number: u64,
     stream_type: StreamType,
+    last_chunk: u64,
 }
 
 struct TranscodeHandler {
@@ -105,7 +110,7 @@ impl<'a> Session {
         let file = format!("file://{}", file);
         let profile_args = profile.to_params();
 
-        let _ = fs::create_dir_all(format!("{}/video/{}", outdir.clone(), profile_args.1));
+        let _ = fs::create_dir_all(format!("{}/video/{}", outdir, profile_args.1));
 
         let mut video_args =
             Self::build_video(string_to_static_str(file), start_number, profile_args.0);
@@ -125,7 +130,7 @@ impl<'a> Session {
             .stderr(Stdio::null())
             .args(video_args.as_slice());
 
-        println!("{:?}", video_args);
+        println!("Starting video stream with args: {:?}", video_args);
 
         let process_id = Uuid::new_v4().to_hyphenated().to_string();
 
@@ -135,6 +140,7 @@ impl<'a> Session {
             process: stoppable_thread::spawn(move |signal| video_process.handle(signal)),
             process_id,
             start_number,
+            last_chunk: start_number,
             stream_type: StreamType::Video,
         })
     }
@@ -147,7 +153,7 @@ impl<'a> Session {
     ) -> Result<Self, errors::StreamingErrors> {
         let file = format!("file://{}", file);
 
-        let _ = fs::create_dir_all(format!("{}/audio/120kb", outdir.clone()));
+        let _ = fs::create_dir_all(format!("{}/audio/120kb", outdir));
         let mut audio_args = Self::build_audio(string_to_static_str(file), start_number);
 
         audio_args.push("-hls_segment_filename");
@@ -166,7 +172,7 @@ impl<'a> Session {
             .stderr(Stdio::null())
             .args(audio_args.as_slice());
 
-        println!("{:?}", audio_args);
+        println!("Starting audio stream with args: {:?}", audio_args);
 
         let process_id = Uuid::new_v4().to_hyphenated().to_string();
 
@@ -176,6 +182,7 @@ impl<'a> Session {
             process: stoppable_thread::spawn(move |signal| audio_process.handle(signal)),
             process_id,
             start_number,
+            last_chunk: start_number,
             stream_type: StreamType::Audio,
         })
     }
@@ -237,8 +244,7 @@ impl<'a> Session {
         let _ = self.process.stop().join();
     }
 
-    /// Method does some math magic to guess if a chunk has been fully written by ffmpeg yet
-    pub fn is_chunk_done(&self, chunk_num: u64) -> bool {
+    pub fn current_chunk(&self) -> u64 {
         let frame = |k: &str| -> Result<u64, std::option::NoneError> {
             {
                 let session = STREAMING_SESSION.read().unwrap();
@@ -252,16 +258,30 @@ impl<'a> Session {
 
         match self.stream_type {
             StreamType::Audio => {
-                let current_ms = frame("out_time_ms").unwrap_or(0) / (CHUNK_SIZE * 1000)
-                    + (self.start_number * (CHUNK_SIZE * 1000));
-                current_ms > (chunk_num + 1) * 5000
+                (frame("out_time_ms").unwrap_or(0) / (CHUNK_SIZE * 1000)
+                    + (self.start_number * (CHUNK_SIZE * 1000)))
+                    / 5000
             }
             StreamType::Video => {
-                let current_chunk =
-                    frame("frame").unwrap_or(0) / (CHUNK_SIZE * 24) + self.start_number;
-
-                current_chunk > chunk_num
+                frame("frame").unwrap_or(0) / (CHUNK_SIZE * 24) + self.start_number
             }
+        }
+    }
+
+    /// Method does some math magic to guess if a chunk has been fully written by ffmpeg yet
+    pub fn is_chunk_done(&self, chunk_num: u64) -> bool {
+        self.current_chunk() > chunk_num
+    }
+
+    pub fn is_timeout(&self) -> bool {
+        self.current_chunk() >= self.last_chunk + MAX_CHUNKS_AHEAD
+    }
+
+    pub fn reset_timeout(&mut self, last_requested: u64) {
+        // NOTE: experiment between setting last_chunk to current chunk or taking in the last chunk
+        // requested
+        if self.current_chunk() < last_requested + MAX_CHUNKS_AHEAD {
+            self.last_chunk = self.current_chunk();
         }
     }
 }
