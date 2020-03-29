@@ -299,6 +299,10 @@ pub fn rematch_mediafile(
 
 /// Method mapped to `POST /api/v1/media/<id>/progress` is used to map progress for a certain media
 /// to the user. This is useful for remembering progress for a movie etc.
+///
+/// # Arguments
+/// * `conn` - database connection
+/// * `id` -
 #[post("/<id>/progress?<offset>")]
 pub fn map_progress(
     conn: DbConnection,
@@ -306,6 +310,6 @@ pub fn map_progress(
     offset: i32,
     user: Auth,
 ) -> Result<Status, errors::DimError> {
-    let _ = Progress::set(conn.as_ref(), offset, user.0.claims.get_user(), id)?;
+    Progress::set(conn.as_ref(), offset, user.0.claims.get_user(), id)?;
     Ok(Status::Ok)
 }

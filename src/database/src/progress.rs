@@ -52,4 +52,18 @@ impl Progress {
             Err(e) => Err(e),
         }
     }
+
+    pub fn get_total_time_spent_watching(
+        conn: &diesel::PgConnection,
+        uid: String,
+    ) -> Result<i32, DieselError> {
+        use crate::schema::progress::dsl::*;
+
+        Ok(progress
+            .filter(user_id.eq(uid))
+            .select(delta)
+            .load::<i32>(conn)?
+            .iter()
+            .sum())
+    }
 }
