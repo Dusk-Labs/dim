@@ -1,165 +1,62 @@
-import React, { Component, Fragment } from "react";
-import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+import React from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { connect } from "react-redux";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { far } from "@fortawesome/free-regular-svg-icons";
 
-import Sidebar from "./layouts/Sidebar.jsx";
-import CardList from "./layouts/CardList.jsx";
-import VideoPlayer from "./layouts/VideoPlayer.jsx";
-import SearchResults from "./layouts/SearchResults";
-import BannerPage from "./components/BannerPage.jsx";
-import MediaPage from "./layouts/MediaPage.jsx";
-import Login from "./layouts/Login.jsx";
-import Register from "./layouts/Register.jsx";
+import PrivateRoute from "./Routes/PrivateRoute.jsx";
+
+import Dashboard from "./Pages/Dashboard.jsx";
+import Library from "./Pages/Library.jsx";
+import Media from "./Pages/Media.jsx";
+import VideoPlayer from "./Pages/VideoPlayer.jsx";
+import SearchResults from "./Pages/SearchResults";
+import Login from "./Pages/Login.jsx";
+import Register from "./Pages/Register.jsx";
+import Preferences from "./Pages/Preferences.jsx";
 
 import { updateAuthToken } from "./actions/authActions.js";
 
-import './App.scss';
+import "./App.scss";
+
+import MainLayout from "./Layouts/MainLayout.jsx";
+import WithOutSidebarLayout from "./Layouts/WithOutSidebarLayout.jsx";
 
 library.add(fas, far);
 
 // quick hack to get proper requests
 window.host = window.location.hostname;
+window.host = "86.21.150.167";
 
-class App extends Component {
-	componentDidMount() {
-		const token = document.cookie.split("=")[1];
+const routes = (
+	<Switch>
+		<Route exact path="/login" component={Login}/>
+		<Route exact path="/register" component={Register}/>
+		<PrivateRoute exact path="/" component={Dashboard}/>
+		<PrivateRoute exact path="/library/:id" component={Library}/>
+		<PrivateRoute exact path="/search" component={SearchResults}/>
+		<PrivateRoute exact path="/media/:id" component={Media}/>
+		<PrivateRoute exact path="/preferences" component={Preferences}/>
+		<PrivateRoute exact path="/play/:id" component={VideoPlayer}/>
+	</Switch>
+);
 
-        // FIXME: Weird bug where the cookies on being cleared still holds a token with the value "null"
-        //        Someone needs to track this down
-		if (token && token !== "null") {
-			this.props.updateAuthToken(token);
-		}
-	}
-
-	dashboard() {
-		document.title = "Dim - Dashboard";
-
-		return (
-			<Fragment>
-				<Sidebar/>
-				<main>
-					<BannerPage/>
-					<CardList path={`//${window.host}:8000/api/v1/dashboard`}/>
-				</main>
-			</Fragment>
-		);
-	}
-
-	library(props) {
-		return (
-			<Fragment>
-				<Sidebar/>
-				<main>
-					<CardList path={`//${window.host}:8000/api/v1/library/${props.match.params.id}/media`}/>
-				</main>
-			</Fragment>
-		);
-	}
-
-	search(props) {
-		return (
-			<Fragment>
-				<Sidebar/>
-				<main>
-					<SearchResults {...props}/>
-				</main>
-			</Fragment>
-		);
-	}
-
-	play(props) {
-		return (
-			<main className="full">
-				<VideoPlayer {...props}/>
-			</main>
-		);
-	}
-
-	media(props) {
-		return (
-			<Fragment>
-				<Sidebar/>
-				<main>
-					<MediaPage {...props}/>
-				</main>
-			</Fragment>
-		);
-	}
-
-	login() {
-		return (
-			<main className="full">
-				<Login/>
-			</main>
-		);
-	}
-
-	register() {
-		return (
-			<main className="full">
-				<Register/>
-			</main>
-		);
-	}
-
-	componentDidUpdate(prevProps) {
-		if (prevProps.auth.logged_in !== this.props.auth.logged_in) {
-			const token = document.cookie.split("=")[1];
-
-			if (!this.props.auth.error && !token) {
-				const dateExpires = new Date();
-				dateExpires.setTime(dateExpires.getTime() + 604800000);
-				document.cookie = `token=${this.props.auth.token};expires=${dateExpires.toGMTString()};`;
-			}
-		}
-	}
-
-	render() {
-		let app;
-
-		// AUTH_LOGIN_CHECK
-		if ((!this.props.auth.logged_in && !this.props.auth.token) || this.props.auth.error) {
-            app = (
-                <Switch>
-                    <Route exact path="/login" render={this.login}/>
-                    <Route exact path="/register" render={this.register}/>
-                    <Redirect to="/login"/>
-                </Switch>
-            );
-		}
-
-		// AUTH_LOGIN_OK
-		if (this.props.auth.logged_in && this.props.auth.token && !this.props.auth.error) {
-			app = (
-				<Switch>
-					<Route exact path="/" render={this.dashboard}/>
-					<Route exact path="/library/:id" render={props => this.library(props)}/>
-					<Route exact path="/search" render={props => this.search(props)}/>
-					<Route exact path="/play/:id" render={props => this.play(props)}/>
-					<Route exact path="/media/:id" render={props => this.media(props)}/>
-                    <Redirect to="/"/>
-				</Switch>
-			);
-		}
-
-		return (
-			<Router>
-				<div className="App">{app}</div>
-			</Router>
-		);
-	}
-}
+const App = () => (
+	<Router>
+		<div className="App">
+			{routes}
+		</div>
+	</Router>
+);
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer,
+    auth: state.authReducer
 });
 
 const mapActionsToProps = ({
-    updateAuthToken,
+    updateAuthToken
 });
 
 export default connect(mapStateToProps, mapActionsToProps)(App);
