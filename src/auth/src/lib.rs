@@ -107,29 +107,15 @@ pub fn jwt_check(token: String) -> Result<TokenData<UserRolesToken>, jsonwebtoke
 impl<'a, 'r> FromRequest<'a, 'r> for Wrapper {
     type Error = JWTError;
 
-    /*
-    fn from_request(_: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
-        Outcome::Success(Wrapper(TokenData {
-            header: Header::new(Algorithm::HS512),
-            claims: UserRolesToken {
-                iat: 999_999,
-                exp: 999_999,
-                user: "Test User".to_string(),
-                roles: vec!["Owner".to_string()],
-            },
-        }))
-    }
-    */
-
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
         let keys: Vec<_> = request.headers().get("authorization").collect();
         match keys.len() {
-            0 => Outcome::Failure((Status::BadRequest, JWTError::Missing)),
+            0 => Outcome::Failure((Status::Unauthorized, JWTError::Missing)),
             1 => match jwt_check(keys[0].to_string()) {
                 Ok(k) => Outcome::Success(Wrapper(k)),
-                Err(_) => Outcome::Failure((Status::BadRequest, JWTError::InvalidKey)),
+                Err(_) => Outcome::Failure((Status::Unauthorized, JWTError::InvalidKey)),
             },
-            _ => Outcome::Failure((Status::BadRequest, JWTError::BadCount)),
+            _ => Outcome::Failure((Status::Unauthorized, JWTError::BadCount)),
         }
     }
 }

@@ -141,10 +141,9 @@ impl Episode {
     ) -> Result<Vec<Episode>, diesel::result::Error> {
         use crate::schema::media;
 
-        let tv_show = TVShow::belonging_to(media).first::<TVShow>(conn).unwrap();
+        let tv_show = TVShow::belonging_to(media).first::<TVShow>(conn)?;
         Ok(Season::belonging_to(&tv_show)
-            .load::<Season>(conn)
-            .unwrap()
+            .load::<Season>(conn)?
             .iter()
             .map(|x| {
                 EpisodeWrapper::belonging_to(x)

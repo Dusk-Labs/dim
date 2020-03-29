@@ -7,9 +7,9 @@ mod tests {
     use crate::tests::{
         post_episode_test_template, post_media_test_template, post_season_test_template,
     };
-    use rocket::http::ContentType;
-    use rocket::http::Status;
-    use rocket::local::Client;
+    use rocket::{ http::ContentType,
+    http::Status,
+    local::Client};
 
     #[test]
     fn get_tv_by_media_id() {

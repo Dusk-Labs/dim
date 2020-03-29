@@ -50,6 +50,23 @@ pub fn get_media_by_id(
         .map(|x| x.name)
         .collect::<Vec<String>>();
 
+    let duration_pretty = match data.media_type {
+        Some(MediaType::Movie) | Some(MediaType::Episode) | None => {
+            format!("{} min", duration / 60)
+        }
+        Some(MediaType::Tv) => {
+            let all_eps = Episode::get_all_of_tv(&conn, &data)?;
+            let total_len: i32 = all_eps
+                .iter()
+                .filter_map(|x| MediaFile::get_of_media(&conn, &x.media).ok())
+                .filter(|x| !x.is_empty())
+                .filter_map(|x| x.last().and_then(|x| x.duration))
+                .sum();
+            format!("{} episodes | {} hr", all_eps.len(), total_len / 3600)
+        }
+    };
+
+    // FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
     Ok(json!({
         "id": data.id,
         "library_id": data.library_id,
@@ -63,6 +80,7 @@ pub fn get_media_by_id(
         "media_type": data.media_type,
         "genres": genres,
         "duration": duration,
+        "duration_pretty": duration_pretty,
     }))
 }
 
@@ -119,6 +137,7 @@ fn get_for_episode(
     let media_files = MediaFile::get_of_media(conn.as_ref(), &media.media)?;
 
     Ok(json!({
+        "id": media.id,
         "progress": Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), media.id).unwrap_or(0),
         "episode": media.episode,
         "description": media.media.description,
@@ -281,6 +300,9 @@ pub fn rematch_mediafile(
 /// Method mapped to `POST /api/v1/media/<id>/progress` is used to map progress for a certain media
 /// to the user. This is useful for remembering progress for a movie etc.
 ///
+/// # Arguments
+/// * `conn` - database connection
+/// * `id` -
 #[post("/<id>/progress?<offset>")]
 pub fn map_progress(
     conn: DbConnection,
@@ -288,6 +310,6 @@ pub fn map_progress(
     offset: i32,
     user: Auth,
 ) -> Result<Status, errors::DimError> {
-    let _ = Progress::set(conn.as_ref(), offset, user.0.claims.get_user(), id)?;
+    Progress::set(conn.as_ref(), offset, user.0.claims.get_user(), id)?;
     Ok(Status::Ok)
 }

@@ -20,8 +20,11 @@ use std::{
 };
 
 lazy_static::lazy_static! {
+    /// Hashmp holding all the streams keyed by the media id, then subsequentely the quality
+    /// TODO: Start using UUIDs
     static ref STREAMS: Arc<Mutex<HashMap<i32, HashMap<String, Session>>>> = Arc::new(Mutex::new(HashMap::new()));
 }
+
 
 #[get("/stream/<id>/manifest.mpd")]
 pub fn return_manifest(conn: DbConnection, id: i32) -> Result<Response<'static>, errors::DimError> {
@@ -96,7 +99,7 @@ pub fn return_static(
 
     // If we are currently transcoding spin till a chunk is ready
     if let Some(session) = lock.get(&id) {
-        for _ in 0..20 {
+        for _ in 0..200 {
             if let Ok(x) = NamedFile::open(
                 full_path
                     .join(map.clone())
@@ -113,7 +116,7 @@ pub fn return_static(
                     return Ok(Some(x));
                 }
                 // TODO: Replace this with a dameon that monitors a file with a timeout then returns Option<T>
-                std::thread::sleep(std::time::Duration::from_millis(100));
+                std::thread::sleep(std::time::Duration::from_millis(10));
             }
         }
     }
@@ -166,9 +169,9 @@ pub fn return_static(
     if let Some(session) = lock.get(&id) {
         if let Some(stream) = session.get(&map) {
             println!("STREAM: {}", stream.process_id);
-            for _ in 0..80 {
+            for i in 0..80 {
                 if stream.is_chunk_done(chunk_num) {
-                    println!("Chunk is done");
+                    println!("Chunk is done: iteration n: {}", i);
                     if let Ok(x) = NamedFile::open(
                         full_path
                             .join(map.clone())
