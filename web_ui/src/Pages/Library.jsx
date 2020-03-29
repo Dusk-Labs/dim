@@ -1,12 +1,10 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 
-import MainLayout from "../Layouts/MainLayout.jsx";
 import CardList from "../Components/CardList.jsx";
 
-const Library = (props) => (
-    <MainLayout>
-        <CardList path={`//${window.host}:8000/api/v1/library/${props.match.params.id}/media`}/>
-    </MainLayout>
+const Library = () => (
+    <CardList path={`//${window.host}:8000/api/v1/library/${useParams().id}/media`}/>
 );
 
 export default Library;
