@@ -110,6 +110,12 @@ pub fn return_manifest(conn: DbConnection, id: i32) -> Result<Response<'static>,
         stream_id,
         stream_id,
         stream_id,
+        stream_id,
+        stream_id,
+        stream_id,
+        stream_id,
+        stream_id,
+        stream_id,
         stream_id
     );
 
