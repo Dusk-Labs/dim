@@ -39,12 +39,7 @@ pub(crate) fn cleanup_daemon(logger: Logger) {
             for ((id, unique_id), streams) in lock.iter() {
                 for ((map, profile), sess) in streams.iter() {
                     if sess.is_timeout() {
-                        to_remove.push((
-                            id.clone(),
-                            unique_id.clone(),
-                            map.clone(),
-                            profile.clone(),
-                        ));
+                        to_remove.push((*id, unique_id.clone(), map.clone(), profile.clone()));
                     }
                 }
             }
@@ -255,7 +250,7 @@ pub fn return_static(
     }
 
     let lock = STREAMS.read().unwrap();
-    if let Some(session) = lock.get(&(id, unique_id.clone())) {
+    if let Some(session) = lock.get(&(id, unique_id)) {
         if let Some(stream) = session.get(&(map.clone(), profile.clone())) {
             for _ in 0..80 {
                 if stream.is_chunk_done(chunk_num) {
