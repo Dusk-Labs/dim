@@ -110,7 +110,7 @@ impl<'a> Session {
         let file = format!("file://{}", file);
         let profile_args = profile.to_params();
 
-        let _ = fs::create_dir_all(format!("{}/video/{}", outdir.clone(), profile_args.1));
+        let _ = fs::create_dir_all(format!("{}/video/{}", outdir, profile_args.1));
 
         let mut video_args =
             Self::build_video(string_to_static_str(file), start_number, profile_args.0);
@@ -153,7 +153,7 @@ impl<'a> Session {
     ) -> Result<Self, errors::StreamingErrors> {
         let file = format!("file://{}", file);
 
-        let _ = fs::create_dir_all(format!("{}/audio/120kb", outdir.clone()));
+        let _ = fs::create_dir_all(format!("{}/audio/120kb", outdir));
         let mut audio_args = Self::build_audio(string_to_static_str(file), start_number);
 
         audio_args.push("-hls_segment_filename");
