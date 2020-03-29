@@ -40,6 +40,7 @@ pub fn get_media_by_id(
 ) -> Result<JsonValue, errors::DimError> {
     let data = Media::get(conn.as_ref(), id)?;
 
+    // FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
     let duration = match MediaFile::get_of_media(conn.as_ref(), &data) {
         Ok(mut x) => x.pop()?.duration?,
         Err(_) => 0,
@@ -49,6 +50,22 @@ pub fn get_media_by_id(
         .into_iter()
         .map(|x| x.name)
         .collect::<Vec<String>>();
+
+    let duration_pretty = match data.media_type {
+        Some(MediaType::Movie) | Some(MediaType::Episode) | None => {
+            format!("{} min", duration / 60)
+        }
+        Some(MediaType::Tv) => {
+            let all_eps = Episode::get_all_of_tv(&conn, &data)?;
+            let total_len: i32 = all_eps
+                .iter()
+                .filter_map(|x| MediaFile::get_of_media(&conn, &x.media).ok())
+                .filter(|x| !x.is_empty())
+                .filter_map(|x| x.last().and_then(|x| x.duration))
+                .sum();
+            format!("{} episodes | {} hr", all_eps.len(), total_len / 3600)
+        }
+    };
 
     Ok(json!({
         "id": data.id,
@@ -63,6 +80,7 @@ pub fn get_media_by_id(
         "media_type": data.media_type,
         "genres": genres,
         "duration": duration,
+        "duration_pretty": duration_pretty,
     }))
 }
 
