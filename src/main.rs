@@ -42,6 +42,7 @@ use slog_async::Async;
 use slog_json::Json as slog_json_default;
 use slog_term::{FullFormat, TermDecorator};
 use std::{
+    thread,
     fs::{create_dir, File},
     process,
     sync::Mutex,
@@ -169,6 +170,9 @@ fn main() {
     } else {
         warn!(logger, "Disabling SSL explicitly...");
     }
+
+    let logger_clone = logger.clone();
+    thread::spawn(move || routes::stream::cleanup_daemon(logger_clone));
 
     info!(logger, "Summoning Dim using the {} spell...", VERSION);
     core::launch(logger, event_tx, rocket_config);
