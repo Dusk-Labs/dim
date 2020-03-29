@@ -17,6 +17,7 @@ class MediaPage extends Component {
     constructor(props) {
         super(props);
 
+        this.episodes = React.createRef();
         this.showSeason = this.showSeason.bind(this);
 
         this.state = {
@@ -35,6 +36,10 @@ class MediaPage extends Component {
         // FETCH_MEDIA_INFO_OK
         if (this.props.media_info.fetched && !this.props.media_info.error) {
             document.title = `Dim - ${this.props.media_info.info.name}`;
+        }
+
+        if (this.episodes.current) {
+            this.episodes.current.scrollIntoView();
         }
     }
 
@@ -240,7 +245,6 @@ class MediaPage extends Component {
                     });
                 }
             }
-
         }
 
         return (
@@ -257,15 +261,15 @@ class MediaPage extends Component {
                                 <div className="list">
                                     {mediaSeasons}
                                 </div>
-                            </div>
-                            {this.state.season !== undefined &&
-                                <div className="episodes">
-                                    <h2>SEASON {this.state.season} EPISODES</h2>
-                                    <div className="list">
-                                        {mediaEpisodes[this.state.season]}
+                                {this.state.season !== undefined &&
+                                    <div className="episodes" ref={this.episodes}>
+                                        <h2>SEASON {this.state.season} - EPISODES</h2>
+                                        <div className="list">
+                                            {mediaEpisodes[this.state.season]}
+                                        </div>
                                     </div>
-                                </div>
-                            }
+                                }
+                            </div>
                         </div>
                     </div>
                 }
