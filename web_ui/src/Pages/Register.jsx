@@ -1,9 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { authenticate, register, checkAdminExists } from "../actions/authActions.js";
+
+import WithOutSidebarLayout from "../Layouts/WithOutSidebarLayout.jsx";
 
 import "./AuthForm.scss";
 
@@ -97,6 +99,20 @@ class Register extends Component {
     }
 
     render() {
+        const token = document.cookie.split("=")[1];
+
+        // LOGGED IN
+		if (this.props.auth.logged_in && this.props.auth.token && !this.props.auth.error || token) {
+            if (!token) {
+                const dateExpires = new Date();
+
+                dateExpires.setTime(dateExpires.getTime() + 604800000);
+                document.cookie = `token=${this.props.auth.token};expires=${dateExpires.toGMTString()};`;
+            }
+
+            return <Redirect to="/"/>;
+        }
+
         const { admin_exists } = this.props.auth;
 
         // AUTH_LOGIN_ERR
@@ -104,7 +120,7 @@ class Register extends Component {
             console.log("[AUTH] REGISTER ERROR", this.props.auth);
         }
 
-        return (
+        const registerForm = (
             <div className="auth-form">
                 <header>
                     <h1>Welcome to Dim</h1>
@@ -175,6 +191,12 @@ class Register extends Component {
                 </footer>
             </div>
         );
+
+        return (
+            <WithOutSidebarLayout>
+                {registerForm}
+            </WithOutSidebarLayout>
+        )
     }
 }
 
