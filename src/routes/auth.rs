@@ -1,7 +1,10 @@
 use crate::core::DbConnection;
 use crate::errors;
 use auth::{jwt_generate, Wrapper as Auth};
-use database::user::{verify, InsertableUser, Login, User};
+use database::{
+    progress::Progress,
+    user::{verify, InsertableUser, Login, User},
+};
 use diesel::prelude::*;
 use rocket_contrib::json::{Json, JsonValue};
 
@@ -22,11 +25,11 @@ pub fn login(conn: DbConnection, new_login: Json<Login>) -> Result<JsonValue, er
 }
 
 #[get("/whoami")]
-pub fn whoami(user: Auth) -> JsonValue {
+pub fn whoami(conn: DbConnection, user: Auth) -> JsonValue {
     json!({
         "username": user.0.claims.get_user(),
         "picture": "https://i.redd.it/3n1if40vxxv31.png",
-        "spentWatching": 12
+        "spentWatching": Progress::get_total_time_spent_watching(&conn, user.0.claims.get_user()).unwrap_or(0) / 3600
     })
 }
 
@@ -39,16 +42,16 @@ pub fn admin_exists(conn: DbConnection) -> Result<JsonValue, errors::DimError> {
 
 #[post("/register", data = "<new_user>")]
 pub fn register(conn: DbConnection, new_user: Json<Login>) -> Result<JsonValue, errors::AuthError> {
-    let user_count = User::get_all(conn.as_ref())?.len();
+    let users_empty = User::get_all(&conn)?.is_empty();
 
-    if user_count > 0
+    if !users_empty
         && (new_user.invite_token.is_none()
             || !new_user.invite_token_valid(conn.as_ref()).unwrap_or(false))
     {
         return Err(errors::AuthError::NoTokenError);
     }
 
-    let roles = if user_count > 0 {
+    let roles = if !users_empty {
         vec!["user".to_string()]
     } else {
         vec!["owner".to_string()]
@@ -61,7 +64,7 @@ pub fn register(conn: DbConnection, new_user: Json<Login>) -> Result<JsonValue, 
     }
     .insert(conn.as_ref())?;
 
-    if user_count > 0 {
+    if users_empty {
         new_user.invalidate_token(conn.as_ref())?;
     }
 
