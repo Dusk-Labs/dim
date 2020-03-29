@@ -1,7 +1,10 @@
 use crate::core::DbConnection;
 use crate::errors;
 use auth::{jwt_generate, Wrapper as Auth};
-use database::user::{verify, InsertableUser, Login, User};
+use database::{
+    progress::Progress,
+    user::{verify, InsertableUser, Login, User},
+};
 use diesel::prelude::*;
 use rocket_contrib::json::{Json, JsonValue};
 
@@ -22,11 +25,11 @@ pub fn login(conn: DbConnection, new_login: Json<Login>) -> Result<JsonValue, er
 }
 
 #[get("/whoami")]
-pub fn whoami(user: Auth) -> JsonValue {
+pub fn whoami(conn: DbConnection, user: Auth) -> JsonValue {
     json!({
         "username": user.0.claims.get_user(),
         "picture": "https://i.redd.it/3n1if40vxxv31.png",
-        "spentWatching": 12
+        "spentWatching": Progress::get_total_time_spent_watching(&conn, user.0.claims.get_user()).unwrap_or(0) / 3600
     })
 }
 
