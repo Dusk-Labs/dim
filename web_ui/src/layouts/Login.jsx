@@ -100,7 +100,7 @@ class Login extends Component {
                                 </div>
                             }
                         </label>
-                        <input type="text" name="username" onChange={this.updateField}/>
+                        <input type="text" name="username" onChange={this.updateField} spellCheck="false"/>
                     </div>
                     <div className="field">
                         <label>
