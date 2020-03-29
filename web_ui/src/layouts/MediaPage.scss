@@ -134,103 +134,100 @@
     }
 
     .se-ep {
-        display: grid;
-        grid-template-columns: 2fr 0.3fr 1.5fr;
-    }
-
-    .seasons {
         .list {
             @include justify-content(space-between);
             margin: 50px 0;
             display: grid;
-            grid-template-columns: repeat(auto-fill, 200px);
             grid-gap: 100px 50px;
             z-index: 1;
         }
 
-        .season {
-            @include transition(box-shadow 0.3s ease-in-out);
-            height: 320px;
-            width: 200px;
-            text-align: center;
-            border-radius: 10px;
-            cursor: pointer;
-
-            &:hover {
-                @include box-shadow(#ffffff 0 0 50px -20px);
+        .seasons {
+            .list {
+                grid-template-columns: repeat(auto-fill, 200px);
             }
 
-            .image-wrapper {
+            .season {
+                @include transition(box-shadow 0.3s ease-in-out);
+                height: 320px;
+                width: 200px;
+                text-align: center;
                 border-radius: 10px;
+                cursor: pointer;
 
-                img {
-                    @include object-fit(cover);
-                    @include transition(transform 0.3s ease-in-out);
-                    @include animation(imageLoaded 1s ease-in);
-                    will-change: transform;
-                    height: 320px;
-                    width: 200px;
+                &:hover {
+                    @include box-shadow(#ffffff 0 0 50px -20px);
+                }
+
+                .image-wrapper {
                     border-radius: 10px;
+
+                    img {
+                        @include object-fit(cover);
+                        @include transition(transform 0.3s ease-in-out);
+                        @include animation(imageLoaded 1s ease-in);
+                        will-change: transform;
+                        height: 320px;
+                        width: 200px;
+                        border-radius: 10px;
+                    }
+                }
+
+                p {
+                    @include transition(opacity 0.3s ease-in-out);
+                    margin-top: 1vh;
+                    text-transform: uppercase;
+                    font-size: 0.8em;
                 }
             }
-
-            p {
-                @include transition(opacity 0.3s ease-in-out);
-                margin-top: 1vh;
-                text-transform: uppercase;
-                font-size: 0.8em;
-            }
-        }
-    }
-
-    .episodes {
-        grid-column: 3;
-
-        .list {
-            @include justify-content(space-between);
-            margin: 50px 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, 150px);
-            grid-gap: 50px;
-            z-index: 1;
         }
 
-        .episode {
-            text-align: center;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 150px;
-            height: 85px;
+        .episodes {
+            margin: 100px 0;
 
-            &:hover .image-wrapper {
-                @include box-shadow(#ffffff 0 0 50px -20px);
+            .list {
+                grid-template-columns: repeat(auto-fill, 150px);
             }
 
-            .image-wrapper {
-                @include transition(box-shadow 0.3s ease-in-out);
+            .episode {
+                text-align: center;
                 border-radius: 5px;
+                cursor: pointer;
                 width: 150px;
                 height: 85px;
 
-                img {
-                    @include object-fit(cover);
-                    @include transition(transform 0.3s ease-in-out);
-                    @include animation(imageLoaded 1s ease-in);
-                    will-change: transform;
+                &:hover .image-wrapper {
+                    @include box-shadow(#ffffff 0 0 50px -20px);
+                }
+
+                .image-wrapper {
+                    @include transition(box-shadow 0.3s ease-in-out);
+                    border-radius: 5px;
                     width: 150px;
                     height: 85px;
-                    border-radius: 5px;
-                }
-            }
 
-            p {
-                @include transition(opacity 0.3s ease-in-out);
-                margin-top: 1vh;
-                text-transform: uppercase;
-                font-size: 0.8em;
+                    img {
+                        @include object-fit(cover);
+                        @include transition(transform 0.3s ease-in-out);
+                        @include animation(imageLoaded 1s ease-in);
+                        will-change: transform;
+                        width: 150px;
+                        height: 85px;
+                        border-radius: 5px;
+                    }
+                }
+
+                p {
+                    @include transition(opacity 0.3s ease-in-out);
+                    margin-top: 1vh;
+                    text-transform: uppercase;
+                    font-size: 0.8em;
+                }
             }
         }
     }
+
+
 }
 
 /*
