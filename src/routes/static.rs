@@ -26,22 +26,19 @@ pub fn index<'r>() -> response::Result<'r> {
 #[get("/<file..>", rank = 2)]
 pub fn dist_file<'r>(file: PathBuf) -> response::Result<'r> {
     let filename = file.display().to_string();
-    Asset::get(&filename).map_or_else(
-        || index(),
-        |d| {
-            let ext = file
-                .as_path()
-                .extension()
-                .and_then(OsStr::to_str)
-                .ok_or(Status::new(400, "Could not get file extension"))?;
+    Asset::get(&filename).map_or_else(index, |d| {
+        let ext = file
+            .as_path()
+            .extension()
+            .and_then(OsStr::to_str)
+            .ok_or_else(|| Status::new(400, "Could not get file extension"))?;
 
-            let content_type = ContentType::from_extension(ext)
-                .ok_or(Status::new(400, "Could not get file content type"))?;
+        let content_type = ContentType::from_extension(ext)
+            .ok_or_else(|| Status::new(400, "Could not get file content type"))?;
 
-            response::Response::build()
-                .header(content_type)
-                .sized_body(Cursor::new(d))
-                .ok()
-        },
-    )
+        response::Response::build()
+            .header(content_type)
+            .sized_body(Cursor::new(d))
+            .ok()
+    })
 }
