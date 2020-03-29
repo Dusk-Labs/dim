@@ -106,6 +106,10 @@
     }
 
     .results {
+        p {
+            padding: 0 10px 10px 10px;
+        }
+
         .result-list {
             @include display(flex);
             @include flex-direction(column);
