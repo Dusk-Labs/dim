@@ -5,13 +5,13 @@ authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
 
 [dependencies]
-diesel = { version = "1.4.2", default-features = false, features = ["postgres"] }
-serde = { version = "1.0.102", features = ["derive"] }
-serde_derive = "1.0.98"
+diesel = { version = "1.4.4", default-features = false, features = ["postgres"] }
+serde = { version = "1.0.105", features = ["derive"] }
+serde_derive = "1.0.105"
 diesel_migrations = "1.4.0"
 lazy_static = "1.4.0"
 diesel-derive-enum = { version = "0.4.4", features = ["postgres"] }
 slog = "2.5.2"
-ring = "0.13.5"
-base64 = "0.11.0"
+ring = "^0.13.2"
+base64 = "0.12.0"
 uuid = { version = "0.8.1", features = ["v4"] }

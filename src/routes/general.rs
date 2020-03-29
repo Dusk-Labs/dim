@@ -89,11 +89,11 @@ pub fn construct_standard(
         .collect::<Vec<String>>();
 
     if quick {
-        return Ok(json!({
+        Ok(json!({
             "id": data.id,
             "name": data.name,
             "library_id": data.library_id
-        }));
+        }))
     } else {
         if let Ok(pair) = season_episode_pair {
             let episode = pair.1?;
@@ -122,7 +122,7 @@ pub fn construct_standard(
         let progress =
             Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), data.id)
                 .unwrap_or(0);
-        return Ok(json!({
+        Ok(json!({
             "id": data.id,
             "library_id": data.library_id,
             "name": data.name,
@@ -136,7 +136,7 @@ pub fn construct_standard(
             "genres": genres,
             "duration": duration,
             "progress": progress,
-        }));
+        }))
     }
 }
 

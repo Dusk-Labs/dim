@@ -1,13 +1,16 @@
-use crate::routes;
+use crate::{routes, scanners};
 use diesel::prelude::*;
 use lazy_static::lazy_static;
 use rocket::http::Method;
 use rocket_contrib::databases::diesel;
 use rocket_cors::{AllowedHeaders, AllowedOrigins, CorsOptions};
 use rocket_slog::SlogFairing;
-use slog::Logger;
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use slog::{error, Logger};
+use std::{
+    collections::HashMap,
+    sync::{mpsc, Arc, Mutex},
+    thread,
+};
 
 #[database("dimpostgres")]
 pub struct DbConnection(PgConnection);
@@ -18,11 +21,11 @@ impl AsRef<PgConnection> for DbConnection {
     }
 }
 
-pub type EventTx = std::sync::mpsc::Sender<pushevent::Event>;
+pub type EventTx = mpsc::Sender<pushevent::Event>;
 
 lazy_static! {
     /// Holds a map of all threads keyed against the library id that they were started for
-    static ref LIB_SCANNERS: Mutex<HashMap<i32, std::thread::JoinHandle<()>>> =
+    static ref LIB_SCANNERS: Mutex<HashMap<i32, thread::JoinHandle<()>>> =
         Mutex::new(HashMap::new());
 }
 
@@ -40,10 +43,18 @@ pub(crate) fn run_scanners(log: Logger, tx: EventTx) {
             let log_clone = log.clone();
             let library_id = lib.id;
             let tx_clone = tx.clone();
+
+            // NOTE: Its a good idea to just let the binary panic if the LIB_SCANNERS cannot be
+            //       locked. This is because such a error is unrecoverable.
             LIB_SCANNERS.lock().unwrap().insert(
                 library_id,
-                std::thread::spawn(move || {
-                    crate::scanners::start(library_id, &log_clone, tx_clone).unwrap();
+                thread::spawn(move || {
+                    let _ = scanners::start(library_id, &log_clone, tx_clone).map_err(|x| {
+                        error!(
+                            log_clone,
+                            "A scanner thread has returned with error: {:?}", x
+                        )
+                    });
                 }),
             );
         }
@@ -162,6 +173,16 @@ pub fn rocket_pad(
         .manage(Arc::new(Mutex::new(event_tx)))
 }
 
+/// Method launch
+/// This method created a new rocket pad and launches it using the configuration passed in. This
+/// function returns once the server has finished running and all the scanner threads have been
+/// joined.
+///
+/// # Arguments
+/// * `log` - a Logger object which will be propagated to subsequent modules which can use this as
+///           a sink for logs.
+/// * `event_tx` - This is the tx channel over which modules in dim can dispatch websocket events.
+/// * `config` - Specifies the configuration we'd like to pass to our rocket_pad.
 pub fn launch(log: slog::Logger, event_tx: EventTx, config: rocket::config::Config) {
     rocket_pad(log, event_tx, config).launch();
 
