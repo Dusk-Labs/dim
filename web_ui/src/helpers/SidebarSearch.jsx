@@ -137,7 +137,7 @@ class SidebarSearch extends Component {
 
             results = (
                 <div className="results">
-                    <p>{list.length} RESULTS</p>
+                    <p>{list.length} {list.length === 1 ? "RESULT" : "RESULTS"}</p>
                     <div className="result-list">{list}</div>
                 </div>
             );
