@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { authenticate, register, checkAdminExists } from "../actions/authActions.js";
+import { authenticate, register, checkAdminExists } from "../actions/auth.js";
 
 import "./AuthForm.scss";
 
