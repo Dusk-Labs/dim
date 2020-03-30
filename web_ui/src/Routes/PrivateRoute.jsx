@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Route, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 
-import { updateAuthToken } from "../actions/authActions.js";
+import { updateAuthToken } from "../actions/auth.js";
 
 class PrivateRoute extends Component {
     componentDidMount() {

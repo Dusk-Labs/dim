@@ -17,7 +17,7 @@ import Login from "./Pages/Login.jsx";
 import Register from "./Pages/Register.jsx";
 import Preferences from "./Pages/Preferences.jsx";
 
-import { updateAuthToken } from "./actions/authActions.js";
+import { updateAuthToken } from "./actions/auth.js";
 
 import "./App.scss";
 

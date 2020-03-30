@@ -4,8 +4,8 @@ import { connect } from "react-redux";
 import { Scrollbar } from "react-scrollbars-custom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { fetchDirectories } from "../actions/fileBrowserActions.js";
-import { newLibrary } from "../actions/libraryActions.js";
+import { fetchDirectories } from "../actions/fileBrowser.js";
+import { newLibrary } from "../actions/library.js";
 
 import "./NewLibraryModal.scss";
 

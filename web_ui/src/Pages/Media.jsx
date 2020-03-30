@@ -8,7 +8,7 @@ import {
     fetchExtraMediaInfo,
     fetchMediaSeasons,
     fetchMediaSeasonEpisodes
-} from "../actions/cardActions.js";
+} from "../actions/card.js";
 
 import LazyImage from "../Helpers/LazyImage.jsx";
 
