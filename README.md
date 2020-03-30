@@ -14,7 +14,7 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 ## MVP Release at
 - [x] TV Show/Movie scanners
 - [x] Basic webui with dashboard, ability to add libraries etc...
-- [ ] Video player with transmuxing/transcoding (server + ui)
+- [x] Video player with transmuxing/transcoding (server + ui)
 - [x] 90% of unwraps removed from the server codebase
 
 ## Features
@@ -25,7 +25,7 @@ Dim is mainly written in Rust and JS. We use Rocket as our webserver paired with
 - [x] Media APIs
 - [x] Streaming APIs(start, stop)
 - [x] Transmuxing (only into h264 hls)
-- [ ] Transcoding
+- [x] Transcoding
 - [x] Event APIs(new_library, delete_library, new_media, delete_media)
 - [x] Title Search
 - [x] Auth
