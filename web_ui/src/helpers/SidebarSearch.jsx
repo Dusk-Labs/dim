@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { HashLink } from 'react-router-hash-link';
 import { withRouter } from "react-router-dom";
 
-import { quickSearch } from "../actions/searchActions.js";
+import { quickSearch } from "../actions/search.js";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./SidebarSearch.scss";

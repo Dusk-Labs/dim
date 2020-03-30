@@ -5,9 +5,9 @@ import { connect } from "react-redux";
 import { Scrollbar } from "react-scrollbars-custom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { fetchLibraries, delLibrary, handleWsNewLibrary, handleWsDelLibrary } from "../actions/libraryActions.js";
-import { fetchUser } from "../actions/userActions.js";
-import { logout } from "../actions/authActions.js";
+import { fetchLibraries, delLibrary, handleWsNewLibrary, handleWsDelLibrary } from "../actions/library.js";
+import { fetchUser } from "../actions/user.js";
+import { logout } from "../actions/auth.js";
 
 import SidebarSearch from "../Helpers/SidebarSearch.jsx";
 import SidebarIcon from "../Helpers/SidebarIcon.jsx";
