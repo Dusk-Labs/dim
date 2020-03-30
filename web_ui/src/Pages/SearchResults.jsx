@@ -32,8 +32,8 @@ class SearchResults extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer,
-    searchList: state.searchReducer.search
+    auth: state.auth,
+    searchList: state.search.search
 });
 
 const mapActionsToProps = { search };

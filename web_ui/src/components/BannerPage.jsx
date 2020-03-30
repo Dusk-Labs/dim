@@ -115,8 +115,8 @@ class BannerPage extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer,
-    banners: state.bannerReducer
+    auth: state.auth,
+    banners: state.banner
 });
 
 const mapActionstoProps = { fetchBanners };

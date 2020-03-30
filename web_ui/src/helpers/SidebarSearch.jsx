@@ -176,8 +176,8 @@ class SidebarSearch extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer,
-    quick_search: state.searchReducer.quick_search
+    auth: state.auth,
+    quick_search: state.search.quick_search
 });
 
 const mapActionsToProps = { quickSearch };
