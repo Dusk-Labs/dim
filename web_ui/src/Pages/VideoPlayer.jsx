@@ -204,7 +204,7 @@ class VideoPlayer extends Component {
             document.title = `Dim - Playing '${name}'`;
         }
 
-        const videoPlayer = (
+        return (
             <div className="video-wrapper">
                 <video ref={this.video}/>
                 <div className="overlay" ref={this.overlay}>
@@ -247,12 +247,6 @@ class VideoPlayer extends Component {
                 </div>
             </div>
         );
-
-        return (
-            <WithOutSidebarLayout>
-                {videoPlayer}
-            </WithOutSidebarLayout>
-        )
     }
 }
 
