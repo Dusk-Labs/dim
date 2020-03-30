@@ -1,0 +1,55 @@
+@import "../mixins.scss";
+
+.preferencesPage {
+    height: 100%;
+    margin: 50px 90px;
+
+    .preferences {
+        display: grid;
+        grid-template-areas: "nav content";
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 5em;
+
+        nav {
+            grid-area: nav;
+            justify-self: flex-end;
+            display: flex;
+            flex-direction: column;
+
+            section {
+                & > p {
+                    margin: 0 0 10px 10px;
+                    font-family: "Roboto Bold";
+                }
+
+                .field {
+                    @include display(flex);
+                    @include align-items(center);
+                    @include transition(background .1s ease-in-out);
+                    height: 40px;
+                    width: 240px;
+                    padding: 0 10px;
+                    border-radius: 10px;
+                    cursor: pointer;
+
+                    &:hover {
+                        background: #222;
+                    }
+
+                    &.active {
+                        background: #555;
+
+                        &:hover {
+                            background: #666;
+                        }
+                    }
+                }
+            }
+
+        }
+
+        .content {
+            grid-area: content;
+        }
+    }
+}
