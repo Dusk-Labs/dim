@@ -12,7 +12,7 @@ const CHUNK_SIZE: u64 = 5;
 /// Represents how many chunks we encode before we require a timeout reset.
 /// Basically if within MAX_CHUNKS_AHEAD we do not get a timeout reset we kill the stream.
 /// This can be tuned
-const MAX_CHUNKS_AHEAD: u64 = 20;
+const MAX_CHUNKS_AHEAD: u64 = 15;
 
 pub struct Session {
     pub process_id: String,
