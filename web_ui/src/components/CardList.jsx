@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { fetchCards } from "../actions/cardActions.js";
+import { fetchCards } from "../actions/card.js";
 import Card from "./Card.jsx";
 import "./CardList.scss";
 

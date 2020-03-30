@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
-import { search } from "../actions/searchActions.js";
+import { search } from "../actions/search.js";
 
 import PropCardList from "../Components/PropCardList.jsx";
 

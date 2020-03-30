@@ -5,7 +5,7 @@ import videojs from "video.js";
 import "videojs-contrib-dash";
 import "dashjs";
 
-import { fetchMediaInfo, fetchExtraMediaInfo } from "../actions/cardActions.js";
+import { fetchMediaInfo, fetchExtraMediaInfo } from "../actions/card.js";
 
 import VideoPlayerControls from "./VideoPlayerControls.jsx";
 import LazyImage from "../Helpers/LazyImage.jsx";
