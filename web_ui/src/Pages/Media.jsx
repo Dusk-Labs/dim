@@ -280,9 +280,9 @@ class Media extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer,
-    media_info: state.cardReducer.media_info,
-    extra_media_info: state.cardReducer.extra_media_info,
+    auth: state.auth,
+    media_info: state.card.media_info,
+    extra_media_info: state.card.extra_media_info,
 });
 
 const mapActionsToProps = {

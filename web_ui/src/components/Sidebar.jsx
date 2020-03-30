@@ -250,9 +250,9 @@ class Sidebar extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer,
-    user: state.userReducer,
-    libraries: state.libraryReducer.fetch_libraries
+    auth: state.auth,
+    user: state.user,
+    libraries: state.library.fetch_libraries
 });
 
 const mapActionsToProps = {

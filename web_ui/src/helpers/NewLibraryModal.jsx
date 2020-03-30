@@ -214,9 +214,9 @@ class NewLibraryModal extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer,
-    fileBrowser: state.fileBrowserReducer,
-    library: state.libraryReducer.new_library
+    auth: state.auth,
+    fileBrowser: state.fileBrowser,
+    library: state.library.new_library
 });
 
 const mapActionsToProps = {
