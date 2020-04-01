@@ -40,11 +40,11 @@ class Register extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.auth.error !== this.props.auth.error) {
-            if (this.props.auth.error === "NoTokenError") {
+        if (prevProps.auth.error !== this.props.auth.register.error) {
+            if (this.props.auth.register.error === "NoTokenError") {
                 this.warn("invite", "Wrong invite token");
             }
-            if (this.props.auth.error === "UsernameTaken") {
+            if (this.props.auth.register.error === "UsernameTaken") {
                 this.warn("username", "Username is already taken");
             }
         }
@@ -100,7 +100,7 @@ class Register extends Component {
         const token = document.cookie.split("=")[1];
 
         // LOGGED IN
-		if (this.props.auth.logged_in && this.props.auth.token && !this.props.auth.error || token) {
+		if (this.props.auth.login.logged_in && this.props.auth.token && !this.props.auth.login.error || token) {
             if (!token) {
                 const dateExpires = new Date();
 
@@ -114,7 +114,7 @@ class Register extends Component {
         const { admin_exists } = this.props.auth;
 
         // AUTH_LOGIN_ERR
-        if (this.props.auth.error) {
+        if (this.props.auth.register.error) {
             console.log("[AUTH] REGISTER ERROR", this.props.auth);
         }
 

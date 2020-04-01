@@ -14,10 +14,10 @@ class PrivateRoute extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.auth.logged_in !== this.props.auth.logged_in) {
+        if (prevProps.auth.logged_in !== this.props.auth.login.logged_in) {
             const token = document.cookie.split("=")[1];
 
-			if (!this.props.auth.error && !token) {
+			if (!this.props.auth.login.error && !token) {
                 const dateExpires = new Date();
 
                 dateExpires.setTime(dateExpires.getTime() + 604800000);
@@ -30,14 +30,13 @@ class PrivateRoute extends Component {
         let route;
 
         // LOGGED IN
-		if (this.props.auth.logged_in && this.props.auth.token && !this.props.auth.error) {
+		if (this.props.auth.login.logged_in && this.props.auth.token && !this.props.auth.login.error) {
             const { exact, path, render, children } = this.props;
-
             route = <Route exact={exact} path={path} render={render} children={children}/>;
         }
 
         // NOT LOGGED IN
-        if (!this.props.auth.logged_in || !this.props.auth.token || this.props.auth.error) {
+        if (!this.props.auth.login.logged_in || !this.props.auth.token || this.props.auth.login.error) {
             route = <Redirect to="/login"/>
         }
 

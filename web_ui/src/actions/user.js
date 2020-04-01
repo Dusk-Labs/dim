@@ -7,14 +7,13 @@ import {
 export const fetchUser = (token) => async (dispatch) => {
     dispatch({ type: FETCH_USER_START });
 
-    try {
-        const config = {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": token,
-            },
+    const config = {
+        headers: {
+            "Authorization": token,
         }
+    };
+
+    try {
 
         const res = await fetch(`//${window.host}:8000/api/v1/auth/whoami`, config);
 
@@ -34,7 +33,7 @@ export const fetchUser = (token) => async (dispatch) => {
     } catch(err) {
         dispatch({
             type: FETCH_USER_ERR,
-            payload: err 
+            payload: err
         });
     }
 };
