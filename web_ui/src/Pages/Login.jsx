@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
+import { fetchUser } from "../actions/user.js";
 import { authenticate, updateAuthToken } from "../actions/auth.js";
 
 import WithOutSidebarLayout from "../Layouts/WithOutSidebarLayout.jsx";
@@ -33,8 +34,8 @@ class Login extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.auth.error !== this.props.auth.error) {
-            if (this.props.auth.error === "Forbidden") {
+        if (prevProps.auth.login.error !== this.props.auth.login.error) {
+            if (this.props.auth.login.error === "Forbidden") {
                 this.warn("password", "Wrong password");
             }
         }
@@ -80,7 +81,9 @@ class Login extends Component {
         const token = document.cookie.split("=")[1];
 
         // LOGGED IN
-		if (this.props.auth.logged_in && this.props.auth.token && !this.props.auth.error || token) {
+		if (this.props.auth.login.logged_in && this.props.auth.token && !this.props.auth.login.error || token) {
+            this.props.fetchUser(this.props.auth.token);
+
             if (!token) {
                 const dateExpires = new Date();
 
@@ -92,8 +95,8 @@ class Login extends Component {
         }
 
         // AUTH_LOGIN_ERR
-        if (this.props.auth.error) {
-            console.log("[AUTH] ERROR", this.props.auth);
+        if (this.props.auth.login.error) {
+            console.log("[AUTH] ERROR", this.props.auth.login);
         }
 
         const loginForm = (
@@ -151,7 +154,8 @@ const mapStateToProps = (state) => ({
 
 const mapActionsToProps = {
     authenticate,
-    updateAuthToken
+    updateAuthToken,
+    fetchUser
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(Login);
