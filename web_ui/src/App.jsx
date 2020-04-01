@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { connect } from "react-redux";
 
@@ -75,13 +75,38 @@ const routes = (
 	</Switch>
 );
 
-const App = () => (
-	<Router>
-		<div className="App">
-			{routes}
-		</div>
-	</Router>
-);
+class App extends Component {
+	componentDidMount() {
+		console.log("APP MOUNTED");
+
+		const darkLogo = document.getElementById("logo-dark");
+		const lightLogo = document.getElementById("logo-light");
+
+		if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+			lightLogo.remove();
+		}
+
+		window.matchMedia("(prefers-color-scheme: dark)").addListener((e) => {
+			if (e.matches) {
+				lightLogo.remove();
+				document.head.append(darkLogo);
+			} else {
+				darkLogo.remove();
+				document.head.append(lightLogo);
+			}
+		});
+	}
+
+	render() {
+		return (
+			<Router>
+				<div className="App">
+					{routes}
+				</div>
+			</Router>
+		);
+	}
+}
 
 const mapStateToProps = (state) => ({
     auth: state.authReducer
