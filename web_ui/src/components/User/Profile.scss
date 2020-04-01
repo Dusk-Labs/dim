@@ -1,0 +1,51 @@
+@import "../../mixins.scss";
+
+.profile {
+    @include align-items(center);
+    display: flex;
+    overflow: hidden;
+
+    .profile-icon {
+        margin-right: 10px;
+        height: 40px;
+        width: 40px;
+        padding: 4px;
+        border-radius: 100%;
+        border: #ffffff 2px solid;
+
+        // shows up before loading starts
+        .placeholder {
+            border-radius: 50%;
+        }
+    }
+
+    img {
+        @include animation(sidebarProfileIconLoad 0.3s ease-in);
+    }
+
+    img, .default-icon {
+        @include object-fit(cover);
+        height: 100%;
+        width: 100%;
+        border-radius: 50%;
+    }
+
+    .default-icon {
+        background: #f7931e;
+    }
+
+    .info {
+        @include animation(appear 0.3s ease-in-out);
+
+        // USERNAME
+        h4 {
+            font-family: "Roboto Black";
+            color: #ffffff;
+        }
+
+        // H SPENT WATCHING
+        h6 {
+            font-family: "Roboto Regular";
+        }
+    }
+}
