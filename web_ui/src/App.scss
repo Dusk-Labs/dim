@@ -141,6 +141,7 @@ button {
 	position: relative;
     height: 100%;
 	background: #222222;
+	border-radius: 10px;
 
 	&-text {
 		@include transition(width .3s ease-in-out);

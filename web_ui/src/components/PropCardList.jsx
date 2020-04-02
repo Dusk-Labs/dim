@@ -1,94 +1,19 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { fetchCards } from "../actions/cardActions.js";
-import Card from "../components/Card.jsx";
-import "./CardList.scss";
+import Card from "./Card.jsx";
 
-class CardList extends Component {
+class PropCardList extends Component {
     constructor(props) {
         super(props);
 
-        this._isMounted = false;
         this.cardList = React.createRef();
-    }
-
-    componentDidMount() {
-        this._isMounted = true;
-
-        if (this.props.path) {
-            return this.props.fetchCards(this.props.auth.token, this.props.path);
-        }
-
-        if (this.props.id) {
-            return this.mount_websocket();
-        }
-    }
-
-    async componentDidUpdate(prevProps) {
-        if (this.props.path) {
-            if (this.props.path !== prevProps.path) {
-                return this.props.fetchCards(this.props.auth.token, this.props.path);
-            }
-        }
-    }
-
-    componentWillUnmount() {
-        this._isMounted = false;
-    }
-
-    mount_websocket() {
-        window.library = this;
-
-        this.websocket = new WebSocket(`ws://${window.host}:3012/events/library/${this.props.id}`);
-        this.websocket.addEventListener("message", this.handle_ws_msg);
-    }
-
-    handle_ws_msg = async (event) => {
-        const msg = JSON.parse(event.data);
-
-        if (msg.res !== `/events/library/${this.props.id}`) return;
-
-        if (msg.message.event_type.type === "EventNewCard") {
-            const config = {
-                headers: {
-                    "authorization": this.props.auth.token,
-                }
-            }
-            const new_card = await this.handle_req(fetch(`//${window.host}:8000/api/v1/media/${msg.message.id}`, config));
-
-            if (!new_card.err) {
-                const key = Object.keys(this.state.cards)[0];
-
-                const newCardList = Array.from(
-                    new Set([...this.state.cards[key], new_card])
-                        .map(JSON.stringify)
-                        .map(JSON.parse)
-                        .sort((a, b) => {
-                            let name_a = a.name.toUpperCase();
-                            let name_b = b.name.toUpperCase();
-
-                            if (name_a < name_b) return -1;
-                            if (name_a > name_b) return 1;
-
-                            return 0;
-                        })
-                );
-
-                this.setState({
-                    cards: {
-                        key: newCardList
-                    }
-                });
-            }
-        }
     }
 
     render() {
         const cards = [];
-        let cardCount = 0;
         let card_list;
+        let cardCount = 0;
 
         if (this.cardList.current) {
             cardCount = Math.floor(this.cardList.current.offsetWidth / 240) * 2;
@@ -104,7 +29,7 @@ class CardList extends Component {
             );
         }
 
-        // FETCH_CARDS_START
+        // START
         if (this.props.cards.fetching) {
             card_list = (
                 <section>
@@ -116,7 +41,7 @@ class CardList extends Component {
             );
         }
 
-        // FETCH_CARDS_ERR
+        // ERR
         if (this.props.cards.fetched && this.props.cards.error) {
             card_list = (
                 <section>
@@ -132,7 +57,7 @@ class CardList extends Component {
             );
         }
 
-        // FETCH_CARDS_OK
+        // OK
         if (this.props.cards.fetched && !this.props.cards.error) {
             const { items } = this.props.cards;
             let sections = {};
@@ -175,11 +100,4 @@ class CardList extends Component {
     }
 }
 
-const mapStateToProps = (state) => ({
-    auth: state.authReducer,
-    cards: state.cardReducer.cards
-});
-
-const mapActionsToProps = { fetchCards };
-
-export default connect(mapStateToProps, mapActionsToProps)(CardList);
+export default PropCardList;

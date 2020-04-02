@@ -9,6 +9,12 @@ import {
     AUTH_REGISTER_OK,
     AUTH_CHECK_ADMIN_ERR,
     AUTH_CHECK_ADMIN_OK,
+    CREATE_NEW_INVITE_START,
+    CREATE_NEW_INVITE_OK,
+    CREATE_NEW_INVITE_ERR,
+    FETCH_INVITES_START,
+    FETCH_INVITES_OK,
+    FETCH_INVITES_ERR
 } from "./types";
 
 export const authenticate = (username, password) => async (dispatch) => {
@@ -85,11 +91,10 @@ export const register = (username, password, invite) => async (dispatch) => {
         const res = await fetch(`//${window.host}:8000/api/v1/auth/register`, config);
         const payload = await res.json();
 
-
         if (res.status !== 200) {
             return dispatch({
                 type: AUTH_REGISTER_ERR,
-                payload: res.statusText,
+                payload: res.statusText
             });
         } else if (!!payload.error) {
             return dispatch({
@@ -99,12 +104,12 @@ export const register = (username, password, invite) => async (dispatch) => {
         }
 
         dispatch({
-            type: AUTH_REGISTER_OK,
+            type: AUTH_REGISTER_OK
         });
     } catch(err) {
         dispatch({
             type: AUTH_REGISTER_ERR,
-            payload: err,
+            payload: err
         });
     }
 };
@@ -112,18 +117,91 @@ export const register = (username, password, invite) => async (dispatch) => {
 export const checkAdminExists = () => async (dispatch) => {
     try {
         const res = await fetch(`//${window.host}:8000/api/v1/auth/admin_exists`);
-        if (res.status !== 200)
+
+        if (res.status !== 200) {
             return dispatch({
                 type: AUTH_CHECK_ADMIN_ERR,
                 payload: res.statusText
-            })
+            });
+        }
 
         const payload = await res.json();
 
         dispatch({
             type: AUTH_CHECK_ADMIN_OK,
-            payload: payload,
+            payload
         });
-    } catch {
+    } catch(err) {
+        dispatch({
+            type: AUTH_CHECK_ADMIN_ERR,
+            payload: err
+        });
     }
-}
+};
+
+export const createNewInvite = (token) => async (dispatch) => {
+    dispatch({ type: CREATE_NEW_INVITE_START });
+
+    const config = {
+        method: "POST",
+        headers: {
+            "authorization": token,
+        }
+    };
+
+    try {
+        const res = await fetch(`//${window.host}:8000/api/v1/auth/new_invite`, config);
+
+        if (res.status !== 200) {
+            return dispatch({
+                type: CREATE_NEW_INVITE_ERR,
+                payload: res.statusText
+            });
+        }
+
+        const payload = await res.json();
+
+        dispatch({
+            type: CREATE_NEW_INVITE_OK,
+            payload,
+        });
+    } catch(err) {
+        dispatch({
+            type: CREATE_NEW_INVITE_ERR,
+            payload: err
+        });
+    }
+};
+
+export const fetchInvites = (token) => async (dispatch) => {
+    dispatch({ type: FETCH_INVITES_START });
+
+    try {
+        const config = {
+            headers: {
+                "authorization": token,
+            }
+        };
+
+        const res = await fetch(`//${window.host}:8000/api/v1/auth/invites`, config);
+
+        if (res.status !== 200) {
+            return dispatch({
+                type: FETCH_INVITES_ERR,
+                payload: res.statusText
+            });
+        }
+
+        const payload = await res.json();
+
+        dispatch({
+            type: FETCH_INVITES_OK,
+            payload,
+        });
+    } catch(err) {
+        dispatch({
+            type: FETCH_INVITES_ERR,
+            payload: err
+        });
+    }
+};
