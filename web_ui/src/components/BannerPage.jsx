@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import Banner from "../components/Banner.jsx";
-import { fetchBanners } from "../actions/bannerActions.js";
+import Banner from "./Banner.jsx";
+import { fetchBanners } from "../actions/banner.js";
 
 import "./BannerPage.scss";
 
@@ -115,8 +115,8 @@ class BannerPage extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer,
-    banners: state.bannerReducer
+    auth: state.auth,
+    banners: state.banner
 });
 
 const mapActionstoProps = { fetchBanners };

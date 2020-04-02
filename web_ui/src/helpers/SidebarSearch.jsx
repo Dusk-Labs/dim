@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { HashLink } from 'react-router-hash-link';
 import { withRouter } from "react-router-dom";
 
-import { quickSearch } from "../actions/searchActions.js";
+import { quickSearch } from "../actions/search.js";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./SidebarSearch.scss";
@@ -93,7 +93,7 @@ class SidebarSearch extends Component {
 
     handleSubmit() {
         if (this.state.query.length >= 1) {
-            this.props.history.push(`/search?query=${this.state.query}`);
+            this.props.history.push(`/search/${this.state.query}`);
         }
     }
 
@@ -176,8 +176,8 @@ class SidebarSearch extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer,
-    quick_search: state.searchReducer.quick_search
+    auth: state.auth,
+    quick_search: state.search.quick_search
 });
 
 const mapActionsToProps = { quickSearch };

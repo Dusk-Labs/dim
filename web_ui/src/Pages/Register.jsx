@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { authenticate, register, checkAdminExists } from "../actions/authActions.js";
+import { authenticate, register, checkAdminExists } from "../actions/auth.js";
 
 import "./AuthForm.scss";
 
@@ -40,11 +40,11 @@ class Register extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.auth.error !== this.props.auth.error) {
-            if (this.props.auth.error === "NoTokenError") {
+        if (prevProps.auth.error !== this.props.auth.register.error) {
+            if (this.props.auth.register.error === "NoTokenError") {
                 this.warn("invite", "Wrong invite token");
             }
-            if (this.props.auth.error === "UsernameTaken") {
+            if (this.props.auth.register.error === "UsernameTaken") {
                 this.warn("username", "Username is already taken");
             }
         }
@@ -97,10 +97,24 @@ class Register extends Component {
     }
 
     render() {
+        const token = document.cookie.split("=")[1];
+
+        // LOGGED IN
+		if (this.props.auth.login.logged_in && this.props.auth.token && !this.props.auth.login.error || token) {
+            if (!token) {
+                const dateExpires = new Date();
+
+                dateExpires.setTime(dateExpires.getTime() + 604800000);
+                document.cookie = `token=${this.props.auth.token};expires=${dateExpires.toGMTString()};`;
+            }
+
+            return <Redirect to="/"/>;
+        }
+
         const { admin_exists } = this.props.auth;
 
         // AUTH_LOGIN_ERR
-        if (this.props.auth.error) {
+        if (this.props.auth.register.error) {
             console.log("[AUTH] REGISTER ERROR", this.props.auth);
         }
 
@@ -179,7 +193,7 @@ class Register extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer,
+    auth: state.auth,
 });
 
 const mapActionsToProps = {

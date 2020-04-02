@@ -3,17 +3,16 @@ import { NavLink } from "react-router-dom";
 import Modal from "react-modal";
 import { connect } from "react-redux";
 import { Scrollbar } from "react-scrollbars-custom";
-
-import { fetchLibraries, delLibrary, handleWsNewLibrary, handleWsDelLibrary } from "../actions/libraryActions.js";
-import { fetchUser } from "../actions/userActions.js";
-import { logout } from "../actions/authActions.js";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import SidebarSearch from "../helpers/SidebarSearch.jsx";
-import SidebarIcon from "../helpers/SidebarIcon.jsx";
-import LazyImage from "../helpers/LazyImage.jsx";
-import NewLibraryModal from "../helpers/NewLibraryModal.jsx";
-import ConfirmationBox from "../helpers/ConfirmationBox.jsx";
+
+import { fetchLibraries, delLibrary, handleWsNewLibrary, handleWsDelLibrary } from "../actions/library.js";
+import { logout } from "../actions/auth.js";
+
+import Profile from "./User/Profile.jsx";
+import SidebarSearch from "../Helpers/SidebarSearch.jsx";
+import SidebarIcon from "../Helpers/SidebarIcon.jsx";
+import NewLibraryModal from "../Helpers/NewLibraryModal.jsx";
+import ConfirmationBox from "../Helpers/ConfirmationBox.jsx";
 
 import "./Sidebar.scss";
 
@@ -51,7 +50,6 @@ class Sidebar extends Component {
     };
 
     componentDidMount() {
-        this.props.fetchUser(this.props.auth.token);
         this.props.fetchLibraries(this.props.auth.token);
     }
 
@@ -75,61 +73,7 @@ class Sidebar extends Component {
     }
 
     render() {
-        let user;
         let libraries;
-
-        /*
-            * == USER ==
-        */
-
-        // FETCH_USER_START
-        if (this.props.user.fetching) {
-            user = (
-                <div className="profile">
-                    <div className="profile-icon">
-                        <div className="default-icon"></div>
-                    </div>
-                    <div className="placeholder-text"/>
-                </div>
-            );
-        }
-
-        // FETCH_USER_ERR
-        if (this.props.user.fetched && this.props.user.error) {
-            user = (
-                <div className="profile">
-                    <div className="profile-icon">
-                        <div className="default-icon"></div>
-                    </div>
-                    <div className="horizontal-err">
-                        <FontAwesomeIcon icon="times-circle"/>
-                        <p>FAILED TO FETCH</p>
-                    </div>
-                </div>
-            );
-        }
-
-        // FETCH_USER_OK
-        if (this.props.user.fetched && !this.props.user.error) {
-            const loading = <div className="default-icon"/>;
-            const { username, picture, spentWatching } = this.props.user.info;
-
-            user = (
-                <div className="profile">
-                    <div className="profile-icon">
-                        <LazyImage
-                            alt=""
-                            src={picture}
-                            loading={loading}
-                        />
-                    </div>
-                    <div className="info">
-                        <h4>{username}</h4>
-                        <h6>{spentWatching}h spent watching</h6>
-                    </div>
-                </div>
-            );
-        }
 
         /*
             * == LIBRARIES ==
@@ -204,7 +148,7 @@ class Sidebar extends Component {
                     <FontAwesomeIcon icon="angle-left"/>
                 </div>
                 <section className="main-part">
-                    {user}
+                    <Profile name={true} hoursSpentWatching={true}/>
                     <div className="separator"/>
                     <SidebarSearch/>
                 </section>
@@ -250,15 +194,13 @@ class Sidebar extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer,
-    user: state.userReducer,
-    libraries: state.libraryReducer.fetch_libraries
+    auth: state.auth,
+    libraries: state.library.fetch_libraries
 });
 
 const mapActionsToProps = {
     logout,
     fetchLibraries,
-    fetchUser,
     delLibrary,
     handleWsDelLibrary,
     handleWsNewLibrary,

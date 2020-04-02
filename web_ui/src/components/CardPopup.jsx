@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 
-import TruncText from "../helpers/TruncText.jsx";
+import TruncText from "../Helpers/TruncText.jsx";
 import IMDbLogo from "../assets/imdb.png";
 
 import "./CardPopup.scss";

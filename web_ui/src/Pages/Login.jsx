@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { authenticate } from "../actions/authActions.js";
+import { fetchUser } from "../actions/user.js";
+import { authenticate, updateAuthToken } from "../actions/auth.js";
+
+import WithOutSidebarLayout from "../Layouts/WithOutSidebarLayout.jsx";
 
 import "./AuthForm.scss";
 
@@ -27,12 +30,12 @@ class Login extends Component {
     }
 
     componentDidMount() {
-		document.title = "Dim - Login";
+        document.title = "Dim - Login";
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.auth.error !== this.props.auth.error) {
-            if (this.props.auth.error === "Forbidden") {
+        if (prevProps.auth.login.error !== this.props.auth.login.error) {
+            if (this.props.auth.login.error === "Forbidden") {
                 this.warn("password", "Wrong password");
             }
         }
@@ -70,19 +73,33 @@ class Login extends Component {
                 this.warn("password", "Too short, min. 4 chars.");
             }
         } else {
-            // FIXME: Track down why token remains as a null after logout
-            document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             this.props.authenticate(username.value, password.value);
         }
     }
 
     render() {
-        // AUTH_LOGIN_ERR
-        if (this.props.auth.error) {
-            console.log("[AUTH] ERROR", this.props.auth);
+        const token = document.cookie.split("=")[1];
+
+        // LOGGED IN
+		if (this.props.auth.login.logged_in && this.props.auth.token && !this.props.auth.login.error || token) {
+            this.props.fetchUser(this.props.auth.token);
+
+            if (!token) {
+                const dateExpires = new Date();
+
+                dateExpires.setTime(dateExpires.getTime() + 604800000);
+                document.cookie = `token=${this.props.auth.token};expires=${dateExpires.toGMTString()};`;
+            }
+
+            return <Redirect to="/"/>;
         }
 
-        return (
+        // AUTH_LOGIN_ERR
+        if (this.props.auth.login.error) {
+            console.log("[AUTH] ERROR", this.props.auth.login);
+        }
+
+        const loginForm = (
             <div className="auth-form">
                 <header>
                     <h1>Welcome to Dim</h1>
@@ -122,15 +139,23 @@ class Login extends Component {
                 </footer>
             </div>
         );
+
+        return (
+            <WithOutSidebarLayout>
+                {loginForm}
+            </WithOutSidebarLayout>
+        )
     }
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer,
+    auth: state.auth,
 });
 
 const mapActionsToProps = {
     authenticate,
+    updateAuthToken,
+    fetchUser
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(Login);

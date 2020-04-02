@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
-import * as Vibrant from 'node-vibrant';
+import * as Vibrant from "node-vibrant";
 
 import ProgressBar from "./ProgressBar.jsx";
-import LazyImage from "../helpers/LazyImage.jsx";
-import TruncText from "../helpers/TruncText.jsx";
+import LazyImage from "../Helpers/LazyImage.jsx";
+import TruncText from "../Helpers/TruncText.jsx";
 
 import "./Banner.scss";
 

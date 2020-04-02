@@ -1,15 +1,14 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import * as Vibrant from "node-vibrant";
-
-import "dashjs";
-import "videojs-contrib-dash";
 import videojs from "video.js";
+import "videojs-contrib-dash";
+import "dashjs";
 
-import { fetchMediaInfo, fetchExtraMediaInfo } from "../actions/cardActions.js";
+import { fetchMediaInfo, fetchExtraMediaInfo } from "../actions/card.js";
 
-import LazyImage from "../helpers/LazyImage.jsx";
 import VideoPlayerControls from "./VideoPlayerControls.jsx";
+import LazyImage from "../Helpers/LazyImage.jsx";
 
 import "./VideoPlayer.scss";
 
@@ -40,7 +39,6 @@ class VideoPlayer extends Component {
         document.title = "Dim - Playing";
 
         document.querySelector("meta[name='theme-color']").setAttribute("content", "#000000");
-        document.getElementsByTagName("main")[0].style["margin-left"] = "0";
 
         document.addEventListener("mousemove", this.triggerUserActive);
         document.addEventListener("scroll", this.triggerUserActive);
@@ -253,9 +251,9 @@ class VideoPlayer extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer,
-    media_info: state.cardReducer.media_info,
-    extra_media_info: state.cardReducer.extra_media_info
+    auth: state.auth,
+    media_info: state.card.media_info,
+    extra_media_info: state.card.extra_media_info
 });
 
 const mapActionsToProps = {
