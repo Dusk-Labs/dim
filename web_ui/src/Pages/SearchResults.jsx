@@ -22,7 +22,7 @@ class SearchResults extends Component {
 
         if (query.length > 0) {
             document.title = `Dim - Results for '${query}'`;
-            this.props.search(query);
+            this.props.search(query, this.props.auth.token);
         }
     }
 
