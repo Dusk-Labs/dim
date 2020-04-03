@@ -54,17 +54,27 @@ class Card extends Component {
     }
 
     async renderCardPopout() {
-        const color = await Vibrant.from(this.state.blob).getPalette();
+        try {
+            const color = await Vibrant.from(this.state.blob).getPalette();
 
-        const accent = {
-            background: color.Vibrant.getHex(),
-            text: color.Vibrant.getTitleTextColor()
-        };
+            const accent = {
+                background: color.Vibrant.getHex(),
+                text: color.Vibrant.getTitleTextColor()
+            };
 
-        this.setState({
-            hovering: true,
-            accent
-        });
+            this.setState({
+                hovering: true,
+                accent
+            });
+        } catch {
+            this.setState({
+                hovering: true,
+                accent: {
+                    background: "#f7931e",
+                    text: "#fff"
+                }
+            });
+        }
     }
 
     onLoadPoster = (blob) => this.setState({blob: URL.createObjectURL(blob)});
