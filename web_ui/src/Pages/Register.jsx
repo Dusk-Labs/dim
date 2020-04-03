@@ -11,6 +11,10 @@ class Register extends Component {
     constructor(props) {
         super(props);
 
+        this.updateField = this.updateField.bind(this);
+        this.authorize = this.authorize.bind(this);
+        this.onKeyDown = this.onKeyDown.bind(this);
+
         this.state = {
             username: {
                 value: "",
@@ -29,14 +33,16 @@ class Register extends Component {
                 err: ""
             },
         };
-
-        this.updateField = this.updateField.bind(this);
-        this.authorize = this.authorize.bind(this);
     }
 
     componentDidMount() {
 		document.title = "Dim - Register";
         this.props.checkAdminExists();
+        document.addEventListener("keydown", this.onKeyDown);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener("keydown", this.onKeyDown);
     }
 
     componentDidUpdate(prevProps) {
@@ -48,6 +54,11 @@ class Register extends Component {
                 this.warn("username", "Username is already taken");
             }
         }
+    }
+
+    onKeyDown(e) {
+        if (e.keyCode !== 13) return;
+        this.authorize();
     }
 
     updateField(e) {
@@ -89,8 +100,6 @@ class Register extends Component {
                 this.warn("invite", "Should be 36 chars.");
             }
         } else {
-            // FIXME: Track down why token remains as a null after logout
-            document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             await this.props.register(username.value, password.value, invite.value);
             await this.props.authenticate(username.value, password.value);
         }
