@@ -77,8 +77,6 @@ const routes = (
 
 class App extends Component {
 	componentDidMount() {
-		console.log("APP MOUNTED");
-
 		const darkLogo = document.getElementById("logo-dark");
 		const lightLogo = document.getElementById("logo-light");
 
