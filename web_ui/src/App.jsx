@@ -57,7 +57,7 @@ const routes = (
 				<Preferences/>
 			</MainLayout>
 		</PrivateRoute>
-		<PrivateRoute path="/search/:query" render={(props) => (
+		<PrivateRoute path="/search" render={(props) => (
 			<MainLayout>
 				<SearchResults {...props}/>
 			</MainLayout>

@@ -93,7 +93,7 @@ class SidebarSearch extends Component {
 
     handleSubmit() {
         if (this.state.query.length >= 1) {
-            this.props.history.push(`/search/${this.state.query}`);
+            this.props.history.push(`/search?query=${this.state.query}`);
         }
     }
 

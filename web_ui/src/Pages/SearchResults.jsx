@@ -18,11 +18,20 @@ class SearchResults extends Component {
     }
 
     getResults() {
-        const { query } = this.props.match.params;
+        const searchURL = new URLSearchParams(this.props.location.search);
 
-        if (query.length > 0) {
-            document.title = `Dim - Results for '${query}'`;
-            this.props.search(query, this.props.auth.token);
+        let params = "";
+
+        // eslint-disable-next-line
+        for (const key of searchURL.keys()) {
+            if (searchURL.get(key) !== undefined) {
+                params += `${key}=${searchURL.get(key)}&`;
+            }
+        }
+
+        if (params.length > 0) {
+            document.title = `Dim - Results for '${searchURL.get("query")}'`;
+            this.props.search(params, this.props.auth.token);
         }
     }
 
