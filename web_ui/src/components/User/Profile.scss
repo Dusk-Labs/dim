@@ -17,21 +17,28 @@
         .placeholder {
             border-radius: 50%;
         }
-    }
 
-    img {
-        @include animation(sidebarProfileIconLoad 0.3s ease-in);
-    }
+        .default-icon {
+            background: #f7931e;
+            height: 100%;
+            width: 100%;
+            border-radius: 50%;
+        }
 
-    img, .default-icon {
-        @include object-fit(cover);
-        height: 100%;
-        width: 100%;
-        border-radius: 50%;
-    }
+        .image-wrapper {
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            border-radius: 50%;
+        }
 
-    .default-icon {
-        background: #f7931e;
+        img {
+            @include object-fit(cover);
+            @include animation(sidebarProfileIconLoad .2s ease-in-out);
+            width: 100%;
+            height: 100%;
+            background: #f7931e;
+        }
     }
 
     .info {
