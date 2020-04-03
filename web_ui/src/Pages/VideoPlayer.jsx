@@ -71,10 +71,12 @@ class VideoPlayer extends Component {
     componentDidUpdate(prevProps) {
         // FETCH_MEDIA_INFO_OK
         if (
-            prevProps.media_info.fetched !== this.props.media_info.fetched
+            this.props.media_info.fetched
+            && !this.props.media_info.fetching
             && !this.props.media_info.error
-            && !this.state.endsAt
         ) {
+            if (prevProps.media_info.fetched === this.props.media_info.fetched) return;
+
             const currentDate = new Date();
             const { duration } = this.props.media_info.info;
 
@@ -90,7 +92,13 @@ class VideoPlayer extends Component {
         }
 
         // FETCH_MEDIA_EXTRA_INFO_OK
-        if (prevProps.extra_media_info.fetched !== this.props.extra_media_info.fetched && !this.props.extra_media_info.error) {
+        if (
+            this.props.extra_media_info.fetched
+            && !this.props.extra_media_info.fetching
+            && !this.props.extra_media_info.error
+        ) {
+            if (prevProps.extra_media_info.fetched === this.props.media_info.fetched) return;
+
             if (this.props.extra_media_info.info.versions) {
                 const { id } = this.props.extra_media_info.info.versions[0];
 
@@ -198,10 +206,14 @@ class VideoPlayer extends Component {
         let posterPath;
 
         // FETCH_MEDIA_INFO_OK
-        if (this.props.media_info.fetched && !this.props.media_info.error) {
-            const { name, poster_path } = this.props.media_info.info;
+        if (
+            this.props.media_info.fetched
+            && !this.props.media_info.fetching
+            && !this.props.media_info.error
+        ) {
+            const { name, poster_path, backdrop_path } = this.props.media_info.info;
 
-            posterPath = poster_path;
+            posterPath = poster_path || backdrop_path;
             document.title = `Dim - Playing '${name}'`;
         }
 
