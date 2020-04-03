@@ -143,8 +143,6 @@ class Media extends Component {
 
         // FETCH_MEDIA_INFO_OK
         if (this.props.media_info.fetched && !this.props.media_info.error) {
-            console.log("[FETCH MEDIA INFO] OK", this.props.media_info.info);
-
             const {
                 backdrop_path,
                 poster_path,
@@ -201,11 +199,6 @@ class Media extends Component {
         let mediaSeasons;
         let mediaEpisodes = {};
 
-        // FETCH_EXTRA_MEDIA_INFO_START
-        if (this.props.extra_media_info.fetching) {
-            console.log("[FETCH EXTRA MEDIA INFO] FETCHING");
-        }
-
         // FETCH_EXTRA_MEDIA_INFO_ERR
         if (this.props.extra_media_info.fetched && this.props.extra_media_info.error) {
             console.table("[FETCH EXTRA MEDIA INFO] ERR", this.props.extra_media_info);
@@ -213,8 +206,6 @@ class Media extends Component {
 
         // FETCH_EXTRA_MEDIA_INFO_OK
         if (this.props.extra_media_info.fetched && !this.props.extra_media_info.error) {
-            console.log("[FETCH EXTRA MEDIA INFO] OK", this.props.extra_media_info);
-
             if (this.props.extra_media_info.info.seasons) {
                 const { seasons } = this.props.extra_media_info.info;
 
@@ -238,7 +229,7 @@ class Media extends Component {
 
                     mediaEpisodes[seasons[x].season_number] = seasons[x].episodes.map((episode, i) => {
                         return (
-                            <Link to={`/play/${episode.versions[0].id}`} className="episode" key={i}>
+                            <Link to={`/play/${episode.id}`} className="episode" key={i}>
                                 <LazyImage src={episode.backdrop}/>
                                 <p>EPISODE {episode.episode}</p>
                             </Link>
