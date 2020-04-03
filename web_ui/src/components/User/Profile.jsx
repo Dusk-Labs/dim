@@ -10,16 +10,12 @@ class Profile extends Component {
     render() {
         let user = <Fragment/>;
 
-        /*
-            * == USER ==
-        */
-
         // FETCH_USER_START
         if (this.props.user.fetching) {
             user = (
                 <div className="profile">
                     <div className="profile-icon">
-                        <div className="default-icon"></div>
+                        <div className="default-icon"/>
                     </div>
                     <div className="placeholder-text"/>
                 </div>
@@ -31,7 +27,7 @@ class Profile extends Component {
             user = (
                 <div className="profile">
                     <div className="profile-icon">
-                        <div className="default-icon"></div>
+                        <div className="default-icon"/>
                     </div>
                     <div className="horizontal-err">
                         <FontAwesomeIcon icon="times-circle"/>
