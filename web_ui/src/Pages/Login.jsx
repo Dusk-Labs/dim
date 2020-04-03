@@ -14,6 +14,10 @@ class Login extends Component {
     constructor(props) {
         super(props);
 
+        this.updateField = this.updateField.bind(this);
+        this.authorize = this.authorize.bind(this);
+        this.onKeyDown = this.onKeyDown.bind(this);
+
         this.state = {
             username: {
                 value: "",
@@ -24,13 +28,16 @@ class Login extends Component {
                 err: ""
             }
         };
-
-        this.updateField = this.updateField.bind(this);
-        this.authorize = this.authorize.bind(this);
     }
 
     componentDidMount() {
         document.title = "Dim - Login";
+
+        document.addEventListener("keydown", this.onKeyDown);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener("keydown", this.onKeyDown);
     }
 
     componentDidUpdate(prevProps) {
@@ -39,6 +46,11 @@ class Login extends Component {
                 this.warn("password", "Wrong password");
             }
         }
+    }
+
+    onKeyDown(e) {
+        if (e.keyCode !== 13) return;
+        this.authorize();
     }
 
     updateField(e) {
@@ -117,7 +129,7 @@ class Login extends Component {
                                 </div>
                             }
                         </label>
-                        <input type="text" name="username" onChange={this.updateField} spellCheck="false"/>
+                        <input type="text" name="username" onChange={this.updateField} spellCheck="false" autoFocus/>
                     </div>
                     <div className="field">
                         <label>
