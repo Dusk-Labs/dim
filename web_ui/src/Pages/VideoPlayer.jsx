@@ -28,6 +28,7 @@ class VideoPlayer extends Component {
         this.triggerUserActive = this.triggerUserActive.bind(this);
         this.handleVideoLoaded = this.handleVideoLoaded.bind(this);
         this.hardSkip = this.hardSkip.bind(this);
+        this.updateEndsAt = this.updateEndsAt.bind(this);
 
         this.state = {
             userActiveTimeout: null,
@@ -65,9 +66,6 @@ class VideoPlayer extends Component {
 
         clearTimeout(this.state.userActiveTimeout);
         this.body.style.cursor = "default";
-
-        if (typeof this.player !== "undefined")
-            this.player.dispose();
     }
 
     componentDidUpdate(prevProps) {
@@ -105,11 +103,14 @@ class VideoPlayer extends Component {
                     });
                 });
             };
+
             window.player = this.player;
         }
     }
 
-    updateEndsAt = (endsAt) => this.setState({endsAt});
+    updateEndsAt(endsAt) {
+        this.setState({endsAt});
+    }
 
     hardSkip(skipTo) {
         this.player.currentTime(skipTo);
@@ -217,7 +218,7 @@ class VideoPlayer extends Component {
                     </section>
                     {this.video.current &&
                         // NOTE: Unsure if passing a direct callback to a child is a good idea pattern wise.
-                        <VideoPlayerControls video={this.video.current} card={this.props.media_info} hardSkip={this.hardSkip}/>
+                        <VideoPlayerControls video={this.video.current} card={this.props.media_info} hardSkip={this.hardSkip} updateEndsAt={this.updateEndsAt}/>
                     }
                     <section className="ends-at">
                         <p>ENDS AT</p>
