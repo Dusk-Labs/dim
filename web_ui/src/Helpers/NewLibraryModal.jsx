@@ -45,7 +45,11 @@ class NewLibraryModal extends Component {
     }
 
     close() {
-        this.setState({ visible: false });
+        this.setState({
+            visible: false,
+            name: "",
+            media_type: ""
+        });
     }
 
     select(path) {
