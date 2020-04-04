@@ -26,11 +26,6 @@ class Sidebar extends Component {
 
         this.toggleSidebar = this.toggleSidebar.bind(this);
 
-        if (window.location.protocol !== "https:") {
-            this.library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
-            this.library_ws.addEventListener("message", this.handle_ws_msg);
-        }
-
         this.state = {show: true};
     }
 
@@ -50,6 +45,15 @@ class Sidebar extends Component {
     };
 
     componentDidMount() {
+        if (window.location.protocol !== "https:") {
+            this.library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
+            this.library_ws.addEventListener("message", this.handle_ws_msg);
+        }
+
+        if (window.innerWidth < 800) {
+            this.toggleSidebar();
+        }
+
         this.props.fetchLibraries(this.props.auth.token);
     }
 
