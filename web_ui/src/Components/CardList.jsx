@@ -44,6 +44,7 @@ class CardList extends Component {
         }
     }
 
+    // TODO: doesn't work with large folders etc -> re-do later, fetchin' before the media is ready.
     handleWS(event) {
         const { type }= JSON.parse(event.data);
 

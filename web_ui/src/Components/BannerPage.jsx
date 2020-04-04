@@ -37,6 +37,7 @@ class BannerPage extends Component {
         this.library_ws.close();
     }
 
+    // TODO: doesn't work with large folders etc -> re-do later, fetchin' before the media is ready.
     handleWS(event) {
         const { type }= JSON.parse(event.data);
 
