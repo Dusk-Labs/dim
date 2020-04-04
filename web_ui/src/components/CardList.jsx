@@ -10,6 +10,8 @@ class CardList extends Component {
     constructor(props) {
         super(props);
 
+        this.handleWS = this.handleWS.bind(this);
+
         this._isMounted = false;
         this.cardList = React.createRef();
     }
@@ -18,15 +20,23 @@ class CardList extends Component {
         this._isMounted = true;
 
         if (this.props.path) {
-            return this.props.fetchCards(this.props.auth.token, this.props.path);
+            this.props.fetchCards(this.props.auth.token, this.props.path);
         }
 
-        if (this.props.id) {
-            return this.mount_websocket();
+        if (window.location.protocol !== "https:") {
+            this.library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
+            this.library_ws.addEventListener("message", this.handleWS);
         }
     }
 
-    async componentDidUpdate(prevProps) {
+    componentWillUnmount() {
+        this._isMounted = false;
+
+        this.library_ws.removeEventListener("message", this.handle_ws_msg);
+        this.library_ws.close();
+    }
+
+    componentDidUpdate(prevProps) {
         if (this.props.path) {
             if (this.props.path !== prevProps.path) {
                 return this.props.fetchCards(this.props.auth.token, this.props.path);
@@ -34,54 +44,19 @@ class CardList extends Component {
         }
     }
 
-    componentWillUnmount() {
-        this._isMounted = false;
-    }
+    handleWS(event) {
+        const { type }= JSON.parse(event.data);
 
-    mount_websocket() {
-        window.library = this;
+        if (type === "EventRemoveLibrary") {
+            this.props.fetchCards(this.props.auth.token, this.props.path);
+        }
 
-        this.websocket = new WebSocket(`ws://${window.host}:3012/events/library/${this.props.id}`);
-        this.websocket.addEventListener("message", this.handle_ws_msg);
-    }
+        if (type === "EventNewLibrary") {
+            this.props.fetchCards(this.props.auth.token, this.props.path);
+        }
 
-    handle_ws_msg = async (event) => {
-        const msg = JSON.parse(event.data);
-
-        if (msg.res !== `/events/library/${this.props.id}`) return;
-
-        if (msg.message.event_type.type === "EventNewCard") {
-            const config = {
-                headers: {
-                    "authorization": this.props.auth.token,
-                }
-            }
-            const new_card = await this.handle_req(fetch(`//${window.host}:8000/api/v1/media/${msg.message.id}`, config));
-
-            if (!new_card.err) {
-                const key = Object.keys(this.state.cards)[0];
-
-                const newCardList = Array.from(
-                    new Set([...this.state.cards[key], new_card])
-                        .map(JSON.stringify)
-                        .map(JSON.parse)
-                        .sort((a, b) => {
-                            let name_a = a.name.toUpperCase();
-                            let name_b = b.name.toUpperCase();
-
-                            if (name_a < name_b) return -1;
-                            if (name_a > name_b) return 1;
-
-                            return 0;
-                        })
-                );
-
-                this.setState({
-                    cards: {
-                        key: newCardList
-                    }
-                });
-            }
+        if (type === "EventNewCard") {
+            this.props.fetchCards(this.props.auth.token, this.props.path);
         }
     }
 
@@ -118,6 +93,7 @@ class CardList extends Component {
 
         // FETCH_CARDS_ERR
         if (this.props.cards.fetched && this.props.cards.error) {
+            console.log("ERR", this.props.cards.error);
             card_list = (
                 <section>
                     <div className="placeholder-name">
