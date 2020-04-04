@@ -202,10 +202,6 @@ main {
 	grid-template-rows: 40vh auto;
 	min-height: 100vh;
 
-	> section h1 {
-		margin: 50px 90px;
-	}
-
 	&.full {
 		margin-left: 0;
 	}
@@ -287,11 +283,5 @@ main {
 		&.shrunk {
 			margin-left: 150px;
 		}
-	}
-}
-
-@media only screen and (max-width: 654px) {
-	main .cards {
-		@include justify-content(center);
 	}
 }
