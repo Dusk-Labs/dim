@@ -11,9 +11,11 @@ class BannerPage extends Component {
     constructor(props) {
         super(props);
 
+        this.handleWS = this.handleWS.bind(this);
+
         this.state = {
             activeIndex: 0,
-            interval: 14000,
+            interval: 14000
         };
 
         this.interval = setInterval(this.next.bind(this), this.state.interval);
@@ -21,10 +23,31 @@ class BannerPage extends Component {
 
     componentDidMount() {
         this.props.fetchBanners(this.props.auth.token);
+
+        if (window.location.protocol !== "https:") {
+            this.library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
+            this.library_ws.addEventListener("message", this.handleWS);
+        }
     }
 
     componentWillUnmount() {
         clearInterval(this.interval);
+
+        this.library_ws.removeEventListener("message", this.handle_ws_msg);
+        this.library_ws.close();
+    }
+
+    // TODO: doesn't work with large folders etc -> re-do later, fetchin' before the media is ready.
+    handleWS(event) {
+        const { type }= JSON.parse(event.data);
+
+        if (type === "EventRemoveLibrary") {
+            this.props.fetchBanners(this.props.auth.token);
+        }
+
+        if (type === "EventNewLibrary") {
+            this.props.fetchBanners(this.props.auth.token);
+        }
     }
 
     next = async () => {
