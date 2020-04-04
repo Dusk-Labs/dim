@@ -64,3 +64,18 @@
     grid-template-columns: repeat(auto-fill, 200px);
     grid-gap: 100px 40px;
 }
+
+/*
+    * == MEDIA QUERIES ==
+*/
+
+@media only screen and (max-width: 800px) {
+    .card_list {
+        margin: 50px 30px;
+    }
+
+    .cards {
+        grid-template-columns: repeat(auto-fill, 180px);
+        grid-gap: 100px 20px;
+    }
+}
