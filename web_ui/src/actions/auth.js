@@ -56,9 +56,14 @@ export const authenticate = (username, password) => async (dispatch) => {
 };
 
 export const logout = () => async (dispatch) => {
-    // Remove all cookies
-    // FIXME: Is this the proper place to place shit like this?
-    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    const cookies = document.cookie.split(";");
+
+    cookies.forEach(cookie => {
+        const pos = cookie.indexOf("=");
+        const name = pos > -1 ? cookie.substr(0, pos) : cookie;
+
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    });
 
     dispatch({
         type: AUTH_LOGOUT
