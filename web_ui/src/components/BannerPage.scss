@@ -134,6 +134,14 @@
     * == MEDIA QUERIES ==
 */
 
+@media only screen and (max-width: 800px) {
+    .banner-wrapper {
+        .crumbs {
+            right: 30px;
+        }
+    }
+}
+
 @media only screen and (max-width: 651px) {
     .banner-wrapper .crumbs {
         top: unset;

@@ -125,6 +125,17 @@
     }
 }
 
+@media only screen and (max-width: 800px) {
+    .banner {
+        .extras {
+            left: 30px;
+        }
+        .info {
+            left: 30px;
+        }
+    }
+}
+
 @media only screen and (max-width: 651px) {
     .banner {
         // OVERLAY SIDE SHADOWS

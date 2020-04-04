@@ -29,7 +29,7 @@
         img, div, .placeholder {
             height: 320px;
             width: 200px;
-            border-radius: 1vh;
+            border-radius: 10px;
         }
 
         img:-moz-loading {
@@ -42,7 +42,7 @@
             text-transform: uppercase;
             font-size: 0.8em;
         }
-        
+
         a {
             outline: none;
 
@@ -76,5 +76,23 @@
     }
     100% {
         @include box-shadow(#ffffff 0 0 50px);
+    }
+}
+
+/*
+    * == MEDIA QUERIES ==
+*/
+
+@media only screen and (max-width: 800px) {
+    .card-wrapper {
+        .card {
+            height: 300px;
+            width: 180px;
+
+            img, div, .placeholder {
+                height: 300px;
+                width: 180px;
+            }
+        }
     }
 }
