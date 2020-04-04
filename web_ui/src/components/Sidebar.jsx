@@ -50,6 +50,10 @@ class Sidebar extends Component {
             this.library_ws.addEventListener("message", this.handle_ws_msg);
         }
 
+        if (window.innerWidth < 800) {
+            this.toggleSidebar();
+        }
+
         this.props.fetchLibraries(this.props.auth.token);
     }
 
