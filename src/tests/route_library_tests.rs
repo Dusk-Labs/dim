@@ -1,14 +1,13 @@
 #[cfg(test)]
 mod tests {
-    use {
-        crate::tests::{drop_all_data, CLIENT},
-        database::library::Library,
-        rocket::{
+    use
+        crate::tests::{drop_all_data, CLIENT};
+        use database::library::Library;
+        use rocket::{
             http::{ContentType, Status},
             local::Client,
-        },
-        std::collections::HashMap,
-    };
+        };
+        use std::collections::HashMap;
 
     #[test]
     fn get_all_libraries() {

@@ -17,8 +17,13 @@
 //! # To run
 //! Dim can be ran using docker, by pulling vgarleanu/dim-server, or locally.
 //! If ran locally, make sure PostgreSQL is running with the password for postgres: dimpostgres
+//!
+//! # Testing
+//! To test run `make test` in the root, or `cargo test` in the root of each module including the
+//! root dir.
 
 #![feature(rustc_private, proc_macro_hygiene, decl_macro, try_trait)]
+#![forbid(missing_docs)]
 
 #[macro_use]
 extern crate diesel;
@@ -42,14 +47,13 @@ use std::{
     sync::Mutex,
 };
 
-pub mod core;
-pub mod errors;
-pub mod macros;
-pub mod routes;
-pub mod scanners;
-pub mod schema;
-pub mod streaming;
-pub mod tests;
+mod core;
+mod errors;
+mod routes;
+mod scanners;
+mod schema;
+mod streaming;
+mod tests;
 
 const VERSION: &str = "0.0.4";
 const DESCRIPTION: &str = "Dim, a media manager fueled by dark forces.";
