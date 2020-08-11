@@ -1,3 +1,7 @@
 target
 node_modules
 .git
+logs
+transcoding
+web_ui/
+migrations
