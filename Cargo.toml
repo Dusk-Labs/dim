@@ -6,8 +6,9 @@ authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
 
 [dependencies]
-rocket = { version = "0.4.4", default-features = false, features = ["tls"] }
-rocket_codegen = { version = "0.4.4", default-features = false }
+rocket = { version = "0.4.5", default-features = false, features = ["tls"] }
+rocket_codegen = { version = "0.4.5", default-features = false }
+
 diesel = { version = "1.4.4", default-features = false, features = ["postgres"] }
 serde = { version = "1.0.105", default-features = false, features = ["derive", "std"] }
 serde_derive = "1.0.105"
@@ -25,7 +26,7 @@ rocket-slog = "0.4.0"
 slog = "2.5.2"
 sloggers = "0.3.5"
 pushevent = "0.1.3"
-parking_lot = { version = "0.10.0", features = ["nightly"] }
+parking_lot = { version = "0.11.0", features = ["nightly"] }
 clap = "2.33.0"
 slog-stream = "1.2.1"
 slog-term = "2.5.0"

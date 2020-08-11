@@ -17,8 +17,8 @@ macro_rules! which {
 }
 
 lazy_static! {
-    pub static ref FFMPEG_BIN: Box<str> = { which!("utils/ffmpeg") };
-    pub static ref FFPROBE_BIN: Box<str> = { which!("utils/ffprobe") };
+    pub static ref FFMPEG_BIN: Box<str> = which!("utils/ffmpeg");
+    pub static ref FFPROBE_BIN: Box<str> = which!("utils/ffprobe");
     pub static ref STREAMING_SESSION: Arc<RwLock<HashMap<String, HashMap<String, String>>>> =
         Arc::new(RwLock::new(HashMap::new()));
 }
