@@ -55,6 +55,11 @@
 	font-weight: normal;
 }
 
+html, body, #root {
+	height: 100%;
+	width: 100%;
+}
+
 body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
@@ -84,7 +89,7 @@ img {
 	font-family: "Roboto Condensed Regular";
 	background: #f7931e;
 	border-radius: 10px;
-	padding: 5px;
+	padding: 2px 5px;
 	font-size: 0.8em;
 	color: #ffffff;
 	white-space: nowrap;
@@ -93,7 +98,6 @@ img {
 
     svg {
 		@include animation(shake 0.5s ease-in-out);
-		margin-right: 5px;
 		animation-delay: 0.5s;
     }
 }
@@ -195,7 +199,8 @@ main {
 	position: relative;
 	margin-left: 300px;
     color: #ffffff;
-    display: grid;
+	display: grid;
+	height: 100%;
     grid-template-areas:
         "banner"
         "library";
