@@ -19,6 +19,7 @@ function Register(props) {
   const [passwordErr2, setPassword2Err] = useState("");
 
   const [invite, setInvite] = useState("");
+  const [inviteErr, setInviteErr] = useState("");
 
   // CHECK AUTH STATE
   useEffect(() => {
@@ -87,7 +88,7 @@ function Register(props) {
         <label>
           <div className="name">
             <FontAwesomeIcon icon="user"/>
-            <p>USERNAME</p>
+            <p>Username</p>
             {usernameErr.length > 0 && (
               <div className="horizontal-err">
                 <FontAwesomeIcon icon="times-circle"/>
@@ -100,7 +101,7 @@ function Register(props) {
         <label>
           <div className="name">
             <FontAwesomeIcon icon="key"/>
-            <p>PASSWORD</p>
+            <p>Password</p>
             {passwordErr1.length > 0 && (
               <div className="horizontal-err">
                 <FontAwesomeIcon icon="times-circle"/>
@@ -113,7 +114,7 @@ function Register(props) {
         <label>
           <div className="name">
             <FontAwesomeIcon icon="key"/>
-            <p>CONFIRM YOUR PASSWORD</p>
+            <p>Confirm your password</p>
             {passwordErr2.length > 0 && (
               <div className="horizontal-err">
                 <FontAwesomeIcon icon="times-circle"/>
@@ -127,7 +128,7 @@ function Register(props) {
           <label>
             <div className="name">
               <FontAwesomeIcon icon="tag"/>
-              <p>INVITE TOKEN</p>
+              <p>Invite token</p>
               {inviteErr.length > 0 && (
                 <div className="horizontal-err">
                   <FontAwesomeIcon icon="times-circle"/>
