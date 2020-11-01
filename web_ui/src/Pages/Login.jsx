@@ -3,10 +3,10 @@ import { connect } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { fetchUser } from "../../actions/user.js";
-import { authenticate, updateAuthToken } from "../../actions/auth.js";
+import { fetchUser } from "../actions/user.js";
+import { authenticate, updateAuthToken } from "../actions/auth.js";
 
-import "./Index.scss";
+import "./AuthForm.scss";
 
 function Login(props) {
   const history = useHistory();
@@ -61,10 +61,10 @@ function Login(props) {
   }, [username, password]);
 
   return (
-    <div className="loginForm">
+    <div className="authForm">
       <header>
-        <h1>Welcome to Dim</h1>
-        <h3>A media manager fueled by dark forces</h3>
+        <h1>Welcome back</h1>
+        <h3>Authenticate and continue to your media</h3>
       </header>
       <div className="fields">
         <label className="username">
@@ -111,7 +111,7 @@ function Login(props) {
       <footer>
         <button onClick={authorize}>Login</button>
         <div className="actions">
-          <Link to="/register">Create an account</Link>
+          <Link to="/register">Create a new account</Link>
           <Link to="/forgot-password">Forgot password</Link>
         </div>
       </footer>
