@@ -11,9 +11,9 @@ import PrivateRoute from "./Routes/PrivateRoute.jsx";
 import Dashboard from "./Pages/Dashboard.jsx";
 import Library from "./Pages/Library.jsx";
 import Media from "./Pages/Media.jsx";
-import VideoPlayer from "./Pages/VideoPlayer.jsx";
+// import VideoPlayer from "./Pages/VideoPlayer.jsx";
 import SearchResults from "./Pages/SearchResults.jsx";
-import Login from "./Pages/Login.jsx";
+import Login from "./Pages/Login/Index.jsx";
 import Register from "./Pages/Register.jsx";
 import Preferences from "./Pages/Preferences.jsx";
 
@@ -28,14 +28,12 @@ library.add(fas, far);
 
 // quick hack to get proper requests
 window.host = window.location.hostname;
-window.host = "86.21.150.167";
+// window.host = "86.21.150.167";
 
 const routes = (
 	<Switch>
 		<Route exact path="/login">
-			<WithOutSidebarLayout>
-				<Login/>
-			</WithOutSidebarLayout>
+			<Login/>
 		</Route>
 		<Route exact path="/register">
 			<WithOutSidebarLayout>
@@ -67,11 +65,11 @@ const routes = (
 				<Media {...props}/>
 			</MainLayout>
 		)}/>
-		<PrivateRoute path="/play/:id" render={(props) => (
+		{/* <PrivateRoute path="/play/:id" render={(props) => (
 			<WithOutSidebarLayout>
 				<VideoPlayer {...props}/>
 			</WithOutSidebarLayout>
-		)}/>
+		)}/> */}
 	</Switch>
 );
 
@@ -98,9 +96,7 @@ class App extends Component {
 	render() {
 		return (
 			<Router>
-				<div className="App">
-					{routes}
-				</div>
+				{routes}
 			</Router>
 		);
 	}
