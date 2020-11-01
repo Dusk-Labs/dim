@@ -13,7 +13,7 @@ import Library from "./Pages/Library.jsx";
 import Media from "./Pages/Media.jsx";
 // import VideoPlayer from "./Pages/VideoPlayer.jsx";
 import SearchResults from "./Pages/SearchResults.jsx";
-import Login from "./Pages/Login/Index.jsx";
+import Login from "./Pages/Login.jsx";
 import Register from "./Pages/Register.jsx";
 import Preferences from "./Pages/Preferences.jsx";
 
@@ -22,7 +22,7 @@ import { updateAuthToken } from "./actions/auth.js";
 import "./App.scss";
 
 import MainLayout from "./Layouts/MainLayout.jsx";
-import WithOutSidebarLayout from "./Layouts/WithOutSidebarLayout.jsx";
+// import WithOutSidebarLayout from "./Layouts/WithOutSidebarLayout.jsx";
 
 library.add(fas, far);
 
@@ -36,9 +36,7 @@ const routes = (
 			<Login/>
 		</Route>
 		<Route exact path="/register">
-			<WithOutSidebarLayout>
-				<Register/>
-			</WithOutSidebarLayout>
+			<Register/>
 		</Route>
 		<PrivateRoute exact path="/">
 			<MainLayout>
