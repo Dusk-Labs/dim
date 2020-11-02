@@ -60,6 +60,11 @@ function Login(props) {
     }
   }, [username, password]);
 
+  const onKeyDown = useCallback((e) => {
+    if (e.keyCode !== 13) return;
+    authorize();
+  })
+
   return (
     <div className="authForm">
       <header>
@@ -82,9 +87,10 @@ function Login(props) {
             name="username"
             onChange={e => setUsername(e.target.value)}
             spellCheck="false"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="none"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            onKeyDown={onKeyDown}
           />
         </label>
         <label className="password">
@@ -102,9 +108,10 @@ function Login(props) {
             type="password"
             name="password"
             onChange={e => setPassword(e.target.value)}
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="none"
+            autoComplete="off"
+            autoCorrect="off"
+            onKeyDown={onKeyDown}
+            autoCapitalize="none"
           />
         </label>
       </div>
@@ -118,7 +125,7 @@ function Login(props) {
       <svg className="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 202.832 143.542">
         <g transform="translate(-397.21 -251.229)">
           <path d="M6712.87,5823.906l34.876,34.876a9.96,9.96,0,0,1,0,14.063l-34.876,34.9a9.989,9.989,0,0,1-14.088,0l-34.876-34.9a9.96,9.96,0,0,1,0-14.063l34.876-34.876a9.989,9.989,0,0,1,14.088,0Zm33.989,35.763-34.876-34.876a8.741,8.741,0,0,0-12.314,0l-34.876,34.876a8.741,8.741,0,0,0,0,12.314l34.876,34.876a8.741,8.741,0,0,0,12.314,0l34.876-34.876a8.741,8.741,0,0,0,0-12.314Z" transform="translate(-6205.073 -5569.771)" fill="#fff"/>
-          <path d="M8974.543,8036.733l34.875,34.876a9.35,9.35,0,0,1,0,13.177l-13.743,13.768V8082.89l-3.694-5.616v24.975l-17.437,17.438a9.381,9.381,0,0,1-13.2,0l-13.743-13.768v-28.645l-3.694,5.616v19.359l-17.438-17.462a9.352,9.352,0,0,1,0-13.177l34.876-34.876A9.337,9.337,0,0,1,8974.543,8036.733Z" transform="translate(-8412.092 -7728.265)" fill="#fff" fill-rule="evenodd"/>
+          <path d="M8974.543,8036.733l34.875,34.876a9.35,9.35,0,0,1,0,13.177l-13.743,13.768V8082.89l-3.694-5.616v24.975l-17.437,17.438a9.381,9.381,0,0,1-13.2,0l-13.743-13.768v-28.645l-3.694,5.616v19.359l-17.438-17.462a9.352,9.352,0,0,1,0-13.177l34.876-34.876A9.337,9.337,0,0,1,8974.543,8036.733Z" transform="translate(-8412.092 -7728.265)" fill="#fff" fillRule="evenodd"/>
           <path d="M4328.87,8011.906l34.875,34.876a9.959,9.959,0,0,1,0,14.063l-34.875,34.9a9.989,9.989,0,0,1-14.088,0l-34.876-34.9a9.96,9.96,0,0,1,0-14.063l34.876-34.876a9.989,9.989,0,0,1,14.088,0Zm-9.95,85v-86.154a8.858,8.858,0,0,0-3.251,2.02l-34.875,34.9a8.71,8.71,0,0,0,0,12.29l34.875,34.9A8.946,8.946,0,0,0,4318.92,8096.9Z" transform="translate(-3879.79 -7703.881)" fill="#fff"/>
           <rect width="14" height="88" rx="7" transform="translate(494 252)" fill="#fff"/>
         </g>
