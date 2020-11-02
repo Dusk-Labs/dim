@@ -46,6 +46,7 @@ function Login(props) {
   useEffect(() => setUsernameErr(""), [username])
   useEffect(() => setPasswordErr(""), [password])
 
+  // TODO: better validation
   const authorize = useCallback(async () => {
     if (username.length <= 3 || password.length <= 3) {
       if (username.length <= 3) {
@@ -63,7 +64,7 @@ function Login(props) {
   const onKeyDown = useCallback((e) => {
     if (e.keyCode !== 13) return;
     authorize();
-  })
+  }, [])
 
   return (
     <div className="authForm">
