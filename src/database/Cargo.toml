@@ -5,7 +5,7 @@ authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
 
 [features]
-default = ["sqlite"]
+default = ["postgres"]
 
 postgres = ["diesel/postgres", "diesel-derive-enum/postgres"]
 sqlite = ["diesel/sqlite", "diesel-derive-enum/sqlite"]
