@@ -36,11 +36,12 @@ impl StreamableTrait for InsertableMovie {
     ///
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
-    fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
+    fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error> {
         diesel::insert_into(movie::table)
             .values(self)
-            .returning(movie::id)
-            .get_result(conn)
+            .execute(conn)?;
+
+        Ok(self.id)
     }
 }
 
