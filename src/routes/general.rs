@@ -1,6 +1,7 @@
 use crate::core::DbConnection;
 use crate::errors;
 use auth::Wrapper as Auth;
+use cfg_if::cfg_if;
 use database::{
     episode::Episode,
     genre::*,
@@ -12,12 +13,16 @@ use database::{
     season::Season,
 };
 use diesel::prelude::*;
+use diesel::sql_types::Text;
 use rocket::http::RawStr;
 use rocket_contrib::json::{Json, JsonValue};
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
 no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
+
+// Necessary to emulate ilike.
+sql_function!(fn upper(x: Text) -> Text);
 
 pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> Vec<String> {
     let mut dirs: Vec<String> = WalkDir::new(path)
@@ -279,7 +284,13 @@ pub fn search(
             .as_slice()
             .join("% %");
 
-        result = result.filter(media::name.ilike(format!("%{}%", query_string)));
+        cfg_if! {
+            if #[cfg(feature = "postgres")] {
+                result = result.filter(media::name.ilike(format!("%{}%", query_string)));
+            } else {
+                result = result.filter(upper(media::name).like(format!("%{}%", query_string)));
+            }
+        }
     }
 
     if let Some(x) = year {
