@@ -11,13 +11,13 @@ use rocket_contrib::json::{Json, JsonValue};
 #[post("/login", data = "<new_login>")]
 pub fn login(conn: DbConnection, new_login: Json<Login>) -> Result<JsonValue, errors::AuthError> {
     use database::schema::users::dsl::*;
-    let user: (String, String, Vec<String>) = users
+    let user: (String, String, String) = users
         .filter(username.eq(&new_login.username))
         .first(conn.as_ref())?;
 
     if verify(user.0.clone(), user.1.clone(), new_login.password.clone()) {
         return Ok(json!({
-            "token": jwt_generate(user.0, user.2)
+            "token": jwt_generate(user.0, user.2.split(",").map(|x| x.to_string()).collect())
         }));
     }
 
@@ -36,7 +36,7 @@ pub fn whoami(conn: DbConnection, user: Auth) -> JsonValue {
 #[get("/admin_exists")]
 pub fn admin_exists(conn: DbConnection) -> Result<JsonValue, errors::DimError> {
     Ok(json!({
-        "exists": User::get_all(conn.as_ref())?.is_empty()
+        "exists": !User::get_all(conn.as_ref())?.is_empty()
     }))
 }
 
