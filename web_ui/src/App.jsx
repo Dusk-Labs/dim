@@ -28,7 +28,6 @@ library.add(fas, far);
 
 // quick hack to get proper requests
 window.host = window.location.hostname;
-// window.host = "86.21.150.167";
 
 const routes = (
 	<Switch>
