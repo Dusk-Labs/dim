@@ -3,6 +3,7 @@ use crate::schema::media;
 use crate::streamablemedia::InsertableStreamableMedia;
 use crate::streamablemedia::StreamableTrait;
 use crate::tv::StaticTrait;
+use cfg_if::cfg_if;
 use diesel::prelude::*;
 
 /// Marker trait used to mark media types that inherit from Media.
@@ -124,7 +125,7 @@ impl Media {
     /// let _ = Library::delete(&conn, library_id);
     /// ```
     pub fn get_all(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         library: Library,
     ) -> Result<Vec<Self>, diesel::result::Error> {
         let result = Self::belonging_to(&library)
@@ -169,7 +170,7 @@ impl Media {
     /// // clean up the test
     /// let _ = Library::delete(&conn, library_id);
     /// ```
-    pub fn get(conn: &diesel::PgConnection, req_id: i32) -> Result<Self, diesel::result::Error> {
+    pub fn get(conn: &crate::DbConnection, req_id: i32) -> Result<Self, diesel::result::Error> {
         use crate::schema::media::dsl::*;
 
         let result = media.filter(id.eq(req_id)).first::<Self>(conn)?;
@@ -221,7 +222,7 @@ impl Media {
     /// let _ = Library::delete(&conn, library_id);
     /// ```
     pub fn get_by_name_and_lib(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         library: &Library,
         name: &str,
     ) -> Result<Self, diesel::result::Error> {
@@ -276,7 +277,7 @@ impl Media {
     /// let _ = Library::delete(&conn, library_id);
     /// ```
     pub fn delete(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         id_to_del: i32,
     ) -> Result<usize, diesel::result::Error> {
         use crate::schema::media::dsl::*;
@@ -326,19 +327,24 @@ impl InsertableMedia {
     /// // clean up the test
     /// let _ = Library::delete(&conn, library_id);
     /// ```
-    pub fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
+    pub fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error> {
         use crate::schema::library::dsl::*;
 
         library
             .filter(id.eq(self.library_id))
             .first::<Library>(conn)?;
 
-        let result = diesel::insert_into(media::table)
-            .values(self)
-            .returning(media::id)
-            .get_result(conn)?;
+        let query = diesel::insert_into(media::table).values(self);
 
-        Ok(result)
+        cfg_if! {
+            if #[cfg(feature = "postgres")] {
+                query.returning(media::id)
+                    .get_result(conn)
+            } else {
+                query.execute(conn)?;
+                diesel::select(crate::last_insert_rowid).get_result(conn)
+            }
+        }
     }
 
     /// Method used as a intermediary to insert media objects into a middle table used as a marker
@@ -381,7 +387,7 @@ impl InsertableMedia {
     /// let _ = Library::delete(&conn, library_id);
     pub fn into_streamable<T: StreamableTrait>(
         &self,
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         manual_insert: Option<()>,
     ) -> Result<i32, diesel::result::Error> {
         let id = self.insert(conn).unwrap();
@@ -433,7 +439,7 @@ impl InsertableMedia {
     /// let _ = Library::delete(&conn, library_id);
     pub fn into_static<T: StaticTrait>(
         &self,
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
     ) -> Result<i32, diesel::result::Error> {
         let id = self.insert(conn).unwrap();
         T::new(id).insert(conn)
@@ -490,7 +496,7 @@ impl UpdateMedia {
     /// ```
     pub fn update(
         &self,
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         _id: i32,
     ) -> Result<usize, diesel::result::Error> {
         use crate::schema::media::dsl::*;

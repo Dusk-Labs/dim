@@ -17,25 +17,36 @@ pub struct Progress {
 
 impl Progress {
     pub fn set(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         delta: i32,
         uid: String,
         mid: i32,
     ) -> Result<usize, DieselError> {
-        diesel::insert_into(progress::table)
+        // NOTE: We could use `on_conflict` here but the diesel backend for sqlite doesnt support
+        // this yet.
+        if diesel::insert_into(progress::table)
             .values((
                 progress::delta.eq(delta),
                 progress::media_id.eq(mid),
-                progress::user_id.eq(uid),
+                progress::user_id.eq(uid.clone()),
             ))
-            .on_conflict((progress::media_id, progress::user_id))
-            .do_update()
+            .execute(conn)
+            .is_err()
+        {
+            diesel::update(
+                progress::table
+                    .filter(progress::media_id.eq(mid))
+                    .filter(progress::user_id.eq(uid)),
+            )
             .set(progress::delta.eq(delta))
             .execute(conn)
+        } else {
+            Ok(1)
+        }
     }
 
     pub fn get_for_media_user(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         uid: String,
         mid: i32,
     ) -> Result<i32, DieselError> {
@@ -54,7 +65,7 @@ impl Progress {
     }
 
     pub fn get_total_time_spent_watching(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         uid: String,
     ) -> Result<i32, DieselError> {
         use crate::schema::progress::dsl::*;

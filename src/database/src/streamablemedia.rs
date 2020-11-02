@@ -6,7 +6,7 @@ use diesel::prelude::*;
 /// or episode.
 pub trait StreamableTrait {
     /// Required method that inserts Self into the database returning the id of it or a error.
-    fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error>;
+    fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error>;
     /// Method should return a instance of Self.
     fn new(id: i32) -> Self;
 }
@@ -38,11 +38,12 @@ impl InsertableStreamableMedia {
     /// * `conn` - diesel connection reference to postgres
     pub(crate) fn insert(
         id: i32,
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
     ) -> Result<i32, diesel::result::Error> {
         diesel::insert_into(streamable_media::table)
             .values(InsertableStreamableMedia { id })
-            .returning(streamable_media::id)
-            .get_result(conn)
+            .execute(conn)?;
+
+        Ok(id)
     }
 }

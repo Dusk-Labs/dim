@@ -6,6 +6,8 @@ use crate::schema::episode;
 use crate::season::Season;
 use crate::streamablemedia::StreamableMedia;
 use crate::tv::TVShow;
+
+use cfg_if::cfg_if;
 use diesel::prelude::*;
 
 /// Episode struct encapsulates a media entry representing a episode
@@ -136,7 +138,7 @@ impl Episode {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     pub fn get_all_of_tv(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         media: &Media,
     ) -> Result<Vec<Episode>, diesel::result::Error> {
         use crate::schema::media;
@@ -234,7 +236,7 @@ impl Episode {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     pub fn get_all_of_season(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         media: &Season,
     ) -> Result<Vec<Episode>, diesel::result::Error> {
         use crate::schema::media;
@@ -323,7 +325,7 @@ impl Episode {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     pub fn get(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         id: i32,
         season_num: i32,
         ep_num: i32,
@@ -421,7 +423,7 @@ impl Episode {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     pub fn delete(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         id: i32,
         season_num: i32,
         ep_num: i32,
@@ -516,7 +518,7 @@ impl InsertableEpisode {
     /// Library::delete(&conn, library_id).unwrap();
     pub fn insert(
         &self,
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         id: i32,
     ) -> Result<i32, diesel::result::Error> {
         use crate::schema::season;
@@ -532,14 +534,23 @@ impl InsertableEpisode {
 
         let episode: InsertableEpisodeWrapper = self.into();
 
-        diesel::insert_into(episode::table)
-            .values((
-                episode::dsl::id.eq(media_id),
-                episode,
-                episode::dsl::seasonid.eq(season.id),
-            ))
-            .returning(episode::id)
-            .get_result(conn)
+        let query = diesel::insert_into(episode::table).values((
+            episode::dsl::id.eq(media_id),
+            episode,
+            episode::dsl::seasonid.eq(season.id),
+        ));
+
+        // Sqlite doesnt support get_result queries, so we have to emulate it with
+        // `last_insert_row` function.
+        cfg_if! {
+            if #[cfg(feature = "postgres")] {
+                query.returning(episode::id)
+                    .get_result(conn)
+            } else {
+                query.execute(conn)?;
+                diesel::select(crate::last_insert_rowid).get_result::<i32>(conn)
+            }
+        }
     }
 
     fn into(&self) -> InsertableEpisodeWrapper {
@@ -640,7 +651,7 @@ impl UpdateEpisode {
     /// Library::delete(&conn, library_id).unwrap();
     pub fn update(
         &self,
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         id: i32,
         season_num: i32,
         ep_num: i32,
