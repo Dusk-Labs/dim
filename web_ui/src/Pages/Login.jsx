@@ -39,14 +39,14 @@ function Login(props) {
 
     // AUTH_LOGIN_ERR
     if (props.auth.login.error) {
-      console.log("[AUTH] ERROR", props.auth.login);
+      setPasswordErr(props.auth.login.error)
     }
-  }, []);
+  }, [props.auth]);
 
   useEffect(() => setUsernameErr(""), [username])
   useEffect(() => setPasswordErr(""), [password])
 
-  const authorize = useCallback(() => {
+  const authorize = useCallback(async () => {
     if (username.length <= 3 || password.length <= 3) {
       if (username.length <= 3) {
         setUsernameErr("Too short, min. 4 chars.");
@@ -56,7 +56,7 @@ function Login(props) {
         setPasswordErr("Too short, min. 4 chars.");
       }
     } else {
-      props.authenticate(username, password);
+      await props.authenticate(username, password);
     }
   }, [username, password]);
 
