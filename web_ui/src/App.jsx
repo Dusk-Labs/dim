@@ -1,20 +1,21 @@
-import React, { Component } from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Switch } from "react-router-dom";
 import { connect } from "react-redux";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { far } from "@fortawesome/free-regular-svg-icons";
 
-import PrivateRoute from "./Routes/PrivateRoute.jsx";
+import NotAuthedOnlyRoute from "./Routes/NotAuthedOnly.jsx";
+import PrivateRoute from "./Routes/Private.jsx";
 
 import Dashboard from "./Pages/Dashboard.jsx";
 import Library from "./Pages/Library.jsx";
 import Media from "./Pages/Media.jsx";
 // import VideoPlayer from "./Pages/VideoPlayer.jsx";
 import SearchResults from "./Pages/SearchResults.jsx";
-import Login from "./Pages/Login.jsx";
-import Register from "./Pages/Register.jsx";
+import Login from "./Pages/Auth/Login.jsx";
+import Register from "./Pages/Auth/Register.jsx";
 import Preferences from "./Pages/Preferences.jsx";
 
 import { updateAuthToken } from "./actions/auth.js";
@@ -31,12 +32,12 @@ window.host = window.location.hostname;
 
 const routes = (
 	<Switch>
-		<Route exact path="/login">
+		<NotAuthedOnlyRoute exact path="/login">
 			<Login/>
-		</Route>
-		<Route exact path="/register">
+		</NotAuthedOnlyRoute>
+		<NotAuthedOnlyRoute exact path="/register">
 			<Register/>
-		</Route>
+		</NotAuthedOnlyRoute>
 		<PrivateRoute exact path="/">
 			<MainLayout>
 				<Dashboard/>
@@ -70,33 +71,40 @@ const routes = (
 	</Switch>
 );
 
-class App extends Component {
-	componentDidMount() {
-		const darkLogo = document.getElementById("logo-dark");
-		const lightLogo = document.getElementById("logo-light");
+function App() {
+  const handleMQL = (e) => {
+    if (e.matches) {
+      lightLogo.remove();
+      document.head.append(darkLogo);
+    } else {
+      darkLogo.remove();
+      document.head.append(lightLogo);
+    }
+  };
 
-		if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-			lightLogo.remove();
-		}
+  useEffect(() => {
+    const darkLogo = document.getElementById("logo-dark");
+    const lightLogo = document.getElementById("logo-light");
 
-		window.matchMedia("(prefers-color-scheme: dark)").addListener((e) => {
-			if (e.matches) {
-				lightLogo.remove();
-				document.head.append(darkLogo);
-			} else {
-				darkLogo.remove();
-				document.head.append(lightLogo);
-			}
-		});
-	}
+    const mql = matchMedia("(prefers-color-scheme: dark)");
 
-	render() {
-		return (
-			<Router>
-				{routes}
-			</Router>
-		);
-	}
+    if (mql.matches) {
+      lightLogo.remove();
+      document.head.append(darkLogo);
+    }
+
+    mql.addEventListener("change", handleMQL)
+
+    return () => {
+      mql.removeEventListener("change", handleMQL)
+    }
+  }, [])
+
+  return (
+    <Router>
+      {routes}
+    </Router>
+  );
 }
 
 const mapStateToProps = (state) => ({
