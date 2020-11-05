@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { fetchLibraries, delLibrary, handleWsNewLibrary, handleWsDelLibrary } from "../actions/library.js";
 import { logout } from "../actions/auth.js";
+import { fetchUser } from "../actions/user.js";
 
 import Profile from "./User/Profile.jsx";
 import SidebarSearch from "../Helpers/SidebarSearch.jsx";
@@ -55,6 +56,7 @@ class Sidebar extends Component {
         }
 
         this.props.fetchLibraries(this.props.auth.token);
+    this.props.fetchUser(this.props.auth.token)
     }
 
     componentWillUnmount() {
@@ -198,16 +200,17 @@ class Sidebar extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.auth,
-    libraries: state.library.fetch_libraries
+  auth: state.auth,
+  libraries: state.library.fetch_libraries
 });
 
 const mapActionsToProps = {
-    logout,
-    fetchLibraries,
-    delLibrary,
-    handleWsDelLibrary,
-    handleWsNewLibrary,
+  logout,
+  fetchLibraries,
+  delLibrary,
+  handleWsDelLibrary,
+  handleWsNewLibrary,
+  fetchUser
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(Sidebar);
