@@ -56,6 +56,8 @@
       }
 
       .horizontal-err {
+        padding: 2px 5px;
+        font-size: .8em;
         margin-left: 5px;
         background: #ee4740;
       }
@@ -64,7 +66,7 @@
         font-size: 0.8em;
       }
 
-      p {
+      .name > p {
         margin: 0 5px;
         font-family: "Roboto Condensed Regular";
       }
