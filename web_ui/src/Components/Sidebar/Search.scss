@@ -1,0 +1,99 @@
+@import "../../mixins.scss";
+
+.search-box {
+  position: relative;
+  z-index: 1;
+}
+
+.search-box-wrapper {
+  background: #4a4a4a;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  height: 40px;
+
+  input {
+    background: #4a4a4a;
+    border: none;
+    outline: none;
+    padding: 10px 43px 10px 10px;
+    color: #ffffff;
+    font-family: "Roboto Regular";
+    width: 100%;
+    overflow: hidden;
+    font-size: 16px;
+    height: 100%;
+    transition: 0.3s ease-in-out;
+    transition-property: background, padding;
+
+    &::placeholder {
+      color: #aaa;
+    }
+  }
+
+  button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 50%;
+    right: 7px;
+    height: 26px;
+    width: 26px;
+    border-radius: 50%;
+    font-size: 0.6em;
+    background: #6a6a6a;
+    color: #fff;
+    outline: none;
+    transform: translateY(-50%);
+    transition: background .2s ease-in-out;
+
+    &:focus,
+    &:hover {
+      background: #7a7a7a;
+    }
+  }
+}
+
+@include keyframes(SidebarSearchForAppear) {
+  0% {
+    opacity: 0;
+    width: 0;
+  }
+  100% {
+    opacity: 1;
+    width: 100%;
+  }
+}
+
+@include keyframes(PlaceholderAppear) {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+
+/*
+    * == MEDIA QUERIES ==
+*/
+
+// @media only screen and (max-width: 1080px) {
+//   .search-box-search-for {
+//     // padding: 10px;
+//     text-align: center;
+
+//     p {
+//       margin-bottom: 5px;
+//       overflow: hidden;
+//       white-space: unset;
+//       text-overflow: ellipsis;
+//     }
+
+//     .horizontal-err {
+//       margin: 0;
+//     }
+//   }
+// }
