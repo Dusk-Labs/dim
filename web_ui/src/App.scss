@@ -86,12 +86,13 @@ img {
 .horizontal-err {
 	@include animation(appear 0.4s ease-in-out);
 	@include align-items(center);
-	display: inline-flex;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 5px;
 	font-family: "Roboto Condensed Regular";
 	background: #f7931e;
 	border-radius: 10px;
-	padding: 2px 5px;
-	font-size: 0.8em;
+	padding: 3px 5px;
 	color: #ffffff;
 	white-space: nowrap;
 	overflow: hidden;
@@ -100,6 +101,7 @@ img {
     svg {
 		@include animation(shake 0.5s ease-in-out);
 		animation-delay: 0.5s;
+		font-size: .8em;
     }
 }
 
