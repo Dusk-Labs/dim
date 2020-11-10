@@ -9,6 +9,8 @@ function RegisterBtn(props) {
   const [setUsernameErr, setPassword1Err, setPassword2Err, setInviteErr] = error;
 
   const authorize = useCallback(() => {
+    if (props.registering) return;
+
     const allowedChars = /^[a-zA-Z0-9_.-]*$/;
 
     const usernameValidChars = allowedChars.test(username);
@@ -58,11 +60,13 @@ function RegisterBtn(props) {
   }, [credentials])
 
   return (
-    <button onClick={authorize}>Login</button>
+    <button className={`${props.auth.registering}`} onClick={authorize}>Login</button>
   )
 }
 
-const mapStateToProps = () => ({});
+const mapStateToProps = (state) => ({
+  auth: state.auth.register,
+});
 
 const mapActionsToProps = {
   register,
