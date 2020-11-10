@@ -108,7 +108,6 @@
     }
 
     button {
-      @include transition(background 0.3s ease-in-out);
       margin-bottom: 1em;
       padding: 10px 20px;
       width: 100%;
@@ -117,9 +116,17 @@
       background: #f7931e;
       color: #fff;
       border-radius: 5px;
+      transition: .2s ease-in-out;
+      transition-property: background, opacity;
 
-      &:hover {
+      &.false:hover {
         background: #e6820d;
+      }
+
+      // logging_in/registering
+      &.true {
+        opacity: .3;
+        cursor: not-allowed;
       }
     }
   }
