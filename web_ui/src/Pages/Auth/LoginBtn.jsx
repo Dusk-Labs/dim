@@ -9,6 +9,8 @@ function LoginBtn(props) {
   const [setUsernameErr, setPasswordErr] = error;
 
   const authorize = useCallback(async () => {
+    if (props.auth.logging_in) return;
+
     const allowedChars = /^[a-zA-Z0-9_.-]*$/;
 
     const usernameValidChars = allowedChars.test(username);
@@ -45,14 +47,16 @@ function LoginBtn(props) {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     }
-  }, [credentials])
+  }, [credentials]);
 
   return (
-    <button onClick={authorize}>Login</button>
+    <button className={`${props.auth.logging_in}`} onClick={authorize}>Login</button>
   )
 }
 
-const mapStateToProps = () => ({});
+const mapStateToProps = (state) => ({
+  auth: state.auth.login,
+});
 
 const mapActionsToProps = {
   authenticate,
