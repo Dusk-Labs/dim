@@ -167,7 +167,7 @@
 @include keyframes(sidebarToggleOn) {
   0% {
     @include transform(translateX(0));
-    right: 10%;
+    right: 1em;
     opacity: 1;
   }
   50% {
@@ -192,7 +192,7 @@
   }
   100% {
     @include transform(rotate(360deg));
-    right: 10%;
+    right: 1em;
     opacity: 1;
   }
 }
