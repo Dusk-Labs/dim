@@ -1,8 +1,10 @@
 @import "../../mixins.scss";
 
 .sidebar {
-  height: 100vh;
-  padding: 2em 1em;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
   width: 150px;
   position: fixed;
   background: #3a3a3a;
@@ -28,26 +30,9 @@
     }
   }
 
-  .toggle {
-    position: absolute;
-    bottom: 2%;
-    right: 10%;
-    height: 30px;
-    width: 30px;
-    border-radius: 50%;
-    background: #4a4a4a;
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1;
-    transition: 0.3s ease-in-out;
-    transition-property: transform, background;
-
-    &:hover {
-      background: #5a5a5a;
-    }
+  .sectionsWrapper {
+    padding: 2em 1em;
+    overflow-y: auto;
   }
 
   section {
@@ -218,8 +203,11 @@
 
 @media only screen and (min-width: 1080px) {
   .sidebar {
-    padding: 2em 1em;
     width: 300px;
+
+    .sectionsWrapper {
+      padding: 2em 1em;
+    }
 
     .list .item-wrapper {
       grid-template-columns: auto 20px 1px;
