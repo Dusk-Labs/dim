@@ -23,7 +23,6 @@ import { updateAuthToken } from "./actions/auth.js";
 import "./App.scss";
 
 import MainLayout from "./Layouts/MainLayout.jsx";
-// import WithOutSidebarLayout from "./Layouts/WithOutSidebarLayout.jsx";
 
 library.add(fas, far);
 
