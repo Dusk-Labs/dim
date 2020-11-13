@@ -120,8 +120,7 @@ class BannerPage extends Component {
                 banners = (
                     <div className="placeholder">
                         <div className="vertical-err">
-                            <FontAwesomeIcon icon="times-circle"/>
-                            <p>NO BANNERS FOUND</p>
+                            <p>Empty</p>
                         </div>
                     </div>
                 );
