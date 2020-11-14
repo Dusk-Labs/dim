@@ -45,6 +45,14 @@
       justify-content: space-between;
       margin-bottom: .5em;
     }
+
+    &.libraries {
+      margin: 2em 0;
+
+      &:hover .openNewLibrary {
+        opacity: 1;
+      }
+    }
   }
 
   .main-part {
@@ -85,6 +93,13 @@
         &:focus,
         &:hover {
           background: #2a2a2a;
+        }
+
+        &.logout {
+          &:focus,
+          &:hover {
+            background: #ff6961;
+          }
         }
 
         &.active {
