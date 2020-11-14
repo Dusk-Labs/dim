@@ -7,8 +7,6 @@ import SidebarIcon from "./Icon.jsx";
 import NewLibraryModal from "./NewLibraryModal.jsx";
 import ConfirmationBox from "../../Helpers/ConfirmationBox";
 
-import "./Libraries.scss";
-
 function Libraries(props) {
   const [libs, setLibs] = useState([]);
 
