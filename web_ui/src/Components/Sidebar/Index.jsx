@@ -1,15 +1,13 @@
 import React, { useEffect, useRef } from "react";
-import { NavLink } from "react-router-dom";
 import { connect } from "react-redux";
 
-import { logout } from "../../actions/auth.js";
 import { fetchUser } from "../../actions/user.js";
 
-import Profile from "./Profile.jsx";
-import Search from "./Search.jsx";
-import Icon from "./Icon.jsx";
+import Profile from "./Profile";
+import Search from "./Search";
 import Libraries from "./Libraries";
 import Toggle from "./Toggle";
+import Account from "./Account";
 
 import "./Index.scss";
 
@@ -29,25 +27,7 @@ function Sidebar(props) {
           <Search/>
         </section>
         <Libraries/>
-        <section className="your-account">
-          <header>
-            <h4>Account</h4>
-          </header>
-          <div className="list">
-            <div className="item-wrapper">
-              <NavLink to="/preferences">
-                <Icon icon="preferences"/>
-                <p className="item-wrapper-name">Preferences</p>
-              </NavLink>
-            </div>
-            <div className="item-wrapper">
-              <NavLink to="/login" onClick={props.logout}>
-                <Icon icon="logout"/>
-                <p className="item-wrapper-name">Logout</p>
-              </NavLink>
-            </div>
-          </div>
-        </section>
+        <Account/>
       </div>
       <Toggle sidebar={divContainer}/>
     </nav>
@@ -59,7 +39,6 @@ const mapStateToProps = (state) => ({
 });
 
 const mapActionsToProps = {
-  logout,
   fetchUser
 };
 
