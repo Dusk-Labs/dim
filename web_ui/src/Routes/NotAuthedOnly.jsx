@@ -25,6 +25,7 @@ function NotAuthedOnlyRoute(props) {
         `token=${props.auth.token};expires=${dateExpires.toGMTString()};`
       );
 
+      history.push("/")
     }
 
     if (auth.token && tokenInCookie) {
