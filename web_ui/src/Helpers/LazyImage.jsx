@@ -81,6 +81,14 @@ class LazyImage extends Component {
         // ERR
         if (this.state.fetched && this.state.error) {
             if (!this.props.onFail) {
+                if (this.props.type === "SMALL") {
+                    return (
+                        <div className="error-icon">
+                            <FontAwesomeIcon icon="times-circle"/>
+                        </div>
+                    );
+                }
+
                 return (
                     <div className="placeholder">
                         <div className="vertical-err">
