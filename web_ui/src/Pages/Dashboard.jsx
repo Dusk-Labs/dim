@@ -1,17 +1,19 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 
-import BannerPage from "../Components/BannerPage.jsx";
-import CardList from "../Components/CardList.jsx";
+import Banners from "../Components/Banners/Index";
+import CardList from "../Components/CardList";
 
-const Dashboard = () => {
+function Dashboard() {
+  useEffect(() => {
     document.title = "Dim - Dashboard";
+  }, [])
 
-    return (
-        <Fragment>
-            <BannerPage/>
-            <CardList path={`//${window.host}:8000/api/v1/dashboard`}/>
-        </Fragment>
-    );
+  return (
+    <Fragment>
+      <Banners/>
+      <CardList path={`//${window.host}:8000/api/v1/dashboard`}/>
+    </Fragment>
+  );
 };
 
 export default Dashboard;
