@@ -80,7 +80,11 @@ a {
 }
 
 img {
-	background: #222222;
+	background: #222;
+
+	&:-moz-loading {
+		visibility: hidden;
+	}
 }
 
 .horizontal-err {
