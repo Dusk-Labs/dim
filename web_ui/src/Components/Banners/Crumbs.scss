@@ -1,0 +1,47 @@
+.bannerCrumbs {
+  display: flex;
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  z-index: 1;
+  transition: .3s ease-in-out;
+  transition-property: top, right;
+
+  .crumb {
+    margin-left: 10px;
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    border: solid 3px #fff;
+    transition: transform .1s ease-in-out;
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &.active {
+      animation: crumbActive .5s ease-out;
+      background: #fff;
+    }
+  }
+}
+
+@keyframes crumbActive {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media only screen and (min-width: 1080px) {
+  .bannerCrumbs {
+    top: 40px;
+    right: 90px;
+  }
+}
