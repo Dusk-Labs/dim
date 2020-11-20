@@ -1,0 +1,150 @@
+@import "../../mixins.scss";
+
+.banner {
+  min-height: 45vh;
+  width: 100%;
+  overflow: hidden;
+  gap: 30px;
+  padding: 30px;
+  grid-template-rows: auto 1fr auto;
+  align-items: center;
+  display: grid;
+  grid-template-areas:
+    "genres"
+    "info"
+    "progressbar";
+  transition: padding .3s ease-in-out;
+
+  .placeholder {
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0;
+  }
+
+  .image-wrapper {
+    z-index: -1;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    position: absolute;
+    overflow: hidden;
+    animation: onActiveBannerImage .3s ease-in-out;
+
+    img {
+      mask-image: linear-gradient(to bottom, #000 50%, transparent 100%);
+      transition: object-position .3s ease-in-out;
+      object-fit: cover;
+      height: 100%;
+      width: 100%;
+    }
+
+    // overlay shadow
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: #1a1a1add;
+      transition: background .2s ease-in-out;
+    }
+
+    &.show-true {
+      animation: onActiveBannerImage .3s ease-in-out forwards;
+    }
+
+    &.show-false {
+      animation: onHideBannerImage .3s ease-in-out forwards;
+    }
+  }
+
+  // year + genre
+  .extras {
+    grid-area: genres;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    // separator
+    svg {
+      margin: 0 10px;
+      font-size: 0.4em;
+    }
+
+    // not year
+    a:not(:first-child) {
+      margin: 0 15px 0 0;
+      transition: color .2s ease-in-out;
+
+      &:hover {
+        color: #ccc;
+      }
+    }
+  }
+
+  .info {
+    max-width: 60ch;
+    line-height: 1.5em;
+    grid-area: info;
+
+    h1 {
+      font-size: 2em;
+      line-height: 1.3em;
+      font-family: "Roboto Bold";
+      margin: 0;
+    }
+
+    .description {
+      margin: 15px 0;
+      color: #ddd;
+    }
+  }
+}
+
+/*
+    * == MEDIA QUERIES ==
+*/
+
+@media only screen and (max-width: 2560px) and (max-height: 1440px) {
+  .banner img {
+    object-position: 30% 30%;
+  }
+}
+
+@media only screen and (max-width: 720px) and (max-height: 1440px) {
+  .banner img {
+    object-position: 50%;
+  }
+}
+
+@media only screen and (min-width: 1080px) {
+  .banner {
+    padding: 40px 90px 60px 90px;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "genres ."
+      "info progressbar";
+
+    .image-wrapper {
+      &::after {
+        background: #1a1a1aaa;
+      }
+    }
+
+    .extras {
+      left: 90px;
+    }
+    .info {
+      left: 90px;
+      max-width: 450px;
+    }
+  }
+}
