@@ -1,0 +1,23 @@
+.bannerPlayBtn {
+  transition: .3s ease-in-out;
+  transition-property: filter, background;
+  filter: saturate(0.7);
+  display: inline-block;
+  font-family: "Roboto Black";
+  padding: .5em 1em;
+  border-radius: 1vh;
+  text-shadow: none;
+  outline: none;
+  cursor: pointer;
+
+  &:focus,
+  &:hover {
+    filter: saturate(1);
+  }
+
+  // ICON
+  svg {
+    margin-left: 5px;
+    font-size: 0.9em;
+  }
+}
