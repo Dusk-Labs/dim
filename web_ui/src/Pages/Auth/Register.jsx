@@ -34,6 +34,7 @@ function Register(props) {
   return (
     <div className="authForm">
       <header>
+        <DimLogo/>
         <h1>Welcome to Dim</h1>
         {props.auth.admin_exists
           ? <h3>A media manager fueled by dark forces</h3>
@@ -77,7 +78,6 @@ function Register(props) {
         />
         <Link to="/login">I have an account</Link>
       </footer>
-      <DimLogo/>
     </div>
   );
 }

@@ -27,6 +27,7 @@ function Login(props) {
   return (
     <div className="authForm">
       <header>
+        <DimLogo/>
         <h1>Welcome back</h1>
         <h3>Authenticate and continue to your media</h3>
       </header>
@@ -55,7 +56,6 @@ function Login(props) {
           <Link to="/forgot-password">Forgot password</Link>
         </div>
       </footer>
-      <DimLogo/>
     </div>
   )
 }
