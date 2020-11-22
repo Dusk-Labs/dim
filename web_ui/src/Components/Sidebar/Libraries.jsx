@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 
 import { fetchLibraries, delLibrary, handleWsNewLibrary, handleWsDelLibrary } from "../../actions/library.js";
 import SidebarIcon from "./Icon.jsx";
-import NewLibraryModal from "./NewLibraryModal.jsx";
+import NewLibraryModal from "./NewLibraryModal/Index.jsx";
 import ConfirmationBox from "../../Helpers/ConfirmationBox";
 
 function Libraries(props) {
