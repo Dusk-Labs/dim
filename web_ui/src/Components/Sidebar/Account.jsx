@@ -3,8 +3,8 @@ import { NavLink } from "react-router-dom";
 import { connect } from "react-redux";
 
 import { logout } from "../../actions/auth.js";
-
 import Icon from "./Icon.jsx";
+import LogoutBtn from "./LogoutBtn.jsx";
 
 const Account = (props) => (
   <section className="your-account">
@@ -18,12 +18,7 @@ const Account = (props) => (
           <p className="item-wrapper-name">Preferences</p>
         </NavLink>
       </div>
-      <div className="item-wrapper">
-        <NavLink className="logout" to="/login" onClick={props.logout}>
-          <Icon icon="logout"/>
-          <p className="item-wrapper-name logout">Logout</p>
-        </NavLink>
-      </div>
+      <LogoutBtn/>
     </div>
   </section>
 );
