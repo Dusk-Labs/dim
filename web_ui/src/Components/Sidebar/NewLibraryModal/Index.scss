@@ -1,0 +1,136 @@
+.openNewLibrary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  font-family: "Roboto Regular";
+  background: #4a4a4a;
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  transition: .2s ease-in-out;
+  transition-property: background, opacity;
+
+  &:hover, &:focus {
+    background: #5a5a5a;
+  }
+
+  &:focus {
+    opacity: 1;
+  }
+}
+
+.newLibraryPopup {
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  transition: max-width .3s ease-in-out;
+  scrollbar-width: thin;
+  max-width: 100%;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  background: #3a3a3a;
+  color: #ffffff;
+  outline: none;
+  height: 100%;
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 1;
+  width: 100%;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  grid-template-areas:
+    "heading"
+    "fields"
+    "dirSelection"
+    "options";
+  gap: 1em;
+
+  .heading {
+    grid-area: heading;
+    font-family: "Roboto Bold";
+
+    h2 {
+      margin-bottom: .5em;
+    }
+  }
+
+  .fields {
+    display: grid;
+    align-items: center;
+    gap: 1em;
+
+    h3 {
+      margin-bottom: .5em;
+    }
+
+    input {
+      transition: border 0.3s ease-in-out;
+      background: #4a4a4a;
+      outline: none;
+      height: 100%;
+      padding: .5em;
+      color: #ffffff;
+      overflow: hidden;
+      white-space: nowrap;
+      border: solid 2px transparent;
+      font-size: 16px;
+      border-radius: 10px !important;
+
+      &:focus {
+        border: solid 2px transparent !important;
+      }
+    }
+  }
+
+  .options {
+    grid-area: options;
+    align-self: flex-end;
+    display: flex;
+    justify-content: flex-end;
+
+    .page-controls svg {
+      margin: 0;
+    }
+
+    button {
+      filter: saturate(0.7);
+      transition: filter 0.3s ease-in-out;
+      font-family: "Roboto Bold";
+      padding: .5em;
+      border-radius: 10px;
+      outline: none;
+      background: #f7931e;
+      color: #ffffff;
+      font-size: 16px;
+
+      &:focus,
+      &:hover {
+        filter: saturate(1);
+      }
+
+      // cancel button
+      &:nth-child(1) {
+        transition: color 0.3s ease-in-out;
+        background: transparent;
+
+        &:focus,
+        &:hover {
+          color: #ff6961;
+        }
+      }
+    }
+  }
+}
+
+@media only screen and (min-width: 650px) {
+  .openNewLibrary {
+    opacity: 0;
+  }
+
+  .newLibraryPopup {
+    max-width: 600px;
+    height: auto;
+    border-radius: 10px;
+  }
+}
