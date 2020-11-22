@@ -37,8 +37,6 @@ function NewLibraryModal(props) {
     setVisible(true);
   }, []);
 
-  useEffect(open, []);
-
   const close = useCallback(() => {
     setVisible(false);
     setName("");
