@@ -30,44 +30,44 @@ library.add(fas, far);
 window.host = window.location.hostname;
 
 const routes = (
-	<Switch>
-		<NotAuthedOnlyRoute exact path="/login">
-			<Login/>
-		</NotAuthedOnlyRoute>
-		<NotAuthedOnlyRoute exact path="/register">
-			<Register/>
-		</NotAuthedOnlyRoute>
-		<PrivateRoute exact path="/">
-			<MainLayout>
-				<Dashboard/>
-			</MainLayout>
-		</PrivateRoute>
-		<PrivateRoute exact path="/library/:id">
-			<MainLayout>
-				<Library/>
-			</MainLayout>
-		</PrivateRoute>
-		<PrivateRoute exact path="/preferences">
-			<MainLayout>
-				<Preferences/>
-			</MainLayout>
-		</PrivateRoute>
-		<PrivateRoute path="/search" render={(props) => (
-			<MainLayout>
-				<SearchResults {...props}/>
-			</MainLayout>
-		)}/>
-		<PrivateRoute path="/media/:id" render={(props) => (
-			<MainLayout>
-				<Media {...props}/>
-			</MainLayout>
-		)}/>
-		{/* <PrivateRoute path="/play/:id" render={(props) => (
-			<WithOutSidebarLayout>
-				<VideoPlayer {...props}/>
-			</WithOutSidebarLayout>
-		)}/> */}
-	</Switch>
+  <Switch>
+    <NotAuthedOnlyRoute exact path="/login">
+      <Login/>
+    </NotAuthedOnlyRoute>
+    <NotAuthedOnlyRoute exact path="/register">
+      <Register/>
+    </NotAuthedOnlyRoute>
+    <PrivateRoute exact path="/">
+      <MainLayout>
+        <Dashboard/>
+      </MainLayout>
+    </PrivateRoute>
+    <PrivateRoute exact path="/library/:id">
+      <MainLayout>
+        <Library/>
+      </MainLayout>
+    </PrivateRoute>
+    <PrivateRoute exact path="/preferences">
+      <MainLayout>
+        <Preferences/>
+      </MainLayout>
+    </PrivateRoute>
+    <PrivateRoute path="/search" render={(props) => (
+      <MainLayout>
+        <SearchResults {...props}/>
+      </MainLayout>
+    )}/>
+    <PrivateRoute path="/media/:id" render={(props) => (
+      <MainLayout>
+        <Media {...props}/>
+      </MainLayout>
+    )}/>
+    {/* <PrivateRoute path="/play/:id" render={(props) => (
+      <WithOutSidebarLayout>
+        <VideoPlayer {...props}/>
+      </WithOutSidebarLayout>
+    )}/> */}
+  </Switch>
 );
 
 function App() {
@@ -107,11 +107,11 @@ function App() {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.authReducer
+  auth: state.authReducer
 });
 
 const mapActionsToProps = ({
-    updateAuthToken
+  updateAuthToken
 });
 
 export default connect(mapStateToProps, mapActionsToProps)(App);
