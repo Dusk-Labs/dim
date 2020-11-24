@@ -33,6 +33,8 @@
   .sectionsWrapper {
     padding: 2em 1em;
     overflow-y: auto;
+    height: 100%;
+    overflow-x: hidden;
   }
 
   section {
