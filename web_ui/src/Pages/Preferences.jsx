@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { fetchInvites, createNewInvite } from "../actions/auth.js";
 
-import Profile from "../Components/Sidebar/Profile.jsx";
+import Profile from "../Components/Sidebar/Profile/Index.jsx";
 
 import "./Preferences.scss";
 
