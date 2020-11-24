@@ -5,14 +5,6 @@
   z-index: 0;
   overflow: hidden;
   animation: bannerAppear .3s ease-in-out;
-
-  .pages {
-    height: 100%;
-
-    .active, .hide {
-      display: contents;
-    }
-  }
 }
 
 /*
