@@ -1,0 +1,39 @@
+.profileImage {
+  height: 32px;
+  width: 32px;
+
+  img {
+    height: inherit;
+    width: inherit;
+    object-fit: cover;
+    border-radius: 50%;
+    background: #f7931e;
+    animation: onShowProfileImage .3s ease-in-out;
+  }
+
+  &.show-true {
+    animation: onShowProfileImage .3s ease-in-out forwards;
+  }
+
+  &.show-false {
+    animation: onHideProfileImage .3s ease-in-out forwards;
+  }
+}
+
+@keyframes onShowProfileImage {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes onHideProfileImage {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
