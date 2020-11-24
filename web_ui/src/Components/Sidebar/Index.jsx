@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 
 import { fetchUser } from "../../actions/user.js";
 
-import Profile from "./Profile";
+import Profile from "./Profile/Index";
 import Search from "./Search";
 import Libraries from "./Libraries";
 import Toggle from "./Toggle";
