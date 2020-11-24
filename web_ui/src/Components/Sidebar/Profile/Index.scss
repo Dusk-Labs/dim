@@ -1,0 +1,85 @@
+.profile {
+  display: grid;
+  gap: 10px;
+  justify-content: center;
+
+  .horizontal-err {
+    justify-self: flex-start;
+  }
+
+  .icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: #ddd .2em solid;
+    justify-self: center;
+
+    &.loading {
+      border: #ddd .2em dotted;
+      animation: sidebarProfileLoad 5s ease-in-out infinite;
+    }
+
+    .placeholder-icon, .error-icon {
+      width: 26px;
+      height: 26px;
+      background: #f39c12;
+      border-radius: inherit;
+    }
+
+    .error-icon {
+      background: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #f7931e;
+      font-size: 24px;
+    }
+  }
+
+  .info {
+    display: grid;
+    text-align: center;
+    gap: 2px;
+    animation: appear 0.3s ease-in-out;
+
+    // username
+    h4 {
+      font-family: "Roboto Black";
+      color: #ffffff;
+    }
+
+    // spent watching
+    h5 {
+      font-family: "Roboto Regular";
+      color: #808080;
+    }
+  }
+}
+
+/*
+    * == KEYFRAMES ==
+*/
+
+@keyframes sidebarProfileIconLoad {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes sidebarProfileLoad {
+  0% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
