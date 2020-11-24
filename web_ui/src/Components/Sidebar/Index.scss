@@ -96,6 +96,8 @@
         }
 
         &.logout {
+          cursor: pointer;
+
           &:focus,
           &:hover {
             background: #ff6961;
