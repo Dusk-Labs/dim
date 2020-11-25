@@ -20,7 +20,7 @@
     justify-content: space-evenly;
     align-items: center;
     margin: 0 auto;
-    font-family: "Roboto Black";
+    font-family: "Roboto Bold";
   }
 
   .progress {
@@ -33,14 +33,14 @@
 
       /* VALUE */
       p:nth-child(1) {
-        font-family: "Roboto Black";
+        font-family: "Roboto Bold";
         font-size: 1.3em;
       }
 
       /* UNIT */
       p:nth-child(2) {
         font-size: 0.8em;
-        font-family: "Roboto Black";
+        font-family: "Roboto Bold";
       }
     }
 

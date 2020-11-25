@@ -89,7 +89,7 @@ video {
         grid-area: top;
         pointer-events: all;
         position: relative;
-        font-family: "Roboto Black";
+        font-family: "Roboto Bold";
 
         %navLinkIndicator {
             @include transform(translate(-50%, -50%));
