@@ -15,7 +15,7 @@ function BannerImage(props) {
     }
   }, [props.src])
 
-  const swapSrc = useCallback((e) => {
+  const swapSrc = useCallback(e => {
     if (e.animationName !== props.hideAnimationName) return;
 
     setErr(false);
@@ -28,10 +28,12 @@ function BannerImage(props) {
         setShow(true);
         setCurrentSrc(props.src);
 
-        const color = await Vibrant.from(e.target).getPalette();
+        try {
+          const color = await Vibrant.from(e.target).getPalette();
 
-        props.setBG(color.Vibrant.getHex());
-        props.setText(color.Vibrant.getTitleTextColor());
+          props.setBG(color.Vibrant.getHex());
+          props.setText(color.Vibrant.getTitleTextColor());
+        } catch (e) {}
       };
 
       img.onerror = () => {
@@ -53,7 +55,7 @@ function BannerImage(props) {
         <img
           src={currentSrc}
           key={currentSrc}
-          alt="banner"
+          aria-label="banner"
         />
       )}
       {error && <div className="placeholder"/>}
