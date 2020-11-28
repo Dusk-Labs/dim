@@ -192,7 +192,7 @@ input {
 main {
   transition: margin .3s ease-in-out;
   position: relative;
-  margin-left: 300px;
+  margin-left: 150px;
   color: #fff;
   overflow-y: auto;
 
@@ -201,7 +201,7 @@ main {
   }
 
   &.shrunk {
-    margin-left: 300px;
+    margin-left: 150px;
   }
 }
 
@@ -270,12 +270,12 @@ main {
     * == MEDIA QUERIES
 */
 
-@media only screen and (max-width: 1080px) {
+@media only screen and (min-width: 1080px) {
   main {
-    margin-left: 150px;
+    margin-left: 300px;
 
     &.shrunk {
-      margin-left: 150px;
+      margin-left: 300px;
     }
   }
 }
