@@ -1,7 +1,7 @@
 @import "../../mixins.scss";
 
 .banner {
-  min-height: 45vh;
+  min-height: 45vmin;
   width: 100%;
   overflow: hidden;
   gap: 30px;
@@ -99,11 +99,10 @@
       font-size: 2em;
       line-height: 1.3em;
       font-family: "Roboto Bold";
-      margin: 0;
     }
 
     .description {
-      margin: 15px 0;
+      margin: 1em 0;
       color: #ddd;
     }
   }
