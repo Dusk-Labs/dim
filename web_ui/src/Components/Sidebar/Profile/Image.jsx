@@ -26,14 +26,12 @@ function ProfileImage(props) {
       const img = new Image();
 
       img.onload = async () => {
-        console.log("image loaded");
         setLoaded(true);
         setShow(true);
         setCurrentSrc(props.src);
       };
 
       img.onerror = () => {
-        console.log("image error");
         setLoaded(true);
         setShow(true);
         setErr(true);
