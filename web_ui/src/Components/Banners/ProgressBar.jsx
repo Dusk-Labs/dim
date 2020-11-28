@@ -6,7 +6,7 @@ import "./ProgressBar.scss";
 class ProgressBar extends Component {
     render() {
         const {
-            textColor,
+            backgroundColor,
             season,
             episode
         } = this.props.data;
@@ -24,7 +24,7 @@ class ProgressBar extends Component {
                 {season && episode &&
                     <div className="s-e">
                         <p>S{season}</p>
-                        <FontAwesomeIcon icon="circle" style={{ color: textColor }}/>
+                        <FontAwesomeIcon icon="circle" style={{ color: backgroundColor }}/>
                         <p>E{episode}</p>
                     </div>
                 }
@@ -34,7 +34,7 @@ class ProgressBar extends Component {
                         <p>min</p>
                     </div>
                     <div className="bar">
-                        <span className="progress-fill" style={{ width: width, background: textColor }}/>
+                        <span className="progress-fill" style={{ width: width, background: backgroundColor }}/>
                     </div>
                     <div className="duration">
                         <p>{duration}</p>
