@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import ProgressBar from "./ProgressBar.jsx";
 import Image from "./Image.jsx";
@@ -36,13 +36,12 @@ function Banner(props) {
     episode
   } = props.data;
 
-  // ? limit in backend
   if (genres.length > 3) {
     genres.length = 3;
   }
 
   const progressBarData = {
-    textColor: backgroundColor,
+    backgroundColor,
     season,
     episode,
     duration,
