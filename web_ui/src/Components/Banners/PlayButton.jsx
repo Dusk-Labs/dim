@@ -14,10 +14,9 @@ function PlayButton(props) {
     <Link
       to={`/play/${props.id}`}
       className="bannerPlayBtn"
-      style={accentCSS}
     >
-      PLAY
-      <FontAwesomeIcon icon="play-circle"/>
+      <p style={accentCSS}>Play media</p>
+      <FontAwesomeIcon icon="play"/>
     </Link>
   );
 }
