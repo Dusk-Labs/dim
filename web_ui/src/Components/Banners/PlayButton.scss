@@ -1,23 +1,27 @@
 .bannerPlayBtn {
-  transition: .3s ease-in-out;
+  transition: .2s ease-in-out;
   transition-property: filter, background;
   filter: saturate(0.7);
-  display: inline-block;
   font-family: "Roboto Bold";
-  padding: .5em 1em;
-  border-radius: 1vh;
-  text-shadow: none;
+  border-radius: 10px;
+  background: #4a4a4a;
+  display: inline-flex;
+  overflow: hidden;
   outline: none;
   cursor: pointer;
+  align-items: center;
 
   &:focus,
   &:hover {
     filter: saturate(1);
   }
 
-  // ICON
+  p {
+    padding: .4em .8em;
+  }
+
   svg {
-    margin-left: 5px;
-    font-size: 0.9em;
+    font-size: .6em;
+    margin: 0 10px;
   }
 }
