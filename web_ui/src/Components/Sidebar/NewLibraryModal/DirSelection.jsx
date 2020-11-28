@@ -61,8 +61,6 @@ function DirSelection(props) {
     if (props.fileBrowser.fetched && !props.fileBrowser.error) {
       const { items } = props.fileBrowser;
 
-      console.log("items", items)
-
       if (items.length === 0) {
         dirs = (
           <div className="vertical-err">
@@ -82,10 +80,6 @@ function DirSelection(props) {
     }
   } else {
     const items = props.fileBrowser.cache[props.current];
-
-    console.log("PROPS", props.fileBrowser.cache, "CURRENT", props.current)
-
-    console.log("items cache", items)
 
     if (items.length === 0) {
       dirs = (
