@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect } from "react";
 
 import Banners from "../Components/Banners/Index";
-import CardList from "../Components/CardList";
+import CardList from "../Components/CardList/Index";
 
 function Dashboard() {
   useEffect(() => {
