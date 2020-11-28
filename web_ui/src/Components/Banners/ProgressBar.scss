@@ -1,6 +1,5 @@
 .banner-progress-bar {
   grid-area: progressbar;
-  justify-self: end;
   align-self: flex-end;
   display: grid;
 
@@ -70,5 +69,8 @@
     * == MEDIA QUERIES ==
 */
 
-@media only screen and (min-width: 800px) {
+@media only screen and (min-width: 1080px) {
+  .banner-progress-bar {
+    justify-self: end;
+  }
 }
