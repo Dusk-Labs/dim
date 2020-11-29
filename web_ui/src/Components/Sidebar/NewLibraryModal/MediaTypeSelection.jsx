@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import Icon from "../Icon";
 import "./MediaTypeSelection.scss";
 
 function MediaTypeSelection(props) {
@@ -21,12 +21,12 @@ function MediaTypeSelection(props) {
       <h3>Choose a type</h3>
       <div className="types">
         <div className="type" onClick={selectMovie}>
-          <Icon icon="movie"/>
+          <FontAwesomeIcon icon="film"/>
           <p>Movies</p>
           <div className={`select ${props.mediaType === "movie"}`}/>
         </div>
         <div className="type" onClick={selectTv}>
-          <Icon icon="tv"/>
+          <FontAwesomeIcon icon="tv"/>
           <p>TV Shows</p>
           <div className={`select ${props.mediaType === "tv"}`}/>
         </div>
