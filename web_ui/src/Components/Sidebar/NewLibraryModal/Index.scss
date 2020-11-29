@@ -86,8 +86,10 @@
   .options {
     grid-area: options;
     align-self: flex-end;
-    display: flex;
+    display: grid;
     justify-content: flex-end;
+    grid-template-columns: auto auto;
+    gap: .5em;
 
     .page-controls svg {
       margin: 0;
@@ -129,6 +131,7 @@
   }
 
   .newLibraryPopup {
+    border: 1px solid #4a4a4a;
     max-width: 600px;
     height: auto;
     border-radius: 10px;
