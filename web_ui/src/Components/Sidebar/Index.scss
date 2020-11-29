@@ -1,5 +1,3 @@
-@import "../../mixins.scss";
-
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -17,7 +15,7 @@
     animation: showSidebar .3s ease-in-out;
 
     .toggle {
-      animation: sidebarToggleOff 0.3s ease-in-out forwards;
+      animation: sidebarToggleOff .3s ease-in-out forwards;
     }
   }
 
@@ -70,123 +68,67 @@
   }
 
   .list {
-    .item-wrapper {
-      align-items: center;
-      animation: appear 0.3s ease-in-out;
-      display: grid;
+    .item {
       text-align: center;
-      grid-gap: 15px;
-
-      &:hover {
-        button {
-          opacity: 1;
-        }
-      }
-
-      // list item
-      a {
-        display: grid;
-        padding: 1em;
-        gap: .5em;
-        border-radius: 10px;
-        align-items: center;
-        transition: 0.1s ease-in-out;
-        transition-property: padding, background, transform, font-size;
-
-        &:focus,
-        &:hover {
-          background: #2a2a2a;
-        }
-
-        &.logout {
-          cursor: pointer;
-
-          &:focus,
-          &:hover {
-            background: #ff6961;
-          }
-        }
-
-        &.active {
-          cursor: default;
-          background: #5a5a5a;
-
-          &:focus, &:hover {
-            background: #5a5a5a;
-          }
-        }
-      }
-
-      // DELETE BUTTON
-      button {
-        display: none;
-        transition: 0.2s ease-in-out;
-        font-family: "Roboto Bold";
-        opacity: 0;
-        padding: 2px 5px;
-        border-radius: 10px;
-        background: transparent;
-        color: #ff6961;
-        transition-property: background, opacity;
-        background: #2a2a2a;
-
-        &::-moz-focus-inner {
-          border: 0;
-        }
-
-        &:hover {
-          background: #4a4a4a;
-        }
-
-        &:focus {
-          opacity: 1;
-        }
-      }
-    }
-
-    > div a {
-      outline: none;
+      display: grid;
+      padding: 1em;
+      gap: .5em;
+      border-radius: 10px;
+      align-items: center;
+      transition: 0.1s ease-in-out;
+      transition-property: padding, background, transform, font-size;
 
       &:focus,
       &:hover {
         background: #2a2a2a;
       }
+
+      &.logout {
+        cursor: pointer;
+
+        &:focus,
+        &:hover {
+          background: #ff6961;
+        }
+      }
+
+      &.active {
+        cursor: default;
+        background: #5a5a5a;
+
+        &:focus, &:hover {
+          background: #5a5a5a;
+        }
+      }
     }
 
-    // ITEM ICON
-    .item-wrapper-icon {
+    svg {
       margin: 0 auto;
     }
-
-    // ITEM NAME
-    .item-wrapper-name {
-      margin: 0;
-      // padding: 10px 0;
-    }
   }
 }
 
-@include keyframes(showSidebar) {
+@keyframes showSidebar {
   0% {
-    @include transform(translateX(-100%));
+    transform: translateX(-100%);
   }
   100% {
-    @include transform(translateX(0));
+    transform: translateX(0);
   }
 }
 
-@include keyframes(hideSidebar) {
+@keyframes hideSidebar {
   0% {
-    @include transform(translateX(0));
+    transform: translateX(0);
   }
   100% {
-    @include transform(translateX(-100%));
+    transform: translateX(-100%);
   }
 }
 
-@include keyframes(sidebarToggleOn) {
+@keyframes sidebarToggleOn {
   0% {
-    @include transform(translateX(0));
+    transform: translateX(0);
     right: 1em;
     opacity: 1;
   }
@@ -194,24 +136,23 @@
     opacity: 0;
   }
   100% {
-    @include transform(rotate(180deg));
+    transform: rotate(180deg);
     right: -60px;
     opacity: 1;
   }
 }
 
-@include keyframes(sidebarToggleOff) {
+@keyframes sidebarToggleOff {
   0% {
-    @include transform(rotate(180deg));
+    transform: rotate(180deg);
     right: -60px;
     opacity: 1;
-
   }
   50% {
     opacity: 0;
   }
   100% {
-    @include transform(rotate(360deg));
+    transform: rotate(360deg);
     right: 1em;
     opacity: 1;
   }
@@ -229,18 +170,10 @@
       padding: 2em 1em;
     }
 
-    .list .item-wrapper {
-      grid-template-columns: auto 20px 1px;
-
-      a {
-        justify-content: left;
-        grid-template-columns: 40px auto;
-        padding: .8em .5em;
-      }
-
-      button {
-        display: block;
-      }
+    .list .item {
+      justify-content: left;
+      grid-template-columns: 40px auto;
+      padding: .8em .5em;
     }
   }
 }

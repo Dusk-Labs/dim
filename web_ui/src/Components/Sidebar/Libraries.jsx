@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { connect } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { fetchLibraries, delLibrary, handleWsNewLibrary, handleWsDelLibrary } from "../../actions/library.js";
-import SidebarIcon from "./Icon.jsx";
+import { fetchLibraries, handleWsNewLibrary, handleWsDelLibrary } from "../../actions/library.js";
 import NewLibraryModal from "./NewLibraryModal/Index.jsx";
-import ConfirmationBox from "../../Helpers/ConfirmationBox";
 
 function Libraries(props) {
-  const [libs, setLibs] = useState([]);
-
   const handle_ws_msg = async ({data}) => {
     const payload = JSON.parse(data);
 
@@ -40,9 +37,25 @@ function Libraries(props) {
     };
   }, []);
 
-  useEffect(() => {
-    setLibs(props.libraries.items);
-  }, [props.libraries.items]);
+  let libraries;
+
+  const { fetched, error, items } = props.libraries;
+
+  // FETCH_LIBRARIES_OK
+  if (fetched && !error && items.length > 0) {
+    libraries = items.map((
+      { name, id, media_type }, i
+    ) => (
+      <NavLink
+        to={"/library/" + id}
+        className="item" key={i}
+      >
+        {media_type === "movie" && <FontAwesomeIcon icon="film"/>}
+        {media_type === "tv" && <FontAwesomeIcon icon="tv"/>}
+        <p>{name}</p>
+      </NavLink>
+    ))
+  }
 
   return (
     <section className="libraries">
@@ -51,31 +64,11 @@ function Libraries(props) {
         <NewLibraryModal/>
       </header>
       <div className="list">
-        <div className="item-wrapper">
-          <NavLink to="/" exact>
-            <SidebarIcon icon="dashboard"/>
-            <p className="item-wrapper-name">Dashboard</p>
-          </NavLink>
-        </div>
-        {/* FETCH_LIBRARIES_OK */}
-        {(props.libraries.fetched && !props.libraries.error && libs.length > 0) && (
-          libs.map((
-            { name, id, media_type }, i
-          ) => (
-            <div className="item-wrapper" key={i}>
-              <NavLink to={"/library/" + id}>
-                <SidebarIcon icon={media_type || name}/>
-                <p className="item-wrapper-name">{name}</p>
-              </NavLink>
-              <ConfirmationBox
-                action="delete"
-                message={`Delete library '${name}'.`}
-                continue={() => {
-                  props.delLibrary(props.auth.token, id);
-                }}/>
-            </div>
-          ))
-        )}
+        <NavLink className="item" to="/" exact>
+          <FontAwesomeIcon icon="home"/>
+          <p>Dashboard</p>
+        </NavLink>
+        {libraries}
       </div>
     </section>
   );
@@ -88,7 +81,6 @@ const mapStateToProps = (state) => ({
 
 const mapActionsToProps = {
   fetchLibraries,
-  delLibrary,
   handleWsDelLibrary,
   handleWsNewLibrary
 };

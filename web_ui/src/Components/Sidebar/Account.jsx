@@ -1,32 +1,22 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { connect } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { logout } from "../../actions/auth.js";
-import Icon from "./Icon.jsx";
 import LogoutBtn from "./LogoutBtn.jsx";
 
-const Account = (props) => (
+const Account = () => (
   <section className="your-account">
     <header>
       <h4>Account</h4>
     </header>
     <div className="list">
-      <div className="item-wrapper">
-        <NavLink to="/preferences">
-          <Icon icon="preferences"/>
-          <p className="item-wrapper-name">Preferences</p>
-        </NavLink>
-      </div>
+      <NavLink to="/preferences" className="item">
+        <FontAwesomeIcon icon="wrench"/>
+        <p>Preferences</p>
+      </NavLink>
       <LogoutBtn/>
     </div>
   </section>
 );
 
-const mapStateToProps = () => ({});
-
-const mapActionsToProps = {
-  logout
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(Account);
+export default Account;
