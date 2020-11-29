@@ -51,7 +51,6 @@ function DirSelection(props) {
     if (props.fileBrowser.fetched && props.fileBrowser.error) {
       dirs = (
         <div className="vertical-err">
-          <FontAwesomeIcon icon="times-circle"/>
           <p>Cannot load data</p>
         </div>
       );
