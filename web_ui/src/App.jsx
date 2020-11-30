@@ -63,9 +63,7 @@ const routes = (
       </MainLayout>
     )}/>
     {/* <PrivateRoute path="/play/:id" render={(props) => (
-      <WithOutSidebarLayout>
-        <VideoPlayer {...props}/>
-      </WithOutSidebarLayout>
+      <VideoPlayer {...props}/>
     )}/> */}
   </Switch>
 );
