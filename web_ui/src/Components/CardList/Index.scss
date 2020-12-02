@@ -18,13 +18,12 @@
   section {
     pointer-events: all;
 
-    .placeholder-name {
-      display: flex;
-      align-items: center;
-
-      .placeholder-text {
-        margin-right: 10px;
-      }
+    .placeholderText {
+      width: 200px;
+      height: 2em;
+      border-radius: 10px;
+      background: #2a2a2a;
+      margin-bottom: 2em;
     }
   }
 
