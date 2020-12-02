@@ -46,10 +46,6 @@
 
     a {
       outline: none;
-
-      &:focus .image-wrapper {
-        box-shadow: #fff 0 0 50px -20px;
-      }
     }
   }
 }
@@ -67,14 +63,14 @@
   }
 }
 
-@keyframes cardGlow {
+@keyframes cardHighlight {
   0% {
-    box-shadow: #ffffff 0 0 50px;
+    opacity: 1;
   }
   50% {
-    box-shadow: none;
+    opacity: .5;
   }
   100% {
-    box-shadow: #ffffff 0 0 50px;
+    opacity: 1;
   }
 }
