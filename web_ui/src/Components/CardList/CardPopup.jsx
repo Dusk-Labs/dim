@@ -1,4 +1,4 @@
-import React, { Component, useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 
@@ -34,7 +34,8 @@ function CardPopup(props) {
     genres,
     year,
     duration,
-    accent
+    accent,
+    seasons
   } = props.data;
 
   const length = {
@@ -86,10 +87,18 @@ function CardPopup(props) {
         </section>
         <section className="separator"/>
         <section className="footer">
-          <div className="length">
-            <p>{length.hh}:{length.mm}:{length.ss}</p>
-            <p>HH MM SS</p>
-          </div>
+          {!seasons && (
+            <div className="length">
+              <p>{length.hh}:{length.mm}:{length.ss}</p>
+              <p>HH MM SS</p>
+            </div>
+          )}
+          {seasons && (
+            <div className="length">
+              <p>{seasons}</p>
+              <p>SEASONS</p>
+            </div>
+          )}
           <Link to={`/play/${id}`}>
             <p style={accentCSS}>Play media</p>
             <FontAwesomeIcon icon="play"/>
