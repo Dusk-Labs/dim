@@ -25,6 +25,7 @@
 
   .contentWrapper {
     display: grid;
+    width: 100%;
     gap: 1em;
   }
 
@@ -159,7 +160,7 @@
 .card-popup-right {
   @extend %card-popup;
   filter: drop-shadow(-5px 0 10px #1a1a1a);
-  left: 80%;
+  left: 60%;
   right: unset;
   padding: 0 50px 0 60px;
 
@@ -174,7 +175,7 @@
   @extend %card-popup;
   filter: drop-shadow(5px 0 10px #1a1a1a);
   left: unset;
-  right: 50%;
+  right: 60%;
   padding: 0 60px 0 50px;
 
   .clipped {
