@@ -160,7 +160,7 @@
 .card-popup-right {
   @extend %card-popup;
   filter: drop-shadow(-5px 0 10px #1a1a1a);
-  left: 60%;
+  left: 80%;
   right: unset;
   padding: 0 50px 0 60px;
 
@@ -175,7 +175,7 @@
   @extend %card-popup;
   filter: drop-shadow(5px 0 10px #1a1a1a);
   left: unset;
-  right: 60%;
+  right: 80%;
   padding: 0 60px 0 50px;
 
   .clipped {
