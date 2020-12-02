@@ -2,7 +2,6 @@ import React from "react";
 import { connect } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import LazyImage from "../../../Helpers/LazyImage.jsx";
 import ProfileImage from "./Image.jsx";
 
 import "./Index.scss";
@@ -58,7 +57,7 @@ function Profile(props) {
 }
 
 const mapStateToProps = (state) => ({
-    user: state.user
+  user: state.user
 });
 
 export default connect(mapStateToProps)(Profile);
