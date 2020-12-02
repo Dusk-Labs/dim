@@ -1,7 +1,7 @@
 @import "../../mixins.scss";
 
 .banner {
-  min-height: 45vmin;
+  min-height: 50vmin;
   width: 100%;
   overflow: hidden;
   gap: 30px;
@@ -14,6 +14,7 @@
     "info"
     "progressbar";
   transition: padding .3s ease-in-out;
+  border-bottom: 4px solid #2a2a2a;
 
   .placeholder {
     z-index: 1;
@@ -39,7 +40,7 @@
     animation: onActiveBannerImage .3s ease-in-out;
 
     img {
-      mask-image: linear-gradient(to bottom, #000 50%, transparent 100%);
+      mask-image: linear-gradient(to bottom, #000 80%, transparent 100%);
       transition: object-position .3s ease-in-out;
       object-fit: cover;
       height: 100%;
@@ -134,7 +135,7 @@
 
     .image-wrapper {
       &::after {
-        background: #1a1a1aaa;
+        background: #1a1a1abb;
       }
     }
 
