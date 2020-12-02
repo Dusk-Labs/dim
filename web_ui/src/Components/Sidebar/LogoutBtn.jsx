@@ -21,6 +21,7 @@ function LogoutBtn(props) {
   }, [visible]);
 
   const close = useCallback(() => {
+    console.log('testing')
     setVisible(false);
   }, []);
 
@@ -34,9 +35,11 @@ function LogoutBtn(props) {
   }, []);
 
   return (
-    <a className="item logout" onClick={open}>
-      <FontAwesomeIcon icon="sign-out-alt"/>
-      <p className="logout">Logout</p>
+    <>
+      <a className="item logout" onClick={open}>
+        <FontAwesomeIcon icon="sign-out-alt"/>
+        <p className="logout">Logout</p>
+      </a>
       <Modal
         isOpen={visible}
         contentLabel="logout"
@@ -52,7 +55,7 @@ function LogoutBtn(props) {
           <button className="confirmationBoxContinue" onClick={confirm}>Yes</button>
         </div>
       </Modal>
-    </a>
+    </>
   );
 };
 
