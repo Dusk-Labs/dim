@@ -32,10 +32,10 @@ function Search(props) {
 
   const handleOnChange = useCallback(e => {
     setQuery(e.target.value);
-    setShowResults(e.target.value.length !== 0);
+    setShowResults(e.target.value.length > 1);
 
-    if (e.target.value.length >= 1) {
-      props.quickSearch(query, props.auth.token);
+    if (e.target.value.length > 1) {
+      props.quickSearch(e.target.value, props.auth.token);
     }
   }, [query]);
 
