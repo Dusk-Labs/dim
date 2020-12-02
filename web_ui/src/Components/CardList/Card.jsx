@@ -9,6 +9,7 @@ import "./Card.scss";
 function Card(props) {
   const cardWrapper = useRef(null);
   const cardPopup = useRef(null);
+  const card = useRef(null);
 
   const [hovering, setHovering] = useState(false);
   const [timeoutID, setTimeoutID] = useState(null);
@@ -27,6 +28,11 @@ function Card(props) {
   }, [timeoutID, cardPopup]);
 
   const handleMouseEnter = useCallback(() => {
+    // removes cardHighlight animation (when searched for)
+    if (card.current && card.current.style.animation) {
+      card.current.style.animation = "";
+    }
+
     if (hovering || window.innerWidth < 1300) return;
 
     const ID = setTimeout(showPopup, 600);
@@ -52,7 +58,7 @@ function Card(props) {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <div id={id} className="card">
+      <div id={id} className="card" ref={card}>
         <Link to={`/media/${id}`}>
           <Image
             src={poster_path}
