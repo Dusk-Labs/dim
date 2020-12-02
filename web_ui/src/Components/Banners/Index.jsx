@@ -10,7 +10,6 @@ import "./Index.scss";
 function Banners(props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [currentTimeoutID, setCurrentTimeoutID] = useState();
-  const [bannerList, setBannerList] = useState();
 
   const handleWS = useCallback(e => {
     const { type } = JSON.parse(e.data);
@@ -60,48 +59,16 @@ function Banners(props) {
     };
   }, []);
 
-  let banners = <div className="placeholder"/>;
-
-  // FETCH_BANNERS_ERR
-  if (props.banners.fetched && props.banners.error) {
-    banners = (
-      <div className="placeholder">
-        <div className="vertical-err">
-          <p>Cannot load banners</p>
-        </div>
-      </div>
-    );
-  }
-
-  // FETCH_BANNERS_OK
-  if (props.banners.fetched && !props.banners.error) {
-    if (props.banners.items.length > 0) {
-      banners = props.banners.items.map((banner, i) => (
-        <div className={activeIndex === i ? "active" : "hide"} key={i}>
-          <Banner key={i} banner={banner}/>
-        </div>
-      ));
-    } else {
-      banners = (
-        <div className="placeholder">
-          <div className="vertical-err">
-            <p>Empty</p>
-          </div>
-        </div>
-      );
-    }
-  }
-
-  console.log(props.banners.items)
-
   return (
     <div className="banner-wrapper">
       <Banner visibility={activeIndex} data={props.banners.items[activeIndex]}/>
-      <Crumbs
-        count={props.banners.items.length}
-        toggle={toggle}
-        activeIndex={activeIndex}
-      />
+      {props.banners.items.length > 1 && (
+        <Crumbs
+          count={props.banners.items.length}
+          toggle={toggle}
+          activeIndex={activeIndex}
+        />
+      )}
     </div>
   );
 }
