@@ -1,28 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { HashLink } from 'react-router-hash-link';
 
 import "./QuickSearchResults.scss";
 
 function Search(props) {
-  /*
-    to prevent container from appearing/dissapearing
-    on every key press.
-  */
-  const [fetchedOnce, setFetchedOnce] = useState(false);
-
-  useEffect(() => {
-    if (!fetchedOnce) {
-      setFetchedOnce(true);
-    }
-  }, [props.results.fetched])
-
   let results;
 
   // SEARCH_START
-  if (props.results.fetching) {
+  if (!props.results.fetched && !props.results.error) {
     results = (
-      <div className="state">
+      <div className="state showAfter100ms">
         <p>Loading</p>
       </div>
     );
@@ -38,7 +26,7 @@ function Search(props) {
   }
 
   // SEARCH_OK
-  if ((props.results.fetched || fetchedOnce) && !props.results.error) {
+  if (props.results.fetched && !props.results.error) {
     const list = props.results.items.map((
       { name, library_id, id }, i
     ) => (
@@ -46,7 +34,7 @@ function Search(props) {
         to={`/library/${library_id}#${id}`}
         scroll={elm => {
           elm.scrollIntoView({ behavior: "smooth", block: "center" });
-          elm.style.animation = "cardGlow 3s ease-in-out infinite";
+          elm.style.animation = "cardHighlight 1s ease-in-out infinite";
         }}
         key={i}
       >

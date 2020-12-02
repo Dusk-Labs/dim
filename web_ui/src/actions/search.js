@@ -41,8 +41,6 @@ export const search = (params, token) => async (dispatch) => {
 };
 
 export const quickSearch = (query, token) => async (dispatch) => {
-    dispatch({ type: QUICK_SEARCH_START });
-
     try {
         const config = {
             headers: {
