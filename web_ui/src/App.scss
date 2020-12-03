@@ -73,6 +73,16 @@ img {
   }
 }
 
+/*
+  used by layout skeletons, appears only if takes a while to load,
+  else prevent flicker on load e.g. when loading in cached results
+*/
+.showAfter100ms {
+  opacity: 0;
+  animation: appear .3s ease-in-out forwards;
+  animation-delay: 100ms;
+}
+
 .horizontal-err {
   animation: appear .4s ease-in-out;
   align-items: center;
