@@ -25,7 +25,9 @@ export const fetchBanners = (token) => async (dispatch) => {
         const payload = await res.json();
 
         // limit to 3 banners
-        payload.length = 3;
+        if (payload.length > 3) {
+            payload.length = 3;
+        }
 
         dispatch({
             type: FETCH_BANNERS_OK,
