@@ -8,6 +8,7 @@ function CardImage(props) {
   const [error, setErr] = useState(false);
 
   useEffect(() => {
+    let isSubscribed = true;
     const img = new Image();
 
     img.onload = async (e) => {
@@ -16,8 +17,10 @@ function CardImage(props) {
       try {
         const color = await Vibrant.from(e.target).getPalette();
 
-        props.setBG(color.Vibrant.getHex());
-        props.setText(color.Vibrant.getTitleTextColor());
+        if (isSubscribed) {
+          props.setBG(color.Vibrant.getHex());
+          props.setText(color.Vibrant.getTitleTextColor());
+        }
       } catch (e) {}
     };
 
@@ -27,6 +30,8 @@ function CardImage(props) {
     };
 
     img.src = props.src;
+
+    return () => isSubscribed = false;
   }, [props.src]);
 
   return (

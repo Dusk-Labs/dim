@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import CardPopup from "./CardPopup.jsx";
@@ -17,7 +17,13 @@ function Card(props) {
   const [backgroundColor, setBackgroundColor] = useState("f7931e");
   const [textColor, setTextColor] = useState("#fff");
 
-  const showPopup = useCallback(async () => {
+  useEffect(() => {
+    return () => {
+      clearTimeout(timeoutID);
+    }
+  }, [timeoutID]);
+
+  const showPopup = useCallback(() => {
     setHovering(true);
   }, []);
 
