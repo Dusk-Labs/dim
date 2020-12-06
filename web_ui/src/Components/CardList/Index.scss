@@ -1,11 +1,11 @@
 .card_list {
   display: grid;
-  margin: 30px;
+  padding: 30px;
   z-index: 1;
   position: relative;
   pointer-events: none;
   gap: 2em;
-  transition: margin .3s ease-in-out;
+  transition: padding .3s ease-in-out;
   animation: appear .5s ease-in-out;
 
   h1 {
@@ -72,6 +72,6 @@
 
 @media only screen and (min-width: 1080px) {
   .card_list {
-    margin: 60px 90px;
+    padding: 60px 90px;
   }
 }
