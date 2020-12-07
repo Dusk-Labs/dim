@@ -8,10 +8,11 @@
     margin: 0;
   }
 
-  // SEPARATOR
+  // separator
   svg {
-    margin: 0 5px !important;
-    font-size: 0.5em !important;
+    margin: 0 5px;
+    font-size: 0.4em;
+    color: #f7931e;
   }
 
   // SEASON AND EPISODE
@@ -61,6 +62,7 @@
         height: 4px;
         border-radius: 4px;
         transition: width 0.3s ease-in-out;
+        background: #f7931e;
       }
     }
   }
