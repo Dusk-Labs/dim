@@ -4,12 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./ProgressBar.scss";
 
 function ProgressBar(props) {
-  const {
-    backgroundColor,
-    season,
-    episode
-  } = props.data;
-
+  const { season, episode } = props.data;
   let { delta, duration } = props.data;
 
   delta = !delta ? 0 : delta;
@@ -23,7 +18,7 @@ function ProgressBar(props) {
       {(season && episode) && (
         <div className="s-e">
           <p>S{season}</p>
-          <FontAwesomeIcon icon="circle" style={{ color: backgroundColor }}/>
+          <FontAwesomeIcon icon="circle"/>
           <p>E{episode}</p>
         </div>
       )}
@@ -33,7 +28,7 @@ function ProgressBar(props) {
           <p>min</p>
         </div>
         <div className="bar">
-          <span className="progress-fill" style={{ width: width, background: backgroundColor }}/>
+          <span className="progress-fill" style={{ width: width }}/>
         </div>
         <div className="duration">
           <p>{duration}</p>

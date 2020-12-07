@@ -34,7 +34,6 @@ function CardPopup(props) {
     genres,
     year,
     duration,
-    accent,
     seasons
   } = props.data;
 
@@ -42,11 +41,6 @@ function CardPopup(props) {
     hh: ("0" + Math.floor(duration / 3600)).slice(-2),
     mm: ("0" + Math.floor((duration % 3600) / 60)).slice(-2),
     ss: ("0" + Math.floor((duration % 3600) % 60)).slice(-2)
-  };
-
-  const accentCSS = {
-    background: accent.background,
-    color: accent.text
   };
 
   return (
@@ -73,7 +67,7 @@ function CardPopup(props) {
         </section>
         <section className="tags">
           <Link to={`/search?year=${year}`}>{year}</Link>
-          <FontAwesomeIcon icon="circle" style={{ color: accent.background }}/>
+          <FontAwesomeIcon icon="circle"/>
           <div className="genres">
             {genres.map((genre, i) => (
               <Link
@@ -100,7 +94,7 @@ function CardPopup(props) {
             </div>
           )}
           <Link to={`/play/${id}`}>
-            <p style={accentCSS}>Play media</p>
+            <p>Play media</p>
             <FontAwesomeIcon icon="play"/>
           </Link>
         </section>

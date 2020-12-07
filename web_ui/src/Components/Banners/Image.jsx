@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import * as Vibrant from "node-vibrant";
 
 function BannerImage(props) {
   const [currentSrc, setCurrentSrc] = useState();
@@ -23,17 +22,10 @@ function BannerImage(props) {
     if (props.src !== currentSrc) {
       const img = new Image();
 
-      img.onload = async (e) => {
+      img.onload = (e) => {
         setLoaded(true);
         setShow(true);
         setCurrentSrc(props.src);
-
-        try {
-          const color = await Vibrant.from(e.target).getPalette();
-
-          props.setBG(color.Vibrant.getHex());
-          props.setText(color.Vibrant.getTitleTextColor());
-        } catch (e) {}
       };
 
       img.onerror = () => {

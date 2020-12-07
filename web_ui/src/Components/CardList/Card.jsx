@@ -14,9 +14,6 @@ function Card(props) {
   const [hovering, setHovering] = useState(false);
   const [timeoutID, setTimeoutID] = useState(null);
 
-  const [backgroundColor, setBackgroundColor] = useState("f7931e");
-  const [textColor, setTextColor] = useState("#fff");
-
   useEffect(() => {
     return () => {
       clearTimeout(timeoutID);
@@ -47,16 +44,6 @@ function Card(props) {
 
   const { name, poster_path, id } = props.data;
 
-  const accent = {
-    background: backgroundColor,
-    text: textColor
-  };
-
-  const data = {
-    ...props.data,
-    accent
-  };
-
   return (
     <div
       className="card-wrapper"
@@ -66,18 +53,14 @@ function Card(props) {
     >
       <div id={id} className="card" ref={card}>
         <Link to={`/media/${id}`}>
-          <Image
-            src={poster_path}
-            setBG={setBackgroundColor}
-            setText={setTextColor}
-          />
+          <Image src={poster_path}/>
           <p style={{opacity: + !hovering}}>{name}</p>
         </Link>
       </div>
       {hovering && (
         <CardPopup
           popup={cardPopup}
-          data={data}
+          data={props.data}
           setHovering={setHovering}
         />
       )}
