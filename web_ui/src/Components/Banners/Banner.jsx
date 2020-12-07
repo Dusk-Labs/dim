@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { connect } from "react-redux";
@@ -11,9 +11,6 @@ import TruncText from "../../Helpers/TruncText.jsx";
 import "./Banner.scss";
 
 function Banner(props) {
-  const [backgroundColor, setBackgroundColor] = useState("#f7931e");
-  const [textColor, setTextColor] = useState("#fff");
-
   // FETCH_BANNERS_FETCHING or FETCH_BANNERS_ERROR
   if (props.banners.fetching || (props.banners.fetched && props.banners.error)) {
     return (
@@ -49,7 +46,6 @@ function Banner(props) {
     } = props.data;
 
     const progressBarData = {
-      backgroundColor,
       season,
       episode,
       duration,
@@ -59,14 +55,12 @@ function Banner(props) {
     return (
       <div className="banner">
         <Image
-          setText={setTextColor}
-          setBG={setBackgroundColor}
           src={backdrop}
           hideAnimationName="onHideBannerImage"
         />
         <div className="extras">
           <Link to={`/search?year=${year}`}>{year}</Link>
-          <FontAwesomeIcon icon="circle" style={{ color: backgroundColor }}/>
+          <FontAwesomeIcon icon="circle"/>
           {genres.map((genre, i) => (
             <Link
               to={`/search?genre=${genre}`}
@@ -81,11 +75,7 @@ function Banner(props) {
           <p className="description">
             <TruncText content={synopsis} max={35}/>
           </p>
-          <PlayButton
-            id={id}
-            bgColor={backgroundColor}
-            textColor={textColor}
-          />
+          <PlayButton id={id}/>
         </div>
         <ProgressBar data={progressBarData}/>
       </div>

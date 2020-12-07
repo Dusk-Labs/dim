@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import * as Vibrant from "node-vibrant";
 
 import DimLogo from "../../assets/DimLogo";
 
@@ -8,20 +7,10 @@ function CardImage(props) {
   const [error, setErr] = useState(false);
 
   useEffect(() => {
-    let isSubscribed = true;
     const img = new Image();
 
-    img.onload = async (e) => {
+    img.onload = () => {
       setLoaded(true);
-
-      try {
-        const color = await Vibrant.from(e.target).getPalette();
-
-        if (isSubscribed) {
-          props.setBG(color.Vibrant.getHex());
-          props.setText(color.Vibrant.getTitleTextColor());
-        }
-      } catch (e) {}
     };
 
     img.onerror = () => {
@@ -30,8 +19,6 @@ function CardImage(props) {
     };
 
     img.src = props.src;
-
-    return () => isSubscribed = false;
   }, [props.src]);
 
   return (
