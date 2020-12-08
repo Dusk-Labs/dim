@@ -21,7 +21,6 @@ function LogoutBtn(props) {
   }, [visible]);
 
   const close = useCallback(() => {
-    console.log('testing')
     setVisible(false);
   }, []);
 
