@@ -1,5 +1,5 @@
 # Dark Powered media Manager written in rust (Alpha)
-![Design 1](./docs/design/image6.jpg?raw=true)
+![Design 1](./docs/design/current.jpg?raw=true)
 
 ## What is Dim?
 
