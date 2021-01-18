@@ -1,0 +1,291 @@
+@import "./mixins.scss";
+
+@font-face {
+  font-family: "Roboto Regular";
+  src: url("./assets/fonts/roboto_regular.woff2");
+}
+
+@font-face {
+  font-family: "Roboto Bold";
+  src: url("./assets/fonts/roboto_bold.woff2");
+}
+
+@font-face {
+  font-family: "Roboto Condensed Regular";
+  src: url("./assets/fonts/roboto_condensed_regular.woff2");
+}
+
+::-webkit-scrollbar {
+  height: 5px;
+  width: 5px;
+
+  &-track {
+    background: #333333;
+    border-radius: 10px;
+  }
+
+  &-thumb {
+    background: #f7931e;
+    border-radius: 10px;
+  }
+
+  &-corner {
+    background: none;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #1a1a1a;
+  scrollbar-color: #f7931e #333333;
+  scrollbar-width: thin;
+  font-family: "Roboto Regular";
+}
+
+/*
+    * == DEFAULTS ==
+*/
+
+a {
+  text-decoration: none;
+  color: #fff;
+  outline: none;
+}
+
+img {
+  background: #2a2a2a;
+
+  &:-moz-loading {
+    visibility: hidden;
+  }
+}
+
+/*
+  used by layout skeletons, appears only if takes a while to load,
+  else prevent flicker on load e.g. when loading in cached results
+*/
+.showAfter100ms {
+  opacity: 0;
+  animation: appear .3s ease-in-out forwards;
+  animation-delay: 100ms;
+}
+
+.horizontal-err {
+  animation: appear .4s ease-in-out;
+  align-items: center;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px;
+  font-family: "Roboto Condensed Regular";
+  background: #f7931e;
+  border-radius: 10px;
+  padding: 3px 5px;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  svg {
+    animation: shake .5s ease-in-out;
+    animation-delay: 0.5s;
+    font-size: .8em;
+  }
+}
+
+.vertical-err {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  animation: appear .4s ease-in-out;
+  height: 100%;
+  font-family: "Roboto Condensed Regular";
+  text-align: center;
+
+  svg {
+    animation: shake .5s ease-in-out;
+    margin-bottom: 15px;
+    color: #f39c12;
+    width: 1.5em !important;
+    height: 1.5em !important;
+    animation-delay: 0.5s;
+  }
+
+  p {
+    color: #bfbfbf;
+  }
+}
+
+button {
+  outline: none;
+  border: none;
+  cursor: pointer;
+}
+
+input {
+  font-family: "Roboto Regular";
+}
+
+.separator {
+  margin: 0 auto;
+  height: 2px;
+  width: 100%;
+  background: #4a4a4a;
+  border-radius: 2px;
+}
+
+.placeholder {
+  animation: appear .5s ease-in-out;
+  position: relative;
+  height: 100%;
+  background: #2a2a2a;
+  border-radius: 10px;
+
+  &-text {
+    transition: width .3s ease-in-out;
+    background: #2a2a2a;
+    border-radius: 10px;
+    height: 30px;
+    width: 150px;
+  }
+}
+
+.spinner {
+  transform: translate(-50%, -50%);
+  animation: appear .5s ease-in-out;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 40px;
+  width: 40px;
+  max-height:40px;
+  max-width: 40px;
+
+  &::after {
+    animation: spinner .6s linear infinite;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+    height: 100%;
+    width: 100%;
+    border: solid 2px #3a3a3a;
+    background: rgba(0, 0, 0, .2);
+    border-top-color: #ffffff;
+  }
+}
+
+.popupOverlay {
+  animation: appear .3s ease-in-out;
+  background: #000000aa;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+}
+
+main {
+  transition: margin .3s ease-in-out;
+  position: relative;
+  margin-left: 150px;
+  color: #fff;
+
+  &.full {
+    margin-left: 0;
+  }
+
+  &.shrunk {
+    margin-left: 150px;
+  }
+}
+
+.ScrollbarsCustom-TrackY {
+  top: 0 !important;
+  height: 100% !important;
+}
+
+.ScrollbarsCustom-TrackY {
+  width: 5px !important;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  & > .ScrollbarsCustom-Thumb {
+    transition: height .3s ease-in-out;
+    background: #f7931e none repeat scroll 0% 0% !important;
+  }
+}
+
+/*
+    * === KEYFRAMES ===
+*/
+
+@keyframes spinner {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes appear {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@include keyframes(shake) {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-10%);
+  }
+  40% {
+    transform: translateX(10%);
+  }
+  60% {
+    transform: translateX(-10%);
+  }
+  80% {
+    transform: translateX(10%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/*
+    * == MEDIA QUERIES
+*/
+
+@media only screen and (min-width: 1080px) {
+  main {
+    margin-left: 300px;
+
+    &.shrunk {
+      margin-left: 300px;
+    }
+  }
+}

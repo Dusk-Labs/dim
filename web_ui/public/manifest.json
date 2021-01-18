@@ -1,0 +1,8 @@
+{
+  "short_name": "Dim",
+  "name": "Dim - Fueled By Dark Forces",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#1a1a1a",
+  "background_color": "#1a1a1a"
+}

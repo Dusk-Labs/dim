@@ -1,0 +1,79 @@
+.banner-progress-bar {
+  grid-area: progressbar;
+  align-self: flex-end;
+  display: grid;
+  justify-content: start;
+
+  p {
+    margin: 0;
+  }
+
+  // separator
+  svg {
+    margin: 0 5px;
+    font-size: 0.4em;
+    color: #f7931e;
+  }
+
+  // SEASON AND EPISODE
+  .s-e {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin: 0 auto;
+    font-family: "Roboto Bold";
+  }
+
+  .progress {
+    display: flex;
+    align-items: center;
+
+    // CURRENT AND DURATION
+    div {
+      text-align: center;
+
+      /* VALUE */
+      p:nth-child(1) {
+        font-family: "Roboto Bold";
+        font-size: 1.3em;
+      }
+
+      /* UNIT */
+      p:nth-child(2) {
+        font-size: 0.8em;
+        font-family: "Roboto Bold";
+      }
+    }
+
+    .bar {
+      margin: 0 10px;
+      height: 4px;
+      width: 175px;
+      background: #ffffff;
+      -webkit-appearance: none;
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+
+      /* VALUE */
+      .progress-fill {
+        position: absolute;
+        left: 0;
+        height: 4px;
+        border-radius: 4px;
+        transition: width 0.3s ease-in-out;
+        background: #f7931e;
+      }
+    }
+  }
+}
+
+/*
+    * == MEDIA QUERIES ==
+*/
+
+@media only screen and (min-width: 1080px) {
+  .banner-progress-bar {
+    justify-self: end;
+  }
+}

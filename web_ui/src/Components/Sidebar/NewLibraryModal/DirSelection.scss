@@ -1,0 +1,84 @@
+.dirSelection {
+  grid-area: dirSelection;
+
+  h3 {
+    margin-bottom: .5em;
+  }
+
+  .dirs-wrapper {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .dirs {
+    position: relative;
+    overflow-y: auto;
+    height: 224px;
+    border-radius: inherit;
+    background: #4a4a4a;
+    scrollbar-width: thin;
+
+    .vertical-err {
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%);
+    }
+
+    .dir {
+      display: flex;
+      align-items: center;
+      transition: background 0.1s ease-in-out;
+      cursor: pointer;
+      padding: 0 .5em;
+      min-height: 32px;
+      color: #eee;
+
+      &:hover {
+        background: #5a5a5a;
+      }
+
+      // folder icon
+      svg {
+        margin-right: 10px;
+      }
+
+      // path name
+      p {
+        margin: 0;
+        user-select: none;
+        overflow-wrap: break-word;
+        overflow: hidden;
+      }
+    }
+  }
+
+  .controls {
+    margin-top: .5em;
+    display: flex;
+    align-items: center;
+
+    button {
+      filter: saturate(0.7);
+      transition: filter 0.3s ease-in-out;
+      font-family: "Roboto Bold";
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+      background: #f7931e;
+      color: #ffffff;
+
+      &:focus,
+      &:hover {
+        filter: saturate(1);
+      }
+    }
+
+    h4 {
+      margin-left: .5em;
+      span {
+        font-family: "Roboto Condensed Regular";
+      }
+    }
+  }
+}

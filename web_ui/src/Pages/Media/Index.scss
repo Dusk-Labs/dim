@@ -1,0 +1,152 @@
+@import "../../mixins.scss";
+
+.media-page {
+  .content {
+    margin: 90px;
+  }
+
+  .se-ep {
+    .list {
+      justify-content: space-between;
+      margin: 50px 0;
+      display: grid;
+      grid-gap: 100px 50px;
+      z-index: 1;
+    }
+
+    .seasons {
+      .list {
+        grid-template-columns: repeat(auto-fill, 200px);
+      }
+
+      .season {
+        transition: box-shadow 0.3s ease-in-out;
+        height: 320px;
+        width: 200px;
+        text-align: center;
+        border-radius: 10px;
+        cursor: pointer;
+
+        &:hover {
+          box-shadow: #ffffff 0 0 50px -20px;
+        }
+
+        .image-wrapper {
+          border-radius: 10px;
+
+          img {
+            object-fit: cover;
+            transition: transform 0.3s ease-in-out;
+            animation: imageLoaded 1s ease-in;
+            will-change: transform;
+            height: 320px;
+            width: 200px;
+            border-radius: 10px;
+          }
+        }
+
+        p {
+          transition: opacity 0.3s ease-in-out;
+          margin-top: 1vh;
+          text-transform: uppercase;
+          font-size: 0.8em;
+        }
+      }
+    }
+
+    .episodes {
+      margin: 100px 0;
+
+      .list {
+        grid-template-columns: repeat(auto-fill, 150px);
+      }
+
+      .episode {
+        text-align: center;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 150px;
+        height: 85px;
+
+        &:hover .image-wrapper {
+          box-shadow: #ffffff 0 0 50px -20px;
+        }
+
+        .image-wrapper {
+          transition: box-shadow 0.3s ease-in-out;
+          border-radius: 5px;
+          width: 150px;
+          height: 85px;
+
+          img {
+            object-fit: cover;
+            transition: transform 0.3s ease-in-out;
+            animation: imageLoaded 1s ease-in;
+            will-change: transform;
+            width: 150px;
+            height: 85px;
+            border-radius: 5px;
+          }
+        }
+
+        p {
+          transition: opacity 0.3s ease-in-out;
+          margin-top: 1vh;
+          text-transform: uppercase;
+          font-size: 0.8em;
+        }
+      }
+    }
+  }
+}
+
+/*
+    * == KEYFRAMES ==
+*/
+
+@include keyframes(mediaPageBackdropAppear) {
+    0% {
+        @include transform(scale(1.1));
+        opacity: 0;
+    }
+    100% {
+        @include transform(scale(1));
+        opacity: 1;
+    }
+}
+
+@include keyframes(mediaPageContentAppear) {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@include keyframes(imageLoaded) {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/*
+    * == MEDIA QUERIES ==
+*/
+
+@media only screen and (max-width: 2560px) and (max-height: 1440px) {
+    .mediaBackdrop img {
+        -o-object-position: 30% 30%;
+           object-position: 30% 30%;
+    }
+}
+
+@media only screen and (max-width: 720px) and (max-height: 1440px) {
+    .mediaBackdrop img {
+        -o-object-position: 50%;
+           object-position: 50%;
+    }
+}
