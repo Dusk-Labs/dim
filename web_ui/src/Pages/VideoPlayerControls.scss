@@ -23,7 +23,7 @@
         @include justify-content(space-between);
         @include align-items(flex-end);
         width: 100%;
-        font-family: "Roboto Condensed Bold";
+        font-family: "Roboto Condensed Regular";
 
         p {
             margin: 0;
@@ -44,7 +44,7 @@
                 margin-bottom: 5px;
                 @include display(flex);
                 @include align-items(center);
-                font-family: "Roboto Condensed";
+                font-family: "Roboto Condensed Regular";
             }
         }
 
@@ -75,7 +75,7 @@
             }
 
             span {
-                font-family: "Roboto Condensed Bold";
+                font-family: "Roboto Condensed Regular";
             }
 
             .video-progress-inner {
