@@ -1,0 +1,73 @@
+.mediaTypeSelection {
+  position: relative;
+
+  .openSelection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    padding: .5em;
+    background: #4a4a4a;
+    border-radius: 10px;
+
+    svg:first-child {
+      margin-right: .5em;
+    }
+  }
+
+  .types {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    gap: .5em;
+
+    .type {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #4a4a4a;
+      padding: .5em;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .2s ease-in-out;
+
+      &:hover {
+        background: #5a5a5a;
+      }
+
+      p {
+        margin: 0 .5em;
+      }
+
+      .select {
+        height: 12px;
+        // border-radius: 50%;
+        border-radius: 10px;
+        width: 12px;
+        border: solid .1em #fff;
+        transition: background .2s ease-in-out;
+
+        &.true {
+          background: #f7931e;
+        }
+      }
+    }
+  }
+}
+
+@keyframes showMediaTypeSelection {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes hideMediaTypeSelection {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

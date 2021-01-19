@@ -48,10 +48,17 @@ export const authenticate = (username, password) => async (dispatch) => {
             payload
         });
     } catch(err) {
-        dispatch({
-            type: AUTH_LOGIN_ERR,
-            payload: err
-        });
+        if (err.name === "TypeError") {
+            dispatch({
+                type: AUTH_LOGIN_ERR,
+                payload: "Network Error"
+            })
+        } else {
+            dispatch({
+                type: AUTH_LOGIN_ERR,
+                payload: err
+            });
+        }
     }
 };
 

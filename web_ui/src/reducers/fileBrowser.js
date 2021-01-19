@@ -25,12 +25,19 @@ export default function(state = initialState, action) {
         case FETCH_DIRECTORIES_OK:
             const items = action.payload.dirs.slice(1);
 
+            let slash = "/";
+
+            // use slash other way if windows
+            if (navigator.appVersion.indexOf("Win") !== -1) {
+                slash = "\\";
+            }
+
             return {
                 ...state,
                 items,
                 cache: {
                     ...state.cache,
-                    [action.payload.path]: items
+                    [action.payload.path.replace("/", slash)]: items
                 },
                 fetching: false,
                 fetched: true

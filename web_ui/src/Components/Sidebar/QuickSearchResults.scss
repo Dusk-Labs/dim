@@ -1,0 +1,63 @@
+.quickSearchResults {
+  animation: SidebarSearchBoxAppear 0.2s ease-in-out forwards;
+  width: 100%;
+  padding: 0;
+  min-height: 40px;
+  opacity: 0;
+  border-radius: 10px;
+  background: #4a4a4a;
+  color: #8a8a8a;
+  font-family: "Roboto Condensed Regular";
+
+  .state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+  }
+
+  .results {
+    padding: 20px 10px;
+    height: 100%;
+
+    // result count
+    & > p {
+      padding: 0 10px;
+    }
+
+    .result-list {
+      margin-top: .5em;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      max-height: 110px;
+
+      a {
+        padding: 8px 10px;
+        border-radius: 10px;
+        transition: background .3s ease-in-out;
+
+        &:hover {
+          background: #5a5a5a;
+
+        }
+      }
+    }
+  }
+}
+
+/*
+    * == KEYFRAMES ==
+*/
+
+@keyframes SidebarSearchBoxAppear {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+    margin-top: 1em;
+  }
+}

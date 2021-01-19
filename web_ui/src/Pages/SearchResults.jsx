@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 
 import { search } from "../actions/search.js";
 
-import PropCardList from "../Components/PropCardList.jsx";
+import PropCardList from "../Components/CardList/PropCardList.jsx";
 
 class SearchResults extends Component {
     componentDidMount() {

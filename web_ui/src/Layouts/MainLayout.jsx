@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 
-import Sidebar from "../Components/Sidebar.jsx";
+import Sidebar from "../Components/Sidebar/Index.jsx";
 
 const MainLayout = (props) => (
 	<Fragment>
