@@ -16,17 +16,18 @@ use diesel::prelude::*;
 use diesel::sql_types::Text;
 use rocket::http::RawStr;
 use rocket_contrib::json::{Json, JsonValue};
+
+use std::fs;
+use std::io;
 use std::path::PathBuf;
-use walkdir::WalkDir;
 
 no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
 
 // Necessary to emulate ilike.
 sql_function!(fn upper(x: Text) -> Text);
 
-pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> Vec<String> {
-    let mut dirs: Vec<String> = WalkDir::new(path)
-        .max_depth(1usize)
+pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> io::Result<Vec<String>> {
+    let mut dirs: Vec<String> = fs::read_dir(path)?
         .into_iter()
         .filter_map(|x| x.ok())
         .filter(|x| {
@@ -40,7 +41,7 @@ pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> Vec<String> {
         .collect::<Vec<_>>();
 
     dirs.sort();
-    dirs
+    Ok(dirs)
 }
 
 /// TODO: Refactor this function into something that is less fucked than this jesus
@@ -241,24 +242,36 @@ pub fn banners(conn: DbConnection, user: Auth) -> Result<Json<Vec<JsonValue>>, e
     Ok(Json(results))
 }
 
-// TODO: Audit the security of this.
 #[get("/filebrowser")]
 pub fn get_root_directory_structure(_user: Auth) -> Result<Json<Vec<String>>, errors::DimError> {
-    Ok(Json(enumerate_directory("/")))
+    cfg_if::cfg_if! {
+        if #[cfg(target_os = "windows")] {
+            Ok(Json(enumerate_directory("C:/")?))
+        } else {
+            Ok(Json(enumerate_directory("/")?))
+        }
+    }
 }
 
-// TODO: Audit the security of this.
 #[get("/filebrowser/<path..>")]
 pub fn get_directory_structure(
     path: Option<PathBuf>,
     _user: Auth,
 ) -> Result<Json<Vec<String>>, errors::DimError> {
+    cfg_if::cfg_if! {
+        if #[cfg(target_os = "windows")] {
+            let path_prefix = "C:/";
+        } else {
+            let path_prefix = "/";
+        }
+    }
+
     let path = path.map_or_else(
-        || "/".into(),
-        |x| format!("/{}", x.to_string_lossy().to_owned()),
+        || path_prefix.into(),
+        |x| format!("{}{}", path_prefix, x.to_string_lossy().to_owned()),
     );
 
-    Ok(Json(enumerate_directory(path)))
+    Ok(Json(enumerate_directory(path)?))
 }
 
 #[get("/search?<query>&<year>&<library_id>&<genre>&<quick>")]
