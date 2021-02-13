@@ -69,8 +69,15 @@ fn build_logger(_debug: bool) -> slog::Logger {
     let drain = Async::new(drain).build().fuse();
 
     let _ = create_dir("logs");
-    let file = File::create(format!("./logs/dim-log-{}.log", date_now.to_rfc3339()))
-        .expect("Couldnt open log file");
+    cfg_if::cfg_if! {
+        if #[cfg(target_os = "windows")] {
+            let file = File::create("./logs/dim-log.log")
+                .expect("Couldnt open log file");
+        } else {
+            let file = File::create(format!("./logs/dim-log-{}.log", date_now.to_rfc3339()))
+                .expect("Couldnt open log file");
+        }
+    }
 
     let json_drain = Mutex::new(slog_json_default::default(file)).map(Fuse);
 
