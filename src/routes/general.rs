@@ -246,7 +246,7 @@ pub fn banners(conn: DbConnection, user: Auth) -> Result<Json<Vec<JsonValue>>, e
 pub fn get_root_directory_structure(_user: Auth) -> Result<Json<Vec<String>>, errors::DimError> {
     cfg_if::cfg_if! {
         if #[cfg(target_os = "windows")] {
-            Ok(Json(enumerate_directory("C:/")?))
+            Ok(Json(enumerate_directory(r"C:/")?))
         } else {
             Ok(Json(enumerate_directory("/")?))
         }
@@ -260,7 +260,7 @@ pub fn get_directory_structure(
 ) -> Result<Json<Vec<String>>, errors::DimError> {
     cfg_if::cfg_if! {
         if #[cfg(target_os = "windows")] {
-            let path_prefix = "C:/";
+            let path_prefix = r"C:/";
         } else {
             let path_prefix = "/";
         }
