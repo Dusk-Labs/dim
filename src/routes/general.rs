@@ -1,6 +1,7 @@
 use crate::core::DbConnection;
 use crate::errors;
 use auth::Wrapper as Auth;
+use cfg_if::cfg_if;
 use database::{
     episode::Episode,
     genre::*,
@@ -12,16 +13,21 @@ use database::{
     season::Season,
 };
 use diesel::prelude::*;
+use diesel::sql_types::Text;
 use rocket::http::RawStr;
 use rocket_contrib::json::{Json, JsonValue};
+
+use std::fs;
+use std::io;
 use std::path::PathBuf;
-use walkdir::WalkDir;
 
 no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
 
-pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> Vec<String> {
-    let mut dirs: Vec<String> = WalkDir::new(path)
-        .max_depth(1usize)
+// Necessary to emulate ilike.
+sql_function!(fn upper(x: Text) -> Text);
+
+pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> io::Result<Vec<String>> {
+    let mut dirs: Vec<String> = fs::read_dir(path)?
         .into_iter()
         .filter_map(|x| x.ok())
         .filter(|x| {
@@ -35,7 +41,7 @@ pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> Vec<String> {
         .collect::<Vec<_>>();
 
     dirs.sort();
-    dirs
+    Ok(dirs)
 }
 
 /// TODO: Refactor this function into something that is less fucked than this jesus
@@ -236,24 +242,44 @@ pub fn banners(conn: DbConnection, user: Auth) -> Result<Json<Vec<JsonValue>>, e
     Ok(Json(results))
 }
 
-// TODO: Audit the security of this.
 #[get("/filebrowser")]
 pub fn get_root_directory_structure(_user: Auth) -> Result<Json<Vec<String>>, errors::DimError> {
-    Ok(Json(enumerate_directory("/")))
+    cfg_if::cfg_if! {
+        if #[cfg(target_os = "windows")] {
+            Ok(Json(enumerate_directory(r"C:\")?))
+        } else {
+            Ok(Json(enumerate_directory("/")?))
+        }
+    }
 }
 
-// TODO: Audit the security of this.
 #[get("/filebrowser/<path..>")]
 pub fn get_directory_structure(
     path: Option<PathBuf>,
     _user: Auth,
 ) -> Result<Json<Vec<String>>, errors::DimError> {
-    let path = path.map_or_else(
-        || "/".into(),
-        |x| format!("/{}", x.to_string_lossy().to_owned()),
-    );
+    cfg_if::cfg_if! {
+        if #[cfg(target_os = "windows")] {
+            let path_prefix = r"C:\";
+        } else {
+            let path_prefix = "/";
+        }
+    }
 
-    Ok(Json(enumerate_directory(path)))
+    let path = if let Some(path) = path {
+        if path.starts_with(path_prefix) {
+            path
+        } else {
+            let mut new_path = PathBuf::new();
+            new_path.push(path_prefix);
+            new_path.push(path);
+            new_path
+        }
+    } else {
+        path_prefix.into()
+    };
+
+    Ok(Json(enumerate_directory(path)?))
 }
 
 #[get("/search?<query>&<year>&<library_id>&<genre>&<quick>")]
@@ -279,7 +305,13 @@ pub fn search(
             .as_slice()
             .join("% %");
 
-        result = result.filter(media::name.ilike(format!("%{}%", query_string)));
+        cfg_if! {
+            if #[cfg(feature = "postgres")] {
+                result = result.filter(media::name.ilike(format!("%{}%", query_string)));
+            } else {
+                result = result.filter(upper(media::name).like(format!("%{}%", query_string)));
+            }
+        }
     }
 
     if let Some(x) = year {

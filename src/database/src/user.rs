@@ -85,11 +85,19 @@ impl User {
     /// assert!(user.len() > 0usize);
     ///
     /// let _ = User::delete(&conn, "test_get_all".to_string()).unwrap();
-    pub fn get_all(conn: &diesel::PgConnection) -> Result<Vec<Self>, DieselError> {
+    pub fn get_all(conn: &crate::DbConnection) -> Result<Vec<Self>, DieselError> {
         use crate::schema::users;
-        users::table
+
+        Ok(users::table
             .select((users::dsl::username, users::dsl::roles))
-            .load::<Self>(conn)
+            .load::<(String, String)>(conn)?
+            .iter()
+            .cloned()
+            .map(|(username, roles)| Self {
+                username,
+                roles: roles.split(",").map(|x| x.to_string()).collect(),
+            })
+            .collect())
     }
 
     /// Method gets one entry from the table users based on the username supplied and password.
@@ -128,7 +136,7 @@ impl User {
     ///
     /// let _ = User::delete(&conn, "test_get_one".to_string()).unwrap();
     pub fn get_one(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         uname: String,
         pw: String,
     ) -> Result<Self, DieselError> {
@@ -140,7 +148,11 @@ impl User {
                     .and(users::dsl::password.eq(hash(uname, pw))),
             )
             .select((users::dsl::username, users::dsl::roles))
-            .first::<Self>(conn)
+            .first::<(String, String)>(conn)
+            .map(|(username, roles)| Self {
+                username,
+                roles: roles.split(",").map(|x| x.to_string()).collect(),
+            })
     }
 
     /// Method deletes a entry from the table users and returns the number of rows deleted.
@@ -171,7 +183,7 @@ impl User {
     ///
     /// let err_rows = User::delete(&conn, "random".to_string()).unwrap();
     /// assert_eq!(err_rows, 0usize);
-    pub fn delete(conn: &diesel::PgConnection, uname: String) -> Result<usize, DieselError> {
+    pub fn delete(conn: &crate::DbConnection, uname: String) -> Result<usize, DieselError> {
         use crate::schema::users;
         diesel::delete(users::table.filter(users::dsl::username.eq(uname))).execute(conn)
     }
@@ -207,22 +219,23 @@ impl InsertableUser {
     ///
     /// let _ = User::delete(&conn, "test_insert".to_string()).unwrap();
     /// ```
-    pub fn insert(self, conn: &diesel::PgConnection) -> Result<String, DieselError> {
+    pub fn insert(self, conn: &crate::DbConnection) -> Result<String, DieselError> {
         use crate::schema::users;
 
         diesel::insert_into(users::table)
             .values((
                 users::dsl::username.eq(self.username.clone()),
-                users::dsl::password.eq(hash(self.username, self.password)),
-                users::dsl::roles.eq(self.roles),
+                users::dsl::password.eq(hash(self.username.clone(), self.password)),
+                users::dsl::roles.eq(self.roles.join(",")),
             ))
-            .returning(users::dsl::username)
-            .get_result(conn)
+            .execute(conn)?;
+
+        Ok(self.username)
     }
 }
 
 impl Login {
-    pub fn invite_token_valid(&self, conn: &diesel::PgConnection) -> Result<bool, DieselError> {
+    pub fn invite_token_valid(&self, conn: &crate::DbConnection) -> Result<bool, DieselError> {
         use crate::schema::invites;
 
         if let Some(ref x) = self.invite_token {
@@ -234,7 +247,7 @@ impl Login {
         Ok(false)
     }
 
-    pub fn invalidate_token(&self, conn: &diesel::PgConnection) -> Result<usize, DieselError> {
+    pub fn invalidate_token(&self, conn: &crate::DbConnection) -> Result<usize, DieselError> {
         use crate::schema::invites;
 
         if let Some(ref x) = self.invite_token {
@@ -244,18 +257,19 @@ impl Login {
         Ok(0usize)
     }
 
-    pub fn new_invite(conn: &diesel::PgConnection) -> Result<String, DieselError> {
+    pub fn new_invite(conn: &crate::DbConnection) -> Result<String, DieselError> {
         use crate::schema::invites;
 
         let token = uuid::Uuid::new_v4().to_hyphenated().to_string();
 
         diesel::insert_into(invites::table)
-            .values(invites::token.eq(token))
-            .returning(invites::token)
-            .get_result(conn)
+            .values(invites::token.eq(token.clone()))
+            .execute(conn)?;
+
+        Ok(token)
     }
 
-    pub fn get_all_invites(conn: &diesel::PgConnection) -> Result<Vec<String>, DieselError> {
+    pub fn get_all_invites(conn: &crate::DbConnection) -> Result<Vec<String>, DieselError> {
         use crate::schema::invites;
 
         invites::table

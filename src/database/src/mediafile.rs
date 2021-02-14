@@ -2,6 +2,7 @@ use crate::library::Library;
 use crate::media::Media;
 use crate::schema::mediafile;
 use crate::streamablemedia::StreamableMedia;
+use cfg_if::cfg_if;
 use diesel::prelude::*;
 
 /// MediaFile struct which represents a media file on the filesystem. This struct holds some basic
@@ -144,7 +145,7 @@ impl MediaFile {
     /// let _ = MediaFile::delete(&conn, media.id);
     /// ```
     pub fn get_by_lib(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         lib: &Library,
     ) -> Result<Vec<Self>, diesel::result::Error> {
         Self::belonging_to(lib).load::<Self>(conn)
@@ -190,7 +191,7 @@ impl MediaFile {
     /// let _ = MediaFile::delete(&conn, media.id);
     /// ```
     pub fn get_by_lib_null_media(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         lib: &Library,
     ) -> Result<Vec<Self>, diesel::result::Error> {
         Self::belonging_to(lib)
@@ -248,7 +249,7 @@ impl MediaFile {
     /// let _ = MediaFile::delete(&conn, media.id);
     /// ```
     pub fn get_of_media(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         media: &Media,
     ) -> Result<Vec<Self>, diesel::result::Error> {
         let streamable_media =
@@ -304,7 +305,7 @@ impl MediaFile {
     /// let _ = Library::delete(&conn, library_id);
     /// let _ = MediaFile::delete(&conn, mediafile.id);
     /// ```
-    pub fn get_one(conn: &diesel::PgConnection, _id: i32) -> Result<Self, diesel::result::Error> {
+    pub fn get_one(conn: &crate::DbConnection, _id: i32) -> Result<Self, diesel::result::Error> {
         use crate::schema::mediafile::dsl::*;
 
         let result = mediafile.filter(id.eq(_id)).first::<Self>(conn)?;
@@ -354,7 +355,7 @@ impl MediaFile {
     /// let _ = Library::delete(&conn, library_id);
     /// let _ = MediaFile::delete(&conn, mediafile_id);
     /// ```
-    pub fn exists_by_file(conn: &diesel::PgConnection, file: &str) -> bool {
+    pub fn exists_by_file(conn: &crate::DbConnection, file: &str) -> bool {
         use crate::schema::mediafile::dsl::*;
         use diesel::dsl::exists;
         use diesel::dsl::select;
@@ -406,7 +407,7 @@ impl MediaFile {
     /// // clean up the test
     /// let _ = Library::delete(&conn, library_id);
     /// ```
-    pub fn delete(conn: &diesel::PgConnection, _id: i32) -> Result<usize, diesel::result::Error> {
+    pub fn delete(conn: &crate::DbConnection, _id: i32) -> Result<usize, diesel::result::Error> {
         use crate::schema::mediafile::dsl::*;
 
         let result = diesel::delete(mediafile.filter(id.eq(_id))).execute(conn)?;
@@ -455,14 +456,20 @@ impl InsertableMediaFile {
     /// let _ = Library::delete(&conn, library_id);
     /// let _ = MediaFile::delete(&conn, mediafile_id);
     /// ```
-    pub fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
+    pub fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error> {
         use crate::schema::mediafile::dsl::*;
-        let result: i32 = diesel::insert_into(mediafile)
-            .values(self)
-            .returning(id)
-            .get_result(conn)?;
 
-        Ok(result)
+        let query = diesel::insert_into(mediafile).values(self);
+
+        cfg_if! {
+            if #[cfg(feature = "postgres")] {
+                query.returning(id)
+                    .get_result(conn)
+            } else {
+                query.execute(conn)?;
+                diesel::select(crate::last_insert_rowid).get_result(conn)
+            }
+        }
     }
 }
 
@@ -531,7 +538,7 @@ impl UpdateMediaFile {
     /// ```
     pub fn update(
         &self,
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         _id: i32,
     ) -> Result<usize, diesel::result::Error> {
         use crate::schema::mediafile::dsl::*;

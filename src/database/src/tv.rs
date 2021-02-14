@@ -1,5 +1,6 @@
 use crate::media::*;
 use crate::schema::tv_show;
+use cfg_if::cfg_if;
 use diesel::prelude::*;
 
 /// Trait used as a marker to mark media entries that cannot be streamed, as in not being directly
@@ -11,7 +12,7 @@ pub trait StaticTrait {
     /// * `id` - id of a media object.
     fn new(id: i32) -> Self;
     /// Required method that inserts Self into the database returning its id.
-    fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error>;
+    fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error>;
 }
 
 /// Struct represents a tv show entry in the database.
@@ -73,7 +74,7 @@ impl TVShow {
     /// assert_eq!(show.library_id, library_id);
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn get(conn: &diesel::PgConnection, req_id: i32) -> Result<Media, diesel::result::Error> {
+    pub fn get(conn: &crate::DbConnection, req_id: i32) -> Result<Media, diesel::result::Error> {
         use crate::schema::media::dsl::*;
         media.filter(id.eq(req_id)).first(conn)
     }
@@ -113,7 +114,7 @@ impl TVShow {
     /// let show = TVShow::get_all(&conn).unwrap();
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn get_all(conn: &diesel::PgConnection) -> Result<Vec<Media>, diesel::result::Error> {
+    pub fn get_all(conn: &crate::DbConnection) -> Result<Vec<Media>, diesel::result::Error> {
         use crate::schema::media;
         let result = media::dsl::media
             .inner_join(tv_show::dsl::tv_show)
@@ -165,11 +166,18 @@ impl StaticTrait for InsertableTVShow {
     /// assert_eq!(media_id, show_id);
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
-        diesel::insert_into(tv_show::table)
-            .values(self)
-            .returning(tv_show::id)
-            .get_result(conn)
+    fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error> {
+        let query = diesel::insert_into(tv_show::table).values(self);
+
+        cfg_if! {
+            if #[cfg(feature = "postgres")] {
+                query.returning(tv_show::id)
+                    .get_result(conn)
+            } else {
+                query.execute(conn)?;
+                diesel::select(crate::last_insert_rowid).get_result::<i32>(conn)
+            }
+        }
     }
 }
 

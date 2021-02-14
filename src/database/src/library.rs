@@ -1,5 +1,6 @@
 use crate::media::*;
 use crate::schema::library;
+use cfg_if::cfg_if;
 use diesel::prelude::*;
 
 #[derive(Serialize, Debug, Clone, DbEnum, Eq, PartialEq, Deserialize)]
@@ -69,7 +70,7 @@ impl Library {
     /// // clean up the test
     /// let _ = Library::delete(&conn, new_id).unwrap();
     /// ```
-    pub fn get_all(conn: &diesel::PgConnection) -> Vec<Self> {
+    pub fn get_all(conn: &crate::DbConnection) -> Vec<Self> {
         use crate::schema::library::dsl::*;
 
         // TODO: Dont panic on error event tho this technically never panics and just returns a
@@ -82,7 +83,7 @@ impl Library {
     /// Method filters the database for a library with the id supplied and returns in as a Result.
     ///
     /// # Arguments
-    /// * `conn` - [diesel connection](diesel::PgConnection)
+    /// * `conn` - [diesel connection](crate::DbConnection)
     /// * `lib_id` - a integer that is the id of the library we are trying to query
     ///
     /// # Example
@@ -109,7 +110,7 @@ impl Library {
     /// let _ = Library::delete(&conn, new_id).unwrap();
     /// ```
     pub fn get_one(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         lib_id: i32,
     ) -> Result<Library, diesel::result::Error> {
         use crate::schema::library::dsl::*;
@@ -121,7 +122,7 @@ impl Library {
     /// associated with the library then returns all those as a Vec.
     ///
     /// # Arguments
-    /// * `conn` - [diesel connection](diesel::PgConnection)
+    /// * `conn` - [diesel connection](crate::DbConnection)
     /// * `lib_id` - a integer that is the id of the library we are trying to query
     ///
     /// # Example
@@ -154,7 +155,7 @@ impl Library {
     /// let _ = Library::delete(&conn, library_id);
     /// ```
     pub fn get(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         lib_id: i32,
     ) -> Result<Vec<Media>, diesel::result::Error> {
         use crate::schema::library::dsl::*;
@@ -166,7 +167,7 @@ impl Library {
     /// Method filters the database for a library with the id supplied and deletes it.
     ///
     /// # Arguments
-    /// * `conn` - [diesel connection](diesel::PgConnection)
+    /// * `conn` - [diesel connection](crate::DbConnection)
     /// * `lib_id` - a integer that is the id of the library we are trying to query
     ///
     /// # Example
@@ -186,7 +187,7 @@ impl Library {
     /// assert_eq!(rows, 1usize);
     /// ```
     pub fn delete(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         id_to_del: i32,
     ) -> Result<usize, diesel::result::Error> {
         use crate::schema::library::dsl::*;
@@ -201,7 +202,7 @@ impl InsertableLibrary {
     /// Method inserts a InsertableLibrary object into the database (makes a new library).
     ///
     /// # Arguments
-    /// * `conn` - [diesel connection](diesel::PgConnection)
+    /// * `conn` - [diesel connection](crate::DbConnection)
     ///
     /// # Example
     /// ```
@@ -226,10 +227,17 @@ impl InsertableLibrary {
     /// // clean up the test
     /// let _ = Library::delete(&conn, new_id);
     /// ```
-    pub fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
-        diesel::insert_into(library::table)
-            .values(self)
-            .returning(library::id)
-            .get_result(conn)
+    pub fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error> {
+        let query = diesel::insert_into(library::table).values(self);
+
+        cfg_if! {
+            if #[cfg(feature = "postgres")] {
+                query.returning(library::id)
+                    .get_result(conn)
+            } else {
+                query.execute(conn)?;
+                diesel::select(crate::last_insert_rowid).get_result(conn)
+            }
+        }
     }
 }

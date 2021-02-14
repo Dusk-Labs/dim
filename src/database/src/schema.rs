@@ -106,7 +106,11 @@ table! {
     users (username) {
         username -> Text,
         password -> Text,
-        roles -> Array<Text>,
+
+        // NOTE: Sqlite doesnt support arrays, so we hack around and concat roles into a string
+        // which we split later. This is a compromise as to not complicate the db crate any
+        // further.
+        roles -> Text,
     }
 }
 

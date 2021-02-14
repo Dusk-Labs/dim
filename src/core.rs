@@ -1,4 +1,5 @@
 use crate::{routes, scanners};
+use cfg_if::cfg_if;
 use diesel::prelude::*;
 use lazy_static::lazy_static;
 use rocket::http::Method;
@@ -12,12 +13,25 @@ use std::{
     thread,
 };
 
-#[database("dimpostgres")]
-pub struct DbConnection(PgConnection);
+cfg_if! {
+    if #[cfg(feature = "postgres")] {
+        #[database("dimpostgres")]
+        pub struct DbConnection(PgConnection);
 
-impl AsRef<PgConnection> for DbConnection {
-    fn as_ref(&self) -> &PgConnection {
-        &*self
+        impl AsRef<PgConnection> for DbConnection {
+            fn as_ref(&self) -> &PgConnection {
+                &*self
+            }
+        }
+    } else {
+        #[database("dimpostgres")]
+        pub struct DbConnection(SqliteConnection);
+
+        impl AsRef<SqliteConnection> for DbConnection {
+            fn as_ref(&self) -> &SqliteConnection {
+                &*self
+            }
+        }
     }
 }
 
