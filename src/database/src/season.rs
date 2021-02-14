@@ -1,5 +1,6 @@
 use crate::schema::season;
 use crate::tv::TVShow;
+use cfg_if::cfg_if;
 use diesel::prelude::*;
 
 /// Struct represents a season entry in the database.
@@ -95,7 +96,7 @@ impl Season {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     pub fn get_all(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         tv_id: i32,
     ) -> Result<Vec<Self>, diesel::result::Error> {
         use crate::schema::tv_show;
@@ -160,7 +161,7 @@ impl Season {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     pub fn get(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         tv_id: i32,
         season_num: i32,
     ) -> Result<Season, diesel::result::Error> {
@@ -233,7 +234,7 @@ impl Season {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     pub fn delete(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         tv_id: i32,
         season_num: i32,
     ) -> Result<usize, diesel::result::Error> {
@@ -304,7 +305,7 @@ impl InsertableSeason {
     /// Library::delete(&conn, library_id).unwrap();
     pub fn insert(
         &self,
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         id: i32,
     ) -> Result<i32, diesel::result::Error> {
         use crate::schema::tv_show;
@@ -315,10 +316,17 @@ impl InsertableSeason {
         let _ = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
 
         // We insert the tvshowid separately
-        diesel::insert_into(season::table)
-            .values((self, season::dsl::tvshowid.eq(id)))
-            .returning(season::id)
-            .get_result(conn)
+        let query = diesel::insert_into(season::table).values((self, season::dsl::tvshowid.eq(id)));
+
+        cfg_if! {
+            if #[cfg(feature = "postgres")] {
+                query.returning(season::id)
+                    .get_result(conn)
+            } else {
+                query.execute(conn)?;
+                diesel::select(crate::last_insert_rowid).get_result(conn)
+            }
+        }
     }
 }
 
@@ -388,7 +396,7 @@ impl UpdateSeason {
     /// Library::delete(&conn, library_id).unwrap();
     pub fn update(
         &self,
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         id: i32,
         season_num: i32,
     ) -> Result<usize, diesel::result::Error> {

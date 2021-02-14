@@ -7,18 +7,26 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-macro_rules! which {
-    ($prog:expr) => {
-        String::from_utf8(Command::new("which").arg($prog).output().unwrap().stdout)
-            .expect("Failed to decode `wich $prog`.")
-            .trim_end()
-            .into();
-    };
+cfg_if::cfg_if! {
+    if #[cfg(target_os = "windows")] {
+        macro_rules! which {
+            ($prog:expr) => {$prog.into()};
+        }
+    } else {
+        macro_rules! which {
+            ($prog:expr) => {
+                String::from_utf8(Command::new("which").arg($prog).output().unwrap().stdout)
+                    .expect("Failed to decode `which $prog`.")
+                    .trim_end()
+                    .into();
+            };
+        }
+    }
 }
 
 lazy_static! {
-    pub static ref FFMPEG_BIN: Box<str> = which!("utils/ffmpeg");
-    pub static ref FFPROBE_BIN: Box<str> = which!("utils/ffprobe");
+    pub static ref FFMPEG_BIN: Box<str> = which!("./utils/ffmpeg");
+    pub static ref FFPROBE_BIN: Box<str> = which!("./utils/ffprobe");
     pub static ref STREAMING_SESSION: Arc<RwLock<HashMap<String, HashMap<String, String>>>> =
         Arc::new(RwLock::new(HashMap::new()));
 }
@@ -48,7 +56,7 @@ use std::process::Command;
 /// }    
 /// ```
 pub fn ffcheck<'a>(bucket: &'a mut Vec<Box<str>>) -> Result<(), Box<&str>> {
-    for program in ["utils/ffmpeg", "utils/ffprobe"].iter() {
+    for program in ["./utils/ffmpeg", "./utils/ffprobe"].iter() {
         if let Ok(output) = Command::new(program).arg("-version").output() {
             let stdout = String::from_utf8(output.stdout)
                 .expect("Failed to decode subprocess stdout.")

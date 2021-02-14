@@ -3,6 +3,7 @@ use super::{
     APIExec, EventTx,
 };
 use crate::streaming::{ffprobe::FFProbeCtx, FFPROBE_BIN};
+use cfg_if::cfg_if;
 use chrono::{prelude::Utc, Datelike, NaiveDate};
 use database::{
     episode::{Episode, InsertableEpisode},
@@ -15,7 +16,6 @@ use database::{
     season::{InsertableSeason, Season},
     tv::InsertableTVShow,
 };
-use diesel::pg::PgConnection;
 use events::*;
 use pushevent::Event;
 use rayon::prelude::*;
@@ -23,8 +23,16 @@ use slog::{debug, error, info, Logger};
 use torrent_name_parser::Metadata;
 use walkdir::WalkDir;
 
+cfg_if! {
+    if #[cfg(feature = "postgres")] {
+        pub type DbConnection = diesel::pg::PgConnection;
+    } else {
+        pub type DbConnection = diesel::SqliteConnection;
+    }
+}
+
 pub struct IterativeScanner {
-    conn: PgConnection,
+    conn: DbConnection,
     lib: Library,
     log: Logger,
     event_tx: EventTx,
@@ -405,7 +413,7 @@ fn mount_file(
 
     info!(log, "Scanning file: {}", &path);
 
-    let ctx = FFProbeCtx::new(&FFPROBE_BIN);
+    let ctx = FFProbeCtx::new((&FFPROBE_BIN));
     let metadata = Metadata::from(file.file_name().unwrap().to_str().unwrap()).unwrap();
     let ffprobe_data = ctx.get_meta(&file).unwrap();
 

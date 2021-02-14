@@ -1,4 +1,5 @@
 use crate::schema::{genre, genre_media};
+use cfg_if::cfg_if;
 use diesel::prelude::*;
 
 /// Struct shows a single genre entry
@@ -62,11 +63,18 @@ impl Genre {
     ///
     /// Genre::delete(&conn, id);
     pub fn get_by_name(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         query: String,
     ) -> Result<Self, diesel::result::Error> {
         use crate::schema::genre::dsl::*;
-        genre.filter(name.ilike(query)).first::<Self>(conn)
+
+        cfg_if! {
+            if #[cfg(feature = "postgres")] {
+                genre.filter(name.ilike(query)).first::<Self>(conn)
+            } else {
+                genre.filter(crate::upper(name).like(query.to_uppercase())).first::<Self>(conn)
+            }
+        }
     }
 
     /// Method returns all of the episodes belonging to a tv show.
@@ -123,7 +131,7 @@ impl Genre {
     /// Library::delete(&conn, library_id).unwrap();
     /// Genre::delete(&conn, genre_id);
     pub fn get_by_media(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         query: i32,
     ) -> Result<Vec<Self>, diesel::result::Error> {
         genre::table
@@ -187,7 +195,7 @@ impl Genre {
     /// Library::delete(&conn, library_id).unwrap();
     /// Genre::delete(&conn, genre_id);
     pub fn get_by_media_and_genre(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         genre_id: i32,
         media_id: i32,
     ) -> Result<Self, diesel::result::Error> {
@@ -227,7 +235,7 @@ impl Genre {
     ///
     /// assert!(Genre::get_by_name(&conn, "test".into()).is_err());
     pub fn delete(
-        conn: &diesel::PgConnection,
+        conn: &crate::DbConnection,
         genre_id: i32,
     ) -> Result<usize, diesel::result::Error> {
         use crate::schema::genre::dsl::*;
@@ -265,7 +273,7 @@ impl InsertableGenre {
     ///
     /// Genre::delete(&conn, id);
     /// ```
-    pub fn insert(&self, conn: &diesel::PgConnection) -> Result<i32, diesel::result::Error> {
+    pub fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error> {
         use crate::schema::genre::dsl::*;
 
         // first check if exists
@@ -273,12 +281,18 @@ impl InsertableGenre {
             return Ok(x.id);
         }
 
-        let result = diesel::insert_into(genre)
-            .values(self)
-            .returning(id)
-            .get_result(conn)?;
+        let query = diesel::insert_into(genre).values(self);
 
-        Ok(result)
+        cfg_if! {
+            if #[cfg(feature = "postgres")] {
+                query.returning(id)
+                    .get_result(conn)
+            } else {
+                query.execute(conn)?;
+
+                diesel::select(crate::last_insert_rowid).get_result(conn)
+            }
+        }
     }
 }
 
@@ -334,7 +348,7 @@ impl InsertableGenreMedia {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     /// Genre::delete(&conn, genre_id);
-    pub fn insert(&self, conn: &diesel::PgConnection) {
+    pub fn insert(&self, conn: &crate::DbConnection) {
         use crate::schema::genre_media::dsl::*;
         let _ = diesel::insert_into(genre_media).values(self).execute(conn);
     }
@@ -388,7 +402,7 @@ impl InsertableGenreMedia {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     /// Genre::delete(&conn, genre_id);
-    pub fn insert_pair(genre_id: i32, media_id: i32, conn: &diesel::PgConnection) {
+    pub fn insert_pair(genre_id: i32, media_id: i32, conn: &crate::DbConnection) {
         if Genre::get_by_media_and_genre(&conn, genre_id, media_id).is_ok() {
             return;
         }

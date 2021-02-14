@@ -34,6 +34,7 @@ extern crate rocket_contrib;
 #[macro_use]
 extern crate rust_embed;
 
+use cfg_if::cfg_if;
 use chrono::Utc;
 use clap::{App, Arg};
 use rocket::config::{ConfigBuilder, Environment, LoggingLevel};
@@ -42,10 +43,10 @@ use slog_async::Async;
 use slog_json::Json as slog_json_default;
 use slog_term::{FullFormat, TermDecorator};
 use std::{
-    thread,
     fs::{create_dir, File},
     process,
     sync::Mutex,
+    thread,
 };
 
 mod core;
@@ -68,8 +69,15 @@ fn build_logger(_debug: bool) -> slog::Logger {
     let drain = Async::new(drain).build().fuse();
 
     let _ = create_dir("logs");
-    let file = File::create(format!("logs/dim-log-{}.log", date_now.to_rfc3339()))
-        .expect("Couldnt open log file");
+    cfg_if::cfg_if! {
+        if #[cfg(target_os = "windows")] {
+            let file = File::create("./logs/dim-log.log")
+                .expect("Couldnt open log file");
+        } else {
+            let file = File::create(format!("./logs/dim-log-{}.log", date_now.to_rfc3339()))
+                .expect("Couldnt open log file");
+        }
+    }
 
     let json_drain = Mutex::new(slog_json_default::default(file)).map(Fuse);
 
@@ -153,8 +161,15 @@ fn main() {
         .extra("databases", {
             let mut db_conf = std::collections::HashMap::new();
             let mut m = std::collections::HashMap::new();
-            m.insert("url", "postgres://postgres:dimpostgres@127.0.0.1/dim");
-            db_conf.insert("dimpostgres", m);
+            cfg_if! {
+                if #[cfg(feature = "postgres")] {
+                    m.insert("url", "postgres://postgres:dimpostgres@127.0.0.1/dim");
+                    db_conf.insert("dimpostgres", m);
+                } else {
+                    m.insert("url", "./dim.db");
+                    db_conf.insert("dimpostgres", m);
+                }
+            }
             db_conf
         })
         .finalize()
