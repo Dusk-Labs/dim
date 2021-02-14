@@ -266,10 +266,18 @@ pub fn get_directory_structure(
         }
     }
 
-    let path = path.map_or_else(
-        || path_prefix.into(),
-        |x| format!("{}{}", path_prefix, x.to_string_lossy().to_owned()),
-    );
+    let path = if let Some(path) = path {
+        if path.starts_with(path_prefix) {
+            path
+        } else {
+            let mut new_path = PathBuf::new();
+            new_path.push(path_prefix);
+            new_path.push(path);
+            new_path
+        }
+    } else {
+        path_prefix.into()
+    };
 
     Ok(Json(enumerate_directory(path)?))
 }
