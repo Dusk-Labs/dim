@@ -116,8 +116,8 @@ pub fn get_conn_devel() -> Result<crate::DbConnection, diesel::result::Connectio
                 "postgres://postgres:dimpostgres@postgres/dim_devel",
             )?;
         } else {
-            let conn = DbConnection::establish("./dim_devel.db")?;
-            let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(conn)?;
+            let mut conn = DbConnection::establish("./dim_devel.db")?;
+            let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
         }
     }
 
@@ -156,8 +156,9 @@ fn internal_get_conn(
                 "postgres://postgres:dimpostgres@postgres/dim",
             )
         } else {
-            DbConnection::establish("./dim.db")
-            let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(conn)?;
+            let mut conn = DbConnection::establish("./dim.db")?;
+            let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
+            Ok(conn)
         }
     }
 }
