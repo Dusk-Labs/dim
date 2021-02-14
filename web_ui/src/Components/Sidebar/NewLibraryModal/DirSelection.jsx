@@ -7,42 +7,38 @@ import "./DirSelection.scss";
 
 function DirSelection(props) {
   const [cache, setCache] = useState(false);
-  const [slash, setSlash] = useState("/");
 
   const select = useCallback(path => {
-    if (path === props.current) return;
-
     if (path in props.fileBrowser.cache) {
-      props.setCurrent(path.replace("/", slash));
+      props.setCurrent(path);
       setCache(true);
 
       return;
     }
 
-    props.fetchDirectories(props.auth.token, path);
-    props.setCurrent(path.replace("/", slash));
+    props.fetchDirectories(props.auth.token, path.replace("C:\\", ""));
+    props.setCurrent(path);
 
     setCache(false);
   }, [props.current, props.fileBrowser]);
 
-  useEffect(() => {
-    // use slash other way if windows
-    if (navigator.appVersion.indexOf("Win") !== -1) {
-      setSlash("\\");
-      select("\\");
-    } else {
-      select("/");
-    }
-  }, [])
+  useEffect(() => select(""), []);
 
   const goBack = useCallback(() => {
-    if (props.current === slash) return;
+    let slash = "/";
+
+    if (props.current.includes("\\")) {
+      slash = "\\";
+    }
+
+    if (props.current.length === 0) return;
+
     const path = props.current.split(slash);
 
     path.pop();
 
-    select(path.join(slash) || slash);
-  }, [slash, props.current])
+    select(path.join(slash));
+  }, [props.current])
 
   let dirs;
 
@@ -71,7 +67,7 @@ function DirSelection(props) {
           return (
             <div key={i} onClick={() => select(dir)} className="dir">
               <FontAwesomeIcon icon="folder"/>
-              <p>{dir.replace("/", slash).replace(props.current, "").replace(slash, "")}</p>
+              <p>{dir.replace(props.current, "").replace("C:\\", "").replace("/", "").replace("\\", "")}</p>
             </div>
           )
         });
@@ -91,7 +87,7 @@ function DirSelection(props) {
       dirs = items.map((dir, i) => (
         <div key={i} onClick={() => select(dir)} className="dir">
           <FontAwesomeIcon icon="folder"/>
-          <p>{dir.replace("/", slash).replace(props.current, "").replace(slash, "")}</p>
+          <p>{dir.replace(props.current, "").replace("C:\\", "").replace("/", "").replace("\\", "")}</p>
         </div>
       ));
     }
