@@ -255,30 +255,9 @@ pub fn get_root_directory_structure(_user: Auth) -> Result<Json<Vec<String>>, er
 
 #[get("/filebrowser/<path..>")]
 pub fn get_directory_structure(
-    path: Option<PathBuf>,
+    path: PathBuf,
     _user: Auth,
 ) -> Result<Json<Vec<String>>, errors::DimError> {
-    cfg_if::cfg_if! {
-        if #[cfg(target_os = "windows")] {
-            let path_prefix = r"C:\";
-        } else {
-            let path_prefix = "/";
-        }
-    }
-
-    let path = if let Some(path) = path {
-        if path.starts_with(path_prefix) {
-            path
-        } else {
-            let mut new_path = PathBuf::new();
-            new_path.push(path_prefix);
-            new_path.push(path);
-            new_path
-        }
-    } else {
-        path_prefix.into()
-    };
-
     Ok(Json(enumerate_directory(path)?))
 }
 
