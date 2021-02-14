@@ -8,7 +8,7 @@ function RegisterBtn(props) {
   const [username, password1, password2, invite] = credentials;
   const [setUsernameErr, setPassword1Err, setPassword2Err, setInviteErr] = error;
 
-  const authorize = useCallback(() => {
+  const authorize = useCallback(async () => {
     if (props.registering) return;
 
     const allowedChars = /^[a-zA-Z0-9_.-]*$/;
@@ -36,13 +36,18 @@ function RegisterBtn(props) {
       return;
     }
 
-    if (!props.auth.admin_exists && invite.length !== 36) {
-      setInviteErr("Code has to be 36 characters");
-      return;
-    }
+    if (props.admin_exists) {
+      if (invite.length !== 36) {
+        setInviteErr("Code has to be 36 characters.");
+        return;
+      }
 
-    props.register(username, password1, invite);
-    props.authenticate(username, password1);
+      await props.register(username, password1, invite);
+      props.authenticate(username, password1);
+    } else {
+      await props.register(username, password1);
+      props.authenticate(username, password1);
+    }
   }, [credentials]);
 
   const onKeyDown = useCallback(e => {
@@ -60,12 +65,13 @@ function RegisterBtn(props) {
   }, [credentials])
 
   return (
-    <button className={`${props.auth.registering}`} onClick={authorize}>Login</button>
+    <button className={`${props.auth.registering}`} onClick={authorize}>Register</button>
   )
 }
 
 const mapStateToProps = (state) => ({
   auth: state.auth.register,
+  admin_exists: state.auth.admin_exists
 });
 
 const mapActionsToProps = {
