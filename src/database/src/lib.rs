@@ -71,6 +71,7 @@ fn create_database(conn: &crate::DbConnection) -> Result<(), diesel::result::Err
             let _ = diesel::sql_query("CREATE DATABASE pg_trgm").execute(conn)?;
         } else {
             let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(conn)?;
+            let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(conn)?;
         }
     }
     Ok(())
@@ -118,6 +119,7 @@ pub fn get_conn_devel() -> Result<crate::DbConnection, diesel::result::Connectio
         } else {
             let mut conn = DbConnection::establish("./dim_devel.db")?;
             let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
+            let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn);
         }
     }
 
@@ -158,6 +160,7 @@ fn internal_get_conn(
         } else {
             let mut conn = DbConnection::establish("./dim.db")?;
             let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
+            let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn);
             Ok(conn)
         }
     }
