@@ -17,7 +17,7 @@
 
   .types {
     display: grid;
-    grid-template-columns: auto auto 1fr;
+    grid-template-columns: auto auto auto 1fr;
     gap: .5em;
 
     .type {
@@ -30,8 +30,13 @@
       cursor: pointer;
       transition: background .2s ease-in-out;
 
-      &:hover {
+      &:not(.disabled):hover {
         background: #5a5a5a;
+      }
+
+      &.disabled {
+        opacity: .5;
+        cursor: not-allowed;
       }
 
       p {
@@ -40,7 +45,6 @@
 
       .select {
         height: 12px;
-        // border-radius: 50%;
         border-radius: 10px;
         width: 12px;
         border: solid .1em #fff;

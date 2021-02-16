@@ -30,6 +30,11 @@ function MediaTypeSelection(props) {
           <p>TV Shows</p>
           <div className={`select ${props.mediaType === "tv"}`}/>
         </div>
+        <div className="type disabled">
+          <FontAwesomeIcon icon="bahai"/>
+          <p>Anime</p>
+          <div className={`select ${props.mediaType === "anime"}`}/>
+        </div>
       </div>
     </div>
   )
