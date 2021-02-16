@@ -36,25 +36,48 @@ extern crate rust_embed;
 
 use cfg_if::cfg_if;
 use chrono::Utc;
-use clap::{App, Arg};
-use rocket::config::{ConfigBuilder, Environment, LoggingLevel};
-use slog::{error, info, o, warn, Drain, Duplicate, Fuse, Logger};
+
+use clap::App;
+use clap::Arg;
+
+use rocket::config::ConfigBuilder;
+use rocket::config::Environment;
+use rocket::config::LoggingLevel;
+
+use slog::error;
+use slog::info;
+use slog::o;
+use slog::warn;
+
+use slog::Drain;
+use slog::Duplicate;
+use slog::Fuse;
+use slog::Logger;
+
 use slog_async::Async;
 use slog_json::Json as slog_json_default;
-use slog_term::{FullFormat, TermDecorator};
-use std::{
-    fs::{create_dir, File},
-    process,
-    sync::Mutex,
-    thread,
-};
+use slog_term::FullFormat;
+use slog_term::TermDecorator;
 
+use std::fs::create_dir_all;
+use std::fs::File;
+use std::process;
+use std::sync::Mutex;
+use std::thread;
+
+/// Module contains our core initialization logic.
 mod core;
+/// Module contains all the error definitions used in dim, and returned by the web-service.
 mod errors;
+/// Contains all of the routes exposed by the webapi.
 mod routes;
+/// Contains our media scanners and so on.
 mod scanners;
+/// Contains the database schemas.
 mod schema;
+/// Contains all the logic needed for streaming and on-the-fly transcoding.
 mod streaming;
+/// Contains unit tests.
 mod tests;
 
 const VERSION: &str = "0.0.4";
@@ -68,7 +91,8 @@ fn build_logger(_debug: bool) -> slog::Logger {
     let drain = FullFormat::new(decorator).build().fuse();
     let drain = Async::new(drain).build().fuse();
 
-    let _ = create_dir("logs");
+    let _ = create_dir_all("logs");
+
     cfg_if::cfg_if! {
         if #[cfg(target_os = "windows")] {
             let file = File::create("./logs/dim-log.log")
@@ -189,6 +213,6 @@ fn main() {
     let logger_clone = logger.clone();
     thread::spawn(move || routes::stream::cleanup_daemon(logger_clone));
 
-    info!(logger, "Summoning Dim using the {} spell...", VERSION);
+    info!(logger, "Summoning Dim v{}...", VERSION);
     core::launch(logger, event_tx, rocket_config);
 }

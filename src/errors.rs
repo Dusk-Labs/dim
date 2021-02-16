@@ -1,10 +1,13 @@
-use diesel::result::{DatabaseErrorKind, Error as DieselError};
+use rocket::http::ContentType;
+use rocket::http::Status;
+use rocket::response::Responder;
+use rocket::Request;
+use rocket::Response;
+
+use diesel::result::DatabaseErrorKind;
+use diesel::result::Error as DieselError;
 use err_derive::Error;
-use rocket::{
-    http::{ContentType, Status},
-    response::Responder,
-    Request, Response,
-};
+
 use serde::Serialize;
 use std::io::Cursor;
 
