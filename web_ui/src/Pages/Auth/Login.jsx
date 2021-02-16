@@ -53,7 +53,6 @@ function Login(props) {
         />
         <div className="actions">
           <Link to="/register">Create a new account</Link>
-          <Link to="/forgot-password">Forgot password</Link>
         </div>
       </footer>
     </div>

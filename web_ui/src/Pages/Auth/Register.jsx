@@ -14,10 +14,8 @@ function Register(props) {
   const [username, setUsername] = useState("");
   const [usernameErr, setUsernameErr] = useState("");
 
-  const [password1, setPassword1] = useState("");
-  const [passwordErr1, setPassword1Err] = useState("");
-  const [password2, setPassword2] = useState("");
-  const [passwordErr2, setPassword2Err] = useState("");
+  const [pass, setPass] = useState("");
+  const [passErr, setPassErr] = useState("");
 
   const [invite, setInvite] = useState("");
   const [inviteErr, setInviteErr] = useState("");
@@ -29,7 +27,7 @@ function Register(props) {
     }
   }, [props.auth]);
 
-  useEffect(() => props.checkAdminExists, []);
+  useEffect(() => { props.checkAdminExists() }, []);
 
   return (
     <div className="authForm">
@@ -51,15 +49,8 @@ function Register(props) {
         <Field
           name="Password"
           icon="key"
-          data={[password1, setPassword1]}
-          error={[passwordErr1, setPassword1Err]}
-          type="password"
-          />
-        <Field
-          name="Confirm your password"
-          icon="key"
-          data={[password2, setPassword2]}
-          error={[passwordErr2, setPassword2Err]}
+          data={[pass, setPass]}
+          error={[passErr, setPassErr]}
           type="password"
         />
         {props.auth.admin_exists && (
@@ -73,8 +64,8 @@ function Register(props) {
       </div>
       <footer>
         <RegisterBtn
-          credentials={[username, password1, password2, invite]}
-          error={[setUsernameErr, setPassword1Err, setPassword2Err, setInviteErr]}
+          credentials={[username, pass, invite]}
+          error={[setUsernameErr, setPassErr, setInviteErr]}
         />
         <Link to="/login">I have an account</Link>
       </footer>
