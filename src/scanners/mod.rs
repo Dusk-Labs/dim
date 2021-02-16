@@ -1,13 +1,12 @@
-pub mod iterative_parser;
 pub mod movie;
 pub mod parser_daemon;
 pub mod tmdb_api;
+pub mod tv_show;
 
-use self::{
-    iterative_parser::IterativeScanner,
-    parser_daemon::ParserDaemon,
-    tmdb_api::{Media, MediaType},
-};
+use self::parser_daemon::ParserDaemon;
+use self::tmdb_api::Media;
+use self::tmdb_api::MediaType;
+
 use pushevent::Event;
 
 use database::get_conn;
@@ -21,7 +20,6 @@ use crate::streaming::FFPROBE_BIN;
 
 use torrent_name_parser::Metadata;
 
-use slog::debug;
 use slog::error;
 use slog::info;
 use slog::warn;
@@ -109,7 +107,7 @@ pub trait MediaScanner: Sized {
     }
 
     /// Function starts listing all the files in the library directory and starts scanning them.
-    fn start(&mut self, custom_path: Option<&str>) {
+    fn start(&self, custom_path: Option<&str>) {
         let lib = self.library_ref();
         let log = self.logger_ref();
         // sanity check
@@ -257,17 +255,14 @@ pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> std::result::Result<
 
         threads.push(thread::spawn(move || {
             let log = log_clone.clone();
-            IterativeScanner::new(library_id, log_clone, tx_clone).map_or_else(
-                |e| {
-                    error!(
-                        log,
-                        "IterativeScanner for lib: {} has failed to start with error: {:?}",
-                        library_id,
-                        e
-                    )
-                },
-                |x| x.start(None),
-            );
+            if let Err(e) = scanner_from_library(library_id, log_clone, tx_clone) {
+                error!(
+                    log,
+                    "IterativeScanner for lib: {} has failed to start with error: {:?}",
+                    library_id,
+                    e
+                )
+            }
         }));
 
         let log_clone = log.clone();
@@ -285,7 +280,7 @@ pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> std::result::Result<
                     );
                 },
                 |x| {
-                    let _ = x.start_daemon().map_err(|e| {
+                    let _ = x.start().map_err(|e| {
                         error!(log, "ParserDaemon::start_daemon failed with error: {:?}", e)
                     });
                 },
@@ -299,5 +294,22 @@ pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> std::result::Result<
     for t in threads {
         t.join().unwrap_or(());
     }
+    Ok(())
+}
+
+fn scanner_from_library(lib_id: i32, log: Logger, tx: EventTx) -> Result<(), ScannerError> {
+    use self::movie::MovieScanner;
+    use self::tv_show::TvShowScanner;
+    use database::library::MediaType;
+
+    let conn = get_conn()?;
+    let library = Library::get_one(&conn, lib_id)?;
+
+    match library.media_type {
+        MediaType::Movie => MovieScanner::new(lib_id, log, tx)?.start(None),
+        MediaType::Tv => TvShowScanner::new(lib_id, log, tx)?.start(None),
+        _ => unreachable!(),
+    }
+
     Ok(())
 }
