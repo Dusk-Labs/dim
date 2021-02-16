@@ -29,7 +29,7 @@ function Register(props) {
     }
   }, [props.auth]);
 
-  useEffect(() => props.checkAdminExists, []);
+  useEffect(() => { props.checkAdminExists() }, []);
 
   return (
     <div className="authForm">
