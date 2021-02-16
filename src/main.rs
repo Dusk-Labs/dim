@@ -59,6 +59,7 @@ use slog_json::Json as slog_json_default;
 use slog_term::FullFormat;
 use slog_term::TermDecorator;
 
+use std::collections::HashMap;
 use std::fs::create_dir_all;
 use std::fs::File;
 use std::process;
@@ -138,6 +139,20 @@ fn main() {
                 .help("Path to the SSL certificate we want to use"),
         )
         .arg(
+            Arg::with_name("cache-dir")
+                .takes_value(true)
+                .long("cache-dir")
+                .default_value("/tmp/streaming_cache")
+                .help("Path where all transcoder data is kept"),
+        )
+        .arg(
+            Arg::with_name("metadata-dir")
+                .takes_value(true)
+                .long("metadata-dir")
+                .default_value("./metadata")
+                .help("Path where all metadata is kept, such as posters and backdrops"),
+        )
+        .arg(
             Arg::with_name("no-scanners")
                 .long("no-scan")
                 .help("Disable the library scanners on boot"),
@@ -146,6 +161,16 @@ fn main() {
     let matches = matches.get_matches();
     let debug = cfg!(debug_assertions) || matches.is_present("debug");
     let logger = build_logger(debug);
+
+    // never panics because we set a default value to metadata_dir
+    let meta_dir = matches.value_of("metadata-dir").unwrap();
+    let _ = create_dir_all(meta_dir);
+
+    core::METADATA_PATH
+        .set(meta_dir.to_owned())
+        .expect("Failed to set METADATA_PATH");
+
+    core::tmdb_poster_fetcher();
 
     {
         // We check if ffmpeg and ffprobe binaries exist and exit gracefully if they dont exist.
@@ -183,8 +208,8 @@ fn main() {
         .workers(64)
         .log_level(LoggingLevel::Off)
         .extra("databases", {
-            let mut db_conf = std::collections::HashMap::new();
-            let mut m = std::collections::HashMap::new();
+            let mut db_conf = HashMap::new();
+            let mut m = HashMap::new();
             cfg_if! {
                 if #[cfg(feature = "postgres")] {
                     m.insert("url", "postgres://postgres:dimpostgres@127.0.0.1/dim");
