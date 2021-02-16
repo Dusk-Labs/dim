@@ -1,4 +1,10 @@
 *.db
+*.db-shm
+*.db-wal
+extra/*.pem
+profile/
+utils/ffmpeg
+utils/ffprobe
 *.sqlite
 target
 target/*

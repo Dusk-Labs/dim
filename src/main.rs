@@ -21,9 +21,9 @@
 //! # Testing
 //! To test run `make test` in the root, or `cargo test` in the root of each module including the
 //! root dir.
-
 #![feature(rustc_private, proc_macro_hygiene, decl_macro, try_trait)]
 #![forbid(missing_docs)]
+#![cfg_attr(debug_assertions, allow(unused_variables, unused_imports, dead_code))]
 
 #[macro_use]
 extern crate diesel;
