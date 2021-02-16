@@ -5,8 +5,8 @@ import { register, authenticate } from "../../actions/auth.js";
 function RegisterBtn(props) {
   const { credentials, error } = props;
 
-  const [username, password1, password2, invite] = credentials;
-  const [setUsernameErr, setPassword1Err, setPassword2Err, setInviteErr] = error;
+  const [username, pass, invite] = credentials;
+  const [setUsernameErr, setPassErr, setInviteErr] = error;
 
   const authorize = useCallback(async () => {
     if (props.registering) return;
@@ -26,13 +26,8 @@ function RegisterBtn(props) {
       return;
     }
 
-    if (password1.length < 8) {
-      setPassword1Err("Minimum 8 characters.");
-      return;
-    }
-
-    if (password1 !== password2) {
-      setPassword2Err("Does not match");
+    if (pass.length < 8) {
+      setPassErr("Minimum 8 characters.");
       return;
     }
 
@@ -42,11 +37,11 @@ function RegisterBtn(props) {
         return;
       }
 
-      await props.register(username, password1, invite);
-      props.authenticate(username, password1);
+      await props.register(username, pass, invite);
+      props.authenticate(username, pass);
     } else {
-      await props.register(username, password1);
-      props.authenticate(username, password1);
+      await props.register(username, pass);
+      props.authenticate(username, pass);
     }
   }, [credentials]);
 
