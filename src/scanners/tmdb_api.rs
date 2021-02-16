@@ -99,7 +99,7 @@ impl TMDbSearch {
         id: i32,
         media_type: MediaType,
     ) -> Result<SearchResult, reqwest::Error> {
-        let mut res = reqwest::get(
+        let res = reqwest::blocking::get(
             format!(
                 "https://api.themoviedb.org/3/{}/{}?api_key={}",
                 media_type.to_string(),
@@ -147,13 +147,14 @@ impl TMDbSearch {
 
         let year_query = year.map_or_else(|| "".to_string(), |x| format!("&year={}", x));
 
-        let mut res = reqwest::get(
+        let res = reqwest::blocking::get(
             format!(
                 "https://api.themoviedb.org/3/search/{}?api_key={}&language=en-US&query={}&page=1&include_adult=false{}", 
                 media_type.to_string(),
                 self.api_key,
                 title,
                 year_query).as_str())?;
+
         if res.status().as_u16() == 429u16 {
             std::thread::sleep(std::time::Duration::from_millis(1000));
             return self.internal_search(title, year, media_type);
@@ -197,7 +198,7 @@ impl TMDbSearch {
     }
 
     fn fetch_seasons(&self, id: u64) -> Option<Vec<Seasons>> {
-        let req = reqwest::get(
+        let req = reqwest::blocking::get(
             format!(
                 "https://api.themoviedb.org/3/tv/{}?api_key={}",
                 id, self.api_key
@@ -205,7 +206,7 @@ impl TMDbSearch {
             .as_str(),
         );
 
-        if let Ok(mut d) = req {
+        if let Ok(d) = req {
             match d.json::<Wrapper>() {
                 Ok(x) => {
                     return x.seasons;
@@ -252,7 +253,7 @@ impl TMDbSearch {
         }
 
         let path = media_type.to_string();
-        let req = reqwest::get(
+        let req = reqwest::blocking::get(
             format!(
                 "https://api.themoviedb.org/3/genre/{}/list?api_key={}",
                 path, self.api_key
@@ -260,7 +261,7 @@ impl TMDbSearch {
             .as_str(),
         );
 
-        if let Ok(mut d) = req {
+        if let Ok(d) = req {
             match d.json::<GenreWrapper>() {
                 Ok(x) => {
                     {
@@ -288,7 +289,7 @@ impl TMDbSearch {
 
 impl Seasons {
     pub fn episodes(&mut self, id: u64, api_key: String) {
-        let req = reqwest::get(
+        let req = reqwest::blocking::get(
             format!(
                 "https://api.themoviedb.org/3/tv/{}/season/{}?api_key={}",
                 id,
@@ -298,7 +299,7 @@ impl Seasons {
             .as_str(),
         );
 
-        if let Ok(mut d) = req {
+        if let Ok(d) = req {
             if let Ok(x) = d.json::<Seasons>() {
                 self.episodes = x.episodes;
             }

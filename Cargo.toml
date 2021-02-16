@@ -12,12 +12,12 @@ postgres = ["database/postgres", "diesel/postgres", "rocket_contrib/diesel_postg
 sqlite = ["database/sqlite", "diesel/sqlite", "rocket_contrib/diesel_sqlite_pool"]
 
 [dependencies]
-rocket = { version = "0.4.5", default-features = false, features = ["tls"] }
-rocket_codegen = { version = "0.4.5", default-features = false }
+rocket = { version = "^0.4.6", default-features = false, features = ["tls"] }
+rocket_codegen = { version = "^0.4.6", default-features = false }
 
 diesel = { version = "1.4.4", default-features = false, optional = true }
 database = { path = "./src/database", default-features = false, optional = true }
-rocket_contrib = { version = "0.4.4", default-features = false, optional = true, features = ["json"] }
+rocket_contrib = { version = "^0.4.7", default-features = false, optional = true, features = ["json"] }
 
 serde = { version = "1.0.105", default-features = false, features = ["derive", "std"] }
 serde_derive = "1.0.105"
@@ -45,17 +45,18 @@ slog-async = "2.5.0"
 
 chrono = "0.4.11"
 err-derive = "0.2.3"
-rust-embed = "5.5.1"
+rust-embed = "^5.9.0"
 uuid = { version = "0.8.1", features = ["v4"] }
 shared_child = "0.3.4"
 nix = "0.17.0"
 stoppable_thread = "0.2.1"
 torrent-name-parser = "0.2.0"
-reqwest = "0.9.24"
+reqwest = { version = "0.11.0", features = ["blocking", "json", "default-tls"], default-features = false }
 rayon = "1.3.0"
 crossbeam-channel = "0.4.2"
 notify = "4.0.15"
 cfg-if = "0.1.10"
+once_cell = "1.5.2"
 
 [build-dependencies]
 fs_extra = "1.1.0"

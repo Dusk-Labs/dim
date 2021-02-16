@@ -12,9 +12,16 @@ use rocket_cors::CorsOptions;
 use cfg_if::cfg_if;
 use diesel::prelude::*;
 use lazy_static::lazy_static;
+use once_cell::sync::OnceCell;
 use slog::{error, Logger};
 
+use std::borrow::Cow;
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::copy;
+use std::io::Cursor;
+use std::io::Read;
+use std::path::PathBuf;
 use std::sync::mpsc;
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -50,6 +57,30 @@ lazy_static! {
         Mutex::new(HashMap::new());
 }
 
+/// Hacky type we use to implement clone on deref types.
+#[derive(Clone, Debug)]
+pub struct CloneOnDeref<T> {
+    inner: T,
+}
+
+impl<T: Clone> CloneOnDeref<T> {
+    pub fn new(inner: T) -> Self {
+        Self { inner }
+    }
+
+    pub fn get(&self) -> T {
+        self.inner.clone()
+    }
+}
+
+unsafe impl<T: Send> Send for CloneOnDeref<T> {}
+unsafe impl<T: Clone> Sync for CloneOnDeref<T> {}
+
+pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
+// NOTE: While the sender is wrapped in a Mutex, we dont really care as wel copy the inner type at
+// some point anyway.
+pub static METADATA_FETCHER_TX: OnceCell<CloneOnDeref<mpsc::Sender<String>>> = OnceCell::new();
+
 /// Function dumps a list of all libraries in the database and starts a scanner for each which
 /// monitors for new files using fsnotify. It also scans all orphans on boot.
 ///
@@ -80,6 +111,33 @@ pub(crate) fn run_scanners(log: Logger, tx: EventTx) {
             );
         }
     }
+}
+
+pub(crate) fn tmdb_poster_fetcher() {
+    let (tx, rx): (mpsc::Sender<String>, mpsc::Receiver<String>) = mpsc::channel();
+
+    thread::spawn(move || {
+        while let Ok(url) = rx.recv() {
+            if let Ok(resp) = reqwest::blocking::get(url.as_str()) {
+                if let Some(fname) = resp.url().path_segments().and_then(|segs| segs.last()) {
+                    let meta_path = METADATA_PATH.get().unwrap();
+                    let mut out_path = PathBuf::from(meta_path);
+                    out_path.push(fname);
+
+                    if let Ok(mut file) = File::create(out_path) {
+                        if let Ok(bytes) = resp.bytes() {
+                            let mut content = Cursor::new(bytes);
+                            let _ = copy(&mut content, &mut file);
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    METADATA_FETCHER_TX
+        .set(CloneOnDeref::new(tx))
+        .expect("Failed to set METADATA_FETCHER_TX");
 }
 
 /// Function spins up a new Websocket server which we use to dispatch events over to clients
@@ -126,7 +184,11 @@ pub fn rocket_pad(
         .attach(fairing)
         .mount(
             "/",
-            routes![routes::r#static::index, routes::r#static::dist_file,],
+            routes![
+                routes::r#static::index,
+                routes::r#static::dist_file,
+                routes::r#static::get_image
+            ],
         )
         .mount(
             "/api/v1/",
