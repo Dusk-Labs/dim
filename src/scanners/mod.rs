@@ -20,6 +20,7 @@ use crate::streaming::FFPROBE_BIN;
 
 use torrent_name_parser::Metadata;
 
+use slog::debug;
 use slog::error;
 use slog::info;
 use slog::warn;
@@ -183,7 +184,7 @@ pub trait MediaScanner: Sized {
         };
 
         if let Ok(media_file) = MediaFile::get_by_file(conn, target_file) {
-            warn!(
+            debug!(
                 log,
                 "Tried to mount file that has already been mounted lib_id={} file_path={:?}",
                 lib.id,
