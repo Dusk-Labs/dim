@@ -1,9 +1,11 @@
-use rocket::{
-    http::{ContentType, Status},
-    response,
-};
+use rocket::http::ContentType;
+use rocket::http::Status;
+use rocket::response;
+
 use std::ffi::OsStr;
+use std::fs::File;
 use std::io::Cursor;
+use std::io::Read;
 use std::path::PathBuf;
 
 #[derive(RustEmbed)]
@@ -41,4 +43,20 @@ pub fn dist_file<'r>(file: PathBuf) -> response::Result<'r> {
             .sized_body(Cursor::new(d))
             .ok()
     })
+}
+
+#[get("/images/<file..>", rank = 1)]
+pub fn get_image<'r>(file: PathBuf) -> response::Result<'r> {
+    let mut pathbuf = PathBuf::from(crate::core::METADATA_PATH.get().unwrap());
+    pathbuf.push(file);
+
+    File::open(pathbuf).map_or_else(
+        |_| Err(Status::NotFound),
+        |x| {
+            response::Response::build()
+                .header(ContentType::JPEG)
+                .sized_body(x)
+                .ok()
+        },
+    )
 }

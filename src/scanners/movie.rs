@@ -67,6 +67,16 @@ impl MovieScanner {
             .clone()
             .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s));
 
+        let meta_fetcher = crate::core::METADATA_FETCHER_TX.get().unwrap().get();
+
+        if let Some(poster_path) = poster_path.as_ref() {
+            let _ = meta_fetcher.send(poster_path.clone());
+        }
+
+        if let Some(backdrop_path) = backdrop_path.as_ref() {
+            let _ = meta_fetcher.send(backdrop_path.clone());
+        }
+
         let media = InsertableMedia {
             library_id: self.lib.id,
             name,
@@ -74,8 +84,13 @@ impl MovieScanner {
             rating,
             year,
             added: Utc::now().to_string(),
-            poster_path,
-            backdrop_path,
+
+            poster_path: result.poster_path.clone().map(|x| format!("images/{}", x)),
+            backdrop_path: result
+                .backdrop_path
+                .clone()
+                .map(|x| format!("images/{}", x)),
+
             media_type: Self::MEDIA_TYPE,
         };
 
