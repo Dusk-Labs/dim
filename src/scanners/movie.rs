@@ -20,6 +20,10 @@ use slog::info;
 use slog::warn;
 use slog::Logger;
 
+use events::Message;
+use events::PushEventType;
+use pushevent::Event;
+
 use super::tmdb_api;
 use super::tmdb_api::TMDbSearch;
 use super::APIExec;
@@ -124,8 +128,14 @@ impl MovieScanner {
         Ok(())
     }
 
-    fn push_event(&self, _: i32) {
-        todo!()
+    fn push_event(&self, id: i32) {
+        let event_msg = Box::new(Message {
+            id,
+            event_type: PushEventType::EventNewCard,
+        });
+
+        let new_event = Event::new(format!("/events/library/{}", self.lib.id), event_msg);
+        let _ = self.event_tx.send(new_event);
     }
 }
 
