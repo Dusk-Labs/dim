@@ -1,17 +1,24 @@
-use crate::{routes, scanners};
+use crate::routes;
+use crate::scanners;
+
+use rocket::http::Method;
+use rocket_contrib::databases::diesel;
+use rocket_slog::SlogFairing;
+
+use rocket_cors::AllowedHeaders;
+use rocket_cors::AllowedOrigins;
+use rocket_cors::CorsOptions;
+
 use cfg_if::cfg_if;
 use diesel::prelude::*;
 use lazy_static::lazy_static;
-use rocket::http::Method;
-use rocket_contrib::databases::diesel;
-use rocket_cors::{AllowedHeaders, AllowedOrigins, CorsOptions};
-use rocket_slog::SlogFairing;
 use slog::{error, Logger};
-use std::{
-    collections::HashMap,
-    sync::{mpsc, Arc, Mutex},
-    thread,
-};
+
+use std::collections::HashMap;
+use std::sync::mpsc;
+use std::sync::Arc;
+use std::sync::Mutex;
+use std::thread;
 
 cfg_if! {
     if #[cfg(feature = "postgres")] {
