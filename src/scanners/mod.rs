@@ -1,4 +1,5 @@
 pub mod iterative_parser;
+pub mod movie;
 pub mod parser_daemon;
 pub mod tmdb_api;
 
@@ -12,10 +13,18 @@ use pushevent::Event;
 use database::get_conn;
 use database::library;
 use database::library::Library;
+use database::mediafile::InsertableMediaFile;
+use database::mediafile::MediaFile;
+
+use crate::streaming::ffprobe::FFProbeCtx;
+use crate::streaming::FFPROBE_BIN;
+
+use torrent_name_parser::Metadata;
 
 use slog::debug;
 use slog::error;
 use slog::info;
+use slog::warn;
 use slog::Logger;
 
 use walkdir::WalkDir;
@@ -38,19 +47,30 @@ pub trait APIExec<'a> {
 
 #[derive(Debug)]
 pub enum ScannerError {
-    // Used when a scanner was invoked over a invalid library type.
+    /// Used when a scanner was invoked over a invalid library type.
     InvalidLibraryType {
         expected: library::MediaType,
         got: library::MediaType,
     },
-    // Used when a internal db error occured.
+    /// Used when a internal db error occured.
     InternalDbError,
-    // Used when a scanner was started for a non-existant library.
+    /// Filename parser error
+    FilenameParserError,
+    /// Used when a scanner was started for a non-existant library.
     LibraryDoesntExist(i32),
+    /// FFProbe error
+    FFProbeError,
+    UnknownError,
 }
 
 impl From<diesel::ConnectionError> for ScannerError {
     fn from(_: diesel::ConnectionError) -> Self {
+        Self::InternalDbError
+    }
+}
+
+impl From<diesel::result::Error> for ScannerError {
+    fn from(_: diesel::result::Error) -> Self {
         Self::InternalDbError
     }
 }
@@ -89,7 +109,7 @@ pub trait MediaScanner: Sized {
     }
 
     /// Function starts listing all the files in the library directory and starts scanning them.
-    fn start(&self, custom_path: Option<&str>) {
+    fn start(&mut self, custom_path: Option<&str>) {
         let lib = self.library_ref();
         let log = self.logger_ref();
         // sanity check
@@ -148,7 +168,68 @@ pub trait MediaScanner: Sized {
     // # Arguments
     // `file` - A pathbuffer containing the path to a media file we are trying to insert into the
     // database. This file will *ALWAYS* have a extension that is in `Self::SUPPORTED_EXTS`.
-    fn mount_file(&self, file: PathBuf) -> Result<(), ()>;
+    fn mount_file(&self, file: PathBuf) -> Result<MediaFile, ScannerError> {
+        let conn = self.conn_ref();
+        let lib = self.library_ref();
+        let log = self.logger_ref();
+        let target_file = file.to_str().unwrap();
+
+        let file_name = if let Some(file_name) = file.file_name().and_then(|x| x.to_str()) {
+            file_name
+        } else {
+            error!(
+                log,
+                "Looks like file={:?} either has a non-unicode file_name, skipping.", file
+            );
+            return Err(ScannerError::UnknownError);
+        };
+
+        if let Ok(media_file) = MediaFile::get_by_file(conn, target_file) {
+            warn!(
+                log,
+                "Tried to mount file that has already been mounted lib_id={} file_path={:?}",
+                lib.id,
+                file
+            );
+            return Ok(media_file);
+        }
+
+        info!(log, "Scanning file: {} for lib={}", target_file, lib.id);
+
+        let ctx = FFProbeCtx::new(&FFPROBE_BIN);
+        let metadata = Metadata::from(file_name).map_err(|_| ScannerError::FilenameParserError)?;
+
+        let ffprobe_data = if let Ok(data) = ctx.get_meta(&file) {
+            data
+        } else {
+            error!(log, "Couldnt get data from ffprobe for file={:?}, this could be caused by ffprobe not existing", file);
+            return Err(ScannerError::FFProbeError);
+        };
+
+        let media_file = InsertableMediaFile {
+            media_id: None,
+            library_id: lib.id,
+            target_file: target_file.to_string(),
+
+            raw_name: metadata.title().to_owned(),
+            raw_year: metadata.year(),
+            season: metadata.season(),
+            episode: metadata.episode(),
+
+            quality: ffprobe_data.get_quality(),
+            codec: ffprobe_data.get_codec(),
+            container: ffprobe_data.get_container(),
+            audio: ffprobe_data.get_audio_type(),
+            original_resolution: ffprobe_data.get_res(),
+            duration: ffprobe_data.get_duration(),
+            corrupt: ffprobe_data.is_corrupt(),
+        };
+
+        let file_id = media_file.insert(conn)?;
+
+        Ok(MediaFile::get_one(conn, file_id)?)
+    }
+
     fn fix_orphans(&self);
 
     /// Function will create a instance of `Self` containing the parameters passed in.
@@ -161,6 +242,7 @@ pub trait MediaScanner: Sized {
 
     fn logger_ref(&self) -> &Logger;
     fn library_ref(&self) -> &Library;
+    fn conn_ref(&self) -> &database::DbConnection;
 }
 
 pub type EventTx = std::sync::mpsc::Sender<Event>;
