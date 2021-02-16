@@ -1,12 +1,15 @@
-use crate::{
-    core::{DbConnection, EventTx},
-    errors,
-    scanners::{
-        iterative_parser::IterativeScanner,
-        tmdb_api::{MediaType as TmdbMediaType, TMDbSearch},
-        APIExec,
-    },
-};
+use crate::core::DbConnection;
+use crate::core::EventTx;
+use crate::errors;
+
+use crate::scanners::movie::MovieScanner;
+use crate::scanners::tv_show::TvShowScanner;
+use crate::scanners::MediaScanner;
+
+use crate::scanners::tmdb_api::MediaType as TmdbMediaType;
+use crate::scanners::tmdb_api::TMDbSearch;
+use crate::scanners::APIExec;
+
 use auth::Wrapper as Auth;
 use database::{
     episode::Episode,
@@ -260,13 +263,16 @@ pub fn rematch(
     id: i32,
     tmdb_id: i32,
 ) -> Result<Status, errors::DimError> {
+    /*
     let media = Media::get(conn.as_ref(), id)?;
     let tx = event_tx.lock().unwrap();
-    let scanner = IterativeScanner::new(media.library_id, log.get().clone(), tx.clone())?;
+    // let scanner = IterativeScanner::new(media.library_id, log.get().clone(), tx.clone())?;
     std::thread::spawn(move || {
         scanner.match_media_to_tmdb_id(media, tmdb_id);
     });
     Ok(Status::Ok)
+    */
+    Ok(Status::ServiceUnavailable)
 }
 
 /// Method mapped to `PATCH /api/v1/mediafile/<id>/match` used to match a unmatched(orphan)
@@ -288,6 +294,7 @@ pub fn rematch_mediafile(
     id: i32,
     tmdb_id: i32,
 ) -> Result<Status, errors::DimError> {
+    /*
     let mediafile = MediaFile::get_one(conn.as_ref(), id)?;
     let tx = event_tx.lock().unwrap();
     let scanner = IterativeScanner::new(mediafile.library_id, log.get().clone(), tx.clone())?;
@@ -295,6 +302,8 @@ pub fn rematch_mediafile(
         scanner.match_mediafile_to_tmdb_id(mediafile, tmdb_id);
     });
     Ok(Status::Ok)
+    */
+    Ok(Status::ServiceUnavailable)
 }
 
 /// Method mapped to `POST /api/v1/media/<id>/progress` is used to map progress for a certain media
