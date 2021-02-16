@@ -364,6 +364,15 @@ impl MediaFile {
             .unwrap()
     }
 
+    pub fn get_by_file(
+        conn: &crate::DbConnection,
+        file: &str,
+    ) -> Result<Self, diesel::result::Error> {
+        use crate::schema::mediafile::dsl::*;
+
+        mediafile.filter(target_file.eq(file)).first::<Self>(conn)
+    }
+
     /// Method deletes mediafile matching the id supplied
     ///
     /// # Arguments
