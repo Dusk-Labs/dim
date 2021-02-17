@@ -28,6 +28,7 @@ library.add(fas, far);
 
 // quick hack to get proper requests
 window.host = window.location.hostname;
+window.backend_port = "8000";
 
 const routes = (
   <Switch>
