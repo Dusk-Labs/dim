@@ -111,6 +111,8 @@ impl TvShowScanner {
         media: InsertableMedia,
         search: tmdb_api::Media,
     ) -> Result<(), ()> {
+        let meta_fetcher = crate::core::METADATA_FETCHER_TX.get().unwrap().get();
+
         let media_id = Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.as_str())
             .map_or_else(
                 |_| {
@@ -138,6 +140,11 @@ impl TvShowScanner {
         };
 
         let season = search.get_season(orphan.season.unwrap_or(0));
+
+        if let Some(x) = season.poster_path.as_ref() {
+            let _ = meta_fetcher.send(format!("https://images.tmdb.org/t/p/original/{}", x));
+        }
+
         let seasonid = Season::get(&self.conn, media_id, orphan.season.unwrap()).map_or_else(
             |_| {
                 let season = InsertableSeason {
@@ -146,8 +153,8 @@ impl TvShowScanner {
                     poster: season
                         .poster_path
                         .clone()
-                        .map(|s| format!("https://images.tmdb.org/t/p/original/{}", s))
-                        .unwrap_or_else(|| "".into()),
+                        .map(|s| format!("images/{}", s))
+                        .unwrap_or_default(),
                 };
 
                 season.insert(&self.conn, media_id).unwrap()
@@ -164,6 +171,12 @@ impl TvShowScanner {
         .map_or_else(
             |_| {
                 let search_ep = season.get_episode(orphan.episode.unwrap_or(0));
+
+                if let Some(x) = search_ep.still_path.as_ref() {
+                    let _ =
+                        meta_fetcher.send(format!("https://images.tmdb.org/t/p/original/{}", x));
+                }
+
                 let episode = InsertableEpisode {
                     episode: orphan.episode.unwrap_or(0),
                     seasonid,
@@ -175,9 +188,7 @@ impl TvShowScanner {
                         added: Utc::now().to_string(),
                         media_type: MediaType::Episode,
                         description: search_ep.overview,
-                        backdrop_path: search_ep
-                            .still_path
-                            .map(|s| format!("https://images.tmdb.org/t/p/original/{}", s)),
+                        backdrop_path: search_ep.still_path.map(|s| format!("images/{}", s)),
                         ..Default::default()
                     },
                 };
