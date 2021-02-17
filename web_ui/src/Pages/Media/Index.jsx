@@ -48,9 +48,7 @@ function Media(props) {
     console.table("[FETCH EXTRA MEDIA INFO] ERR", props.extra_media_info);
   }
 
-  // FETCH_EXTRA_MEDIA_INFO_OK
-  // if (props.extra_media_info.fetched && !props.extra_media_info.error) {
-  if (false) {
+  if (props.extra_media_info.fetched && !props.extra_media_info.error) {
     if (props.extra_media_info.info.seasons) {
       const { seasons } = props.extra_media_info.info;
 
