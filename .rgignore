@@ -3,5 +3,10 @@ node_modules
 .git
 logs
 transcoding
-web_ui/
+web_ui/build
+web_ui/node_modules
+web_ui/config
+web_ui/src/assets
+web_ui/scripts
+web_ui/public
 migrations
