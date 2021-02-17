@@ -25,7 +25,7 @@ function BannerImage(props) {
       img.onload = (e) => {
         setLoaded(true);
         setShow(true);
-        setCurrentSrc(props.src);
+        setCurrentSrc(img.src);
       };
 
       img.onerror = () => {
@@ -34,7 +34,8 @@ function BannerImage(props) {
         setErr(true);
       };
 
-      img.src = props.src;
+      img.src = new RegExp("/^(?:\/|[a-z]+:\/\/)/").test(props.src)
+        ? props.src : `//${window.host}:${window.backend_port}/${props.src}`;
     }
   }, [props.src]);
 
