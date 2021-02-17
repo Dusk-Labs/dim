@@ -5,6 +5,7 @@ import DimLogo from "../../assets/DimLogo";
 function CardImage(props) {
   const [loaded, setLoaded] = useState(false);
   const [error, setErr] = useState(false);
+  const [imageSrc, setImageSrc] = useState();
 
   useEffect(() => {
     const img = new Image();
@@ -18,13 +19,19 @@ function CardImage(props) {
       setErr(true);
     };
 
-    img.src = props.src;
+    // test whether the src passed is an absolute URL or not
+    // NOTE: see issue #13
+    img.src = new RegExp("/^(?:\/|[a-z]+:\/\/)/").test(props.src)
+      ? props.src : `//${window.host}:${window.backend_port}/${props.src}`;
+
+    setImageSrc(img.src);
+
   }, [props.src]);
 
   return (
     <div className="cardImageWrapper">
       {(loaded && !error) && (
-        <img src={props.src} alt="cover"/>
+        <img src={imageSrc} alt="cover"/>
       )}
       {error && (
         <div className="placeholder">
