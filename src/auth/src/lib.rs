@@ -1,11 +1,22 @@
-use jsonwebtoken::{decode, encode, Algorithm, Header, TokenData, Validation};
-use rocket::{
-    http::Status,
-    request::{self, FromRequest, Request},
-    Outcome,
-};
-use serde::{Deserialize, Serialize};
+use jsonwebtoken::decode;
+use jsonwebtoken::encode;
+use jsonwebtoken::Algorithm;
+use jsonwebtoken::Header;
+use jsonwebtoken::TokenData;
+use jsonwebtoken::Validation;
+
+use rocket::http::Status;
+use rocket::request;
+use rocket::request::FromRequest;
+use rocket::request::Request;
+use rocket::Outcome;
+
+use serde::Deserialize;
+use serde::Serialize;
 use time::get_time;
+
+#[cfg(all(not(debug_assertions), feature = "null_auth"))]
+std::compile_error!("Cannot disable authentication for non-devel environments.");
 
 /// This is the secret key with which we sign the JWT tokens.
 // TODO: Generate this at first run to ensure security
@@ -100,8 +111,25 @@ pub fn jwt_generate(user: String, roles: Vec<String>) -> String {
 /// let check_token_2 = jwt_check("testtesttest".into());
 /// assert!(check_token_2.is_err());
 /// ```
+#[cfg(not(feature = "null_auth"))]
 pub fn jwt_check(token: String) -> Result<TokenData<UserRolesToken>, jsonwebtoken::errors::Error> {
     decode::<UserRolesToken>(&token, KEY, &Validation::new(Algorithm::HS512))
+}
+
+#[cfg(all(debug_assertions, feature = "null_auth"))]
+pub fn jwt_check(_: String) -> Result<TokenData<UserRolesToken>, jsonwebtoken::errors::Error> {
+    Ok(TokenData {
+        header: jsonwebtoken::Header {
+            alg: jsonwebtoken::Algorithm::HS512,
+            ..Default::default()
+        },
+        claims: UserRolesToken {
+            iat: 0,
+            exp: i64::MAX,
+            user: "Hiro".into(),
+            roles: vec!["owner".into()],
+        },
+    })
 }
 
 impl<'a, 'r> FromRequest<'a, 'r> for Wrapper {
