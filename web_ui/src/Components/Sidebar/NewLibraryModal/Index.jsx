@@ -87,11 +87,11 @@ function NewLibraryModal(props) {
               value={name}
             />
           </div>
-          <MediaTypeSelection
-            mediaType={mediaType}
-            setMediaType={setMediaType}
-          />
         </div>
+        <MediaTypeSelection
+          mediaType={mediaType}
+          setMediaType={setMediaType}
+        />
         {visible && (
           <DirSelection
             current={current}
