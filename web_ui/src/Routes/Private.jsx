@@ -31,6 +31,19 @@ function PrivateRoute(props) {
     }
   }, []);
 
+  // auto logout when logged out in another tab
+  useEffect(() => {
+    const bc = new BroadcastChannel("dim");
+
+    bc.onmessage = (e) => {
+      if (e.data === "logout") {
+        window.location.replace("/login");
+      }
+    };
+
+    return () => bc.close();
+  }, []);
+
   const { exact, path, render, children } = props;
 
   return (props.auth.token && tokenInCookie) && (
@@ -39,11 +52,11 @@ function PrivateRoute(props) {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.auth
+  auth: state.auth
 });
 
 const mapActionsToProps = ({
-    updateAuthToken
+  updateAuthToken
 });
 
 export default connect(mapStateToProps, mapActionsToProps)(PrivateRoute);
