@@ -43,6 +43,11 @@ export const authenticate = (username, password) => async (dispatch) => {
 
         const payload = await res.json();
 
+        const bc = new BroadcastChannel("dim");
+
+        bc.postMessage("login");
+        bc.close();
+
         dispatch({
             type: AUTH_LOGIN_OK,
             payload
@@ -71,6 +76,11 @@ export const logout = () => async (dispatch) => {
 
         document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
     });
+
+    const bc = new BroadcastChannel("dim");
+
+    bc.postMessage("logout");
+    bc.close();
 
     dispatch({
         type: AUTH_LOGOUT
