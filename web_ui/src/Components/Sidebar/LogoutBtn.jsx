@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 import { connect } from "react-redux";
 import Modal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import ConfirmationBox from "../../Modals/ConfirmationBox.jsx";
 
 import { logout } from "../../actions/auth.js";
 
@@ -28,33 +29,22 @@ function LogoutBtn(props) {
     setVisible(true);
   }, []);
 
-  const confirm = useCallback(() => {
+  const logout = useCallback(() => {
     props.logout();
     history.push("/login");
   }, []);
 
   return (
-    <>
+    <ConfirmationBox
+      contentLabel="removeLib"
+      action={logout}
+      msg="Are you sure you want to logout?"
+    >
       <a className="item logout" onClick={open}>
         <FontAwesomeIcon icon="sign-out-alt"/>
         <p className="logout">Logout</p>
       </a>
-      <Modal
-        isOpen={visible}
-        contentLabel="logout"
-        className="logoutConfirmationBox"
-        onRequestClose={close}
-        overlayClassName="popupOverlay"
-      >
-        <h3>Confirm action</h3>
-        <div className="separator"/>
-        <p>Are you sure you want to logout?</p>
-        <div className="options">
-          <button className="confirmationBoxCancel" onClick={close}>Nevermind</button>
-          <button className="confirmationBoxContinue" onClick={confirm}>Yes</button>
-        </div>
-      </Modal>
-    </>
+    </ConfirmationBox>
   );
 };
 
