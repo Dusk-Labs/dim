@@ -33,21 +33,10 @@ function PrivateRoute(props) {
 
   // auto logout when logged out in another tab
   useEffect(() => {
-    /*
-      BroadcastChannel API doesn't provide any way to determine
-      if a message came from the same instance. This just makes
-      sure it doesn't e.g. head to /login twice.
-    */
-    let valid = false;
-
-    setTimeout(() => {
-      valid = true;
-    }, 1000);
-
     const bc = new BroadcastChannel("dim");
 
     bc.onmessage = (e) => {
-      if (!valid) return;
+      if (document.hasFocus()) return;
 
       if (e.data === "logout") {
         /*
