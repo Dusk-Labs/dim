@@ -6,23 +6,22 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { far } from "@fortawesome/free-regular-svg-icons";
 
-import NotAuthedOnlyRoute from "./Routes/NotAuthedOnly.jsx";
-import PrivateRoute from "./Routes/Private.jsx";
+import NotAuthedOnlyRoute from "./Routes/NotAuthedOnly";
+import PrivateRoute from "./Routes/Private";
 
-import Dashboard from "./Pages/Dashboard.jsx";
-import Library from "./Pages/Library.jsx";
-import Media from "./Pages/Media/Index.jsx";
+import Dashboard from "./Pages/Dashboard";
+import Library from "./Pages/Library/Index";
+import Media from "./Pages/Media/Index";
 // import VideoPlayer from "./Pages/VideoPlayer.jsx";
-import SearchResults from "./Pages/SearchResults.jsx";
-import Login from "./Pages/Auth/Login.jsx";
-import Register from "./Pages/Auth/Register.jsx";
-import Preferences from "./Pages/Preferences.jsx";
+import SearchResults from "./Pages/SearchResults";
+import Login from "./Pages/Auth/Login";
+import Register from "./Pages/Auth/Register";
+import Preferences from "./Pages/Preferences";
 
-import { updateAuthToken } from "./actions/auth.js";
+import { updateAuthToken } from "./actions/auth";
+import MainLayout from "./Layouts/MainLayout";
 
 import "./App.scss";
-
-import MainLayout from "./Layouts/MainLayout.jsx";
 
 library.add(fas, far);
 
