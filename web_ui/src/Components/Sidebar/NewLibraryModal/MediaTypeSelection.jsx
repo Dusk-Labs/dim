@@ -16,6 +16,18 @@ function MediaTypeSelection(props) {
     }
   }, [props.mediaType]);
 
+  const selectMixed = useCallback(() => {
+    if (props.mediaType !== "mixed") {
+      props.setMediaType("mixed");
+    }
+  }, [props.mediaType]);
+
+  const selectAnime = useCallback(() => {
+    if (props.mediaType !== "anime") {
+      props.setMediaType("anime");
+    }
+  }, [props.mediaType]);
+
   return (
     <div className="mediaTypeSelection">
       <h3>Choose a type</h3>
@@ -27,10 +39,15 @@ function MediaTypeSelection(props) {
         </div>
         <div className="type" onClick={selectTv}>
           <FontAwesomeIcon icon="tv"/>
-          <p>TV Shows</p>
+          <p>Shows</p>
           <div className={`select ${props.mediaType === "tv"}`}/>
         </div>
-        <div className="type disabled">
+        <div className="type disabled" onClick={selectMixed}>
+          <FontAwesomeIcon icon="photo-video"/>
+          <p>Mixed</p>
+          <div className={`select ${props.mediaType === "mixed"}`}/>
+        </div>
+        <div className="type disabled" onClick={selectAnime}>
           <FontAwesomeIcon icon="bahai"/>
           <p>Anime</p>
           <div className={`select ${props.mediaType === "anime"}`}/>
