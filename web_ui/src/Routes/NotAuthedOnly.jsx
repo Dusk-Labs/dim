@@ -33,6 +33,21 @@ function NotAuthedOnlyRoute(props) {
     }
   }, [props.auth]);
 
+  // auto login when logged in another instance
+  useEffect(() => {
+    const bc = new BroadcastChannel("dim");
+
+    bc.onmessage = (e) => {
+      console.log(e);
+
+      if (e.data === "login") {
+        window.location.replace("/");
+      }
+    };
+
+    return () => bc.close();
+  }, []);
+
   const { exact, path, render, children } = props;
 
   return (!props.auth.token && !tokenInCookie) && (
