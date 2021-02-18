@@ -12,15 +12,15 @@ const initialState = {};
 const middleware = [thunk];
 
 const store = createStore(
-    rootReducer,
-    initialState,
-    applyMiddleware(...middleware)
+  rootReducer,
+  initialState,
+  applyMiddleware(...middleware)
 );
 
 const app = (
-    <Provider store={store}>
-        <App />
-    </Provider>
+  <Provider store={store}>
+    <App/>
+  </Provider>
 );
 
 ReactDOM.render(app, document.getElementById("root"));
