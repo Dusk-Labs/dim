@@ -60,7 +60,9 @@ function Banner(props) {
         />
         <div className="extras">
           <Link to={`/search?year=${year}`}>{year}</Link>
-          <FontAwesomeIcon icon="circle"/>
+          {genres.length > 0 && (
+            <FontAwesomeIcon icon="circle"/>
+          )}
           {genres.map((genre, i) => (
             <Link
               to={`/search?genre=${genre}`}
