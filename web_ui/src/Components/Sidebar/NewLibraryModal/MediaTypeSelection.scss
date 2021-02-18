@@ -1,5 +1,7 @@
 .mediaTypeSelection {
   position: relative;
+  grid-area: mediaTypeSelection;
+  overflow: hidden;
 
   .openSelection {
     display: flex;
@@ -16,8 +18,11 @@
   }
 
   .types {
-    display: grid;
-    grid-template-columns: auto auto auto 1fr;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    border-radius: 5px;
+    margin: .5em 0 0 0;
+    display: flex;
     gap: .5em;
 
     .type {
@@ -55,23 +60,5 @@
         }
       }
     }
-  }
-}
-
-@keyframes showMediaTypeSelection {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes hideMediaTypeSelection {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
   }
 }
