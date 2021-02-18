@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Switch } from "react-router-dom";
+import { BrowserRouter, Switch } from "react-router-dom";
 import { connect } from "react-redux";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -99,9 +99,9 @@ function App() {
   }, [])
 
   return (
-    <Router>
+    <BrowserRouter>
       {routes}
-    </Router>
+    </BrowserRouter>
   );
 }
 
