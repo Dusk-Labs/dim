@@ -1,20 +1,14 @@
 use slog::error;
 use slog::info;
 use slog::Logger;
-use std::error::Error;
+
 use std::fs::File;
-use std::fs::Permissions;
 use std::io::Cursor;
-use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use std::path::PathBuf;
-use std::process::exit;
-use tar::Archive;
-use xz2::read::XzDecoder;
-use zip::read::ZipArchive;
 
 pub fn bootstrap(log: Logger) {
-    std::fs::create_dir_all("utils/");
+    let _ = std::fs::create_dir_all("utils/");
 
     cfg_if::cfg_if! {
         if #[cfg(target_os = "windows")] {
@@ -27,6 +21,8 @@ pub fn bootstrap(log: Logger) {
 
 #[cfg(target_os = "windows")]
 fn bootstrap_windows(log: Logger) {
+    use zip::read::ZipArchive;
+
     const FFMPEG_RELEASE: &str = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";
 
     if Path::new("utils/ffmpeg.exe").is_file() && Path::new("utils/ffprobe.exe").is_file() {
@@ -88,6 +84,11 @@ fn bootstrap_windows(log: Logger) {
 
 #[cfg(not(target_os = "windows"))]
 fn bootstrap_nix(log: Logger) {
+    use std::fs::Permissions;
+    use std::os::unix::fs::PermissionsExt;
+    use tar::Archive;
+    use xz2::read::XzDecoder;
+
     const FFMPEG_RELEASE: &str =
         "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz";
 
