@@ -264,7 +264,7 @@ pub trait MediaScanner: Sized {
 
 pub type EventTx = std::sync::mpsc::Sender<Event>;
 
-pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> std::result::Result<(), ()> {
+pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> Result<(), ()> {
     info!(log, "Summoning scanner for Library with id: {}", library_id);
 
     if get_conn().is_ok() {

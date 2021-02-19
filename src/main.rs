@@ -73,6 +73,8 @@ use std::process;
 use std::sync::Mutex;
 use std::thread;
 
+/// Module contains a lot of the bootstrapping code that we use on first run of dim.
+mod bootstrap;
 /// Module contains our core initialization logic.
 mod core;
 /// Module contains all the error definitions used in dim, and returned by the web-service.
@@ -168,6 +170,8 @@ fn main() {
     let matches = matches.get_matches();
     let debug = cfg!(debug_assertions) || matches.is_present("debug");
     let logger = build_logger(debug);
+
+    bootstrap::bootstrap(logger.clone());
 
     // never panics because we set a default value to metadata_dir
     let meta_dir = matches.value_of("metadata-dir").unwrap();
