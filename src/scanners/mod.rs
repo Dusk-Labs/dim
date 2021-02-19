@@ -267,28 +267,22 @@ pub type EventTx = std::sync::mpsc::Sender<Event>;
 pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> std::result::Result<(), ()> {
     info!(log, "Summoning scanner for Library with id: {}", library_id);
 
-    let mut threads = Vec::new();
     if get_conn().is_ok() {
         let log_clone = log.clone();
         let tx_clone = tx.clone();
 
-        threads.push(thread::spawn(move || {
-            let log = log_clone.clone();
-            if let Err(e) = scanner_from_library(library_id, log_clone, tx_clone) {
-                error!(
-                    log,
-                    "Scanner for lib: {} has failed to start with error: {:?}", library_id, e
-                )
-            }
-        }));
+        let log = log_clone.clone();
+        if let Err(e) = scanner_from_library(library_id, log_clone, tx_clone) {
+            error!(
+                log,
+                "Scanner for lib: {} has failed to start with error: {:?}", library_id, e
+            )
+        }
     } else {
         error!(log, "Failed to connect to db");
         return Err(());
     }
 
-    for t in threads {
-        t.join().unwrap_or(());
-    }
     Ok(())
 }
 
