@@ -35,6 +35,28 @@ use std::sync::{Arc, Mutex};
 /// * `conn` - database connection
 /// * `id` - id of the media we want to query info of
 /// * `_user` - Auth middleware
+///
+/// # Return Schema
+/// ```text
+/// {
+///     "id": int,
+///     "library_id": int,
+///     "name": string,
+///     "description": string,
+///     "rating": int,
+///     "year": int,
+///     "added": string | date,
+///     "poster_path": string | uri_path,
+///     "backdrop_path": string | uri_path,
+///     "media_type": string | enum,
+///     "genres": [string],
+///     "duration": int,
+///     "duration_pretty": string,
+/// }
+/// ```
+///
+/// # Additional types
+/// [`MediaType`](`database::library::MediaType`)
 #[get("/<id>")]
 pub fn get_media_by_id(
     conn: DbConnection,
