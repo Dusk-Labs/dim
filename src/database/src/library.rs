@@ -3,6 +3,8 @@ use crate::schema::library;
 use cfg_if::cfg_if;
 use diesel::prelude::*;
 
+/// Enum represents a media type and can be used on a library or on a media.
+/// When returned in a http response, the fields are lowercase.
 #[derive(Serialize, Debug, Clone, DbEnum, Eq, PartialEq, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum MediaType {
