@@ -196,7 +196,15 @@ pub trait MediaScanner: Sized {
         info!(log, "Scanning file: {} for lib={}", target_file, lib.id);
 
         let ctx = FFProbeCtx::new(&FFPROBE_BIN);
-        let metadata = Metadata::from(file_name).map_err(|_| ScannerError::FilenameParserError)?;
+
+        // we clone so that we can strip the extension.
+        let mut file_name_clone = file.clone();
+        file_name_clone.set_extension("");
+        // unwrap will never panic because we validate the path earlier on.
+        let file_name_clone = file_name_clone.file_name().unwrap().to_str().unwrap();
+
+        let metadata =
+            Metadata::from(file_name_clone).map_err(|_| ScannerError::FilenameParserError)?;
 
         let ffprobe_data = if let Ok(data) = ctx.get_meta(&file) {
             data
