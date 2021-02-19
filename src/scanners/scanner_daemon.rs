@@ -77,5 +77,3 @@ pub trait ScannerDaemon: MediaScanner {
         );
     }
 }
-
-impl<T: MediaScanner> ScannerDaemon for T {}
