@@ -58,6 +58,10 @@ crossbeam-channel = "0.4.2"
 notify = "4.0.15"
 cfg-if = "0.1.10"
 once_cell = "1.5.2"
+zip = "0.5.10"
+bytes = "1.0.1"
+xz2 = "0.1.6"
+tar = "0.4.32"
 
 [build-dependencies]
 fs_extra = "1.1.0"
