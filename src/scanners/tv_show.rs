@@ -146,7 +146,7 @@ impl TvShowScanner {
             let _ = meta_fetcher.send(format!("https://images.tmdb.org/t/p/original/{}", x));
         }
 
-        let seasonid = Season::get(&self.conn, media_id, orphan.season.unwrap()).map_or_else(
+        let seasonid = Season::get(&self.conn, media_id, orphan.season.unwrap_or(1)).map_or_else(
             |_| {
                 let season = InsertableSeason {
                     season_number: orphan.season.unwrap_or(0),
