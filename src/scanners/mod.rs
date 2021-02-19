@@ -1,9 +1,9 @@
 pub mod movie;
-pub mod parser_daemon;
+pub mod scanner_daemon;
 pub mod tmdb_api;
 pub mod tv_show;
 
-use self::parser_daemon::ParserDaemon;
+use self::scanner_daemon::ScannerDaemon;
 use self::tmdb_api::Media;
 use self::tmdb_api::MediaType;
 
@@ -29,7 +29,9 @@ use slog::Logger;
 use walkdir::WalkDir;
 
 use std::path::PathBuf;
+use std::sync::mpsc;
 use std::thread;
+use std::time::Duration;
 
 pub trait APIExec<'a> {
     fn new(api_key: &'a str) -> Self;
@@ -59,6 +61,8 @@ pub enum ScannerError {
     LibraryDoesntExist(i32),
     /// FFProbe error
     FFProbeError,
+    /// Scanner daemon init error
+    ScannerDaemonInitError(notify::Error),
     UnknownError,
 }
 
@@ -71,6 +75,12 @@ impl From<diesel::ConnectionError> for ScannerError {
 impl From<diesel::result::Error> for ScannerError {
     fn from(_: diesel::result::Error) -> Self {
         Self::InternalDbError
+    }
+}
+
+impl From<notify::Error> for ScannerError {
+    fn from(nresult: notify::Error) -> Self {
+        Self::ScannerDaemonInitError(nresult)
     }
 }
 
@@ -257,52 +267,22 @@ pub type EventTx = std::sync::mpsc::Sender<Event>;
 pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> std::result::Result<(), ()> {
     info!(log, "Summoning scanner for Library with id: {}", library_id);
 
-    let mut threads = Vec::new();
     if get_conn().is_ok() {
         let log_clone = log.clone();
         let tx_clone = tx.clone();
 
-        threads.push(thread::spawn(move || {
-            let log = log_clone.clone();
-            if let Err(e) = scanner_from_library(library_id, log_clone, tx_clone) {
-                error!(
-                    log,
-                    "IterativeScanner for lib: {} has failed to start with error: {:?}",
-                    library_id,
-                    e
-                )
-            }
-        }));
-
-        let log_clone = log.clone();
-
-        threads.push(thread::spawn(move || {
-            let log = log_clone.clone();
-
-            ParserDaemon::new(library_id, log_clone, tx).map_or_else(
-                |e| {
-                    error!(
-                        log,
-                        "ParserDaemon for lib: {} could not be created with error: {:?}",
-                        library_id,
-                        e
-                    );
-                },
-                |x| {
-                    let _ = x.start().map_err(|e| {
-                        error!(log, "ParserDaemon::start_daemon failed with error: {:?}", e)
-                    });
-                },
-            );
-        }));
+        let log = log_clone.clone();
+        if let Err(e) = scanner_from_library(library_id, log_clone, tx_clone) {
+            error!(
+                log,
+                "Scanner for lib: {} has failed to start with error: {:?}", library_id, e
+            )
+        }
     } else {
         error!(log, "Failed to connect to db");
         return Err(());
     }
 
-    for t in threads {
-        t.join().unwrap_or(());
-    }
     Ok(())
 }
 
@@ -315,8 +295,16 @@ fn scanner_from_library(lib_id: i32, log: Logger, tx: EventTx) -> Result<(), Sca
     let library = Library::get_one(&conn, lib_id)?;
 
     match library.media_type {
-        MediaType::Movie => MovieScanner::new(lib_id, log, tx)?.start(None),
-        MediaType::Tv => TvShowScanner::new(lib_id, log, tx)?.start(None),
+        MediaType::Movie => {
+            let scanner = MovieScanner::new(lib_id, log, tx)?;
+            scanner.start(None);
+            scanner.start_daemon()?;
+        }
+        MediaType::Tv => {
+            let scanner = TvShowScanner::new(lib_id, log, tx)?;
+            scanner.start(None);
+            scanner.start_daemon()?;
+        }
         _ => unreachable!(),
     }
 
