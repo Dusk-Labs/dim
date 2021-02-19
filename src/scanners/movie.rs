@@ -28,6 +28,7 @@ use super::tmdb_api;
 use super::tmdb_api::TMDbSearch;
 use super::APIExec;
 use super::MediaScanner;
+use super::ScannerDaemon;
 
 pub struct MovieScanner {
     conn: DbConnection,
@@ -214,3 +215,5 @@ impl MediaScanner for MovieScanner {
         }
     }
 }
+
+impl ScannerDaemon for MovieScanner {}

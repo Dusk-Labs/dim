@@ -33,6 +33,7 @@ use super::tmdb_api;
 use super::tmdb_api::TMDbSearch;
 use super::APIExec;
 use super::MediaScanner;
+use super::ScannerDaemon;
 
 pub struct TvShowScanner {
     conn: DbConnection,
@@ -282,3 +283,5 @@ impl MediaScanner for TvShowScanner {
         }
     }
 }
+
+impl ScannerDaemon for TvShowScanner {}
