@@ -105,32 +105,32 @@
 */
 
 @include keyframes(mediaPageBackdropAppear) {
-    0% {
-        @include transform(scale(1.1));
-        opacity: 0;
-    }
-    100% {
-        @include transform(scale(1));
-        opacity: 1;
-    }
+  0% {
+    @include transform(scale(1.1));
+    opacity: 0;
+  }
+  100% {
+    @include transform(scale(1));
+    opacity: 1;
+  }
 }
 
 @include keyframes(mediaPageContentAppear) {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 @include keyframes(imageLoaded) {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 /*
@@ -138,15 +138,15 @@
 */
 
 @media only screen and (max-width: 2560px) and (max-height: 1440px) {
-    .mediaBackdrop img {
-        -o-object-position: 30% 30%;
-           object-position: 30% 30%;
-    }
+  .mediaBackdrop img {
+    -o-object-position: 30% 30%;
+    object-position: 30% 30%;
+  }
 }
 
 @media only screen and (max-width: 720px) and (max-height: 1440px) {
-    .mediaBackdrop img {
-        -o-object-position: 50%;
-           object-position: 50%;
-    }
+  .mediaBackdrop img {
+    -o-object-position: 50%;
+    object-position: 50%;
+  }
 }
