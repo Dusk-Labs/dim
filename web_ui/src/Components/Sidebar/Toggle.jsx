@@ -8,10 +8,31 @@ import "./Toggle.scss";
 function Toggle(props) {
   const [visible, setVisible] = useState(true);
 
-  const toggleSidebar = useCallback(() => {
+  /*
+    disabling animation is mainly intended for on-load layout prep changes
+    e.g. hiding sidebar by default if not enough space detected.
+  */
+  const toggleSidebar = useCallback((withAnimation = true) => {
     setVisible(state => !state);
 
     const main = document.querySelectorAll("main")[0];
+
+    if (withAnimation) {
+      main.style.transition = "margin .3s ease-in-out";
+
+      visible
+        ? props.sidebar.current.style.animation = "hideSidebar .3s ease-in-out forwards"
+        : props.sidebar.current.style.animation = "showSidebar .3s ease-in-out forwards";
+
+      localStorage.setItem("defaultSidebarVisible", !visible);
+    } else {
+      main.style.transition = "";
+      props.sidebar.current.style.animation = "";
+
+      visible
+        ? props.sidebar.current.style.transform = "translateX(-100%)"
+        : props.sidebar.current.style.transform = "translateX(0)";
+    }
 
     props.sidebar.current.classList.toggle("hide", visible);
     props.sidebar.current.classList.toggle("show", !visible);
@@ -22,7 +43,14 @@ function Toggle(props) {
 
   useEffect(() => {
     if (window.innerWidth < 800) {
-      toggleSidebar();
+      toggleSidebar(false);
+      return;
+    }
+
+    const defaultSidebarVisible = localStorage.getItem("defaultSidebarVisible");
+
+    if (defaultSidebarVisible === "false") {
+      toggleSidebar(false);
     }
   }, []);
 
