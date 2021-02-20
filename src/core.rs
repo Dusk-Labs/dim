@@ -13,6 +13,7 @@ use cfg_if::cfg_if;
 use diesel::prelude::*;
 use lazy_static::lazy_static;
 use once_cell::sync::OnceCell;
+
 use slog::error;
 use slog::info;
 use slog::Logger;
@@ -78,9 +79,11 @@ impl<T: Clone> CloneOnDeref<T> {
 unsafe impl<T: Send> Send for CloneOnDeref<T> {}
 unsafe impl<T: Clone> Sync for CloneOnDeref<T> {}
 
+/// Path to where metadata is stored and should be fetched to.
 pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
 // NOTE: While the sender is wrapped in a Mutex, we dont really care as wel copy the inner type at
 // some point anyway.
+/// Contains the tx channel over which we can send images to be cached locally.
 pub static METADATA_FETCHER_TX: OnceCell<CloneOnDeref<mpsc::Sender<String>>> = OnceCell::new();
 
 /// Function dumps a list of all libraries in the database and starts a scanner for each which
