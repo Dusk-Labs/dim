@@ -181,7 +181,7 @@ fn main() {
         .set(meta_dir.to_owned())
         .expect("Failed to set METADATA_PATH");
 
-    core::tmdb_poster_fetcher();
+    core::tmdb_poster_fetcher(logger.clone());
 
     {
         // We check if ffmpeg and ffprobe binaries exist and exit gracefully if they dont exist.
