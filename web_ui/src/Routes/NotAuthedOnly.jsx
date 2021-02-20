@@ -52,6 +52,14 @@ function NotAuthedOnlyRoute(props) {
     return () => bc.close();
   }, []);
 
+  /*
+    scroll to top on route change
+    (cannot enable smooth -> page doesn't go fully up)
+  */
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [history.location.pathname]);
+
   const { exact, path, render, children } = props;
 
   return (!props.auth.token && !tokenInCookie) && (
