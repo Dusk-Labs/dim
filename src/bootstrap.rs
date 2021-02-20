@@ -6,6 +6,7 @@ use std::fs::File;
 use std::io::Cursor;
 use std::path::Path;
 use std::path::PathBuf;
+use std::process::exit;
 
 pub fn bootstrap(log: Logger) {
     let _ = std::fs::create_dir_all("utils/");
