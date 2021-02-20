@@ -1,4 +1,5 @@
 use crate::library::{Library, MediaType};
+use crate::mediafile::MediaFile;
 use crate::schema::media;
 use crate::streamablemedia::InsertableStreamableMedia;
 use crate::streamablemedia::StreamableTrait;
@@ -46,39 +47,6 @@ impl PartialEq for Media {
     fn eq(&self, other: &Media) -> bool {
         self.id == other.id
     }
-}
-
-/// Struct which represents a insertable media object. It is usually used only by the scanners to
-/// insert new media objects. It is the same as [`Media`](Media) except it doesnt have the
-/// [`id`](Media::id) field.
-#[derive(Default, Insertable, Debug)]
-#[table_name = "media"]
-pub struct InsertableMedia {
-    pub library_id: i32,
-    pub name: String,
-    pub description: Option<String>,
-    pub rating: Option<i32>,
-    pub year: Option<i32>,
-    pub added: String,
-    pub poster_path: Option<String>,
-    pub backdrop_path: Option<String>,
-    pub media_type: MediaType,
-}
-
-/// Struct which is used when we need to update information about a media object. Same as
-/// [`InsertableMedia`](InsertableMedia) except `library_id` cannot be changed and everything field
-/// is a `Option<T>`.
-#[derive(Default, AsChangeset, Deserialize, Debug)]
-#[table_name = "media"]
-pub struct UpdateMedia {
-    pub name: Option<String>,
-    pub description: Option<String>,
-    pub rating: Option<i32>,
-    pub year: Option<i32>,
-    pub added: Option<String>,
-    pub poster_path: Option<String>,
-    pub backdrop_path: Option<String>,
-    pub media_type: Option<MediaType>,
 }
 
 impl Media {
@@ -238,6 +206,19 @@ impl Media {
         Err(diesel::result::Error::NotFound)
     }
 
+    pub fn get_of_mediafile(
+        conn: &crate::DbConnection,
+        mediafile: &MediaFile,
+    ) -> Result<Self, diesel::result::Error> {
+        use crate::schema::mediafile;
+
+        mediafile::table
+            .inner_join(media::table)
+            .filter(mediafile::id.eq(mediafile.id))
+            .select(media::all_columns)
+            .first::<Self>(conn)
+    }
+
     /// Method deletes a media object based on its id.
     ///
     /// # Arguments
@@ -296,6 +277,23 @@ impl Media {
 
         diesel::delete(media.filter(library_id.eq(lib_id))).execute(conn)
     }
+}
+
+/// Struct which represents a insertable media object. It is usually used only by the scanners to
+/// insert new media objects. It is the same as [`Media`](Media) except it doesnt have the
+/// [`id`](Media::id) field.
+#[derive(Default, Insertable, Debug)]
+#[table_name = "media"]
+pub struct InsertableMedia {
+    pub library_id: i32,
+    pub name: String,
+    pub description: Option<String>,
+    pub rating: Option<i32>,
+    pub year: Option<i32>,
+    pub added: String,
+    pub poster_path: Option<String>,
+    pub backdrop_path: Option<String>,
+    pub media_type: MediaType,
 }
 
 impl InsertableMedia {
@@ -455,6 +453,22 @@ impl InsertableMedia {
         let id = self.insert(conn).unwrap();
         T::new(id).insert(conn)
     }
+}
+
+/// Struct which is used when we need to update information about a media object. Same as
+/// [`InsertableMedia`](InsertableMedia) except `library_id` cannot be changed and everything field
+/// is a `Option<T>`.
+#[derive(Default, AsChangeset, Deserialize, Debug)]
+#[table_name = "media"]
+pub struct UpdateMedia {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub rating: Option<i32>,
+    pub year: Option<i32>,
+    pub added: Option<String>,
+    pub poster_path: Option<String>,
+    pub backdrop_path: Option<String>,
+    pub media_type: Option<MediaType>,
 }
 
 impl UpdateMedia {
