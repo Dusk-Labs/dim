@@ -13,7 +13,9 @@ use cfg_if::cfg_if;
 use diesel::prelude::*;
 use lazy_static::lazy_static;
 use once_cell::sync::OnceCell;
-use slog::{error, Logger};
+use slog::error;
+use slog::info;
+use slog::Logger;
 
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -113,24 +115,31 @@ pub(crate) fn run_scanners(log: Logger, tx: EventTx) {
     }
 }
 
-pub(crate) fn tmdb_poster_fetcher() {
+pub(crate) fn tmdb_poster_fetcher(log: Logger) {
     let (tx, rx): (mpsc::Sender<String>, mpsc::Receiver<String>) = mpsc::channel();
 
     thread::spawn(move || {
         while let Ok(url) = rx.recv() {
-            if let Ok(resp) = reqwest::blocking::get(url.as_str()) {
-                if let Some(fname) = resp.url().path_segments().and_then(|segs| segs.last()) {
-                    let meta_path = METADATA_PATH.get().unwrap();
-                    let mut out_path = PathBuf::from(meta_path);
-                    out_path.push(fname);
+            match reqwest::blocking::get(url.as_str()) {
+                Ok(resp) => {
+                    if let Some(fname) = resp.url().path_segments().and_then(|segs| segs.last()) {
+                        let meta_path = METADATA_PATH.get().unwrap();
+                        let mut out_path = PathBuf::from(meta_path);
+                        out_path.push(fname);
 
-                    if let Ok(mut file) = File::create(out_path) {
-                        if let Ok(bytes) = resp.bytes() {
-                            let mut content = Cursor::new(bytes);
-                            let _ = copy(&mut content, &mut file);
+                        info!(log, "Caching {} -> {:?}", url, out_path);
+
+                        if let Ok(mut file) = File::create(out_path) {
+                            if let Ok(bytes) = resp.bytes() {
+                                let mut content = Cursor::new(bytes);
+                                if let Err(e) = copy(&mut content, &mut file) {
+                                    error!(log, "Failed to cache {} locally, e={:?}", url, e);
+                                }
+                            }
                         }
                     }
                 }
+                Err(e) => error!(log, "Failed to cache {} locally, e={:?}", url, e),
             }
         }
     });
