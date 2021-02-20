@@ -6,9 +6,9 @@ authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
 
 [features]
-default = ["sqlite"]
+default = ["sqlite", "embed_ui"]
 null_auth = ["auth/null_auth"]
-
+embed_ui = []
 postgres = ["database/postgres", "diesel/postgres", "rocket_contrib/diesel_postgres_pool"]
 sqlite = ["database/sqlite", "diesel/sqlite", "rocket_contrib/diesel_sqlite_pool"]
 

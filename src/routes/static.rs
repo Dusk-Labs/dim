@@ -9,7 +9,8 @@ use std::io::Read;
 use std::path::PathBuf;
 
 #[derive(RustEmbed)]
-#[folder = "web_ui/build/"]
+#[cfg_attr(feature = "embed_ui", folder = "web_ui/build/")]
+#[cfg_attr(not(feature = "embed_ui"), folder = "/dev/null")]
 struct Asset;
 
 #[get("/", rank = 1)]
