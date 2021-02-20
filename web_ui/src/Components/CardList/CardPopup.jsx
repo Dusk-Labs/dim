@@ -43,6 +43,10 @@ function CardPopup(props) {
     ss: ("0" + Math.floor((duration % 3600) % 60)).slice(-2)
   };
 
+  if (genres.length > 3) {
+    genres.length = 3
+  }
+
   return (
     <div
       className={direction}
