@@ -422,6 +422,18 @@ impl MediaFile {
         let result = diesel::delete(mediafile.filter(id.eq(_id))).execute(conn)?;
         Ok(result)
     }
+
+    /// Function deletes all mediafiles with `library_id` of lib_id. This function is used when
+    /// deleting a library with a sqlite backend.
+    pub fn delete_by_lib_id(
+        conn: &crate::DbConnection,
+        lib_id: i32,
+    ) -> Result<usize, diesel::result::Error> {
+        use crate::schema::mediafile::dsl::*;
+        use crate::schema::streamable_media::dsl::*;
+
+        diesel::delete(mediafile.filter(library_id.eq(lib_id))).execute(conn)
+    }
 }
 
 impl InsertableMediaFile {

@@ -73,6 +73,7 @@ fn create_database(conn: &crate::DbConnection) -> Result<(), diesel::result::Err
             let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(conn)?;
             let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(conn)?;
             let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(conn)?;
+            let _ = diesel::sql_query("PRAGMA foreign_keys = ON").execute(conn)?;
         }
     }
     Ok(())
@@ -118,10 +119,11 @@ pub fn get_conn_devel() -> Result<crate::DbConnection, diesel::result::Connectio
                 "postgres://postgres:dimpostgres@postgres/dim_devel",
             )?;
         } else {
-            let mut conn = DbConnection::establish("./dim_devel.db")?;
+            let mut conn = DbConnection::establish("./dim_devel.db;foreign_keys=true;")?;
             let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
             let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn);
             let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(&conn);
+            let _ = diesel::sql_query("PRAGMA foreign_keys = ON").execute(&conn);
         }
     }
 
@@ -161,6 +163,7 @@ fn internal_get_conn(
             )
         } else {
             let mut conn = DbConnection::establish("./dim.db")?;
+            let _ = diesel::sql_query("PRAGMA foreign_keys=ON;").execute(&conn).unwrap();
             let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
             let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn);
             let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(&conn);
