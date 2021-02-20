@@ -216,7 +216,6 @@ fn main() {
     let mut rocket_config = ConfigBuilder::new(env)
         .address("0.0.0.0")
         .port(8000)
-        .workers(64)
         .log_level(LoggingLevel::Off)
         .extra("databases", {
             let mut db_conf = HashMap::new();
