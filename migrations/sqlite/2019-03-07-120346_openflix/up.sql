@@ -25,7 +25,7 @@ CREATE TABLE media (
     backdrop_path TEXT,
     media_type media_type,
     PRIMARY KEY (id),
-    CONSTRAINT fk_library FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE
+    FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE
 );
 
 -- Streamble Media Table
