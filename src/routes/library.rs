@@ -89,7 +89,20 @@ pub fn library_delete(
     event_tx: State<Arc<Mutex<EventTx>>>,
     _user: Auth,
 ) -> Result<Status, errors::DimError> {
-    let _ = Library::delete(conn.as_ref(), id)?;
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "sqlite")] {
+            use database::media::Media;
+            use database::mediafile::MediaFile;
+            use diesel::prelude::*;
+
+            diesel::sql_query("PRAGMA foreign_keys = ON").execute(conn.as_ref())?;
+            Media::delete_by_lib_id(conn.as_ref(), id)?;
+            MediaFile::delete_by_lib_id(conn.as_ref(), id)?;
+        }
+    }
+
+    Library::delete(conn.as_ref(), id)?;
+
     let event_message = Box::new(Message {
         id,
         event_type: PushEventType::EventRemoveLibrary,
