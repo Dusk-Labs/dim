@@ -285,6 +285,17 @@ impl Media {
         let result = diesel::delete(media.filter(id.eq(id_to_del))).execute(conn)?;
         Ok(result)
     }
+
+    /// This function exists because for some reason `CASCADE DELETE` doesnt work with a sqlite
+    /// backend. Thus we must manually delete entries when deleting a library.
+    pub fn delete_by_lib_id(
+        conn: &crate::DbConnection,
+        lib_id: i32,
+    ) -> Result<usize, diesel::result::Error> {
+        use crate::schema::media::dsl::*;
+
+        diesel::delete(media.filter(library_id.eq(lib_id))).execute(conn)
+    }
 }
 
 impl InsertableMedia {
