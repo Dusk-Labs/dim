@@ -18,6 +18,11 @@ jobs:
     - uses: actions/checkout@v2
     - id: component
       uses: actions-rs/components-nightly@v1
+      with:
+        component: cargo
+        component: rust
+        component: rustc
+        component: rust-std
     - name: Build
       run: cargo build --verbose
     - name: Run tests
