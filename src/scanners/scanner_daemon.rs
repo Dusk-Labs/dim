@@ -8,6 +8,8 @@ use super::MediaScanner;
 use database::get_conn;
 use database::library::Library;
 use database::library::MediaType;
+use database::mediafile::MediaFile;
+use database::mediafile::UpdateMediaFile;
 
 use slog::debug;
 use slog::error;
@@ -75,5 +77,25 @@ pub trait ScannerDaemon: MediaScanner {
             self.logger_ref(),
             "Received handle rename {:?} -> {:?}", from, to
         );
+
+        if let Some(media_file) = from
+            .to_str()
+            .and_then(|x| MediaFile::get_by_file(self.conn_ref(), x).ok())
+        {
+            let update_query = UpdateMediaFile {
+                target_file: Some(to.to_str().unwrap().to_string()),
+                ..Default::default()
+            };
+
+            if let Err(e) = update_query.update(self.conn_ref(), media_file.id) {
+                error!(
+                    self.logger_ref(),
+                    "Failed to update target file {:?} -> {:?} for mediafile_id={}",
+                    from,
+                    to,
+                    media_file.id
+                );
+            }
+        }
     }
 }

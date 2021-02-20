@@ -430,7 +430,6 @@ impl MediaFile {
         lib_id: i32,
     ) -> Result<usize, diesel::result::Error> {
         use crate::schema::mediafile::dsl::*;
-        use crate::schema::streamable_media::dsl::*;
 
         diesel::delete(mediafile.filter(library_id.eq(lib_id))).execute(conn)
     }
