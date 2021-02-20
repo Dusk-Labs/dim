@@ -11,19 +11,17 @@ env:
 
 jobs:
   build:
-
+    name: Build
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-    - id: component
-      uses: actions-rs/components-nightly@v1
-      with:
-        component: cargo
-        component: rust
-        component: rustc
-        component: rust-std
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+        - uses: actions/checkout@v2
+        - uses: actions-rs/toolchain@v1
+          with:
+              profile: minimal
+              toolchain: nightly
+              override: true
+              components: cargo
+        - uses: actions-rs/cargo@v1
+          with:
+              command: build
+              args: --verbose
