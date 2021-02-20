@@ -1,139 +1,117 @@
 .metaContent {
   padding: 30px;
   display: grid;
-  gap: 2em;
+  gap: 1em;
   transition: padding .3s ease-in-out;
 
-  .cardImageWrapper, img, .placeholder {
-    height: 320px;
-    width: 200px;
-    transition: .3s ease-in-out;
-    transition-property: height, width;
-    animation: appear .3s ease-in-out;
+  .horizontal-err {
+    margin-bottom: 10px;
   }
 
-  .cardImageWrapper {
-    img {
-      object-fit: cover;
-      border-radius: 10px;
-    }
+  h1 {
+    font-family: "Roboto Bold";
   }
 
-  .overview {
-    display: grid;
-    gap: 1em;
+  h4 {
+    font-family: "Roboto Condensed Regular";
+  }
 
-    .placeholder-text {
-      background: #333333;
+  // YEAR + GENRE
+  .genres {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5em 0;
+
+    // SEPARATOR
+    svg {
+      margin: 0 10px;
+      font-size: 0.4em;
+      color: #f7931e;
     }
 
-    .placeholder-text-light {
-      background: #505050;
-    }
+    a {
+      color: #ddd;
+      transition: color .2s ease-in-out;
 
-    .horizontal-err {
-      margin-bottom: 10px;
-    }
-
-    h1 {
-      // margin-bottom: 10px;
-      font-family: "Roboto Bold";
-    }
-
-    h4 {
-      // margin: 15px 0 5px 0;
-      font-family: "Roboto Condensed Regular";
-    }
-
-    // YEAR + GENRE
-    .genres {
-      display: flex;
-      align-items: center;
-
-      // SEPARATOR
-      svg {
-        margin: 0 10px;
-        font-size: 0.4em;
-        color: #f7931e;
+      &:hover {
+        color: #fff;
       }
 
       // NOT YEAR
-      a:not(:first-child) {
+      &:not(:first-child) {
         margin: 0 15px 0 0;
       }
+    }
+  }
 
-      .placeholder-text {
-        width: 50px;
-        margin-right: 15px;
-      }
+  .description {
+    line-height: 2em;
+    max-width: 60ch;
+  }
+
+  .playBtn {
+    transition: .2s ease-in-out;
+    transition-property: filter, background;
+    filter: saturate(0.7);
+    font-family: "Roboto Bold";
+    border-radius: 10px;
+    background: #4a4a4a;
+    display: inline-flex;
+    overflow: hidden;
+    outline: none;
+    cursor: pointer;
+    align-items: center;
+
+    &:focus,
+    &:hover {
+      filter: saturate(1);
     }
 
-    .description {
-      line-height: 1.5em;
-      max-width: 60ch;
-
-      .placeholder-text {
-        width: 100%;
-      }
+    p {
+      padding: .4em .8em;
+      background: #f7931e;
     }
 
-    .playBtn {
-      transition: .2s ease-in-out;
-      transition-property: filter, background;
-      filter: saturate(0.7);
-      font-family: "Roboto Bold";
+    svg {
+      font-size: .6em;
+      margin: 0 10px;
+    }
+  }
+
+  .separator {
+    margin: 0;
+    max-width: 60ch;
+  }
+
+  .meta-info {
+    max-width: 60ch;
+    display: grid;
+    gap: 1em;
+
+    h4 {
+      margin-bottom: 5px;
+    }
+
+    .info {
+      background: #2a2a2a;
       border-radius: 10px;
-      background: #4a4a4a;
-      display: inline-flex;
-      overflow: hidden;
-      outline: none;
-      cursor: pointer;
-      align-items: center;
-
-      &:focus,
-      &:hover {
-        filter: saturate(1);
-      }
-
-      p {
-        padding: .4em .8em;
-        background: #f7931e;
-      }
-
-      svg {
-        font-size: .6em;
-        margin: 0 10px;
-      }
+      padding: 1em;
     }
 
-    .separator {
-      margin: 0;
-      max-width: 60ch;
-    }
+    .length {
+      text-align: center;
 
-    .meta-info {
-      max-width: 60ch;
-      display: grid;
-      gap: 1em;
-
-      h4 {
+      // value
+      p:nth-child(1) {
         margin-bottom: 5px;
+        letter-spacing: 1px;
       }
 
-      .length {
-        text-align: center;
-
-        // value
-        p:nth-child(1) {
-          margin-bottom: 5px;
-          letter-spacing: 1px;
-        }
-
-        /* hint */
-        p:nth-child(2) {
-          color: #5a5a5a;
-          font-size: 0.7em;
-        }
+      /* hint */
+      p:nth-child(2) {
+        color: #5a5a5a;
+        font-size: 0.7em;
       }
     }
   }
@@ -143,24 +121,10 @@
     * == MEDIA QUERIES ==
 */
 
-@media only screen and (min-width: 480px) {
-  .metaContent {
-    .overview .meta-info {
-      grid-template-columns: 1fr 1fr;
-      gap: 1em 5em;
-    }
-  }
-}
-
-@media only screen and (min-width: 900px) {
-  .metaContent {
-    grid-template-columns: auto 1fr;
-    align-items: flex-start;
-
-    .cardImageWrapper, img, .placeholder {
-      height: 420px;
-      width: 280px;
-    }
+@media only screen and (min-width: 300px) {
+  .metaContent .meta-info {
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
   }
 }
 

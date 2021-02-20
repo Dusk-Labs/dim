@@ -4,12 +4,14 @@ import { connect } from "react-redux";
 import BannerImage from "./BannerImage";
 
 import "./Banner.scss";
+import CardImage from "./CardImage";
 
 function Banner(props) {
-  const { backdrop_path } = props.media_info.info;
+  const { poster_path, backdrop_path } = props.media_info.info;
 
   return (
     <div className="backdrop">
+      <CardImage src={poster_path}/>
       <BannerImage src={backdrop_path}/>
     </div>
   );

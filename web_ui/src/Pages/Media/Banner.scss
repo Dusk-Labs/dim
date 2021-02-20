@@ -1,8 +1,11 @@
 .backdrop {
-  height: 50vmin;
+  height: 35vmin;
   padding: 30px 30px 0 30px;
   transition: padding .3s ease-in-out;
-  position: relative;
+
+  .cardImageWrapper {
+    display: none;
+  }
 
   .placeholder {
     height: 100%;
@@ -20,6 +23,7 @@
     border-radius: 10px;
     overflow: hidden;
     height: 100%;
+    position: relative;
 
     img {
       animation: onActiveBannerImage .3s ease-in-out;
@@ -51,5 +55,23 @@
 @media only screen and (min-width: 1080px) {
   .backdrop {
     padding: 60px 90px 0 90px;
+    display: grid;
+    grid-template-columns: .15fr 1fr;
+    gap: 1em;
+    position: relative;
+
+    .cardImageWrapper {
+      display: block;
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+
+      img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+        object-position: bottom;
+      }
+    }
   }
 }
