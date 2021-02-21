@@ -9,21 +9,6 @@
   grid-template-areas: "cover banner";
   gap: 1em;
 
-  .cardImageWrapper {
-    grid-area: cover;
-    border-radius: 10px;
-    width: auto;
-    height: 100%;
-    overflow: hidden;
-
-    img {
-      height: inherit;
-      width: inherit;
-      object-fit: cover;
-      object-position: bottom;
-    }
-  }
-
   .placeholder {
     height: 100%;
     width: 100%;
@@ -33,6 +18,26 @@
 
     svg {
       width: 48px;
+    }
+  }
+
+  .cardImageWrapper {
+    grid-area: cover;
+    border-radius: 10px;
+    width: auto;
+    height: 100%;
+    overflow: hidden;
+
+    img {
+      animation: appear .3s ease-in-out;
+      height: inherit;
+      width: inherit;
+      object-fit: cover;
+      object-position: bottom;
+    }
+
+    .placeholder {
+      width: 20vmin;
     }
   }
 
@@ -46,7 +51,7 @@
     display: inline-block;
 
     img {
-      animation: onActiveBannerImage .3s ease-in-out;
+      animation: appear .3s ease-in-out;
       transition: object-position 0.3s ease-in-out;
       object-fit: cover;
       border-radius: 10px;
