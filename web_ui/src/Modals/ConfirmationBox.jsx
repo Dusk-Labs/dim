@@ -9,8 +9,8 @@ const ConfirmationBox = (props) => {
   // prevent scrolling behind Modal
   useEffect(() => {
     visible
-      ? document.body.style.overflow = 'hidden'
-      : document.body.style.overflow = 'unset';
+      ? document.body.style.overflow = "hidden"
+      : document.body.style.overflow = "unset";
   }, [visible]);
 
   const close = useCallback(() => {
@@ -19,6 +19,11 @@ const ConfirmationBox = (props) => {
 
   const open = useCallback(() => {
     setVisible(true);
+  }, []);
+
+  const confirmAction = useCallback(() => {
+    setVisible(false);
+    props.action();
   }, []);
 
   return (
@@ -36,7 +41,7 @@ const ConfirmationBox = (props) => {
         <p>{props.msg}</p>
         <div className="options">
           <button className="confirmationBoxCancel" onClick={close}>Nevermind</button>
-          <button className="confirmationBoxContinue" onClick={props.action}>Yes</button>
+          <button className="confirmationBoxContinue" onClick={confirmAction}>Yes</button>
         </div>
       </Modal>
     </div>
