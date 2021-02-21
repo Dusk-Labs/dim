@@ -41,6 +41,7 @@ function NewLibraryModal(props) {
     setVisible(false);
     setName("");
     setCurrent("");
+    setMediaType("movie");
   }, []);
 
   const add = useCallback(async () => {
