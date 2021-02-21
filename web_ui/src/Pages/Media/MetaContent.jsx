@@ -52,7 +52,7 @@ function MetaContent(props) {
           <Link to={`/search?year=${year}`}>{year}</Link>
           <FontAwesomeIcon icon="circle"/>
           {genres &&
-            genres.map((genre, i) => <Link to={`/search/genre=${genre}`} key={i}>{genre}</Link>)
+            genres.map((genre, i) => <Link to={`/search?genre=${genre}`} key={i}>{genre}</Link>)
           }
         </div>
         <p className="description">{description}</p>
