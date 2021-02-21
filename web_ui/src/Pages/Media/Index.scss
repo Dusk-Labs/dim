@@ -1,99 +1,85 @@
-@import "../../mixins.scss";
+.mediaPage {
+  .mediaPageSeasons {
+    margin: 0 30px;
+    display: grid;
+    gap: 60px;
 
-.media-page {
-  .content {
-    margin: 90px;
-  }
-
-  .se-ep {
-    .list {
-      justify-content: space-between;
-      margin: 50px 0;
+    .seasons, .episodes {
       display: grid;
-      grid-gap: 100px 50px;
-      z-index: 1;
+      margin: 1em 0;
+      grid-gap: 2em;
+
+      p {
+        margin-top: 1em;
+        color: #ccc;
+        padding: 0 2px;
+        font-family: "Roboto Condensed Regular";
+      }
     }
 
     .seasons {
-      .list {
-        grid-template-columns: repeat(auto-fill, 200px);
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
+      &.selected {
+        .season:not(.active) .cardImageWrapper {
+          opacity: .3;
+        }
       }
 
       .season {
-        transition: box-shadow 0.3s ease-in-out;
-        height: 320px;
         width: 200px;
         text-align: center;
-        border-radius: 10px;
-        cursor: pointer;
 
-        &:hover {
-          box-shadow: #ffffff 0 0 50px -20px;
-        }
+        &:not(.active) {
+          cursor: pointer;
 
-        .image-wrapper {
-          border-radius: 10px;
-
-          img {
-            object-fit: cover;
-            transition: transform 0.3s ease-in-out;
-            animation: imageLoaded 1s ease-in;
-            will-change: transform;
-            height: 320px;
-            width: 200px;
-            border-radius: 10px;
+          &:hover .cardImageWrapper {
+            filter: brightness(1.2);
           }
         }
 
-        p {
-          transition: opacity 0.3s ease-in-out;
-          margin-top: 1vh;
-          text-transform: uppercase;
-          font-size: 0.8em;
+        .cardImageWrapper {
+          width: 200px;
+          height: 300px;
+          border-radius: 10px;
+          overflow: hidden;
+          transition: 0.2s ease-in-out;
+          transition-property: filter, opacity;
+
+          img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+          }
         }
       }
     }
 
     .episodes {
-      margin: 100px 0;
-
-      .list {
-        grid-template-columns: repeat(auto-fill, 150px);
-      }
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 
       .episode {
         text-align: center;
         border-radius: 5px;
         cursor: pointer;
-        width: 150px;
-        height: 85px;
+        width: 100%;
 
-        &:hover .image-wrapper {
-          box-shadow: #ffffff 0 0 50px -20px;
+        &:hover .cardImageWrapper {
+          filter: brightness(1.2);
         }
 
-        .image-wrapper {
-          transition: box-shadow 0.3s ease-in-out;
-          border-radius: 5px;
-          width: 150px;
-          height: 85px;
+        .cardImageWrapper {
+          width: inherit;
+          height: 200px;
+          border-radius: 10px;
+          overflow: hidden;
+          transition: filter 0.2s ease-in-out;
 
           img {
+            height: 100%;
+            width: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease-in-out;
-            animation: imageLoaded 1s ease-in;
-            will-change: transform;
-            width: 150px;
-            height: 85px;
-            border-radius: 5px;
           }
-        }
-
-        p {
-          transition: opacity 0.3s ease-in-out;
-          margin-top: 1vh;
-          text-transform: uppercase;
-          font-size: 0.8em;
         }
       }
     }
@@ -104,18 +90,18 @@
     * == KEYFRAMES ==
 */
 
-@include keyframes(mediaPageBackdropAppear) {
+@keyframes mediaPageBackdropAppear {
   0% {
-    @include transform(scale(1.1));
+    transform: scale(1.1);
     opacity: 0;
   }
   100% {
-    @include transform(scale(1));
+    transform: scale(1);
     opacity: 1;
   }
 }
 
-@include keyframes(mediaPageContentAppear) {
+@keyframes mediaPageContentAppear {
   0% {
     opacity: 0;
   }
@@ -124,7 +110,7 @@
   }
 }
 
-@include keyframes(imageLoaded) {
+@keyframes imageLoaded {
   0% {
     opacity: 0;
   }
@@ -139,14 +125,20 @@
 
 @media only screen and (max-width: 2560px) and (max-height: 1440px) {
   .mediaBackdrop img {
-    -o-object-position: 30% 30%;
     object-position: 30% 30%;
   }
 }
 
 @media only screen and (max-width: 720px) and (max-height: 1440px) {
   .mediaBackdrop img {
-    -o-object-position: 50%;
     object-position: 50%;
+  }
+}
+
+@media only screen and (min-width: 1080px) {
+  .mediaPage {
+    .mediaPageSeasons {
+      padding: 0 60px;
+    }
   }
 }
