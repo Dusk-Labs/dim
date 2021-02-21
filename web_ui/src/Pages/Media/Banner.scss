@@ -1,10 +1,27 @@
 .backdrop {
+  position: relative;
   height: 35vmin;
+  width: 100%;
   padding: 30px 30px 0 30px;
   transition: padding .3s ease-in-out;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "cover banner";
+  gap: 1em;
 
   .cardImageWrapper {
-    display: none;
+    grid-area: cover;
+    border-radius: 10px;
+    width: auto;
+    height: 100%;
+    overflow: hidden;
+
+    img {
+      height: inherit;
+      width: inherit;
+      object-fit: cover;
+      object-position: bottom;
+    }
   }
 
   .placeholder {
@@ -20,10 +37,13 @@
   }
 
   .bannerImageWrapper {
+    grid-area: banner;
     border-radius: 10px;
     overflow: hidden;
     height: 100%;
+    width: 100%;
     position: relative;
+    display: inline-block;
 
     img {
       animation: onActiveBannerImage .3s ease-in-out;
@@ -55,23 +75,5 @@
 @media only screen and (min-width: 1080px) {
   .backdrop {
     padding: 60px 90px 0 90px;
-    display: grid;
-    grid-template-columns: .15fr 1fr;
-    gap: 1em;
-    position: relative;
-
-    .cardImageWrapper {
-      display: block;
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-
-      img {
-        height: 100%;
-        width: 100%;
-        object-fit: cover;
-        object-position: bottom;
-      }
-    }
   }
 }
