@@ -10,9 +10,9 @@ import {
 
 import Banner from "./Banner";
 import MetaContent from "./MetaContent";
+import Seasons from "./Seasons.jsx";
 
 import "./Index.scss";
-import Seasons from "./Seasons.jsx";
 
 function Media(props) {
   const { id } = useParams();
