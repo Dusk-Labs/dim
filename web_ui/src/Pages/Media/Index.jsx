@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import {
   fetchExtraMediaInfo,
@@ -8,17 +8,14 @@ import {
   fetchMediaSeasonEpisodes
 } from "../../actions/card.js";
 
-import LazyImage from "../../Helpers/LazyImage.jsx";
 import Banner from "./Banner";
 import MetaContent from "./MetaContent";
 
 import "./Index.scss";
+import Seasons from "./Seasons.jsx";
 
 function Media(props) {
   const { id } = useParams();
-  const episodes = useRef(null);
-
-  const [ season, setSeason ] = useState();
 
   useEffect(() => {
     props.fetchExtraMediaInfo(props.auth.token, id);
@@ -31,80 +28,14 @@ function Media(props) {
     if (fetched && !error) {
       document.title = `Dim - ${info.name}`;
     }
-
-    episodes.current?.scrollIntoView();
   }, [props.media_info]);
 
-  const showSeason = useCallback(number => {
-    setSeason(number);
-  }, []);
-
-  let mediaSeasons;
-  let mediaEpisodes = {};
-
-  // FETCH_EXTRA_MEDIA_INFO_ERR
-  // if (props.extra_media_info.fetched && props.extra_media_info.error) {
-  if (false) {
-    console.table("[FETCH EXTRA MEDIA INFO] ERR", props.extra_media_info);
-  }
-
-  if (props.extra_media_info.fetched && !props.extra_media_info.error) {
-    if (props.extra_media_info.info.seasons) {
-      const { seasons } = props.extra_media_info.info;
-
-      seasons.sort((a, b) => {
-        return a.season_number - b.season_number;
-      });
-
-      mediaSeasons = seasons.map((season, si) => {
-        return (
-          <div className="season" key={si} onClick={() => showSeason(season.season_number)}>
-            <LazyImage src={season.poster}/>
-            <p>SEASON {season.season_number}</p>
-          </div>
-        );
-      });
-
-      for (let x = 0; x < seasons.length; x++) {
-        seasons[x].episodes.sort((a, b) => {
-          return a.episode - b.episode;
-        });
-
-        mediaEpisodes[seasons[x].season_number] = seasons[x].episodes.map((episode, i) => {
-          return (
-            <Link to={`/play/${episode.id}`} className="episode" key={i}>
-              <LazyImage src={episode.backdrop}/>
-              <p>EPISODE {episode.episode}</p>
-            </Link>
-          );
-        });
-      }
-    }
-  }
-
   return (
-    <div className="media-page">
+    <div className="mediaPage">
       <Banner/>
       <MetaContent/>
       {props.extra_media_info.info.seasons && (
-        <div className="content">
-          <div className="se-ep">
-            <div className="seasons">
-              <h2>SEASONS</h2>
-              <div className="list">
-                {mediaSeasons}
-              </div>
-              {season !== undefined && (
-                <div className="episodes" ref={episodes}>
-                  <h2>SEASON {season} - EPISODES</h2>
-                  <div className="list">
-                    {mediaEpisodes[season]}
-                  </div>
-                </div>
-              )}
-              </div>
-          </div>
-        </div>
+        <Seasons/>
       )}
     </div>
   );
