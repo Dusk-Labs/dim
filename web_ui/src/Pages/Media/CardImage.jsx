@@ -28,7 +28,7 @@ function CardImage(props) {
       {(loaded && !error) && (
         <img src={imgSrc} alt="cover"/>
       )}
-      {loaded && error && (
+      {(loaded && error) && (
         <div className="placeholder"/>
       )}
     </div>
