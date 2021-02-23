@@ -54,41 +54,40 @@ function CardList(props) {
 
   // FETCH_CARDS_OK
   if (props.cards.fetched && !props.cards.error) {
-    const items = Object.keys(props.cards.items);
+    const sectionsEmpty = Object.values(props.cards.items).flat().length === 0;
 
-    if (items.length > 0) {
-      let sections = {};
+    if (!sectionsEmpty) {
+      const items = Object.keys(props.cards.items);
 
-      for (const section of items) {
-        const cards = (
-          props.cards.items[section].map((card, i) => (
-            <Card key={i} data={card}/>
-          ))
-        );
+      if (items.length > 0) {
+        let sections = {};
 
-        sections[section] = cards;
-      }
+        for (const section of items) {
+          const cards = (
+            props.cards.items[section].map((card, i) => (
+              <Card key={i} data={card}/>
+            ))
+          );
 
-      card_list = items.map(section => (
-        <section key={section}>
-          <h1>{section}</h1>
-          {props.cards.items[section].length > 0 && (
+          sections[section] = cards;
+        }
+
+        card_list = items.map(section => (
+          <section key={section}>
+            <h1>{section}</h1>
             <div className="cards">
               {sections[section]}
             </div>
-          )}
-          {props.cards.items[section].length === 0 && (
+          </section>
+        ));
+      } else {
+        card_list = (
+          <section>
             <p>Empty</p>
-          )}
-        </section>
-      ));
-    } else {
-      card_list = (
-        <section>
-          <p>Looks like you've got no media here.</p>
-        </section>
-      );
-    }
+          </section>
+        );
+      }
+    } else card_list = <GhostCards/>;
   }
 
   return (
