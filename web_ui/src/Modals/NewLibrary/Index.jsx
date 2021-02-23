@@ -1,9 +1,8 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import React, { cloneElement, Fragment, useCallback, useEffect, useRef, useState } from "react";
 import Modal from "react-modal";
 import { connect } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { newLibrary } from "../../../actions/library.js";
+import { newLibrary } from "../../actions/library.js";
 import MediaTypeSelection from "./MediaTypeSelection.jsx";
 import DirSelection from "./DirSelection.jsx";
 
@@ -11,7 +10,6 @@ import "./Index.scss";
 
 Modal.setAppElement("body");
 
-// ! UPDATE this.state.root ON componentDidMount WITH /api/v1/filebrowser/
 function NewLibraryModal(props) {
   const nameInput = useRef(null);
 
@@ -63,9 +61,7 @@ function NewLibraryModal(props) {
 
   return (
     <Fragment>
-      <button className="openNewLibrary" onClick={open}>
-        +
-      </button>
+      {cloneElement(props.children, { onClick: () => open() })}
       <Modal
         isOpen={visible}
         contentLabel="newLibrary"

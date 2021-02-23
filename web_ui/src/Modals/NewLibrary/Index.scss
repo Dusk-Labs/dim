@@ -103,12 +103,16 @@
       border-radius: 10px;
       outline: none;
       background: #f7931e;
-      color: #ffffff;
+      color: #eee;
       font-size: 16px;
 
       &:focus,
       &:hover {
         filter: saturate(1);
+      }
+
+      &:nth-child(2) {
+        color: #2a2a2a;
       }
 
       // cancel button
