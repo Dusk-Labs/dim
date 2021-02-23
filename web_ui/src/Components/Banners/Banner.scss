@@ -21,12 +21,44 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     border-radius: 0;
+    text-align: center;
+    border-bottom: 4px solid #3a3a3a;
+
+    h2 {
+      font-family: "Roboto Bold";
+      animation: appear 500ms ease-in-out;
+    }
+
+    p {
+      margin: 1em 0;
+      max-width: 45ch;
+      line-height: 25px;
+      animation: appear 500ms ease-in-out;
+    }
+
+    button {
+      font-size: 16px;
+      transition: filter .2s ease-in-out;
+      filter: saturate(0.7);
+      font-family: "Roboto Bold";
+      border-radius: 10px;
+      background: #f7931e;
+      color: #2a2a2a;
+      padding: .5em .8em;
+      animation: appear 500ms ease-in-out;
+
+      &:focus,
+      &:hover {
+        filter: saturate(1);
+      }
+    }
   }
 
   .image-wrapper {
