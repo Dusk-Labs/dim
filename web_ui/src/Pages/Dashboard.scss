@@ -1,0 +1,40 @@
+.dashboard {
+  .emptyDashboard {
+    text-align: center;
+    padding: 2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: #2a2a2a;
+    border-bottom: 4px solid #3a3a3a;
+    min-height: 50vmin;
+    animation: appear .5s ease-in-out;
+
+    h2 {
+      font-family: "Roboto Bold";
+    }
+
+    p {
+      margin: 1em 0;
+      max-width: 45ch;
+      line-height: 25px;
+    }
+
+    button {
+      font-size: 16px;
+      transition: filter .2s ease-in-out;
+      filter: saturate(0.7);
+      font-family: "Roboto Bold";
+      border-radius: 10px;
+      background: #f7931e;
+      color: #2a2a2a;
+      padding: .5em .8em;
+
+      &:focus,
+      &:hover {
+        filter: saturate(1);
+      }
+    }
+  }
+}
