@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 
 import { fetchCards } from "../../actions/card.js";
 import Card from "./Card.jsx";
+import GhostCards from "./Ghost.jsx";
 
 import "./Index.scss";
 
@@ -39,43 +40,16 @@ function CardList(props) {
     props.fetchCards(props.auth.token, props.path);
   }, [props.path]);
 
-  const ghostCards = [];
-
-  let cardCount = 0;
   let card_list;
-
-  if (cardList.current) {
-    cardCount = Math.floor(cardList.current.offsetWidth / 230) * 2;
-  }
-
-  for (let x = 0; x < cardCount; x++) {
-    ghostCards.push(
-      <div key={x} className="card-wrapper">
-        <div className="card">
-          <div className="placeholder"/>
-        </div>
-      </div>
-    );
-  }
 
   // FETCH_CARDS_START
   if (props.cards.fetching) {
-    card_list = (
-      <section className="showAfter100ms">
-        <div className="placeholderText"/>
-        <div className="cards">{ghostCards}</div>
-      </section>
-    );
+    card_list = <GhostCards/>;
   }
 
   // FETCH_CARDS_ERR
   if (props.cards.fetched && props.cards.error) {
-    card_list = (
-      <section>
-        <div className="placeholderText"/>
-        <div className="cards">{ghostCards}</div>
-      </section>
-    );
+    card_list = <GhostCards/>;
   }
 
   // FETCH_CARDS_OK
