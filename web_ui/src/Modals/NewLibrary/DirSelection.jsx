@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { fetchDirectories } from "../../../actions/fileBrowser.js";
+import { fetchDirectories } from "../../actions/fileBrowser.js";
 
 import "./DirSelection.scss";
 
