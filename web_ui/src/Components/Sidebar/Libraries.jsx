@@ -2,9 +2,9 @@ import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { connect } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import NewLibraryModal from "../../Modals/NewLibrary/Index";
 
 import { fetchLibraries, handleWsNewLibrary, handleWsDelLibrary } from "../../actions/library.js";
-import NewLibraryModal from "./NewLibraryModal/Index.jsx";
 
 function Libraries(props) {
   const handle_ws_msg = async ({data}) => {
@@ -61,7 +61,11 @@ function Libraries(props) {
     <section className="libraries">
       <header>
         <h4>Libraries</h4>
-        <NewLibraryModal/>
+        <NewLibraryModal>
+          <button className="openNewLibrary" onClick={open}>
+            +
+          </button>
+        </NewLibraryModal>
       </header>
       <div className="list">
         <NavLink className="item" to="/" exact>
