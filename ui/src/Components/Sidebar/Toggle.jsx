@@ -39,7 +39,7 @@ function Toggle(props) {
 
     main.classList.toggle("full", visible);
     main.classList.toggle("shrunk", !visible);
-  }, [visible]);
+  }, [props.sidebar, visible]);
 
   useEffect(() => {
     if (window.innerWidth < 800) {
@@ -52,7 +52,7 @@ function Toggle(props) {
     if (defaultSidebarVisible === "false") {
       toggleSidebar(false);
     }
-  }, []);
+  }, [toggleSidebar]);
 
   return (
     <section className="sidebarToggleWrapper">

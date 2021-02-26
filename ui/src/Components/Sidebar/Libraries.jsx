@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { connect } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,20 +7,22 @@ import NewLibraryModal from "../../Modals/NewLibrary/Index";
 import { fetchLibraries, handleWsNewLibrary, handleWsDelLibrary } from "../../actions/library.js";
 
 function Libraries(props) {
-  const handle_ws_msg = async ({data}) => {
+  const { fetchLibraries, handleWsDelLibrary, handleWsNewLibrary, auth } = props;
+
+  const handle_ws_msg = useCallback(async ({data}) => {
     const payload = JSON.parse(data);
 
     switch(payload.type) {
       case "EventRemoveLibrary":
-        props.handleWsDelLibrary(payload.id);
+        handleWsDelLibrary(payload.id);
         break;
       case "EventNewLibrary":
-        props.handleWsNewLibrary(props.auth.token, payload.id);
+        handleWsNewLibrary(auth.token, payload.id);
         break;
       default:
         break;
     }
-  };
+  }, [auth.token, handleWsDelLibrary, handleWsNewLibrary]);
 
   useEffect(() => {
     const library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
@@ -29,13 +31,13 @@ function Libraries(props) {
       library_ws.addEventListener("message", handle_ws_msg);
     }
 
-    props.fetchLibraries(props.auth.token);
+    fetchLibraries(auth.token);
 
     return () => {
       library_ws.removeEventListener("message", handle_ws_msg);
       library_ws.close();
     };
-  }, []);
+  }, [auth.token, fetchLibraries, handle_ws_msg]);
 
   let libraries;
 
@@ -62,7 +64,7 @@ function Libraries(props) {
       <header>
         <h4>Libraries</h4>
         <NewLibraryModal>
-          <button className="openNewLibrary" onClick={open}>
+          <button className="openNewLibrary">
             +
           </button>
         </NewLibraryModal>

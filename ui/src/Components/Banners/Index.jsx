@@ -11,17 +11,19 @@ function Banners(props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [currentTimeoutID, setCurrentTimeoutID] = useState();
 
+  const { fetchBanners, auth } = props;
+
   const handleWS = useCallback(e => {
     const { type } = JSON.parse(e.data);
 
     if (type === "EventRemoveLibrary") {
-      props.fetchBanners(props.auth.token);
+      fetchBanners(auth.token);
     }
 
     if (type === "EventNewLibrary") {
-      props.fetchBanners(props.auth.token);
+      fetchBanners(auth.token);
     }
-  }, []);
+  }, [auth.token, fetchBanners]);
 
   useEffect(() => {
     const timeout = setTimeout(timeoutID => {
@@ -48,7 +50,7 @@ function Banners(props) {
   }, [currentTimeoutID]);
 
   useEffect(() => {
-    props.fetchBanners(props.auth.token);
+    fetchBanners(auth.token);
 
     const library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
     library_ws.addEventListener("message", handleWS);
@@ -57,7 +59,7 @@ function Banners(props) {
       library_ws.removeEventListener("message", handleWS);
       library_ws.close();
     };
-  }, []);
+  }, [auth.token, fetchBanners, handleWS]);
 
   return (
     <div className="banner-wrapper">

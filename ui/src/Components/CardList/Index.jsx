@@ -10,21 +10,23 @@ import "./Index.scss";
 function CardList(props) {
   const cardList = useRef(null);
 
+  const { fetchCards, auth, path } = props;
+
   const handleWS = useCallback((e) => {
     const { type } = JSON.parse(e.data);
 
     if (type === "EventRemoveLibrary") {
-      props.fetchCards(props.auth.token, props.path);
+      fetchCards(auth.token, path);
     }
 
     if (type === "EventNewLibrary") {
-      props.fetchCards(props.auth.token, props.path);
+      fetchCards(auth.token, path);
     }
 
     if (type === "EventNewCard") {
-      props.fetchCards(props.auth.token, props.path);
+      fetchCards(auth.token, path);
     }
-  }, []);
+  }, [auth.token, fetchCards, path]);
 
   useEffect(() => {
     const library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
@@ -34,11 +36,11 @@ function CardList(props) {
       library_ws.removeEventListener("message", handleWS);
       library_ws.close();
     }
-  }, []);
+  }, [handleWS]);
 
   useEffect(() => {
-    props.fetchCards(props.auth.token, props.path);
-  }, [props.path]);
+    fetchCards(auth.token, path);
+  }, [auth.token, fetchCards, path]);
 
   let card_list;
 

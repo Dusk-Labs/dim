@@ -18,6 +18,8 @@ function NewLibraryModal(props) {
   const [name, setName] = useState("");
   const [mediaType, setMediaType] = useState("movie");
 
+  const { newLibrary, auth } = props;
+
   // prevent scrolling behind Modal
   useEffect(() => {
     visible
@@ -54,10 +56,10 @@ function NewLibraryModal(props) {
         media_type: mediaType
       };
 
-      await props.newLibrary(props.auth.token, data);
+      await newLibrary(auth.token, data);
       close();
     }
-  }, [name, mediaType, current]);
+  }, [auth.token, close, current, mediaType, name, newLibrary]);
 
   return (
     <Fragment>

@@ -6,6 +6,8 @@ import "./ConfirmationBox.scss";
 const ConfirmationBox = (props) => {
   const [visible, setVisible] = useState(false);
 
+  const { action } = props;
+
   // prevent scrolling behind Modal
   useEffect(() => {
     visible
@@ -23,8 +25,8 @@ const ConfirmationBox = (props) => {
 
   const confirmAction = useCallback(() => {
     setVisible(false);
-    props.action();
-  }, []);
+    action();
+  }, [action]);
 
   return (
     <div className="confirmationAction">

@@ -8,28 +8,31 @@ function PrivateRoute(props) {
   const history = useHistory();
   const tokenInCookie = document.cookie.split("=")[1];
 
+  const { updateAuthToken, auth } = props;
+  const { logged_in, error } = auth.login;
+  const { token } = auth;
+
   useEffect(() => {
-    if (tokenInCookie) {
-      props.updateAuthToken(tokenInCookie);
+    if (tokenInCookie && !token) {
+      updateAuthToken(tokenInCookie);
+      return;
     }
 
-    const { auth } = props;
-    const { logged_in, error } = auth.login;
+    if (logged_in && token && !error && !tokenInCookie) {
 
-    if (logged_in && auth.token && !error && !tokenInCookie) {
       const dateExpires = new Date();
 
       dateExpires.setTime(dateExpires.getTime() + 604800000);
 
       document.cookie = (
-        `token=${props.auth.token};expires=${dateExpires.toGMTString()};`
+        `token=${token};expires=${dateExpires.toGMTString()};`
       );
     }
 
-    if (!auth.token && !tokenInCookie) {
+    if (!token && !tokenInCookie) {
       history.push("/login");
     }
-  }, []);
+  }, [error, history, logged_in, token, tokenInCookie, updateAuthToken]);
 
   // auto logout when logged out in another tab
   useEffect(() => {
@@ -60,7 +63,7 @@ function PrivateRoute(props) {
 
   const { exact, path, render, children } = props;
 
-  return (props.auth.token && tokenInCookie) && (
+  return (token && tokenInCookie) && (
     <Route exact={exact} path={path} render={render} children={children}/>
   );
 }

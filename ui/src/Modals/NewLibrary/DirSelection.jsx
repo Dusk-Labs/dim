@@ -8,37 +8,39 @@ import "./DirSelection.scss";
 function DirSelection(props) {
   const [cache, setCache] = useState(false);
 
+  const { current, fetchDirectories, setCurrent, auth, fileBrowser } = props;
+
   const select = useCallback(path => {
-    if (path in props.fileBrowser.cache) {
-      props.setCurrent(path);
+    if (path in fileBrowser.cache) {
+      setCurrent(path);
       setCache(true);
 
       return;
     }
 
-    props.fetchDirectories(props.auth.token, path.replace("C:\\", ""));
-    props.setCurrent(path);
+    fetchDirectories(auth.token, path.replace("C:\\", ""));
+    setCurrent(path);
 
     setCache(false);
-  }, [props.current, props.fileBrowser]);
+  }, [auth.token, fetchDirectories, fileBrowser.cache, setCurrent]);
 
-  useEffect(() => select(""), []);
+  useEffect(() => select(""), [select]);
 
   const goBack = useCallback(() => {
     let slash = "/";
 
-    if (props.current.includes("\\")) {
+    if (current.includes("\\")) {
       slash = "\\";
     }
 
-    if (props.current.length === 0) return;
+    if (current.length === 0) return;
 
-    const path = props.current.split(slash);
+    const path = current.split(slash);
 
     path.pop();
 
     select(path.join(slash));
-  }, [props.current])
+  }, [current, select])
 
   let dirs;
 

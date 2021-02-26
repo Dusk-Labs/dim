@@ -8,11 +8,14 @@ function BannerImage(props) {
   const [error, setErr] = useState(false);
 
   useEffect(() => {
-    if (props.src !== currentSrc) {
+    const propsSrcFile = props.src?.substring(props.src.lastIndexOf('/') + 1);
+    const currentSrcFile = currentSrc?.substring(currentSrc.lastIndexOf('/') + 1);
+
+    if (propsSrcFile !== currentSrcFile) {
       setShow(false);
       setLoaded(false);
     }
-  }, [props.src])
+  }, [currentSrc, props.src])
 
   const swapSrc = useCallback(e => {
     if (e.animationName !== props.hideAnimationName) return;
@@ -34,10 +37,10 @@ function BannerImage(props) {
         setErr(true);
       };
 
-      img.src = new RegExp("/^(?:\/|[a-z]+:\/\/)/").test(props.src)
+      img.src = new RegExp("/^(?:/|[a-z]+://)/").test(props.src)
         ? props.src : `//${window.host}:${window.backend_port}/${props.src}`;
     }
-  }, [props.src]);
+  }, [currentSrc, props.hideAnimationName, props.src]);
 
   return (
     <div

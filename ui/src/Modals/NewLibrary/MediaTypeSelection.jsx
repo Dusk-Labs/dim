@@ -4,29 +4,31 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./MediaTypeSelection.scss";
 
 function MediaTypeSelection(props) {
+  const { mediaType, setMediaType } = props;
+
   const selectMovie = useCallback(() => {
-    if (props.mediaType !== "movie") {
-      props.setMediaType("movie");
+    if (mediaType !== "movie") {
+      setMediaType("movie");
     }
-  }, [props.mediaType]);
+  }, [mediaType, setMediaType]);
 
   const selectTv = useCallback(() => {
-    if (props.mediaType !== "tv") {
-      props.setMediaType("tv");
+    if (mediaType !== "tv") {
+      setMediaType("tv");
     }
-  }, [props.mediaType]);
+  }, [mediaType, setMediaType]);
 
   const selectMixed = useCallback(() => {
-    if (props.mediaType !== "mixed") {
-      props.setMediaType("mixed");
+    if (mediaType !== "mixed") {
+      setMediaType("mixed");
     }
-  }, [props.mediaType]);
+  }, [mediaType, setMediaType]);
 
   const selectAnime = useCallback(() => {
-    if (props.mediaType !== "anime") {
-      props.setMediaType("anime");
+    if (mediaType !== "anime") {
+      setMediaType("anime");
     }
-  }, [props.mediaType]);
+  }, [mediaType, setMediaType]);
 
   return (
     <div className="mediaTypeSelection">

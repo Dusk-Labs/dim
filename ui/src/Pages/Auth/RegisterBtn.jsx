@@ -8,8 +8,10 @@ function RegisterBtn(props) {
   const [username, pass, invite] = credentials;
   const [setUsernameErr, setPassErr, setInviteErr] = error;
 
+  const { admin_exists, registering, register, authenticate } = props;
+
   const authorize = useCallback(async () => {
-    if (props.registering) return;
+    if (registering) return;
 
     const allowedChars = /^[a-zA-Z0-9_.-]*$/;
 
@@ -31,25 +33,25 @@ function RegisterBtn(props) {
       return;
     }
 
-    if (props.admin_exists) {
+    if (admin_exists) {
       if (invite.length !== 36) {
         setInviteErr("Code has to be 36 characters.");
         return;
       }
 
-      await props.register(username, pass, invite);
-      props.authenticate(username, pass);
+      await register(username, pass, invite);
+      authenticate(username, pass);
     } else {
-      await props.register(username, pass);
-      props.authenticate(username, pass);
+      await register(username, pass);
+      authenticate(username, pass);
     }
-  }, [credentials]);
+  }, [admin_exists, authenticate, invite, pass, register, registering, setInviteErr, setPassErr, setUsernameErr, username]);
 
   const onKeyDown = useCallback(e => {
     if (e.keyCode === 13) {
       authorize();
     }
-  }, [credentials])
+  }, [authorize])
 
   useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
@@ -57,7 +59,7 @@ function RegisterBtn(props) {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     }
-  }, [credentials])
+  }, [onKeyDown])
 
   return (
     <button className={`${props.auth.registering}`} onClick={authorize}>Register</button>

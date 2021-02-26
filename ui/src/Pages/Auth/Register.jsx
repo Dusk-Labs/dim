@@ -20,14 +20,16 @@ function Register(props) {
   const [invite, setInvite] = useState("");
   const [inviteErr, setInviteErr] = useState("");
 
+  const { checkAdminExists, auth } = props;
+
   // AUTH_LOGIN_ERR
   useEffect(() => {
-      if (props.auth.register.error) {
-      setInviteErr(props.auth.register.error)
+    if (auth.register.error) {
+      setInviteErr(auth.register.error);
     }
-  }, [props.auth]);
+  }, [auth.register.error]);
 
-  useEffect(() => { props.checkAdminExists() }, []);
+  useEffect(() => { checkAdminExists() }, [checkAdminExists]);
 
   return (
     <div className="authForm">
