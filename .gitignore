@@ -11,12 +11,16 @@ target/*
 expanded.rs
 *.db
 build
-build/*
-web_ui/package-lock.json
-web_ui/yarn.lock
 *.lock
 static/
 logs/
 *.jpg
-web_ui/fuckoff.json
 transcoding
+
+# UI
+node_modules
+ui/coverage
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
