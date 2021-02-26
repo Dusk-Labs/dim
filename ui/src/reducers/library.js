@@ -39,7 +39,7 @@ const initialState = {
     del_library
 };
 
-export default function(state = initialState, action) {
+export default function libraryReducer(state = initialState, action) {
     switch(action.type) {
         case FETCH_LIBRARIES_START:
             return {

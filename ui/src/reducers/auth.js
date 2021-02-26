@@ -51,7 +51,7 @@ const initialState = {
     fetchInvites
 };
 
-export default function(state = initialState, action) {
+export default function authReducer(state = initialState, action) {
     switch(action.type) {
         case AUTH_LOGIN_START:
             return {
