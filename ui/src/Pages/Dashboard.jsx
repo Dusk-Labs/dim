@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 import Banners from "../Components/Banners/Index";
 import CardList from "../Components/CardList/Index";

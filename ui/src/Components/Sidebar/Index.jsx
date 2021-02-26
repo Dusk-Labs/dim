@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { connect } from "react-redux";
 
 import { fetchUser } from "../../actions/user.js";

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Switch } from "react-router-dom";
 import { connect } from "react-redux";
 
