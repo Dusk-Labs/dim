@@ -59,7 +59,7 @@ const initialState = {
     media_season_episodes
 };
 
-export default function(state = initialState, action) {
+export default function cardReducer(state = initialState, action) {
     switch(action.type) {
         case FETCH_CARDS_START:
             return {
