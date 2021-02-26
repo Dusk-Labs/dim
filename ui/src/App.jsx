@@ -70,6 +70,9 @@ const routes = (
 
 function App() {
   const handleMQL = (e) => {
+    const darkLogo = document.getElementById("logo-dark");
+    const lightLogo = document.getElementById("logo-light");
+
     if (e.matches) {
       lightLogo.remove();
       document.head.append(darkLogo);
