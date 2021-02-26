@@ -8,30 +8,31 @@ function NotAuthedOnlyRoute(props) {
   const history = useHistory();
   const tokenInCookie = document.cookie.split("=")[1];
 
+  const { updateAuthToken, auth } = props;
+  const { logged_in, error } = auth.login;
+  const { token } = auth;
+
   useEffect(() => {
     if (tokenInCookie) {
-      props.updateAuthToken(tokenInCookie);
+      updateAuthToken(tokenInCookie);
     }
 
-    const { auth } = props;
-    const { logged_in, error } = auth.login;
-
-		if (logged_in && auth.token && !error && !tokenInCookie) {
+		if (logged_in && token && !error && !tokenInCookie) {
       const dateExpires = new Date();
 
       dateExpires.setTime(dateExpires.getTime() + 604800000);
 
       document.cookie = (
-        `token=${props.auth.token};expires=${dateExpires.toGMTString()};`
+        `token=${token};expires=${dateExpires.toGMTString()};`
       );
 
       history.push("/")
     }
 
-    if (auth.token && tokenInCookie) {
+    if (token && tokenInCookie) {
       history.push("/");
     }
-  }, [props.auth]);
+  }, [error, history, logged_in, token, tokenInCookie, updateAuthToken]);
 
   // auto login when logged in another instance
   useEffect(() => {
@@ -62,17 +63,17 @@ function NotAuthedOnlyRoute(props) {
 
   const { exact, path, render, children } = props;
 
-  return (!props.auth.token && !tokenInCookie) && (
+  return (!token && !tokenInCookie) && (
     <Route exact={exact} path={path} render={render} children={children}/>
   );
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.auth
+  auth: state.auth
 });
 
 const mapActionsToProps = ({
-    updateAuthToken
+  updateAuthToken
 });
 
 export default connect(mapStateToProps, mapActionsToProps)(NotAuthedOnlyRoute);

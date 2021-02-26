@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import { connect } from "react-redux";
 import { useHistory } from "react-router";
 import { delLibrary } from "../../../actions/library";
@@ -7,19 +7,16 @@ import ConfirmationBox from "../../../Modals/ConfirmationBox";
 const Delete = (props) => {
   const history = useHistory();
 
-  // redirect to dashboard when removed
-  useEffect(() => {
-    if (props.del_library.deleted) {
-      history.push("/");
-    }
-  }, [props.del_library]);
+  const { del_library, auth, delLibrary } = props;
 
   const removeLib = useCallback(async () => {
-    const { del_library, auth, delLibrary } = props;
-
     if (del_library.deleting) return;
+
     await delLibrary(auth.token, props.id);
-  }, []);
+
+    // redirect to dashboard when removed
+    history.push("/");
+  }, [auth.token, delLibrary, del_library.deleting, history, props.id]);
 
   const { deleting } = props.del_library;
 

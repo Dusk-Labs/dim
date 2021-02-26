@@ -40,7 +40,7 @@ function Card(props) {
 
     const ID = setTimeout(showPopup, 600);
     setTimeoutID(ID);
-  }, [hovering]);
+  }, [hovering, showPopup]);
 
   const { name, poster_path, id } = props.data;
 

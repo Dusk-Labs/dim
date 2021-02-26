@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 
-import { quickSearch } from "../../actions/search.js";
 import QuickSearchResults from "./QuickSearchResults";
+import { quickSearch } from "../../actions/search.js";
 
 import "./Search.scss";
 
@@ -14,6 +14,8 @@ function Search(props) {
 
   const [query, setQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
+
+  const { quickSearch, auth } = props;
 
   const handleClick = useCallback(e => {
     if (showResults) {
@@ -28,28 +30,28 @@ function Search(props) {
     return () => {
       window.removeEventListener("click", handleClick);
     }
-  }, []);
+  }, [handleClick]);
 
   const handleOnChange = useCallback(e => {
     setQuery(e.target.value);
     setShowResults(e.target.value.length > 1);
 
     if (e.target.value.length > 1) {
-      props.quickSearch(e.target.value, props.auth.token);
+      quickSearch(e.target.value, auth.token);
     }
-  }, [query]);
+  }, [auth.token, quickSearch]);
 
   const onKeyDown = useCallback((e) => {
     if (e.keyCode === 13) {
       quickSearch();
     }
-  }, []);
+  }, [quickSearch]);
 
   const fullSearch = useCallback(() => {
     if (query.length >= 1) {
       props.history.push(`/search?query=${query}`);
     }
-  }, [query]);
+  }, [props.history, query]);
 
   return (
     <div className="search-box" ref={searchBox}>

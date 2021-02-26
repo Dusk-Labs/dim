@@ -11,10 +11,12 @@ function CardPopup(props) {
   const [overflowing, setOverflowing] = useState(false);
   const [direction, setDirection] = useState("card-popup-right");
 
+  const { setHovering } = props;
+
   const onAnimationEnd = useCallback(e => {
     if (e.animationName !== "CardPopupHide") return;
-    props.setHovering(false);
-  }, []);
+    setHovering(false);
+  }, [setHovering]);
 
   useEffect(() => {
     const { x, width } = props.popup.current.getBoundingClientRect();
@@ -24,7 +26,7 @@ function CardPopup(props) {
 
     setOverflowing(true);
     setDirection("card-popup-left");
-  }, [overflowing]);
+  }, [props.popup, overflowing]);
 
   const {
     id,

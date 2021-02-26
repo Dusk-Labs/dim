@@ -10,9 +10,12 @@ import "./MetaContent.scss";
 function MetaContent(props) {
   const { id } = useParams();
 
+  const { auth, fetchMediaInfo } = props;
+  const { token } = auth;
+
   useEffect(() => {
-    props.fetchMediaInfo(props.auth.token, id);
-  }, [id]);
+    fetchMediaInfo(token, id);
+  }, [fetchMediaInfo, id, token]);
 
   useEffect(() => {
     const { fetched, error, info } = props.media_info;

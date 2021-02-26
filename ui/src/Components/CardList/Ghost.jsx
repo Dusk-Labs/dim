@@ -11,7 +11,7 @@ function GhostCards() {
     setCount(
       Math.floor(sectionRef.current.offsetWidth / 230) * 2
     );
-  }, [sectionRef.current]);
+  }, []);
 
   const cards = [];
 

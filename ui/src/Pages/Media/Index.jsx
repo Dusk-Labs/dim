@@ -17,9 +17,13 @@ import "./Index.scss";
 function Media(props) {
   const { id } = useParams();
 
+  const { auth, fetchExtraMediaInfo } = props;
+  const { token } = auth;
+
   useEffect(() => {
-    props.fetchExtraMediaInfo(props.auth.token, id);
-  }, [id]);
+    console.log("[Media / Index] fetchExtraMediaInfo");
+    fetchExtraMediaInfo(token, id);
+  }, [fetchExtraMediaInfo, id, token]);
 
   useEffect(() => {
     const { fetched, error, info } = props.media_info;

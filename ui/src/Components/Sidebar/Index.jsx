@@ -14,9 +14,11 @@ import "./Index.scss";
 function Sidebar(props) {
   const divContainer = useRef(null);
 
+  const { fetchUser, auth } = props;
+
   useEffect(() => {
-    props.fetchUser(props.auth.token);
-  }, []);
+    fetchUser(auth.token);
+  }, [auth.token, fetchUser]);
 
   return (
     <nav className="sidebar" ref={divContainer}>

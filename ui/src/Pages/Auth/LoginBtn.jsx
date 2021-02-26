@@ -8,6 +8,8 @@ function LoginBtn(props) {
   const [username, password] = credentials;
   const [setUsernameErr, setPasswordErr] = error;
 
+  const { authenticate } = props;
+
   const authorize = useCallback(async () => {
     if (props.auth.logging_in) return;
 
@@ -32,14 +34,14 @@ function LoginBtn(props) {
       return;
     }
 
-    await props.authenticate(username, password);
-  }, [credentials]);
+    await authenticate(username, password);
+  }, [authenticate, password, props.auth.logging_in, setPasswordErr, setUsernameErr, username]);
 
   const onKeyDown = useCallback(e => {
     if (e.keyCode === 13) {
       authorize();
     }
-  }, [credentials])
+  }, [authorize])
 
   useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
@@ -47,7 +49,7 @@ function LoginBtn(props) {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     }
-  }, [credentials]);
+  }, [onKeyDown]);
 
   return (
     <button className={`${props.auth.logging_in}`} onClick={authorize}>Login</button>

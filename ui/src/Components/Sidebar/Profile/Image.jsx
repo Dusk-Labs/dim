@@ -15,7 +15,7 @@ function ProfileImage(props) {
       setLoaded(false);
       setErr(false);
     }
-  }, [props.src])
+  }, [currentSrc, props.src])
 
   const swapSrc = useCallback((e) => {
     if (e.animationName !== "onHideProfileImage") return;
@@ -39,7 +39,7 @@ function ProfileImage(props) {
 
       img.src = props.src;
     }
-  }, [props.src]);
+  }, [currentSrc, props.src]);
 
   if (error) {
     return (
@@ -56,7 +56,7 @@ function ProfileImage(props) {
         <img
           src={currentSrc}
           key={currentSrc}
-          alt="Profile Image"
+          alt="Profile"
         />
       )}
     </div>
