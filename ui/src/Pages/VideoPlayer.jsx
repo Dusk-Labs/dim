@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import { connect } from "react-redux";
 import * as Vibrant from "node-vibrant";
 import videojs from "video.js";

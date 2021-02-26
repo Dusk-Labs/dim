@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component, createRef } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Card from "./Card.jsx";
@@ -7,7 +7,7 @@ class PropCardList extends Component {
     constructor(props) {
         super(props);
 
-        this.cardList = React.createRef();
+        this.cardList = createRef();
     }
 
     render() {

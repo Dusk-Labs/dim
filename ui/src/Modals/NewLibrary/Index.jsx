@@ -1,4 +1,4 @@
-import React, { cloneElement, Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { cloneElement, Fragment, useCallback, useEffect, useRef, useState } from "react";
 import Modal from "react-modal";
 import { connect } from "react-redux";
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { connect } from "react-redux";
 import { authenticate } from "../../actions/auth.js";
 

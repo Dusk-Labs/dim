@@ -1,4 +1,4 @@
-import React, { cloneElement, useCallback, useEffect, useState } from "react";
+import { cloneElement, useCallback, useEffect, useState } from "react";
 import Modal from "react-modal";
 
 import "./ConfirmationBox.scss";
