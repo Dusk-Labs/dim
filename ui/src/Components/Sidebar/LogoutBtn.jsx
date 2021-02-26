@@ -1,49 +1,31 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import { useHistory } from "react-router-dom";
 import { connect } from "react-redux";
-import Modal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ConfirmationBox from "../../Modals/ConfirmationBox.jsx";
 
 import { logout } from "../../actions/auth.js";
 
-import "./LogoutBtn.scss";
-
 function LogoutBtn(props) {
   const history = useHistory();
 
-  const [visible, setVisible] = useState(false);
+  const { logout } = props;
 
-  // prevent scrolling behind Modal
-  useEffect(() => {
-    visible
-      ? document.body.style.overflow = 'hidden'
-      : document.body.style.overflow = 'unset';
-  }, [visible]);
-
-  const close = useCallback(() => {
-    setVisible(false);
-  }, []);
-
-  const open = useCallback(() => {
-    setVisible(true);
-  }, []);
-
-  const logout = useCallback(() => {
-    props.logout();
+  const confirmLogout = useCallback(() => {
+    logout();
     history.push("/login");
-  }, []);
+  }, [history, logout]);
 
   return (
     <ConfirmationBox
       contentLabel="removeLib"
-      action={logout}
+      action={confirmLogout}
       msg="Are you sure you want to logout?"
     >
-      <a className="item logout" onClick={open}>
+      <button className="item logout">
         <FontAwesomeIcon icon="sign-out-alt"/>
         <p className="logout">Logout</p>
-      </a>
+      </button>
     </ConfirmationBox>
   );
 };
