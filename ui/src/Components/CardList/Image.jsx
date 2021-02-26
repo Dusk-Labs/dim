@@ -21,7 +21,7 @@ function CardImage(props) {
 
     // test whether the src passed is an absolute URL or not
     // NOTE: see issue #13
-    img.src = new RegExp("/^(?:\/|[a-z]+:\/\/)/").test(props.src)
+    img.src = new RegExp("/^(?:/|[a-z]+://)/").test(props.src)
       ? props.src : `//${window.host}:${window.backend_port}/${props.src}`;
 
     setImageSrc(img.src);
