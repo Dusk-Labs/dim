@@ -197,6 +197,12 @@ fn main() {
         }
     }
 
+    let stream_manager = nightfall::StateManager::new(
+        matches.value_of("cache-dir").unwrap().to_string(),
+        crate::streaming::FFMPEG_BIN.to_string(),
+        crate::streaming::FFPROBE_BIN.to_string(),
+    );
+
     info!(logger, "Starting the WS service on port 3012");
     let event_tx = core::start_event_server(logger.clone(), "0.0.0.0:3012");
 
@@ -245,9 +251,6 @@ fn main() {
         warn!(logger, "Disabling SSL explicitly...");
     }
 
-    let logger_clone = logger.clone();
-    thread::spawn(move || routes::stream::cleanup_daemon(logger_clone));
-
     info!(logger, "Summoning Dim v{}...", VERSION);
-    core::launch(logger, event_tx, rocket_config);
+    core::launch(logger, event_tx, rocket_config, stream_manager);
 }
