@@ -1,57 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<MPD xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="urn:mpeg:dash:schema:mpd:2011"
-	xmlns:xlink="http://www.w3.org/1999/xlink"
-	xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011 http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-DASH_schema_files/DASH-MPD.xsd"
-	profiles="urn:mpeg:dash:profile:isoff-live:2011"
-	type="static"
-    minBufferTime="PT5S"
-    mediaPresentationDuration="{}"
-	maxSegmentDuration="PT5S">
-<Period start="PT0S" id="0" duration="{}">
-		<AdaptationSet contentType="video">
-			<Representation
-					id="video"
-					mimeType="video/mp4"
-                    codecs="avc1.640029" height="1080" bandwidth="{}">
-            <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/{}/video/direct/init.mp4" media="chunks/{}/video/direct/$Number$.m4s" startNumber="0">
-				</SegmentTemplate>
-			</Representation>
-		</AdaptationSet>
-		<AdaptationSet contentType="video">
-			<Representation
-					id="5000kb"
-					mimeType="video/mp4"
-                    codecs="avc1.640029" height="720" bandwidth="5000000">
-            <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/{}/video/5000kb/init.mp4" media="chunks/{}/video/5000kb/$Number$.m4s" startNumber="0">
-			    </SegmentTemplate>
-			</Representation>
-		</AdaptationSet>
-		<AdaptationSet contentType="video">
-			<Representation
-					id="2000kb"
-					mimeType="video/mp4"
-                    codecs="avc1.640029" height="1080" bandwidth="2000000">
-            <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/{}/video/2000kb/init.mp4" media="chunks/{}/video/2000kb/$Number$.m4s" startNumber="0">
-				</SegmentTemplate>
-			</Representation>
-		</AdaptationSet>
-		<AdaptationSet contentType="video">
-			<Representation
-					id="1000kb"
-					mimeType="video/mp4"
-                    codecs="avc1.640029" height="1080" bandwidth="1000000">
-            <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/{}/video/1000kb/init.mp4" media="chunks/{}/video/1000kb/$Number$.m4s" startNumber="0">
-				</SegmentTemplate>
-			</Representation>
-		</AdaptationSet>
-		<AdaptationSet contentType="audio" lang="eng">
-			<Representation
-                    id="audio"
-					mimeType="audio/mp4" codecs="mp4a.40.2" bandwidth="120000">
-            <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/{}/audio/120kb/init.mp4" media="chunks/{}/audio/120kb/$Number$.m4s" startNumber="0">
-			    </SegmentTemplate>
-			</Representation>
-		</AdaptationSet>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" type="static" mediaPresentationDuration="{}" maxSegmentDuration="PT5S" minBufferTime="PT5S" profiles="urn:mpeg:dash:profile:full:2011">
+    <Period duration="{}">
+        <AdaptationSet contentType="video">
+            <Representation id="direct" height="1080p" bandwidth="{}" mimeType="video/mp4" codecs="avc1.64001f">
+                <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/{}/init.mp4" media="chunks/{}/$Number$.m4s" startNumber="{}">
+                </SegmentTemplate>
+            </Representation>
+        </AdaptationSet>
+        <AdaptationSet contentType="audio" lang="eng">
+            <Representation id="audio" mimeType="audio/mp4" codecs="mp4a.40.2" bandwidth="120000">
+                <SegmentTemplate timescale="1000" duration="5000" initialization="chunks/{}/init.mp4" media="chunks/{}/$Number$.m4s" startNumber="{}">
+                </SegmentTemplate>
+            </Representation>
+        </AdaptationSet>
 	</Period>
 </MPD>
