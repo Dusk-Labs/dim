@@ -1,5 +1,4 @@
 pub mod ffprobe;
-pub mod transcode;
 
 use lazy_static::lazy_static;
 use std::{
