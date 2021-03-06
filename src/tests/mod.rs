@@ -7,7 +7,8 @@ use {
 
 use std::sync::{Arc, Mutex};
 
-lazy_static! { pub static ref CLIENT: Arc<Mutex<Client>> = {
+lazy_static! {
+    pub static ref CLIENT: Arc<Mutex<Client>> = {
         let _ = database::get_conn_devel().unwrap(); // Force dim to apply migrations before mounting rocket
         let logger = crate::build_logger(true);
         let event_tx = crate::core::start_event_server(logger.clone(), "0.0.0.0:3013");
@@ -26,7 +27,13 @@ lazy_static! { pub static ref CLIENT: Arc<Mutex<Client>> = {
             .finalize()
             .unwrap();
 
-        let rocket = crate::core::rocket_pad(logger, event_tx, rocket_config);
+        let state_manager = nightfall::StateManager::new(
+            "/dev/null".into(),
+            crate::streaming::FFPROBE_BIN.to_string(),
+            crate::streaming::FFMPEG_BIN.to_string()
+        );
+
+        let rocket = crate::core::rocket_pad(logger, event_tx, rocket_config, state_manager);
         Arc::new(Mutex::new(Client::new(rocket).expect("Rocket client")))
     };
 }
