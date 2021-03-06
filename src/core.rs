@@ -166,6 +166,7 @@ pub fn rocket_pad(
     logger: slog::Logger,
     event_tx: EventTx,
     config: rocket::config::Config,
+    stream_manager: nightfall::StateManager,
 ) -> rocket::Rocket {
     let fairing = SlogFairing::new(logger);
 
@@ -210,7 +211,8 @@ pub fn rocket_pad(
                 routes::general::get_directory_structure,
                 routes::general::get_root_directory_structure,
                 routes::stream::return_manifest,
-                routes::stream::return_static,
+                routes::stream::get_chunk,
+                routes::stream::get_init,
                 routes::general::search,
             ],
         )
@@ -266,6 +268,7 @@ pub fn rocket_pad(
         )
         .attach(cors)
         .manage(Arc::new(Mutex::new(event_tx)))
+        .manage(stream_manager)
 }
 
 /// Method launch
@@ -278,8 +281,13 @@ pub fn rocket_pad(
 ///           a sink for logs.
 /// * `event_tx` - This is the tx channel over which modules in dim can dispatch websocket events.
 /// * `config` - Specifies the configuration we'd like to pass to our rocket_pad.
-pub fn launch(log: slog::Logger, event_tx: EventTx, config: rocket::config::Config) {
-    rocket_pad(log, event_tx, config).launch();
+pub fn launch(
+    log: slog::Logger,
+    event_tx: EventTx,
+    config: rocket::config::Config,
+    stream_manager: nightfall::StateManager,
+) {
+    rocket_pad(log, event_tx, config, stream_manager).launch();
 
     // Join all threads started by dim, which usually are scanner/daemon threads
     for (_, thread) in LIB_SCANNERS.lock().unwrap().drain().take(1) {
