@@ -55,6 +55,14 @@ pub enum StreamingErrors {
     ProcFailed,
     #[error(display = "The video profile requested doesnt exist")]
     InvalidProfile,
+    #[error(display = "A error with nightfall has occured")]
+    OtherNightfall,
+}
+
+impl From<nightfall::error::NightfallError> for StreamingErrors {
+    fn from(_: nightfall::error::NightfallError) -> Self {
+        Self::OtherNightfall
+    }
 }
 
 impl From<std::io::Error> for StreamingErrors {
