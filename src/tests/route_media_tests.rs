@@ -1,13 +1,12 @@
 #[cfg(test)]
 mod tests {
-    use
-        crate::tests::{drop_all_data, put_garbage, CLIENT};
-        use database::{library::MediaType, media::Media};
-        use rocket::{
-            http::{ContentType, Status},
-            local::Client,
-        };
-        use std::collections::HashMap;
+    use crate::tests::{drop_all_data, put_garbage, CLIENT};
+    use database::{library::MediaType, media::Media};
+    use rocket::{
+        http::{ContentType, Status},
+        local::Client,
+    };
+    use std::collections::HashMap;
 
     #[test]
     fn get_media_by_id() {
