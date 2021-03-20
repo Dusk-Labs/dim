@@ -6,6 +6,7 @@ import DimLogo from "../../assets/DimLogo";
 import "./Toggle.scss";
 
 function Toggle(props) {
+  const [defaultChecked, setDefaultChecked] = useState(false);
   const [visible, setVisible] = useState(true);
 
   /*
@@ -42,8 +43,11 @@ function Toggle(props) {
   }, [props.sidebar, visible]);
 
   useEffect(() => {
+    if (defaultChecked) return;
+
     if (window.innerWidth < 800) {
       toggleSidebar(false);
+      setDefaultChecked(true);
       return;
     }
 
@@ -52,7 +56,9 @@ function Toggle(props) {
     if (defaultSidebarVisible === "false") {
       toggleSidebar(false);
     }
-  }, [toggleSidebar]);
+    
+    setDefaultChecked(true);
+  }, [defaultChecked, toggleSidebar]);
 
   return (
     <section className="sidebarToggleWrapper">
