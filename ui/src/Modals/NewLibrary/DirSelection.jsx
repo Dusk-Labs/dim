@@ -24,7 +24,13 @@ function DirSelection(props) {
     setCache(false);
   }, [auth.token, fetchDirectories, fileBrowser.cache, setCurrent]);
 
-  useEffect(() => select(""), [select]);
+  useEffect(() => {
+    const path = "";
+
+    fetchDirectories(auth.token, path.replace("C:\\", ""));
+    setCurrent(path);
+    setCache(false);
+  }, [auth.token, fetchDirectories, setCurrent]);
 
   const goBack = useCallback(() => {
     let slash = "/";
