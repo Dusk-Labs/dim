@@ -210,9 +210,9 @@ pub fn rocket_pad(
                 routes::general::banners,
                 routes::general::get_directory_structure,
                 routes::general::get_root_directory_structure,
-                routes::stream::return_manifest,
-                routes::stream::get_chunk,
-                routes::stream::get_init,
+                //                routes::stream::return_manifest,
+                //               routes::stream::get_chunk,
+                //              routes::stream::get_init,
                 routes::general::search,
             ],
         )
