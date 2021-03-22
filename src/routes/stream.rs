@@ -9,6 +9,7 @@ use chrono::Utc;
 use database::mediafile::MediaFile;
 
 use rocket::http::ContentType;
+use rocket::http::Header;
 use rocket::request::State;
 use rocket::response::NamedFile;
 use rocket::response::Response;
@@ -88,6 +89,7 @@ pub fn return_manifest(
 
     Response::build()
         .header(ContentType::new("application", "dash+xml"))
+        .header(Header::new("X-STREAM-ID", video))
         .sized_body(Cursor::new(manifest))
         .ok()
 }
