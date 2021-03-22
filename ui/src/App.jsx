@@ -101,7 +101,7 @@ function App() {
   }, [])
 
   return (
-    <BrowserRouter basename="/ui">
+    <BrowserRouter>
       {routes}
     </BrowserRouter>
   );
