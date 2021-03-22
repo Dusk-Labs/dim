@@ -47,15 +47,15 @@ pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> io::Result<Vec
 /// TODO: Refactor this function into something that is less fucked than this jesus
 pub fn get_top_duration(conn: &DbConnection, data: &Media) -> Result<i32, errors::DimError> {
     match MediaFile::get_of_media(conn, data) {
-        Ok(x) => {
-            let mut x = x
-                .into_iter()
-                .filter(|x| x.corrupt != Some(true))
-                .collect::<Vec<MediaFile>>();
-            if !x.is_empty() {
-                Ok(x.pop()?.duration?)
-            } else {
-                Ok(0)
+        Ok(files) => {
+            let last = files
+                .iter()
+                .filter(|file| !matches!(file.corrupt, Some(true)))
+                .last();
+
+            match last {
+                None => Ok(0),
+                Some(file) => Ok(file.duration?),
             }
         }
         Err(_) => Ok(0),
