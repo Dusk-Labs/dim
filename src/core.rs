@@ -198,13 +198,10 @@ pub fn rocket_pad(
         .mount(
             "/",
             routes![
-                routes::r#static::index,
-                routes::r#static::dist_js,
-                routes::r#static::dist_css,
                 routes::r#static::get_image,
                 routes::r#static::index_redirect,
                 routes::r#static::dist_asset,
-                routes::r#static::dist_media,
+                routes::r#static::dist_static,
             ],
         )
         .mount(
