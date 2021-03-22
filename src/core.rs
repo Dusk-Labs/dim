@@ -199,8 +199,12 @@ pub fn rocket_pad(
             "/",
             routes![
                 routes::r#static::index,
-                routes::r#static::dist_file,
-                routes::r#static::get_image
+                routes::r#static::dist_js,
+                routes::r#static::dist_css,
+                routes::r#static::get_image,
+                routes::r#static::index_redirect,
+                routes::r#static::dist_asset,
+                routes::r#static::dist_media,
             ],
         )
         .mount(
@@ -210,10 +214,15 @@ pub fn rocket_pad(
                 routes::general::banners,
                 routes::general::get_directory_structure,
                 routes::general::get_root_directory_structure,
-                //                routes::stream::return_manifest,
-                //               routes::stream::get_chunk,
-                //              routes::stream::get_init,
                 routes::general::search,
+            ],
+        )
+        .mount(
+            "/api/v1/stream",
+            routes![
+                routes::stream::return_manifest,
+                routes::stream::get_chunk,
+                routes::stream::get_init,
             ],
         )
         .mount(
