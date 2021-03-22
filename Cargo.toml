@@ -26,6 +26,7 @@ serde_json = "1.0.48"
 database = { path = "./src/database", default-features = false, optional = true }
 events = { path = "./src/events" }
 auth = { path = "./src/auth" }
+nightfall = { git = "https://github.com/vgarleanu/nightfall" }
 
 diesel_migrations = "1.4.0"
 rocket_cors = "0.5.2"
@@ -44,7 +45,6 @@ rocket-slog = "0.4.0"
 chrono = "0.4.11"
 err-derive = "0.2.3"
 rust-embed = "^5.9.0"
-nix = "0.20.0"
 torrent-name-parser = "0.3.0"
 reqwest = { version = "0.11.0", features = ["blocking", "json", "default-tls"], default-features = false }
 notify = "4.0.15"
@@ -56,13 +56,12 @@ bytes = "1.0.1"
 fs_extra = "1.1.0"
 
 [target.'cfg(unix)'.dependencies]
+nix = "0.20.0"
 xz2 = "0.1.6"
 tar = "0.4.32"
-nightfall = { git = "https://github.com/vgarleanu/nightfall", features = ["fs_events"] }
 
 [target.'cfg(windows)'.dependencies]
 zip = "0.5.10"
-nightfall = { git = "https://github.com/vgarleanu/nightfall" }
 
 [profile.release]
 lto = true
