@@ -12,6 +12,7 @@ use rocket::http::ContentType;
 use rocket::request::State;
 use rocket::response::NamedFile;
 use rocket::response::Response;
+use rocket_contrib::json::JsonValue;
 
 use slog::info;
 use slog::Logger;
@@ -36,6 +37,7 @@ pub fn return_manifest(
     id: i32,
     start_num: Option<u32>,
 ) -> Result<Response<'static>, errors::DimError> {
+    let start_num = start_num.unwrap_or(0);
     let media = MediaFile::get_one(conn.as_ref(), id)?;
     let info = FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
         .get_meta(&std::path::PathBuf::from(media.target_file.clone()))?;
@@ -63,36 +65,45 @@ pub fn return_manifest(
     );
     let audio = state.create(media.target_file.into(), Profile::Audio, StreamType::Audio);
 
-    let formatted = format!(
+    let video_part = format!(
+        include_str!("../static/video_segment.mpd"),
+        bandwidth = info.get_bitrate(),
+        init = format!("data/{}/init.mp4?start_num={}", video.clone(), start_num),
+        chunk_path = format!("data/{}/$Number$.m4s", video.clone()),
+        start_num = start_num,
+    );
+
+    let audio_part = format!(
+        include_str!("../static/audio_segment.mpd"),
+        init = format!("data/{}/init.mp4?start_num={}", audio.clone(), start_num),
+        chunk_path = format!("data/{}/$Number$.m4s", audio.clone()),
+        start_num = start_num,
+    );
+
+    let manifest = format!(
         include_str!("../static/manifest.mpd"),
-        duration_string,
-        duration_string,
-        info.get_bitrate(),
-        video,
-        video,
-        start_num.unwrap_or(0),
-        audio,
-        audio,
-        start_num.unwrap_or(0)
+        duration = duration_string,
+        segments = format!("{}\n{}", video_part, audio_part),
     );
 
     Response::build()
         .header(ContentType::new("application", "dash+xml"))
-        .sized_body(Cursor::new(formatted))
+        .sized_body(Cursor::new(manifest))
         .ok()
 }
 
-#[get("/stream/<id>/init.mp4", rank = 1)]
+#[get("/<id>/data/init.mp4?<start_num>", rank = 1)]
 pub fn get_init(
     state: State<StateManager>,
     id: String,
+    start_num: Option<u64>,
 ) -> Result<Option<NamedFile>, errors::StreamingErrors> {
-    let path = state.init_or_create(id)?;
+    let path = state.init_or_create(id, start_num.unwrap_or(0))?;
 
     Ok(NamedFile::open(path).ok())
 }
 
-#[get("/stream/<id>/<chunk..>", rank = 2)]
+#[get("/<id>/data/<chunk..>", rank = 2)]
 pub fn get_chunk(
     state: State<StateManager>,
     conn: DbConnection,
@@ -116,11 +127,9 @@ pub fn get_chunk(
         .parse::<u64>()
         .unwrap_or(0);
 
-    if let Err(_) = state.exists(id.clone()) {
-        state
-            .init_or_create(id.clone())
-            .map_err(|_| errors::StreamingErrors::OtherNightfall)?;
-    }
+    state
+        .exists(id.clone())
+        .map_err(|_| errors::StreamingErrors::OtherNightfall)?;
 
     let path = state
         .get_segment(id.clone(), chunk_num)
@@ -135,4 +144,17 @@ pub fn get_chunk(
     }
 
     Ok(NamedFile::open(path).ok())
+}
+
+#[get("/<id>/state/should_hard_seek/<chunk_num>")]
+pub fn should_client_hard_seek(
+    state: State<StateManager>,
+    id: String,
+    chunk_num: u64,
+) -> Result<JsonValue, errors::DimError> {
+    Ok(json!({
+        "should_client_seek": state
+            .should_client_hard_seek(id, chunk_num)
+            .map_err(|_| errors::StreamingErrors::OtherNightfall)?,
+    }))
 }
