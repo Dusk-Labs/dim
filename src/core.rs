@@ -223,6 +223,7 @@ pub fn rocket_pad(
                 routes::stream::return_manifest,
                 routes::stream::get_chunk,
                 routes::stream::get_init,
+                routes::stream::should_client_hard_seek
             ],
         )
         .mount(
