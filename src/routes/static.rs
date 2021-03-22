@@ -6,6 +6,7 @@ use std::ffi::OsStr;
 use std::fs::File;
 use std::io::Cursor;
 use std::io::Read;
+use std::path::Path;
 use std::path::PathBuf;
 
 #[derive(RustEmbed)]
@@ -13,7 +14,7 @@ use std::path::PathBuf;
 #[cfg_attr(not(feature = "embed_ui"), folder = "/dev/null")]
 struct Asset;
 
-#[get("/", rank = 1)]
+#[get("/ui", rank = 1)]
 pub fn index<'r>() -> response::Result<'r> {
     Asset::get("index.html").map_or_else(
         || Err(Status::NotFound),
@@ -26,12 +27,38 @@ pub fn index<'r>() -> response::Result<'r> {
     )
 }
 
-#[get("/<file..>", rank = 2)]
-pub fn dist_file<'r>(file: PathBuf) -> response::Result<'r> {
+#[get("/static/js/<file..>")]
+pub fn dist_js<'r>(file: PathBuf) -> response::Result<'r> {
     let filename = file.display().to_string();
-    Asset::get(&filename).map_or_else(index, |d| {
-        let ext = file
-            .as_path()
+    let file_path = format!("static/js/{}", filename);
+
+    dist_file(&file_path)
+}
+
+#[get("/static/css/<file..>")]
+pub fn dist_css<'r>(file: PathBuf) -> response::Result<'r> {
+    let filename = file.display().to_string();
+    let file_path = format!("static/css/{}", filename);
+
+    dist_file(&file_path)
+}
+
+#[get("/static/media/<file..>")]
+pub fn dist_media<'r>(file: PathBuf) -> response::Result<'r> {
+    let filename = file.display().to_string();
+    let file_path = format!("static/media/{}", filename);
+
+    dist_file(&file_path)
+}
+
+#[get("/<file>", rank = 2)]
+pub fn dist_asset<'r>(file: String) -> response::Result<'r> {
+    dist_file(file.as_ref())
+}
+
+pub fn dist_file<'r>(file: &str) -> response::Result<'r> {
+    Asset::get(file).map_or_else(index, |d| {
+        let ext = Path::new(file)
             .extension()
             .and_then(OsStr::to_str)
             .ok_or_else(|| Status::new(400, "Could not get file extension"))?;
@@ -44,6 +71,11 @@ pub fn dist_file<'r>(file: PathBuf) -> response::Result<'r> {
             .sized_body(Cursor::new(d))
             .ok()
     })
+}
+
+#[get("/")]
+pub fn index_redirect() -> response::Redirect {
+    response::Redirect::to("/ui")
 }
 
 #[get("/images/<file..>", rank = 1)]
