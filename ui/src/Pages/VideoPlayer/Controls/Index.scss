@@ -1,0 +1,46 @@
+.videoControls {
+  grid-area: controls;
+  align-self: flex-end;
+  display: grid;
+  gap: 1em;
+  margin: 0 auto;
+  max-width: 1080px;
+  width: 100%;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "name time"
+    "seekbar seekbar"
+    "actions actions";
+
+  .name {
+    grid-area: name;
+  }
+
+  .time {
+    justify-self: flex-end;
+    grid-area: time;
+  }
+
+  .actions {
+    justify-self: center;
+    grid-area: actions;
+
+    button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1em;
+      border-radius: 5px;
+      transition: background 100ms ease-in-out;
+
+      &:hover {
+        background: #2a2a2a;
+      }
+
+      svg {
+        fill: #eee;
+        width: 16px;
+      }
+    }
+  }
+}
