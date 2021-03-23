@@ -1,0 +1,43 @@
+.videoPlayer {
+  display: block;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  font-family: "Roboto Medium";
+
+  video {
+    height: 100%;
+    width: 100%;
+    background: #000;
+  }
+
+  .overlay {
+    position: absolute;
+    padding: 2em;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(to top, #000, transparent 30%);
+    top: 0;
+    display: grid;
+    gap: 5em;
+    grid-template-areas: "endsAt" "controls";
+  }
+
+  .ringLoad {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@media only screen and (min-width: 1080px) {
+  .videoPlayer {
+    .overlay {
+      grid-template-columns: 200px 1fr 200px;
+      align-items: flex-end;
+      grid-template-areas: ". controls .";
+    }
+  }
+}

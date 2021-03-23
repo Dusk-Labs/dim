@@ -1,0 +1,27 @@
+.seekBar {
+  grid-area: seekbar;
+  position: relative;
+  height: 10px;
+  background: #3a3a3a;
+  border-radius: 5px;
+  width: 100%;
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 0;
+
+  .buffer, .current {
+    height: inherit;
+    width: 0;
+    pointer-events: none;
+  }
+
+  .buffer {
+    position: absolute;
+    background: #4a4a4a;
+    z-index: -1;
+  }
+
+  .current {
+    background: #f7931e;
+  }
+}

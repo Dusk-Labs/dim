@@ -12,7 +12,7 @@ import PrivateRoute from "./Routes/Private";
 import Dashboard from "./Pages/Dashboard";
 import Library from "./Pages/Library/Index";
 import Media from "./Pages/Media/Index";
-// import VideoPlayer from "./Pages/VideoPlayer.jsx";
+import VideoPlayer from "./Pages/VideoPlayer/Index";
 import SearchResults from "./Pages/SearchResults";
 import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
@@ -62,9 +62,9 @@ const routes = (
         <Media {...props}/>
       </MainLayout>
     )}/>
-    {/* <PrivateRoute path="/play/:id" render={(props) => (
+    <PrivateRoute path="/play/:id" render={(props) => (
       <VideoPlayer {...props}/>
-    )}/> */}
+    )}/>
   </Switch>
 );
 
