@@ -69,21 +69,22 @@ pub fn return_manifest(
     let video_part = format!(
         include_str!("../static/video_segment.mpd"),
         bandwidth = info.get_bitrate(),
-        init = format!("data/{}/init.mp4?start_num={}", video.clone(), start_num),
-        chunk_path = format!("data/{}/$Number$.m4s", video.clone()),
+        init = format!("{}/data/init.mp4?start_num={}", video.clone(), start_num),
+        chunk_path = format!("{}/data/$Number$.m4s", video.clone()),
         start_num = start_num,
     );
 
     let audio_part = format!(
         include_str!("../static/audio_segment.mpd"),
-        init = format!("data/{}/init.mp4?start_num={}", audio.clone(), start_num),
-        chunk_path = format!("data/{}/$Number$.m4s", audio.clone()),
+        init = format!("{}/data/init.mp4?start_num={}", audio.clone(), start_num),
+        chunk_path = format!("{}/data/$Number$.m4s", audio.clone()),
         start_num = start_num,
     );
 
     let manifest = format!(
         include_str!("../static/manifest.mpd"),
         duration = duration_string,
+        base_url = "/api/v1/stream/",
         segments = format!("{}\n{}", video_part, audio_part),
     );
 
