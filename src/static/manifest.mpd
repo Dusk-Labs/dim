@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" type="static" mediaPresentationDuration="{duration}" maxSegmentDuration="PT5S" minBufferTime="PT5S" profiles="urn:mpeg:dash:profile:full:2011">
     <Period duration="{duration}">
+        <BaseURL>{base_url}</BaseURL>
         {segments}
 	</Period>
 </MPD>

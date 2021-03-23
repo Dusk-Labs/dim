@@ -12,7 +12,6 @@ expanded.rs
 *.db
 build
 *.lock
-static/
 logs/
 *.jpg
 transcoding
