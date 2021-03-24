@@ -52,7 +52,7 @@ cfg_if! {
     }
 }
 
-pub type EventTx = mpsc::Sender<pushevent::Event>;
+pub type EventTx = pushevent::EventTx;
 
 lazy_static! {
     /// Holds a map of all threads keyed against the library id that they were started for
@@ -157,9 +157,8 @@ pub(crate) fn tmdb_poster_fetcher(log: Logger) {
 // TODO: Handle launch failures and fallback to a new port.
 // TODO: Store the port of the server in a dynamic config which can be queried by clients in case
 // the port changes as we dont want this hardcoded in.
-pub(crate) fn start_event_server(_log: Logger, host: &'static str) -> EventTx {
-    let server = pushevent::server::Server::new(host);
-    server.get_tx()
+pub(crate) async fn start_event_server() -> pushevent::EventTx {
+    pushevent::build().await.unwrap()
 }
 
 pub fn rocket_pad(

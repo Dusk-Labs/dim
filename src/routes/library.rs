@@ -61,13 +61,13 @@ pub fn library_post(
         scanners::start(id, log.get(), tx_clone).unwrap();
     });
 
-    let event_message = Box::new(Message {
+    let event_message = Message {
         id,
         event_type: PushEventType::EventNewLibrary,
-    });
+    };
 
-    let event = Event::new("/events/library".to_string(), event_message);
-    let _ = tx.send(event);
+    let event = Event::new(event_message);
+    let _ = tx.unbounded_send(event);
     Ok(Status::Created)
 }
 
@@ -103,13 +103,13 @@ pub fn library_delete(
 
     Library::delete(conn.as_ref(), id)?;
 
-    let event_message = Box::new(Message {
+    let event_message = Message {
         id,
         event_type: PushEventType::EventRemoveLibrary,
-    });
+    };
 
-    let event = Event::new("/events/library".to_string(), event_message);
-    let _ = event_tx.lock().unwrap().send(event);
+    let event = Event::new(event_message);
+    let _ = event_tx.lock().unwrap().unbounded_send(event);
     Ok(Status::NoContent)
 }
 

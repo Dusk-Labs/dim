@@ -27,13 +27,13 @@ database = { path = "./src/database", default-features = false, optional = true 
 events = { path = "./src/events" }
 auth = { path = "./src/auth" }
 nightfall = { git = "https://github.com/vgarleanu/nightfall" }
+pushevent = { git = "https://github.com/vgarleanu/pushevent" }
 
 diesel_migrations = "1.4.0"
 rocket_cors = "0.5.2"
 lazy_static = "1.4.0"
 walkdir = "2.3.1"
 rand = "0.7.3"
-pushevent = "0.1.3"
 clap = "2.33.0"
 
 slog = "2.5.2"
@@ -51,6 +51,7 @@ notify = "4.0.15"
 cfg-if = "0.1.10"
 once_cell = "1.5.2"
 bytes = "1.0.1"
+tokio = { version = "1.4.0", features = ["rt"] }
 
 [build-dependencies]
 fs_extra = "1.1.0"

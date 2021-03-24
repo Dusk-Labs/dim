@@ -210,13 +210,13 @@ impl TvShowScanner {
     }
 
     fn push_event(&self, id: i32) {
-        let event_msg = Box::new(Message {
+        let event_msg = Message {
             id,
             event_type: PushEventType::EventNewCard,
-        });
+        };
 
-        let new_event = Event::new(format!("/events/library/{}", self.lib.id), event_msg);
-        let _ = self.event_tx.send(new_event);
+        let new_event = Event::new(event_msg);
+        let _ = self.event_tx.unbounded_send(new_event);
     }
 }
 
