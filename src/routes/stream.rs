@@ -64,8 +64,14 @@ pub fn return_manifest(
         ms
     );
 
-    let video_stream = info.find_by_codec("video").unwrap();
-    let audio_stream = info.find_by_codec("audio").unwrap();
+    let mut tracks = Vec::new();
+    let mut ids = Vec::new();
+
+    let video_stream = info
+        .find_by_codec("video")
+        .first()
+        .cloned()
+        .ok_or(errors::StreamingErrors::FileIsCorrupt)?;
 
     let profile = if video_stream.codec_name == "hevc".to_string() {
         Profile::Native
@@ -78,38 +84,52 @@ pub fn return_manifest(
         profile,
         StreamType::Video(video_stream.index as usize),
     );
-    let audio = state.create(
-        media.target_file.into(),
-        Profile::Audio,
-        StreamType::Audio(audio_stream.index as usize),
-    );
 
-    let video_part = format!(
+    ids.push(video.clone());
+
+    tracks.push(format!(
         include_str!("../static/video_segment.mpd"),
         bandwidth = info.get_bitrate(),
         init = format!("{}/data/init.mp4?start_num={}", video.clone(), start_num),
         chunk_path = format!("{}/data/$Number$.m4s", video.clone()),
         start_num = start_num,
         avc = "avc1.64001f",
-    );
+    ));
 
-    let audio_part = format!(
-        include_str!("../static/audio_segment.mpd"),
-        init = format!("{}/data/init.mp4?start_num={}", audio.clone(), start_num),
-        chunk_path = format!("{}/data/$Number$.m4s", audio.clone()),
-        start_num = start_num,
-    );
+    let audio_streams = info.find_by_codec("audio");
+
+    for stream in audio_streams {
+        let audio = state.create(
+            media.target_file.clone().into(),
+            Profile::Audio,
+            StreamType::Audio(stream.index as usize),
+        );
+
+        tracks.push(format!(
+            include_str!("../static/audio_segment.mpd"),
+            id = stream
+                .tags
+                .as_ref()
+                .and_then(|x| x.title.clone())
+                .unwrap_or(format!("Track {}", stream.index)),
+            init = format!("{}/data/init.mp4?start_num={}", audio.clone(), start_num),
+            chunk_path = format!("{}/data/$Number$.m4s", audio.clone()),
+            start_num = start_num,
+        ));
+
+        ids.push(audio.clone());
+    }
 
     let manifest = format!(
         include_str!("../static/manifest.mpd"),
         duration = duration_string,
         base_url = "/api/v1/stream/",
-        segments = format!("{}\n{}", video_part, audio_part),
+        segments = tracks.join("\n"),
     );
 
     Response::build()
         .header(ContentType::new("application", "dash+xml"))
-        .header(Header::new("X-STREAM-ID", format!("{};{}", video, audio)))
+        .header(Header::new("X-STREAM-ID", ids.join(";")))
         .sized_body(Cursor::new(manifest))
         .ok()
 }
