@@ -219,6 +219,79 @@ impl Tmdb {
     }
 }
 
+impl MetadataAgent for Tmdb {
+    type Error = TmdbError;
+
+    fn search(&mut self, title: String, year: Option<i32>) -> Result<super::ApiMedia, Self::Error> {
+        let result = self.search_by_name(title, year, None)?;
+
+        let result = result.first().ok_or(TmdbError::NoResults)?;
+
+        let seasons = match self.media_type {
+            MediaType::Movie => Vec::new(),
+            MediaType::Tv => {
+                self.get_seasons_for(&result)?
+                    .iter()
+                    .map(|x| super::ApiSeason {
+                        id: x.id,
+                        name: x.name.clone(),
+                        poster_path: x.poster_path.clone().map(|s| {
+                            format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s)
+                        }),
+                        season_number: x.season_number.unwrap(),
+                        episodes: self
+                            .get_episodes_for(&result, x.season_number.unwrap_or(0))
+                            .unwrap()
+                            .iter()
+                            .map(|x| super::ApiEpisode {
+                                id: x.id,
+                                name: x.name.clone(),
+                                overview: x.overview.clone(),
+                                episode: x.episode_number.clone(),
+                                still: x
+                                    .still_path
+                                    .clone()
+                                    .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s)),
+                            })
+                            .collect(),
+                    })
+                    .collect()
+            }
+        };
+
+        Ok(super::ApiMedia {
+            id: result.id,
+            title: result.title.clone(),
+            release_date: result.release_date.clone(),
+            overview: result.overview.clone(),
+            poster_path: result
+                .poster_path
+                .clone()
+                .map(|s| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s)),
+            backdrop_path: result
+                .backdrop_path
+                .clone()
+                .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s)),
+            genres: result
+                .genre_ids
+                .clone()
+                .map(|g| {
+                    g.iter()
+                        .map(|x| self.get_genre_detail(*x))
+                        .filter_map(|x| x.ok())
+                        .map(|x| x.name)
+                        .collect::<Vec<_>>()
+                })
+                .unwrap_or_default(),
+            media_type: match self.media_type {
+                MediaType::Tv => super::ApiMediaType::Tv,
+                _ => super::ApiMediaType::Movie,
+            },
+            seasons,
+        })
+    }
+}
+
 #[derive(Deserialize)]
 struct SearchResult {
     results: Vec<Option<Media>>,
@@ -228,7 +301,7 @@ struct SearchResult {
 pub struct Media {
     pub id: u64,
     #[serde(rename(deserialize = "title", deserialize = "name"))]
-    pub title: Option<String>,
+    pub title: String,
     #[serde(rename(deserialize = "release_date", deserialize = "first_air_date"))]
     pub release_date: Option<String>,
     pub overview: Option<String>,

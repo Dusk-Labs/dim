@@ -73,7 +73,6 @@ pub struct ApiMedia {
     pub id: u64,
     pub title: String,
     pub release_date: Option<String>,
-    pub first_air_date: Option<String>,
     pub overview: Option<String>,
     pub poster_path: Option<String>,
     pub backdrop_path: Option<String>,
@@ -103,17 +102,9 @@ pub struct ApiEpisode {
 
 /// Trait describes the interface a metadata agent must implement.
 pub trait MetadataAgent {
-    type Output;
     type Error;
 
-    fn search(
-        &mut self,
-        title: String,
-        year: Option<i32>,
-        media_type: ApiMediaType,
-    ) -> Result<Self::Output, Self::Error>;
-
-    fn find(&mut self, id: i32, media_type: ApiMediaType) -> Result<Self::Output, Self::Error>;
+    fn search(&mut self, title: String, year: Option<i32>) -> Result<ApiMedia, Self::Error>;
 }
 
 #[derive(Debug)]
