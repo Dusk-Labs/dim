@@ -27,7 +27,7 @@ pub struct Stream {
     coded_height: Option<i64>,
     display_aspect_ratio: Option<String>,
     is_avc: Option<String>,
-    tags: Option<Tags>,
+    pub tags: Option<Tags>,
     sample_rate: Option<String>,
     channels: Option<i64>,
     channel_layout: Option<String>,
@@ -39,9 +39,9 @@ pub struct Stream {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-struct Tags {
+pub struct Tags {
     language: Option<String>,
-    title: Option<String>,
+    pub title: Option<String>,
     #[serde(rename = "BPS-eng")]
     bps_eng: Option<String>,
     #[serde(rename = "DURATION-eng")]
@@ -186,18 +186,17 @@ impl FFPWrapper {
     }
 
     pub fn is_codec(&self, codec: &str) -> Option<bool> {
-        Some(self.find_by_codec(codec).is_some())
+        Some(!self.find_by_codec(codec).is_empty())
     }
 
-    pub fn find_video_stream(&self) -> Option<Stream> {
-        self.find_by_codec("video").cloned()
-    }
-
-    pub fn find_by_codec(&self, codec: &str) -> Option<&Stream> {
-        self.ffpstream
-            .as_ref()?
-            .streams
-            .iter()
-            .find(|x| x.codec_type == codec.to_string())
+    pub fn find_by_codec(&self, codec: &str) -> Vec<&Stream> {
+        if let Some(x) = self.ffpstream.as_ref() {
+            x.streams
+                .iter()
+                .filter(|x| x.codec_type == codec.to_string())
+                .collect()
+        } else {
+            Vec::new()
+        }
     }
 }
