@@ -1,5 +1,5 @@
+use serde_derive::{Deserialize, Serialize};
 use std::{path::PathBuf, process::Command, str};
-use serde_derive::{Serialize, Deserialize};
 
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct FFPWrapper {
@@ -14,9 +14,9 @@ struct FFPStream {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-struct Stream {
-    index: i64,
-    codec_name: String,
+pub struct Stream {
+    pub index: i64,
+    pub codec_name: String,
     codec_long_name: String,
     profile: Option<String>,
     codec_type: String,
@@ -48,8 +48,6 @@ struct Tags {
     duration_eng: Option<String>,
     #[serde(rename = "NUMBER_OF_FRAMES-eng")]
     number_of_frames_eng: Option<String>,
-    #[serde(rename = "NUMBER_OF_BYTES-eng")]
-    number_of_bytes_eng: Option<String>,
     #[serde(rename = "_STATISTICS_WRITING_APP-eng")]
     statistics_writing_app_eng: Option<String>,
     #[serde(rename = "_STATISTICS_WRITING_DATE_UTC-eng")]
@@ -185,5 +183,21 @@ impl FFPWrapper {
 
     pub fn is_corrupt(&self) -> Option<bool> {
         Some(self.corrupt.unwrap_or(false))
+    }
+
+    pub fn is_codec(&self, codec: &str) -> Option<bool> {
+        Some(self.find_by_codec(codec).is_some())
+    }
+
+    pub fn find_video_stream(&self) -> Option<Stream> {
+        self.find_by_codec("video").cloned()
+    }
+
+    pub fn find_by_codec(&self, codec: &str) -> Option<&Stream> {
+        self.ffpstream
+            .as_ref()?
+            .streams
+            .iter()
+            .find(|x| x.codec_type == codec.to_string())
     }
 }
