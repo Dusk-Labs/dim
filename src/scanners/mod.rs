@@ -1,5 +1,6 @@
 pub mod movie;
 pub mod scanner_daemon;
+pub mod tmdb;
 pub mod tmdb_api;
 pub mod tv_show;
 
@@ -30,10 +31,14 @@ use slog::Logger;
 
 use walkdir::WalkDir;
 
+use std::fmt;
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
+
+use serde::Deserialize;
+use serde::Serialize;
 
 pub trait APIExec<'a> {
     fn new(api_key: &'a str) -> Self;
@@ -46,6 +51,69 @@ pub trait APIExec<'a> {
         result_num: usize,
     ) -> Vec<Media>;
     fn search_by_id(&mut self, id: i32, media_type: MediaType) -> Option<Media>;
+}
+
+#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq, Serialize, Deserialize)]
+pub enum ApiMediaType {
+    Movie,
+    Tv,
+}
+
+impl fmt::Display for ApiMediaType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            ApiMediaType::Movie => write!(f, "movie"),
+            ApiMediaType::Tv => write!(f, "tv"),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ApiMedia {
+    pub id: u64,
+    pub title: String,
+    pub release_date: Option<String>,
+    pub first_air_date: Option<String>,
+    pub overview: Option<String>,
+    pub poster_path: Option<String>,
+    pub backdrop_path: Option<String>,
+    pub genres: Vec<String>,
+
+    pub media_type: ApiMediaType,
+    pub seasons: Vec<ApiSeason>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ApiSeason {
+    pub id: u64,
+    pub name: Option<String>,
+    pub poster_path: Option<String>,
+    pub season_number: u64,
+    pub episodes: Vec<ApiEpisode>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ApiEpisode {
+    pub id: u64,
+    pub name: Option<String>,
+    pub overview: Option<String>,
+    pub episode: Option<u64>,
+    pub still: Option<String>,
+}
+
+/// Trait describes the interface a metadata agent must implement.
+pub trait MetadataAgent {
+    type Output;
+    type Error;
+
+    fn search(
+        &mut self,
+        title: String,
+        year: Option<i32>,
+        media_type: ApiMediaType,
+    ) -> Result<Self::Output, Self::Error>;
+
+    fn find(&mut self, id: i32, media_type: ApiMediaType) -> Result<Self::Output, Self::Error>;
 }
 
 #[derive(Debug)]

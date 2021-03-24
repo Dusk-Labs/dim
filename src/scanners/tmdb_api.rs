@@ -241,14 +241,6 @@ impl TMDbSearch {
             let genre_cache = GENRE_CACHE.lock().unwrap();
             if genre_cache.contains_key(&media_type) {
                 let genres = genre_cache.get(&media_type).unwrap();
-                return Some(
-                    genres
-                        .genres
-                        .iter()
-                        .filter(|y| genre_ids.contains(&y.id))
-                        .cloned()
-                        .collect::<Vec<Genre>>(),
-                );
             }
         }
 
