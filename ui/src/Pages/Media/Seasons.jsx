@@ -53,9 +53,10 @@ function Media(props) {
           return a.episode - b.episode;
         });
 
+        // TODO: modal selecting which file
         mediaEpisodes[seasons[x].season_number] = seasons[x].episodes.map((episode, i) => {
           return (
-            <Link to={`/play/${episode.id}`} className="episode" key={i}>
+            <Link to={`/play/${episode.versions[0].id}`} className="episode" key={i}>
               <CardImage src={episode.backdrop}/>
               <p>Episode {episode.episode}</p>
             </Link>
