@@ -26,8 +26,7 @@
     proc_macro_hygiene,
     decl_macro,
     try_trait,
-    negative_impls,
-    auto_traits
+    negative_impls
 )]
 #![forbid(missing_docs)]
 #![cfg_attr(debug_assertions, allow(unused_variables, unused_imports, dead_code))]
@@ -203,8 +202,10 @@ fn main() {
         crate::streaming::FFPROBE_BIN.to_string(),
     );
 
+    let tokio_rt = tokio::runtime::Runtime::new().unwrap();
+
     info!(logger, "Starting the WS service on port 3012");
-    let event_tx = core::start_event_server(logger.clone(), "0.0.0.0:3012");
+    let event_tx = tokio_rt.block_on(core::start_event_server());
 
     if !matches.is_present("no-scanners") {
         info!(logger, "Transposing scanners from the netherworld...");

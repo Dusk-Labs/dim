@@ -11,7 +11,8 @@ lazy_static! {
     pub static ref CLIENT: Arc<Mutex<Client>> = {
         let _ = database::get_conn_devel().unwrap(); // Force dim to apply migrations before mounting rocket
         let logger = crate::build_logger(true);
-        let event_tx = crate::core::start_event_server(logger.clone(), "0.0.0.0:3013");
+        let tokio_rt = tokio::runtime::Runtime::new().unwrap();
+        let event_tx = tokio_rt.block_on(crate::core::start_event_server());
         let rocket_config = ConfigBuilder::new(Environment::Development)
             .address("0.0.0.0")
             .port(8001)

@@ -3,6 +3,8 @@ pub mod scanner_daemon;
 pub mod tmdb_api;
 pub mod tv_show;
 
+pub use pushevent::EventTx;
+
 use self::scanner_daemon::ScannerDaemon;
 use self::tmdb_api::Media;
 use self::tmdb_api::MediaType;
@@ -261,8 +263,6 @@ pub trait MediaScanner: Sized {
     fn library_ref(&self) -> &Library;
     fn conn_ref(&self) -> &database::DbConnection;
 }
-
-pub type EventTx = std::sync::mpsc::Sender<Event>;
 
 pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> Result<(), ()> {
     info!(log, "Summoning scanner for Library with id: {}", library_id);
