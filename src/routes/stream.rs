@@ -109,7 +109,7 @@ pub fn return_manifest(
 
     Response::build()
         .header(ContentType::new("application", "dash+xml"))
-        .header(Header::new("X-STREAM-ID", video))
+        .header(Header::new("X-STREAM-ID", format!("{};{}", video, audio)))
         .sized_body(Cursor::new(manifest))
         .ok()
 }
