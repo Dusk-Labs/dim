@@ -40,10 +40,15 @@ pub fn return_manifest(
 ) -> Result<Response<'static>, errors::DimError> {
     let start_num = start_num.unwrap_or(0);
     let media = MediaFile::get_one(conn.as_ref(), id)?;
+
     let info = FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
         .get_meta(&std::path::PathBuf::from(media.target_file.clone()))?;
 
-    let mut ms = info.get_ms().unwrap().to_string();
+    let mut ms = info
+        .get_ms()
+        .ok_or(errors::StreamingErrors::FileIsCorrupt)?
+        .to_string();
+
     ms.truncate(4);
 
     let duration = chrono::DateTime::<Utc>::from_utc(
@@ -59,12 +64,25 @@ pub fn return_manifest(
         ms
     );
 
+    let video_stream = info.find_by_codec("video").unwrap();
+    let audio_stream = info.find_by_codec("audio").unwrap();
+
+    let profile = if video_stream.codec_name == "hevc".to_string() {
+        Profile::Native
+    } else {
+        Profile::Direct
+    };
+
     let video = state.create(
         media.target_file.clone().into(),
-        Profile::Direct,
-        StreamType::Video,
+        profile,
+        StreamType::Video(video_stream.index as usize),
     );
-    let audio = state.create(media.target_file.into(), Profile::Audio, StreamType::Audio);
+    let audio = state.create(
+        media.target_file.into(),
+        Profile::Audio,
+        StreamType::Audio(audio_stream.index as usize),
+    );
 
     let video_part = format!(
         include_str!("../static/video_segment.mpd"),
@@ -72,6 +90,7 @@ pub fn return_manifest(
         init = format!("{}/data/init.mp4?start_num={}", video.clone(), start_num),
         chunk_path = format!("{}/data/$Number$.m4s", video.clone()),
         start_num = start_num,
+        avc = "avc1.64001f",
     );
 
     let audio_part = format!(

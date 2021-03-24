@@ -57,6 +57,8 @@ pub enum StreamingErrors {
     InvalidProfile,
     #[error(display = "A error with nightfall has occured")]
     OtherNightfall,
+    #[error(display = "It appears that the file is corrupted")]
+    FileIsCorrupt,
 }
 
 impl From<nightfall::error::NightfallError> for StreamingErrors {
