@@ -1,7 +1,6 @@
 pub mod movie;
 pub mod scanner_daemon;
 pub mod tmdb;
-pub mod tmdb_api;
 pub mod tv_show;
 
 pub use pushevent::EventTx;
