@@ -1,4 +1,4 @@
-use crate::scanners::MediaType;
+use crate::scanners::ApiMediaType as MediaType;
 use crate::scanners::MetadataAgent;
 
 use serde::Deserialize;
@@ -63,11 +63,11 @@ impl Tmdb {
         type CacheStore = Arc<RwLock<HashMap<CacheKey, Vec<Media>>>>;
 
         lazy_static::lazy_static! {
-            static ref __CACHED: CacheStore = Arc::new(RwLock::new(HashMap::new()));
+            static ref __CACHE: CacheStore = Arc::new(RwLock::new(HashMap::new()));
         }
 
         {
-            let lock = __CACHED.read().unwrap();
+            let lock = (*__CACHE).read().unwrap();
             let key = (title.clone(), year, self.media_type);
 
             if let Some(x) = lock.get(&key) {
@@ -115,7 +115,7 @@ impl Tmdb {
             .collect();
 
         {
-            let mut lock = __CACHED.write().unwrap();
+            let mut lock = (*__CACHE).write().unwrap();
             let key = (title.clone(), year, self.media_type);
             lock.insert(key, result.clone());
         }
@@ -177,7 +177,7 @@ impl Tmdb {
         }
 
         {
-            let lock = __CACHE.read().unwrap();
+            let lock = (*__CACHE).read().unwrap();
             if let Some(x) = lock.get(&self.media_type) {
                 if let Some(x) = x.iter().find(|x| x.id == genre_id) {
                     return Ok(x.clone());
@@ -207,7 +207,7 @@ impl Tmdb {
             .genres;
 
         {
-            let mut lock = __CACHE.write().unwrap();
+            let mut lock = (*__CACHE).write().unwrap();
             lock.insert(self.media_type, genres.clone());
         }
 
