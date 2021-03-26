@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
 
 import TruncText from "../../Helpers/TruncText.jsx";
 import IMDbLogo from "../../assets/imdb.png";
+import SelectMediaVersion from "../../Modals/SelectMediaVersion";
 
 import "./CardPopup.scss";
 
 function CardPopup(props) {
   const [overflowing, setOverflowing] = useState(false);
+  const [mediaVersions, setMediaVersions] = useState([]);
   const [direction, setDirection] = useState("card-popup-right");
 
   const { setHovering } = props;
@@ -35,9 +38,39 @@ function CardPopup(props) {
     description,
     genres,
     year,
-    duration,
-    seasons
+    duration
   } = props.data;
+
+  const { auth } = props;
+  const { token } = auth;
+
+  // to get file versions
+  useEffect(() => {
+    // note: quickly coded
+    (async () => {
+      const config = {
+        headers: {
+          "authorization": token
+        }
+      };
+
+      const res = await fetch(`//${window.host}:8000/api/v1/media/${id}/info`, config);
+
+      if (res.status !== 200) return;
+
+      const payload = await res.json();
+
+      if (payload.error) return;
+
+      if (payload.seasons) {
+        setMediaVersions(
+          payload.seasons[0].episodes[0].versions
+        );
+      } else {
+        setMediaVersions(payload.versions);
+      }
+    })();
+  }, [id, token]);
 
   const length = {
     hh: ("0" + Math.floor(duration / 3600)).slice(-2),
@@ -87,26 +120,27 @@ function CardPopup(props) {
         </section>
         <section className="separator"/>
         <section className="footer">
-          {!seasons && (
-            <div className="length">
-              <p>{length.hh}:{length.mm}:{length.ss}</p>
-              <p>HH MM SS</p>
-            </div>
-          )}
-          {seasons && (
-            <div className="length">
-              <p>{seasons}</p>
-              <p>SEASONS</p>
-            </div>
-          )}
-          <Link to={`/play/${id}`}>
-            <p>Play media</p>
-            <FontAwesomeIcon icon="play"/>
-          </Link>
+          <div className="length">
+            <p>{length.hh}:{length.mm}:{length.ss}</p>
+            <p>HH MM SS</p>
+          </div>
+          <SelectMediaVersion versions={mediaVersions}>
+            <button>
+              <p>Play media</p>
+              <FontAwesomeIcon icon="play"/>
+            </button>
+          </SelectMediaVersion>
         </section>
       </div>
     </div>
   );
 }
 
-export default CardPopup;
+const mapStateToProps = (state) => ({
+  auth: state.auth
+});
+
+const mapActionstoProps = {};
+
+export default connect(mapStateToProps, mapActionstoProps)(CardPopup);
+
