@@ -351,7 +351,7 @@ mod tests {
             .unwrap();
 
         let result = result.first().unwrap();
-        assert_eq!(result.title, Some("Blade Runner 2049".into()));
+        assert_eq!(result.title, "Blade Runner 2049");
         assert_eq!(result.release_date, Some("2017-10-04".into()));
 
         let result = tmdb
@@ -359,7 +359,7 @@ mod tests {
             .unwrap();
 
         let result = result.first().unwrap();
-        assert_eq!(result.title, Some("Blade Runner 2049".into()));
+        assert_eq!(result.title, "Blade Runner 2049");
         assert_eq!(result.release_date, Some("2017-10-04".into()));
         assert!(result.overview.is_some());
 
@@ -369,7 +369,7 @@ mod tests {
             .unwrap();
 
         let result = result.first().unwrap();
-        assert_eq!(result.title, Some("The Expanse".into()));
+        assert_eq!(result.title, "The Expanse");
         assert_eq!(result.release_date, Some("2015-12-14".into()));
         assert!(result.overview.is_some());
         assert!(result.poster_path.is_some());
