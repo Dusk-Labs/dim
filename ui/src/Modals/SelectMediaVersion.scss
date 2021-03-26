@@ -1,0 +1,115 @@
+.selectMediaVersion {
+  box-shadow: #00000088 0 0 10px;
+  transform: translate(-50%, -50%);
+  transition: width .2s ease-in-out;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: #333333;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  color: #ffffff;
+  outline: none;
+  padding: 20px;
+  z-index: 1;
+
+  .separator {
+    margin: .5em 0;
+  }
+
+  h3 {
+    font-family: "Roboto Condensed Regular";
+  }
+
+  .fileVersionsWrapper {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .fileVersions {
+    position: relative;
+    overflow-y: auto;
+    height: 150px;
+    border-radius: inherit;
+    background: #4a4a4a;
+    scrollbar-width: thin;
+
+    .vertical-err {
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%);
+    }
+
+    .fileVersion {
+      display: flex;
+      align-items: center;
+      transition: background 0.1s ease-in-out;
+      cursor: pointer;
+      padding: .5em 10px;
+      color: #eee;
+
+      &:hover {
+        background: #5a5a5a;
+      }
+
+      // folder icon
+      svg {
+        margin-right: 10px;
+      }
+
+      // path name
+      p {
+        margin: 0;
+        user-select: none;
+        overflow-wrap: break-word;
+        overflow: hidden;
+        word-break: break-all;
+      }
+    }
+  }
+
+  .options {
+    display: grid;
+    justify-content: flex-end;
+    grid-template-columns: auto auto;
+    gap: .5em;
+
+    button {
+      font-size: 16px;
+      filter: saturate(0.7);
+      transition: filter 0.3s ease-in-out;
+      font-family: "Roboto Bold";
+      padding: .5em;
+      border-radius: 10px;
+      outline: none;
+      background: #f7931e;
+      color: #ffffff;
+
+      &:focus,
+      &:hover {
+        filter: saturate(1);
+      }
+    }
+
+    .selectMediaVersionCancel {
+      transition: color 0.3s ease-in-out;
+      background: transparent;
+
+      &:focus,
+      &:hover {
+        color: #ff6961;
+      }
+    }
+  }
+}
+
+@media only screen and (min-width: 650px) {
+  .selectMediaVersion {
+    border: 1px solid #4a4a4a;
+    max-width: 600px;
+    height: auto;
+    border-radius: 10px;
+  }
+}
