@@ -94,8 +94,6 @@ pub fn construct_standard(
         .map(|x| x.name)
         .collect::<Vec<String>>();
 
-    let mediafiles = MediaFile::get_of_media(conn.as_ref(), data)?;
-
     if quick {
         Ok(json!({
             "id": data.id,
@@ -125,15 +123,6 @@ pub fn construct_standard(
                 "episode": episode.episode,
                 "season": pair.0.season_number,
                 "progress": progress,
-                "versions": mediafiles.iter().map(|x| json!({
-                    "id": x.id,
-                    "file": x.target_file,
-                    "display_name": format!("{} - {} - {} - Library {}",
-                                            x.codec.as_ref().unwrap_or(&"Unknown VC".to_string()),
-                                            x.audio.as_ref().unwrap_or(&"Unknwon AC".to_string()),
-                                            x.original_resolution.as_ref().unwrap_or(&"Unknown res".to_string()),
-                                            x.library_id)
-                })).collect::<Vec<_>>(),
             }));
         }
         let progress =
@@ -153,15 +142,6 @@ pub fn construct_standard(
             "genres": genres,
             "duration": duration,
             "progress": progress,
-            "versions": mediafiles.iter().map(|x| json!({
-                "id": x.id,
-                "file": x.target_file,
-                "display_name": format!("{} - {} - {} - Library {}",
-                                        x.codec.as_ref().unwrap_or(&"Unknown VC".to_string()),
-                                        x.audio.as_ref().unwrap_or(&"Unknwon AC".to_string()),
-                                        x.original_resolution.as_ref().unwrap_or(&"Unknown res".to_string()),
-                                        x.library_id)
-            })).collect::<Vec<_>>(),
         }))
     }
 }
@@ -227,6 +207,7 @@ pub fn banners(conn: DbConnection, user: Auth) -> Result<Json<Vec<JsonValue>>, e
                 )
                 .unwrap_or(0);
                 let duration = get_top_duration(&conn, &episode.media).unwrap();
+                let mediafiles = MediaFile::get_of_media(&conn, &episode.media).unwrap();
                 return json!({
                     "id": media.id,
                     "title": media.name,
@@ -238,12 +219,22 @@ pub fn banners(conn: DbConnection, user: Auth) -> Result<Json<Vec<JsonValue>>, e
                     "delta": progress,
                     "banner_caption": "WATCH SOMETHING FRESH",
                     "episode": episode.episode,
-                    "season": pair.0.season_number
+                    "season": pair.0.season_number,
+                    "versions": mediafiles.iter().map(|x| json!({
+                        "id": x.id,
+                        "file": x.target_file,
+                        "display_name": format!("{} - {} - {} - Library {}",
+                                                x.codec.as_ref().unwrap_or(&"Unknown VC".to_string()),
+                                                x.audio.as_ref().unwrap_or(&"Unknwon AC".to_string()),
+                                                x.original_resolution.as_ref().unwrap_or(&"Unknown res".to_string()),
+                                                x.library_id)
+                    })).collect::<Vec<_>>(),
                 });
             }
             let progress =
                 Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), media.id)
                     .unwrap_or(0);
+            let mediafiles = MediaFile::get_of_media(&conn, &media).unwrap();
             return json!({
                 "id": media.id,
                 "title": media.name,
@@ -253,7 +244,16 @@ pub fn banners(conn: DbConnection, user: Auth) -> Result<Json<Vec<JsonValue>>, e
                 "duration": media_duration,
                 "genres": genres,
                 "delta": progress,
-                "banner_caption": "WATCH SOMETHING FRESH"
+                "banner_caption": "WATCH SOMETHING FRESH",
+                "versions": mediafiles.iter().map(|x| json!({
+                    "id": x.id,
+                    "file": x.target_file,
+                    "display_name": format!("{} - {} - {} - Library {}",
+                                            x.codec.as_ref().unwrap_or(&"Unknown VC".to_string()),
+                                            x.audio.as_ref().unwrap_or(&"Unknwon AC".to_string()),
+                                            x.original_resolution.as_ref().unwrap_or(&"Unknown res".to_string()),
+                                            x.library_id)
+                })).collect::<Vec<_>>(),
             });
         })
         .take(3)
