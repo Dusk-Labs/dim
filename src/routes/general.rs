@@ -94,6 +94,8 @@ pub fn construct_standard(
         .map(|x| x.name)
         .collect::<Vec<String>>();
 
+    let mediafiles = MediaFile::get_of_media(conn.as_ref(), data)?;
+
     if quick {
         Ok(json!({
             "id": data.id,
@@ -122,7 +124,16 @@ pub fn construct_standard(
                 "duration": duration,
                 "episode": episode.episode,
                 "season": pair.0.season_number,
-                "progress": progress
+                "progress": progress,
+                "versions": mediafiles.iter().map(|x| json!({
+                    "id": x.id,
+                    "file": x.target_file,
+                    "display_name": format!("{} - {} - {} - Library {}",
+                                            x.codec.as_ref().unwrap_or(&"Unknown VC".to_string()),
+                                            x.audio.as_ref().unwrap_or(&"Unknwon AC".to_string()),
+                                            x.original_resolution.as_ref().unwrap_or(&"Unknown res".to_string()),
+                                            x.library_id)
+                })).collect::<Vec<_>>(),
             }));
         }
         let progress =
@@ -142,6 +153,15 @@ pub fn construct_standard(
             "genres": genres,
             "duration": duration,
             "progress": progress,
+            "versions": mediafiles.iter().map(|x| json!({
+                "id": x.id,
+                "file": x.target_file,
+                "display_name": format!("{} - {} - {} - Library {}",
+                                        x.codec.as_ref().unwrap_or(&"Unknown VC".to_string()),
+                                        x.audio.as_ref().unwrap_or(&"Unknwon AC".to_string()),
+                                        x.original_resolution.as_ref().unwrap_or(&"Unknown res".to_string()),
+                                        x.library_id)
+            })).collect::<Vec<_>>(),
         }))
     }
 }
