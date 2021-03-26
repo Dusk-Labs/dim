@@ -10,6 +10,8 @@
   outline: none;
   cursor: pointer;
   align-items: center;
+  color: #eee;
+  font-size: 1em;
 
   &:focus,
   &:hover {
@@ -17,7 +19,7 @@
   }
 
   p {
-    padding: .4em .8em;
+    padding: .5em .8em;
     background: #f7931e;
   }
 

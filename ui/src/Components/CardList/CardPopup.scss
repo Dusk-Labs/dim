@@ -101,10 +101,13 @@
     justify-content: space-between;
 
     // play btn
-    a {
+    button {
       display: flex;
       align-items: center;
       filter: saturate(0.7);
+      font-family: "Roboto Medium";
+      font-size: 1em;
+      color: #eee;
       transition: filter 0.3s ease-in-out;
       background: #4a4a4a;
       border-radius: 10px;
@@ -117,7 +120,7 @@
       }
 
       p {
-        padding: 7px 10px;
+        padding: .5em .8em;
         background: #f7931e;
       }
 
