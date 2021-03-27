@@ -1,12 +1,8 @@
 .modalNewLibrary {
   scrollbar-width: thin;
   color: #ffffff;
-  outline: none;
-  height: 100%;
   overflow-y: auto;
   padding: 20px;
-  z-index: 1;
-  width: 100%;
   display: grid;
   grid-template-rows: auto auto auto 1fr;
   grid-template-areas:
@@ -37,7 +33,7 @@
 
     input {
       transition: border 0.3s ease-in-out;
-      background: #4a4a4a;
+      background: #3a3a3a;
       outline: none;
       height: 100%;
       padding: .5em;
@@ -101,14 +97,11 @@
 }
 
 @media only screen and (min-width: 650px) {
-  .openNewLibrary {
-    opacity: 0;
+  #modalNewLibrary {
+    max-width: 600px;
   }
 
-  .newLibraryPopup {
-    border: 1px solid #4a4a4a;
-    max-width: 600px;
-    height: auto;
-    border-radius: 10px;
+  .openNewLibrary {
+    opacity: 0;
   }
 }

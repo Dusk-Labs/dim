@@ -1,38 +1,13 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { cloneElement, useCallback, useEffect, useState } from "react";
-import Modal from "react-modal";
 import { Link } from "react-router-dom";
+import ModalBox from "./Index";
 
 import "./SelectMediaVersion.scss";
 
-const SelectMediaVersion = (props) => {
-  const [visible, setVisible] = useState(false);
-
-  // prevent scrolling behind Modal
-  useEffect(() => {
-    visible
-      ? document.body.style.overflow = "hidden"
-      : document.body.style.overflow = "unset";
-  }, [visible]);
-
-  const close = useCallback(() => {
-    setVisible(false);
-  }, []);
-
-  const open = useCallback(() => {
-    setVisible(true);
-  }, []);
-
-  return (
-    <div className="confirmationAction">
-      {cloneElement(props.children, { onClick: () => open() })}
-      <Modal
-        isOpen={visible}
-        contentLabel={props.contentLabel}
-        className="selectMediaVersion"
-        onRequestClose={close}
-        overlayClassName="popupOverlay"
-      >
+const SelectMediaVersion = (props) => (
+  <ModalBox id="modalSelectMediaVersion" activatingComponent={props.children}>
+    {closeModal => (
+      <div className="modalSelectMediaVersion">
         <h3>Select file version</h3>
         <div className="separator"/>
         <div className="fileVersionsWrapper">
@@ -46,11 +21,11 @@ const SelectMediaVersion = (props) => {
           </div>
         </div>
         <div className="options">
-          <button className="selectMediaVersionCancel" onClick={close}>Nevermind</button>
+          <button onClick={closeModal}>Nevermind</button>
         </div>
-      </Modal>
-    </div>
-  )
-};
+      </div>
+    )}
+  </ModalBox>
+)
 
 export default SelectMediaVersion;
