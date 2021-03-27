@@ -84,6 +84,8 @@ mod routes;
 mod scanners;
 /// Contains the database schemas.
 mod schema;
+/// Contains the fairing which tracks streams across rest api
+mod stream_tracking;
 /// Contains all the logic needed for streaming and on-the-fly transcoding.
 mod streaming;
 /// Contains unit tests.

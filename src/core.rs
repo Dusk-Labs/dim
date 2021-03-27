@@ -1,5 +1,6 @@
 use crate::routes;
 use crate::scanners;
+use crate::stream_tracking::StreamTracking;
 
 use rocket::http::Method;
 use rocket_contrib::databases::diesel;
@@ -192,9 +193,12 @@ pub fn rocket_pad(
     .to_cors()
     .unwrap();
 
+    let stream_tracking = StreamTracking::default();
+
     rocket::custom(config)
         .attach(DbConnection::fairing())
         .attach(SpaceHelmet::default())
+        .attach(stream_tracking.clone())
         .attach(fairing)
         .mount(
             "/",
@@ -276,6 +280,7 @@ pub fn rocket_pad(
         )
         .attach(cors)
         .manage(Arc::new(Mutex::new(event_tx)))
+        .manage(stream_tracking)
         .manage(stream_manager)
 }
 
