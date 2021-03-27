@@ -12,4 +12,4 @@ null_auth = []
 serde = { version = "1.0.105", features = ["derive"], default-features = false }
 jsonwebtoken = "5.0.1"
 time = "0.1.42"
-rocket = { version = "^0.4.6", default-features = false }
+rocket = { version = "^0.4.6" }
