@@ -1,8 +1,8 @@
 use crate::library::{Library, MediaType};
 use crate::mediafile::MediaFile;
 use crate::schema::media;
-use crate::streamablemedia::InsertableStreamableMedia;
-use crate::streamablemedia::StreamableTrait;
+use crate::streamable_media::InsertableStreamableMedia;
+use crate::streamable_media::StreamableTrait;
 use crate::tv::StaticTrait;
 use cfg_if::cfg_if;
 use diesel::prelude::*;

@@ -203,10 +203,10 @@ pub fn rocket_pad(
         .mount(
             "/",
             routes![
-                routes::r#static::get_image,
-                routes::r#static::index_redirect,
-                routes::r#static::dist_asset,
-                routes::r#static::dist_static,
+                routes::statik::get_image,
+                routes::statik::index_redirect,
+                routes::statik::dist_asset,
+                routes::statik::dist_static,
             ],
         )
         .mount(
@@ -299,11 +299,7 @@ pub fn launch(
     event_tx: EventTx,
     config: rocket::config::Config,
     stream_manager: nightfall::StateManager,
-) {
-    rocket_pad(log, event_tx, config, stream_manager).launch();
-
-    // Join all threads started by dim, which usually are scanner/daemon threads
-    for (_, thread) in LIB_SCANNERS.lock().unwrap().drain().take(1) {
-        thread.join().unwrap();
-    }
+) -> ! {
+    let error = rocket_pad(log, event_tx, config, stream_manager).launch();
+    panic!("Launch error: {:?}", error);
 }

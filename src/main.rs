@@ -82,17 +82,12 @@ mod errors;
 mod routes;
 /// Contains our media scanners and so on.
 mod scanners;
-/// Contains the database schemas.
-mod schema;
 /// Contains the fairing which tracks streams across rest api
 mod stream_tracking;
 /// Contains all the logic needed for streaming and on-the-fly transcoding.
 mod streaming;
 /// Contains unit tests.
 mod tests;
-
-const VERSION: &str = "0.0.4";
-const DESCRIPTION: &str = "Dim, a media manager fueled by dark forces.";
 
 /// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.
 fn build_logger(_debug: bool) -> slog::Logger {
@@ -121,9 +116,9 @@ fn build_logger(_debug: bool) -> slog::Logger {
 
 fn main() {
     let matches = App::new("Dim")
-        .version(VERSION)
-        .about(DESCRIPTION)
-        .author("Valerian G.")
+        .version(clap::crate_version!())
+        .about("Dim, a media manager fueled by dark forces.")
+        .author(clap::crate_authors!())
         .arg(
             Arg::with_name("debug")
                 .short("d")
@@ -254,6 +249,6 @@ fn main() {
         warn!(logger, "Disabling SSL explicitly...");
     }
 
-    info!(logger, "Summoning Dim v{}...", VERSION);
+    info!(logger, "Summoning Dim v{}...", clap::crate_version!());
     core::launch(logger, event_tx, rocket_config, stream_manager);
 }
