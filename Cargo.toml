@@ -17,7 +17,7 @@ rocket = { version = "^0.4.6", default-features = false, features = ["tls"] }
 rocket_codegen = { version = "^0.4.6", default-features = false }
 
 diesel = { version = "1.4.4", default-features = false, optional = true }
-rocket_contrib = { version = "^0.4.7", default-features = false, optional = true, features = ["json"] }
+rocket_contrib = { version = "^0.4.7", default-features = false, optional = true, features = ["json", "helmet"] }
 
 serde = { version = "1.0.105", default-features = false, features = ["derive", "std"] }
 serde_derive = "1.0.105"
@@ -27,6 +27,7 @@ database = { path = "./src/database", default-features = false, optional = true 
 events = { path = "./src/events" }
 auth = { path = "./src/auth" }
 nightfall = { git = "https://github.com/vgarleanu/nightfall" }
+#nightfall = { path = "../nightfall" }
 pushevent = { git = "https://github.com/vgarleanu/pushevent" }
 
 diesel_migrations = "1.4.0"
