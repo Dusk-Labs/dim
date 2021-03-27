@@ -199,10 +199,10 @@ pub fn rocket_pad(
         .mount(
             "/",
             routes![
-                routes::r#static::get_image,
-                routes::r#static::index_redirect,
-                routes::r#static::dist_asset,
-                routes::r#static::dist_static,
+                routes::statik::get_image,
+                routes::statik::index_redirect,
+                routes::statik::dist_asset,
+                routes::statik::dist_static,
             ],
         )
         .mount(
