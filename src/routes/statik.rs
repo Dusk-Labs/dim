@@ -72,3 +72,16 @@ pub fn get_image<'r>(file: PathBuf) -> response::Result<'r> {
         },
     )
 }
+
+#[get("/<path..>", rank = 4)]
+pub fn react_routes<'r>(path: PathBuf) -> response::Result<'r> {
+    Asset::get("index.html").map_or_else(
+        || Err(Status::NotFound),
+        |x| {
+            response::Response::build()
+                .header(ContentType::HTML)
+                .sized_body(Cursor::new(x))
+                .ok()
+        },
+    )
+}
