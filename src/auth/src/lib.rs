@@ -145,6 +145,9 @@ impl<'a, 'r> FromRequest<'a, 'r> for Wrapper {
     type Error = JWTError;
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
+        if cfg!(all(debug_assertions, feature = "null_auth")) {
+            return Outcome::Success(Wrapper(jwt_check(String::new()).unwrap()));
+        }
         match request.headers().get("Authorization").next() {
             Some(k) => match jwt_check(k.into()) {
                 Ok(k) => Outcome::Success(Wrapper(k)),
