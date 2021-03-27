@@ -35,9 +35,8 @@ pub struct UserRolesToken {
     /// Username of the user to whom this token belongs to
     user: String,
     /// The roles of the user, usually owner or user
+    // TODO: Use a enum here maybe considering theres like two possibilities lol?
     roles: Vec<String>,
-    /// List of active streaming sessions
-    sessions: Vec<String>,
 }
 
 #[derive(Debug)]
@@ -89,7 +88,6 @@ impl UserRolesToken {
 pub fn jwt_generate(user: String, roles: Vec<String>) -> String {
     let now = get_time().sec;
     let payload = UserRolesToken {
-        sessions: Vec::new(),
         iat: now,
         exp: now + ONE_WEEK,
         user,
@@ -130,7 +128,6 @@ pub fn jwt_check(_: String) -> Result<TokenData<UserRolesToken>, jsonwebtoken::e
             exp: i64::MAX,
             user: "Hiro".into(),
             roles: vec!["owner".into()],
-            sessions: Vec::new(),
         },
     })
 }
@@ -141,7 +138,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Wrapper {
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
         match request
             .cookies()
-            .get("token")
+            .get_private("__token")
             .and_then(|ck| ck.value().parse().ok())
         {
             Some(k) => match jwt_check(k) {
