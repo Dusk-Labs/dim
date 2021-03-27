@@ -26,7 +26,6 @@ pub fn login(
 
     if verify(user.0.clone(), user.1.clone(), new_login.password.clone()) {
         let token = jwt_generate(user.0, user.2.split(",").map(|x| x.to_string()).collect());
-        cookies.add_private(Cookie::new("__token", token.clone()));
 
         return Ok(json!({
             "token": token,

@@ -136,12 +136,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for Wrapper {
     type Error = JWTError;
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
-        match request
-            .cookies()
-            .get_private("__token")
-            .and_then(|ck| ck.value().parse().ok())
-        {
-            Some(k) => match jwt_check(k) {
+        match request.headers().get("Authorization").next() {
+            Some(k) => match jwt_check(k.into()) {
                 Ok(k) => Outcome::Success(Wrapper(k)),
                 Err(_) => Outcome::Failure((Status::Unauthorized, JWTError::InvalidKey)),
             },
