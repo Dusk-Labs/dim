@@ -24,8 +24,8 @@ use events::Message;
 use events::PushEventType;
 use pushevent::Event;
 
-use super::tmdb_api;
-use super::tmdb_api::TMDbSearch;
+use super::tmdb;
+use super::tmdb::Tmdb;
 use super::APIExec;
 use super::MediaScanner;
 use super::ScannerDaemon;
@@ -38,19 +38,14 @@ pub struct MovieScanner {
 }
 
 impl MovieScanner {
-    fn match_media_to_tmdb(&self, result: tmdb_api::Media, orphan: &MediaFile) {
-        let name = if let Some(x) = result.get_title() {
-            x
-        } else {
-            warn!(
-                self.log,
-                "TMDB returned a none title for orphan={}", orphan.id
-            );
-            return;
-        };
+    fn match_media_to_tmdb(&self, result: tmdb::Media, orphan: &MediaFile) {
+        let name = result.title.clone();
 
         let year: Option<i32> = result
-            .get_release_date()
+            .release_date
+            .as_ref()
+            .clone()
+            .map(|st| st.clone())
             .map(|x| NaiveDate::parse_from_str(x.as_str(), "%Y-%m-%d"))
             .map(Result::ok)
             .unwrap_or(None)
@@ -107,7 +102,7 @@ impl MovieScanner {
         &self,
         orphan: &MediaFile,
         media: InsertableMedia,
-        result: tmdb_api::Media,
+        result: tmdb::Media,
     ) -> Result<(), ()> {
         let media_id = Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.as_str())
             .map_or_else(
@@ -120,13 +115,22 @@ impl MovieScanner {
                 |x| x.id,
             );
 
-        if let Some(genres) = result.genres {
+        if let Some(genres) = result.genre_ids {
             for genre in genres {
-                let genre = InsertableGenre { name: genre.name };
+                let mut tmdb = Tmdb::new(
+                    "38c372f5bc572c8aadde7a802638534e".to_string(),
+                    tmdb::MediaType::Movie,
+                );
 
-                let _ = genre
-                    .insert(&self.conn)
-                    .map(|x| InsertableGenreMedia::insert_pair(x, media_id, &self.conn));
+                if let Ok(detail) = tmdb.get_genre_detail(genre) {
+                    let genre = InsertableGenre {
+                        name: detail.name.clone(),
+                    };
+
+                    let _ = genre
+                        .insert(&self.conn)
+                        .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
+                }
             }
         };
 
@@ -188,7 +192,10 @@ impl MediaScanner for MovieScanner {
         assert!(self.lib.media_type == Self::MEDIA_TYPE);
         info!(self.log, "Scanning orphans for lib={}", self.lib.id);
 
-        let mut tmdb_session = TMDbSearch::new("38c372f5bc572c8aadde7a802638534e");
+        let mut tmdb_session = Tmdb::new(
+            "38c372f5bc572c8aadde7a802638534e".to_string(),
+            tmdb::MediaType::Movie,
+        );
         let orphans = match MediaFile::get_by_lib(&self.conn, &self.lib) {
             Ok(x) => x,
             Err(e) => {
@@ -204,12 +211,23 @@ impl MediaScanner for MovieScanner {
                     "Scanning orphan with raw name: {}", orphan.raw_name
                 );
 
-                if let Some(result) = tmdb_session.search(
+                let results = match tmdb_session.search_by_name(
                     orphan.raw_name.clone(),
                     orphan.raw_year,
-                    tmdb_api::MediaType::Movie,
+                    None,
                 ) {
-                    self.match_media_to_tmdb(result, &orphan);
+                    Ok(v) => v,
+                    Err(e) => {
+                        error!(self.log, "fix-orphans: {:?}", e);
+                        continue;
+                    }
+                };
+
+                match results.as_slice() {
+                    [] => continue,
+                    &[ref result, ..] => {
+                        self.match_media_to_tmdb(result.clone(), &orphan);
+                    }
                 }
             }
         }
