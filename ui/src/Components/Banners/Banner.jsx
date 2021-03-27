@@ -72,7 +72,7 @@ function Banner(props) {
           )}
           {genres.map((genre, i) => (
             <Link
-              to={`/search?genre=${genre}`}
+              to={`/search?genre=${encodeURIComponent(genre)}`}
               key={i}
             >
               {genre}
