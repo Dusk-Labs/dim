@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { connect } from "react-redux";
+
 import { MediaPlayer } from "dashjs";
 import VideoControls from "./Controls/Index";
 import { VideoPlayerContext } from "./Context";
@@ -25,6 +27,7 @@ function VideoPlayer(props) {
   const [duration, setDuration] = useState(0);
 
   const {params} = props.match;
+  const {auth} = props;
 
   useEffect(() => {
     if (params.id) {
@@ -41,10 +44,21 @@ function VideoPlayer(props) {
     const url = `//${window.host}:8000/api/v1/stream/${id}/manifest.mpd`;
     const mediaPlayer = MediaPlayer().create();
 
+    mediaPlayer.extend("RequestModifier", function () {
+      return {
+        modifyRequestHeader: function (xhr) {
+          xhr.setRequestHeader("Authorization", auth.token);
+          return xhr;
+        },
+        modifyRequestURL: function (url) {
+          return url;
+        }
+      }
+    });
     mediaPlayer.initialize(video.current, url, true);
 
     setPlayer(mediaPlayer);
-  }, [id]);
+  }, [id, auth.token]);
 
   const eManifestLoad = useCallback(() => {
     setManifestLoading(false);
@@ -149,4 +163,8 @@ function VideoPlayer(props) {
   );
 }
 
-export default VideoPlayer;
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+});
+
+export default connect(mapStateToProps, {})(VideoPlayer);
