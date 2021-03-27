@@ -4,7 +4,7 @@ use crate::media::UpdateMedia;
 use crate::movie::InsertableMovie;
 use crate::schema::episode;
 use crate::season::Season;
-use crate::streamablemedia::StreamableMedia;
+use crate::streamable_media::StreamableMedia;
 use crate::tv::TVShow;
 
 use cfg_if::cfg_if;
