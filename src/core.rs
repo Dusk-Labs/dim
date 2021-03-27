@@ -207,6 +207,7 @@ pub fn rocket_pad(
                 routes::statik::index_redirect,
                 routes::statik::dist_asset,
                 routes::statik::dist_static,
+                routes::statik::react_routes,
             ],
         )
         .mount(
