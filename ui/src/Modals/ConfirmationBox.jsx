@@ -1,52 +1,31 @@
-import { cloneElement, useCallback, useEffect, useState } from "react";
-import Modal from "react-modal";
+import { useCallback } from "react";
+
+import ModalBox from "./Index";
 
 import "./ConfirmationBox.scss";
 
 const ConfirmationBox = (props) => {
-  const [visible, setVisible] = useState(false);
-
   const { action } = props;
 
-  // prevent scrolling behind Modal
-  useEffect(() => {
-    visible
-      ? document.body.style.overflow = "hidden"
-      : document.body.style.overflow = "unset";
-  }, [visible]);
-
-  const close = useCallback(() => {
-    setVisible(false);
-  }, []);
-
-  const open = useCallback(() => {
-    setVisible(true);
-  }, []);
-
-  const confirmAction = useCallback(() => {
-    setVisible(false);
+  const confirmAction = useCallback(close => {
+    close();
     action();
   }, [action]);
 
   return (
-    <div className="confirmationAction">
-      {cloneElement(props.children, { onClick: () => open() })}
-      <Modal
-        isOpen={visible}
-        contentLabel={props.contentLabel}
-        className="confirmationBox"
-        onRequestClose={close}
-        overlayClassName="popupOverlay"
-      >
-        <h3>Confirm action</h3>
-        <div className="separator"/>
-        <p>{props.msg}</p>
-        <div className="options">
-          <button className="confirmationBoxCancel" onClick={close}>Nevermind</button>
-          <button className="confirmationBoxContinue" onClick={confirmAction}>Yes</button>
+    <ModalBox activatingComponent={props.children}>
+      {closeModal => (
+        <div className="modalConfirmation">
+          <h3>Confirm action</h3>
+          <div className="separator"/>
+          <p>{props.msg}</p>
+          <div className="options">
+            <button className="cancelBtn" onClick={closeModal}>Nevermind</button>
+            <button onClick={() => confirmAction(closeModal)}>Yes</button>
+          </div>
         </div>
-      </Modal>
-    </div>
+      )}
+    </ModalBox>
   )
 };
 

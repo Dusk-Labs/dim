@@ -21,7 +21,6 @@ function Media(props) {
   const { token } = auth;
 
   useEffect(() => {
-    console.log("[Media / Index] fetchExtraMediaInfo");
     fetchExtraMediaInfo(token, id);
   }, [fetchExtraMediaInfo, id, token]);
 
@@ -37,10 +36,14 @@ function Media(props) {
   return (
     <div className="mediaPage">
       <Banner/>
-      <MetaContent/>
-      {props.extra_media_info.info.seasons && (
-        <Seasons/>
-      )}
+      <div className="mediaContent">
+        <div>
+          <MetaContent/>
+        </div>
+        {props.extra_media_info.info.seasons && (
+          <Seasons/>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,10 +1,11 @@
-import { cloneElement, Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Modal from "react-modal";
 import { connect } from "react-redux";
 
 import { newLibrary } from "../../actions/library.js";
 import MediaTypeSelection from "./MediaTypeSelection.jsx";
 import DirSelection from "./DirSelection.jsx";
+import ModalBox from "../Index.jsx";
 
 import "./Index.scss";
 
@@ -13,19 +14,11 @@ Modal.setAppElement("body");
 function NewLibraryModal(props) {
   const nameInput = useRef(null);
 
-  const [visible, setVisible] = useState(false);
   const [current, setCurrent] = useState("");
   const [name, setName] = useState("");
   const [mediaType, setMediaType] = useState("movie");
 
   const { newLibrary, auth } = props;
-
-  // prevent scrolling behind Modal
-  useEffect(() => {
-    visible
-      ? document.body.style.overflow = 'hidden'
-      : document.body.style.overflow = 'unset';
-  }, [visible]);
 
   useEffect(() => {
     if (nameInput.current) {
@@ -33,18 +26,7 @@ function NewLibraryModal(props) {
     }
   }, [name]);
 
-  const open = useCallback(() => {
-    setVisible(true);
-  }, []);
-
-  const close = useCallback(() => {
-    setVisible(false);
-    setName("");
-    setCurrent("");
-    setMediaType("movie");
-  }, []);
-
-  const add = useCallback(async () => {
+  const add = useCallback(async (closeModal) => {
     if (!name) {
       nameInput.current.style.border = "solid 2px #ff6961";
     }
@@ -57,52 +39,49 @@ function NewLibraryModal(props) {
       };
 
       await newLibrary(auth.token, data);
-      close();
+
+      setName("");
+      setCurrent("");
+      setMediaType("movie");
+      closeModal();
     }
-  }, [auth.token, close, current, mediaType, name, newLibrary]);
+  }, [auth.token, current, mediaType, name, newLibrary]);
 
   return (
-    <Fragment>
-      {cloneElement(props.children, { onClick: () => open() })}
-      <Modal
-        isOpen={visible}
-        contentLabel="newLibrary"
-        className="newLibraryPopup"
-        onRequestClose={close}
-        overlayClassName="popupOverlay"
-      >
-        <div className="heading">
-          <h2>Add a new library</h2>
-          <div className="separator"/>
-        </div>
-        <div className="fields">
-          <div className="field">
-            <h3>Name</h3>
-            <input
-              ref={nameInput}
-              onChange={e => setName(e.target.value)}
-              type="text"
-              placeholder="Untitled"
-              value={name}
-            />
+    <ModalBox id="modalNewLibrary" activatingComponent={props.children}>
+      {closeModal => (
+        <div className="modalNewLibrary">
+          <div className="heading">
+            <h2>Add a new library</h2>
+            <div className="separator"/>
           </div>
-        </div>
-        <MediaTypeSelection
-          mediaType={mediaType}
-          setMediaType={setMediaType}
-        />
-        {visible && (
+          <div className="fields">
+            <div className="field">
+              <h3>Name</h3>
+              <input
+                ref={nameInput}
+                onChange={e => setName(e.target.value)}
+                type="text"
+                placeholder="Untitled"
+                value={name}
+              />
+            </div>
+          </div>
+          <MediaTypeSelection
+            mediaType={mediaType}
+            setMediaType={setMediaType}
+          />
           <DirSelection
             current={current}
             setCurrent={setCurrent}
           />
-        )}
-        <div className="options">
-          <button onClick={close}>Nevermind</button>
-          <button onClick={add}>Add library</button>
+          <div className="options">
+            <button onClick={closeModal}>Nevermind</button>
+            <button onClick={() => add(closeModal)}>Add library</button>
+          </div>
         </div>
-      </Modal>
-    </Fragment>
+      )}
+    </ModalBox>
   )
 };
 

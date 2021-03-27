@@ -99,35 +99,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    // play btn
-    button {
-      display: flex;
-      align-items: center;
-      filter: saturate(0.7);
-      font-family: "Roboto Medium";
-      font-size: 1em;
-      color: #eee;
-      transition: filter 0.3s ease-in-out;
-      background: #4a4a4a;
-      border-radius: 10px;
-      overflow: hidden;
-      pointer-events: all;
-
-      &:hover {
-        filter: saturate(1);
-        cursor: pointer;
-      }
-
-      p {
-        padding: .5em .8em;
-        background: #f7931e;
-      }
-
-      svg {
-        font-size: 0.6em;
-      }
-    }
   }
 
   .length {
@@ -144,11 +115,6 @@
       color: #5a5a5a;
       font-size: 0.7em;
     }
-  }
-
-  svg {
-    margin: 0 5px 0 5px;
-    font-size: 0.9em;
   }
 
   .separator {

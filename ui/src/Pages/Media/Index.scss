@@ -1,8 +1,13 @@
 .mediaPage {
-  .mediaPageSeasons {
-    margin: 0 30px;
+  .mediaContent {
+    gap: 2em 4em;
     display: grid;
-    gap: 60px;
+    padding: 30px;
+  }
+
+  .mediaPageSeasons {
+    display: grid;
+    gap: 2em;
 
     .seasons, .episodes {
       display: grid;
@@ -136,9 +141,8 @@
 }
 
 @media only screen and (min-width: 1080px) {
-  .mediaPage {
-    .mediaPageSeasons {
-      padding: 0 60px;
-    }
+  .mediaPage .mediaContent {
+    grid-template-columns: auto 1fr;
+    padding: 60px 90px;
   }
 }
