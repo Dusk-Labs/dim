@@ -1,6 +1,6 @@
 use crate::media::MediaTrait;
 use crate::schema::movie;
-use crate::streamablemedia::{StreamableMedia, StreamableTrait};
+use crate::streamable_media::{StreamableMedia, StreamableTrait};
 use diesel::prelude::*;
 
 /// Struct represents a Movie entry in the database

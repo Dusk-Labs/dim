@@ -25,7 +25,7 @@ pub mod movie;
 pub mod progress;
 pub mod schema;
 pub mod season;
-pub mod streamablemedia;
+pub mod streamable_media;
 pub mod tv;
 pub mod user;
 
