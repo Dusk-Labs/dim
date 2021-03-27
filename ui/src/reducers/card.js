@@ -5,6 +5,7 @@ import {
     FETCH_MEDIA_INFO_START,
     FETCH_MEDIA_INFO_OK,
     FETCH_MEDIA_INFO_ERR,
+    FETCH_MEDIA_INFO_CLEAR,
     FETCH_EXTRA_MEDIA_INFO_START,
     FETCH_EXTRA_MEDIA_INFO_OK,
     FETCH_EXTRA_MEDIA_INFO_ERR,
@@ -13,7 +14,7 @@ import {
     FETCH_MEDIA_SEASONS_ERR,
     FETCH_MEDIA_SEASON_EPISODES_START,
     FETCH_MEDIA_SEASON_EPISODES_OK,
-    FETCH_MEDIA_SEASON_EPISODES_ERR,
+    FETCH_MEDIA_SEASON_EPISODES_ERR
 } from "../actions/types.js";
 
 const cards = {
@@ -125,6 +126,17 @@ export default function cardReducer(state = initialState, action) {
                     fetching: false,
                     fetched: true,
                     error: action.payload
+                }
+            }
+        case FETCH_MEDIA_INFO_CLEAR:
+            return {
+                ...state,
+                media_info: {
+                    ...media_info,
+                    info: {},
+                    fetching: false,
+                    fetched: false,
+                    error: null
                 }
             }
         case FETCH_EXTRA_MEDIA_INFO_START:
