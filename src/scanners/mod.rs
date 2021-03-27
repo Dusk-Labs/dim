@@ -6,8 +6,8 @@ pub mod tv_show;
 pub use pushevent::EventTx;
 
 use self::scanner_daemon::ScannerDaemon;
-use self::tmdb_api::Media;
-use self::tmdb_api::MediaType;
+use self::tmdb::Media;
+use self::tmdb::MediaType;
 
 use pushevent::Event;
 
@@ -103,7 +103,20 @@ pub struct ApiEpisode {
 pub trait MetadataAgent {
     type Error;
 
+    fn fetch(
+        &mut self,
+        title: String,
+        year: Option<i32>,
+    ) -> Result<Box<dyn Iterator<Item = Result<ApiMedia, Self::Error>>>, Self::Error>;
+
     fn search(&mut self, title: String, year: Option<i32>) -> Result<ApiMedia, Self::Error>;
+
+    fn search_many(
+        &mut self,
+        title: String,
+        year: Option<i32>,
+        n: usize,
+    ) -> Result<Vec<ApiMedia>, Self::Error>;
 }
 
 #[derive(Debug)]
