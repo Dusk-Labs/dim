@@ -2,11 +2,7 @@ import { useEffect } from "react";
 import { connect } from "react-redux";
 import { useParams } from "react-router-dom";
 
-import {
-  fetchExtraMediaInfo,
-  fetchMediaSeasons,
-  fetchMediaSeasonEpisodes
-} from "../../actions/card.js";
+import { fetchExtraMediaInfo } from "../../actions/card.js";
 
 import Banner from "./Banner";
 import MetaContent from "./MetaContent";
@@ -55,9 +51,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapActionsToProps = {
-  fetchExtraMediaInfo,
-  fetchMediaSeasons,
-  fetchMediaSeasonEpisodes
+  fetchExtraMediaInfo
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(Media);
