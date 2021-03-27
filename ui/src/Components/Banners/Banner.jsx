@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 
 import ProgressBar from "./ProgressBar.jsx";
 import Image from "./Image.jsx";
-import PlayButton from "./PlayButton.jsx";
+import PlayButton from "../PlayButton.jsx";
 import TruncText from "../../Helpers/TruncText.jsx";
 import NewLibraryModal from "../../Modals/NewLibrary/Index";
 

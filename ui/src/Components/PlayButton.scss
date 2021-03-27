@@ -1,10 +1,10 @@
-.bannerPlayBtn {
+.playBtn {
   transition: .2s ease-in-out;
   transition-property: filter, background;
   filter: saturate(0.7);
   font-family: "Roboto Bold";
   border-radius: 10px;
-  background: #4a4a4a;
+  background: #5a5a5a;
   display: inline-flex;
   overflow: hidden;
   outline: none;
