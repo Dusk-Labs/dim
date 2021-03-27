@@ -5,6 +5,7 @@ import {
     FETCH_MEDIA_INFO_START,
     FETCH_MEDIA_INFO_OK,
     FETCH_MEDIA_INFO_ERR,
+    FETCH_MEDIA_INFO_CLEAR,
     FETCH_EXTRA_MEDIA_INFO_START,
     FETCH_EXTRA_MEDIA_INFO_OK,
     FETCH_EXTRA_MEDIA_INFO_ERR,
@@ -80,6 +81,10 @@ export const fetchMediaInfo = (token, id) => async (dispatch) => {
             payload: err
         });
     }
+};
+
+export const clearMediaInfo = () => async (dispatch) => {
+    dispatch({ type: FETCH_MEDIA_INFO_CLEAR });
 };
 
 export const fetchExtraMediaInfo = (token, id) => async (dispatch) => {
