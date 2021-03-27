@@ -82,8 +82,6 @@ mod errors;
 mod routes;
 /// Contains our media scanners and so on.
 mod scanners;
-/// Contains the database schemas.
-mod schema;
 /// Contains all the logic needed for streaming and on-the-fly transcoding.
 mod streaming;
 /// Contains unit tests.
