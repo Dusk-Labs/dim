@@ -3,6 +3,7 @@ use crate::scanners;
 
 use rocket::http::Method;
 use rocket_contrib::databases::diesel;
+use rocket_contrib::helmet::SpaceHelmet;
 use rocket_slog::SlogFairing;
 
 use rocket_cors::AllowedHeaders;
@@ -193,6 +194,7 @@ pub fn rocket_pad(
 
     rocket::custom(config)
         .attach(DbConnection::fairing())
+        .attach(SpaceHelmet::default())
         .attach(fairing)
         .mount(
             "/",
