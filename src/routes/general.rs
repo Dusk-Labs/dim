@@ -358,7 +358,7 @@ pub fn search(
         ));
     }
 
-    let result = result.load::<Media>(conn.as_ref())?;
+    let result = result.load::<Media>(conn.as_ref()).unwrap_or_default();
     Ok(Json(
         result
             .iter()
