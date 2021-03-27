@@ -88,7 +88,7 @@ function App() {
 
     const mql = matchMedia("(prefers-color-scheme: dark)");
 
-    if (mql.matches) {
+    if (mql.matches && lightLogo) {
       lightLogo.remove();
       document.head.append(darkLogo);
     }
