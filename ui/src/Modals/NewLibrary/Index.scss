@@ -1,34 +1,5 @@
-.openNewLibrary {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  font-family: "Roboto Regular";
-  background: #4a4a4a;
-  color: #fff;
-  width: 20px;
-  height: 20px;
-  transition: .2s ease-in-out;
-  transition-property: background, opacity;
-
-  &:hover, &:focus {
-    background: #5a5a5a;
-  }
-
-  &:focus {
-    opacity: 1;
-  }
-}
-
-.newLibraryPopup {
-  transform: translate(-50%, -50%);
-  transition: max-width .3s ease-in-out;
+.modalNewLibrary {
   scrollbar-width: thin;
-  max-width: 100%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  background: #3a3a3a;
   color: #ffffff;
   outline: none;
   height: 100%;
