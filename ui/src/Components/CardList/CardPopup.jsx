@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 
 import TruncText from "../../Helpers/TruncText.jsx";
 import IMDbLogo from "../../assets/imdb.png";
-import SelectMediaVersion from "../../Modals/SelectMediaVersion";
+import PlayButton from "../PlayButton.jsx";
 
 import "./CardPopup.scss";
 
@@ -124,12 +124,7 @@ function CardPopup(props) {
             <p>{length.hh}:{length.mm}:{length.ss}</p>
             <p>HH MM SS</p>
           </div>
-          <SelectMediaVersion versions={mediaVersions}>
-            <button>
-              <p>Play media</p>
-              <FontAwesomeIcon icon="play"/>
-            </button>
-          </SelectMediaVersion>
+          <PlayButton versions={mediaVersions}/>
         </section>
       </div>
     </div>
