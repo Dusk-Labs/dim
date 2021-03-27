@@ -11,6 +11,8 @@ use err_derive::Error;
 use serde::Serialize;
 use std::io::Cursor;
 
+use nightfall::error::NightfallError;
+
 #[derive(Debug, Error, Serialize)]
 #[serde(tag = "error")]
 pub enum DimError {
@@ -56,20 +58,15 @@ pub enum StreamingErrors {
     #[error(display = "The video profile requested doesnt exist")]
     InvalidProfile,
     #[error(display = "A error with nightfall has occured")]
-    OtherNightfall,
+    OtherNightfall(#[source] NightfallError),
     #[error(display = "It appears that the file is corrupted")]
     FileIsCorrupt,
-    #[error(display = "The chunk requested is not yet ready")]
-    NotYetReady,
-}
-
-impl From<nightfall::error::NightfallError> for StreamingErrors {
-    fn from(error: nightfall::error::NightfallError) -> Self {
-        match error {
-            nightfall::error::NightfallError::ChunkNotDone => Self::NotYetReady,
-            _ => Self::OtherNightfall,
-        }
-    }
+    #[error(display = "Invalid request")]
+    InvalidRequest,
+    #[error(display = "Requested session doesnt exist")]
+    SessionDoesntExist,
+    #[error(display = "InternalServerError")]
+    InternalServerError,
 }
 
 impl From<std::io::Error> for StreamingErrors {
@@ -157,7 +154,7 @@ impl Responder<'static> for AuthError {
 impl Responder<'static> for StreamingErrors {
     fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
         let status = match self {
-            Self::NotYetReady => Status::Processing,
+            Self::OtherNightfall(NightfallError::ChunkNotDone) => Status::Processing,
             _ => Status::InternalServerError,
         };
 

@@ -42,9 +42,10 @@ pub fn return_manifest(
     conn: DbConnection,
     id: i32,
     start_num: Option<u32>,
-) -> Result<Response<'static>, errors::DimError> {
+) -> Result<Response<'static>, errors::StreamingErrors> {
     let start_num = start_num.unwrap_or(0);
-    let media = MediaFile::get_one(conn.as_ref(), id)?;
+    let media = MediaFile::get_one(conn.as_ref(), id)
+        .map_err(|_| errors::StreamingErrors::InternalServerError)?;
 
     let user_id = auth.0.claims.id;
 
@@ -165,7 +166,7 @@ pub fn get_chunk(
 ) -> Result<Option<NamedFile>, errors::StreamingErrors> {
     let extension = chunk
         .extension()
-        .ok_or(errors::StreamingErrors::OtherNightfall)?
+        .ok_or(errors::StreamingErrors::InvalidRequest)?
         .to_string_lossy()
         .into_owned();
 
@@ -179,7 +180,7 @@ pub fn get_chunk(
     // chunks.
     let chunk_num = chunk
         .file_stem()
-        .ok_or(errors::StreamingErrors::OtherNightfall)?
+        .ok_or(errors::StreamingErrors::InvalidRequest)?
         .to_string_lossy()
         .into_owned()
         .parse::<u64>()
@@ -187,7 +188,7 @@ pub fn get_chunk(
 
     state
         .exists(id.clone())
-        .map_err(|_| errors::StreamingErrors::OtherNightfall)?;
+        .map_err(|_| errors::StreamingErrors::SessionDoesntExist)?;
 
     let path = state.get_segment(id.clone(), chunk_num)?;
 
@@ -207,11 +208,10 @@ pub fn should_client_hard_seek(
     state: State<StateManager>,
     id: String,
     chunk_num: u64,
-) -> Result<JsonValue, errors::DimError> {
+) -> Result<JsonValue, errors::StreamingErrors> {
     Ok(json!({
         "should_client_seek": state
-            .should_client_hard_seek(id, chunk_num)
-            .map_err(|_| errors::StreamingErrors::OtherNightfall)?,
+            .should_client_hard_seek(id, chunk_num)?,
     }))
 }
 
@@ -219,8 +219,6 @@ pub fn should_client_hard_seek(
 pub fn session_get_stderr(
     state: State<StateManager>,
     id: String,
-) -> Result<JsonValue, errors::DimError> {
-    Ok(
-        json!({ "stderr": state.get_stderr(id).map_err(|_| errors::StreamingErrors::OtherNightfall)? }),
-    )
+) -> Result<JsonValue, errors::StreamingErrors> {
+    Ok(json!({ "stderr": state.get_stderr(id)? }))
 }
