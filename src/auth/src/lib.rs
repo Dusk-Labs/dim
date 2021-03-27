@@ -29,7 +29,7 @@ static ONE_WEEK: i64 = 60 * 60 * 24 * 7;
 #[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
 pub struct UserRolesToken {
     /// Unique, per jwt identifier
-    id: u128,
+    pub id: u128,
     /// Timestamp when the token was issued.
     iat: i64,
     /// Timestamp when the token expires.
