@@ -1,43 +1,37 @@
-import { Component } from "react";
+import { useEffect, useState } from "react";
 import { connect } from "react-redux";
+import { useLocation } from "react-router";
 
 import { search } from "../actions/search.js";
 
 import PropCardList from "../Components/CardList/PropCardList.jsx";
 
-class SearchResults extends Component {
-    componentDidMount() {
-        document.title = "Dim - Results";
-        this.getResults();
+function SearchResults(props) {
+  const location = useLocation();
+
+  const [fKey, setFKey] = useState("");
+  const [fValue, setFValue] = useState("");
+
+  const { search, auth } = props;
+
+  useEffect(() => {
+    document.title = "Dim - Results";
+
+    const searchParams = new URLSearchParams(location.search);
+
+    for (let [key, value] of searchParams) {
+      setFKey(key.charAt(0).toUpperCase() + key.slice(1));
+      setFValue(value.charAt(0).toUpperCase() + value.slice(1));
+
+      document.title = (
+        `Dim - ${fKey} '${fValue}'`
+      );
     }
 
-    componentDidUpdate(prevProps) {
-        if (this.props.location.search !== prevProps.location.search) {
-            this.getResults(this.props.auth.token);
-        }
-    }
+    search(location.search, auth.token);
+  }, [auth.token, fKey, fValue, location.search, search]);
 
-    getResults() {
-        const searchURL = new URLSearchParams(this.props.location.search);
-
-        let params = "";
-
-        // eslint-disable-next-line
-        for (const key of searchURL.keys()) {
-            if (searchURL.get(key) !== undefined) {
-                params += `${key}=${searchURL.get(key)}&`;
-            }
-        }
-
-        if (params.length > 0) {
-            document.title = `Dim - Results for '${searchURL.get("query")}'`;
-            this.props.search(params, this.props.auth.token);
-        }
-    }
-
-    render() {
-        return <PropCardList cards={this.props.searchList}/>;
-    }
+  return <PropCardList title={`${fKey} results for ${fValue}`} cards={props.searchList}/>;
 }
 
 const mapStateToProps = (state) => ({
