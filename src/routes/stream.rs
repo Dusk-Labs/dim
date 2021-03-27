@@ -151,8 +151,12 @@ pub fn get_chunk(
     conn: DbConnection,
     id: String,
     chunk: PathBuf,
-) -> Result<Option<NamedFile>, errors::DimError> {
-    let extension = chunk.extension()?.to_string_lossy().into_owned();
+) -> Result<Option<NamedFile>, errors::StreamingErrors> {
+    let extension = chunk
+        .extension()
+        .ok_or(errors::StreamingErrors::OtherNightfall)?
+        .to_string_lossy()
+        .into_owned();
 
     // Chunks will always be m4s or mp4
     if extension.as_str() != "m4s" {
@@ -163,7 +167,8 @@ pub fn get_chunk(
     // if its a init chunk we assume a chunk index of 0 because we are fetching the first few
     // chunks.
     let chunk_num = chunk
-        .file_stem()?
+        .file_stem()
+        .ok_or(errors::StreamingErrors::OtherNightfall)?
         .to_string_lossy()
         .into_owned()
         .parse::<u64>()
@@ -173,9 +178,7 @@ pub fn get_chunk(
         .exists(id.clone())
         .map_err(|_| errors::StreamingErrors::OtherNightfall)?;
 
-    let path = state
-        .get_segment(id.clone(), chunk_num)
-        .map_err(|_| errors::StreamingErrors::OtherNightfall)?;
+    let path = state.get_segment(id.clone(), chunk_num)?;
 
     for _ in 0..5 {
         if let Ok(_) = NamedFile::open(path.clone()) {
@@ -199,4 +202,14 @@ pub fn should_client_hard_seek(
             .should_client_hard_seek(id, chunk_num)
             .map_err(|_| errors::StreamingErrors::OtherNightfall)?,
     }))
+}
+
+#[get("/<id>/state/get_stderr")]
+pub fn session_get_stderr(
+    state: State<StateManager>,
+    id: String,
+) -> Result<JsonValue, errors::DimError> {
+    Ok(
+        json!({ "stderr": state.get_stderr(id).map_err(|_| errors::StreamingErrors::OtherNightfall)? }),
+    )
 }

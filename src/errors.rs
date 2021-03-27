@@ -59,11 +59,16 @@ pub enum StreamingErrors {
     OtherNightfall,
     #[error(display = "It appears that the file is corrupted")]
     FileIsCorrupt,
+    #[error(display = "The chunk requested is not yet ready")]
+    NotYetReady,
 }
 
 impl From<nightfall::error::NightfallError> for StreamingErrors {
-    fn from(_: nightfall::error::NightfallError) -> Self {
-        Self::OtherNightfall
+    fn from(error: nightfall::error::NightfallError) -> Self {
+        match error {
+            nightfall::error::NightfallError::ChunkNotDone => Self::NotYetReady,
+            _ => Self::OtherNightfall,
+        }
     }
 }
 
@@ -139,6 +144,21 @@ impl Responder<'static> for AuthError {
             Self::DatabaseError => Status::InternalServerError,
             Self::Unauthorized => Status::Unauthorized,
             Self::WrongPassword | Self::FailedAuth => Status::Forbidden,
+        };
+
+        Response::build()
+            .status(status)
+            .header(ContentType::JSON)
+            .sized_body(Cursor::new(serde_json::to_string(&self).unwrap()))
+            .ok()
+    }
+}
+
+impl Responder<'static> for StreamingErrors {
+    fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
+        let status = match self {
+            Self::NotYetReady => Status::Processing,
+            _ => Status::InternalServerError,
         };
 
         Response::build()
