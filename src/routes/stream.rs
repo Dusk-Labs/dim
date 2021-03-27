@@ -1,5 +1,8 @@
+use auth::Wrapper as Auth;
+
 use crate::core::DbConnection;
 use crate::errors;
+use crate::stream_tracking::StreamTracking;
 use crate::streaming::ffprobe::FFProbeCtx;
 
 use chrono::prelude::*;
@@ -34,12 +37,18 @@ use std::time::Duration;
 #[get("/<id>/manifest.mpd?<start_num>")]
 pub fn return_manifest(
     state: State<StateManager>,
+    stream_tracking: State<StreamTracking>,
+    auth: Auth,
     conn: DbConnection,
     id: i32,
     start_num: Option<u32>,
 ) -> Result<Response<'static>, errors::DimError> {
     let start_num = start_num.unwrap_or(0);
     let media = MediaFile::get_one(conn.as_ref(), id)?;
+
+    let user_id = auth.0.claims.id;
+
+    stream_tracking.kill_all(&state, user_id);
 
     let info = FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
         .get_meta(&std::path::PathBuf::from(media.target_file.clone()))?;
@@ -86,6 +95,7 @@ pub fn return_manifest(
     );
 
     ids.push(video.clone());
+    stream_tracking.insert(user_id, video.clone());
 
     tracks.push(format!(
         include_str!("../static/video_segment.mpd"),
@@ -118,6 +128,7 @@ pub fn return_manifest(
         ));
 
         ids.push(audio.clone());
+        stream_tracking.insert(user_id, audio.clone());
     }
 
     let manifest = format!(
