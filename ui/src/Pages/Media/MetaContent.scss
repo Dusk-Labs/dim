@@ -1,5 +1,4 @@
 .metaContent {
-  padding: 30px;
   display: grid;
   gap: 1em;
   transition: padding .3s ease-in-out;
@@ -100,7 +99,4 @@
 }
 
 @media only screen and (min-width: 1080px) {
-  .metaContent {
-    padding: 60px 90px;
-  }
 }
