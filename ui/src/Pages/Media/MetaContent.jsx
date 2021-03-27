@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { fetchMediaInfo } from "../../actions/card.js";
+import { clearMediaInfo, fetchMediaInfo } from "../../actions/card.js";
 import PlayButton from "../../Components/PlayButton.jsx";
 
 import "./MetaContent.scss";
@@ -13,12 +13,13 @@ function MetaContent(props) {
 
   const [mediaVersions, setMediaVersions] = useState([]);
 
-  const { auth, fetchMediaInfo } = props;
+  const { auth, fetchMediaInfo, clearMediaInfo } = props;
   const { token } = auth;
 
   useEffect(() => {
     fetchMediaInfo(token, id);
-  }, [fetchMediaInfo, id, token]);
+    return () => clearMediaInfo();
+  }, [clearMediaInfo, fetchMediaInfo, id, token]);
 
   // to get file versions
   useEffect(() => {
@@ -72,8 +73,6 @@ function MetaContent(props) {
       id,
       seasons
     } = props.media_info.info;
-
-    console.log(props)
 
     const length = {
       hh: ("0" + Math.floor(duration / 3600)).slice(-2),
@@ -132,7 +131,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapActionsToProps = {
-  fetchMediaInfo
+  fetchMediaInfo,
+  clearMediaInfo
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(MetaContent);
