@@ -1,23 +1,35 @@
 use crate::core::DbConnection;
 use crate::errors;
 use auth::{jwt_generate, Wrapper as Auth};
-use database::{
-    progress::Progress,
-    user::{verify, InsertableUser, Login, User},
-};
+
+use database::progress::Progress;
+use database::user::verify;
+use database::user::InsertableUser;
+use database::user::Login;
+use database::user::User;
+
 use diesel::prelude::*;
+use rocket::http::Cookie;
+use rocket::http::Cookies;
 use rocket_contrib::json::{Json, JsonValue};
 
 #[post("/login", data = "<new_login>")]
-pub fn login(conn: DbConnection, new_login: Json<Login>) -> Result<JsonValue, errors::AuthError> {
+pub fn login(
+    conn: DbConnection,
+    new_login: Json<Login>,
+    mut cookies: Cookies,
+) -> Result<JsonValue, errors::AuthError> {
     use database::schema::users::dsl::*;
     let user: (String, String, String) = users
         .filter(username.eq(&new_login.username))
         .first(conn.as_ref())?;
 
     if verify(user.0.clone(), user.1.clone(), new_login.password.clone()) {
+        let token = jwt_generate(user.0, user.2.split(",").map(|x| x.to_string()).collect());
+        cookies.add_private(Cookie::new("__token", token.clone()));
+
         return Ok(json!({
-            "token": jwt_generate(user.0, user.2.split(",").map(|x| x.to_string()).collect())
+            "token": token,
         }));
     }
 
