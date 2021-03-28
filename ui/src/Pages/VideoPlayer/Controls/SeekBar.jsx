@@ -1,10 +1,11 @@
-import { useCallback, useContext, useEffect, useRef } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { VideoPlayerContext } from "../Context";
 
 import "./SeekBar.scss";
 
 function VideoControls() {
   const { fileID, player, duration, currentTime, setCurrentTime, buffer, setBuffer } = useContext(VideoPlayerContext);
+  const [ seeking, setSeeking ] = useState(false);
 
   const seekBarCurrent = useRef(null);
   const bufferBar = useRef(null);
