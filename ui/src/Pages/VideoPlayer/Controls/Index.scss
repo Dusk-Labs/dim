@@ -22,6 +22,11 @@
   }
 
   .actions {
+    display: grid;
+    width: 100%;
+    grid-template-columns: auto 1fr auto auto auto 1fr auto;
+    grid-template-areas:
+      "volume . backward playpause forward . fullscreen";
     justify-self: center;
     grid-area: actions;
 
@@ -32,16 +37,41 @@
       padding: 1em;
       border-radius: 5px;
       background: transparent;
-      transition: background 100ms ease-in-out;
 
-      &:hover {
-        background: #2a2a2a;
+      svg {
+        transition: fill 100ms ease-in-out;
+      }
+
+      &:hover svg {
+        fill: #f7931e;
       }
 
       svg {
         fill: #eee;
         width: 16px;
       }
+    }
+
+    .volume {
+      grid-area: volume;
+      padding: 1em 1em 1em 0;
+    }
+
+    .backward {
+      grid-area: backward;
+    }
+
+    .playpause {
+      grid-area: playpause;
+    }
+
+    .forward {
+      grid-area: forward;
+    }
+
+    .fullscreen {
+      grid-area: fullscreen;
+      padding: 1em 0 1em 1em;
     }
   }
 }

@@ -12,6 +12,7 @@ import "./Index.scss";
 
 // oldOffset logic might still be useful in the future but redundant now
 function VideoPlayer(props) {
+  const videoPlayer = useRef(null);
   const video = useRef(null);
   const [player, setPlayer] = useState();
 
@@ -19,6 +20,9 @@ function VideoPlayer(props) {
   const [manifestLoaded, setManifestLoaded] = useState(false);
   const [canPlay, setCanPlay] = useState(false);
   const [waiting, setWaiting] = useState(false);
+  const [seeking, setSeeking] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [muted, setMuted] = useState(false);
   const [error, setError] = useState();
 
   const [buffer, setBuffer] = useState(true);
@@ -160,6 +164,13 @@ function VideoPlayer(props) {
     mediaID: params.mediaID,
     fileID: params.fileID,
     video,
+    videoPlayer,
+    fullscreen,
+    setFullscreen,
+    seeking,
+    muted,
+    setMuted,
+    setSeeking,
     setCurrentTime,
     currentTime,
     duration,
@@ -171,7 +182,7 @@ function VideoPlayer(props) {
 
   return (
     <VideoPlayerContext.Provider value={initialValue}>
-      <div className="videoPlayer">
+      <div className="videoPlayer" ref={videoPlayer}>
         <video
           ref={video}
         />
