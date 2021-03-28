@@ -67,6 +67,10 @@ pub enum StreamingErrors {
     SessionDoesntExist,
     #[error(display = "InternalServerError")]
     InternalServerError,
+    #[error(display = "No mediafile found")]
+    NoMediaFileFound(String),
+    #[error(display = "Failed to create a ffprobe context")]
+    FFProbeCtxFailed,
 }
 
 impl From<std::io::Error> for StreamingErrors {
@@ -155,6 +159,7 @@ impl Responder<'static> for StreamingErrors {
     fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
         let status = match self {
             Self::OtherNightfall(NightfallError::ChunkNotDone) => Status::Processing,
+            Self::NoMediaFileFound(_) => Status::NotFound,
             _ => Status::InternalServerError,
         };
 

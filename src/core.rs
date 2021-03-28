@@ -227,7 +227,8 @@ pub fn rocket_pad(
                 routes::stream::get_chunk,
                 routes::stream::get_init,
                 routes::stream::should_client_hard_seek,
-                routes::stream::session_get_stderr
+                routes::stream::session_get_stderr,
+                routes::stream::kill_session,
             ],
         )
         .mount(
