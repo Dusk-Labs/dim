@@ -13,6 +13,7 @@ use database::mediafile::MediaFile;
 
 use rocket::http::ContentType;
 use rocket::http::Header;
+use rocket::http::Status;
 use rocket::request::State;
 use rocket::response::NamedFile;
 use rocket::response::Response;
@@ -45,14 +46,15 @@ pub fn return_manifest(
 ) -> Result<Response<'static>, errors::StreamingErrors> {
     let start_num = start_num.unwrap_or(0);
     let media = MediaFile::get_one(conn.as_ref(), id)
-        .map_err(|_| errors::StreamingErrors::InternalServerError)?;
+        .map_err(|e| errors::StreamingErrors::NoMediaFileFound(e.to_string()))?;
 
     let user_id = auth.0.claims.id;
 
     stream_tracking.kill_all(&state, user_id);
 
     let info = FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
-        .get_meta(&std::path::PathBuf::from(media.target_file.clone()))?;
+        .get_meta(&std::path::PathBuf::from(media.target_file.clone()))
+        .map_err(|_| errors::StreamingErrors::FFProbeCtxFailed)?;
 
     let mut ms = info
         .get_ms()
@@ -221,4 +223,14 @@ pub fn session_get_stderr(
     id: String,
 ) -> Result<JsonValue, errors::StreamingErrors> {
     Ok(json!({ "stderr": state.get_stderr(id)? }))
+}
+
+#[get("/<id>/state/kill")]
+pub fn kill_session(
+    state: State<StateManager>,
+    id: String,
+) -> Result<Status, errors::StreamingErrors> {
+    state.kill(id)?;
+
+    Ok(Status::NoContent)
 }
