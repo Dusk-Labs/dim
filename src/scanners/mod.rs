@@ -75,7 +75,10 @@ pub struct ApiMedia {
     pub overview: Option<String>,
     pub poster_path: Option<String>,
     pub backdrop_path: Option<String>,
+    pub poster_file: Option<String>,
+    pub backdrop_file: Option<String>,
     pub genres: Vec<String>,
+    pub rating: Option<i32>,
 
     pub media_type: ApiMediaType,
     pub seasons: Vec<ApiSeason>,
@@ -86,6 +89,7 @@ pub struct ApiSeason {
     pub id: u64,
     pub name: Option<String>,
     pub poster_path: Option<String>,
+    pub poster_file: Option<String>,
     pub season_number: u64,
     pub episodes: Vec<ApiEpisode>,
 }
@@ -97,6 +101,7 @@ pub struct ApiEpisode {
     pub overview: Option<String>,
     pub episode: Option<u64>,
     pub still: Option<String>,
+    pub still_file: Option<String>,
 }
 
 /// Trait describes the interface a metadata agent must implement.
