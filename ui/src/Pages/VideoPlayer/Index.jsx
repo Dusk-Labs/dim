@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { connect } from "react-redux";
-
 import { MediaPlayer } from "dashjs";
+
 import VideoControls from "./Controls/Index";
 import { VideoPlayerContext } from "./Context";
 import RingLoad from "../../Components/Load/Ring";
+import { clearMediaInfo, fetchMediaInfo } from "../../actions/card";
 
 import "./Index.scss";
 
-// oldOffset logic might still be useful in the future but redundant rn (seeking quite unstable)
+// oldOffset logic might still be useful in the future but redundant now
 function VideoPlayer(props) {
   const video = useRef(null);
   const [player, setPlayer] = useState();
-  const [id, setID] = useState("");
 
   const [manifestLoading, setManifestLoading] = useState(false);
   const [manifestLoaded, setManifestLoaded] = useState(false);
@@ -27,21 +27,20 @@ function VideoPlayer(props) {
   const [duration, setDuration] = useState(0);
 
   const {params} = props.match;
-  const {auth} = props;
+  const { fetchMediaInfo, auth } = props;
 
   useEffect(() => {
-    if (params.id) {
-      setID(params.id);
-    }
-  }, [params.id]);
+    fetchMediaInfo(auth.token, params.mediaID);
+    return () => clearMediaInfo();
+  }, [auth.token, fetchMediaInfo, params.mediaID]);
 
   useEffect(() => {
-    if (!id) return;
+    if (!params.fileID) return;
 
     setManifestLoaded(false);
     setManifestLoading(true);
 
-    const url = `//${window.host}:8000/api/v1/stream/${id}/manifest.mpd`;
+    const url = `//${window.host}:8000/api/v1/stream/${params.fileID}/manifest.mpd`;
     const mediaPlayer = MediaPlayer().create();
 
     mediaPlayer.extend("RequestModifier", function () {
@@ -55,10 +54,11 @@ function VideoPlayer(props) {
         }
       }
     });
+
     mediaPlayer.initialize(video.current, url, true);
 
     setPlayer(mediaPlayer);
-  }, [id, auth.token]);
+  }, [auth.token, params.fileID]);
 
   const eManifestLoad = useCallback(() => {
     setManifestLoading(false);
@@ -135,7 +135,8 @@ function VideoPlayer(props) {
 
   const initialValue = {
     player,
-    id,
+    mediaInfo: props.media_info.info,
+    id: params.mediaID,
     video,
     setCurrentTime,
     currentTime,
@@ -165,6 +166,12 @@ function VideoPlayer(props) {
 
 const mapStateToProps = (state) => ({
   auth: state.auth,
+  media_info: state.card.media_info
 });
 
-export default connect(mapStateToProps, {})(VideoPlayer);
+const mapActionsToProps = {
+  fetchMediaInfo,
+  clearMediaInfo
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(VideoPlayer);
