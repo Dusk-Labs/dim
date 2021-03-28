@@ -11,12 +11,12 @@ function PlayButton(props) {
     color: props.textColor
   };
 
-  const { versions } = props;
+  const { versions, mediaID } = props;
 
   if (versions.length === 1) {
     return (
       <div>
-        <Link to={`/play/${versions[0].id}`} className="playBtn">
+        <Link to={`/media/${mediaID}/play/${versions[0].id}`} className="playBtn">
           <p style={accentCSS}>Play media</p>
           <FontAwesomeIcon icon="play"/>
         </Link>
@@ -24,7 +24,7 @@ function PlayButton(props) {
     )
   } else {
     return (
-      <SelectMediaVersion versions={versions}>
+      <SelectMediaVersion mediaID={mediaID} versions={versions}>
         <button className="playBtn">
           <p style={accentCSS}>Play media</p>
           <FontAwesomeIcon icon="play"/>

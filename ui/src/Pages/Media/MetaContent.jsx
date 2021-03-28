@@ -117,7 +117,7 @@ function MetaContent(props) {
             <p>{rating}/10</p>
           </div>
         </div>
-        <PlayButton versions={mediaVersions}/>
+        <PlayButton mediaID={id} versions={mediaVersions}/>
       </div>
     );
   }
