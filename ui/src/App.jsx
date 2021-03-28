@@ -57,12 +57,12 @@ const routes = (
         <SearchResults {...props}/>
       </MainLayout>
     )}/>
-    <PrivateRoute path="/media/:id" render={(props) => (
+    <PrivateRoute exact path="/media/:id" render={(props) => (
       <MainLayout>
         <Media {...props}/>
       </MainLayout>
     )}/>
-    <PrivateRoute path="/play/:id" render={(props) => (
+    <PrivateRoute exact path="/media/:mediaID/play/:fileID" render={(props) => (
       <VideoPlayer {...props}/>
     )}/>
   </Switch>
