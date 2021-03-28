@@ -41,6 +41,7 @@ function Banner(props) {
     }
 
     const {
+      id,
       title,
       year,
       synopsis,
@@ -84,7 +85,7 @@ function Banner(props) {
           <p className="description">
             <TruncText content={synopsis} max={35}/>
           </p>
-          <PlayButton versions={props.data.versions}/>
+          <PlayButton mediaID={id} versions={props.data.versions}/>
         </div>
         <ProgressBar data={progressBarData}/>
       </div>

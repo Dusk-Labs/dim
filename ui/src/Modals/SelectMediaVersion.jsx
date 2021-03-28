@@ -13,7 +13,7 @@ const SelectMediaVersion = (props) => (
         <div className="fileVersionsWrapper">
           <div className="fileVersions">
             {props.versions.map((version, i) => (
-              <Link to={`/play/${version.id}`} className="fileVersion" key={i}>
+              <Link to={`/media/${props.mediaID}/play/${version.id}`} className="fileVersion" key={i}>
                 <FontAwesomeIcon icon="file-video"/>
                 <p>{version.display_name}</p>
               </Link>

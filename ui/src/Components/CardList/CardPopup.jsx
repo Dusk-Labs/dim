@@ -124,7 +124,7 @@ function CardPopup(props) {
             <p>{length.hh}:{length.mm}:{length.ss}</p>
             <p>HH MM SS</p>
           </div>
-          <PlayButton versions={mediaVersions}/>
+          <PlayButton mediaID={id} versions={mediaVersions}/>
         </section>
       </div>
     </div>
