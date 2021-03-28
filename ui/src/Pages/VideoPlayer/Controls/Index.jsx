@@ -1,4 +1,4 @@
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 
 import { VideoPlayerContext } from "../Context";
 import SeekBar from "./SeekBar";
@@ -8,6 +8,8 @@ import "./Index.scss";
 
 function VideoControls() {
   const { setSeeking, player, currentTime, duration, setCurrentTime, setBuffer, fileID, mediaInfo } = useContext(VideoPlayerContext);
+  const [ visible, setVisible ] = useState(true);
+  const [ hideTimeoutID, setHideTimeoutID ] = useState();
 
   const seekTo = useCallback(async newTime => {
     const newSegment = Math.floor(newTime / 5);
@@ -28,12 +30,40 @@ function VideoControls() {
     new Date(secs * 1000).toISOString().substr(11, 8)
   );
 
+  const handleMouseMove = useCallback(() => {
+    setVisible(true);
+    clearTimeout(hideTimeoutID);
+
+    document.getElementsByTagName("body")[0].style.cursor = "default";
+
+    const ID = setTimeout(() => {
+      document.getElementsByTagName("body")[0].style.cursor = "none";
+      setVisible(false);
+      setHideTimeoutID();
+    }, 2000);
+
+    setHideTimeoutID(ID);
+  }, [hideTimeoutID]);
+
+  useEffect(() => {
+    document.addEventListener("mousemove", handleMouseMove);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      clearTimeout(hideTimeoutID);
+    }
+  }, [handleMouseMove, hideTimeoutID]);
+
   return (
     <div className="videoControls">
-      <p className="name">{mediaInfo.name}</p>
-      <p className="time">{format(currentTime)} - {format(duration)}</p>
-      <SeekBar seekTo={seekTo}/>
-      <Actions seekTo={seekTo}/>
+      {visible && (
+        <>
+          <p className="name">{mediaInfo.name}</p>
+          <p className="time">{format(currentTime)} - {format(duration)}</p>
+          <SeekBar seekTo={seekTo}/>
+          <Actions seekTo={seekTo}/>
+        </>
+      )}
     </div>
   );
 }
