@@ -1,5 +1,10 @@
 function ErrorBox(props) {
-  const { error, setError } = props;
+  const { error, setError, currentTime } = props;
+
+  const reloadPlayer = () => {
+    sessionStorage.setItem("currentTime", currentTime);
+    window.location.reload();
+  };
 
   return (
     <div className="errorBox">
@@ -8,7 +13,7 @@ function ErrorBox(props) {
       <p>{error?.message}</p>
       <div className="options">
         <button onClick={() => setError(false)}>Hide</button>
-        <button onClick={() => window.location.reload()}>Reload player</button>
+        <button onClick={reloadPlayer}>Retry</button>
       </div>
     </div>
   );
