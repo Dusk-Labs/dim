@@ -1,5 +1,5 @@
 <AdaptationSet contentType="video">
-    <Representation id="direct" height="1080p" bandwidth="{bandwidth}" mimeType="video/mp4" codecs="{avc}">
+    <Representation id="{id}" height="1080p" bandwidth="{bandwidth}" mimeType="video/mp4" codecs="{avc}">
         <SegmentTemplate timescale="1000" duration="5000" initialization="{init}" media="{chunk_path}" startNumber="{start_num}">
         </SegmentTemplate>
     </Representation>

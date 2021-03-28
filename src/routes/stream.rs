@@ -77,7 +77,6 @@ pub fn return_manifest(
     );
 
     let mut tracks = Vec::new();
-    let mut ids = Vec::new();
 
     let video_stream = info
         .find_by_codec("video")
@@ -97,11 +96,11 @@ pub fn return_manifest(
         StreamType::Video(video_stream.index as usize),
     );
 
-    ids.push(video.clone());
     stream_tracking.insert(user_id, video.clone());
 
     tracks.push(format!(
         include_str!("../static/video_segment.mpd"),
+        id = video.clone(),
         bandwidth = info.get_bitrate(),
         init = format!("{}/data/init.mp4?start_num={}", video.clone(), start_num),
         chunk_path = format!("{}/data/$Number$.m4s", video.clone()),
@@ -120,17 +119,12 @@ pub fn return_manifest(
 
         tracks.push(format!(
             include_str!("../static/audio_segment.mpd"),
-            id = stream
-                .tags
-                .as_ref()
-                .and_then(|x| x.title.clone())
-                .unwrap_or(format!("Track {}", stream.index)),
+            id = audio.clone(),
             init = format!("{}/data/init.mp4?start_num={}", audio.clone(), start_num),
             chunk_path = format!("{}/data/$Number$.m4s", audio.clone()),
             start_num = start_num,
         ));
 
-        ids.push(audio.clone());
         stream_tracking.insert(user_id, audio.clone());
     }
 
@@ -143,7 +137,6 @@ pub fn return_manifest(
 
     Response::build()
         .header(ContentType::new("application", "dash+xml"))
-        .header(Header::new("X-STREAM-ID", ids.join(";")))
         .sized_body(Cursor::new(manifest))
         .ok()
 }
