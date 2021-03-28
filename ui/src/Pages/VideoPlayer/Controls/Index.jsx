@@ -1,22 +1,27 @@
 import { useCallback, useContext } from "react";
+
 import { VideoPlayerContext } from "../Context";
 import SeekBar from "./SeekBar";
-
-import PlayIcon from "../../../assets/Icons/Play";
-import PauseIcon from "../../../assets/Icons/Pause";
+import Actions from "./Actions";
 
 import "./Index.scss";
 
 function VideoControls() {
-  const { player, currentTime, duration, paused, mediaInfo } = useContext(VideoPlayerContext);
+  const { setSeeking, player, currentTime, duration, setCurrentTime, setBuffer, fileID, mediaInfo } = useContext(VideoPlayerContext);
 
-  const play = useCallback(() => {
-    player.play();
-  }, [player]);
+  const seekTo = useCallback(async newTime => {
+    const newSegment = Math.floor(newTime / 5);
 
-  const pause = useCallback(() => {
-    player.pause();
-  }, [player]);
+    setCurrentTime(newTime);
+    setBuffer(0);
+
+    player.attachSource(`//${window.host}:8000/api/v1/stream/${fileID}/manifest.mpd?start_num=${newSegment}`);
+
+    // setOldOffset(offset);
+    // setCurrentTime(0);
+    // setOffset(newTime);
+    setSeeking(false);
+  }, [fileID, player, setBuffer, setCurrentTime, setSeeking]);
 
   // converts to HH:MM:SS format
   const format = (secs) => (
@@ -27,19 +32,8 @@ function VideoControls() {
     <div className="videoControls">
       <p className="name">{mediaInfo.name}</p>
       <p className="time">{format(currentTime)} - {format(duration)}</p>
-      <SeekBar/>
-      <div className="actions">
-        {paused && (
-          <button onClick={play}>
-            <PlayIcon/>
-          </button>
-        )}
-        {!paused && (
-          <button onClick={pause}>
-            <PauseIcon/>
-          </button>
-        )}
-      </div>
+      <SeekBar seekTo={seekTo}/>
+      <Actions seekTo={seekTo}/>
     </div>
   );
 }

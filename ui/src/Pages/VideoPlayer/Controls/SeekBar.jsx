@@ -1,14 +1,15 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
 import { VideoPlayerContext } from "../Context";
 
 import "./SeekBar.scss";
 
-function VideoControls() {
-  const { fileID, player, duration, currentTime, setCurrentTime, buffer, setBuffer } = useContext(VideoPlayerContext);
-  const [ seeking, setSeeking ] = useState(false);
+function VideoSeekBar(props) {
+  const { seeking, setSeeking, player, duration, currentTime, buffer } = useContext(VideoPlayerContext);
 
   const seekBarCurrent = useRef(null);
   const bufferBar = useRef(null);
+
+  const { seekTo } = props;
 
   // current time
   useEffect(() => {
@@ -22,20 +23,6 @@ function VideoControls() {
     bufferBar.current.style.width = `${position}%`;
   }, [buffer, currentTime, duration])
 
-  const seekTo = useCallback(async newTime => {
-    const newSegment = Math.floor(newTime / 5);
-
-    setCurrentTime(newTime);
-    setBuffer(0);
-
-    player.attachSource(`//${window.host}:8000/api/v1/stream/${fileID}/manifest.mpd?start_num=${newSegment}`);
-
-    // setOldOffset(offset);
-    // setCurrentTime(0);
-    // setOffset(newTime);
-    setSeeking(false);
-  }, [fileID, player, setBuffer, setCurrentTime]);
-
   useEffect(() => {
     const savedCurrentTime = sessionStorage.getItem("currentTime");
 
@@ -47,6 +34,7 @@ function VideoControls() {
 
   const onSeek = useCallback(async (e) => {
     if (seeking) return;
+
     setSeeking(true);
 
     const rect = e.target.getBoundingClientRect();
@@ -55,7 +43,7 @@ function VideoControls() {
     const newTime = Math.floor(percent * videoDuration);
 
     seekTo(newTime);
-  }, [player, seekTo, seeking]);
+  }, [player, seekTo, seeking, setSeeking]);
 
   return (
     <div className="seekBar" onClick={onSeek}>
@@ -65,4 +53,4 @@ function VideoControls() {
   );
 }
 
-export default VideoControls;
+export default VideoSeekBar;
