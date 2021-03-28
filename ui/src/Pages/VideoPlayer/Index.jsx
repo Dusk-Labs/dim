@@ -176,11 +176,10 @@ function VideoPlayer(props) {
           ref={video}
         />
         <div className="overlay">
-          {(!error && (manifestLoading || !canPlay)) && <RingLoad/>}
           {(!error && (manifestLoaded && canPlay)) && <VideoControls/>}
-          {(!error && waiting) && <RingLoad/>}
+          {(!error & (manifestLoading || !canPlay) || waiting) && <RingLoad/>}
           {error && (
-            <ErrorBox error={error} setError={setError}/>
+            <ErrorBox error={error} setError={setError} currentTime={currentTime}/>
           )}
         </div>
       </div>
