@@ -22,14 +22,7 @@ function VideoControls() {
     bufferBar.current.style.width = `${position}%`;
   }, [buffer, currentTime, duration])
 
-  const onSeek = useCallback(async (e) => {
-    if (seeking) return;
-    setSeeking(true);
-
-    const rect = e.target.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    const videoDuration = player.duration();
-    const newTime = Math.floor(percent * videoDuration);
+  const seekTo = useCallback(async newTime => {
     const newSegment = Math.floor(newTime / 5);
 
     setCurrentTime(newTime);
@@ -41,7 +34,28 @@ function VideoControls() {
     // setCurrentTime(0);
     // setOffset(newTime);
     setSeeking(false);
-  }, [fileID, player, seeking, setBuffer, setCurrentTime, setSeeking]);
+  }, [fileID, player, setBuffer, setCurrentTime]);
+
+  useEffect(() => {
+    const savedCurrentTime = sessionStorage.getItem("currentTime");
+
+    if (savedCurrentTime) {
+      seekTo(savedCurrentTime);
+      sessionStorage.clear();
+    }
+  }, [seekTo]);
+
+  const onSeek = useCallback(async (e) => {
+    if (seeking) return;
+    setSeeking(true);
+
+    const rect = e.target.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    const videoDuration = player.duration();
+    const newTime = Math.floor(percent * videoDuration);
+
+    seekTo(newTime);
+  }, [player, seekTo, seeking]);
 
   return (
     <div className="seekBar" onClick={onSeek}>
