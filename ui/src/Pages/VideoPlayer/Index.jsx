@@ -18,7 +18,7 @@ function VideoPlayer(props) {
   const [manifestLoaded, setManifestLoaded] = useState(false);
   const [canPlay, setCanPlay] = useState(false);
   const [waiting, setWaiting] = useState(false);
-  const [seeking, setSeeking] = useState(false);
+  const [error, setError] = useState();
 
   const [buffer, setBuffer] = useState(true);
   const [paused, setPaused] = useState(false);
@@ -100,9 +100,6 @@ function VideoPlayer(props) {
     OldOffset undos that and sets it back to 0s for consistency and to keep track of seekbar position accurately
   */
   const ePlayBackTimeUpdated = useCallback(e => {
-    console.log(e.time)
-    if (seeking) return;
-
     // setCurrentTime(Math.floor(offset + (e.time - oldOffset)));
     setCurrentTime(Math.floor(e.time));
     /*
@@ -110,7 +107,7 @@ function VideoPlayer(props) {
       so using this event from now on to get buffer length
     */
     setBuffer(Math.round(player.getBufferLength()));
-  }, [player, seeking]);
+  }, [player]);
 
   // video events
   useEffect(() => {
