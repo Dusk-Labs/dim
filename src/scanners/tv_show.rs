@@ -28,9 +28,9 @@ use slog::Logger;
 use events::Message;
 use events::PushEventType;
 use pushevent::Event;
+use tmdb::Tmdb;
 
-use super::tmdb_api;
-use super::tmdb_api::TMDbSearch;
+use super::tmdb;
 use super::APIExec;
 use super::MediaScanner;
 use super::ScannerDaemon;
@@ -43,19 +43,12 @@ pub struct TvShowScanner {
 }
 
 impl TvShowScanner {
-    fn match_media_to_tmdb(&self, result: tmdb_api::Media, orphan: &MediaFile) {
-        let name = if let Some(x) = result.get_title() {
-            x
-        } else {
-            warn!(
-                self.log,
-                "TMDB returned a none title for orphan={}", orphan.id
-            );
-            return;
-        };
+    fn match_media_to_tmdb(&self, result: tmdb::Media, orphan: &MediaFile) {
+        let name = result.title.clone();
 
         let year: Option<i32> = result
-            .get_release_date()
+            .release_date
+            .clone()
             .map(|x| NaiveDate::parse_from_str(x.as_str(), "%Y-%m-%d"))
             .map(Result::ok)
             .unwrap_or(None)
@@ -110,7 +103,7 @@ impl TvShowScanner {
         &self,
         orphan: &MediaFile,
         media: InsertableMedia,
-        search: tmdb_api::Media,
+        search: tmdb::Media,
     ) -> Result<(), ()> {
         let meta_fetcher = crate::core::METADATA_FETCHER_TX.get().unwrap().get();
 
@@ -128,19 +121,42 @@ impl TvShowScanner {
                 |x| x.id,
             );
 
-        if let Some(genres) = search.genres.clone() {
-            for genre in genres {
-                let genre = InsertableGenre {
-                    name: genre.name.clone(),
-                };
+        if let Some(genres) = search.genre_ids.as_ref() {
+            for genre in genres.iter().cloned() {
+                let mut tmdb = Tmdb::new(
+                    "38c372f5bc572c8aadde7a802638534e".to_string(),
+                    tmdb::MediaType::Tv,
+                );
 
-                let _ = genre
-                    .insert(&self.conn)
-                    .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
+                if let Ok(detail) = tmdb.get_genre_detail(genre) {
+                    let genre = InsertableGenre {
+                        name: detail.name.clone(),
+                    };
+
+                    let _ = genre
+                        .insert(&self.conn)
+                        .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
+                }
             }
         };
 
-        let season = search.get_season(orphan.season.unwrap_or(0));
+        let mut tmdb = Tmdb::new(
+            "38c372f5bc572c8aadde7a802638534e".to_string(),
+            tmdb::MediaType::Tv,
+        );
+
+        let seasons = tmdb.get_seasons_for(&search).unwrap();
+        let season = {
+            let orphan_season = orphan.season.unwrap_or(0) as u64;
+
+            seasons
+                .iter()
+                .filter(|s| s.id == orphan_season)
+                .next()
+                .unwrap_or(&seasons[0])
+        };
+
+        // let season = search.get_season(orphan.season.unwrap_or(0));
 
         if let Some(x) = season.poster_path.as_ref() {
             let _ = meta_fetcher.send(format!("https://images.tmdb.org/t/p/original/{}", x));
@@ -171,7 +187,17 @@ impl TvShowScanner {
         )
         .map_or_else(
             |_| {
-                let search_ep = season.get_episode(orphan.episode.unwrap_or(0));
+                let search_ep = {
+                    let episodes = tmdb.get_episodes_for(&search, season.id).unwrap();
+                    let orphan_episode = orphan.episode.unwrap_or(0) as u64;
+
+                    episodes
+                        .iter()
+                        .filter(|s| s.id == orphan_episode)
+                        .next()
+                        .unwrap_or(&episodes[0])
+                        .clone()
+                };
 
                 if let Some(x) = search_ep.still_path.as_ref() {
                     let _ =
@@ -253,7 +279,10 @@ impl MediaScanner for TvShowScanner {
         assert!(self.lib.media_type == Self::MEDIA_TYPE);
         info!(self.log, "Scanning orphans for lib={}", self.lib.id);
 
-        let mut tmdb_session = TMDbSearch::new("38c372f5bc572c8aadde7a802638534e");
+        let mut tmdb_session = Tmdb::new(
+            "38c372f5bc572c8aadde7a802638534e".to_string(),
+            tmdb::MediaType::Tv,
+        );
         let orphans = match MediaFile::get_by_lib(&self.conn, &self.lib) {
             Ok(x) => x,
             Err(e) => {
@@ -272,12 +301,27 @@ impl MediaScanner for TvShowScanner {
                     orphan.season
                 );
 
-                if let Some(result) = tmdb_session.search(
+                let v = match tmdb_session.search_by_name(
                     orphan.raw_name.clone(),
                     orphan.raw_year,
-                    tmdb_api::MediaType::Tv,
+                    None,
                 ) {
-                    self.match_media_to_tmdb(result, &orphan);
+                    Ok(v) => v,
+                    Err(why) => {
+                        error!(self.log, "fix-orphans: {:?}", why);
+                        continue;
+                    }
+                };
+
+                match v.as_slice() {
+                    &[] => error!(
+                        self.log,
+                        "fix-orphans: failed to match orphan tmdb search returned no results."
+                    ),
+
+                    &[ref first, ..] => {
+                        self.match_media_to_tmdb(first.clone(), &orphan);
+                    }
                 }
             }
         }

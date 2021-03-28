@@ -1,16 +1,16 @@
-use crate::scanners::ApiMediaType as MediaType;
+pub(crate) use crate::scanners::ApiMediaType as MediaType;
 use crate::scanners::MetadataAgent;
 
 use serde::Deserialize;
 use serde::Serialize;
 
-use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::fmt;
 use std::sync::Arc;
 use std::sync::RwLock;
 use std::thread;
 use std::time::Duration;
+use std::{collections::HashMap, unimplemented};
 
 use reqwest::blocking::Client;
 use reqwest::blocking::ClientBuilder;
@@ -53,7 +53,7 @@ impl Tmdb {
         }
     }
 
-    fn search_by_name(
+    pub fn search_by_name(
         &mut self,
         title: String,
         year: Option<i32>,
@@ -223,72 +223,118 @@ impl MetadataAgent for Tmdb {
     type Error = TmdbError;
 
     fn search(&mut self, title: String, year: Option<i32>) -> Result<super::ApiMedia, Self::Error> {
-        let result = self.search_by_name(title, year, None)?;
+        self.fetch(title, year)?
+            .next()
+            .ok_or(TmdbError::NoResults)?
+    }
 
-        let result = result.first().ok_or(TmdbError::NoResults)?;
+    fn fetch(
+        &mut self,
+        title: String,
+        year: Option<i32>,
+    ) -> Result<Box<dyn Iterator<Item = Result<super::ApiMedia, Self::Error>>>, Self::Error> {
+        let mut results = self.search_by_name(title, year, None)?.into_iter().fuse();
 
-        let seasons = match self.media_type {
-            MediaType::Movie => Vec::new(),
-            MediaType::Tv => {
-                self.get_seasons_for(&result)?
-                    .iter()
-                    .map(|x| super::ApiSeason {
-                        id: x.id,
-                        name: x.name.clone(),
-                        poster_path: x.poster_path.clone().map(|s| {
-                            format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s)
-                        }),
-                        season_number: x.season_number.unwrap(),
-                        episodes: self
-                            .get_episodes_for(&result, x.season_number.unwrap_or(0))
-                            .unwrap()
-                            .iter()
-                            .map(|x| super::ApiEpisode {
-                                id: x.id,
-                                name: x.name.clone(),
-                                overview: x.overview.clone(),
-                                episode: x.episode_number.clone(),
-                                still: x
-                                    .still_path
-                                    .clone()
-                                    .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s)),
-                            })
-                            .collect(),
-                    })
-                    .collect()
-            }
+        let client = ClientBuilder::new().user_agent(APP_USER_AGENT);
+        let mut this = Tmdb {
+            api_key: self.api_key.clone(),
+            client: client.build().unwrap(),
+            base: self.base.clone(),
+            media_type: self.media_type.clone(),
         };
 
-        Ok(super::ApiMedia {
-            id: result.id,
-            title: result.title.clone(),
-            release_date: result.release_date.clone(),
-            overview: result.overview.clone(),
-            poster_path: result
-                .poster_path
-                .clone()
-                .map(|s| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s)),
-            backdrop_path: result
-                .backdrop_path
-                .clone()
-                .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s)),
-            genres: result
-                .genre_ids
-                .clone()
-                .map(|g| {
-                    g.iter()
-                        .map(|x| self.get_genre_detail(*x))
-                        .filter_map(|x| x.ok())
-                        .map(|x| x.name)
-                        .collect::<Vec<_>>()
-                })
-                .unwrap_or_default(),
-            media_type: match self.media_type {
-                MediaType::Tv => super::ApiMediaType::Tv,
-                _ => super::ApiMediaType::Movie,
-            },
-            seasons,
-        })
+        let it = std::iter::from_fn(move || {
+            let media = results.next()?;
+
+            // TODO: Add From-impls for: Season -> ApiSeason, Media -> ApiMedia.
+
+            let seasons = match this.media_type {
+                MediaType::Movie => Vec::new(),
+                MediaType::Tv => {
+                    let seasons = match this.get_seasons_for(&media) {
+                        Ok(s) => s,
+                        Err(e) => return Some(Err(e)),
+                    };
+
+                    seasons
+                        .iter()
+                        .map(|x| super::ApiSeason {
+                            id: x.id,
+                            name: x.name.clone(),
+                            poster_path: x.poster_path.clone().map(|s| {
+                                format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s)
+                            }),
+                            season_number: x.season_number.unwrap(),
+                            episodes: this
+                                .get_episodes_for(&media, x.season_number.unwrap_or(0))
+                                .unwrap()
+                                .iter()
+                                .map(|x| super::ApiEpisode {
+                                    id: x.id,
+                                    name: x.name.clone(),
+                                    overview: x.overview.clone(),
+                                    episode: x.episode_number.clone(),
+                                    still: x.still_path.clone().map(|s| {
+                                        format!("https://image.tmdb.org/t/p/original/{}", s)
+                                    }),
+                                })
+                                .collect(),
+                        })
+                        .collect()
+                }
+            };
+
+            let result = super::ApiMedia {
+                id: media.id,
+                title: media.title.clone(),
+                release_date: media.release_date.clone(),
+                overview: media.overview.clone(),
+                poster_path: media
+                    .poster_path
+                    .clone()
+                    .map(|s| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s)),
+                backdrop_path: media
+                    .backdrop_path
+                    .clone()
+                    .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s)),
+                genres: media
+                    .genre_ids
+                    .clone()
+                    .map(|g| {
+                        g.iter()
+                            .map(|x| this.get_genre_detail(*x))
+                            .filter_map(|x| x.ok())
+                            .map(|x| x.name)
+                            .collect::<Vec<_>>()
+                    })
+                    .unwrap_or_default(),
+                media_type: match this.media_type {
+                    MediaType::Tv => super::ApiMediaType::Tv,
+                    _ => super::ApiMediaType::Movie,
+                },
+                seasons,
+            };
+
+            Some(Ok(result))
+        });
+
+        Ok(Box::new(it))
+    }
+
+    fn search_many(
+        &mut self,
+        title: String,
+        year: Option<i32>,
+        n: usize,
+    ) -> Result<Vec<super::ApiMedia>, Self::Error> {
+        let it = self.fetch(title, year)?;
+        let mut results = Vec::with_capacity(n);
+
+        for result in it.take(n) {
+            results.push(result?);
+        }
+
+        Ok(results)
     }
 }
 
