@@ -139,10 +139,9 @@ function VideoPlayer(props) {
 
   const initialValue = {
     player,
-    seeking,
-    setSeeking,
     mediaInfo: props.media_info.info,
-    id: params.mediaID,
+    mediaID: params.mediaID,
+    fileID: params.fileID,
     video,
     setCurrentTime,
     currentTime,
