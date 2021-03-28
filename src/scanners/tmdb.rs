@@ -264,6 +264,7 @@ impl MetadataAgent for Tmdb {
                             poster_path: x.poster_path.clone().map(|s| {
                                 format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s)
                             }),
+                            poster_file: x.poster_path.clone(),
                             season_number: x.season_number.unwrap(),
                             episodes: this
                                 .get_episodes_for(&media, x.season_number.unwrap_or(0))
@@ -277,6 +278,7 @@ impl MetadataAgent for Tmdb {
                                     still: x.still_path.clone().map(|s| {
                                         format!("https://image.tmdb.org/t/p/original/{}", s)
                                     }),
+                                    still_file: x.still_path.clone(),
                                 })
                                 .collect(),
                         })
@@ -289,14 +291,17 @@ impl MetadataAgent for Tmdb {
                 title: media.title.clone(),
                 release_date: media.release_date.clone(),
                 overview: media.overview.clone(),
+                rating: media.vote_average.map(|x| x as i32),
                 poster_path: media
                     .poster_path
                     .clone()
                     .map(|s| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s)),
+                poster_file: media.poster_path.clone(),
                 backdrop_path: media
                     .backdrop_path
                     .clone()
                     .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s)),
+                backdrop_file: media.backdrop_path.clone(),
                 genres: media
                     .genre_ids
                     .clone()
