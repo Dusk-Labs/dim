@@ -8,7 +8,7 @@ import PauseIcon from "../../../assets/Icons/Pause";
 import "./Index.scss";
 
 function VideoControls() {
-  const { player, currentTime, duration, paused } = useContext(VideoPlayerContext);
+  const { player, currentTime, duration, paused, mediaInfo } = useContext(VideoPlayerContext);
 
   const play = useCallback(() => {
     player.play();
@@ -25,7 +25,7 @@ function VideoControls() {
 
   return (
     <div className="videoControls">
-      <p className="name">Media name</p>
+      <p className="name">{mediaInfo.name}</p>
       <p className="time">{format(currentTime)} - {format(duration)}</p>
       <SeekBar/>
       <div className="actions">
