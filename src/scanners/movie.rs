@@ -26,8 +26,8 @@ use pushevent::Event;
 
 use super::tmdb;
 use super::tmdb::Tmdb;
-use super::APIExec;
 use super::MediaScanner;
+use super::MetadataAgent;
 use super::ScannerDaemon;
 
 pub struct MovieScanner {
@@ -38,7 +38,7 @@ pub struct MovieScanner {
 }
 
 impl MovieScanner {
-    fn match_media_to_tmdb(&self, result: tmdb::Media, orphan: &MediaFile) {
+    fn match_media_to_tmdb(&self, result: super::ApiMedia, orphan: &MediaFile) {
         let name = result.title.clone();
 
         let year: Option<i32> = result
@@ -51,17 +51,9 @@ impl MovieScanner {
             .unwrap_or(None)
             .map(|s| s.year() as i32);
 
-        let rating = result.vote_average.map(|x| x as i32);
+        let poster_path = result.poster_path.clone();
 
-        let poster_path = result
-            .poster_path
-            .clone()
-            .map(|s| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s));
-
-        let backdrop_path = result
-            .backdrop_path
-            .clone()
-            .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s));
+        let backdrop_path = result.backdrop_path.clone();
 
         let meta_fetcher = crate::core::METADATA_FETCHER_TX.get().unwrap().get();
 
@@ -77,13 +69,13 @@ impl MovieScanner {
             library_id: self.lib.id,
             name,
             description: result.overview.clone(),
-            rating,
+            rating: result.rating,
             year,
             added: Utc::now().to_string(),
 
-            poster_path: result.poster_path.clone().map(|x| format!("images/{}", x)),
+            poster_path: result.poster_file.clone().map(|x| format!("images/{}", x)),
             backdrop_path: result
-                .backdrop_path
+                .backdrop_file
                 .clone()
                 .map(|x| format!("images/{}", x)),
 
@@ -102,7 +94,7 @@ impl MovieScanner {
         &self,
         orphan: &MediaFile,
         media: InsertableMedia,
-        result: tmdb::Media,
+        result: super::ApiMedia,
     ) -> Result<(), ()> {
         let media_id = Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.as_str())
             .map_or_else(
@@ -115,24 +107,13 @@ impl MovieScanner {
                 |x| x.id,
             );
 
-        if let Some(genres) = result.genre_ids {
-            for genre in genres {
-                let mut tmdb = Tmdb::new(
-                    "38c372f5bc572c8aadde7a802638534e".to_string(),
-                    tmdb::MediaType::Movie,
-                );
+        for name in result.genres {
+            let genre = InsertableGenre { name };
 
-                if let Ok(detail) = tmdb.get_genre_detail(genre) {
-                    let genre = InsertableGenre {
-                        name: detail.name.clone(),
-                    };
-
-                    let _ = genre
-                        .insert(&self.conn)
-                        .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
-                }
-            }
-        };
+            let _ = genre
+                .insert(&self.conn)
+                .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
+        }
 
         let updated_mediafile = UpdateMediaFile {
             media_id: Some(media_id),
@@ -211,11 +192,7 @@ impl MediaScanner for MovieScanner {
                     "Scanning orphan with raw name: {}", orphan.raw_name
                 );
 
-                let results = match tmdb_session.search_by_name(
-                    orphan.raw_name.clone(),
-                    orphan.raw_year,
-                    None,
-                ) {
+                let result = match tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year) {
                     Ok(v) => v,
                     Err(e) => {
                         error!(self.log, "fix-orphans: {:?}", e);
@@ -223,12 +200,7 @@ impl MediaScanner for MovieScanner {
                     }
                 };
 
-                match results.as_slice() {
-                    [] => continue,
-                    &[ref result, ..] => {
-                        self.match_media_to_tmdb(result.clone(), &orphan);
-                    }
-                }
+                self.match_media_to_tmdb(result, &orphan);
             }
         }
     }
