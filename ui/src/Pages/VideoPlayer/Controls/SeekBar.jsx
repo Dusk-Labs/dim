@@ -1,11 +1,10 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
 import { VideoPlayerContext } from "../Context";
 
 import "./SeekBar.scss";
 
 function VideoControls() {
-  const { id, setCurrentTime, player, duration, currentTime, setOffset, buffer } = useContext(VideoPlayerContext);
-  const [ seeking, setSeeking ] = useState(false);
+  const { seeking, setSeeking, id, player, duration, currentTime, setCurrentTime, buffer, setBuffer } = useContext(VideoPlayerContext);
 
   const seekBarCurrent = useRef(null);
   const bufferBar = useRef(null);
@@ -24,7 +23,6 @@ function VideoControls() {
 
   const onSeek = useCallback(async (e) => {
     if (seeking) return;
-
     setSeeking(true);
 
     const rect = e.target.getBoundingClientRect();
@@ -33,13 +31,16 @@ function VideoControls() {
     const newTime = Math.floor(percent * videoDuration);
     const newSegment = Math.floor(newTime / 5);
 
+    setCurrentTime(newTime);
+    setBuffer(0);
+
     player.attachSource(`//${window.host}:8000/api/v1/stream/${id}/manifest.mpd?start_num=${newSegment}`);
 
     // setOldOffset(offset);
-    setOffset(newTime);
-    setCurrentTime(0);
+    // setCurrentTime(0);
+    // setOffset(newTime);
     setSeeking(false);
-  }, [id, player, seeking, setCurrentTime, setOffset]);
+  }, [id, player, seeking, setBuffer, setCurrentTime, setSeeking]);
 
   return (
     <div className="seekBar" onClick={onSeek}>
