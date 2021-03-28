@@ -6,6 +6,7 @@ import VideoControls from "./Controls/Index";
 import { VideoPlayerContext } from "./Context";
 import RingLoad from "../../Components/Load/Ring";
 import { clearMediaInfo, fetchMediaInfo } from "../../actions/card";
+import ErrorBox from "./ErrorBox";
 
 import "./Index.scss";
 
@@ -28,12 +29,20 @@ function VideoPlayer(props) {
   const [duration, setDuration] = useState(0);
 
   const {params} = props.match;
-  const { fetchMediaInfo, auth } = props;
+  const { fetchMediaInfo, media_info, auth } = props;
 
   useEffect(() => {
     fetchMediaInfo(auth.token, params.mediaID);
     return () => clearMediaInfo();
   }, [auth.token, fetchMediaInfo, params.mediaID]);
+
+  useEffect(() => {
+    document.title = "Dim - Video Player";
+
+    if (media_info.info.name) {
+      document.title = `Dim - Playing '${media_info.info.name}'`;
+    }
+  }, [media_info.info.name]);
 
   useEffect(() => {
     if (!params.fileID) return;
@@ -85,7 +94,7 @@ function VideoPlayer(props) {
   }, []);
 
   const eError = useCallback(e => {
-    console.log("[Error]", e);
+    setError(e.error)
   }, []);
 
   const ePlayBackNotAllowed = useCallback(e => {
@@ -156,9 +165,12 @@ function VideoPlayer(props) {
           ref={video}
         />
         <div className="overlay">
-          {(manifestLoading || !canPlay) && <RingLoad/>}
-          {(manifestLoaded && canPlay) && <VideoControls/>}
-          {waiting && <RingLoad/>}
+          {(!error && (manifestLoading || !canPlay)) && <RingLoad/>}
+          {(!error && (manifestLoaded && canPlay)) && <VideoControls/>}
+          {(!error && waiting) && <RingLoad/>}
+          {error && (
+            <ErrorBox error={error} setError={setError}/>
+          )}
         </div>
       </div>
     </VideoPlayerContext.Provider>

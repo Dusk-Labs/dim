@@ -23,6 +23,65 @@
     display: grid;
     gap: 5em;
     grid-template-areas: "endsAt" "controls";
+
+    .errorBox {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #2a2a2a;
+      padding: 1em;
+      border-radius: 10px;
+      animation: appear 200ms ease-in-out;
+
+      .separator {
+        margin: .5em 0;
+      }
+
+      p {
+        line-height: 1.5em;
+      }
+
+      .options {
+        display: grid;
+        justify-content: flex-end;
+        grid-template-columns: auto auto;
+        gap: 1em;
+      }
+
+      button {
+        margin-top: 1em;
+        transition: 200ms ease-in-out;
+        font-family: "Roboto Bold";
+        border-radius: 10px;
+        background: transparent;
+        cursor: pointer;
+        color: #fff;
+        font-size: 1em;
+        padding: .5em .8em;
+
+        &:nth-child(1) {
+          transition-property: color;
+
+          &:focus,
+          &:hover {
+            color: #bbb;
+          }
+        }
+
+        &:nth-child(2) {
+          background: #f7931e;
+          transition-property: filter;
+          filter: saturate(0.7);
+
+          &:focus,
+          &:hover {
+            filter: saturate(1);
+          }
+        }
+
+      }
+    }
   }
 
   .ringLoad {
