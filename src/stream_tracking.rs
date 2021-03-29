@@ -44,6 +44,11 @@ impl StreamTracking {
             }
         }
     }
+
+    pub fn get_for_gid(&self, gid: u128) -> Option<Vec<String>> {
+        let lock = self.streaming_sessions.read().unwrap();
+        lock.get(&gid).cloned()
+    }
 }
 
 impl Fairing for StreamTracking {

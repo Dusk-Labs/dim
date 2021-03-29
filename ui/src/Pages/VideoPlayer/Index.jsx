@@ -63,7 +63,7 @@ function VideoPlayer(props) {
         bufferToKeep: 10,
         bufferTimeAtTopQuality: 20,
         bufferTimeAtTopQualityLongForm: 20,
-        useAppendWindow: true,
+        useAppendWindowEnd: false,
         bufferPruningInterval: 10,
       }
     });
