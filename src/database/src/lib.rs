@@ -12,7 +12,7 @@ extern crate diesel_derive_enum;
 
 use cfg_if::cfg_if;
 use diesel::connection::Connection;
-use diesel::{result::ConnectionError, RunQueryDsl};
+use diesel::RunQueryDsl;
 use slog::Logger;
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -63,21 +63,21 @@ cfg_if! {
     }
 }
 
-fn create_database(conn: &crate::DbConnection) -> Result<(), diesel::result::Error> {
-    cfg_if! {
-        if #[cfg(feature = "postgres")] {
-            let _ = diesel::sql_query("CREATE DATABASE dim").execute(conn)?;
-            let _ = diesel::sql_query("CREATE DATABASE dim_devel").execute(conn)?;
-            let _ = diesel::sql_query("CREATE DATABASE pg_trgm").execute(conn)?;
-        } else {
-            let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(conn)?;
-            let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(conn)?;
-            let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(conn)?;
-            let _ = diesel::sql_query("PRAGMA foreign_keys = ON").execute(conn)?;
-        }
-    }
-    Ok(())
-}
+// fn create_database(conn: &crate::DbConnection) -> Result<(), diesel::result::Error> {
+//     cfg_if! {
+//         if #[cfg(feature = "postgres")] {
+//             let _ = diesel::sql_query("CREATE DATABASE dim").execute(conn)?;
+//             let _ = diesel::sql_query("CREATE DATABASE dim_devel").execute(conn)?;
+//             let _ = diesel::sql_query("CREATE DATABASE pg_trgm").execute(conn)?;
+//         } else {
+//             let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(conn)?;
+//             let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(conn)?;
+//             let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(conn)?;
+//             let _ = diesel::sql_query("PRAGMA foreign_keys = ON").execute(conn)?;
+//         }
+//     }
+//     Ok(())
+// }
 
 /// Function runs all migrations embedded to make sure the database works as expected.
 ///
@@ -119,7 +119,7 @@ pub fn get_conn_devel() -> Result<crate::DbConnection, diesel::result::Connectio
                 "postgres://postgres:dimpostgres@postgres/dim_devel",
             )?;
         } else {
-            let mut conn = DbConnection::establish("./dim_devel.db;foreign_keys=true;")?;
+            let conn = DbConnection::establish("./dim_devel.db;foreign_keys=true;")?;
             let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
             let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn);
             let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(&conn);
@@ -152,7 +152,7 @@ pub fn get_conn_logged(log: &Logger) -> Result<DbConnection, diesel::result::Con
 }
 
 fn internal_get_conn(
-    log: Option<&Logger>,
+    _log: Option<&Logger>,
 ) -> Result<DbConnection, diesel::result::ConnectionError> {
     cfg_if! {
         if #[cfg(feature = "postgres")] {
@@ -162,7 +162,7 @@ fn internal_get_conn(
                 "postgres://postgres:dimpostgres@postgres/dim",
             )
         } else {
-            let mut conn = DbConnection::establish("./dim.db")?;
+            let conn = DbConnection::establish("./dim.db")?;
             let _ = diesel::sql_query("PRAGMA foreign_keys=ON;").execute(&conn).unwrap();
             let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
             let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn);
@@ -172,42 +172,42 @@ fn internal_get_conn(
     }
 }
 
-fn internal_get_conn_custom(
-    log: Option<&Logger>,
-    main: &str,
-    fallback: &str,
-) -> Result<DbConnection, diesel::result::ConnectionError> {
-    let conn = DbConnection::establish(main);
+// fn internal_get_conn_custom(
+//     log: Option<&Logger>,
+//     main: &str,
+//     fallback: &str,
+// ) -> Result<DbConnection, diesel::result::ConnectionError> {
+//     let conn = DbConnection::establish(main);
 
-    let conn = if conn.is_ok() {
-        conn
-    } else {
-        DbConnection::establish(fallback)
-    };
+//     let conn = if conn.is_ok() {
+//         conn
+//     } else {
+//         DbConnection::establish(fallback)
+//     };
 
-    if conn.is_ok() {
-        return Ok(conn?);
-    }
+//     if conn.is_ok() {
+//         return Ok(conn?);
+//     }
 
-    if let Err(e) = conn {
-        if let ConnectionError::BadConnection(_) = e {
-            let conn = DbConnection::establish("postgres://postgres:dimpostgres@127.0.0.1/");
+//     if let Err(e) = conn {
+//         if let ConnectionError::BadConnection(_) = e {
+//             let conn = DbConnection::establish("postgres://postgres:dimpostgres@127.0.0.1/");
 
-            let conn = if conn.is_ok() {
-                conn
-            } else {
-                DbConnection::establish("postgres://postgres:dimpostgres@postgres/")
-            }?;
+//             let conn = if conn.is_ok() {
+//                 conn
+//             } else {
+//                 DbConnection::establish("postgres://postgres:dimpostgres@postgres/")
+//             }?;
 
-            if let Some(log) = log {
-                slog::warn!(
-                    log,
-                    "Database dim seems to not exist, creating...standby..."
-                );
-            }
-            let _ = create_database(&conn);
-        }
-    };
+//             if let Some(log) = log {
+//                 slog::warn!(
+//                     log,
+//                     "Database dim seems to not exist, creating...standby..."
+//                 );
+//             }
+//             let _ = create_database(&conn);
+//         }
+//     };
 
-    Ok(internal_get_conn(log)?)
-}
+//     Ok(internal_get_conn(log)?)
+// }
