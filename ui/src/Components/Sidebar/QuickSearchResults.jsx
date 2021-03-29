@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { HashLink } from 'react-router-hash-link';
+import { Link } from "react-router-dom";
 
 import "./QuickSearchResults.scss";
 
@@ -28,18 +28,11 @@ function Search(props) {
   // SEARCH_OK
   if (props.results.fetched && !props.results.error) {
     const list = props.results.items.map((
-      { name, library_id, id }, i
+      { name, id }, i
     ) => (
-      <HashLink
-        to={`/library/${library_id}#${id}`}
-        scroll={elm => {
-          elm.scrollIntoView({ behavior: "smooth", block: "center" });
-          elm.style.animation = "cardHighlight 1s ease-in-out infinite";
-        }}
-        key={i}
-      >
+      <Link to={`/media/${id}`} key={i}>
         {name}
-      </HashLink>
+      </Link>
     ));
 
     results = (
