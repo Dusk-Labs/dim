@@ -198,7 +198,6 @@ pub fn rocket_pad(
     rocket::custom(config)
         .attach(DbConnection::fairing())
         .attach(SpaceHelmet::default())
-        .attach(stream_tracking.clone())
         .attach(fairing)
         .mount(
             "/",

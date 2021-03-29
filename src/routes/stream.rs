@@ -17,6 +17,8 @@ use rocket::http::Status;
 use rocket::request::State;
 use rocket::response::NamedFile;
 use rocket::response::Response;
+
+use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
 
 use slog::info;
@@ -35,7 +37,7 @@ use std::sync::RwLock;
 use std::thread;
 use std::time::Duration;
 
-#[get("/<id>/manifest.mpd?<start_num>")]
+#[get("/<id>/manifest.mpd?<start_num>&<gid>")]
 pub fn return_manifest(
     state: State<StateManager>,
     stream_tracking: State<StreamTracking>,
@@ -43,14 +45,13 @@ pub fn return_manifest(
     conn: DbConnection,
     id: i32,
     start_num: Option<u32>,
+    gid: Option<u128>,
 ) -> Result<Response<'static>, errors::StreamingErrors> {
     let start_num = start_num.unwrap_or(0);
     let media = MediaFile::get_one(conn.as_ref(), id)
         .map_err(|e| errors::StreamingErrors::NoMediaFileFound(e.to_string()))?;
 
     let user_id = auth.0.claims.id;
-
-    stream_tracking.kill_all(&state, user_id);
 
     let info = FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
         .get_meta(&std::path::PathBuf::from(media.target_file.clone()))
@@ -62,6 +63,9 @@ pub fn return_manifest(
         .to_string();
 
     ms.truncate(4);
+
+    let gid = gid.unwrap_or(uuid::Uuid::new_v4().as_u128());
+    stream_tracking.kill_all(&state, gid);
 
     let duration = chrono::DateTime::<Utc>::from_utc(
         NaiveDateTime::from_timestamp(info.get_duration().unwrap() as i64, 0),
@@ -96,7 +100,7 @@ pub fn return_manifest(
         StreamType::Video(video_stream.index as usize),
     );
 
-    stream_tracking.insert(user_id, video.clone());
+    stream_tracking.insert(gid, video.clone());
 
     tracks.push(format!(
         include_str!("../static/video_segment.mpd"),
@@ -125,7 +129,7 @@ pub fn return_manifest(
             start_num = start_num,
         ));
 
-        stream_tracking.insert(user_id, audio.clone());
+        stream_tracking.insert(gid, audio.clone());
     }
 
     let manifest = format!(
@@ -198,32 +202,55 @@ pub fn get_chunk(
     Ok(NamedFile::open(path).ok())
 }
 
-#[get("/<id>/state/should_hard_seek/<chunk_num>")]
+#[get("/<gid>/state/should_hard_seek/<chunk_num>")]
 pub fn should_client_hard_seek(
     state: State<StateManager>,
-    id: String,
+    stream_tracking: State<StreamTracking>,
+    gid: u128,
     chunk_num: u64,
 ) -> Result<JsonValue, errors::StreamingErrors> {
+    let ids = stream_tracking
+        .get_for_gid(gid)
+        .ok_or(errors::StreamingErrors::InvalidRequest)?;
+
+    let mut should_client_hard_seek = false;
+    for id in ids {
+        should_client_hard_seek |= state.should_client_hard_seek(id, chunk_num)?;
+    }
+
     Ok(json!({
-        "should_client_seek": state
-            .should_client_hard_seek(id, chunk_num)?,
+        "should_client_seek": should_client_hard_seek,
     }))
 }
 
-#[get("/<id>/state/get_stderr")]
+#[get("/<gid>/state/get_stderr")]
 pub fn session_get_stderr(
     state: State<StateManager>,
-    id: String,
+    stream_tracking: State<StreamTracking>,
+    gid: u128,
 ) -> Result<JsonValue, errors::StreamingErrors> {
-    Ok(json!({ "stderr": state.get_stderr(id)? }))
+    Ok(json!({
+    "errors": stream_tracking
+        .get_for_gid(gid)
+        .ok_or(errors::StreamingErrors::InvalidRequest)?
+        .into_iter()
+        .filter_map(|x| state.get_stderr(x).ok())
+        .collect::<Vec<_>>(),
+    }))
 }
 
-#[get("/<id>/state/kill")]
+#[get("/<gid>/state/kill")]
 pub fn kill_session(
     state: State<StateManager>,
-    id: String,
+    stream_tracking: State<StreamTracking>,
+    gid: u128,
 ) -> Result<Status, errors::StreamingErrors> {
-    state.kill(id)?;
+    for id in stream_tracking
+        .get_for_gid(gid)
+        .ok_or(errors::StreamingErrors::InvalidRequest)?
+    {
+        let _ = state.kill(id);
+    }
 
     Ok(Status::NoContent)
 }
