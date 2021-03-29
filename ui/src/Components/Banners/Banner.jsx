@@ -85,7 +85,7 @@ function Banner(props) {
           <p className="description">
             <TruncText content={synopsis} max={35}/>
           </p>
-          <PlayButton mediaID={id} versions={props.data.versions}/>
+          <PlayButton mediaID={id} versions={props.data.versions} progress={delta}/>
         </div>
         <ProgressBar data={progressBarData}/>
       </div>
