@@ -23,6 +23,7 @@
     display: grid;
     gap: 5em;
     grid-template-areas: "endsAt" "controls";
+    transition: background 200ms ease-in-out;
 
     .errorBox {
       position: absolute;
