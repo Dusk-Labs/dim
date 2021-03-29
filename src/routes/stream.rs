@@ -4,6 +4,8 @@ use crate::core::DbConnection;
 use crate::errors;
 use crate::stream_tracking::StreamTracking;
 use crate::streaming::ffprobe::FFProbeCtx;
+use crate::streaming::get_avc1_tag;
+use crate::streaming::Avc1Level;
 
 use chrono::prelude::*;
 use chrono::NaiveDateTime;
@@ -102,6 +104,14 @@ pub fn return_manifest(
 
     stream_tracking.insert(gid, video.clone());
 
+    // FIXME: Stop hardcoding a fps of 24
+    let video_avc = get_avc1_tag(
+        video_stream.width.clone().unwrap_or(1920) as u64,
+        video_stream.height.clone().unwrap_or(1080) as u64,
+        info.get_bitrate().parse().unwrap(),
+        24,
+    );
+
     tracks.push(format!(
         include_str!("../static/video_segment.mpd"),
         id = video.clone(),
@@ -109,7 +119,7 @@ pub fn return_manifest(
         init = format!("{}/data/init.mp4?start_num={}", video.clone(), start_num),
         chunk_path = format!("{}/data/$Number$.m4s", video.clone()),
         start_num = start_num,
-        avc = "avc1.64001f",
+        avc = video_avc.to_string(),
     ));
 
     let audio_streams = info.find_by_codec("audio");
