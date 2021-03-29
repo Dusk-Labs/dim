@@ -69,17 +69,6 @@ function VideoPlayer(props) {
     const url = `//${window.host}:8000/api/v1/stream/${params.fileID}/manifest.mpd?gid=${uuid}`;
     const mediaPlayer = MediaPlayer().create();
 
-    mediaPlayer.updateSettings({
-      streaming: {
-        stableBufferTime: 10,
-        bufferToKeep: 10,
-        bufferTimeAtTopQuality: 20,
-        bufferTimeAtTopQualityLongForm: 20,
-        useAppendWindowEnd: false,
-        bufferPruningInterval: 10,
-      }
-    });
-
     mediaPlayer.extend("RequestModifier", function () {
       return {
         modifyRequestHeader: function (xhr) {
