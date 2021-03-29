@@ -24,6 +24,7 @@ function VideoPlayer(props) {
   const [fullscreen, setFullscreen] = useState(false);
   const [muted, setMuted] = useState(false);
   const [error, setError] = useState();
+  const [videoUUID, setVideoUUID] = useState();
 
   const [buffer, setBuffer] = useState(true);
   const [paused, setPaused] = useState(false);
@@ -54,7 +55,18 @@ function VideoPlayer(props) {
     setManifestLoaded(false);
     setManifestLoading(true);
 
-    const url = `//${window.host}:8000/api/v1/stream/${params.fileID}/manifest.mpd`;
+    const existingUUID = sessionStorage.getItem("videoUUID");
+
+    let uuid;
+
+    if (existingUUID) {
+      uuid = existingUUID;
+    } else {
+      uuid = "xxxxxxxxxxxxxxxx".replace(/[xy]/g, () => Math.round(Math.random() * 8));
+      sessionStorage.setItem("videoUUID", uuid);
+    }
+
+    const url = `//${window.host}:8000/api/v1/stream/${params.fileID}/manifest.mpd?gid=${uuid}`;
     const mediaPlayer = MediaPlayer().create();
 
     mediaPlayer.updateSettings({
@@ -83,6 +95,19 @@ function VideoPlayer(props) {
     mediaPlayer.initialize(video.current, url, true);
 
     setPlayer(mediaPlayer);
+    setVideoUUID(uuid);
+
+    return () => {
+      mediaPlayer.destroy();
+
+      const uuid = sessionStorage.getItem("videoUUID");
+      if (!uuid) return;
+
+      (async () => {
+        await fetch(`//${window.host}:8000/api/v1/stream/${uuid}/state/kill`);
+        sessionStorage.clear();
+      })();
+    }
   }, [auth.token, params.fileID]);
 
   const eManifestLoad = useCallback(() => {
@@ -178,6 +203,7 @@ function VideoPlayer(props) {
     setBuffer,
     buffer,
     paused,
+    videoUUID
   };
 
   return (
