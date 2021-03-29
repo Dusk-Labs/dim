@@ -61,6 +61,18 @@ function PrivateRoute(props) {
     window.scrollTo(0, 0);
   }, [history.location.pathname]);
 
+  // clears any remaining video streams
+  useEffect(() => {
+    const videoUUID = sessionStorage.getItem("videoUUID");
+
+    if (!videoUUID) return;
+
+    (async () => {
+      await fetch(`//${window.host}:8000/api/v1/stream/${videoUUID}/state/kill`);
+      sessionStorage.clear();
+    })();
+  }, [history.location.pathname]);
+
   const { exact, path, render, children } = props;
 
   return (token && tokenInCookie) && (
