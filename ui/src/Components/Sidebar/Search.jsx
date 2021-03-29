@@ -20,7 +20,7 @@ function Search(props) {
   const { quickSearch, auth } = props;
 
   const handleClick = useCallback(e => {
-    if (showResults) {
+    if (showResults && searchBox.current) {
       if (searchBox.current.contains(e.target)) return;
       setShowResults(false);
     }
