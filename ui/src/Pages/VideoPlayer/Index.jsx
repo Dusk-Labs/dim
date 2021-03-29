@@ -5,15 +5,18 @@ import { MediaPlayer } from "dashjs";
 import VideoControls from "./Controls/Index";
 import { VideoPlayerContext } from "./Context";
 import RingLoad from "../../Components/Load/Ring";
-import { clearMediaInfo, fetchMediaInfo } from "../../actions/card";
+import { clearMediaInfo, fetchExtraMediaInfo, fetchMediaInfo } from "../../actions/card";
 import ErrorBox from "./ErrorBox";
+import ContinueProgress from "./ContinueProgress";
 
 import "./Index.scss";
 
 // oldOffset logic might still be useful in the future but redundant now
 function VideoPlayer(props) {
   const videoPlayer = useRef(null);
+  const overlay = useRef(null);
   const video = useRef(null);
+
   const [player, setPlayer] = useState();
 
   const [manifestLoading, setManifestLoading] = useState(false);
@@ -25,21 +28,53 @@ function VideoPlayer(props) {
   const [muted, setMuted] = useState(false);
   const [error, setError] = useState();
   const [videoUUID, setVideoUUID] = useState();
+  const [episode, setEpisode] = useState();
 
   const [buffer, setBuffer] = useState(true);
   const [paused, setPaused] = useState(false);
-  // const [offset, setOffset] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  // const [oldOffset, setOldOffset] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const {params} = props.match;
-  const { fetchMediaInfo, media_info, auth } = props;
+  const { clearMediaInfo, fetchExtraMediaInfo, fetchMediaInfo, media_info, auth, match } = props;
+  const { params } = match;
+
+  useEffect(() => {
+    if (props.extra_media_info.info.seasons) {
+      const { seasons } = props.extra_media_info.info;
+
+      let episode;
+
+      for (const season of seasons) {
+        const found = season.episodes.filter(ep => {
+          return ep.versions.filter(version => version.id === parseInt(params.fileID)).length === 1;
+        });
+
+        if (found.length > 0) {
+          episode = {
+            ...found[0],
+            season: season.season_number
+          };
+
+          break;
+        }
+      }
+
+      if (episode) {
+        setEpisode(episode);
+        console.log(episode)
+      }
+    }
+  }, [params.fileID, props.extra_media_info.info]);
+
+  useEffect(() => {
+    fetchExtraMediaInfo(auth.token, params.mediaID);
+    return () => clearMediaInfo()
+  }, [auth.token, clearMediaInfo, fetchExtraMediaInfo, params.mediaID]);
 
   useEffect(() => {
     fetchMediaInfo(auth.token, params.mediaID);
     return () => clearMediaInfo();
-  }, [auth.token, fetchMediaInfo, params.mediaID]);
+  }, [auth.token, clearMediaInfo, fetchMediaInfo, params.mediaID]);
 
   useEffect(() => {
     document.title = "Dim - Video Player";
@@ -109,6 +144,17 @@ function VideoPlayer(props) {
       })();
     }
   }, [auth.token, params.fileID]);
+
+  const seekTo = useCallback(async newTime => {
+    const newSegment = Math.floor(newTime / 5);
+
+    setCurrentTime(newTime);
+    setBuffer(0);
+
+    player.attachSource(`//${window.host}:8000/api/v1/stream/${params.fileID}/manifest.mpd?start_num=${newSegment}&gid=${videoUUID}`);
+
+    setSeeking(false);
+  }, [params.fileID, player, videoUUID]);
 
   const eManifestLoad = useCallback(() => {
     setManifestLoading(false);
@@ -203,18 +249,22 @@ function VideoPlayer(props) {
     setBuffer,
     buffer,
     paused,
-    videoUUID
+    videoUUID,
+    overlay: overlay.current,
+    seekTo,
+    episode
   };
 
   return (
     <VideoPlayerContext.Provider value={initialValue}>
       <div className="videoPlayer" ref={videoPlayer}>
-        <video
-          ref={video}
-        />
-        <div className="overlay">
+        <video ref={video}/>
+        <div className="overlay" ref={overlay}>
           {(!error && (manifestLoaded && canPlay)) && <VideoControls/>}
           {(!error & (manifestLoading || !canPlay) || waiting) && <RingLoad/>}
+          {((!error && (manifestLoaded && canPlay)) && props.extra_media_info.info.progress > 0) && (
+            <ContinueProgress/>
+          )}
           {error && (
             <ErrorBox error={error} setError={setError} currentTime={currentTime}/>
           )}
@@ -226,11 +276,13 @@ function VideoPlayer(props) {
 
 const mapStateToProps = (state) => ({
   auth: state.auth,
-  media_info: state.card.media_info
+  media_info: state.card.media_info,
+  extra_media_info: state.card.extra_media_info
 });
 
 const mapActionsToProps = {
   fetchMediaInfo,
+  fetchExtraMediaInfo,
   clearMediaInfo
 };
 
