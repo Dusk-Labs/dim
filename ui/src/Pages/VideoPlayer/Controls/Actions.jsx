@@ -112,21 +112,23 @@ function VideoActions(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTime]);
 
-  const handleActive = useCallback(() => {
+  const showPlayer = useCallback(() => {
     setIdleCount(0);
-  }, []);
+    setVisible(true);
+    document.getElementsByTagName("body")[0].style.cursor = "default";
+  }, [setVisible]);
 
   useEffect(() => {
-    document.addEventListener("mousemove", handleActive);
+    document.addEventListener("mousemove", showPlayer);
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.removeEventListener("mousemove", handleActive);
+      document.removeEventListener("mousemove", showPlayer);
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
       document.removeEventListener("keydown", handleKeyDown);
     }
-  }, [handleActive, handleFullscreenChange, handleKeyDown]);
+  }, [handleFullscreenChange, handleKeyDown, showPlayer]);
 
   return (
     <div className="actions">
