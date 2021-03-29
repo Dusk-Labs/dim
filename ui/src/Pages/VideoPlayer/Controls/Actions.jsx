@@ -10,7 +10,7 @@ import CompressIcon from "../../../assets/Icons/Compress";
 import VolumeUpIcon from "../../../assets/Icons/VolumeUp";
 import VolumeMuteIcon from "../../../assets/Icons/VolumeMute";
 
-import "./Index.scss";
+import "./Actions.scss";
 
 function VideoActions(props) {
   const { duration, muted, setMuted, videoPlayer, fullscreen, setFullscreen, currentTime, player, paused } = useContext(VideoPlayerContext);
@@ -131,7 +131,7 @@ function VideoActions(props) {
   }, [handleFullscreenChange, handleKeyDown, showPlayer]);
 
   return (
-    <div className="actions">
+    <div className="videoActions">
       <button onClick={toggleMute} className="volume">
         {!muted && <VolumeUpIcon/>}
         {muted && <VolumeMuteIcon/>}
