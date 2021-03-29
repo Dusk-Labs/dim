@@ -1,9 +1,12 @@
 use auth::Wrapper as Auth;
+use errors::StreamingErrors;
 
 use crate::core::DbConnection;
 use crate::errors;
 use crate::stream_tracking::StreamTracking;
 use crate::streaming::ffprobe::FFProbeCtx;
+use crate::streaming::get_avc1_tag;
+use crate::streaming::Avc1Level;
 
 use chrono::prelude::*;
 use chrono::NaiveDateTime;
@@ -24,9 +27,9 @@ use rocket_contrib::json::JsonValue;
 use slog::info;
 use slog::Logger;
 
-use nightfall::profile::Profile;
 use nightfall::profile::StreamType;
 use nightfall::StateManager;
+use nightfall::{error::NightfallError, profile::Profile};
 
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -102,6 +105,14 @@ pub fn return_manifest(
 
     stream_tracking.insert(gid, video.clone());
 
+    // FIXME: Stop hardcoding a fps of 24
+    let video_avc = get_avc1_tag(
+        video_stream.width.clone().unwrap_or(1920) as u64,
+        video_stream.height.clone().unwrap_or(1080) as u64,
+        info.get_bitrate().parse().unwrap(),
+        24,
+    );
+
     tracks.push(format!(
         include_str!("../static/video_segment.mpd"),
         id = video.clone(),
@@ -109,7 +120,7 @@ pub fn return_manifest(
         init = format!("{}/data/init.mp4?start_num={}", video.clone(), start_num),
         chunk_path = format!("{}/data/$Number$.m4s", video.clone()),
         start_num = start_num,
-        avc = "avc1.64001f",
+        avc = video_avc.to_string(),
     ));
 
     let audio_streams = info.find_by_codec("audio");
@@ -145,13 +156,45 @@ pub fn return_manifest(
         .ok()
 }
 
+/// Repeatedly invoke a nightfall routine until a timeout occurs waiting for a chunk to be "ready".
+///
+/// `tick_dur` will the the duration amount that gets passed into `std::thread::sleep` and it will
+/// block for AT MOST `tick_limit` ticks. When a the tick limit has been hit `None` is returned
+/// otherwise `Some(Result<T, NightfallError>)` is returned.
+///
+fn timeout_segment<F, T>(f: F, tick_dur: Duration, tick_limit: usize) -> Result<T, NightfallError>
+where
+    F: Fn() -> Result<T, NightfallError>,
+{
+    let mut ticks = 0usize;
+
+    loop {
+        if ticks >= tick_limit {
+            return Err(NightfallError::ChunkNotDone.into());
+        }
+
+        let result = f();
+
+        if let Err(NightfallError::ChunkNotDone) = result {
+            ticks += 1;
+            std::thread::sleep(tick_dur);
+        } else {
+            break result;
+        }
+    }
+}
+
 #[get("/<id>/data/init.mp4?<start_num>", rank = 1)]
 pub fn get_init(
     state: State<StateManager>,
     id: String,
     start_num: Option<u64>,
 ) -> Result<Option<NamedFile>, errors::StreamingErrors> {
-    let path = state.init_or_create(id, start_num.unwrap_or(0))?;
+    let path: String = timeout_segment(
+        || state.init_or_create(id.clone(), start_num.unwrap_or(0)),
+        Duration::from_millis(100),
+        20,
+    )?;
 
     Ok(NamedFile::open(path).ok())
 }
@@ -189,15 +232,11 @@ pub fn get_chunk(
         .exists(id.clone())
         .map_err(|_| errors::StreamingErrors::SessionDoesntExist)?;
 
-    let path = state.get_segment(id.clone(), chunk_num)?;
-
-    for _ in 0..5 {
-        if let Ok(_) = NamedFile::open(path.clone()) {
-            return Ok(NamedFile::open(path).ok());
-        }
-
-        std::thread::sleep(Duration::from_millis(100));
-    }
+    let path: String = timeout_segment(
+        || state.get_segment(id.clone(), chunk_num),
+        Duration::from_millis(100),
+        20,
+    )?;
 
     Ok(NamedFile::open(path).ok())
 }
