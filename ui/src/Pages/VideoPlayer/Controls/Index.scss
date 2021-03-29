@@ -6,6 +6,7 @@
   margin: 0 auto;
   max-width: 1080px;
   width: 100%;
+  position: relative;
   grid-template-columns: 1fr 1fr;
   transition: opacity 200ms ease-in-out;
   grid-template-areas:
@@ -23,65 +24,14 @@
   }
 
   .name {
+    justify-self: flex-start;
     grid-area: name;
+    transition: opacity 100ms ease-in-out;
   }
 
   .time {
     justify-self: flex-end;
     grid-area: time;
-  }
-
-  .actions {
-    display: grid;
-    width: 100%;
-    grid-template-columns: auto 1fr auto auto auto 1fr auto;
-    grid-template-areas:
-      "volume . backward playpause forward . fullscreen";
-    justify-self: center;
-    grid-area: actions;
-
-    button {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 1em;
-      border-radius: 5px;
-      background: transparent;
-
-      svg {
-        transition: fill 100ms ease-in-out;
-      }
-
-      &:hover svg {
-        fill: #f7931e;
-      }
-
-      svg {
-        fill: #eee;
-        width: 16px;
-      }
-    }
-
-    .volume {
-      grid-area: volume;
-      padding: 1em 1em 1em 0;
-    }
-
-    .backward {
-      grid-area: backward;
-    }
-
-    .playpause {
-      grid-area: playpause;
-    }
-
-    .forward {
-      grid-area: forward;
-    }
-
-    .fullscreen {
-      grid-area: fullscreen;
-      padding: 1em 0 1em 1em;
-    }
+    transition: opacity 100ms ease-in-out;
   }
 }

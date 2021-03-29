@@ -1,0 +1,24 @@
+.seekingTo {
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -15%);
+  position: absolute;
+  background: #3a3a3a;
+  opacity: 0;
+  padding: .2em .5em;
+  border-radius: 10px;
+  pointer-events: none;
+  transition: opacity 100ms ease-in-out;
+
+  &::after {
+    content: "";
+    height: 10px;
+    width: 10px;
+    background: inherit;
+    position: absolute;
+    top: 80%;
+    left: 50%;
+    transform: translateX(-50%) rotate(-45deg);
+    border-bottom-left-radius: .2em;
+  }
+}
