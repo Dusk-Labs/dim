@@ -7,10 +7,20 @@
   max-width: 1080px;
   width: 100%;
   grid-template-columns: 1fr 1fr;
+  transition: opacity 200ms ease-in-out;
   grid-template-areas:
     "name time"
     "seekbar seekbar"
     "actions actions";
+
+  &.true {
+    opacity: 1;
+  }
+
+  &.false {
+    opacity: 0;
+    pointer-events: none;
+  }
 
   .name {
     grid-area: name;
