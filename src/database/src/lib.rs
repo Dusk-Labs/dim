@@ -119,7 +119,7 @@ pub fn get_conn_devel() -> Result<crate::DbConnection, diesel::result::Connectio
                 "postgres://postgres:dimpostgres@postgres/dim_devel",
             )?;
         } else {
-            let conn = DbConnection::establish("./dim_devel.db;foreign_keys=true;")?;
+            let conn = DbConnection::establish("./dim_devel.db;")?;
             let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
             let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn);
             let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(&conn);
