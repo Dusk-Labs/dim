@@ -1,27 +1,43 @@
-.seekBar {
+.seekBarContainer {
   grid-area: seekbar;
-  position: relative;
-  height: 10px;
-  background: #3a3a3a;
-  border-radius: 5px;
   width: 100%;
-  cursor: pointer;
-  overflow: hidden;
-  z-index: 0;
 
-  .buffer, .current {
-    height: inherit;
-    width: 0;
-    pointer-events: none;
+  &:hover {
+    .seekingTo {
+      opacity: 1;
+    }
   }
 
-  .buffer {
-    position: absolute;
-    background: #4a4a4a;
-    z-index: -1;
-  }
+  .seekBar {
+    position: relative;
+    height: 10px;
+    background: #2a2a2a;
+    border-radius: 10px;
+    width: 100%;
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 0;
+    transition: height 100ms ease-in-out;
 
-  .current {
-    background: #f7931e;
+    &:hover {
+      border-radius: 10px;
+      height: 20px;
+    }
+
+    .buffer, .current {
+      height: inherit;
+      width: 0;
+      pointer-events: none;
+    }
+
+    .buffer {
+      position: absolute;
+      background: #4a4a4a;
+      z-index: -1;
+    }
+
+    .current {
+      background: #f7931e;
+    }
   }
 }

@@ -1,9 +1,12 @@
 import { useCallback, useContext, useEffect, useRef } from "react";
+
 import { VideoPlayerContext } from "../Context";
+import SeekingTo from "./SeekingTo";
 
 import "./SeekBar.scss";
 
 function VideoSeekBar(props) {
+  const seekBar = useRef(null);
   const { seeking, setSeeking, player, duration, currentTime, buffer } = useContext(VideoPlayerContext);
 
   const seekBarCurrent = useRef(null);
@@ -46,9 +49,12 @@ function VideoSeekBar(props) {
   }, [player, seekTo, seeking, setSeeking]);
 
   return (
-    <div className="seekBar" onClick={onSeek}>
-      <div ref={bufferBar} className="buffer"/>
-      <div ref={seekBarCurrent} className="current"/>
+    <div className="seekBarContainer">
+      <div className="seekBar" onClick={onSeek} ref={seekBar}>
+        <div ref={bufferBar} className="buffer"/>
+        <div ref={seekBarCurrent} className="current"/>
+      </div>
+      <SeekingTo nameRef={props.nameRef} timeRef={props.timeRef} seekBar={seekBar}/>
     </div>
   );
 }

@@ -22,16 +22,17 @@ function VideoControls() {
 
     player.attachSource(`//${window.host}:8000/api/v1/stream/${fileID}/manifest.mpd?start_num=${newSegment}&gid=${videoUUID}`);
 
-    // setOldOffset(offset);
-    // setCurrentTime(0);
-    // setOffset(newTime);
     setSeeking(false);
   }, [fileID, player, setBuffer, setCurrentTime, setSeeking, videoUUID]);
 
   return (
     <div className={`videoControls ${visible}`}>
-      <p className="name" ref={nameDiv}>{mediaInfo.name}</p>
-      <p className="time" ref={timeDiv}>{formatHHMMSS(currentTime)} - {formatHHMMSS(duration)}</p>
+      <p className="name" ref={nameDiv}>
+        {mediaInfo.name}
+      </p>
+      <p className="time" ref={timeDiv}>
+        {formatHHMMSS(currentTime)} - {formatHHMMSS(duration)}
+      </p>
       <SeekBar seekTo={seekTo} nameRef={nameDiv.current} timeRef={timeDiv.current}/>
       <Actions setVisible={setVisible} seekTo={seekTo}/>
     </div>
