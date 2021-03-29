@@ -18,7 +18,9 @@ function LogoutBtn(props) {
 
   return (
     <ConfirmationBox
-      contentLabel="removeLib"
+      title="Confirm action"
+      cancelText="Nevermind"
+      confirmText="Yes"
       action={confirmLogout}
       msg="Are you sure you want to logout?"
     >
