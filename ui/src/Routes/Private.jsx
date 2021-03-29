@@ -63,6 +63,8 @@ function PrivateRoute(props) {
 
   // clears any remaining video streams
   useEffect(() => {
+    if (history.location.pathname.includes("/play/")) return;
+
     const videoUUID = sessionStorage.getItem("videoUUID");
 
     if (!videoUUID) return;
