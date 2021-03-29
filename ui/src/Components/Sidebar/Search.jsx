@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { connect } from "react-redux";
-import { withRouter } from "react-router-dom";
+import { useHistory, withRouter } from "react-router-dom";
 
 import QuickSearchResults from "./QuickSearchResults";
 import { quickSearch } from "../../actions/search.js";
@@ -9,6 +9,8 @@ import { quickSearch } from "../../actions/search.js";
 import "./Search.scss";
 
 function Search(props) {
+  const history = useHistory();
+
   const searchBox = useRef(null);
   const inputBox = useRef(null);
 
@@ -43,15 +45,27 @@ function Search(props) {
 
   const onKeyDown = useCallback((e) => {
     if (e.keyCode === 13) {
-      quickSearch();
+      history.push({
+        pathname: "/search",
+        search: `?query=${encodeURIComponent(query)}`
+      });
+
+      setQuery("");
+      setShowResults(false);
     }
-  }, [quickSearch]);
+  }, [history, query]);
 
   const fullSearch = useCallback(() => {
     if (query.length >= 1) {
-      props.history.push(`/search?query=${query}`);
+      history.push({
+        pathname: "/search",
+        search: `?query=${encodeURIComponent(query)}`
+      });
+
+      setQuery("");
+      setShowResults(false);
     }
-  }, [props.history, query]);
+  }, [history, query]);
 
   return (
     <div className="search-box" ref={searchBox}>

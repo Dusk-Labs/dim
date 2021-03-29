@@ -1,11 +1,13 @@
 pub mod movie;
 pub mod scanner_daemon;
-pub mod tmdb_api;
+pub mod tmdb;
 pub mod tv_show;
 
+pub use pushevent::EventTx;
+
 use self::scanner_daemon::ScannerDaemon;
-use self::tmdb_api::Media;
-use self::tmdb_api::MediaType;
+use self::tmdb::Media;
+use self::tmdb::MediaType;
 
 use pushevent::Event;
 
@@ -28,10 +30,14 @@ use slog::Logger;
 
 use walkdir::WalkDir;
 
+use std::fmt;
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
+
+use serde::Deserialize;
+use serde::Serialize;
 
 pub trait APIExec<'a> {
     fn new(api_key: &'a str) -> Self;
@@ -44,6 +50,78 @@ pub trait APIExec<'a> {
         result_num: usize,
     ) -> Vec<Media>;
     fn search_by_id(&mut self, id: i32, media_type: MediaType) -> Option<Media>;
+}
+
+#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq, Serialize, Deserialize)]
+pub enum ApiMediaType {
+    Movie,
+    Tv,
+}
+
+impl fmt::Display for ApiMediaType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            ApiMediaType::Movie => write!(f, "movie"),
+            ApiMediaType::Tv => write!(f, "tv"),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ApiMedia {
+    pub id: u64,
+    pub title: String,
+    pub release_date: Option<String>,
+    pub overview: Option<String>,
+    pub poster_path: Option<String>,
+    pub backdrop_path: Option<String>,
+    pub poster_file: Option<String>,
+    pub backdrop_file: Option<String>,
+    pub genres: Vec<String>,
+    pub rating: Option<i32>,
+
+    pub media_type: ApiMediaType,
+    pub seasons: Vec<ApiSeason>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ApiSeason {
+    pub id: u64,
+    pub name: Option<String>,
+    pub poster_path: Option<String>,
+    pub poster_file: Option<String>,
+    pub season_number: u64,
+    pub episodes: Vec<ApiEpisode>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ApiEpisode {
+    pub id: u64,
+    pub name: Option<String>,
+    pub overview: Option<String>,
+    pub episode: Option<u64>,
+    pub still: Option<String>,
+    pub still_file: Option<String>,
+}
+
+/// Trait describes the interface a metadata agent must implement.
+pub trait MetadataAgent {
+    type Error;
+
+    fn fetch(
+        &mut self,
+        title: String,
+        year: Option<i32>,
+    ) -> Result<Box<dyn Iterator<Item = Result<ApiMedia, Self::Error>>>, Self::Error>;
+
+    fn search(&mut self, title: String, year: Option<i32>) -> Result<ApiMedia, Self::Error>;
+
+    fn search_many(
+        &mut self,
+        title: String,
+        year: Option<i32>,
+        n: usize,
+    ) -> Result<Vec<ApiMedia>, Self::Error>;
 }
 
 #[derive(Debug)]
@@ -261,8 +339,6 @@ pub trait MediaScanner: Sized {
     fn library_ref(&self) -> &Library;
     fn conn_ref(&self) -> &database::DbConnection;
 }
-
-pub type EventTx = std::sync::mpsc::Sender<Event>;
 
 pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> Result<(), ()> {
     info!(log, "Summoning scanner for Library with id: {}", library_id);

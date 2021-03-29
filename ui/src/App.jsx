@@ -12,7 +12,7 @@ import PrivateRoute from "./Routes/Private";
 import Dashboard from "./Pages/Dashboard";
 import Library from "./Pages/Library/Index";
 import Media from "./Pages/Media/Index";
-// import VideoPlayer from "./Pages/VideoPlayer.jsx";
+import VideoPlayer from "./Pages/VideoPlayer/Index";
 import SearchResults from "./Pages/SearchResults";
 import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
@@ -57,14 +57,14 @@ const routes = (
         <SearchResults {...props}/>
       </MainLayout>
     )}/>
-    <PrivateRoute path="/media/:id" render={(props) => (
+    <PrivateRoute exact path="/media/:id" render={(props) => (
       <MainLayout>
         <Media {...props}/>
       </MainLayout>
     )}/>
-    {/* <PrivateRoute path="/play/:id" render={(props) => (
+    <PrivateRoute exact path="/media/:mediaID/play/:fileID" render={(props) => (
       <VideoPlayer {...props}/>
-    )}/> */}
+    )}/>
   </Switch>
 );
 
@@ -88,7 +88,7 @@ function App() {
 
     const mql = matchMedia("(prefers-color-scheme: dark)");
 
-    if (mql.matches) {
+    if (mql.matches && lightLogo) {
       lightLogo.remove();
       document.head.append(darkLogo);
     }

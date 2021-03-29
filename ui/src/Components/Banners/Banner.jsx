@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 
 import ProgressBar from "./ProgressBar.jsx";
 import Image from "./Image.jsx";
-import PlayButton from "./PlayButton.jsx";
+import PlayButton from "../PlayButton.jsx";
 import TruncText from "../../Helpers/TruncText.jsx";
 import NewLibraryModal from "../../Modals/NewLibrary/Index";
 
@@ -73,7 +73,7 @@ function Banner(props) {
           )}
           {genres.map((genre, i) => (
             <Link
-              to={`/search?genre=${genre}`}
+              to={`/search?genre=${encodeURIComponent(genre)}`}
               key={i}
             >
               {genre}
@@ -85,7 +85,7 @@ function Banner(props) {
           <p className="description">
             <TruncText content={synopsis} max={35}/>
           </p>
-          <PlayButton id={id}/>
+          <PlayButton mediaID={id} versions={props.data.versions}/>
         </div>
         <ProgressBar data={progressBarData}/>
       </div>

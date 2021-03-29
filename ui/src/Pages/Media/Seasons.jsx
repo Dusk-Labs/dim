@@ -14,22 +14,33 @@ import "./Index.scss";
 function Media(props) {
   const episodes = useRef(null);
 
+  const [ scrollSmoothly, setScrollSmoothly ] = useState(false);
   const [ season, setSeason ] = useState();
 
   useEffect(() => {
+    if (!scrollSmoothly) return;
     episodes.current?.scrollIntoView({behavior: "smooth"});
-  }, [season]);
+  }, [scrollSmoothly]);
+
+  const { info, fetched, error } = props.extra_media_info;
+
+  useEffect(() => {
+    if (info.seasons.length === 1) {
+      setSeason(info.seasons[0].season_number);
+    }
+  }, [info.seasons]);
 
   const showSeason = useCallback(number => {
     setSeason(number);
+    setScrollSmoothly(true);
   }, []);
 
   let mediaSeasons;
   let mediaEpisodes = {};
 
-  if (props.extra_media_info.fetched && !props.extra_media_info.error) {
-    if (props.extra_media_info.info.seasons) {
-      const { seasons } = props.extra_media_info.info;
+  if (fetched && !error) {
+    if (info.seasons) {
+      const { seasons } = info;
 
       seasons.sort((a, b) => {
         return a.season_number - b.season_number;
@@ -53,9 +64,10 @@ function Media(props) {
           return a.episode - b.episode;
         });
 
+        // TODO: modal selecting which file
         mediaEpisodes[seasons[x].season_number] = seasons[x].episodes.map((episode, i) => {
           return (
-            <Link to={`/play/${episode.id}`} className="episode" key={i}>
+            <Link to={`/media/${props.media_info.info.id}/play/${episode.versions[0].id}`} className="episode" key={i}>
               <CardImage src={episode.backdrop}/>
               <p>Episode {episode.episode}</p>
             </Link>

@@ -1,5 +1,4 @@
 .metaContent {
-  padding: 30px;
   display: grid;
   gap: 1em;
   transition: padding .3s ease-in-out;
@@ -48,35 +47,6 @@
   .description {
     line-height: 2em;
     max-width: 60ch;
-  }
-
-  .playBtn {
-    transition: .2s ease-in-out;
-    transition-property: filter, background;
-    filter: saturate(0.7);
-    font-family: "Roboto Bold";
-    border-radius: 10px;
-    background: #4a4a4a;
-    display: inline-flex;
-    overflow: hidden;
-    outline: none;
-    cursor: pointer;
-    align-items: center;
-
-    &:focus,
-    &:hover {
-      filter: saturate(1);
-    }
-
-    p {
-      padding: .4em .8em;
-      background: #f7931e;
-    }
-
-    svg {
-      font-size: .6em;
-      margin: 0 10px;
-    }
   }
 
   .separator {
@@ -129,7 +99,4 @@
 }
 
 @media only screen and (min-width: 1080px) {
-  .metaContent {
-    padding: 60px 90px;
-  }
 }

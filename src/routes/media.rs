@@ -1,13 +1,13 @@
-use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors;
+use crate::{core::DbConnection, scanners::MetadataAgent};
 
 use crate::scanners::movie::MovieScanner;
 use crate::scanners::tv_show::TvShowScanner;
 use crate::scanners::MediaScanner;
 
-use crate::scanners::tmdb_api::MediaType as TmdbMediaType;
-use crate::scanners::tmdb_api::TMDbSearch;
+use crate::scanners::tmdb::MediaType as TmdbMediaType;
+use crate::scanners::tmdb::Tmdb;
 use crate::scanners::APIExec;
 
 use auth::Wrapper as Auth;
@@ -254,17 +254,15 @@ pub fn tmdb_search(
     year: Option<i32>,
     media_type: String,
 ) -> Result<JsonValue, errors::DimError> {
-    let mut tmdb_session = TMDbSearch::new("38c372f5bc572c8aadde7a802638534e");
-
     let media_type = match media_type.as_ref() {
         "movie" => TmdbMediaType::Movie,
         "tv" => TmdbMediaType::Tv,
         _ => return Err(errors::DimError::InvalidMediaType),
     };
 
-    Ok(json!(
-        tmdb_session.search_many(query, year, media_type, 15usize)
-    ))
+    let mut tmdb_session = Tmdb::new("38c372f5bc572c8aadde7a802638534e".to_string(), media_type);
+
+    Ok(json!(tmdb_session.search_many(query, year, 15)))
 }
 
 /// Method mapped to `PATCH /api/v1/media/<id>/match` used to rematch a media entry to a new tmdb

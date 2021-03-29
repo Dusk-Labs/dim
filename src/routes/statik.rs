@@ -6,6 +6,7 @@ use std::ffi::OsStr;
 use std::fs::File;
 use std::io::Cursor;
 use std::io::Read;
+use std::path::Path;
 use std::path::PathBuf;
 
 #[derive(RustEmbed)]
@@ -13,25 +14,22 @@ use std::path::PathBuf;
 #[cfg_attr(not(feature = "embed_ui"), folder = "/dev/null")]
 struct Asset;
 
-#[get("/", rank = 1)]
-pub fn index<'r>() -> response::Result<'r> {
-    Asset::get("index.html").map_or_else(
-        || Err(Status::NotFound),
-        |x| {
-            response::Response::build()
-                .header(ContentType::HTML)
-                .sized_body(Cursor::new(x))
-                .ok()
-        },
-    )
+#[get("/static/<file..>")]
+pub fn dist_static<'r>(file: PathBuf) -> response::Result<'r> {
+    let filename = file.display().to_string();
+    let file_path = format!("static/{}", filename);
+
+    dist_file(&file_path)
 }
 
-#[get("/<file..>", rank = 2)]
-pub fn dist_file<'r>(file: PathBuf) -> response::Result<'r> {
-    let filename = file.display().to_string();
-    Asset::get(&filename).map_or_else(index, |d| {
-        let ext = file
-            .as_path()
+#[get("/<file>", rank = 1)]
+pub fn dist_asset<'r>(file: String) -> response::Result<'r> {
+    dist_file(file.as_ref())
+}
+
+pub fn dist_file<'r>(file: &str) -> response::Result<'r> {
+    Asset::get(file).map_or_else(index_redirect, |d| {
+        let ext = Path::new(file)
             .extension()
             .and_then(OsStr::to_str)
             .ok_or_else(|| Status::new(400, "Could not get file extension"))?;
@@ -46,6 +44,19 @@ pub fn dist_file<'r>(file: PathBuf) -> response::Result<'r> {
     })
 }
 
+#[get("/")]
+pub fn index_redirect<'r>() -> response::Result<'r> {
+    Asset::get("index.html").map_or_else(
+        || Err(Status::NotFound),
+        |x| {
+            response::Response::build()
+                .header(ContentType::HTML)
+                .sized_body(Cursor::new(x))
+                .ok()
+        },
+    )
+}
+
 #[get("/images/<file..>", rank = 1)]
 pub fn get_image<'r>(file: PathBuf) -> response::Result<'r> {
     let mut pathbuf = PathBuf::from(crate::core::METADATA_PATH.get().unwrap());
@@ -57,6 +68,19 @@ pub fn get_image<'r>(file: PathBuf) -> response::Result<'r> {
             response::Response::build()
                 .header(ContentType::JPEG)
                 .sized_body(x)
+                .ok()
+        },
+    )
+}
+
+#[get("/<path..>", rank = 4)]
+pub fn react_routes<'r>(path: PathBuf) -> response::Result<'r> {
+    Asset::get("index.html").map_or_else(
+        || Err(Status::NotFound),
+        |x| {
+            response::Response::build()
+                .header(ContentType::HTML)
+                .sized_body(Cursor::new(x))
                 .ok()
         },
     )

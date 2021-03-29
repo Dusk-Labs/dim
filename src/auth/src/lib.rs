@@ -28,6 +28,8 @@ static ONE_WEEK: i64 = 60 * 60 * 24 * 7;
 /// Struct holds info needed for JWT to function correctly
 #[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
 pub struct UserRolesToken {
+    /// Unique, per jwt identifier
+    pub id: u128,
     /// Timestamp when the token was issued.
     iat: i64,
     /// Timestamp when the token expires.
@@ -71,6 +73,11 @@ impl UserRolesToken {
     pub fn get_user(&self) -> String {
         self.user.clone()
     }
+
+    /// Method returns the id of this token
+    pub fn get_id(&self) -> u128 {
+        self.id
+    }
 }
 
 /// Function generates a new JWT token and signs it with our KEY
@@ -88,6 +95,7 @@ impl UserRolesToken {
 pub fn jwt_generate(user: String, roles: Vec<String>) -> String {
     let now = get_time().sec;
     let payload = UserRolesToken {
+        id: uuid::Uuid::new_v4().to_u128_le(),
         iat: now,
         exp: now + ONE_WEEK,
         user,
@@ -124,6 +132,7 @@ pub fn jwt_check(_: String) -> Result<TokenData<UserRolesToken>, jsonwebtoken::e
             ..Default::default()
         },
         claims: UserRolesToken {
+            id: uuid::Uuid::new_v4().to_u128_le(),
             iat: 0,
             exp: i64::MAX,
             user: "Hiro".into(),
@@ -136,14 +145,15 @@ impl<'a, 'r> FromRequest<'a, 'r> for Wrapper {
     type Error = JWTError;
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
-        let keys: Vec<_> = request.headers().get("authorization").collect();
-        match keys.len() {
-            0 => Outcome::Failure((Status::Unauthorized, JWTError::Missing)),
-            1 => match jwt_check(keys[0].to_string()) {
+        if cfg!(all(debug_assertions, feature = "null_auth")) {
+            return Outcome::Success(Wrapper(jwt_check(String::new()).unwrap()));
+        }
+        match request.headers().get("Authorization").next() {
+            Some(k) => match jwt_check(k.into()) {
                 Ok(k) => Outcome::Success(Wrapper(k)),
                 Err(_) => Outcome::Failure((Status::Unauthorized, JWTError::InvalidKey)),
             },
-            _ => Outcome::Failure((Status::Unauthorized, JWTError::BadCount)),
+            None => Outcome::Failure((Status::Unauthorized, JWTError::Missing)),
         }
     }
 }

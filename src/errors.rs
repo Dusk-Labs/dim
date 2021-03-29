@@ -11,6 +11,8 @@ use err_derive::Error;
 use serde::Serialize;
 use std::io::Cursor;
 
+use nightfall::error::NightfallError;
+
 #[derive(Debug, Error, Serialize)]
 #[serde(tag = "error")]
 pub enum DimError {
@@ -56,13 +58,19 @@ pub enum StreamingErrors {
     #[error(display = "The video profile requested doesnt exist")]
     InvalidProfile,
     #[error(display = "A error with nightfall has occured")]
-    OtherNightfall,
-}
-
-impl From<nightfall::error::NightfallError> for StreamingErrors {
-    fn from(_: nightfall::error::NightfallError) -> Self {
-        Self::OtherNightfall
-    }
+    OtherNightfall(#[source] NightfallError),
+    #[error(display = "It appears that the file is corrupted")]
+    FileIsCorrupt,
+    #[error(display = "Invalid request")]
+    InvalidRequest,
+    #[error(display = "Requested session doesnt exist")]
+    SessionDoesntExist,
+    #[error(display = "InternalServerError")]
+    InternalServerError,
+    #[error(display = "No mediafile found")]
+    NoMediaFileFound(String),
+    #[error(display = "Failed to create a ffprobe context")]
+    FFProbeCtxFailed,
 }
 
 impl From<std::io::Error> for StreamingErrors {
@@ -137,6 +145,22 @@ impl Responder<'static> for AuthError {
             Self::DatabaseError => Status::InternalServerError,
             Self::Unauthorized => Status::Unauthorized,
             Self::WrongPassword | Self::FailedAuth => Status::Forbidden,
+        };
+
+        Response::build()
+            .status(status)
+            .header(ContentType::JSON)
+            .sized_body(Cursor::new(serde_json::to_string(&self).unwrap()))
+            .ok()
+    }
+}
+
+impl Responder<'static> for StreamingErrors {
+    fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
+        let status = match self {
+            Self::OtherNightfall(NightfallError::ChunkNotDone) => Status::Processing,
+            Self::NoMediaFileFound(_) => Status::NotFound,
+            _ => Status::InternalServerError,
         };
 
         Response::build()

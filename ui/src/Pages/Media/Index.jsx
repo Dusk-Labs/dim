@@ -2,11 +2,7 @@ import { useEffect } from "react";
 import { connect } from "react-redux";
 import { useParams } from "react-router-dom";
 
-import {
-  fetchExtraMediaInfo,
-  fetchMediaSeasons,
-  fetchMediaSeasonEpisodes
-} from "../../actions/card.js";
+import { fetchExtraMediaInfo } from "../../actions/card.js";
 
 import Banner from "./Banner";
 import MetaContent from "./MetaContent";
@@ -21,7 +17,6 @@ function Media(props) {
   const { token } = auth;
 
   useEffect(() => {
-    console.log("[Media / Index] fetchExtraMediaInfo");
     fetchExtraMediaInfo(token, id);
   }, [fetchExtraMediaInfo, id, token]);
 
@@ -37,10 +32,14 @@ function Media(props) {
   return (
     <div className="mediaPage">
       <Banner/>
-      <MetaContent/>
-      {props.extra_media_info.info.seasons && (
-        <Seasons/>
-      )}
+      <div className="mediaContent">
+        <div>
+          <MetaContent/>
+        </div>
+        {props.extra_media_info.info.seasons && (
+          <Seasons/>
+        )}
+      </div>
     </div>
   );
 }
@@ -52,9 +51,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapActionsToProps = {
-  fetchExtraMediaInfo,
-  fetchMediaSeasons,
-  fetchMediaSeasonEpisodes
+  fetchExtraMediaInfo
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(Media);
