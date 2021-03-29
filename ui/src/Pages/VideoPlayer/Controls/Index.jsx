@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 
 import { formatHHMMSS } from "../../../Helpers/utils";
 import { VideoPlayerContext } from "../Context";
@@ -8,6 +8,9 @@ import Actions from "./Actions";
 import "./Index.scss";
 
 function VideoControls() {
+  const nameDiv = useRef(null);
+  const timeDiv = useRef(null);
+
   const { videoUUID, setSeeking, player, currentTime, duration, setCurrentTime, setBuffer, fileID, mediaInfo } = useContext(VideoPlayerContext);
   const [ visible, setVisible ] = useState(true);
 
@@ -27,9 +30,9 @@ function VideoControls() {
 
   return (
     <div className={`videoControls ${visible}`}>
-      <p className="name">{mediaInfo.name}</p>
-      <p className="time">{format(currentTime)} - {format(duration)}</p>
-      <SeekBar seekTo={seekTo}/>
+      <p className="name" ref={nameDiv}>{mediaInfo.name}</p>
+      <p className="time" ref={timeDiv}>{formatHHMMSS(currentTime)} - {formatHHMMSS(duration)}</p>
+      <SeekBar seekTo={seekTo} nameRef={nameDiv.current} timeRef={timeDiv.current}/>
       <Actions setVisible={setVisible} seekTo={seekTo}/>
     </div>
   );
