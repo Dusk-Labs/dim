@@ -28,11 +28,11 @@ use slog::Logger;
 use events::Message;
 use events::PushEventType;
 use pushevent::Event;
+use tmdb::Tmdb;
 
-use super::tmdb_api;
-use super::tmdb_api::TMDbSearch;
-use super::APIExec;
+use super::tmdb;
 use super::MediaScanner;
+use super::MetadataAgent;
 use super::ScannerDaemon;
 
 pub struct TvShowScanner {
@@ -43,35 +43,20 @@ pub struct TvShowScanner {
 }
 
 impl TvShowScanner {
-    fn match_media_to_tmdb(&self, result: tmdb_api::Media, orphan: &MediaFile) {
-        let name = if let Some(x) = result.get_title() {
-            x
-        } else {
-            warn!(
-                self.log,
-                "TMDB returned a none title for orphan={}", orphan.id
-            );
-            return;
-        };
+    fn match_media_to_result(&self, result: super::ApiMedia, orphan: &MediaFile) {
+        let name = result.title.clone();
 
         let year: Option<i32> = result
-            .get_release_date()
+            .release_date
+            .clone()
             .map(|x| NaiveDate::parse_from_str(x.as_str(), "%Y-%m-%d"))
             .map(Result::ok)
             .unwrap_or(None)
             .map(|s| s.year() as i32);
 
-        let rating = result.vote_average.map(|x| x as i32);
+        let poster_path = result.poster_path.clone();
 
-        let poster_path = result
-            .poster_path
-            .clone()
-            .map(|s| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s));
-
-        let backdrop_path = result
-            .backdrop_path
-            .clone()
-            .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s));
+        let backdrop_path = result.backdrop_path.clone();
 
         let meta_fetcher = crate::core::METADATA_FETCHER_TX.get().unwrap().get();
 
@@ -84,15 +69,15 @@ impl TvShowScanner {
         }
 
         let media = InsertableMedia {
-            library_id: self.lib.id,
             name,
-            description: result.overview.clone(),
-            rating,
             year,
+            library_id: self.lib.id,
+            description: result.overview.clone(),
+            rating: result.rating,
             added: Utc::now().to_string(),
-            poster_path: result.poster_path.clone().map(|x| format!("images/{}", x)),
+            poster_path: result.poster_file.clone().map(|x| format!("images/{}", x)),
             backdrop_path: result
-                .backdrop_path
+                .backdrop_file
                 .clone()
                 .map(|x| format!("images/{}", x)),
             media_type: Self::MEDIA_TYPE,
@@ -110,7 +95,7 @@ impl TvShowScanner {
         &self,
         orphan: &MediaFile,
         media: InsertableMedia,
-        search: tmdb_api::Media,
+        search: super::ApiMedia,
     ) -> Result<(), ()> {
         let meta_fetcher = crate::core::METADATA_FETCHER_TX.get().unwrap().get();
 
@@ -128,22 +113,27 @@ impl TvShowScanner {
                 |x| x.id,
             );
 
-        if let Some(genres) = search.genres.clone() {
-            for genre in genres {
-                let genre = InsertableGenre {
-                    name: genre.name.clone(),
-                };
+        for genre in search.genres.iter().cloned() {
+            let genre = InsertableGenre {
+                name: genre.clone(),
+            };
 
-                let _ = genre
-                    .insert(&self.conn)
-                    .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
-            }
+            let _ = genre
+                .insert(&self.conn)
+                .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
+        }
+
+        let season = {
+            let orphan_season = orphan.season.unwrap_or(0) as u64;
+
+            search
+                .seasons
+                .iter()
+                .find(|s| s.season_number == orphan_season)
         };
 
-        let season = search.get_season(orphan.season.unwrap_or(0));
-
-        if let Some(x) = season.poster_path.as_ref() {
-            let _ = meta_fetcher.send(format!("https://images.tmdb.org/t/p/original/{}", x));
+        if let Some(x) = season.and_then(|x| x.poster_path.as_ref()) {
+            let _ = meta_fetcher.send(x.clone());
         }
 
         let seasonid = Season::get(&self.conn, media_id, orphan.season.unwrap_or(1)).map_or_else(
@@ -152,8 +142,7 @@ impl TvShowScanner {
                     season_number: orphan.season.unwrap_or(0),
                     added: Utc::now().to_string(),
                     poster: season
-                        .poster_path
-                        .clone()
+                        .and_then(|x| x.poster_file.clone())
                         .map(|s| format!("images/{}", s))
                         .unwrap_or_default(),
                 };
@@ -171,11 +160,18 @@ impl TvShowScanner {
         )
         .map_or_else(
             |_| {
-                let search_ep = season.get_episode(orphan.episode.unwrap_or(0));
+                let search_ep = {
+                    let orphan_episode = orphan.episode.unwrap_or(0) as u64;
+                    season.and_then(|x| {
+                        x.episodes
+                            .iter()
+                            .cloned()
+                            .find(|s| s.episode == Some(orphan_episode))
+                    })
+                };
 
-                if let Some(x) = search_ep.still_path.as_ref() {
-                    let _ =
-                        meta_fetcher.send(format!("https://images.tmdb.org/t/p/original/{}", x));
+                if let Some(x) = search_ep.as_ref().and_then(|x| x.still.clone()) {
+                    let _ = meta_fetcher.send(x);
                 }
 
                 let episode = InsertableEpisode {
@@ -184,12 +180,18 @@ impl TvShowScanner {
                     media: InsertableMedia {
                         library_id: orphan.library_id,
                         name: search_ep
-                            .name
+                            .as_ref()
+                            .and_then(|x| x.name.clone())
                             .unwrap_or_else(|| orphan.episode.unwrap_or(0).to_string()),
                         added: Utc::now().to_string(),
                         media_type: MediaType::Episode,
-                        description: search_ep.overview,
-                        backdrop_path: search_ep.still_path.map(|s| format!("images/{}", s)),
+                        description: search_ep
+                            .as_ref()
+                            .map(|x| x.overview.clone())
+                            .unwrap_or_default(),
+                        backdrop_path: search_ep
+                            .and_then(|x| x.still_file)
+                            .map(|s| format!("images/{}", s)),
                         ..Default::default()
                     },
                 };
@@ -210,13 +212,13 @@ impl TvShowScanner {
     }
 
     fn push_event(&self, id: i32) {
-        let event_msg = Box::new(Message {
+        let event_msg = Message {
             id,
             event_type: PushEventType::EventNewCard,
-        });
+        };
 
-        let new_event = Event::new(format!("/events/library/{}", self.lib.id), event_msg);
-        let _ = self.event_tx.send(new_event);
+        let new_event = Event::new(event_msg);
+        let _ = self.event_tx.unbounded_send(new_event);
     }
 }
 
@@ -253,7 +255,10 @@ impl MediaScanner for TvShowScanner {
         assert!(self.lib.media_type == Self::MEDIA_TYPE);
         info!(self.log, "Scanning orphans for lib={}", self.lib.id);
 
-        let mut tmdb_session = TMDbSearch::new("38c372f5bc572c8aadde7a802638534e");
+        let mut tmdb_session = Tmdb::new(
+            "38c372f5bc572c8aadde7a802638534e".to_string(),
+            tmdb::MediaType::Tv,
+        );
         let orphans = match MediaFile::get_by_lib(&self.conn, &self.lib) {
             Ok(x) => x,
             Err(e) => {
@@ -272,13 +277,15 @@ impl MediaScanner for TvShowScanner {
                     orphan.season
                 );
 
-                if let Some(result) = tmdb_session.search(
-                    orphan.raw_name.clone(),
-                    orphan.raw_year,
-                    tmdb_api::MediaType::Tv,
-                ) {
-                    self.match_media_to_tmdb(result, &orphan);
-                }
+                let v = match tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year) {
+                    Ok(v) => v,
+                    Err(why) => {
+                        error!(self.log, "fix-orphans: {:?}", why);
+                        continue;
+                    }
+                };
+
+                self.match_media_to_result(v, &orphan);
             }
         }
     }

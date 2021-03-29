@@ -11,8 +11,8 @@ function Banner(props) {
 
   return (
     <div className="backdrop">
-      {poster_path && <CardImage src={poster_path}/>}
-      {backdrop_path && <BannerImage src={backdrop_path}/>}
+      <CardImage src={poster_path}/>
+      <BannerImage src={backdrop_path}/>
     </div>
   );
 }

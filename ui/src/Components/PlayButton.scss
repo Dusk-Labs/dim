@@ -1,15 +1,17 @@
-.bannerPlayBtn {
+.playBtn {
   transition: .2s ease-in-out;
   transition-property: filter, background;
   filter: saturate(0.7);
   font-family: "Roboto Bold";
   border-radius: 10px;
-  background: #4a4a4a;
+  background: #5a5a5a;
   display: inline-flex;
   overflow: hidden;
   outline: none;
   cursor: pointer;
   align-items: center;
+  color: #eee;
+  font-size: 1em;
 
   &:focus,
   &:hover {
@@ -17,7 +19,7 @@
   }
 
   p {
-    padding: .4em .8em;
+    padding: .5em .8em;
     background: #f7931e;
   }
 

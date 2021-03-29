@@ -16,7 +16,14 @@ export const search = (params, token) => async (dispatch) => {
             }
         };
 
-        const res = await fetch(`//${window.host}:8000/api/v1/search?${params}`, config);
+        const res = await fetch(`//${window.host}:8000/api/v1/search${params}`, config);
+
+        if (res.status === 404) {
+            return dispatch({
+                type: SEARCH_OK,
+                payload: []
+            });
+        }
 
         if (res.status !== 200) {
             return dispatch({

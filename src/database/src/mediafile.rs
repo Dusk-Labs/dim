@@ -1,7 +1,7 @@
 use crate::library::Library;
 use crate::media::Media;
 use crate::schema::mediafile;
-use crate::streamablemedia::StreamableMedia;
+use crate::streamable_media::StreamableMedia;
 use cfg_if::cfg_if;
 use diesel::prelude::*;
 

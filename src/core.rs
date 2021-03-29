@@ -1,8 +1,10 @@
 use crate::routes;
 use crate::scanners;
+use crate::stream_tracking::StreamTracking;
 
 use rocket::http::Method;
 use rocket_contrib::databases::diesel;
+use rocket_contrib::helmet::SpaceHelmet;
 use rocket_slog::SlogFairing;
 
 use rocket_cors::AllowedHeaders;
@@ -52,7 +54,7 @@ cfg_if! {
     }
 }
 
-pub type EventTx = mpsc::Sender<pushevent::Event>;
+pub type EventTx = pushevent::EventTx;
 
 lazy_static! {
     /// Holds a map of all threads keyed against the library id that they were started for
@@ -157,9 +159,8 @@ pub(crate) fn tmdb_poster_fetcher(log: Logger) {
 // TODO: Handle launch failures and fallback to a new port.
 // TODO: Store the port of the server in a dynamic config which can be queried by clients in case
 // the port changes as we dont want this hardcoded in.
-pub(crate) fn start_event_server(_log: Logger, host: &'static str) -> EventTx {
-    let server = pushevent::server::Server::new(host);
-    server.get_tx()
+pub(crate) async fn start_event_server() -> pushevent::EventTx {
+    pushevent::build().await.unwrap()
 }
 
 pub fn rocket_pad(
@@ -192,15 +193,20 @@ pub fn rocket_pad(
     .to_cors()
     .unwrap();
 
+    let stream_tracking = StreamTracking::default();
+
     rocket::custom(config)
         .attach(DbConnection::fairing())
+        .attach(SpaceHelmet::default())
         .attach(fairing)
         .mount(
             "/",
             routes![
-                routes::r#static::index,
-                routes::r#static::dist_file,
-                routes::r#static::get_image
+                routes::statik::get_image,
+                routes::statik::index_redirect,
+                routes::statik::dist_asset,
+                routes::statik::dist_static,
+                routes::statik::react_routes,
             ],
         )
         .mount(
@@ -210,10 +216,18 @@ pub fn rocket_pad(
                 routes::general::banners,
                 routes::general::get_directory_structure,
                 routes::general::get_root_directory_structure,
-                //                routes::stream::return_manifest,
-                //               routes::stream::get_chunk,
-                //              routes::stream::get_init,
                 routes::general::search,
+            ],
+        )
+        .mount(
+            "/api/v1/stream",
+            routes![
+                routes::stream::return_manifest,
+                routes::stream::get_chunk,
+                routes::stream::get_init,
+                routes::stream::should_client_hard_seek,
+                routes::stream::session_get_stderr,
+                routes::stream::kill_session,
             ],
         )
         .mount(
@@ -268,6 +282,7 @@ pub fn rocket_pad(
         )
         .attach(cors)
         .manage(Arc::new(Mutex::new(event_tx)))
+        .manage(stream_tracking)
         .manage(stream_manager)
 }
 
@@ -286,11 +301,7 @@ pub fn launch(
     event_tx: EventTx,
     config: rocket::config::Config,
     stream_manager: nightfall::StateManager,
-) {
-    rocket_pad(log, event_tx, config, stream_manager).launch();
-
-    // Join all threads started by dim, which usually are scanner/daemon threads
-    for (_, thread) in LIB_SCANNERS.lock().unwrap().drain().take(1) {
-        thread.join().unwrap();
-    }
+) -> ! {
+    let error = rocket_pad(log, event_tx, config, stream_manager).launch();
+    panic!("Launch error: {:?}", error);
 }

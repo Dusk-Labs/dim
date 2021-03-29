@@ -1,21 +1,53 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { fetchMediaInfo } from "../../actions/card.js";
+import { clearMediaInfo, fetchMediaInfo } from "../../actions/card.js";
+import PlayButton from "../../Components/PlayButton.jsx";
 
 import "./MetaContent.scss";
 
 function MetaContent(props) {
   const { id } = useParams();
 
-  const { auth, fetchMediaInfo } = props;
+  const [mediaVersions, setMediaVersions] = useState([]);
+
+  const { auth, fetchMediaInfo, clearMediaInfo } = props;
   const { token } = auth;
 
   useEffect(() => {
     fetchMediaInfo(token, id);
-  }, [fetchMediaInfo, id, token]);
+    return () => clearMediaInfo();
+  }, [clearMediaInfo, fetchMediaInfo, id, token]);
+
+  // to get file versions
+  useEffect(() => {
+    // note: quickly coded
+    (async () => {
+      const config = {
+        headers: {
+          "authorization": token
+        }
+      };
+
+      const res = await fetch(`//${window.host}:8000/api/v1/media/${id}/info`, config);
+
+      if (res.status !== 200) return;
+
+      const payload = await res.json();
+
+      if (payload.error) return;
+
+      if (payload.seasons) {
+        setMediaVersions(
+          payload.seasons[0].episodes[0].versions
+        );
+      } else {
+        setMediaVersions(payload.versions);
+      }
+    })();
+  }, [id, token]);
 
   useEffect(() => {
     const { fetched, error, info } = props.media_info;
@@ -85,12 +117,7 @@ function MetaContent(props) {
             <p>{rating}/10</p>
           </div>
         </div>
-        <div>
-          <Link to={`/play/${id}`} className="playBtn">
-            <p>Play media</p>
-            <FontAwesomeIcon icon="play"/>
-          </Link>
-        </div>
+        <PlayButton mediaID={id} versions={mediaVersions}/>
       </div>
     );
   }
@@ -104,7 +131,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapActionsToProps = {
-  fetchMediaInfo
+  fetchMediaInfo,
+  clearMediaInfo
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(MetaContent);

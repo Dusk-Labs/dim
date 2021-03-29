@@ -1,0 +1,6 @@
+<AdaptationSet contentType="audio" lang="eng">
+    <Representation id="{}" mimeType="audio/mp4" codecs="mp4a.40.2" bandwidth="120000">
+        <SegmentTemplate timescale="1000" duration="5000" initialization="{init}" media="{chunk_path}" startNumber="{start_num}">
+        </SegmentTemplate>
+    </Representation>
+</AdaptationSet>
