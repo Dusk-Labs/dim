@@ -116,7 +116,8 @@ pub fn return_manifest(
     tracks.push(format!(
         include_str!("../static/video_segment.mpd"),
         id = video.clone(),
-        bandwidth = info.get_bitrate(),
+        height = video_stream.height.clone().unwrap_or(1080),
+        bandwidth = info.get_bitrate().parse::<i32>().unwrap(),
         init = format!("{}/data/init.mp4?start_num={}", video.clone(), start_num),
         chunk_path = format!("{}/data/$Number$.m4s", video.clone()),
         start_num = start_num,
