@@ -1,5 +1,6 @@
 import { useCallback, useContext, useState } from "react";
 
+import { formatHHMMSS } from "../../../Helpers/utils";
 import { VideoPlayerContext } from "../Context";
 import SeekBar from "./SeekBar";
 import Actions from "./Actions";
@@ -23,11 +24,6 @@ function VideoControls() {
     // setOffset(newTime);
     setSeeking(false);
   }, [fileID, player, setBuffer, setCurrentTime, setSeeking, videoUUID]);
-
-  // converts to HH:MM:SS format
-  const format = (secs) => (
-    new Date(secs * 1000).toISOString().substr(11, 8)
-  );
 
   return (
     <div className={`videoControls ${visible}`}>
