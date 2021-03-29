@@ -88,18 +88,15 @@ pub fn get_avc1_tag(width: u64, height: u64, bitrate: u64, framerate: u64) -> Av
     let macro_blocks = (width as f64 / 16.0) * (height as f64 / 16.0);
     let blocks_per_sec = macro_blocks * framerate as f64;
 
-    AVC1_LEVELS
-        .iter()
-        .cloned()
-        .filter(|x| {
-            x.max_bitrate > bitrate
-                && (macro_blocks as u64) < x.max_frame_size
-                && blocks_per_sec < x.macro_blocks_rate as f64
-        })
-        .collect::<Vec<_>>()
-        .first()
-        .cloned()
-        .unwrap()
+    let mut avc1_levels = AVC1_LEVELS.iter().cloned().filter(|x| {
+        x.max_bitrate > bitrate
+            && (macro_blocks as u64) < x.max_frame_size
+            && blocks_per_sec < x.macro_blocks_rate as f64
+    });
+
+    let first = avc1_levels.next().unwrap();
+
+    avc1_levels.next().unwrap_or(first)
 }
 
 pub const AVC1_LEVELS: [Avc1Level; 20] = [
