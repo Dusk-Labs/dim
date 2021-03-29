@@ -7,7 +7,7 @@ import Actions from "./Actions";
 import "./Index.scss";
 
 function VideoControls() {
-  const { setSeeking, player, currentTime, duration, setCurrentTime, setBuffer, fileID, mediaInfo } = useContext(VideoPlayerContext);
+  const { videoUUID, setSeeking, player, currentTime, duration, setCurrentTime, setBuffer, fileID, mediaInfo } = useContext(VideoPlayerContext);
   const [ visible, setVisible ] = useState(true);
 
   const seekTo = useCallback(async newTime => {
@@ -16,13 +16,13 @@ function VideoControls() {
     setCurrentTime(newTime);
     setBuffer(0);
 
-    player.attachSource(`//${window.host}:8000/api/v1/stream/${fileID}/manifest.mpd?start_num=${newSegment}`);
+    player.attachSource(`//${window.host}:8000/api/v1/stream/${fileID}/manifest.mpd?start_num=${newSegment}&gid=${videoUUID}`);
 
     // setOldOffset(offset);
     // setCurrentTime(0);
     // setOffset(newTime);
     setSeeking(false);
-  }, [fileID, player, setBuffer, setCurrentTime, setSeeking]);
+  }, [fileID, player, setBuffer, setCurrentTime, setSeeking, videoUUID]);
 
   // converts to HH:MM:SS format
   const format = (secs) => (
