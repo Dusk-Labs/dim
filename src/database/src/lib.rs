@@ -119,7 +119,7 @@ pub fn get_conn_devel() -> Result<crate::DbConnection, diesel::result::Connectio
                 "postgres://postgres:dimpostgres@postgres/dim_devel",
             )?;
         } else {
-            let mut conn = DbConnection::establish("./dim_devel.db;foreign_keys=true;")?;
+            let conn = DbConnection::establish("./dim_devel.db;")?;
             let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
             let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn);
             let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(&conn);
@@ -151,8 +151,9 @@ pub fn get_conn_logged(log: &Logger) -> Result<DbConnection, diesel::result::Con
     Ok(conn)
 }
 
+#[allow(dead_code)]
 fn internal_get_conn(
-    log: Option<&Logger>,
+    _log: Option<&Logger>,
 ) -> Result<DbConnection, diesel::result::ConnectionError> {
     cfg_if! {
         if #[cfg(feature = "postgres")] {
@@ -162,7 +163,7 @@ fn internal_get_conn(
                 "postgres://postgres:dimpostgres@postgres/dim",
             )
         } else {
-            let mut conn = DbConnection::establish("./dim.db")?;
+            let conn = DbConnection::establish("./dim.db")?;
             let _ = diesel::sql_query("PRAGMA foreign_keys=ON;").execute(&conn).unwrap();
             let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
             let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn);
@@ -172,6 +173,7 @@ fn internal_get_conn(
     }
 }
 
+#[allow(dead_code)]
 fn internal_get_conn_custom(
     log: Option<&Logger>,
     main: &str,

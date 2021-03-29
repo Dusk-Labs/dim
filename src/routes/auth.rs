@@ -17,7 +17,7 @@ use rocket_contrib::json::{Json, JsonValue};
 pub fn login(
     conn: DbConnection,
     new_login: Json<Login>,
-    mut cookies: Cookies,
+    cookies: Cookies,
 ) -> Result<JsonValue, errors::AuthError> {
     use database::schema::users::dsl::*;
     let user: (String, String, String) = users
