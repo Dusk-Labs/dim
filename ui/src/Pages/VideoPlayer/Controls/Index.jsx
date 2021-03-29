@@ -4,6 +4,7 @@ import { formatHHMMSS } from "../../../Helpers/utils";
 import { VideoPlayerContext } from "../Context";
 import SeekBar from "./SeekBar";
 import Actions from "./Actions";
+import CircleIcon from "../../../assets/Icons/Circle";
 
 import "./Index.scss";
 
@@ -22,12 +23,19 @@ function VideoControls() {
 
   return (
     <div className={`videoControls ${visible}`}>
-      <p className="name" ref={nameDiv}>
-        {mediaInfo.name}{episode && `- S${episode.season} E${episode.episode}`}
-      </p>
-      <p className="time" ref={timeDiv}>
-        {formatHHMMSS(currentTime)} - {formatHHMMSS(duration)}
-      </p>
+      <div className="name" ref={nameDiv}>
+        <p>{mediaInfo.name}</p>
+        <div className="season-ep">
+          <p>S{episode.season}</p>
+          <CircleIcon/>
+          <p>E{episode.episode}</p>
+        </div>
+      </div>
+      <div className="time" ref={timeDiv}>
+        <p>{formatHHMMSS(currentTime)}</p>
+        <CircleIcon/>
+        <p>{formatHHMMSS(duration)}</p>
+      </div>
       <SeekBar seekTo={seekTo} nameRef={nameDiv.current} timeRef={timeDiv.current}/>
       <Actions setVisible={setVisible} seekTo={seekTo}/>
     </div>
