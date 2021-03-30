@@ -2,7 +2,6 @@ use std::path::PathBuf;
 use std::sync::mpsc;
 use std::time::Duration;
 
-use super::EventTx;
 use super::MediaScanner;
 
 use database::get_conn;

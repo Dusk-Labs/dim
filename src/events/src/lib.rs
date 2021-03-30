@@ -1,4 +1,3 @@
-use pushevent::SerializableEvent;
 use serde::Serialize;
 use std::collections::HashMap;
 
@@ -31,12 +30,4 @@ pub enum PushEventType {
     EventStreamIsReady,
     /// Holds a hashmap of stats collected from ffmpeg over stdout.
     EventStreamStats(HashMap<String, String>),
-}
-
-impl SerializableEvent for Message {
-    /// Serialize method used as a intermediary to serialize the struct into a json string and
-    /// return it.
-    fn serialize(&self) -> String {
-        serde_json::to_string(&self).unwrap()
-    }
 }
