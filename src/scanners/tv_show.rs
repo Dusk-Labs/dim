@@ -27,8 +27,10 @@ use slog::Logger;
 
 use events::Message;
 use events::PushEventType;
-use pushevent::Event;
+
 use tmdb::Tmdb;
+
+use crate::core::EventTx;
 
 use super::tmdb;
 use super::MediaScanner;
@@ -39,7 +41,7 @@ pub struct TvShowScanner {
     conn: DbConnection,
     lib: Library,
     log: Logger,
-    event_tx: super::EventTx,
+    event_tx: EventTx,
 }
 
 impl TvShowScanner {
@@ -212,13 +214,12 @@ impl TvShowScanner {
     }
 
     fn push_event(&self, id: i32) {
-        let event_msg = Message {
+        let event = Message {
             id,
             event_type: PushEventType::EventNewCard,
         };
 
-        let new_event = Event::new(event_msg);
-        let _ = self.event_tx.unbounded_send(new_event);
+        let _ = self.event_tx.send(serde_json::to_string(&event).unwrap());
     }
 }
 
@@ -229,7 +230,7 @@ impl MediaScanner for TvShowScanner {
         conn: DbConnection,
         lib: Library,
         log: Logger,
-        event_tx: super::EventTx,
+        event_tx: EventTx,
     ) -> Self {
         Self {
             conn,
