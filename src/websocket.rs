@@ -1,7 +1,5 @@
 use std::{collections::HashMap, fmt::Debug, net::SocketAddr, sync::Arc};
 
-use dashmap::DashMap;
-
 use tokio::{net::TcpListener, runtime::Handle};
 use tokio::{
     net::TcpStream,
@@ -38,7 +36,7 @@ where
         while let Some(ev) = rx.recv().await {
             discard.clear();
 
-            let _ = match dbg!(ev) {
+            let _ = match ev {
                 CtrlEvent::Track { addr, sink } => peers.insert(addr, sink),
                 CtrlEvent::Forget { ref addr } => peers.remove(addr),
                 CtrlEvent::Send(body) => {
