@@ -10,7 +10,7 @@ use database::{
     mediafile::MediaFile,
 };
 use events::{Message, PushEventType};
-use pushevent::Event;
+
 use rocket::{http::Status, State};
 use rocket_contrib::json::{Json, JsonValue};
 use rocket_slog::SyncLogger;
@@ -61,13 +61,13 @@ pub fn library_post(
         scanners::start(id, log.get(), tx_clone).unwrap();
     });
 
-    let event_message = Message {
+    let event = Message {
         id,
         event_type: PushEventType::EventNewLibrary,
     };
 
-    let event = Event::new(event_message);
-    let _ = tx.unbounded_send(event);
+    let _ = tx.send(serde_json::to_string(&event).unwrap());
+
     Ok(Status::Created)
 }
 
@@ -103,13 +103,13 @@ pub fn library_delete(
 
     Library::delete(conn.as_ref(), id)?;
 
-    let event_message = Message {
+    let event = Message {
         id,
         event_type: PushEventType::EventRemoveLibrary,
     };
 
-    let event = Event::new(event_message);
-    let _ = event_tx.lock().unwrap().unbounded_send(event);
+    let _ = event_tx.lock().unwrap().send(serde_json::to_string(&event).unwrap());
+
     Ok(Status::NoContent)
 }
 
