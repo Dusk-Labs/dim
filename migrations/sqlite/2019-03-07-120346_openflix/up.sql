@@ -108,6 +108,7 @@ CREATE TABLE progress (
     user_id TEXT NOT NULL UNIQUE,
     delta INTEGER,
     media_id INTEGER UNIQUE,
+    populated INTEGER,
 
     PRIMARY KEY (id),
     FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE,
