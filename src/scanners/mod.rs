@@ -3,13 +3,9 @@ pub mod scanner_daemon;
 pub mod tmdb;
 pub mod tv_show;
 
-pub use pushevent::EventTx;
-
 use self::scanner_daemon::ScannerDaemon;
 use self::tmdb::Media;
 use self::tmdb::MediaType;
-
-use pushevent::Event;
 
 use database::get_conn;
 use database::library;
@@ -17,7 +13,7 @@ use database::library::Library;
 use database::mediafile::InsertableMediaFile;
 use database::mediafile::MediaFile;
 
-use crate::streaming::ffprobe::FFProbeCtx;
+use crate::{core::EventTx, streaming::ffprobe::FFProbeCtx};
 use crate::streaming::FFPROBE_BIN;
 
 use torrent_name_parser::Metadata;
