@@ -197,6 +197,11 @@ fn get_for_show(
                     json!({
                         "id": x.id,
                         "season_number": x.season_number,
+                        "name": if x.season_number == 0 {
+                            "Extras".to_string()
+                        } else {
+                            format!("Season {}", x.season_number)
+                        },
                         "added": x.added,
                         "poster": x.poster,
                         "episodes": y.into_iter().filter_map(|z| get_for_episode(&conn, z, &user).ok()).collect::<Vec<JsonValue>>()
