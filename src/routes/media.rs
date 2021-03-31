@@ -141,7 +141,9 @@ fn get_for_streamable(
     let media_files = MediaFile::get_of_media(conn.as_ref(), &media)?;
 
     Ok(json!({
-        "progress": Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), media.id).unwrap_or(0),
+        "progress": Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), media.id)
+            .map(|x| x.delta)
+            .unwrap_or(0),
         "versions": media_files.iter().map(|x| json!({
             "id": x.id,
             "file": x.target_file,
@@ -163,7 +165,9 @@ fn get_for_episode(
 
     Ok(json!({
         "id": media.id,
-        "progress": Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), media.id).unwrap_or(0),
+        "progress": Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), media.id)
+            .map(|x| x.delta)
+            .unwrap_or(0),
         "episode": media.episode,
         "description": media.media.description,
         "rating": media.media.rating,

@@ -1,9 +1,9 @@
-use crate::{
-    core::{DbConnection, EventTx},
-    errors,
-    routes::general::construct_standard,
-    scanners,
-};
+use crate::core::DbConnection;
+use crate::core::EventTx;
+use crate::errors;
+use crate::routes::construct_standard;
+use crate::scanners;
+
 use auth::Wrapper as Auth;
 use database::{
     library::{InsertableLibrary, Library},
