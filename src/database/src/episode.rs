@@ -11,7 +11,7 @@ use cfg_if::cfg_if;
 use diesel::prelude::*;
 
 /// Episode struct encapsulates a media entry representing a episode
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub struct Episode {
     #[serde(skip_serializing)]
     /// Unique id provided by postgres
@@ -70,6 +70,28 @@ pub struct UpdateEpisodeWrapper {
 }
 
 impl Episode {
+    pub fn get_first_for_season(
+        conn: &crate::DbConnection,
+        season: &Season,
+    ) -> Result<Self, diesel::result::Error> {
+        use crate::schema::episode::dsl::*;
+        use crate::schema::media;
+
+        EpisodeWrapper::belonging_to(season)
+            .order(episode_.asc())
+            .first::<EpisodeWrapper>(conn)
+            .map(|l| {
+                (
+                    l,
+                    media::dsl::media
+                        .filter(media::dsl::id.eq(l.id))
+                        .first::<Media>(conn)
+                        .unwrap(),
+                )
+            })
+            .map(|(l, z)| l.into(z))
+    }
+
     /// Method returns all of the episodes belonging to a tv show.
     ///
     /// # Arguments
