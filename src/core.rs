@@ -212,8 +212,8 @@ pub fn rocket_pad(
         .mount(
             "/api/v1/",
             routes![
-                routes::general::dashboard,
-                routes::general::banners,
+                routes::dashboard::dashboard,
+                routes::dashboard::banners,
                 routes::general::get_directory_structure,
                 routes::general::get_root_directory_structure,
                 routes::general::search,
