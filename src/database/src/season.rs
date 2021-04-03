@@ -4,7 +4,9 @@ use cfg_if::cfg_if;
 use diesel::prelude::*;
 
 /// Struct represents a season entry in the database.
-#[derive(Identifiable, Associations, Queryable, Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(
+    Identifiable, Associations, Queryable, Serialize, Deserialize, PartialEq, Debug, Clone,
+)]
 #[belongs_to(TVShow, foreign_key = "tvshowid")]
 #[table_name = "season"]
 pub struct Season {
@@ -249,6 +251,26 @@ impl Season {
 
         let result = diesel::delete(entry).execute(conn)?;
         Ok(result)
+    }
+
+    pub fn get_first(
+        conn: &crate::DbConnection,
+        media: &TVShow,
+    ) -> Result<Self, diesel::result::Error> {
+        use crate::schema::season::dsl::*;
+
+        Self::belonging_to(media)
+            .order(season_number.asc())
+            .first::<Self>(conn)
+    }
+
+    pub fn get_by_id(
+        conn: &crate::DbConnection,
+        season_id: i32,
+    ) -> Result<Self, diesel::result::Error> {
+        use crate::schema::season::dsl::*;
+
+        season.filter(id.eq(season_id)).first::<Self>(conn)
     }
 }
 

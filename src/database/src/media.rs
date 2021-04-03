@@ -279,6 +279,12 @@ impl Media {
     }
 }
 
+impl Into<super::tv::TVShow> for Media {
+    fn into(self) -> super::tv::TVShow {
+        super::tv::TVShow { id: self.id }
+    }
+}
+
 /// Struct which represents a insertable media object. It is usually used only by the scanners to
 /// insert new media objects. It is the same as [`Media`](Media) except it doesnt have the
 /// [`id`](Media::id) field.
