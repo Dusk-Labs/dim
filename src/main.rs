@@ -88,6 +88,8 @@ mod stream_tracking;
 mod streaming;
 /// Contains unit tests.
 mod tests;
+/// Websocket related logic.
+mod websocket;
 
 /// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.
 fn build_logger(_debug: bool) -> slog::Logger {

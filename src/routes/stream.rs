@@ -215,7 +215,7 @@ pub fn get_chunk(
 
     // Chunks will always be m4s or mp4
     if extension.as_str() != "m4s" {
-        return Ok(None);
+        return Err(errors::StreamingErrors::InvalidRequest);
     }
 
     // Parse the chunk filename into a u64, we unwrap_or because sometimes it can be a init chunk,
