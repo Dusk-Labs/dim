@@ -183,8 +183,16 @@ function VideoPlayer(props) {
   }, []);
 
   const eError = useCallback(e => {
-    setError(e.error)
-  }, []);
+    (async () => {
+      const res = await fetch(`//${window.host}:8000/api/v1/stream/${videoUUID}/state/get_stderr`);
+      const error = await res.json();
+
+      setError({
+        msg: e.error.message,
+        errors: error.errors
+      });
+    })();
+  }, [videoUUID]);
 
   const ePlayBackNotAllowed = useCallback(e => {
     if (e.type === "playbackNotAllowed") {
