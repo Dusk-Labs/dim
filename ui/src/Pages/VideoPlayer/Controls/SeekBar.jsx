@@ -9,29 +9,31 @@ import "./SeekBar.scss";
 function VideoSeekBar(props) {
   const seekBar = useRef(null);
 
-  const { episode, mediaID, seeking, setSeeking, player, duration, currentTime, buffer } = useContext(VideoPlayerContext);
+  const { seeking, setSeeking, player, duration, currentTime, buffer } = useContext(VideoPlayerContext);
 
   const seekBarCurrent = useRef(null);
   const bufferBar = useRef(null);
 
-  const { seekTo, auth } = props;
-  const { token } = auth;
+  const { seekTo } = props;
+  // const { token } = auth;
 
   // save progress every 15 seconds
-  useEffect(() => {
-    if (currentTime % 15 !== 0 || currentTime === 0) return;
+  // useEffect(() => {
+  //   if (currentTime % 15 !== 0 || currentTime === 0) return;
 
-    (async () => {
-      const config = {
-        method: "POST",
-        headers: {
-            "authorization": token,
-        }
-      }
+  //   (async () => {
+  //     const config = {
+  //       method: "POST",
+  //       headers: {
+  //           "authorization": token,
+  //       }
+  //     }
 
-      await fetch(`//${window.host}:8000/api/v1/media/${episode?.id || mediaID}/progress?offset=${currentTime}`, config);
-    })();
-  }, [currentTime, episode?.id, mediaID, token]);
+  //     console.log("saving progress");
+
+  //     await fetch(`//${window.host}:8000/api/v1/media/${episode?.id || mediaID}/progress?offset=${currentTime}`, config);
+  //   })();
+  // }, [currentTime, episode?.id, mediaID, token]);
 
   // current time
   useEffect(() => {
@@ -45,14 +47,14 @@ function VideoSeekBar(props) {
     bufferBar.current.style.width = `${position}%`;
   }, [buffer, currentTime, duration])
 
-  useEffect(() => {
-    const savedCurrentTime = sessionStorage.getItem("currentTime");
+  // useEffect(() => {
+  //   const savedCurrentTime = sessionStorage.getItem("currentTime");
 
-    if (savedCurrentTime) {
-      seekTo(savedCurrentTime);
-      sessionStorage.clear();
-    }
-  }, [seekTo]);
+  //   if (savedCurrentTime) {
+  //     seekTo(savedCurrentTime);
+  //     sessionStorage.clear();
+  //   }
+  // }, [seekTo]);
 
   const onSeek = useCallback(async (e) => {
     if (seeking) return;
