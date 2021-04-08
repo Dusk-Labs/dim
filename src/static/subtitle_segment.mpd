@@ -1,0 +1,5 @@
+<AdaptationSet contentType="text" mimeType="text/vtt" title="{title}">
+    <Representation id="{id}">
+        <BaseURL>{path}</BaseURL>
+    </Representation>
+</AdaptationSet>

@@ -19,6 +19,7 @@ use once_cell::sync::OnceCell;
 use slog::error;
 use slog::info;
 use slog::Logger;
+use tokio::sync::mpsc::UnboundedSender;
 
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -54,7 +55,7 @@ cfg_if! {
     }
 }
 
-pub type EventTx = pushevent::EventTx;
+pub type EventTx = UnboundedSender<String>;
 
 lazy_static! {
     /// Holds a map of all threads keyed against the library id that they were started for
@@ -159,8 +160,16 @@ pub(crate) fn tmdb_poster_fetcher(log: Logger) {
 // TODO: Handle launch failures and fallback to a new port.
 // TODO: Store the port of the server in a dynamic config which can be queried by clients in case
 // the port changes as we dont want this hardcoded in.
-pub(crate) async fn start_event_server() -> pushevent::EventTx {
-    pushevent::build().await.unwrap()
+pub(crate) async fn start_event_server() -> EventTx {
+    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+
+    tokio::spawn(crate::websocket::serve(
+        "0.0.0.0:3012",
+        tokio::runtime::Handle::current(),
+        rx,
+    ));
+
+    tx
 }
 
 pub fn rocket_pad(
@@ -212,8 +221,8 @@ pub fn rocket_pad(
         .mount(
             "/api/v1/",
             routes![
-                routes::general::dashboard,
-                routes::general::banners,
+                routes::dashboard::dashboard,
+                routes::dashboard::banners,
                 routes::general::get_directory_structure,
                 routes::general::get_root_directory_structure,
                 routes::general::search,
@@ -225,6 +234,7 @@ pub fn rocket_pad(
                 routes::stream::return_manifest,
                 routes::stream::get_chunk,
                 routes::stream::get_init,
+                routes::stream::get_subtitle,
                 routes::stream::should_client_hard_seek,
                 routes::stream::session_get_stderr,
                 routes::stream::kill_session,

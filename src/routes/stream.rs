@@ -27,9 +27,10 @@ use rocket_contrib::json::JsonValue;
 use slog::info;
 use slog::Logger;
 
+use nightfall::error::NightfallError;
 use nightfall::profile::StreamType;
+use nightfall::profile::*;
 use nightfall::StateManager;
-use nightfall::{error::NightfallError, profile::Profile};
 
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -92,15 +93,17 @@ pub fn return_manifest(
         .ok_or(errors::StreamingErrors::FileIsCorrupt)?;
 
     let profile = if video_stream.codec_name == "hevc".to_string() {
-        Profile::Native
+        VideoProfile::Native
     } else {
-        Profile::Direct
+        VideoProfile::Direct
     };
 
     let video = state.create(
         media.target_file.clone().into(),
-        profile,
-        StreamType::Video(video_stream.index as usize),
+        StreamType::Video {
+            map: video_stream.index as usize,
+            profile,
+        },
     );
 
     stream_tracking.insert(gid, video.clone());
@@ -129,8 +132,10 @@ pub fn return_manifest(
     for stream in audio_streams {
         let audio = state.create(
             media.target_file.clone().into(),
-            Profile::Audio,
-            StreamType::Audio(stream.index as usize),
+            StreamType::Audio {
+                map: stream.index as usize,
+                profile: AudioProfile::Low,
+            },
         );
 
         tracks.push(format!(
@@ -142,6 +147,31 @@ pub fn return_manifest(
         ));
 
         stream_tracking.insert(gid, audio.clone());
+    }
+
+    let subtitles = info.find_by_codec("subtitle");
+
+    for stream in subtitles {
+        let subtitle = state.create(
+            media.target_file.clone().into(),
+            StreamType::Subtitle {
+                map: stream.index as usize,
+                profile: SubtitleProfile::Webvtt,
+            },
+        );
+
+        tracks.push(format!(
+            include_str!("../static/subtitle_segment.mpd"),
+            id = subtitle.clone(),
+            title = stream
+                .tags
+                .clone()
+                .and_then(|x| x.title)
+                .unwrap_or(format!("Subtitle {}", stream.index)),
+            path = format!("{}/data/stream.vtt", subtitle.clone())
+        ));
+
+        stream_tracking.insert(gid, subtitle.clone());
     }
 
     let manifest = format!(
@@ -189,7 +219,7 @@ where
 pub fn get_init(
     state: State<StateManager>,
     id: String,
-    start_num: Option<u64>,
+    start_num: Option<u32>,
 ) -> Result<Option<NamedFile>, errors::StreamingErrors> {
     let path: String = timeout_segment(
         || state.init_or_create(id.clone(), start_num.unwrap_or(0)),
@@ -200,7 +230,7 @@ pub fn get_init(
     Ok(NamedFile::open(path).ok())
 }
 
-#[get("/<id>/data/<chunk..>", rank = 2)]
+#[get("/<id>/data/<chunk..>", rank = 3)]
 pub fn get_chunk(
     state: State<StateManager>,
     conn: DbConnection,
@@ -215,7 +245,7 @@ pub fn get_chunk(
 
     // Chunks will always be m4s or mp4
     if extension.as_str() != "m4s" {
-        return Ok(None);
+        return Err(errors::StreamingErrors::InvalidRequest);
     }
 
     // Parse the chunk filename into a u64, we unwrap_or because sometimes it can be a init chunk,
@@ -226,7 +256,7 @@ pub fn get_chunk(
         .ok_or(errors::StreamingErrors::InvalidRequest)?
         .to_string_lossy()
         .into_owned()
-        .parse::<u64>()
+        .parse::<u32>()
         .unwrap_or(0);
 
     state
@@ -242,12 +272,29 @@ pub fn get_chunk(
     Ok(NamedFile::open(path).ok())
 }
 
+#[get("/<id>/data/stream.vtt", rank = 2)]
+pub fn get_subtitle(
+    state: State<StateManager>,
+    conn: DbConnection,
+    id: String,
+) -> Result<Option<NamedFile>, errors::StreamingErrors> {
+    state.init_create(id.clone());
+
+    let path: String = timeout_segment(
+        || state.subtitle(id.clone(), "stream.vtt".into()),
+        Duration::from_millis(100),
+        20,
+    )?;
+
+    Ok(NamedFile::open(path).ok())
+}
+
 #[get("/<gid>/state/should_hard_seek/<chunk_num>")]
 pub fn should_client_hard_seek(
     state: State<StateManager>,
     stream_tracking: State<StreamTracking>,
     gid: u128,
-    chunk_num: u64,
+    chunk_num: u32,
 ) -> Result<JsonValue, errors::StreamingErrors> {
     let ids = stream_tracking
         .get_for_gid(gid)
