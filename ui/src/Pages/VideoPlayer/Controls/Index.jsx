@@ -8,11 +8,16 @@ import CircleIcon from "../../../assets/Icons/Circle";
 
 import "./Index.scss";
 
+/*
+  logic for media name and other metadata is in place,
+  awaiting info to be returned by API - hidden until then.
+*/
+
 function VideoControls() {
-  const nameDiv = useRef(null);
+  // const nameDiv = useRef(null);
   const timeDiv = useRef(null);
 
-  const { episode, seekTo, overlay, currentTime, duration, mediaInfo } = useContext(VideoPlayerContext);
+  const { seekTo, overlay, currentTime, duration } = useContext(VideoPlayerContext);
   const [ visible, setVisible ] = useState(true);
 
   useEffect(() => {
@@ -23,20 +28,22 @@ function VideoControls() {
 
   return (
     <div className={`videoControls ${visible}`}>
-      <div className="name" ref={nameDiv}>
+      {/* <div className="name" ref={nameDiv}>
         <p>{mediaInfo.name}</p>
-        <div className="season-ep">
-          <p>S{episode.season}</p>
-          <CircleIcon/>
-          <p>E{episode.episode}</p>
-        </div>
-      </div>
+        {episode && (
+          <div className="season-ep">
+            <p>S{episode.season}</p>
+            <CircleIcon/>
+            <p>E{episode.episode}</p>
+          </div>
+        )}
+      </div> */}
       <div className="time" ref={timeDiv}>
         <p>{formatHHMMSS(currentTime)}</p>
         <CircleIcon/>
         <p>{formatHHMMSS(duration)}</p>
       </div>
-      <SeekBar seekTo={seekTo} nameRef={nameDiv.current} timeRef={timeDiv.current}/>
+      <SeekBar seekTo={seekTo} timeRef={timeDiv.current}/>
       <Actions setVisible={setVisible} seekTo={seekTo}/>
     </div>
   );
