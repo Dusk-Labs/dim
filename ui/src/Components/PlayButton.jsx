@@ -16,7 +16,7 @@ function PlayButton(props) {
   if (versions.length === 1) {
     return (
       <div>
-        <Link to={`/media/${mediaID}/play/${versions[0].id}`} className="playBtn">
+        <Link to={`/play/${versions[0].id}`} className="playBtn">
           <p style={accentCSS}>
             {progress > 0 ? "Resume media" : "Play media"}
           </p>

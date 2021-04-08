@@ -11,7 +11,11 @@ import ContinueProgress from "./ContinueProgress";
 
 import "./Index.scss";
 
-// oldOffset logic might still be useful in the future but redundant now
+/*
+  logic for media name and other metadata is in place,
+  awaiting info to be returned by API - hidden until then.
+*/
+
 function VideoPlayer(props) {
   const videoPlayer = useRef(null);
   const overlay = useRef(null);
@@ -28,60 +32,59 @@ function VideoPlayer(props) {
   const [muted, setMuted] = useState(false);
   const [error, setError] = useState();
   const [videoUUID, setVideoUUID] = useState();
-  const [episode, setEpisode] = useState();
+  // const [episode, setEpisode] = useState();
 
   const [buffer, setBuffer] = useState(true);
   const [paused, setPaused] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const { clearMediaInfo, fetchExtraMediaInfo, fetchMediaInfo, media_info, auth, match } = props;
+  const { media_info, auth, match } = props;
   const { params } = match;
 
-  useEffect(() => {
-    if (props.extra_media_info.info.seasons) {
-      const { seasons } = props.extra_media_info.info;
+  // useEffect(() => {
+  //   if (props.extra_media_info.info.seasons) {
+  //     const { seasons } = props.extra_media_info.info;
 
-      let episode;
+  //     let episode;
 
-      for (const season of seasons) {
-        const found = season.episodes.filter(ep => {
-          return ep.versions.filter(version => version.id === parseInt(params.fileID)).length === 1;
-        });
+  //     for (const season of seasons) {
+  //       const found = season.episodes.filter(ep => {
+  //         return ep.versions.filter(version => version.id === parseInt(params.fileID)).length === 1;
+  //       });
 
-        if (found.length > 0) {
-          episode = {
-            ...found[0],
-            season: season.season_number
-          };
+  //       if (found.length > 0) {
+  //         episode = {
+  //           ...found[0],
+  //           season: season.season_number
+  //         };
 
-          break;
-        }
-      }
+  //         break;
+  //       }
+  //     }
 
-      if (episode) {
-        setEpisode(episode);
-        console.log(episode)
-      }
-    }
-  }, [params.fileID, props.extra_media_info.info]);
+  //     if (episode) {
+  //       setEpisode(episode);
+  //     }
+  //   }
+  // }, [params.fileID, props.extra_media_info.info]);
 
-  useEffect(() => {
-    fetchExtraMediaInfo(auth.token, params.mediaID);
-    return () => clearMediaInfo()
-  }, [auth.token, clearMediaInfo, fetchExtraMediaInfo, params.mediaID]);
+  // useEffect(() => {
+  //   fetchExtraMediaInfo(auth.token, params.mediaID);
+  //   return () => clearMediaInfo()
+  // }, [auth.token, clearMediaInfo, fetchExtraMediaInfo, params.mediaID]);
 
-  useEffect(() => {
-    fetchMediaInfo(auth.token, params.mediaID);
-    return () => clearMediaInfo();
-  }, [auth.token, clearMediaInfo, fetchMediaInfo, params.mediaID]);
+  // useEffect(() => {
+  //   fetchMediaInfo(auth.token, params.mediaID);
+  //   return () => clearMediaInfo();
+  // }, [auth.token, clearMediaInfo, fetchMediaInfo, params.mediaID]);
 
   useEffect(() => {
     document.title = "Dim - Video Player";
 
-    if (media_info.info.name) {
-      document.title = `Dim - Playing '${media_info.info.name}'`;
-    }
+    // if (media_info.info.name) {
+    //   document.title = `Dim - Playing '${media_info.info.name}'`;
+    // }
   }, [media_info.info.name]);
 
   useEffect(() => {
@@ -180,8 +183,16 @@ function VideoPlayer(props) {
   }, []);
 
   const eError = useCallback(e => {
-    setError(e.error)
-  }, []);
+    (async () => {
+      const res = await fetch(`//${window.host}:8000/api/v1/stream/${videoUUID}/state/get_stderr`);
+      const error = await res.json();
+
+      setError({
+        msg: e.error.message,
+        errors: error.errors
+      });
+    })();
+  }, [videoUUID]);
 
   const ePlayBackNotAllowed = useCallback(e => {
     if (e.type === "playbackNotAllowed") {
@@ -189,13 +200,7 @@ function VideoPlayer(props) {
     }
   }, []);
 
-  /*
-    Seeking first time to 100s results in video.time starting from 0s
-    Seeking second time to 200s results in video.time taking the old seek position starting from 100s
-    OldOffset undos that and sets it back to 0s for consistency and to keep track of seekbar position accurately
-  */
   const ePlayBackTimeUpdated = useCallback(e => {
-    // setCurrentTime(Math.floor(offset + (e.time - oldOffset)));
     setCurrentTime(Math.floor(e.time));
     /*
       PLAYBACK_PROGRESS event stops after error occurs
@@ -232,7 +237,7 @@ function VideoPlayer(props) {
   const initialValue = {
     player,
     mediaInfo: props.media_info.info,
-    mediaID: params.mediaID,
+    // mediaID: params.mediaID,
     fileID: params.fileID,
     video,
     videoPlayer,
@@ -251,8 +256,8 @@ function VideoPlayer(props) {
     paused,
     videoUUID,
     overlay: overlay.current,
-    seekTo,
-    episode
+    seekTo
+    // episode
   };
 
   return (
