@@ -77,6 +77,7 @@ table! {
         delta -> Int4,
         media_id -> Int4,
         user_id -> Text,
+        populated -> Int4,
     }
 }
 

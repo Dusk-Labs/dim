@@ -53,58 +53,6 @@ pub struct MediaFile {
     pub corrupt: Option<bool>,
 }
 
-/// Same as [`MediaFile`](MediaFile) except its missing the id field.
-#[derive(Insertable, Serialize, Debug, Default)]
-#[table_name = "mediafile"]
-pub struct InsertableMediaFile {
-    pub media_id: Option<i32>,
-    pub library_id: i32,
-    pub target_file: String,
-
-    pub raw_name: String,
-    pub raw_year: Option<i32>,
-
-    pub quality: Option<String>,
-    pub codec: Option<String>,
-    pub container: Option<String>,
-    pub audio: Option<String>,
-    pub original_resolution: Option<String>,
-    pub duration: Option<i32>,
-
-    /***
-     * Options specific to tv show scanner hence Option<T>
-     ***/
-    pub episode: Option<i32>,
-    pub season: Option<i32>,
-    /*** ***/
-    pub corrupt: Option<bool>,
-}
-
-/// Same as [`MediaFile`](MediaFile) except its missing the id and library_id fields. Everything is
-/// optional too.
-#[derive(Default, AsChangeset, Deserialize, PartialEq, Debug)]
-#[table_name = "mediafile"]
-pub struct UpdateMediaFile {
-    pub media_id: Option<i32>,
-    pub target_file: Option<String>,
-    pub raw_name: Option<String>,
-    pub raw_year: Option<i32>,
-    pub quality: Option<String>,
-    pub codec: Option<String>,
-    pub container: Option<String>,
-    pub audio: Option<String>,
-    pub original_resolution: Option<String>,
-    pub duration: Option<i32>,
-
-    /***
-     * Options specific to tv show scanner hence Option<T>
-     ***/
-    pub episode: Option<i32>,
-    pub season: Option<i32>,
-    /*** ***/
-    pub corrupt: Option<bool>,
-}
-
 impl MediaFile {
     /// Method returns all mediafiles associated with a library.
     ///
@@ -435,6 +383,33 @@ impl MediaFile {
     }
 }
 
+/// Same as [`MediaFile`](MediaFile) except its missing the id field.
+#[derive(Insertable, Serialize, Debug, Default)]
+#[table_name = "mediafile"]
+pub struct InsertableMediaFile {
+    pub media_id: Option<i32>,
+    pub library_id: i32,
+    pub target_file: String,
+
+    pub raw_name: String,
+    pub raw_year: Option<i32>,
+
+    pub quality: Option<String>,
+    pub codec: Option<String>,
+    pub container: Option<String>,
+    pub audio: Option<String>,
+    pub original_resolution: Option<String>,
+    pub duration: Option<i32>,
+
+    /***
+     * Options specific to tv show scanner hence Option<T>
+     ***/
+    pub episode: Option<i32>,
+    pub season: Option<i32>,
+    /*** ***/
+    pub corrupt: Option<bool>,
+}
+
 impl InsertableMediaFile {
     /// Method inserts a new mediafile into the database.
     ///
@@ -491,6 +466,31 @@ impl InsertableMediaFile {
             }
         }
     }
+}
+
+/// Same as [`MediaFile`](MediaFile) except its missing the id and library_id fields. Everything is
+/// optional too.
+#[derive(Default, AsChangeset, Deserialize, PartialEq, Debug)]
+#[table_name = "mediafile"]
+pub struct UpdateMediaFile {
+    pub media_id: Option<i32>,
+    pub target_file: Option<String>,
+    pub raw_name: Option<String>,
+    pub raw_year: Option<i32>,
+    pub quality: Option<String>,
+    pub codec: Option<String>,
+    pub container: Option<String>,
+    pub audio: Option<String>,
+    pub original_resolution: Option<String>,
+    pub duration: Option<i32>,
+
+    /***
+     * Options specific to tv show scanner hence Option<T>
+     ***/
+    pub episode: Option<i32>,
+    pub season: Option<i32>,
+    /*** ***/
+    pub corrupt: Option<bool>,
 }
 
 impl UpdateMediaFile {
