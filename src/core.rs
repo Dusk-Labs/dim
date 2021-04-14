@@ -264,7 +264,10 @@ pub fn rocket_pad(
         )
         .mount(
             "/api/v1/mediafile",
-            routes![routes::media::rematch_mediafile,],
+            routes![
+                routes::mediafile::get_mediafile_info,
+                routes::mediafile::rematch_mediafile,
+            ],
         )
         .mount(
             "/api/v1/tv",
