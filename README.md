@@ -19,4 +19,7 @@ Dim is a self hosted media manager.
 ## License
 Dim is licensed under the GPLv2 license ([LICENSE.md](LICENSE.md) or http://opensource.org/licenses/GPL-2.0)
 
-## [Gallery](docs/design/GALLERY.md)
+## Screenshots
+![Login Page](./docs/design/login_page.png?raw=true)
+![Add Library](./docs/design/add_library.png?raw=true)
+![Media Page](./docs/design/media_page.png?raw=true)
