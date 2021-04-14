@@ -21,3 +21,16 @@ jobs:
           with:
               command: build
               args: --verbose --no-default-features --features sqlite
+  push_image:
+      name: Push docker image to dockerhub
+      runs-on: ubuntu-latest
+      steps:
+        - name: Check out to the repo
+          uses: actions/checkout@v2
+        - name: Push to dockerhub
+          uses: docker/build-push-action@v1
+          with:
+              username: ${{ secrets.DOCKER_USERNAME }}
+              password: ${{ secrets.DOCKER_PASSWORD }}
+              repository: vgarleanu/dim
+              tag_with_ref: true
