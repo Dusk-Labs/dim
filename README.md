@@ -2,7 +2,7 @@
 
 ![Dashboard](./docs/design/dashboard.png?raw=true)
 
-Dim is a self hosted media manager. 
+Dim is a self hosted media manager. With minimal setup, Dim will organize and beautify your media collections, letting you access and play them anytime from any browser window.
 
 ## Installation (Docker)
   1. `docker volume create dim` \
