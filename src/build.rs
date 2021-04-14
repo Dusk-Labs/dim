@@ -1,5 +1,5 @@
 #[cfg(not(debug_assertions))]
-use {std::env, std::path::Path, std::process::Command};
+use std::{env, path::Path, process::Command};
 
 #[cfg(debug_assertions)]
 fn main() {}
@@ -11,9 +11,15 @@ fn main() {
     let dest_path = Path::new(&out_dir).join("dist");
     println!("{:?}", dest_path);
 
-    let _yarn = Command::new("yarn")
+    let _ = Command::new("yarn")
         .arg("--cwd")
-        .arg("web_ui")
+        .arg("ui")
+        .status()
+        .unwrap();
+
+    let build_log = Command::new("yarn")
+        .arg("--cwd")
+        .arg("ui")
         .arg("build")
         .status()
         .unwrap();
