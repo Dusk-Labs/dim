@@ -1,4 +1,4 @@
-# Dark Powered media Manager written in rust (Alpha)
+<h1 align="center">Dim</h1>
 ![Design 1](./docs/design/current.jpg?raw=true)
 
 Dim is a self hosted media manager. 
