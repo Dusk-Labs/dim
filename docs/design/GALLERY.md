@@ -1,8 +1,0 @@
-![TV Shows Page](./image7.jpg?raw=true)
-![TV Shows Episodes](./image8.jpg?raw=true)
-![Dashboard](./image6.jpg?raw=true)
-![Dashboard 2](./image3.jpg?raw=true)
-![Card Popout](./image4.jpg?raw=true)
-![Layout Hints](./image1.png?raw=true)
-![Add Library Modal](./image2.png?raw=true)
-![Video Player](./image5.png?raw=true)
