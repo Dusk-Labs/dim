@@ -10,9 +10,9 @@ use std::path::Path;
 use std::path::PathBuf;
 
 #[derive(RustEmbed)]
-#[cfg_attr(any(feature = "embed_ui", target = "windows"), folder = "ui/build/")]
+#[cfg_attr(any(feature = "embed_ui", target_os = "windows"), folder = "ui/build/")]
 #[cfg_attr(
-    all(not(feature = "embed_ui"), not(target = "windows")),
+    all(not(feature = "embed_ui"), not(target_os = "windows")),
     folder = "/dev/null"
 )]
 struct Asset;

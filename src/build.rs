@@ -2,10 +2,10 @@ use std::env;
 use std::path::Path;
 use std::process::Command;
 
-#[cfg(target = "windows")]
+#[cfg(target_os = "windows")]
 fn main() {}
 
-#[cfg(not(target = "windows"))]
+#[cfg(not(target_os = "windows"))]
 fn main() {
     println!("cargo:rerun-if-changed=ui/src");
     println!("cargo:rerun-if-changed=ui/node_modules");
