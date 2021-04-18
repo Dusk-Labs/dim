@@ -93,16 +93,13 @@ export default function libraryReducer(state = initialState, action) {
                 }
             }
         case FETCH_LIBRARY_UNMATCHED_OK:
-            const payload = action.payload;
-            const items = payload[Object.keys(payload)];
-
             return {
                 ...state,
                 fetch_library_unmatched: {
                     ...fetch_library_unmatched,
                     fetching: false,
                     fetched: true,
-                    items
+                    items: action.payload
                 }
             }
         case FETCH_LIBRARY_UNMATCHED_ERR:
