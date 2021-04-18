@@ -22,7 +22,7 @@ const Library = (props) => {
   return (
     <div className="library">
       <CardList path={`//${window.host}:8000/api/v1/library/${params.id}/media`}/>
-      {(fetched && items.length > 0) && (
+      {(fetched && Object.keys(items).length > 0) && (
         <>
           <div className="separator"/>
           <UnmatchedCardList cards={props.unmatched}/>
