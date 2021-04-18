@@ -108,7 +108,10 @@ pub fn library_delete(
         event_type: PushEventType::EventRemoveLibrary,
     };
 
-    let _ = event_tx.lock().unwrap().send(serde_json::to_string(&event).unwrap());
+    let _ = event_tx
+        .lock()
+        .unwrap()
+        .send(serde_json::to_string(&event).unwrap());
 
     Ok(Status::NoContent)
 }
