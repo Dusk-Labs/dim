@@ -6,8 +6,11 @@ authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
 
 [features]
-default = ["sqlite", "embed_ui"]
+default = ["sqlite"]
 null_auth = ["auth/null_auth"]
+
+# the build script usually will enable this if `yarn` is installed.
+# If enabled explicitly, the build script will panic if something went wrong.
 embed_ui = []
 postgres = ["database/postgres", "diesel/postgres", "rocket_contrib/diesel_postgres_pool"]
 sqlite = ["database/sqlite", "diesel/sqlite", "rocket_contrib/diesel_sqlite_pool"]

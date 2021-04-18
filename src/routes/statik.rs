@@ -10,8 +10,11 @@ use std::path::Path;
 use std::path::PathBuf;
 
 #[derive(RustEmbed)]
-#[cfg_attr(feature = "embed_ui", folder = "ui/build/")]
-#[cfg_attr(not(feature = "embed_ui"), folder = "/dev/null")]
+#[cfg_attr(any(feature = "embed_ui", target_os = "windows"), folder = "ui/build/")]
+#[cfg_attr(
+    all(not(feature = "embed_ui"), not(target_os = "windows")),
+    folder = "/dev/null"
+)]
 struct Asset;
 
 #[get("/static/<file..>")]

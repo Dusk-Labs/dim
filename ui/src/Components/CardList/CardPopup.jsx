@@ -38,7 +38,8 @@ function CardPopup(props) {
     description,
     genres,
     year,
-    duration
+    duration,
+    progress,
   } = props.data;
 
   const { auth } = props;
@@ -124,7 +125,7 @@ function CardPopup(props) {
             <p>{length.hh}:{length.mm}:{length.ss}</p>
             <p>HH MM SS</p>
           </div>
-          <PlayButton mediaID={id} versions={mediaVersions}/>
+          <PlayButton mediaID={id} versions={mediaVersions} progress={progress}/>
         </section>
       </div>
     </div>
