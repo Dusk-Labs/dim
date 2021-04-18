@@ -217,7 +217,7 @@ fn main() {
 
     // GC the stream manager every 100ms
     tokio_rt.spawn(async move {
-        let mut interval = tokio::time::interval(Duration::from_millis(100));
+        let mut interval = tokio::time::interval(Duration::from_millis(1000));
         interval.tick().await;
 
         loop {
