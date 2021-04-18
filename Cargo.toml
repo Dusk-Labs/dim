@@ -29,7 +29,8 @@ serde_json = "1.0.48"
 database = { path = "./src/database", default-features = false, optional = true }
 events = { path = "./src/events" }
 auth = { path = "./src/auth" }
-nightfall = { git = "https://github.com/vgarleanu/nightfall#rewrite-nightfall" }
+nightfall = { git = "https://github.com/vgarleanu/nightfall", branch = "rewrite-nightfall" }
+#nightfall = { path = "../nightfall" }
 
 diesel_migrations = "1.4.0"
 rocket_cors = "0.5.2"
