@@ -23,7 +23,10 @@ const Library = (props) => {
     <div className="library">
       <CardList path={`//${window.host}:8000/api/v1/library/${params.id}/media`}/>
       {(fetched && items.length > 0) && (
-        <UnmatchedCardList cards={props.unmatched}/>
+        <>
+          <div className="separator"/>
+          <UnmatchedCardList cards={props.unmatched}/>
+        </>
       )}
       <Actions id={useParams().id}/>
     </div>
