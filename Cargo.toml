@@ -29,7 +29,8 @@ serde_json = "1.0.48"
 database = { path = "./src/database", default-features = false, optional = true }
 events = { path = "./src/events" }
 auth = { path = "./src/auth" }
-nightfall = { git = "https://github.com/vgarleanu/nightfall" }
+nightfall = { git = "https://github.com/vgarleanu/nightfall", branch = "rewrite-nightfall" }
+#nightfall = { path = "../nightfall" }
 
 diesel_migrations = "1.4.0"
 rocket_cors = "0.5.2"
@@ -57,6 +58,7 @@ tokio = { version = "1.4.0", features = ["rt"] }
 uuid = { version = "0.8.2", features = ["v4"] }
 tokio-tungstenite = "0.14.0"
 futures = "0.3.13"
+xtra = { version = "0.5.1", features = ["with-tokio-1"] }
 
 [build-dependencies]
 fs_extra = "1.1.0"
