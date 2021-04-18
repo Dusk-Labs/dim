@@ -11,7 +11,10 @@ import {
     DEL_LIBRARY_OK,
     DEL_LIBRARY_ERR,
     RM_LIBRARY,
-    ADD_LIBRARY
+    ADD_LIBRARY,
+    FETCH_LIBRARY_UNMATCHED_START,
+    FETCH_LIBRARY_UNMATCHED_ERR,
+    FETCH_LIBRARY_UNMATCHED_OK
 } from "./types.js";
 
 export const fetchLibraries = (token) => async (dispatch) => {
@@ -41,6 +44,39 @@ export const fetchLibraries = (token) => async (dispatch) => {
     } catch(err) {
         dispatch({
             type: FETCH_LIBRARIES_ERR,
+            payload: err
+        });
+    }
+};
+
+export const fetchLibraryUnmatched = (token, id) => async (dispatch) => {
+    dispatch({ type: FETCH_LIBRARY_UNMATCHED_START });
+
+    try {
+        const config = {
+            headers: {
+                "authorization": token
+            }
+        };
+
+        const res = await fetch(`//${window.host}:8000/api/v1/library/${id}/unmatched`, config);
+
+        if (res.status !== 200) {
+            return dispatch({
+                type: FETCH_LIBRARY_UNMATCHED_ERR,
+                payload: res.statusText
+            });
+        }
+
+        const payload = await res.json();
+
+        dispatch({
+            type: FETCH_LIBRARY_UNMATCHED_OK,
+            payload
+        });
+    } catch(err) {
+        dispatch({
+            type: FETCH_LIBRARY_UNMATCHED_ERR,
             payload: err
         });
     }
