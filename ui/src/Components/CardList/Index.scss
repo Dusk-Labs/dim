@@ -11,6 +11,15 @@
   &.unmatched {
     transition: opacity 200ms ease-in-out;
     opacity: .2;
+
+    h1 {
+      margin-bottom: .5em;
+    }
+
+    .sectionDesc {
+      color: #ddd;
+      margin-bottom: 1em;
+    }
   }
 
   h1 {

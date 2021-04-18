@@ -41,7 +41,8 @@ function UnmatchedCardList(props) {
 
     card_list = (
       <section>
-        <h1>Unmatched media</h1>
+        <h1>Unmatched</h1>
+        <p className="sectionDesc">Could not find an accurate match for these files.</p>
         <div className="cards">
           {items.map((card, i) => <Card key={i} data={card}/>)}
         </div>
