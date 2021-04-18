@@ -33,6 +33,8 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
 
+pub type StateManager = xtra::Address<nightfall::StateManager>;
+
 cfg_if! {
     if #[cfg(feature = "postgres")] {
         #[database("dimpostgres")]
@@ -176,7 +178,8 @@ pub fn rocket_pad(
     logger: slog::Logger,
     event_tx: EventTx,
     config: rocket::config::Config,
-    stream_manager: nightfall::StateManager,
+    stream_manager: StateManager,
+    tokio_handle: tokio::runtime::Handle,
 ) -> rocket::Rocket {
     let fairing = SlogFairing::new(logger);
 
@@ -297,6 +300,7 @@ pub fn rocket_pad(
         .manage(Arc::new(Mutex::new(event_tx)))
         .manage(stream_tracking)
         .manage(stream_manager)
+        .manage(tokio_handle)
 }
 
 /// Method launch
@@ -313,8 +317,9 @@ pub fn launch(
     log: slog::Logger,
     event_tx: EventTx,
     config: rocket::config::Config,
-    stream_manager: nightfall::StateManager,
+    stream_manager: StateManager,
+    tokio_handle: tokio::runtime::Handle,
 ) -> ! {
-    let error = rocket_pad(log, event_tx, config, stream_manager).launch();
+    let error = rocket_pad(log, event_tx, config, stream_manager, tokio_handle).launch();
     panic!("Launch error: {:?}", error);
 }
