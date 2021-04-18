@@ -9,9 +9,6 @@
   animation: appear .5s ease-in-out;
 
   &.unmatched {
-    transition: opacity 200ms ease-in-out;
-    opacity: .2;
-
     h1 {
       margin-bottom: .5em;
     }
