@@ -5,9 +5,9 @@ import { MediaPlayer } from "dashjs";
 import VideoControls from "./Controls/Index";
 import { VideoPlayerContext } from "./Context";
 import RingLoad from "../../Components/Load/Ring";
-// import { clearMediaInfo, fetchExtraMediaInfo, fetchMediaInfo } from "../../actions/card";
+import { clearMediaInfo, fetchExtraMediaInfo, fetchMediaInfo } from "../../actions/card";
 import ErrorBox from "./ErrorBox";
-// import ContinueProgress from "./ContinueProgress";
+import ContinueProgress from "./ContinueProgress";
 import VideoSubtitles from "./Subtitles";
 
 import "./Index.scss";
@@ -23,6 +23,8 @@ function VideoPlayer(props) {
   const overlay = useRef(null);
   const video = useRef(null);
 
+  const [mediaID, setMediaID] = useState();
+
   const [player, setPlayer] = useState();
 
   const [manifestLoading, setManifestLoading] = useState(false);
@@ -37,59 +39,82 @@ function VideoPlayer(props) {
   const [paused, setPaused] = useState(false);
   const [currentTextTrack, setCurrentTextTrack] = useState(0);
   const [textTrackEnabled, setTextTrackEnabled] = useState(false);
-  // const [episode, setEpisode] = useState();
+  const [episode, setEpisode] = useState();
 
   const [buffer, setBuffer] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const { auth, match } = props;
+  const { auth, match, media_info, fetchMediaInfo, fetchExtraMediaInfo } = props;
   const { params } = match;
+  const { token } = auth;
 
-  // useEffect(() => {
-  //   if (props.extra_media_info.info.seasons) {
-  //     const { seasons } = props.extra_media_info.info;
+  useEffect(() => {
+    (async () => {
+      const config = {
+        headers: {
+            "authorization": token
+        }
+      };
 
-  //     let episode;
+      const res = await fetch(`//${window.host}:8000/api/v1/mediafile/${params.fileID}`, config);
 
-  //     for (const season of seasons) {
-  //       const found = season.episodes.filter(ep => {
-  //         return ep.versions.filter(version => version.id === parseInt(params.fileID)).length === 1;
-  //       });
+      if (res.status !== 200) {
+        return;
+      }
 
-  //       if (found.length > 0) {
-  //         episode = {
-  //           ...found[0],
-  //           season: season.season_number
-  //         };
+      const payload = await res.json();
 
-  //         break;
-  //       }
-  //     }
+      setMediaID(payload.media_id);
+    })();
+  }, [params.fileID, token]);
 
-  //     if (episode) {
-  //       setEpisode(episode);
-  //     }
-  //   }
-  // }, [params.fileID, props.extra_media_info.info]);
+  useEffect(() => {
+    if (props.extra_media_info.info.seasons) {
+      const { seasons } = props.extra_media_info.info;
 
-  // useEffect(() => {
-  //   fetchExtraMediaInfo(auth.token, params.mediaID);
-  //   return () => clearMediaInfo()
-  // }, [auth.token, clearMediaInfo, fetchExtraMediaInfo, params.mediaID]);
+      let episode;
 
-  // useEffect(() => {
-  //   fetchMediaInfo(auth.token, params.mediaID);
-  //   return () => clearMediaInfo();
-  // }, [auth.token, clearMediaInfo, fetchMediaInfo, params.mediaID]);
+      for (const season of seasons) {
+        const found = season.episodes.filter(ep => {
+          return ep.versions.filter(version => version.id === parseInt(params.fileID)).length === 1;
+        });
+
+        if (found.length > 0) {
+          episode = {
+            ...found[0],
+            season: season.season_number
+          };
+
+          break;
+        }
+      }
+
+      if (episode) {
+        setEpisode(episode);
+      }
+    }
+  }, [params.fileID, props.extra_media_info.info]);
+
+  useEffect(() => {
+    fetchExtraMediaInfo(token, mediaID);
+    return () => clearMediaInfo()
+  }, [fetchExtraMediaInfo, mediaID, token]);
+
+  console.log(props.media_info)
+
+  useEffect(() => {
+    fetchMediaInfo(auth.token, mediaID);
+    return () => clearMediaInfo();
+  }, [auth.token, fetchMediaInfo, mediaID]);
 
   useEffect(() => {
     document.title = "Dim - Video Player";
 
-    // if (media_info.info.name) {
-    //   document.title = `Dim - Playing '${media_info.info.name}'`;
-    // }
-  }, []);
+    if (media_info.info.name) {
+      document.title = `Dim - Playing '${media_info.info.name}'`;
+    }
+  }, [media_info.info.name]);
 
   useEffect(() => {
     if (!params.fileID) return;
@@ -253,8 +278,8 @@ function VideoPlayer(props) {
 
   const initialValue = {
     player,
-    // mediaInfo: props.media_info.info,
-    // mediaID: params.mediaID,
+    mediaInfo: props.media_info.info,
+    mediaID,
     fileID: params.fileID,
     video,
     videoPlayer,
@@ -278,8 +303,8 @@ function VideoPlayer(props) {
     setTextTrackEnabled,
     videoUUID,
     overlay: overlay.current,
-    seekTo
-    // episode
+    seekTo,
+    episode
   };
 
   return (
@@ -290,9 +315,9 @@ function VideoPlayer(props) {
         <div className="overlay" ref={overlay}>
           {(!error && (manifestLoaded && canPlay)) && <VideoControls/>}
           {(!error & (manifestLoading || !canPlay) || waiting) && <RingLoad/>}
-          {/* {((!error && (manifestLoaded && canPlay)) && props.extra_media_info.info.progress > 0) && (
+          {((!error && (manifestLoaded && canPlay)) && props.extra_media_info.info.progress > 0) && (
             <ContinueProgress/>
-          )} */}
+          )}
           {error && (
             <ErrorBox error={error} setError={setError} currentTime={currentTime}/>
           )}
@@ -304,14 +329,14 @@ function VideoPlayer(props) {
 
 const mapStateToProps = (state) => ({
   auth: state.auth,
-  // media_info: state.card.media_info,
-  // extra_media_info: state.card.extra_media_info
+  media_info: state.card.media_info,
+  extra_media_info: state.card.extra_media_info
 });
 
 const mapActionsToProps = {
-  // fetchMediaInfo,
-  // fetchExtraMediaInfo,
-  // clearMediaInfo
+  fetchMediaInfo,
+  fetchExtraMediaInfo,
+  clearMediaInfo
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(VideoPlayer);

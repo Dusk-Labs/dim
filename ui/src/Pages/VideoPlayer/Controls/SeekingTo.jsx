@@ -10,7 +10,7 @@ function SeekingTo(props) {
   const { player } = useContext(VideoPlayerContext);
   const [ seekingTo, setSeekingTo ] = useState(formatHHMMSS(0));
 
-  const { timeRef, seekBar } = props;
+  const { nameRef, timeRef, seekBar } = props;
 
   const handleMousemove = useCallback(e => {
     const rect = e.target.getBoundingClientRect();
@@ -20,18 +20,17 @@ function SeekingTo(props) {
 
     seekingToDiv.current.style.left = `${e.layerX}px`;
 
-    // TODO: add nameRef when ready to condition
-    if (timeRef && seekingToDiv.current) {
-      // const nameRect = nameRef.getBoundingClientRect();
+    if (nameRef && timeRef && seekingToDiv.current) {
+      const nameRect = nameRef.getBoundingClientRect();
       const timeRect = timeRef.getBoundingClientRect();
       const seekingToRect = seekingToDiv.current.getBoundingClientRect();
 
       // seekingTo overlapping name from the right side
-      // if (seekingToRect.left < (nameRect.right + 15)) {
-      //   nameRef.style.opacity = 0;
-      // } else {
-      //   nameRef.style.opacity = 1;
-      // }
+      if (seekingToRect.left < (nameRect.right + 15)) {
+        nameRef.style.opacity = 0;
+      } else {
+        nameRef.style.opacity = 1;
+      }
 
       // seekingTo overlapping time from the left side
       if (seekingToRect.right > (timeRect.left - 15)) {
@@ -42,17 +41,17 @@ function SeekingTo(props) {
     }
 
     setSeekingTo(formatHHMMSS(newTime));
-  }, [player, timeRef]);
+  }, [nameRef, player, timeRef]);
 
   const handleMouseleave = useCallback(() => {
-    // if (nameRef) {
-    //   nameRef.style.opacity = 1;
-    // }
+    if (nameRef) {
+      nameRef.style.opacity = 1;
+    }
 
     if (timeRef) {
       timeRef.style.opacity = 1;
     }
-  }, [timeRef]);
+  }, [nameRef, timeRef]);
 
   useEffect(() => {
     let bar = seekBar.current;
