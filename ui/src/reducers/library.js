@@ -12,10 +12,20 @@ import {
     DEL_LIBRARY_ERR,
     RM_LIBRARY,
     ADD_LIBRARY,
+    FETCH_LIBRARY_UNMATCHED_START,
+    FETCH_LIBRARY_UNMATCHED_OK,
+    FETCH_LIBRARY_UNMATCHED_ERR,
 } from "../actions/types.js";
 
 const fetch_libraries = {
     items: [],
+    fetching: false,
+    fetched: false,
+    error: null
+};
+
+const fetch_library_unmatched = {
+    items: {},
     fetching: false,
     fetched: false,
     error: null
@@ -35,6 +45,7 @@ const del_library = {
 
 const initialState = {
     fetch_libraries,
+    fetch_library_unmatched,
     new_library,
     del_library
 };
@@ -66,6 +77,39 @@ export default function libraryReducer(state = initialState, action) {
                 ...state,
                 fetch_libraries: {
                     ...fetch_libraries,
+                    fetching: false,
+                    fetched: true,
+                    error: action.payload
+                }
+            }
+        case FETCH_LIBRARY_UNMATCHED_START:
+            return {
+                ...state,
+                fetch_library_unmatched: {
+                    items: {},
+                    fetching: true,
+                    fetched: false,
+                    error: null
+                }
+            }
+        case FETCH_LIBRARY_UNMATCHED_OK:
+            const payload = action.payload;
+            const items = payload[Object.keys(payload)];
+
+            return {
+                ...state,
+                fetch_library_unmatched: {
+                    ...fetch_library_unmatched,
+                    fetching: false,
+                    fetched: true,
+                    items
+                }
+            }
+        case FETCH_LIBRARY_UNMATCHED_ERR:
+            return {
+                ...state,
+                fetch_library_unmatched: {
+                    ...fetch_library_unmatched,
                     fetching: false,
                     fetched: true,
                     error: action.payload
