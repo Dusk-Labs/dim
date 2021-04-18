@@ -226,12 +226,7 @@ impl TvShowScanner {
 impl MediaScanner for TvShowScanner {
     const MEDIA_TYPE: library::MediaType = library::MediaType::Tv;
 
-    fn new_unchecked(
-        conn: DbConnection,
-        lib: Library,
-        log: Logger,
-        event_tx: EventTx,
-    ) -> Self {
+    fn new_unchecked(conn: DbConnection, lib: Library, log: Logger, event_tx: EventTx) -> Self {
         Self {
             conn,
             lib,

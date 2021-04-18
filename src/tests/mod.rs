@@ -7,6 +7,7 @@ use {
 
 use std::sync::{Arc, Mutex};
 
+#[cfg(test)]
 lazy_static! {
     pub static ref CLIENT: Arc<Mutex<Client>> = {
         let _ = database::get_conn_devel().unwrap(); // Force dim to apply migrations before mounting rocket
