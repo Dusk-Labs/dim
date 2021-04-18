@@ -14,10 +14,10 @@ import "./Index.scss";
 */
 
 function VideoControls() {
-  // const nameDiv = useRef(null);
+  const nameDiv = useRef(null);
   const timeDiv = useRef(null);
 
-  const { seekTo, overlay, currentTime, duration } = useContext(VideoPlayerContext);
+  const { mediaInfo, episode, seekTo, overlay, currentTime, duration } = useContext(VideoPlayerContext);
   const [ visible, setVisible ] = useState(true);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ function VideoControls() {
 
   return (
     <div className={`videoControls ${visible}`}>
-      {/* <div className="name" ref={nameDiv}>
+      <div className="name" ref={nameDiv}>
         <p>{mediaInfo.name}</p>
         {episode && (
           <div className="season-ep">
@@ -37,13 +37,13 @@ function VideoControls() {
             <p>E{episode.episode}</p>
           </div>
         )}
-      </div> */}
+      </div>
       <div className="time" ref={timeDiv}>
         <p>{formatHHMMSS(currentTime)}</p>
         <CircleIcon/>
         <p>{formatHHMMSS(duration)}</p>
       </div>
-      <SeekBar seekTo={seekTo} timeRef={timeDiv.current}/>
+      <SeekBar seekTo={seekTo} nameRef={nameDiv.current} timeRef={timeDiv.current}/>
       <Actions setVisible={setVisible} seekTo={seekTo}/>
     </div>
   );
