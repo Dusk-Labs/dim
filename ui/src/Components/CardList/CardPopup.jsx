@@ -104,23 +104,25 @@ function CardPopup(props) {
         <section className="description">
           {description !== null && description.length > 0
             ? <p><TruncText content={description} max={21}/></p>
-            : <p>No description found.</p>
+            : <p>No description found</p>
           }
         </section>
-        <section className="tags">
-          <Link to={`/search?year=${year}`}>{year}</Link>
-          <FontAwesomeIcon icon="circle"/>
-          <div className="genres">
-            {genres.map((genre, i) => (
-              <Link
-                to={`/search?genre=${encodeURIComponent(genre)}`}
-                key={i}
-              >
-                {genre}
-              </Link>
-            ))}
-          </div>
-        </section>
+        {(year && genres) && (
+          <section className="tags">
+            <Link to={`/search?year=${year}`}>{year}</Link>
+            <FontAwesomeIcon icon="circle"/>
+            <div className="genres">
+              {genres.map((genre, i) => (
+                <Link
+                  to={`/search?genre=${encodeURIComponent(genre)}`}
+                  key={i}
+                >
+                  {genre}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
         <section className="separator"/>
         <section className="footer">
           <div className="length">
