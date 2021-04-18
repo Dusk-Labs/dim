@@ -101,17 +101,13 @@ pub fn return_manifest(
         VideoProfile::Direct
     };
 
-    use nightfall::StateCreate;
-
-    let video = tokio_rt
-        .block_on(state.send(StateCreate {
-            file: media.target_file.clone().into(),
-            stream_type: StreamType::Video {
-                map: video_stream.index as usize,
-                profile,
-            },
-        }))
-        .map_err(|_| errors::StreamingErrors::InternalServerError)??;
+    let video = tokio_rt.block_on(state.create(
+        StreamType::Video {
+            map: video_stream.index as usize,
+            profile,
+        },
+        media.target_file.clone().into(),
+    ))?;
 
     stream_tracking.insert(gid, video.clone());
 
@@ -137,15 +133,13 @@ pub fn return_manifest(
     let audio_streams = info.find_by_codec("audio");
 
     for stream in audio_streams {
-        let audio = tokio_rt
-            .block_on(state.send(StateCreate {
-                file: media.target_file.clone().into(),
-                stream_type: StreamType::Audio {
-                    map: stream.index as usize,
-                    profile: AudioProfile::Low,
-                },
-            }))
-            .map_err(|_| errors::StreamingErrors::InternalServerError)??;
+        let audio = tokio_rt.block_on(state.create(
+            StreamType::Audio {
+                map: stream.index as usize,
+                profile: AudioProfile::Low,
+            },
+            media.target_file.clone().into(),
+        ))?;
 
         tracks.push(format!(
             include_str!("../static/audio_segment.mpd"),
@@ -161,15 +155,13 @@ pub fn return_manifest(
     let subtitles = info.find_by_codec("subtitle");
 
     for stream in subtitles {
-        let subtitle = tokio_rt
-            .block_on(state.send(StateCreate {
-                file: media.target_file.clone().into(),
-                stream_type: StreamType::Subtitle {
-                    map: stream.index as usize,
-                    profile: SubtitleProfile::Webvtt,
-                },
-            }))
-            .map_err(|_| errors::StreamingErrors::InternalServerError)??;
+        let subtitle = tokio_rt.block_on(state.create(
+            StreamType::Subtitle {
+                map: stream.index as usize,
+                profile: SubtitleProfile::Webvtt,
+            },
+            media.target_file.clone().into(),
+        ))?;
 
         tracks.push(format!(
             include_str!("../static/subtitle_segment.mpd"),
@@ -233,15 +225,8 @@ pub fn get_init(
     id: String,
     start_num: Option<u32>,
 ) -> Result<Option<NamedFile>, errors::StreamingErrors> {
-    use nightfall::ChunkInitRequest;
-
     let path: String = timeout_segment(
-        || {
-            tokio_rt
-                .block_on(state.send(ChunkInitRequest(id.clone(), start_num.unwrap_or(0))))
-                .map_err(|_| NightfallError::Aborted)
-                .flatten()
-        },
+        || tokio_rt.block_on(state.chunk_init_request(id.clone(), start_num.unwrap_or(0))),
         Duration::from_millis(100),
         100,
     )?;
@@ -279,15 +264,8 @@ pub fn get_chunk(
         .parse::<u32>()
         .unwrap_or(0);
 
-    use nightfall::ChunkRequest;
-
     let path: String = timeout_segment(
-        || {
-            tokio_rt
-                .block_on(state.send(ChunkRequest(id.clone(), chunk_num)))
-                .map_err(|_| NightfallError::Aborted)
-                .flatten()
-        },
+        || tokio_rt.block_on(state.chunk_request(id.clone(), chunk_num)),
         Duration::from_millis(100),
         100,
     )?;
@@ -302,15 +280,8 @@ pub fn get_subtitle(
     conn: DbConnection,
     id: String,
 ) -> Result<Option<NamedFile>, errors::StreamingErrors> {
-    use nightfall::GetSub;
-
     let path: String = timeout_segment(
-        || {
-            tokio_rt
-                .block_on(state.send(GetSub(id.clone(), "stream.vtt".into())))
-                .map_err(|_| NightfallError::Aborted)
-                .flatten()
-        },
+        || tokio_rt.block_on(state.get_sub(id.clone(), "stream.vtt".into())),
         Duration::from_millis(100),
         200,
     )?;
@@ -332,12 +303,8 @@ pub fn should_client_hard_seek(
 
     let mut should_client_hard_seek = false;
 
-    use nightfall::ShouldClientHardSeek;
     for id in ids {
-        should_client_hard_seek |= tokio_rt
-            .block_on(state.send(ShouldClientHardSeek(id, chunk_num)))
-            .map_err(|_| NightfallError::Aborted)
-            .flatten()?;
+        should_client_hard_seek |= tokio_rt.block_on(state.should_hard_seek(id, chunk_num))?;
     }
 
     Ok(json!({
@@ -352,14 +319,12 @@ pub fn session_get_stderr(
     tokio_rt: State<Handle>,
     gid: u128,
 ) -> Result<JsonValue, errors::StreamingErrors> {
-    use nightfall::GetStderr;
-
     Ok(json!({
     "errors": stream_tracking
         .get_for_gid(gid)
         .ok_or(errors::StreamingErrors::InvalidRequest)?
         .into_iter()
-        .filter_map(|x| tokio_rt.block_on(state.send(GetStderr(x))).map_err(|_|NightfallError::Aborted).flatten().ok())
+        .filter_map(|x| tokio_rt.block_on(state.get_stderr(x)).ok())
         .collect::<Vec<_>>(),
     }))
 }
@@ -370,13 +335,11 @@ pub fn kill_session(
     stream_tracking: State<StreamTracking>,
     gid: u128,
 ) -> Result<Status, errors::StreamingErrors> {
-    use nightfall::Die;
-
     for id in stream_tracking
         .get_for_gid(gid)
         .ok_or(errors::StreamingErrors::InvalidRequest)?
     {
-        let _ = state.do_send(Die(id));
+        let _ = state.die(id);
     }
 
     Ok(Status::NoContent)

@@ -206,12 +206,11 @@ fn main() {
     let event_tx = tokio_rt.block_on(core::start_event_server());
 
     let stream_manager = nightfall::StateManager::new(
+        &mut Tokio::Handle(&tokio_rt),
         matches.value_of("cache-dir").unwrap().to_string(),
         crate::streaming::FFMPEG_BIN.to_string(),
         logger.clone()
-    )
-    .create(None)
-    .spawn(&mut Tokio::Handle(&tokio_rt));
+    );
 
     let stream_manager_clone = stream_manager.clone();
 
@@ -223,9 +222,8 @@ fn main() {
         loop {
             interval.tick().await;
             let _ = stream_manager_clone
-                .send(nightfall::GarbageCollect)
-                .await
-                .expect("The Stream manager has crashed.");
+                .garbage_collect()
+                .await.unwrap();
         }
     });
 
