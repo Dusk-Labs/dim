@@ -5,9 +5,10 @@ import { MediaPlayer } from "dashjs";
 import VideoControls from "./Controls/Index";
 import { VideoPlayerContext } from "./Context";
 import RingLoad from "../../Components/Load/Ring";
-import { clearMediaInfo, fetchExtraMediaInfo, fetchMediaInfo } from "../../actions/card";
+// import { clearMediaInfo, fetchExtraMediaInfo, fetchMediaInfo } from "../../actions/card";
 import ErrorBox from "./ErrorBox";
-import ContinueProgress from "./ContinueProgress";
+// import ContinueProgress from "./ContinueProgress";
+import VideoSubtitles from "./Subtitles";
 
 import "./Index.scss";
 
@@ -16,6 +17,7 @@ import "./Index.scss";
   awaiting info to be returned by API - hidden until then.
 */
 
+// TODO: useReducer the shit out of this shit.
 function VideoPlayer(props) {
   const videoPlayer = useRef(null);
   const overlay = useRef(null);
@@ -32,14 +34,16 @@ function VideoPlayer(props) {
   const [muted, setMuted] = useState(false);
   const [error, setError] = useState();
   const [videoUUID, setVideoUUID] = useState();
+  const [paused, setPaused] = useState(false);
+  const [currentTextTrack, setCurrentTextTrack] = useState(0);
+  const [textTrackEnabled, setTextTrackEnabled] = useState(false);
   // const [episode, setEpisode] = useState();
 
   const [buffer, setBuffer] = useState(true);
-  const [paused, setPaused] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const { media_info, auth, match } = props;
+  const { auth, match } = props;
   const { params } = match;
 
   // useEffect(() => {
@@ -85,7 +89,7 @@ function VideoPlayer(props) {
     // if (media_info.info.name) {
     //   document.title = `Dim - Playing '${media_info.info.name}'`;
     // }
-  }, [media_info.info.name]);
+  }, []);
 
   useEffect(() => {
     if (!params.fileID) return;
@@ -131,6 +135,7 @@ function VideoPlayer(props) {
     });
 
     mediaPlayer.initialize(video.current, url, true);
+    mediaPlayer.enableForcedTextStreaming(true);
 
     setPlayer(mediaPlayer);
     setVideoUUID(uuid);
@@ -182,7 +187,17 @@ function VideoPlayer(props) {
     setWaiting(true);
   }, []);
 
+  const ePlayBackEnded = useCallback(e => {
+    console.log("PLAYBACK ENDED", e);
+  }, []);
+
   const eError = useCallback(e => {
+    // segment not available
+    if (e.error.code === 27) {
+      console.log("segment not available", e.error.message)
+      return;
+    }
+
     (async () => {
       const res = await fetch(`//${window.host}:8000/api/v1/stream/${videoUUID}/state/get_stderr`);
       const error = await res.json();
@@ -220,6 +235,7 @@ function VideoPlayer(props) {
     player.on(MediaPlayer.events.PLAYBACK_WAITING, ePlayBackWaiting);
     player.on(MediaPlayer.events.PLAYBACK_TIME_UPDATED, ePlayBackTimeUpdated);
     player.on(MediaPlayer.events.PLAYBACK_NOT_ALLOWED, ePlayBackNotAllowed);
+    player.on(MediaPlayer.events.PLAYBACK_ENDED, ePlayBackEnded);
     player.on(MediaPlayer.events.ERROR, eError);
 
     return () => {
@@ -230,13 +246,14 @@ function VideoPlayer(props) {
       player.off(MediaPlayer.events.PLAYBACK_WAITING, ePlayBackWaiting);
       player.off(MediaPlayer.events.PLAYBACK_TIME_UPDATED, ePlayBackTimeUpdated);
       player.off(MediaPlayer.events.PLAYBACK_NOT_ALLOWED, ePlayBackNotAllowed);
+      player.off(MediaPlayer.events.PLAYBACK_ENDED, ePlayBackEnded);
       player.off(MediaPlayer.events.ERROR, eError);
     }
-  }, [eCanPlay, eError, eManifestLoad, ePlayBackNotAllowed, ePlayBackPaused, ePlayBackPlaying, ePlayBackTimeUpdated, ePlayBackWaiting, player])
+  }, [eCanPlay, eError, eManifestLoad, ePlayBackEnded, ePlayBackNotAllowed, ePlayBackPaused, ePlayBackPlaying, ePlayBackTimeUpdated, ePlayBackWaiting, player])
 
   const initialValue = {
     player,
-    mediaInfo: props.media_info.info,
+    // mediaInfo: props.media_info.info,
     // mediaID: params.mediaID,
     fileID: params.fileID,
     video,
@@ -254,6 +271,11 @@ function VideoPlayer(props) {
     setBuffer,
     buffer,
     paused,
+    canPlay,
+    currentTextTrack,
+    setCurrentTextTrack,
+    textTrackEnabled,
+    setTextTrackEnabled,
     videoUUID,
     overlay: overlay.current,
     seekTo
@@ -264,12 +286,13 @@ function VideoPlayer(props) {
     <VideoPlayerContext.Provider value={initialValue}>
       <div className="videoPlayer" ref={videoPlayer}>
         <video ref={video}/>
+        <VideoSubtitles/>
         <div className="overlay" ref={overlay}>
           {(!error && (manifestLoaded && canPlay)) && <VideoControls/>}
           {(!error & (manifestLoading || !canPlay) || waiting) && <RingLoad/>}
-          {((!error && (manifestLoaded && canPlay)) && props.extra_media_info.info.progress > 0) && (
+          {/* {((!error && (manifestLoaded && canPlay)) && props.extra_media_info.info.progress > 0) && (
             <ContinueProgress/>
-          )}
+          )} */}
           {error && (
             <ErrorBox error={error} setError={setError} currentTime={currentTime}/>
           )}
@@ -281,14 +304,14 @@ function VideoPlayer(props) {
 
 const mapStateToProps = (state) => ({
   auth: state.auth,
-  media_info: state.card.media_info,
-  extra_media_info: state.card.extra_media_info
+  // media_info: state.card.media_info,
+  // extra_media_info: state.card.extra_media_info
 });
 
 const mapActionsToProps = {
-  fetchMediaInfo,
-  fetchExtraMediaInfo,
-  clearMediaInfo
+  // fetchMediaInfo,
+  // fetchExtraMediaInfo,
+  // clearMediaInfo
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(VideoPlayer);
