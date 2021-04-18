@@ -312,7 +312,7 @@ pub fn get_subtitle(
                 .flatten()
         },
         Duration::from_millis(100),
-        20,
+        200,
     )?;
 
     Ok(NamedFile::open(path).ok())
