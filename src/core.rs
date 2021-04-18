@@ -33,7 +33,7 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
 
-pub type StateManager = xtra::Address<nightfall::StateManager>;
+pub type StateManager = nightfall::StateManager;
 
 cfg_if! {
     if #[cfg(feature = "postgres")] {
