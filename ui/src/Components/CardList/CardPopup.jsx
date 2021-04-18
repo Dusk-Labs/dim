@@ -93,10 +93,12 @@ function CardPopup(props) {
       <div className="contentWrapper">
         <section className="header">
           <h2><TruncText content={name} max={8}/></h2>
-          <div className="rating">
-            <p>{rating || 0}</p>
-            <img alt="imdb" src={IMDbLogo}/>
-          </div>
+          {(rating || rating === 0) && (
+            <div className="rating">
+              <p>{rating}</p>
+              <img alt="imdb" src={IMDbLogo}/>
+            </div>
+          )}
         </section>
         <section className="separator"/>
         <section className="description">
