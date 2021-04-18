@@ -208,6 +208,7 @@ fn main() {
     let stream_manager = nightfall::StateManager::new(
         matches.value_of("cache-dir").unwrap().to_string(),
         crate::streaming::FFMPEG_BIN.to_string(),
+        logger.clone()
     )
     .create(None)
     .spawn(&mut Tokio::Handle(&tokio_rt));
