@@ -13,8 +13,8 @@ use database::library::Library;
 use database::mediafile::InsertableMediaFile;
 use database::mediafile::MediaFile;
 
-use crate::{core::EventTx, streaming::ffprobe::FFProbeCtx};
 use crate::streaming::FFPROBE_BIN;
+use crate::{core::EventTx, streaming::ffprobe::FFProbeCtx};
 
 use torrent_name_parser::Metadata;
 
