@@ -23,7 +23,9 @@ const Delete = (props) => {
   return (
     <div className="deleteLibraryAction">
       <ConfirmationBox
-        contentLabel="removeLib"
+        title="Confirm action"
+        cancelText="Nevermind"
+        confirmText="Yes"
         action={removeLib}
         msg="Are you sure you want to remove this library?"
       >
