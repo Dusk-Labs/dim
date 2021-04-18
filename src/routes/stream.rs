@@ -243,7 +243,7 @@ pub fn get_init(
                 .flatten()
         },
         Duration::from_millis(100),
-        20,
+        100,
     )?;
 
     Ok(NamedFile::open(path).ok())
@@ -289,7 +289,7 @@ pub fn get_chunk(
                 .flatten()
         },
         Duration::from_millis(100),
-        20,
+        100,
     )?;
 
     Ok(NamedFile::open(path).ok())
