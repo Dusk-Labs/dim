@@ -20,6 +20,7 @@ use chrono::prelude::Utc;
 use chrono::Datelike;
 use chrono::NaiveDate;
 
+use slog::debug;
 use slog::error;
 use slog::info;
 use slog::warn;
@@ -265,7 +266,7 @@ impl MediaScanner for TvShowScanner {
 
         for orphan in orphans {
             if orphan.media_id.is_none() {
-                info!(
+                debug!(
                     self.log,
                     "Scanning orphan with raw name: {} ep={:?} season={:?}",
                     orphan.raw_name,
@@ -276,7 +277,7 @@ impl MediaScanner for TvShowScanner {
                 let v = match tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year) {
                     Ok(v) => v,
                     Err(why) => {
-                        error!(self.log, "fix-orphans: {:?}", why);
+                        debug!(self.log, "fix-orphans: {:?}", why);
                         continue;
                     }
                 };
