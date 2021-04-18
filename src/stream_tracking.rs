@@ -13,7 +13,8 @@ use rocket::Request;
 use rocket::Response;
 use rocket::State;
 
-use nightfall::StateManager;
+use crate::core::StateManager;
+use nightfall::Die;
 
 use auth::Wrapper as Auth;
 
@@ -39,7 +40,7 @@ impl StreamTracking {
         if let Some(v) = lock.get_mut(&id) {
             if !v.is_empty() {
                 for id in v.drain(..) {
-                    let _ = state.kill(id);
+                    let _ = state.do_send(Die(id));
                 }
             }
         }
