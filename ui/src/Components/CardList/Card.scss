@@ -4,6 +4,10 @@
   &:hover {
     .card .cardImageWrapper {
       filter: brightness(1.2);
+
+      .progress {
+        opacity: 1;
+      }
     }
   }
 
@@ -11,15 +15,39 @@
     width: 200px;
 
     .cardImageWrapper {
+      position: relative;
       transition: filter 0.2s ease-in-out;
 
       img {
         object-fit: cover;
         animation: imageLoaded .3s ease-in;
       }
+
+      .progress {
+        position: absolute;
+        background: #2a2a2a;
+        left: 50%;
+        opacity: 0;
+        bottom: 1em;
+        height: 4px;
+        border-radius: 10px;
+        width: 90%;
+        transition: opacity 200ms ease-in-out;
+        transform: translateX(-50%);
+
+        .value {
+          position: absolute;
+          left: 0;
+          width: 0;
+          height: 4px;
+          border-radius: 4px;
+          transition: width 200ms ease-in-out;
+          background: #f7931e;
+        }
+      }
     }
 
-    img, div, .placeholder {
+    img, .cardImageWrapper, .placeholder {
       height: 320px;
       width: 200px;
       border-radius: 10px;

@@ -9,11 +9,12 @@ import ExpandIcon from "../../../assets/Icons/Expand";
 import CompressIcon from "../../../assets/Icons/Compress";
 import VolumeUpIcon from "../../../assets/Icons/VolumeUp";
 import VolumeMuteIcon from "../../../assets/Icons/VolumeMute";
+import CCIcon from "../../../assets/Icons/CC";
 
 import "./Actions.scss";
 
 function VideoActions(props) {
-  const { duration, muted, setMuted, videoPlayer, fullscreen, setFullscreen, currentTime, player, paused } = useContext(VideoPlayerContext);
+  const { textTrackEnabled, setTextTrackEnabled, duration, muted, setMuted, videoPlayer, fullscreen, setFullscreen, currentTime, player, paused } = useContext(VideoPlayerContext);
   const { seekTo, setVisible } = props;
 
   const [ idleCount, setIdleCount ] = useState(0);
@@ -73,6 +74,18 @@ function VideoActions(props) {
     setMuted(!currentMuteState)
   }, [player, setMuted]);
 
+  const toggleSubtitles = useCallback(() => {
+    setTextTrackEnabled(state => !state);
+  }, [setTextTrackEnabled]);
+
+  useEffect(() => {
+    player.enableText(textTrackEnabled);
+
+    if (textTrackEnabled) {
+      player.setTextTrack(0);
+    }
+  }, [player, textTrackEnabled]);
+
   const handleKeyDown = useCallback(e => {
     if (e.key === "f") {
       toggleFullscreen();
@@ -86,6 +99,10 @@ function VideoActions(props) {
       seekForward();
     }
 
+    if (e.key === "c") {
+      toggleSubtitles();
+    }
+
     if (e.key === " ") {
       if (player.isPaused()) {
         play();
@@ -97,7 +114,7 @@ function VideoActions(props) {
     if (e.key === "m") {
       toggleMute();
     }
-  }, [pause, play, player, seekBackward, seekForward, toggleFullscreen, toggleMute]);
+  }, [pause, play, player, seekBackward, seekForward, toggleFullscreen, toggleMute, toggleSubtitles]);
 
   useEffect(() => {
     if (idleCount >= 2) {
@@ -136,6 +153,9 @@ function VideoActions(props) {
         {!muted && <VolumeUpIcon/>}
         {muted && <VolumeMuteIcon/>}
       </button>
+      <button onClick={toggleSubtitles} className={`cc active-${textTrackEnabled}`}>
+        <CCIcon/>
+      </button>
       <button onClick={seekBackward} className="backward">
         <BackwardIcon/>
       </button>
@@ -152,6 +172,7 @@ function VideoActions(props) {
       <button onClick={seekForward} className="forward">
         <ForwardIcon/>
       </button>
+      <div className="filler"/>
       <button onClick={toggleFullscreen} className="fullscreen">
         {fullscreen && <CompressIcon/>}
         {!fullscreen && <ExpandIcon/>}
