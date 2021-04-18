@@ -5,6 +5,7 @@ function UnmatchedCardList(props) {
   const cardList = useRef(null);
 
   const handleIntersect = useCallback((entries) => {
+    if (!cardList.current) return;
     cardList.current.style.opacity = entries[0].isIntersecting ? "1" : ".2";
   }, []);
 
