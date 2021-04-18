@@ -234,6 +234,7 @@ pub fn rocket_pad(
                 routes::stream::return_manifest,
                 routes::stream::get_chunk,
                 routes::stream::get_init,
+                routes::stream::get_subtitle,
                 routes::stream::should_client_hard_seek,
                 routes::stream::session_get_stderr,
                 routes::stream::kill_session,
@@ -263,7 +264,10 @@ pub fn rocket_pad(
         )
         .mount(
             "/api/v1/mediafile",
-            routes![routes::media::rematch_mediafile,],
+            routes![
+                routes::mediafile::get_mediafile_info,
+                routes::mediafile::rematch_mediafile,
+            ],
         )
         .mount(
             "/api/v1/tv",

@@ -16,12 +16,16 @@ const ConfirmationBox = (props) => {
     <ModalBox activatingComponent={props.children}>
       {closeModal => (
         <div className="modalConfirmation">
-          <h3>Confirm action</h3>
+          <h3>{props.title}</h3>
           <div className="separator"/>
           <p>{props.msg}</p>
           <div className="options">
-            <button className="cancelBtn" onClick={closeModal}>Nevermind</button>
-            <button onClick={() => confirmAction(closeModal)}>Yes</button>
+            <button className="cancelBtn" onClick={closeModal}>
+              {props.cancelText}
+            </button>
+            <button onClick={() => confirmAction(closeModal)}>
+              {props.confirmText}
+            </button>
           </div>
         </div>
       )}

@@ -42,7 +42,14 @@ function Card(props) {
     setTimeoutID(ID);
   }, [hovering, showPopup]);
 
-  const { name, poster_path, id } = props.data;
+  const { name, poster_path, id, media_type } = props.data;
+
+  let mediaProgress;
+
+  if (media_type === "movie") {
+    const { duration, progress } = props.data;
+    mediaProgress = (progress / duration) * 100;
+  }
 
   return (
     <div
@@ -53,7 +60,7 @@ function Card(props) {
     >
       <div id={id} className="card" ref={card}>
         <Link to={`/media/${id}`}>
-          <Image src={poster_path}/>
+          <Image src={poster_path} progress={mediaProgress}/>
           <p style={{opacity: + !hovering}}>{name}</p>
         </Link>
       </div>
