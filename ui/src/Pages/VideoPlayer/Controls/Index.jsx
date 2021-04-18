@@ -1,38 +1,48 @@
-import { useCallback, useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 import { formatHHMMSS } from "../../../Helpers/utils";
 import { VideoPlayerContext } from "../Context";
 import SeekBar from "./SeekBar";
 import Actions from "./Actions";
+import CircleIcon from "../../../assets/Icons/Circle";
 
 import "./Index.scss";
+
+/*
+  logic for media name and other metadata is in place,
+  awaiting info to be returned by API - hidden until then.
+*/
 
 function VideoControls() {
   const nameDiv = useRef(null);
   const timeDiv = useRef(null);
 
-  const { videoUUID, setSeeking, player, currentTime, duration, setCurrentTime, setBuffer, fileID, mediaInfo } = useContext(VideoPlayerContext);
+  const { mediaInfo, episode, seekTo, overlay, currentTime, duration } = useContext(VideoPlayerContext);
   const [ visible, setVisible ] = useState(true);
 
-  const seekTo = useCallback(async newTime => {
-    const newSegment = Math.floor(newTime / 5);
+  useEffect(() => {
+    if (!overlay) return;
 
-    setCurrentTime(newTime);
-    setBuffer(0);
-
-    player.attachSource(`//${window.host}:8000/api/v1/stream/${fileID}/manifest.mpd?start_num=${newSegment}&gid=${videoUUID}`);
-
-    setSeeking(false);
-  }, [fileID, player, setBuffer, setCurrentTime, setSeeking, videoUUID]);
+    overlay.style.background = visible ? "linear-gradient(to top, #000, transparent 30%)" : "unset";
+  }, [overlay, visible])
 
   return (
     <div className={`videoControls ${visible}`}>
-      <p className="name" ref={nameDiv}>
-        {mediaInfo.name}
-      </p>
-      <p className="time" ref={timeDiv}>
-        {formatHHMMSS(currentTime)} - {formatHHMMSS(duration)}
-      </p>
+      <div className="name" ref={nameDiv}>
+        <p>{mediaInfo.name}</p>
+        {episode && (
+          <div className="season-ep">
+            <p>S{episode.season}</p>
+            <CircleIcon/>
+            <p>E{episode.episode}</p>
+          </div>
+        )}
+      </div>
+      <div className="time" ref={timeDiv}>
+        <p>{formatHHMMSS(currentTime)}</p>
+        <CircleIcon/>
+        <p>{formatHHMMSS(duration)}</p>
+      </div>
       <SeekBar seekTo={seekTo} nameRef={nameDiv.current} timeRef={timeDiv.current}/>
       <Actions setVisible={setVisible} seekTo={seekTo}/>
     </div>

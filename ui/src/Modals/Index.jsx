@@ -8,7 +8,7 @@ import "./Index.scss";
   This is to only be used by components that intend to be rendered in a modal
 */
 const ModalBox = (props) => {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(!props.activatingComponent);
 
   // prevent scrolling behind Modal
   useEffect(() => {
@@ -27,10 +27,11 @@ const ModalBox = (props) => {
 
   return (
     <div className="modalBoxContainer">
-      {cloneElement(props.activatingComponent, { onClick: () => open() })}
+      {props.activatingComponent && (
+        cloneElement(props.activatingComponent, { onClick: () => open() })
+      )}
       <Modal
         isOpen={visible}
-        contentLabel={props.contentLabel}
         className="modalBox"
         id={props.id}
         onRequestClose={close}

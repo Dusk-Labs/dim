@@ -23,6 +23,7 @@
     display: grid;
     gap: 5em;
     grid-template-areas: "endsAt" "controls";
+    transition: background 200ms ease-in-out;
 
     .errorBox {
       position: absolute;
@@ -33,6 +34,30 @@
       padding: 1em;
       border-radius: 10px;
       animation: appear 200ms ease-in-out;
+
+      details {
+        margin-top: 1em;
+
+        &[open] summary ~ * {
+          animation: appear .5s ease-in-out;
+        }
+
+        summary {
+          cursor: pointer;
+        }
+      }
+
+      .stderr {
+        margin-top: .5em;
+        padding: .5em;
+        border-radius: 10px;
+        background: #3a3a3a;
+      }
+
+      code {
+        font-family: "Roboto Regular";
+        line-height: 1.5em;
+      }
 
       .separator {
         margin: .5em 0;

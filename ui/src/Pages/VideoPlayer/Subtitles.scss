@@ -1,0 +1,34 @@
+:root {
+  --blackBarHeight: 100px;
+}
+
+::cue {
+  background: transparent;
+  color: transparent;
+}
+
+.videoSubtitles {
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: var(--blackBarHeight);
+  width: 100%;
+  left: 50%;
+  font-size: 2em;
+  transform: translate(-50%);
+  position: absolute;
+  text-align: center;
+  opacity: 0;
+  max-width: 30ch;
+  transition: opacity 150ms ease-in-out;
+
+  p {
+    text-shadow: 2px 2px 4px #000;
+    font-family: "Roboto Regular";
+  }
+
+  &.show-true {
+    opacity: 1;
+  }
+}
