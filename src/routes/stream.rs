@@ -72,7 +72,7 @@ pub fn return_manifest(
     ms.truncate(4);
 
     let gid = gid.unwrap_or(uuid::Uuid::new_v4().as_u128());
-    stream_tracking.kill_all(&state, gid);
+    stream_tracking.kill_all(&tokio_rt, &state, gid);
 
     let duration = chrono::DateTime::<Utc>::from_utc(
         NaiveDateTime::from_timestamp(info.get_duration().unwrap() as i64, 0),
