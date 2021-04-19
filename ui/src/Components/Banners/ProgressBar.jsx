@@ -15,7 +15,7 @@ function ProgressBar(props) {
 
   return (
     <div className="banner-progress-bar">
-      {(season && episode) && (
+      {((season || season === 0) && (episode || episode === 0)) && (
         <div className="s-e">
           <p>S{season}</p>
           <FontAwesomeIcon icon="circle"/>

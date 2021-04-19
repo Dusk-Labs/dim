@@ -143,12 +143,7 @@ impl MovieScanner {
 impl MediaScanner for MovieScanner {
     const MEDIA_TYPE: library::MediaType = library::MediaType::Movie;
 
-    fn new_unchecked(
-        conn: DbConnection,
-        lib: Library,
-        log: Logger,
-        event_tx: EventTx,
-    ) -> Self {
+    fn new_unchecked(conn: DbConnection, lib: Library, log: Logger, event_tx: EventTx) -> Self {
         Self {
             conn,
             lib,
