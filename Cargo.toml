@@ -12,6 +12,7 @@ null_auth = ["auth/null_auth"]
 # the build script usually will enable this if `yarn` is installed.
 # If enabled explicitly, the build script will panic if something went wrong.
 embed_ui = []
+no_build = []
 postgres = ["database/postgres", "diesel/postgres", "rocket_contrib/diesel_postgres_pool"]
 sqlite = ["database/sqlite", "diesel/sqlite", "rocket_contrib/diesel_sqlite_pool"]
 
@@ -30,6 +31,7 @@ database = { path = "./src/database", default-features = false, optional = true 
 events = { path = "./src/events" }
 auth = { path = "./src/auth" }
 nightfall = { git = "https://github.com/vgarleanu/nightfall" }
+#nightfall = { path = "../nightfall" }
 
 diesel_migrations = "1.4.0"
 rocket_cors = "0.5.2"
@@ -57,6 +59,7 @@ tokio = { version = "1.4.0", features = ["rt"] }
 uuid = { version = "0.8.2", features = ["v4"] }
 tokio-tungstenite = "0.14.0"
 futures = "0.3.13"
+xtra = { version = "0.5.1", features = ["with-tokio-1"] }
 
 [build-dependencies]
 fs_extra = "1.1.0"

@@ -2,14 +2,11 @@ use std::env;
 use std::path::Path;
 use std::process::Command;
 
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", feature = "no_build"))]
 fn main() {}
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(all(not(target_os = "windows"), not(feature = "no_build")))]
 fn main() {
-    println!("cargo:rerun-if-changed=ui/src");
-    println!("cargo:rerun-if-changed=ui/node_modules");
-
     let out_dir = env::var("OUT_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join("dist");
     println!("{:?}", dest_path);
@@ -53,5 +50,7 @@ fn main() {
         }
     }
 
+    println!("cargo:rerun-if-changed=ui/src");
+    println!("cargo:rerun-if-changed=ui/node_modules");
     println!("cargo:rustc-cfg=feature=\"embed_ui\"");
 }

@@ -26,7 +26,8 @@
     proc_macro_hygiene,
     decl_macro,
     try_trait,
-    negative_impls
+    negative_impls,
+    result_flattening
 )]
 #![forbid(missing_docs)]
 #![cfg_attr(debug_assertions, allow(unused_variables, unused_imports, dead_code))]
@@ -71,6 +72,10 @@ use std::fs::File;
 use std::process;
 use std::sync::Mutex;
 use std::thread;
+use std::time::Duration;
+
+use xtra::spawn::Tokio;
+use xtra::Actor;
 
 /// Module contains a lot of the bootstrapping code that we use on first run of dim.
 mod bootstrap;
@@ -195,16 +200,32 @@ fn main() {
         }
     }
 
-    let stream_manager = nightfall::StateManager::new(
-        matches.value_of("cache-dir").unwrap().to_string(),
-        crate::streaming::FFMPEG_BIN.to_string(),
-        crate::streaming::FFPROBE_BIN.to_string(),
-    );
-
     let tokio_rt = tokio::runtime::Runtime::new().unwrap();
 
     info!(logger, "Starting the WS service on port 3012");
     let event_tx = tokio_rt.block_on(core::start_event_server());
+
+    let stream_manager = nightfall::StateManager::new(
+        &mut Tokio::Handle(&tokio_rt),
+        matches.value_of("cache-dir").unwrap().to_string(),
+        crate::streaming::FFMPEG_BIN.to_string(),
+        logger.clone()
+    );
+
+    let stream_manager_clone = stream_manager.clone();
+
+    // GC the stream manager every 100ms
+    tokio_rt.spawn(async move {
+        let mut interval = tokio::time::interval(Duration::from_millis(1000));
+        interval.tick().await;
+
+        loop {
+            interval.tick().await;
+            let _ = stream_manager_clone
+                .garbage_collect()
+                .await.unwrap();
+        }
+    });
 
     if !matches.is_present("no-scanners") {
         info!(logger, "Transposing scanners from the netherworld...");
@@ -252,5 +273,11 @@ fn main() {
     }
 
     info!(logger, "Summoning Dim v{}...", clap::crate_version!());
-    core::launch(logger, event_tx, rocket_config, stream_manager);
+    core::launch(
+        logger,
+        event_tx,
+        rocket_config,
+        stream_manager,
+        tokio_rt.handle().clone(),
+    );
 }
