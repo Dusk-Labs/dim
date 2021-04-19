@@ -12,6 +12,7 @@ null_auth = ["auth/null_auth"]
 # the build script usually will enable this if `yarn` is installed.
 # If enabled explicitly, the build script will panic if something went wrong.
 embed_ui = []
+no_build = []
 postgres = ["database/postgres", "diesel/postgres", "rocket_contrib/diesel_postgres_pool"]
 sqlite = ["database/sqlite", "diesel/sqlite", "rocket_contrib/diesel_sqlite_pool"]
 
@@ -29,7 +30,7 @@ serde_json = "1.0.48"
 database = { path = "./src/database", default-features = false, optional = true }
 events = { path = "./src/events" }
 auth = { path = "./src/auth" }
-nightfall = { git = "https://github.com/vgarleanu/nightfall", branch = "rewrite-nightfall" }
+nightfall = { git = "https://github.com/vgarleanu/nightfall" }
 #nightfall = { path = "../nightfall" }
 
 diesel_migrations = "1.4.0"
