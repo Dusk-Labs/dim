@@ -7,11 +7,7 @@ import "./DirSelection.scss";
 
 function DirSelection(props) {
   const dispatch = useDispatch();
-
-  const { auth, fileBrowser } = useSelector(store => ({
-    auth: store.auth,
-    fileBrowser: store.fileBrowser
-  }));
+  const fileBrowser = useSelector(store => store.fileBrowser);
 
   const [cache, setCache] = useState(false);
 
@@ -25,19 +21,19 @@ function DirSelection(props) {
       return;
     }
 
-    dispatch(fetchDirectories(auth.token, path.replace("C:\\", "")));
+    dispatch(fetchDirectories(path.replace("C:\\", "")));
     setCurrent(path);
 
     setCache(false);
-  }, [auth.token, dispatch, fileBrowser.cache, setCurrent]);
+  }, [dispatch, fileBrowser.cache, setCurrent]);
 
   useEffect(() => {
     const path = "";
 
-    dispatch(fetchDirectories(auth.token, path.replace("C:\\", "")));
+    dispatch(fetchDirectories(path.replace("C:\\", "")));
     setCurrent(path);
     setCache(false);
-  }, [auth.token, dispatch, setCurrent]);
+  }, [dispatch, setCurrent]);
 
   const goBack = useCallback(() => {
     let slash = "/";

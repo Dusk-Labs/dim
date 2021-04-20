@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Modal from "react-modal";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { newLibrary } from "../../actions/library.js";
 import MediaTypeSelection from "./MediaTypeSelection.jsx";
@@ -13,8 +13,6 @@ Modal.setAppElement("body");
 
 function NewLibraryModal(props) {
   const dispatch = useDispatch();
-
-  const auth = useSelector(store => store.auth);
 
   const nameInput = useRef(null);
 
@@ -40,14 +38,14 @@ function NewLibraryModal(props) {
         media_type: mediaType
       };
 
-      await dispatch(newLibrary(auth.token, data));
+      await dispatch(newLibrary(data));
 
       setName("");
       setCurrent("");
       setMediaType("movie");
       closeModal();
     }
-  }, [auth.token, current, dispatch, mediaType, name]);
+  }, [current, dispatch, mediaType, name]);
 
   return (
     <ModalBox id="modalNewLibrary" activatingComponent={props.children}>

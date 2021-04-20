@@ -9,10 +9,9 @@ import PropCardList from "../Components/CardList/PropCardList.jsx";
 function SearchResults() {
   const dispatch = useDispatch();
 
-  const { auth, searchList } = useSelector(store => ({
-    auth: store.auth,
-    searchList: store.search.search
-  }));
+  const searchList = useSelector(store => (
+    store.search.search
+  ));
 
   const location = useLocation();
 
@@ -33,8 +32,8 @@ function SearchResults() {
       );
     }
 
-    dispatch(search(location.search, auth.token));
-  }, [auth.token, dispatch, fKey, fValue, location.search]);
+    dispatch(search(location.search));
+  }, [dispatch, fKey, fValue, location.search]);
 
   return <PropCardList title={`${fKey} results for ${fValue}`} cards={searchList}/>;
 }

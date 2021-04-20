@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { fetchUser } from "../../actions/user.js";
 
@@ -13,14 +13,11 @@ import "./Index.scss";
 
 function Sidebar() {
   const dispatch = useDispatch();
-
-  const auth = useSelector(store => store.auth);
-
   const divContainer = useRef(null);
 
   useEffect(() => {
-    dispatch(fetchUser(auth.token));
-  }, [auth.token, dispatch]);
+    dispatch(fetchUser());
+  }, [dispatch]);
 
   return (
     <nav className="sidebar" ref={divContainer}>

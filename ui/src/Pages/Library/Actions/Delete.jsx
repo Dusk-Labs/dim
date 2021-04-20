@@ -8,21 +8,20 @@ import ConfirmationBox from "../../../Modals/ConfirmationBox";
 const Delete = (props) => {
   const dispatch = useDispatch();
 
-  const { auth, del_library } = useSelector(store => ({
-    auth: store.auth,
-    del_library: store.library.del_library
-  }));
+  const del_library  = useSelector(store => (
+    store.library.del_library
+  ));
 
   const history = useHistory();
 
   const removeLib = useCallback(async () => {
     if (del_library.deleting) return;
 
-    await dispatch(delLibrary(auth.token, props.id));
+    await dispatch(delLibrary(props.id));
 
     // redirect to dashboard when removed
     history.push("/");
-  }, [auth.token, del_library.deleting, dispatch, history, props.id]);
+  }, [del_library.deleting, dispatch, history, props.id]);
 
   const { deleting } = del_library;
 

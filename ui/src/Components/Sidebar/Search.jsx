@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 
 import QuickSearchResults from "./QuickSearchResults";
@@ -10,7 +10,6 @@ import "./Search.scss";
 
 function Search() {
   const dispatch = useDispatch();
-  const auth = useSelector(store => store.auth);
   const history = useHistory();
 
   const searchBox = useRef(null);
@@ -39,9 +38,9 @@ function Search() {
     setShowResults(e.target.value.length > 1);
 
     if (e.target.value.length > 1) {
-      dispatch(quickSearch(e.target.value, auth.token));
+      dispatch(quickSearch(e.target.value));
     }
-  }, [auth.token, dispatch]);
+  }, [dispatch]);
 
   const onKeyDown = useCallback((e) => {
     if (e.keyCode === 13) {

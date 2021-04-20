@@ -10,18 +10,15 @@ import UnmatchedCardList from "../../Components/CardList/UnmatchedCardList.jsx";
 const Library = () => {
   const dispatch = useDispatch();
 
-  const { auth, unmatched } = useSelector(store => ({
-    auth: store.auth,
-    unmatched: store.library.fetch_library_unmatched
-  }));
+  const unmatched = useSelector(store => (
+    store.library.fetch_library_unmatched
+  ));
 
   const params = useParams();
 
-  const { token } = auth;
-
   useEffect(() => {
-    dispatch(fetchLibraryUnmatched(token, params.id));
-  }, [dispatch, params.id, token]);
+    dispatch(fetchLibraryUnmatched(params.id));
+  }, [dispatch, params.id]);
 
   const { fetched, items } = unmatched;
 

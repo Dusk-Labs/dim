@@ -9,11 +9,7 @@ import "./Index.scss";
 
 function Banners() {
   const dispatch = useDispatch();
-
-  const { auth, banners } = useSelector(store => ({
-    auth: store.auth,
-    banners: store.banner
-  }));
+  const banners = useSelector(store => store.banner);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [currentTimeoutID, setCurrentTimeoutID] = useState();
@@ -22,13 +18,13 @@ function Banners() {
     const { type } = JSON.parse(e.data);
 
     if (type === "EventRemoveLibrary") {
-      dispatch(fetchBanners(auth.token));
+      dispatch(fetchBanners());
     }
 
     if (type === "EventNewLibrary") {
-      dispatch(fetchBanners(auth.token));
+      dispatch(fetchBanners());
     }
-  }, [auth.token, dispatch]);
+  }, [dispatch]);
 
   useEffect(() => {
     const timeout = setTimeout(timeoutID => {
@@ -55,7 +51,7 @@ function Banners() {
   }, [currentTimeoutID]);
 
   useEffect(() => {
-    dispatch(fetchBanners(auth.token));
+    dispatch(fetchBanners());
 
     const library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
     library_ws.addEventListener("message", handleWS);
@@ -64,7 +60,7 @@ function Banners() {
       library_ws.removeEventListener("message", handleWS);
       library_ws.close();
     };
-  }, [auth.token, dispatch, handleWS]);
+  }, [dispatch, handleWS]);
 
   return (
     <div className="banner-wrapper">
