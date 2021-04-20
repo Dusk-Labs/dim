@@ -156,7 +156,9 @@ export const checkAdminExists = () => async (dispatch) => {
   }
 };
 
-export const createNewInvite = (token) => async (dispatch) => {
+export const createNewInvite = () => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: CREATE_NEW_INVITE_START });
 
   const config = {
@@ -190,7 +192,9 @@ export const createNewInvite = (token) => async (dispatch) => {
   }
 };
 
-export const fetchInvites = (token) => async (dispatch) => {
+export const fetchInvites = () => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: FETCH_INVITES_START });
 
   try {

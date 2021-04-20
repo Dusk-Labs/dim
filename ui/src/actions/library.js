@@ -17,7 +17,9 @@ import {
   FETCH_LIBRARY_UNMATCHED_OK
 } from "./types.js";
 
-export const fetchLibraries = (token) => async (dispatch) => {
+export const fetchLibraries = () => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: FETCH_LIBRARIES_START });
 
   try {
@@ -50,7 +52,9 @@ export const fetchLibraries = (token) => async (dispatch) => {
   }
 };
 
-export const fetchLibraryUnmatched = (token, id) => async (dispatch) => {
+export const fetchLibraryUnmatched = (id) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: FETCH_LIBRARY_UNMATCHED_START });
 
   try {
@@ -83,7 +87,9 @@ export const fetchLibraryUnmatched = (token, id) => async (dispatch) => {
   }
 };
 
-export const newLibrary = (token, data) => async (dispatch) => {
+export const newLibrary = (data) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: NEW_LIBRARY_START });
 
   const options = {
@@ -114,7 +120,9 @@ export const newLibrary = (token, data) => async (dispatch) => {
   }
 };
 
-export const delLibrary = (token, id) => async (dispatch) => {
+export const delLibrary = (id) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: DEL_LIBRARY_START });
 
   const options = {
@@ -158,12 +166,13 @@ export const handleWsDelLibrary = (id) => async (dispatch) => {
   });
 }
 
-export const handleWsNewLibrary = (token, id) => async (dispatch) => {
+export const handleWsNewLibrary = (id) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   const options = {
     headers: {
       "Authorization": token
-    },
-    methid: "GET"
+    }
   };
 
   try {
