@@ -1,20 +1,19 @@
 import { useCallback } from "react";
 import { useHistory } from "react-router-dom";
-import { connect } from "react-redux";
+import { useDispatch } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ConfirmationBox from "../../Modals/ConfirmationBox.jsx";
 
 import { logout } from "../../actions/auth.js";
 
-function LogoutBtn(props) {
+function LogoutBtn() {
+  const dispatch = useDispatch();
   const history = useHistory();
 
-  const { logout } = props;
-
   const confirmLogout = useCallback(() => {
-    logout();
+    dispatch(logout());
     history.push("/login");
-  }, [history, logout]);
+  }, [dispatch, history]);
 
   return (
     <ConfirmationBox
@@ -32,10 +31,4 @@ function LogoutBtn(props) {
   );
 };
 
-const mapStateToProps = () => ({});
-
-const mapActionsToProps = {
-  logout
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(LogoutBtn);
+export default LogoutBtn;
