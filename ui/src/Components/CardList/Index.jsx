@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchCards } from "../../actions/card.js";
 import Card from "./Card.jsx";
 import GhostCards from "./Ghost.jsx";
+import Dropdown from "./Dropdown.jsx";
 
 import "./Index.scss";
 
@@ -73,7 +74,14 @@ function CardList(props) {
 
         card_list = items.map(section => (
           <section key={section}>
-            <h1>{section}</h1>
+            <div className="sectionHeader">
+              <h1>{section}</h1>
+              {props.actions && (
+                <div className="actions">
+                  <Dropdown/>
+                </div>
+              )}
+            </div>
             <div className="cards">
               {sections[section]}
             </div>
