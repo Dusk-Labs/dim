@@ -12,7 +12,7 @@
   }
 
   .card {
-    width: 200px;
+    width: 100%;
 
     .cardImageWrapper {
       position: relative;
@@ -49,7 +49,7 @@
 
     img, .cardImageWrapper, .placeholder {
       height: 320px;
-      width: 200px;
+      width: 100%;
       border-radius: 10px;
     }
 
