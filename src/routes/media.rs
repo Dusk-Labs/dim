@@ -8,7 +8,6 @@ use crate::scanners::MediaScanner;
 
 use crate::scanners::tmdb::MediaType as TmdbMediaType;
 use crate::scanners::tmdb::Tmdb;
-use crate::scanners::APIExec;
 
 use auth::Wrapper as Auth;
 use database::{

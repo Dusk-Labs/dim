@@ -1,3 +1,4 @@
+pub mod mod_new;
 pub mod movie;
 pub mod scanner_daemon;
 pub mod tmdb;
@@ -34,19 +35,6 @@ use std::time::Duration;
 
 use serde::Deserialize;
 use serde::Serialize;
-
-pub trait APIExec<'a> {
-    fn new(api_key: &'a str) -> Self;
-    fn search(&mut self, title: String, year: Option<i32>, media_type: MediaType) -> Option<Media>;
-    fn search_many(
-        &mut self,
-        title: String,
-        year: Option<i32>,
-        media_type: MediaType,
-        result_num: usize,
-    ) -> Vec<Media>;
-    fn search_by_id(&mut self, id: i32, media_type: MediaType) -> Option<Media>;
-}
 
 #[derive(Clone, Copy, Debug, Hash, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ApiMediaType {
@@ -176,8 +164,12 @@ pub trait MediaScanner: Sized {
     /// Will return `Err(InternalDbError)` if we cant acquire a database connection.
     /// Will return `Err(InvalidLibraryType)` if the library with id `library_id` isnt of
     /// media_type `Self::MEDIA_TYPE`.
-    fn new(library_id: i32, log: Logger, event_tx: EventTx) -> Result<Self, ScannerError> {
-        let conn = get_conn()?;
+    fn new(
+        conn: database::DbConnection,
+        library_id: i32,
+        log: Logger,
+        event_tx: EventTx,
+    ) -> Result<Self, ScannerError> {
         let lib = Library::get_one(&conn, library_id)
             .map_err(|_| ScannerError::LibraryDoesntExist(library_id))?;
 
@@ -368,12 +360,12 @@ fn scanner_from_library(lib_id: i32, log: Logger, tx: EventTx) -> Result<(), Sca
 
     match library.media_type {
         MediaType::Movie => {
-            let scanner = MovieScanner::new(lib_id, log, tx)?;
+            let scanner = MovieScanner::new(conn, lib_id, log, tx)?;
             scanner.start(None);
             scanner.start_daemon()?;
         }
         MediaType::Tv => {
-            let scanner = TvShowScanner::new(lib_id, log, tx)?;
+            let scanner = TvShowScanner::new(conn, lib_id, log, tx)?;
             scanner.start(None);
             scanner.start_daemon()?;
         }
