@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchExtraMediaInfo } from "../../actions/card.js";
+import { clearMediaInfo, fetchExtraMediaInfo } from "../../actions/card.js";
 
 import Banner from "./Banner";
 import MetaContent from "./MetaContent";
@@ -22,6 +22,7 @@ function Media() {
 
   useEffect(() => {
     dispatch(fetchExtraMediaInfo(id));
+    return () => dispatch(clearMediaInfo());
   }, [dispatch, id]);
 
   useEffect(() => {
