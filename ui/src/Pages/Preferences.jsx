@@ -23,7 +23,7 @@ class Preferences extends Component {
         document.title = "Dim - Preferences";
 
         if (this.props.user.info.owner) {
-            this.props.fetchInvites(this.props.auth.token);
+            this.props.fetchInvites();
         }
     }
 
@@ -95,7 +95,7 @@ class Preferences extends Component {
 
             // CREATE_NEW_INVITE_OK
             if (!createNewInvite.creating && createNewInvite.created && !createNewInvite.error) {
-                this.props.fetchInvites(this.props.auth.token);
+                this.props.fetchInvites();
             }
         }
 
@@ -129,7 +129,7 @@ class Preferences extends Component {
                             <section className="invites">
                                 <p>Invite Codes</p>
                                 {this.props.user.info.owner &&
-                                    <button onClick={() => this.props.createNewInvite(this.props.auth.token)}>Create new invite code</button>
+                                    <button onClick={() => this.props.createNewInvite()}>Create new invite code</button>
                                 }
                                 {invitesList}
                             </section>

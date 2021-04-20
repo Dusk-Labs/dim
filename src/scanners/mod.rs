@@ -35,19 +35,6 @@ use std::time::Duration;
 use serde::Deserialize;
 use serde::Serialize;
 
-pub trait APIExec<'a> {
-    fn new(api_key: &'a str) -> Self;
-    fn search(&mut self, title: String, year: Option<i32>, media_type: MediaType) -> Option<Media>;
-    fn search_many(
-        &mut self,
-        title: String,
-        year: Option<i32>,
-        media_type: MediaType,
-        result_num: usize,
-    ) -> Vec<Media>;
-    fn search_by_id(&mut self, id: i32, media_type: MediaType) -> Option<Media>;
-}
-
 #[derive(Clone, Copy, Debug, Hash, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ApiMediaType {
     Movie,

@@ -1,15 +1,17 @@
 import React from "react";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import "./QuickSearchResults.scss";
 
-function Search(props) {
-  let results;
+function Search() {
+  const results = useSelector(store => store.search.quick_search);
+
+  let resultsSection;
 
   // SEARCH_START
-  if (!props.results.fetched && !props.results.error) {
-    results = (
+  if (!results.fetched && !results.error) {
+    resultsSection = (
       <div className="state showAfter100ms">
         <p>Loading</p>
       </div>
@@ -17,8 +19,8 @@ function Search(props) {
   }
 
   // SEARCH_ERR
-  if (props.results.fetched && props.results.error) {
-    results = (
+  if (results.fetched && results.error) {
+    resultsSection = (
       <div className="state">
         <p>Cannot load data</p>
       </div>
@@ -26,8 +28,8 @@ function Search(props) {
   }
 
   // SEARCH_OK
-  if (props.results.fetched && !props.results.error) {
-    const list = props.results.items.map((
+  if (results.fetched && !results.error) {
+    const list = results.items.map((
       { name, id }, i
     ) => (
       <Link to={`/media/${id}`} key={i}>
@@ -35,7 +37,7 @@ function Search(props) {
       </Link>
     ));
 
-    results = (
+    resultsSection = (
       <div className="results">
         <p>Results - {list.length}</p>
         {list.length > 0 && (
@@ -47,13 +49,9 @@ function Search(props) {
 
   return (
     <div className="quickSearchResults">
-      {results}
+      {resultsSection}
     </div>
   );
 }
 
-const mapStateToProps = (state) => ({
-  results: state.search.quick_search
-});
-
-export default connect(mapStateToProps)(Search);
+export default Search;

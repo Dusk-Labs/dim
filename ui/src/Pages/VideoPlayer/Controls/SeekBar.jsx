@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useRef } from "react";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { VideoPlayerContext } from "../Context";
 import SeekingTo from "./SeekingTo";
@@ -7,6 +7,8 @@ import SeekingTo from "./SeekingTo";
 import "./SeekBar.scss";
 
 function VideoSeekBar(props) {
+  const auth = useSelector(store => store.auth);
+
   const seekBar = useRef(null);
 
   const { episode, mediaID, seeking, setSeeking, player, duration, currentTime, buffer } = useContext(VideoPlayerContext);
@@ -14,7 +16,7 @@ function VideoSeekBar(props) {
   const seekBarCurrent = useRef(null);
   const bufferBar = useRef(null);
 
-  const { seekTo, auth } = props;
+  const { seekTo } = props;
   const { token } = auth;
 
   // save progress every 15 seconds
@@ -47,15 +49,6 @@ function VideoSeekBar(props) {
     bufferBar.current.style.width = `${position}%`;
   }, [buffer, currentTime, duration])
 
-  // useEffect(() => {
-  //   const savedCurrentTime = sessionStorage.getItem("currentTime");
-
-  //   if (savedCurrentTime) {
-  //     seekTo(savedCurrentTime);
-  //     sessionStorage.clear();
-  //   }
-  // }, [seekTo]);
-
   const onSeek = useCallback(async (e) => {
     if (seeking) return;
 
@@ -80,10 +73,4 @@ function VideoSeekBar(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth
-});
-
-const mapActionsToProps = {};
-
-export default connect(mapStateToProps, mapActionsToProps)(VideoSeekBar);
+export default VideoSeekBar;

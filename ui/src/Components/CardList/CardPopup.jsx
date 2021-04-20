@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 
 import TruncText from "../../Helpers/TruncText.jsx";
 import IMDbLogo from "../../assets/imdb.png";
@@ -10,6 +10,8 @@ import PlayButton from "../PlayButton.jsx";
 import "./CardPopup.scss";
 
 function CardPopup(props) {
+  const auth = useSelector(store => store.auth);
+
   const [overflowing, setOverflowing] = useState(false);
   const [mediaVersions, setMediaVersions] = useState([]);
   const [direction, setDirection] = useState("card-popup-right");
@@ -42,7 +44,6 @@ function CardPopup(props) {
     progress,
   } = props.data;
 
-  const { auth } = props;
   const { token } = auth;
 
   // to get file versions
@@ -93,32 +94,36 @@ function CardPopup(props) {
       <div className="contentWrapper">
         <section className="header">
           <h2><TruncText content={name} max={8}/></h2>
-          <div className="rating">
-            <p>{rating || 0}</p>
-            <img alt="imdb" src={IMDbLogo}/>
-          </div>
+          {(rating || rating === 0) && (
+            <div className="rating">
+              <p>{rating}</p>
+              <img alt="imdb" src={IMDbLogo}/>
+            </div>
+          )}
         </section>
         <section className="separator"/>
         <section className="description">
           {description !== null && description.length > 0
             ? <p><TruncText content={description} max={21}/></p>
-            : <p>No description found.</p>
+            : <p>No description found</p>
           }
         </section>
-        <section className="tags">
-          <Link to={`/search?year=${year}`}>{year}</Link>
-          <FontAwesomeIcon icon="circle"/>
-          <div className="genres">
-            {genres.map((genre, i) => (
-              <Link
-                to={`/search?genre=${encodeURIComponent(genre)}`}
-                key={i}
-              >
-                {genre}
-              </Link>
-            ))}
-          </div>
-        </section>
+        {(year && genres) && (
+          <section className="tags">
+            <Link to={`/search?year=${year}`}>{year}</Link>
+            <FontAwesomeIcon icon="circle"/>
+            <div className="genres">
+              {genres.map((genre, i) => (
+                <Link
+                  to={`/search?genre=${encodeURIComponent(genre)}`}
+                  key={i}
+                >
+                  {genre}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
         <section className="separator"/>
         <section className="footer">
           <div className="length">
@@ -132,11 +137,4 @@ function CardPopup(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth
-});
-
-const mapActionstoProps = {};
-
-export default connect(mapStateToProps, mapActionstoProps)(CardPopup);
-
+export default CardPopup;

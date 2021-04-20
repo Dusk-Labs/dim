@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 
 import ProgressBar from "./ProgressBar.jsx";
 import Image from "./Image.jsx";
@@ -12,8 +12,10 @@ import NewLibraryModal from "../../Modals/NewLibrary/Index";
 import "./Banner.scss";
 
 function Banner(props) {
+  const banners = useSelector(store => store.banner);
+
   // FETCH_BANNERS_FETCHING or FETCH_BANNERS_ERROR
-  if (props.banners.fetching || (props.banners.fetched && props.banners.error)) {
+  if (banners.fetching || (banners.fetched && banners.error)) {
     return (
       <div className="banner">
         <div className="placeholder"/>
@@ -22,7 +24,7 @@ function Banner(props) {
   }
 
   // FETCH_BANNERS_FETCHED
-  if (props.banners.fetched && !props.banners.error) {
+  if (banners.fetched && !banners.error) {
     if (!props.data) {
       return (
         <div className="banner">
@@ -95,11 +97,4 @@ function Banner(props) {
   return <div className="banner"/>
 }
 
-const mapStateToProps = (state) => ({
-  banners: state.banner
-});
-
-const mapActionstoProps = {};
-
-export default connect(mapStateToProps, mapActionstoProps)(Banner);
-
+export default Banner;

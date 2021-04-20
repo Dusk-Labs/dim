@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { connect } from "react-redux";
-import { useHistory, withRouter } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
 
 import QuickSearchResults from "./QuickSearchResults";
 import { quickSearch } from "../../actions/search.js";
 
 import "./Search.scss";
 
-function Search(props) {
+function Search() {
+  const dispatch = useDispatch();
   const history = useHistory();
 
   const searchBox = useRef(null);
@@ -16,8 +17,6 @@ function Search(props) {
 
   const [query, setQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
-
-  const { quickSearch, auth } = props;
 
   const handleClick = useCallback(e => {
     if (showResults && searchBox.current) {
@@ -39,9 +38,9 @@ function Search(props) {
     setShowResults(e.target.value.length > 1);
 
     if (e.target.value.length > 1) {
-      quickSearch(e.target.value, auth.token);
+      dispatch(quickSearch(e.target.value));
     }
-  }, [auth.token, quickSearch]);
+  }, [dispatch]);
 
   const onKeyDown = useCallback((e) => {
     if (e.keyCode === 13) {
@@ -90,12 +89,4 @@ function Search(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-});
-
-const mapActionsToProps = {
-  quickSearch
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(withRouter(Search));
+export default Search;

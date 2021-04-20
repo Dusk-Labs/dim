@@ -9,11 +9,11 @@ import card from "./card.js";
 import banner from "./banner.js";
 
 export default combineReducers({
-    auth,
-    user,
-    library,
-    fileBrowser,
-    search,
-    card,
-    banner,
+  auth,
+  user,
+  library,
+  fileBrowser,
+  search,
+  card,
+  banner
 });

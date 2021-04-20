@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Modal from "react-modal";
-import { connect } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { newLibrary } from "../../actions/library.js";
 import MediaTypeSelection from "./MediaTypeSelection.jsx";
@@ -12,13 +12,13 @@ import "./Index.scss";
 Modal.setAppElement("body");
 
 function NewLibraryModal(props) {
+  const dispatch = useDispatch();
+
   const nameInput = useRef(null);
 
   const [current, setCurrent] = useState("");
   const [name, setName] = useState("");
   const [mediaType, setMediaType] = useState("movie");
-
-  const { newLibrary, auth } = props;
 
   useEffect(() => {
     if (nameInput.current) {
@@ -38,14 +38,14 @@ function NewLibraryModal(props) {
         media_type: mediaType
       };
 
-      await newLibrary(auth.token, data);
+      await dispatch(newLibrary(data));
 
       setName("");
       setCurrent("");
       setMediaType("movie");
       closeModal();
     }
-  }, [auth.token, current, mediaType, name, newLibrary]);
+  }, [current, dispatch, mediaType, name]);
 
   return (
     <ModalBox id="modalNewLibrary" activatingComponent={props.children}>
@@ -85,12 +85,4 @@ function NewLibraryModal(props) {
   )
 };
 
-const mapStateToProps = (state) => ({
-  auth: state.auth
-});
-
-const mapActionsToProps = {
-  newLibrary
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(NewLibraryModal);
+export default NewLibraryModal;

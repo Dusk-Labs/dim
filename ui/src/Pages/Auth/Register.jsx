@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-import { fetchUser } from "../../actions/user.js";
-import { authenticate, register, checkAdminExists } from "../../actions/auth.js";
+import { checkAdminExists } from "../../actions/auth.js";
 import RegisterBtn from "./RegisterBtn";
 import Field from "./Field";
 import DimLogo from "../../assets/DimLogo";
 
 import "./AuthForm.scss";
 
-function Register(props) {
+function Register() {
+  const dispatch = useDispatch();
+  const auth = useSelector(store => store.auth);
+
   const [username, setUsername] = useState("");
   const [usernameErr, setUsernameErr] = useState("");
 
@@ -20,8 +22,6 @@ function Register(props) {
   const [invite, setInvite] = useState("");
   const [inviteErr, setInviteErr] = useState("");
 
-  const { checkAdminExists, auth } = props;
-
   // AUTH_LOGIN_ERR
   useEffect(() => {
     if (auth.register.error) {
@@ -29,14 +29,16 @@ function Register(props) {
     }
   }, [auth.register.error]);
 
-  useEffect(() => { checkAdminExists() }, [checkAdminExists]);
+  useEffect(() => {
+    dispatch(checkAdminExists())
+  }, [dispatch]);
 
   return (
     <div className="authForm">
       <header>
         <DimLogo/>
         <h1>Welcome to Dim</h1>
-        {props.auth.admin_exists
+        {auth.admin_exists
           ? <h3>A media manager fueled by dark forces</h3>
           : <h3>You are making an admin account</h3>
         }
@@ -55,7 +57,7 @@ function Register(props) {
           error={[passErr, setPassErr]}
           type="password"
         />
-        {props.auth.admin_exists && (
+        {auth.admin_exists && (
           <Field
             name="Invite token"
             icon="key"
@@ -75,15 +77,4 @@ function Register(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-});
-
-const mapActionsToProps = {
-  authenticate,
-  register,
-  checkAdminExists,
-  fetchUser
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(Register);
+export default Register;
