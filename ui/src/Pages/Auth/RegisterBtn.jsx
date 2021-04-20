@@ -1,14 +1,19 @@
 import { useCallback, useEffect } from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { register, authenticate } from "../../actions/auth.js";
 
 function RegisterBtn(props) {
-  const { credentials, error } = props;
+  const dispatch = useDispatch();
+
+  const { auth, admin_exists } = useSelector(store => ({
+    auth: store.auth,
+    admin_exists: store.auth.admin_exists
+  }));
+
+  const { credentials, error, registering } = props;
 
   const [username, pass, invite] = credentials;
   const [setUsernameErr, setPassErr, setInviteErr] = error;
-
-  const { admin_exists, registering, register, authenticate } = props;
 
   const authorize = useCallback(async () => {
     if (registering) return;
@@ -39,13 +44,13 @@ function RegisterBtn(props) {
         return;
       }
 
-      await register(username, pass, invite);
-      authenticate(username, pass);
+      await dispatch(register(username, pass, invite));
+      dispatch(authenticate(username, pass));
     } else {
       await register(username, pass);
-      authenticate(username, pass);
+      dispatch(authenticate(username, pass));
     }
-  }, [admin_exists, authenticate, invite, pass, register, registering, setInviteErr, setPassErr, setUsernameErr, username]);
+  }, [admin_exists, dispatch, invite, pass, registering, setInviteErr, setPassErr, setUsernameErr, username]);
 
   const onKeyDown = useCallback(e => {
     if (e.keyCode === 13) {
@@ -62,18 +67,8 @@ function RegisterBtn(props) {
   }, [onKeyDown])
 
   return (
-    <button className={`${props.auth.registering}`} onClick={authorize}>Register</button>
+    <button className={`${auth.registering}`} onClick={authorize}>Register</button>
   )
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth.register,
-  admin_exists: state.auth.admin_exists
-});
-
-const mapActionsToProps = {
-  register,
-  authenticate
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(RegisterBtn);
+export default RegisterBtn;

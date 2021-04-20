@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { connect } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { fetchUser } from "../../actions/user.js";
 
@@ -11,14 +11,13 @@ import Account from "./Account";
 
 import "./Index.scss";
 
-function Sidebar(props) {
+function Sidebar() {
+  const dispatch = useDispatch();
   const divContainer = useRef(null);
 
-  const { fetchUser, auth } = props;
-
   useEffect(() => {
-    fetchUser(auth.token);
-  }, [auth.token, fetchUser]);
+    dispatch(fetchUser());
+  }, [dispatch]);
 
   return (
     <nav className="sidebar" ref={divContainer}>
@@ -36,12 +35,4 @@ function Sidebar(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-});
-
-const mapActionsToProps = {
-  fetchUser
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(Sidebar);
+export default Sidebar;

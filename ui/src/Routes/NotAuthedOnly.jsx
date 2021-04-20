@@ -1,20 +1,22 @@
 import { useEffect } from "react";
 import { Route, useHistory } from "react-router-dom";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { updateAuthToken } from "../actions/auth.js";
 
 function NotAuthedOnlyRoute(props) {
+  const dispatch = useDispatch();
+  const auth = useSelector(store => store.auth);
+
   const history = useHistory();
   const tokenInCookie = document.cookie.split("=")[1];
 
-  const { updateAuthToken, auth } = props;
   const { logged_in, error } = auth.login;
   const { token } = auth;
 
   useEffect(() => {
     if (tokenInCookie) {
-      updateAuthToken(tokenInCookie);
+      dispatch(updateAuthToken(tokenInCookie));
     }
 
 		if (logged_in && token && !error && !tokenInCookie) {
@@ -32,7 +34,7 @@ function NotAuthedOnlyRoute(props) {
     if (token && tokenInCookie) {
       history.push("/");
     }
-  }, [error, history, logged_in, token, tokenInCookie, updateAuthToken]);
+  }, [error, history, logged_in, token, tokenInCookie, dispatch]);
 
   // auto login when logged in another instance
   useEffect(() => {
@@ -68,12 +70,4 @@ function NotAuthedOnlyRoute(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth
-});
-
-const mapActionsToProps = ({
-  updateAuthToken
-});
-
-export default connect(mapStateToProps, mapActionsToProps)(NotAuthedOnlyRoute);
+export default NotAuthedOnlyRoute;

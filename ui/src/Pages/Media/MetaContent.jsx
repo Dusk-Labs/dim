@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -8,18 +8,24 @@ import PlayButton from "../../Components/PlayButton.jsx";
 
 import "./MetaContent.scss";
 
-function MetaContent(props) {
+function MetaContent() {
+  const dispatch = useDispatch();
+
+  const { auth, media_info } = useSelector(store => ({
+    auth: store.auth,
+    media_info: store.card.media_info
+  }));
+
   const { id } = useParams();
 
   const [mediaVersions, setMediaVersions] = useState([]);
 
-  const { auth, fetchMediaInfo, clearMediaInfo } = props;
-  const { token } = auth;
-
   useEffect(() => {
-    fetchMediaInfo(token, id);
-    return () => clearMediaInfo();
-  }, [clearMediaInfo, fetchMediaInfo, id, token]);
+    dispatch(fetchMediaInfo(id));
+    return () => dispatch(clearMediaInfo());
+  }, [dispatch, id]);
+
+  const { token } = auth;
 
   // to get file versions
   useEffect(() => {
@@ -50,18 +56,18 @@ function MetaContent(props) {
   }, [id, token]);
 
   useEffect(() => {
-    const { fetched, error, info } = props.media_info;
+    const { fetched, error, info } = media_info;
 
     // FETCH_MEDIA_INFO_OK
     if (fetched && !error) {
       document.title = `Dim - ${info.name}`;
     }
-  }, [props.media_info]);
+  }, [media_info]);
 
   let metaContent = <></>;
 
   // FETCH_MEDIA_INFO_OK
-  if (props.media_info.fetched && !props.media_info.error) {
+  if (media_info.fetched && !media_info.error) {
     const {
       description,
       genres,
@@ -72,7 +78,7 @@ function MetaContent(props) {
       media_type,
       id,
       seasons
-    } = props.media_info.info;
+    } = media_info.info;
 
     const length = {
       hh: ("0" + Math.floor(duration / 3600)).slice(-2),
@@ -125,14 +131,4 @@ function MetaContent(props) {
   return metaContent;
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-  media_info: state.card.media_info
-});
-
-const mapActionsToProps = {
-  fetchMediaInfo,
-  clearMediaInfo
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(MetaContent);
+export default MetaContent;

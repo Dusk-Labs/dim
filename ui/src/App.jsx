@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { BrowserRouter, Switch } from "react-router-dom";
-import { connect } from "react-redux";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
@@ -18,7 +17,6 @@ import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
 import Preferences from "./Pages/Preferences";
 
-import { updateAuthToken } from "./actions/auth";
 import MainLayout from "./Layouts/MainLayout";
 
 import "./App.scss";
@@ -107,12 +105,4 @@ function App() {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.authReducer
-});
-
-const mapActionsToProps = ({
-  updateAuthToken
-});
-
-export default connect(mapStateToProps, mapActionsToProps)(App);
+export default App;

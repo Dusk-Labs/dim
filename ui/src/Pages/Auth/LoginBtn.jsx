@@ -1,17 +1,18 @@
 import { useCallback, useEffect } from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { authenticate } from "../../actions/auth.js";
 
 function LoginBtn(props) {
+  const dispatch = useDispatch();
+  const auth = useSelector(store => store.auth);
+
   const { credentials, error } = props;
 
   const [username, password] = credentials;
   const [setUsernameErr, setPasswordErr] = error;
 
-  const { authenticate } = props;
-
   const authorize = useCallback(async () => {
-    if (props.auth.logging_in) return;
+    if (auth.logging_in) return;
 
     const allowedChars = /^[a-zA-Z0-9_.-]*$/;
 
@@ -34,8 +35,8 @@ function LoginBtn(props) {
       return;
     }
 
-    await authenticate(username, password);
-  }, [authenticate, password, props.auth.logging_in, setPasswordErr, setUsernameErr, username]);
+    dispatch(authenticate(username, password));
+  }, [auth.logging_in, dispatch, password, setPasswordErr, setUsernameErr, username]);
 
   const onKeyDown = useCallback(e => {
     if (e.keyCode === 13) {
@@ -52,16 +53,8 @@ function LoginBtn(props) {
   }, [onKeyDown]);
 
   return (
-    <button className={`${props.auth.logging_in}`} onClick={authorize}>Login</button>
+    <button className={`${auth.logging_in}`} onClick={authorize}>Login</button>
   )
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth.login,
-});
-
-const mapActionsToProps = {
-  authenticate,
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(LoginBtn);
+export default LoginBtn;
