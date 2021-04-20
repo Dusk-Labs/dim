@@ -98,7 +98,7 @@ pub static METADATA_FETCHER_TX: OnceCell<CloneOnDeref<mpsc::Sender<String>>> = O
 /// * `log` - Logger to which to log shit
 /// * `tx` - this is the websocket channel to which we can send websocket events to which get
 /// dispatched to clients.
-pub(crate) fn run_scanners(log: Logger, tx: EventTx) {
+pub fn run_scanners(log: Logger, tx: EventTx) {
     if let Ok(conn) = database::get_conn_logged(&log) {
         for lib in database::library::Library::get_all(&conn) {
             slog::info!(log, "Starting scanner for {} with id: {}", lib.name, lib.id);
@@ -123,7 +123,7 @@ pub(crate) fn run_scanners(log: Logger, tx: EventTx) {
     }
 }
 
-pub(crate) fn tmdb_poster_fetcher(log: Logger) {
+pub fn tmdb_poster_fetcher(log: Logger) {
     let (tx, rx): (mpsc::Sender<String>, mpsc::Receiver<String>) = mpsc::channel();
 
     thread::spawn(move || {
@@ -162,7 +162,7 @@ pub(crate) fn tmdb_poster_fetcher(log: Logger) {
 // TODO: Handle launch failures and fallback to a new port.
 // TODO: Store the port of the server in a dynamic config which can be queried by clients in case
 // the port changes as we dont want this hardcoded in.
-pub(crate) async fn start_event_server() -> EventTx {
+pub async fn start_event_server() -> EventTx {
     let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
     tokio::spawn(crate::websocket::serve(
