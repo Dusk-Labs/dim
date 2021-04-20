@@ -1,23 +1,29 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { fetchLibraryUnmatched } from "../../actions/library.js";
 import Actions from "./Actions";
 import CardList from "../../Components/CardList/Index";
 import UnmatchedCardList from "../../Components/CardList/UnmatchedCardList.jsx";
 
-const Library = (props) => {
+const Library = () => {
+  const dispatch = useDispatch();
+
+  const { auth, unmatched } = useSelector(store => ({
+    auth: store.auth,
+    unmatched: store.library.fetch_library_unmatched
+  }));
+
   const params = useParams();
 
-  const { fetchLibraryUnmatched, auth } = props;
   const { token } = auth;
 
   useEffect(() => {
-    fetchLibraryUnmatched(token, params.id);
-  }, [fetchLibraryUnmatched, params.id, token]);
+    dispatch(fetchLibraryUnmatched(token, params.id));
+  }, [dispatch, params.id, token]);
 
-  const { fetched, items } = props.unmatched;
+  const { fetched, items } = unmatched;
 
   return (
     <div className="library">
@@ -25,7 +31,7 @@ const Library = (props) => {
       {(fetched && Object.keys(items).length > 0) && (
         <>
           <div className="separator"/>
-          <UnmatchedCardList cards={props.unmatched}/>
+          <UnmatchedCardList cards={unmatched}/>
         </>
       )}
       <Actions id={useParams().id}/>
@@ -33,13 +39,4 @@ const Library = (props) => {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-  unmatched: state.library.fetch_library_unmatched
-});
-
-const mapActionsToProps = {
-  fetchLibraryUnmatched
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(Library);
+export default Library;

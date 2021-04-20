@@ -1,20 +1,22 @@
 import { useEffect } from "react";
 import { Route, useHistory } from "react-router-dom";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { updateAuthToken } from "../actions/auth.js";
 
 function PrivateRoute(props) {
+  const dispatch = useDispatch();
+  const auth = useSelector(store => store.auth);
+
   const history = useHistory();
   const tokenInCookie = document.cookie.split("=")[1];
 
-  const { updateAuthToken, auth } = props;
   const { logged_in, error } = auth.login;
   const { token } = auth;
 
   useEffect(() => {
     if (tokenInCookie && !token) {
-      updateAuthToken(tokenInCookie);
+      dispatch(updateAuthToken(tokenInCookie));
       return;
     }
 
@@ -32,7 +34,7 @@ function PrivateRoute(props) {
     if (!token && !tokenInCookie) {
       history.push("/login");
     }
-  }, [error, history, logged_in, token, tokenInCookie, updateAuthToken]);
+  }, [error, history, logged_in, token, tokenInCookie, dispatch]);
 
   // auto logout when logged out in another tab
   useEffect(() => {
@@ -82,12 +84,4 @@ function PrivateRoute(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth
-});
-
-const mapActionsToProps = ({
-  updateAuthToken
-});
-
-export default connect(mapStateToProps, mapActionsToProps)(PrivateRoute);
+export default PrivateRoute;

@@ -1,28 +1,33 @@
 import { useCallback, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import NewLibraryModal from "../../Modals/NewLibrary/Index";
 
 import { fetchLibraries, handleWsNewLibrary, handleWsDelLibrary } from "../../actions/library.js";
 
-function Libraries(props) {
-  const { fetchLibraries, handleWsDelLibrary, handleWsNewLibrary, auth } = props;
+function Libraries() {
+  const dispatch = useDispatch();
+
+  const { auth, libraries } = useSelector(store => ({
+    auth: store.auth,
+    libraries: store.library.fetch_libraries
+  }));
 
   const handle_ws_msg = useCallback(async ({data}) => {
     const payload = JSON.parse(data);
 
     switch(payload.type) {
       case "EventRemoveLibrary":
-        handleWsDelLibrary(payload.id);
+        dispatch(handleWsDelLibrary(payload.id));
         break;
       case "EventNewLibrary":
-        handleWsNewLibrary(auth.token, payload.id);
+        dispatch(handleWsNewLibrary(auth.token, payload.id));
         break;
       default:
         break;
     }
-  }, [auth.token, handleWsDelLibrary, handleWsNewLibrary]);
+  }, [auth.token, dispatch]);
 
   useEffect(() => {
     const library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
@@ -31,21 +36,21 @@ function Libraries(props) {
       library_ws.addEventListener("message", handle_ws_msg);
     }
 
-    fetchLibraries(auth.token);
+    dispatch(fetchLibraries(auth.token));
 
     return () => {
       library_ws.removeEventListener("message", handle_ws_msg);
       library_ws.close();
     };
-  }, [auth.token, fetchLibraries, handle_ws_msg]);
+  }, [auth.token, dispatch, handle_ws_msg]);
 
-  let libraries;
+  let libs;
 
-  const { fetched, error, items } = props.libraries;
+  const { fetched, error, items } = libraries;
 
   // FETCH_LIBRARIES_OK
   if (fetched && !error && items.length > 0) {
-    libraries = items.map((
+    libs = items.map((
       { name, id, media_type }, i
     ) => (
       <NavLink
@@ -74,21 +79,10 @@ function Libraries(props) {
           <FontAwesomeIcon icon="home"/>
           <p>Dashboard</p>
         </NavLink>
-        {libraries}
+        {libs}
       </div>
     </section>
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-  libraries: state.library.fetch_libraries
-});
-
-const mapActionsToProps = {
-  fetchLibraries,
-  handleWsDelLibrary,
-  handleWsNewLibrary
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(Libraries);
+export default Libraries;

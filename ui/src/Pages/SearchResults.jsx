@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
 import { search } from "../actions/search.js";
 
 import PropCardList from "../Components/CardList/PropCardList.jsx";
 
-function SearchResults(props) {
+function SearchResults() {
+  const dispatch = useDispatch();
+
+  const { auth, searchList } = useSelector(store => ({
+    auth: store.auth,
+    searchList: store.search.search
+  }));
+
   const location = useLocation();
 
   const [fKey, setFKey] = useState("");
   const [fValue, setFValue] = useState("");
-
-  const { search, auth } = props;
 
   useEffect(() => {
     document.title = "Dim - Results";
@@ -28,17 +33,10 @@ function SearchResults(props) {
       );
     }
 
-    search(location.search, auth.token);
-  }, [auth.token, fKey, fValue, location.search, search]);
+    dispatch(search(location.search, auth.token));
+  }, [auth.token, dispatch, fKey, fValue, location.search]);
 
-  return <PropCardList title={`${fKey} results for ${fValue}`} cards={props.searchList}/>;
+  return <PropCardList title={`${fKey} results for ${fValue}`} cards={searchList}/>;
 }
 
-const mapStateToProps = (state) => ({
-    auth: state.auth,
-    searchList: state.search.search
-});
-
-const mapActionsToProps = { search };
-
-export default connect(mapStateToProps, mapActionsToProps)(SearchResults);
+export default SearchResults;
