@@ -13,19 +13,16 @@ import "./Index.scss";
 function Media() {
   const dispatch = useDispatch();
 
-  const { auth, media_info, extra_media_info } = useSelector(store => ({
-    auth: store.auth,
+  const { media_info, extra_media_info } = useSelector(store => ({
     media_info: store.card.media_info,
     extra_media_info: store.card.extra_media_info
   }));
 
   const { id } = useParams();
 
-  const { token } = auth;
-
   useEffect(() => {
-    dispatch(fetchExtraMediaInfo(token, id));
-  }, [dispatch, id, token]);
+    dispatch(fetchExtraMediaInfo(id));
+  }, [dispatch, id]);
 
   useEffect(() => {
     const { fetched, error, info } = media_info;

@@ -105,14 +105,14 @@ function VideoPlayer(props) {
   }, [extra_media_info.info, params.fileID]);
 
   useEffect(() => {
-    dispatch(fetchExtraMediaInfo(token, mediaID));
+    dispatch(fetchExtraMediaInfo(mediaID));
     return () => dispatch(clearMediaInfo())
-  }, [dispatch, mediaID, token]);
+  }, [dispatch, mediaID]);
 
   useEffect(() => {
-    dispatch(fetchMediaInfo(auth.token, mediaID));
+    dispatch(fetchMediaInfo(mediaID));
     return () => dispatch(clearMediaInfo());
-  }, [auth.token, dispatch, mediaID]);
+  }, [dispatch, mediaID]);
 
   useEffect(() => {
     document.title = "Dim - Video Player";

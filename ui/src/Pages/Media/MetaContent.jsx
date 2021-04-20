@@ -20,12 +20,12 @@ function MetaContent() {
 
   const [mediaVersions, setMediaVersions] = useState([]);
 
-  const { token } = auth;
-
   useEffect(() => {
-    dispatch(fetchMediaInfo(token, id));
+    dispatch(fetchMediaInfo(id));
     return () => dispatch(clearMediaInfo());
-  }, [dispatch, id, token]);
+  }, [dispatch, id]);
+
+  const { token } = auth;
 
   // to get file versions
   useEffect(() => {

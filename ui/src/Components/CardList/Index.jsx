@@ -9,11 +9,7 @@ import "./Index.scss";
 
 function CardList(props) {
   const dispatch = useDispatch();
-
-  const { auth, cards } = useSelector(store => ({
-    auth: store.auth,
-    cards: store.card.cards
-  }));
+  const cards = useSelector(store => store.card.cards);
 
   const cardList = useRef(null);
 
@@ -27,9 +23,9 @@ function CardList(props) {
       || type === "EventNewLibrary"
       || type === "EventNewCard"
     ) {
-      dispatch(fetchCards(auth.token, path));
+      dispatch(fetchCards(path));
     }
-  }, [auth.token, dispatch, path]);
+  }, [dispatch, path]);
 
   useEffect(() => {
     const library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
@@ -42,8 +38,8 @@ function CardList(props) {
   }, [handleWS]);
 
   useEffect(() => {
-    dispatch(fetchCards(auth.token, path));
-  }, [auth.token, dispatch, path]);
+    dispatch(fetchCards(path));
+  }, [dispatch, path]);
 
   let card_list;
 

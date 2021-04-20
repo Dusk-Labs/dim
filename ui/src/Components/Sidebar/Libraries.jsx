@@ -9,10 +9,9 @@ import { fetchLibraries, handleWsNewLibrary, handleWsDelLibrary } from "../../ac
 function Libraries() {
   const dispatch = useDispatch();
 
-  const { auth, libraries } = useSelector(store => ({
-    auth: store.auth,
-    libraries: store.library.fetch_libraries
-  }));
+  const libraries = useSelector(store => (
+    store.library.fetch_libraries
+  ));
 
   const handle_ws_msg = useCallback(async ({data}) => {
     const payload = JSON.parse(data);
@@ -22,12 +21,12 @@ function Libraries() {
         dispatch(handleWsDelLibrary(payload.id));
         break;
       case "EventNewLibrary":
-        dispatch(handleWsNewLibrary(auth.token, payload.id));
+        dispatch(handleWsNewLibrary(payload.id));
         break;
       default:
         break;
     }
-  }, [auth.token, dispatch]);
+  }, [dispatch]);
 
   useEffect(() => {
     const library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
@@ -36,13 +35,13 @@ function Libraries() {
       library_ws.addEventListener("message", handle_ws_msg);
     }
 
-    dispatch(fetchLibraries(auth.token));
+    dispatch(fetchLibraries());
 
     return () => {
       library_ws.removeEventListener("message", handle_ws_msg);
       library_ws.close();
     };
-  }, [auth.token, dispatch, handle_ws_msg]);
+  }, [dispatch, handle_ws_msg]);
 
   let libs;
 
