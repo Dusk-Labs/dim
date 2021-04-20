@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { MediaPlayer } from "dashjs";
 
-import VideoControls from "./Controls/Index";
+import { clearMediaInfo, fetchExtraMediaInfo, fetchMediaInfo } from "../../actions/card";
 import { VideoPlayerContext } from "./Context";
 import RingLoad from "../../Components/Load/Ring";
-import { clearMediaInfo, fetchExtraMediaInfo, fetchMediaInfo } from "../../actions/card";
+import VideoControls from "./Controls/Index";
 import ErrorBox from "./ErrorBox";
 import ContinueProgress from "./ContinueProgress";
 import VideoSubtitles from "./Subtitles";
@@ -19,6 +19,14 @@ import "./Index.scss";
 
 // TODO: useReducer the shit out of this shit.
 function VideoPlayer(props) {
+  const dispatch = useDispatch();
+
+  const { auth, media_info, extra_media_info } = useSelector(store => ({
+    auth: store.auth,
+    media_info: store.card.media_info,
+    extra_media_info: store.card.extra_media_info
+  }));
+
   const videoPlayer = useRef(null);
   const overlay = useRef(null);
   const video = useRef(null);
@@ -45,7 +53,7 @@ function VideoPlayer(props) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const { auth, match, media_info, fetchMediaInfo, fetchExtraMediaInfo } = props;
+  const { match } = props;
   const { params } = match;
   const { token } = auth;
 
@@ -70,8 +78,8 @@ function VideoPlayer(props) {
   }, [params.fileID, token]);
 
   useEffect(() => {
-    if (props.extra_media_info.info.seasons) {
-      const { seasons } = props.extra_media_info.info;
+    if (extra_media_info.info.seasons) {
+      const { seasons } = extra_media_info.info;
 
       let episode;
 
@@ -94,19 +102,17 @@ function VideoPlayer(props) {
         setEpisode(episode);
       }
     }
-  }, [params.fileID, props.extra_media_info.info]);
+  }, [extra_media_info.info, params.fileID]);
 
   useEffect(() => {
-    fetchExtraMediaInfo(token, mediaID);
-    return () => clearMediaInfo()
-  }, [fetchExtraMediaInfo, mediaID, token]);
-
-  console.log(props.media_info)
+    dispatch(fetchExtraMediaInfo(token, mediaID));
+    return () => dispatch(clearMediaInfo())
+  }, [dispatch, mediaID, token]);
 
   useEffect(() => {
-    fetchMediaInfo(auth.token, mediaID);
-    return () => clearMediaInfo();
-  }, [auth.token, fetchMediaInfo, mediaID]);
+    dispatch(fetchMediaInfo(auth.token, mediaID));
+    return () => dispatch(clearMediaInfo());
+  }, [auth.token, dispatch, mediaID]);
 
   useEffect(() => {
     document.title = "Dim - Video Player";
@@ -278,7 +284,7 @@ function VideoPlayer(props) {
 
   const initialValue = {
     player,
-    mediaInfo: props.media_info.info,
+    mediaInfo: media_info.info,
     mediaID,
     fileID: params.fileID,
     video,
@@ -315,7 +321,7 @@ function VideoPlayer(props) {
         <div className="overlay" ref={overlay}>
           {(!error && (manifestLoaded && canPlay)) && <VideoControls/>}
           {(!error & (manifestLoading || !canPlay) || waiting) && <RingLoad/>}
-          {((!error && (manifestLoaded && canPlay)) && props.extra_media_info.info.progress > 0) && (
+          {((!error && (manifestLoaded && canPlay)) && extra_media_info.info.progress > 0) && (
             <ContinueProgress/>
           )}
           {error && (
@@ -327,16 +333,4 @@ function VideoPlayer(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-  media_info: state.card.media_info,
-  extra_media_info: state.card.extra_media_info
-});
-
-const mapActionsToProps = {
-  fetchMediaInfo,
-  fetchExtraMediaInfo,
-  clearMediaInfo
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(VideoPlayer);
+export default VideoPlayer;

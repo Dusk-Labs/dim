@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { fetchCards } from "../../actions/card.js";
 import Card from "./Card.jsx";
@@ -8,25 +8,28 @@ import GhostCards from "./Ghost.jsx";
 import "./Index.scss";
 
 function CardList(props) {
+  const dispatch = useDispatch();
+
+  const { auth, cards } = useSelector(store => ({
+    auth: store.auth,
+    cards: store.card.cards
+  }));
+
   const cardList = useRef(null);
 
-  const { fetchCards, auth, path } = props;
+  const { path } = props;
 
   const handleWS = useCallback((e) => {
     const { type } = JSON.parse(e.data);
 
-    if (type === "EventRemoveLibrary") {
-      fetchCards(auth.token, path);
+    if (
+      type === "EventRemoveLibrary"
+      || type === "EventNewLibrary"
+      || type === "EventNewCard"
+    ) {
+      dispatch(fetchCards(auth.token, path));
     }
-
-    if (type === "EventNewLibrary") {
-      fetchCards(auth.token, path);
-    }
-
-    if (type === "EventNewCard") {
-      fetchCards(auth.token, path);
-    }
-  }, [auth.token, fetchCards, path]);
+  }, [auth.token, dispatch, path]);
 
   useEffect(() => {
     const library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
@@ -39,39 +42,37 @@ function CardList(props) {
   }, [handleWS]);
 
   useEffect(() => {
-    fetchCards(auth.token, path);
-  }, [auth.token, fetchCards, path]);
+    dispatch(fetchCards(auth.token, path));
+  }, [auth.token, dispatch, path]);
 
   let card_list;
 
   // FETCH_CARDS_START
-  if (props.cards.fetching) {
+  if (cards.fetching) {
     card_list = <GhostCards/>;
   }
 
   // FETCH_CARDS_ERR
-  if (props.cards.fetched && props.cards.error) {
+  if (cards.fetched && cards.error) {
     card_list = <GhostCards/>;
   }
 
   // FETCH_CARDS_OK
-  if (props.cards.fetched && !props.cards.error) {
-    const sectionsEmpty = Object.values(props.cards.items).flat().length === 0;
+  if (cards.fetched && !cards.error) {
+    const sectionsEmpty = Object.values(cards.items).flat().length === 0;
 
     if (!sectionsEmpty) {
-      const items = Object.keys(props.cards.items);
+      const items = Object.keys(cards.items);
 
       if (items.length > 0) {
         let sections = {};
 
         for (const section of items) {
-          const cards = (
-            props.cards.items[section].map((card, i) => (
+          sections[section] = (
+            cards.items[section].map((card, i) => (
               <Card key={i} data={card}/>
             ))
           );
-
-          sections[section] = cards;
         }
 
         card_list = items.map(section => (
@@ -99,13 +100,4 @@ function CardList(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-  cards: state.card.cards
-});
-
-const mapActionsToProps = {
-  fetchCards
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(CardList);
+export default CardList;

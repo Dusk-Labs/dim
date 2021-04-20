@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { connect } from "react-redux";
 import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 import { fetchExtraMediaInfo } from "../../actions/card.js";
 
@@ -10,24 +10,31 @@ import Seasons from "./Seasons.jsx";
 
 import "./Index.scss";
 
-function Media(props) {
+function Media() {
+  const dispatch = useDispatch();
+
+  const { auth, media_info, extra_media_info } = useSelector(store => ({
+    auth: store.auth,
+    media_info: store.card.media_info,
+    extra_media_info: store.card.extra_media_info
+  }));
+
   const { id } = useParams();
 
-  const { auth, fetchExtraMediaInfo } = props;
   const { token } = auth;
 
   useEffect(() => {
-    fetchExtraMediaInfo(token, id);
-  }, [fetchExtraMediaInfo, id, token]);
+    dispatch(fetchExtraMediaInfo(token, id));
+  }, [dispatch, id, token]);
 
   useEffect(() => {
-    const { fetched, error, info } = props.media_info;
+    const { fetched, error, info } = media_info;
 
     // FETCH_MEDIA_INFO_OK
     if (fetched && !error) {
       document.title = `Dim - ${info.name}`;
     }
-  }, [props.media_info]);
+  }, [media_info]);
 
   return (
     <div className="mediaPage">
@@ -36,7 +43,7 @@ function Media(props) {
         <div>
           <MetaContent/>
         </div>
-        {props.extra_media_info.info.seasons && (
+        {extra_media_info.info.seasons && (
           <Seasons/>
         )}
       </div>
@@ -44,14 +51,4 @@ function Media(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-  media_info: state.card.media_info,
-  extra_media_info: state.card.extra_media_info,
-});
-
-const mapActionsToProps = {
-  fetchExtraMediaInfo
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(Media);
+export default Media;

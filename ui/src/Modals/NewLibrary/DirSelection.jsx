@@ -1,14 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { fetchDirectories } from "../../actions/fileBrowser.js";
 
 import "./DirSelection.scss";
 
 function DirSelection(props) {
+  const dispatch = useDispatch();
+
+  const { auth, fileBrowser } = useSelector(store => ({
+    auth: store.auth,
+    fileBrowser: store.fileBrowser
+  }));
+
   const [cache, setCache] = useState(false);
 
-  const { current, fetchDirectories, setCurrent, auth, fileBrowser } = props;
+  const { current, setCurrent } = props;
 
   const select = useCallback(path => {
     if (path in fileBrowser.cache) {
@@ -18,19 +25,19 @@ function DirSelection(props) {
       return;
     }
 
-    fetchDirectories(auth.token, path.replace("C:\\", ""));
+    dispatch(fetchDirectories(auth.token, path.replace("C:\\", "")));
     setCurrent(path);
 
     setCache(false);
-  }, [auth.token, fetchDirectories, fileBrowser.cache, setCurrent]);
+  }, [auth.token, dispatch, fileBrowser.cache, setCurrent]);
 
   useEffect(() => {
     const path = "";
 
-    fetchDirectories(auth.token, path.replace("C:\\", ""));
+    dispatch(fetchDirectories(auth.token, path.replace("C:\\", "")));
     setCurrent(path);
     setCache(false);
-  }, [auth.token, fetchDirectories, setCurrent]);
+  }, [auth.token, dispatch, setCurrent]);
 
   const goBack = useCallback(() => {
     let slash = "/";
@@ -52,7 +59,7 @@ function DirSelection(props) {
 
   if (!cache) {
     // FETCH_DIRECTORIES_ERR
-    if (props.fileBrowser.fetched && props.fileBrowser.error) {
+    if (fileBrowser.fetched && fileBrowser.error) {
       dirs = (
         <div className="vertical-err">
           <p>Cannot load data</p>
@@ -61,8 +68,8 @@ function DirSelection(props) {
     }
 
     // FETCH_DIRECTORIES_OK
-    if (props.fileBrowser.fetched && !props.fileBrowser.error) {
-      const { items } = props.fileBrowser;
+    if (fileBrowser.fetched && !fileBrowser.error) {
+      const { items } = fileBrowser;
 
       if (items.length === 0) {
         dirs = (
@@ -82,7 +89,7 @@ function DirSelection(props) {
       }
     }
   } else {
-    const items = props.fileBrowser.cache[props.current];
+    const items = fileBrowser.cache[props.current];
 
     if (items.length === 0) {
       dirs = (
@@ -119,13 +126,4 @@ function DirSelection(props) {
   )
 };
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-  fileBrowser: state.fileBrowser
-});
-
-const mapActionsToProps = {
-  fetchDirectories
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(DirSelection);
+export default DirSelection;
