@@ -153,7 +153,7 @@ pub fn get_conn_logged(log: &Logger) -> Result<DbConnection, diesel::result::Con
 
 #[allow(dead_code)]
 fn internal_get_conn(
-    _log: Option<&Logger>,
+    log: Option<&Logger>,
 ) -> Result<DbConnection, diesel::result::ConnectionError> {
     cfg_if! {
         if #[cfg(feature = "postgres")] {

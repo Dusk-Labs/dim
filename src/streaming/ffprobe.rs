@@ -147,7 +147,7 @@ impl FFPWrapper {
 
     pub fn get_audio_type(&self) -> Option<String> {
         if let Some(ctx) = self.ffpstream.clone() {
-            Some(ctx.streams[1].codec_long_name.clone())
+            ctx.streams.get(1).map(|x| x.codec_long_name.clone())
         } else {
             None
         }
