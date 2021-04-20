@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 
 import TruncText from "../../Helpers/TruncText.jsx";
 import IMDbLogo from "../../assets/imdb.png";
@@ -10,6 +10,8 @@ import PlayButton from "../PlayButton.jsx";
 import "./CardPopup.scss";
 
 function CardPopup(props) {
+  const auth = useSelector(store => store.auth);
+
   const [overflowing, setOverflowing] = useState(false);
   const [mediaVersions, setMediaVersions] = useState([]);
   const [direction, setDirection] = useState("card-popup-right");
@@ -42,7 +44,6 @@ function CardPopup(props) {
     progress,
   } = props.data;
 
-  const { auth } = props;
   const { token } = auth;
 
   // to get file versions
@@ -136,11 +137,4 @@ function CardPopup(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth
-});
-
-const mapActionstoProps = {};
-
-export default connect(mapStateToProps, mapActionstoProps)(CardPopup);
-
+export default CardPopup;

@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-import { fetchUser } from "../../actions/user.js";
-import { authenticate, updateAuthToken } from "../../actions/auth.js";
 import DimLogo from "../../assets/DimLogo";
 import Field from "./Field";
 import LoginBtn from "./LoginBtn";
 
 import "./AuthForm.scss";
 
-function Login(props) {
+function Login() {
+  const auth = useSelector(store => store.auth);
+
   const [username, setUsername] = useState("");
   const [usernameErr, setUsernameErr] = useState("");
 
@@ -19,10 +19,10 @@ function Login(props) {
 
   // AUTH_LOGIN_ERR
   useEffect(() => {
-    if (props.auth.login.error) {
-      setPasswordErr(props.auth.login.error)
+    if (auth.login.error) {
+      setPasswordErr(auth.login.error)
     }
-  }, [props.auth]);
+  }, [auth.login.error]);
 
   return (
     <div className="authForm">
@@ -59,14 +59,4 @@ function Login(props) {
   )
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-});
-
-const mapActionsToProps = {
-  authenticate,
-  updateAuthToken,
-  fetchUser
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(Login);
+export default Login;

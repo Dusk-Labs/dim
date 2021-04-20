@@ -1,14 +1,16 @@
 import { useContext } from "react";
-import { connect } from "react-redux";
-import { clearMediaInfo, fetchExtraMediaInfo } from "../../actions/card";
+import { useSelector } from "react-redux";
+
 import { formatHHMMSS } from "../../Helpers/utils";
 import ConfirmationBox from "../../Modals/ConfirmationBox";
 import { VideoPlayerContext } from "./Context";
 
-function ContinueProgress(props) {
-  const { seekTo } = useContext(VideoPlayerContext);
+function ContinueProgress() {
+  const extra_media_info = useSelector(store => (
+    store.card.extra_media_info
+  ));
 
-  const { extra_media_info } = props;
+  const { seekTo } = useContext(VideoPlayerContext);
 
   return (
     <ConfirmationBox
@@ -21,14 +23,4 @@ function ContinueProgress(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-  extra_media_info: state.card.extra_media_info
-});
-
-const mapActionsToProps = {
-  fetchExtraMediaInfo,
-  clearMediaInfo
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(ContinueProgress);
+export default ContinueProgress;
