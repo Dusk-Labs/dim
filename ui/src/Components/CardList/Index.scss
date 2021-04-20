@@ -27,10 +27,13 @@
     }
   }
 
-  h1 {
+  .sectionHeader {
     margin-bottom: 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-    &::first-letter {
+    h1::first-letter {
       text-transform: uppercase;
     }
   }
