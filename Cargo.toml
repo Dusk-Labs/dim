@@ -60,6 +60,11 @@ uuid = { version = "0.8.2", features = ["v4"] }
 tokio-tungstenite = "0.14.0"
 futures = "0.3.13"
 xtra = { version = "0.5.1", features = ["with-tokio-1"] }
+xtra_proc = { git = "https://github.com/vgarleanu/xtra_proc" }
+async-trait = "0.1.50"
+
+[dev-dependencies]
+criterion = "0.3.4"
 
 [build-dependencies]
 fs_extra = "1.1.0"
@@ -75,3 +80,7 @@ zip = "0.5.10"
 [profile.release]
 lto = true
 opt-level = 'z'
+
+[[bench]]
+name = "scanner"
+harness = false
