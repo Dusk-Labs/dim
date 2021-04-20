@@ -7,6 +7,7 @@ use {
 
 use std::sync::{Arc, Mutex};
 
+/*
 #[cfg(test)]
 lazy_static! {
     pub static ref CLIENT: Arc<Mutex<Client>> = {
@@ -39,6 +40,7 @@ lazy_static! {
         Arc::new(Mutex::new(Client::new(rocket).expect("Rocket client")))
     };
 }
+*/
 
 #[cfg(test)]
 pub fn drop_all_data() {
@@ -89,5 +91,7 @@ pub fn put_garbage() {
     .unwrap();
 }
 
+/*
 pub mod route_library_tests;
 pub mod route_media_tests;
+*/
