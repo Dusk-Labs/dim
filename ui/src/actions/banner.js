@@ -4,7 +4,9 @@ import {
   FETCH_BANNERS_ERR
 } from "./types.js";
 
-export const fetchBanners = (token) => async (dispatch) => {
+export const fetchBanners = () => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: FETCH_BANNERS_START });
 
   try {

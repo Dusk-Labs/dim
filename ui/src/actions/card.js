@@ -17,7 +17,9 @@ import {
   FETCH_MEDIA_SEASON_EPISODES_ERR
 } from "./types.js";
 
-export const fetchCards = (token, path) => async (dispatch) => {
+export const fetchCards = (path) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: FETCH_CARDS_START });
 
   try {
@@ -50,7 +52,9 @@ export const fetchCards = (token, path) => async (dispatch) => {
   }
 };
 
-export const fetchMediaInfo = (token, id) => async (dispatch) => {
+export const fetchMediaInfo = (id) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: FETCH_MEDIA_INFO_START });
 
   try {
@@ -87,7 +91,9 @@ export const clearMediaInfo = () => async (dispatch) => {
   dispatch({ type: FETCH_MEDIA_INFO_CLEAR });
 };
 
-export const fetchExtraMediaInfo = (token, id) => async (dispatch) => {
+export const fetchExtraMediaInfo = (id) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: FETCH_EXTRA_MEDIA_INFO_START });
 
   try {
@@ -127,7 +133,9 @@ export const fetchExtraMediaInfo = (token, id) => async (dispatch) => {
   }
 };
 
-export const fetchMediaSeasons = (token, id) => async (dispatch) => {
+export const fetchMediaSeasons = (id) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: FETCH_MEDIA_SEASONS_START });
 
   try {
@@ -160,7 +168,9 @@ export const fetchMediaSeasons = (token, id) => async (dispatch) => {
   }
 };
 
-export const fetchMediaSeasonEpisodes = (token, id, season) => async (dispatch) => {
+export const fetchMediaSeasonEpisodes = (id, season) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: FETCH_MEDIA_SEASON_EPISODES_START });
 
   try {

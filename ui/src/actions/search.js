@@ -6,7 +6,9 @@ import {
   SEARCH_ERR
 } from "./types.js";
 
-export const search = (params, token) => async (dispatch) => {
+export const search = (params) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: SEARCH_START });
 
   try {
@@ -46,7 +48,9 @@ export const search = (params, token) => async (dispatch) => {
   }
 };
 
-export const quickSearch = (query, token) => async (dispatch) => {
+export const quickSearch = (query) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   try {
     const config = {
       headers: {

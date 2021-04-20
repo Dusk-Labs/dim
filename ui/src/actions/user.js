@@ -4,7 +4,9 @@ import {
   FETCH_USER_ERR
 } from "./types.js";
 
-export const fetchUser = (token) => async (dispatch) => {
+export const fetchUser = () => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
   dispatch({ type: FETCH_USER_START });
 
   const config = {
