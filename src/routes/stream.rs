@@ -18,9 +18,9 @@ use database::mediafile::MediaFile;
 use rocket::http::ContentType;
 use rocket::http::Header;
 use rocket::http::Status;
-use rocket::request::State;
 use rocket::response::NamedFile;
 use rocket::response::Response;
+use rocket::State;
 
 use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
@@ -41,28 +41,36 @@ use std::sync::RwLock;
 use std::thread;
 use std::time::Duration;
 
-use tokio::runtime::Handle;
+use futures::stream;
+use futures::StreamExt;
+use std::future::Future;
+use tokio::task::spawn_blocking;
 
 #[get("/<id>/manifest.mpd?<start_num>&<gid>")]
-pub fn return_manifest(
-    state: State<StateManager>,
-    stream_tracking: State<StreamTracking>,
-    tokio_rt: State<Handle>,
+pub async fn return_manifest(
+    state: State<'_, StateManager>,
+    stream_tracking: State<'_, StreamTracking>,
     auth: Auth,
-    conn: DbConnection,
+    conn: State<'_, DbConnection>,
     id: i32,
     start_num: Option<u32>,
     gid: Option<u128>,
 ) -> Result<Response<'static>, errors::StreamingErrors> {
     let start_num = start_num.unwrap_or(0);
-    let media = MediaFile::get_one(conn.as_ref(), id)
+    let media = MediaFile::get_one(&conn, id)
+        .await
         .map_err(|e| errors::StreamingErrors::NoMediaFileFound(e.to_string()))?;
 
     let user_id = auth.0.claims.id;
 
-    let info = FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
-        .get_meta(&std::path::PathBuf::from(media.target_file.clone()))
-        .map_err(|_| errors::StreamingErrors::FFProbeCtxFailed)?;
+    let target_file = media.target_file.clone();
+    let info = spawn_blocking(move || {
+        FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
+            .get_meta(&std::path::PathBuf::from(target_file))
+    })
+    .await
+    .unwrap()
+    .map_err(|_| errors::StreamingErrors::FFProbeCtxFailed)?;
 
     let mut ms = info
         .get_ms()
@@ -72,7 +80,7 @@ pub fn return_manifest(
     ms.truncate(4);
 
     let gid = gid.unwrap_or(uuid::Uuid::new_v4().as_u128());
-    stream_tracking.kill_all(&tokio_rt, &state, gid);
+    stream_tracking.kill_all(&state, gid).await;
 
     let duration = chrono::DateTime::<Utc>::from_utc(
         NaiveDateTime::from_timestamp(info.get_duration().unwrap() as i64, 0),
@@ -101,15 +109,17 @@ pub fn return_manifest(
         VideoProfile::Direct
     };
 
-    let video = tokio_rt.block_on(state.create(
-        StreamType::Video {
-            map: video_stream.index as usize,
-            profile,
-        },
-        media.target_file.clone().into(),
-    ))?;
+    let video = state
+        .create(
+            StreamType::Video {
+                map: video_stream.index as usize,
+                profile,
+            },
+            media.target_file.clone().into(),
+        )
+        .await?;
 
-    stream_tracking.insert(gid, video.clone());
+    stream_tracking.insert(gid, video.clone()).await;
 
     // FIXME: Stop hardcoding a fps of 24
     let video_avc = get_avc1_tag(
@@ -133,13 +143,15 @@ pub fn return_manifest(
     let audio_streams = info.find_by_codec("audio");
 
     for stream in audio_streams {
-        let audio = tokio_rt.block_on(state.create(
-            StreamType::Audio {
-                map: stream.index as usize,
-                profile: AudioProfile::Low,
-            },
-            media.target_file.clone().into(),
-        ))?;
+        let audio = state
+            .create(
+                StreamType::Audio {
+                    map: stream.index as usize,
+                    profile: AudioProfile::Low,
+                },
+                media.target_file.clone().into(),
+            )
+            .await?;
 
         tracks.push(format!(
             include_str!("../static/audio_segment.mpd"),
@@ -149,19 +161,21 @@ pub fn return_manifest(
             start_num = start_num,
         ));
 
-        stream_tracking.insert(gid, audio.clone());
+        stream_tracking.insert(gid, audio.clone()).await;
     }
 
     let subtitles = info.find_by_codec("subtitle");
 
     for stream in subtitles {
-        let subtitle = tokio_rt.block_on(state.create(
-            StreamType::Subtitle {
-                map: stream.index as usize,
-                profile: SubtitleProfile::Webvtt,
-            },
-            media.target_file.clone().into(),
-        ))?;
+        let subtitle = state
+            .create(
+                StreamType::Subtitle {
+                    map: stream.index as usize,
+                    profile: SubtitleProfile::Webvtt,
+                },
+                media.target_file.clone().into(),
+            )
+            .await?;
 
         tracks.push(format!(
             include_str!("../static/subtitle_segment.mpd"),
@@ -174,7 +188,7 @@ pub fn return_manifest(
             path = format!("{}/data/stream.vtt", subtitle.clone())
         ));
 
-        stream_tracking.insert(gid, subtitle.clone());
+        stream_tracking.insert(gid, subtitle.clone()).await;
     }
 
     let manifest = format!(
@@ -186,7 +200,7 @@ pub fn return_manifest(
 
     Response::build()
         .header(ContentType::new("application", "dash+xml"))
-        .sized_body(Cursor::new(manifest))
+        .streamed_body(Cursor::new(manifest))
         .ok()
 }
 
@@ -196,9 +210,13 @@ pub fn return_manifest(
 /// block for AT MOST `tick_limit` ticks. When a the tick limit has been hit `None` is returned
 /// otherwise `Some(Result<T, NightfallError>)` is returned.
 ///
-fn timeout_segment<F, T>(f: F, tick_dur: Duration, tick_limit: usize) -> Result<T, NightfallError>
+async fn timeout_segment<F, T>(
+    f: impl Fn() -> F,
+    tick_dur: Duration,
+    tick_limit: usize,
+) -> Result<T, NightfallError>
 where
-    F: Fn() -> Result<T, NightfallError>,
+    F: Future<Output = Result<T, NightfallError>>,
 {
     let mut ticks = 0usize;
 
@@ -207,11 +225,11 @@ where
             return Err(NightfallError::ChunkNotDone.into());
         }
 
-        let result = f();
+        let result = f().await;
 
         if let Err(NightfallError::ChunkNotDone) = result {
             ticks += 1;
-            std::thread::sleep(tick_dur);
+            tokio::time::sleep(tick_dur).await;
         } else {
             break result;
         }
@@ -219,26 +237,24 @@ where
 }
 
 #[get("/<id>/data/init.mp4?<start_num>", rank = 1)]
-pub fn get_init(
-    state: State<StateManager>,
-    tokio_rt: State<Handle>,
+pub async fn get_init(
+    state: State<'_, StateManager>,
     id: String,
     start_num: Option<u32>,
 ) -> Result<Option<NamedFile>, errors::StreamingErrors> {
     let path: String = timeout_segment(
-        || tokio_rt.block_on(state.chunk_init_request(id.clone(), start_num.unwrap_or(0))),
+        || state.chunk_init_request(id.clone(), start_num.unwrap_or(0)),
         Duration::from_millis(100),
         100,
-    )?;
+    )
+    .await?;
 
-    Ok(NamedFile::open(path).ok())
+    Ok(NamedFile::open(path).await.ok())
 }
 
 #[get("/<id>/data/<chunk..>", rank = 3)]
-pub fn get_chunk(
-    state: State<StateManager>,
-    tokio_rt: State<Handle>,
-    conn: DbConnection,
+pub async fn get_chunk(
+    state: State<'_, StateManager>,
     id: String,
     chunk: PathBuf,
 ) -> Result<Option<NamedFile>, errors::StreamingErrors> {
@@ -265,46 +281,46 @@ pub fn get_chunk(
         .unwrap_or(0);
 
     let path: String = timeout_segment(
-        || tokio_rt.block_on(state.chunk_request(id.clone(), chunk_num)),
+        || state.chunk_request(id.clone(), chunk_num),
         Duration::from_millis(100),
         100,
-    )?;
+    )
+    .await?;
 
-    Ok(NamedFile::open(path).ok())
+    Ok(NamedFile::open(path).await.ok())
 }
 
 #[get("/<id>/data/stream.vtt", rank = 2)]
-pub fn get_subtitle(
-    state: State<StateManager>,
-    tokio_rt: State<Handle>,
-    conn: DbConnection,
+pub async fn get_subtitle(
+    state: State<'_, StateManager>,
     id: String,
 ) -> Result<Option<NamedFile>, errors::StreamingErrors> {
     let path: String = timeout_segment(
-        || tokio_rt.block_on(state.get_sub(id.clone(), "stream.vtt".into())),
+        || state.get_sub(id.clone(), "stream.vtt".into()),
         Duration::from_millis(100),
         200,
-    )?;
+    )
+    .await?;
 
-    Ok(NamedFile::open(path).ok())
+    Ok(NamedFile::open(path).await.ok())
 }
 
 #[get("/<gid>/state/should_hard_seek/<chunk_num>")]
-pub fn should_client_hard_seek(
-    state: State<StateManager>,
-    stream_tracking: State<StreamTracking>,
-    tokio_rt: State<Handle>,
+pub async fn should_client_hard_seek(
+    state: State<'_, StateManager>,
+    stream_tracking: State<'_, StreamTracking>,
     gid: u128,
     chunk_num: u32,
 ) -> Result<JsonValue, errors::StreamingErrors> {
     let ids = stream_tracking
         .get_for_gid(gid)
+        .await
         .ok_or(errors::StreamingErrors::InvalidRequest)?;
 
     let mut should_client_hard_seek = false;
 
     for id in ids {
-        should_client_hard_seek |= tokio_rt.block_on(state.should_hard_seek(id, chunk_num))?;
+        should_client_hard_seek |= state.should_hard_seek(id, chunk_num).await?;
     }
 
     Ok(json!({
@@ -313,33 +329,33 @@ pub fn should_client_hard_seek(
 }
 
 #[get("/<gid>/state/get_stderr")]
-pub fn session_get_stderr(
-    state: State<StateManager>,
-    stream_tracking: State<StreamTracking>,
-    tokio_rt: State<Handle>,
+pub async fn session_get_stderr(
+    state: State<'_, StateManager>,
+    stream_tracking: State<'_, StreamTracking>,
     gid: u128,
 ) -> Result<JsonValue, errors::StreamingErrors> {
     Ok(json!({
-    "errors": stream_tracking
+    "errors": stream::iter(stream_tracking
         .get_for_gid(gid)
-        .ok_or(errors::StreamingErrors::InvalidRequest)?
-        .into_iter()
-        .filter_map(|x| tokio_rt.block_on(state.get_stderr(x)).ok())
-        .collect::<Vec<_>>(),
+        .await
+        .ok_or(errors::StreamingErrors::InvalidRequest)?)
+        .filter_map(|x| async { state.get_stderr(x).await.ok() })
+        .collect::<Vec<_>>().await,
     }))
 }
 
 #[get("/<gid>/state/kill")]
-pub fn kill_session(
-    state: State<StateManager>,
-    stream_tracking: State<StreamTracking>,
+pub async fn kill_session(
+    state: State<'_, StateManager>,
+    stream_tracking: State<'_, StreamTracking>,
     gid: u128,
 ) -> Result<Status, errors::StreamingErrors> {
     for id in stream_tracking
         .get_for_gid(gid)
+        .await
         .ok_or(errors::StreamingErrors::InvalidRequest)?
     {
-        let _ = state.die(id);
+        let _ = state.die(id).await;
     }
 
     Ok(Status::NoContent)

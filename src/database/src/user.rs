@@ -2,6 +2,7 @@ use diesel::prelude::*;
 use tokio_diesel::*;
 
 use crate::DatabaseError;
+use std::num::NonZeroU32;
 
 use serde::Deserialize;
 use serde::Serialize;
@@ -9,8 +10,9 @@ use serde::Serialize;
 use ring::digest;
 use ring::pbkdf2;
 
-static PBKDF2_ALG: &digest::Algorithm = &digest::SHA256;
+static PBKDF2_ALG: pbkdf2::Algorithm = pbkdf2::PBKDF2_HMAC_SHA256;
 const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
+const HASH_ROUNDS: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(10_000) };
 
 pub type Credential = [u8; CREDENTIAL_LEN];
 
@@ -38,7 +40,7 @@ pub fn hash(salt: String, s: String) -> String {
     let mut to_store: Credential = [0u8; CREDENTIAL_LEN];
     pbkdf2::derive(
         PBKDF2_ALG,
-        100_000,
+        HASH_ROUNDS,
         &salt.as_bytes(),
         s.as_bytes(),
         &mut to_store,
@@ -51,7 +53,7 @@ pub fn verify(salt: String, password: String, attempted_password: String) -> boo
 
     pbkdf2::verify(
         PBKDF2_ALG,
-        100_000,
+        HASH_ROUNDS,
         &salt.as_bytes(),
         attempted_password.as_bytes(),
         real_pwd.as_slice(),

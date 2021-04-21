@@ -78,7 +78,7 @@ where
 
         async move {
             while let Some(st) = rx.recv().await {
-                i_tx.send(CtrlEvent::Send(st));
+                let _ = i_tx.send(CtrlEvent::Send(st));
             }
         }
     };
@@ -96,7 +96,7 @@ where
 
         let (out, mut inc) = stream.split();
 
-        i_tx.send(CtrlEvent::Track {
+        let _ = i_tx.send(CtrlEvent::Track {
             addr: addr.clone(),
             sink: out,
         });

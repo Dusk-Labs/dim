@@ -11,15 +11,15 @@ postgres = ["diesel/postgres", "diesel-derive-enum/postgres"]
 sqlite = ["diesel/sqlite", "diesel-derive-enum/sqlite"]
 
 [dependencies]
-diesel = { version = "1.4.5", default-features = false, features = ["with-deprecated"], optional = true }
-diesel-derive-enum = { version = "0.4.4", optional = true}
+diesel = { version = "^1.4.5", default-features = false, features = ["with-deprecated"], optional = true }
+diesel-derive-enum = { version = "^0.4.4", optional = true}
 
-serde = { version = "1.0.105", features = ["derive"] }
-serde_derive = "1.0.105"
-diesel_migrations = "1.4.0"
-lazy_static = "1.4.0"
-slog = "2.5.2"
-ring = "^0.13.2"
+serde = { version = "^1.0.105", features = ["derive"] }
+serde_derive = "^1.0.105"
+diesel_migrations = "^1.4.0"
+lazy_static = "^1.4.0"
+slog = "^2.5.2"
+ring = "^0.16.11"
 base64 = "0.12.0"
 uuid = { version = "0.8.1", features = ["v4"] }
 cfg-if = "0.1.10"

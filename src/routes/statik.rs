@@ -1,6 +1,7 @@
 use rocket::http::ContentType;
 use rocket::http::Status;
 use rocket::response;
+use rocket::response::NamedFile;
 
 use std::ffi::OsStr;
 use std::fs::File;
@@ -18,20 +19,20 @@ use std::path::PathBuf;
 struct Asset;
 
 #[get("/static/<file..>")]
-pub fn dist_static<'r>(file: PathBuf) -> response::Result<'r> {
+pub async fn dist_static<'r>(file: PathBuf) -> response::Result<'r> {
     let filename = file.display().to_string();
     let file_path = format!("static/{}", filename);
 
-    dist_file(&file_path)
+    dist_file(&file_path).await
 }
 
 #[get("/<file>", rank = 1)]
-pub fn dist_asset<'r>(file: String) -> response::Result<'r> {
-    dist_file(file.as_ref())
+pub async fn dist_asset<'r>(file: String) -> response::Result<'r> {
+    dist_file(file.as_ref()).await
 }
 
-pub fn dist_file<'r>(file: &str) -> response::Result<'r> {
-    Asset::get(file).map_or_else(index_redirect, |d| {
+pub async fn dist_file<'r>(file: &str) -> response::Result<'r> {
+    if let Some(x) = Asset::get(file) {
         let ext = Path::new(file)
             .extension()
             .and_then(OsStr::to_str)
@@ -42,49 +43,41 @@ pub fn dist_file<'r>(file: &str) -> response::Result<'r> {
 
         response::Response::build()
             .header(content_type)
-            .sized_body(Cursor::new(d))
+            .streamed_body(Cursor::new(x))
             .ok()
-    })
+    } else {
+        index_redirect().await
+    }
 }
 
 #[get("/")]
-pub fn index_redirect<'r>() -> response::Result<'r> {
-    Asset::get("index.html").map_or_else(
-        || Err(Status::NotFound),
-        |x| {
-            response::Response::build()
-                .header(ContentType::HTML)
-                .sized_body(Cursor::new(x))
-                .ok()
-        },
-    )
+pub async fn index_redirect<'r>() -> response::Result<'r> {
+    if let Some(x) = Asset::get("index.html") {
+        response::Response::build()
+            .header(ContentType::HTML)
+            .streamed_body(Cursor::new(x))
+            .ok()
+    } else {
+        Err(Status::NotFound)
+    }
 }
 
-#[get("/images/<file..>", rank = 1)]
-pub fn get_image<'r>(file: PathBuf) -> response::Result<'r> {
+#[get("/images/<file..>", rank = 3)]
+pub async fn get_image<'r>(file: PathBuf) -> Option<NamedFile> {
     let mut pathbuf = PathBuf::from(crate::core::METADATA_PATH.get().unwrap());
     pathbuf.push(file);
 
-    File::open(pathbuf).map_or_else(
-        |_| Err(Status::NotFound),
-        |x| {
-            response::Response::build()
-                .header(ContentType::JPEG)
-                .sized_body(x)
-                .ok()
-        },
-    )
+    NamedFile::open(pathbuf).await.ok()
 }
 
 #[get("/<path..>", rank = 4)]
-pub fn react_routes<'r>(path: PathBuf) -> response::Result<'r> {
-    Asset::get("index.html").map_or_else(
-        || Err(Status::NotFound),
-        |x| {
-            response::Response::build()
-                .header(ContentType::HTML)
-                .sized_body(Cursor::new(x))
-                .ok()
-        },
-    )
+pub async fn react_routes<'r>(path: PathBuf) -> response::Result<'r> {
+    if let Some(x) = Asset::get("index.html") {
+        response::Response::build()
+            .header(ContentType::HTML)
+            .streamed_body(Cursor::new(x))
+            .ok()
+    } else {
+        Err(Status::NotFound)
+    }
 }

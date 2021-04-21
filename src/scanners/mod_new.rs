@@ -118,7 +118,8 @@ impl MetadataExtractor {
         // closure needs to be bound because of a lifetime bug where the closure passed to
         // `spawn_blocking` lives more than the data moved into it thus we cant pass a reference to
         // `Metadata::from` directly.
-        let meta_from_string = move || Metadata::from(&clone).map_err(|_| ScannerError::FilenameParserError);
+        let meta_from_string =
+            move || Metadata::from(&clone).map_err(|_| ScannerError::FilenameParserError);
         let metadata = spawn_blocking(meta_from_string).await.unwrap()?;
 
         let ffprobe_data = if let Ok(data) = ctx.get_meta(&file) {

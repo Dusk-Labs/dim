@@ -1,6 +1,5 @@
-use std::env;
-use std::path::Path;
-use std::process::Command;
+#[cfg(all(not(target_os = "windows"), not(feature = "no_build")))]
+use {std::env, std::path::Path, std::process::Command};
 
 #[cfg(any(target_os = "windows", feature = "no_build"))]
 fn main() {}

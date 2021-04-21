@@ -1,4 +1,4 @@
-use lazy_static::lazy_static;
+/*use lazy_static::lazy_static;
 #[allow(unused_imports)]
 use {
     rocket::config::{ConfigBuilder, Environment, LoggingLevel},
@@ -6,6 +6,7 @@ use {
 };
 
 use std::sync::{Arc, Mutex};
+*/
 
 /*
 #[cfg(test)]
@@ -42,6 +43,7 @@ lazy_static! {
 }
 */
 
+/*
 #[cfg(test)]
 pub fn drop_all_data() {
     use database::get_conn_devel;
@@ -90,6 +92,7 @@ pub fn put_garbage() {
     .insert(&conn)
     .unwrap();
 }
+*/
 
 /*
 pub mod route_library_tests;

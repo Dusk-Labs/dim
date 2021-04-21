@@ -1,6 +1,7 @@
 use crate::core::DbConnection;
 use crate::errors;
 use crate::routes::construct_standard;
+use crate::routes::construct_standard_quick;
 
 use auth::Wrapper as Auth;
 use cfg_if::cfg_if;
@@ -14,9 +15,16 @@ use database::{
     schema::{genre_media, media, season},
     season::Season,
 };
+
 use diesel::prelude::*;
 use diesel::sql_types::Text;
+use futures::stream;
+use futures::StreamExt;
+use tokio::task::spawn_blocking;
+use tokio_diesel::*;
+
 use rocket::http::RawStr;
+use rocket::State;
 use rocket_contrib::json::{Json, JsonValue};
 
 use std::fs;
@@ -45,12 +53,14 @@ pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> io::Result<Vec
 }
 
 #[get("/filebrowser")]
-pub fn get_root_directory_structure(_user: Auth) -> Result<Json<Vec<String>>, errors::DimError> {
+pub async fn get_root_directory_structure(
+    _user: Auth,
+) -> Result<Json<Vec<String>>, errors::DimError> {
     cfg_if::cfg_if! {
         if #[cfg(target_os = "windows")] {
-            Ok(Json(enumerate_directory(r"C:\")?))
+            Ok(Json(spawn_blocking(|| enumerate_directory(r"C:\")).await.unwrap()?))
         } else {
-            Ok(Json(enumerate_directory("/")?))
+            Ok(Json(spawn_blocking(|| enumerate_directory("/")).await.unwrap()?))
         }
     }
 }
@@ -86,13 +96,14 @@ pub fn get_directory_structure(
 
 #[get("/search?<query>&<year>&<library_id>&<genre>&<quick>")]
 pub fn search(
-    conn: DbConnection,
-    query: Option<&RawStr>,
+    conn: State<'_, DbConnection>,
+    query: Option<String>,
     year: Option<i32>,
     library_id: Option<i32>,
     genre: Option<String>,
     quick: Option<bool>,
     user: Auth,
+    rt: State<'_, tokio::runtime::Handle>,
 ) -> Result<Json<Vec<JsonValue>>, errors::DimError> {
     let quick = quick.unwrap_or(false);
     let mut result = media::table.into_boxed();
@@ -101,7 +112,6 @@ pub fn search(
 
     if let Some(query_string) = query {
         let query_string = query_string
-            .url_decode_lossy()
             .split(' ')
             .collect::<Vec<&str>>()
             .as_slice()
@@ -125,26 +135,47 @@ pub fn search(
     }
 
     if let Some(x) = genre {
-        let genre_row = Genre::get_by_name(conn.as_ref(), x)?.id;
+        let genre_row = rt.block_on(Genre::get_by_name(&conn, x))?.id;
 
         let new_result = result
             .inner_join(genre_media::table)
             .filter(genre_media::genre_id.eq(genre_row));
 
-        let new_result = new_result.load::<Media>(conn.as_ref())?;
+        let conn_clone = conn
+            .get()
+            .expect("Failed to acquire a connection to the db");
+
+        let new_result = new_result.load::<Media>(&conn_clone)?;
         return Ok(Json(
             new_result
                 .iter()
-                .filter_map(|x| construct_standard(&conn, x, &user, quick).ok())
+                .filter_map(|x| {
+                    if quick {
+                        rt.block_on(construct_standard_quick(&x)).ok()
+                    } else {
+                        rt.block_on(construct_standard(&conn, &x, &user)).ok()
+                    }
+                })
                 .collect::<Vec<JsonValue>>(),
         ));
     }
 
-    let result = result.load::<Media>(conn.as_ref()).unwrap_or_default();
+    // to avoid weird issue with boxed dsl not being send
+    let conn_clone = conn
+        .get()
+        .expect("Failed to acquire a connection to the db");
+
+    let result = result.load::<Media>(&conn_clone).unwrap_or_default();
     Ok(Json(
         result
             .iter()
-            .filter_map(|x| construct_standard(&conn, x, &user, quick).ok())
+            .filter_map(|x| {
+                if quick {
+                    rt.block_on(construct_standard_quick(&x)).ok()
+                } else {
+                    rt.block_on(construct_standard(&conn, &x, &user)).ok()
+                }
+            })
             .collect::<Vec<JsonValue>>(),
     ))
 }
