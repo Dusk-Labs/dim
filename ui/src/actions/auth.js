@@ -122,7 +122,7 @@ export const register = (username, password, invite) => async (dispatch) => {
       });
     }
 
-    dispatch({ type: AUTH_REGISTER_OK });
+    Promise.resolve(dispatch({ type: AUTH_REGISTER_OK }));
   } catch(err) {
     dispatch({
       type: AUTH_REGISTER_ERR,
