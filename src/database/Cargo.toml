@@ -25,3 +25,6 @@ uuid = { version = "0.8.1", features = ["v4"] }
 cfg-if = "0.1.10"
 tokio-diesel = "0.3.0"
 r2d2 = "0.8.9"
+err-derive = "0.3.0"
+async-trait = "0.1.50"
+futures = "0.3.14"

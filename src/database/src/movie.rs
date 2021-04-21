@@ -1,7 +1,10 @@
 use crate::media::MediaTrait;
 use crate::schema::movie;
 use crate::streamable_media::{StreamableMedia, StreamableTrait};
-use diesel::prelude::*;
+use crate::DatabaseError;
+
+use async_trait::async_trait;
+use tokio_diesel::*;
 
 /// Struct represents a Movie entry in the database
 #[derive(Clone, Identifiable, Queryable, Associations)]
@@ -20,6 +23,7 @@ pub struct InsertableMovie {
     id: i32,
 }
 
+#[async_trait]
 impl StreamableTrait for InsertableMovie {
     /// Method returns a new instance of InsertableMovie, this is a trait method because it is used
     /// to indicate that this specific media entry can be streamed.
@@ -36,10 +40,11 @@ impl StreamableTrait for InsertableMovie {
     ///
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
-    fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error> {
+    async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
         diesel::insert_into(movie::table)
-            .values(self)
-            .execute(conn)?;
+            .values(self.clone())
+            .execute_async(conn)
+            .await?;
 
         Ok(self.id)
     }

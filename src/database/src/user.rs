@@ -1,10 +1,17 @@
 use diesel::prelude::*;
-use diesel::result::Error as DieselError;
-use ring::{digest, pbkdf2};
-use serde::{Deserialize, Serialize};
+use tokio_diesel::*;
+
+use crate::DatabaseError;
+
+use serde::Deserialize;
+use serde::Serialize;
+
+use ring::digest;
+use ring::pbkdf2;
 
 static PBKDF2_ALG: &digest::Algorithm = &digest::SHA256;
 const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
+
 pub type Credential = [u8; CREDENTIAL_LEN];
 
 // NOTE: Figure out the bug with this not being a valid postgres type
@@ -25,13 +32,6 @@ pub struct InsertableUser {
     pub username: String,
     pub password: String,
     pub roles: Vec<String>,
-}
-
-#[derive(Deserialize)]
-pub struct Login {
-    pub username: String,
-    pub password: String,
-    pub invite_token: Option<String>,
 }
 
 pub fn hash(salt: String, s: String) -> String {
@@ -85,12 +85,13 @@ impl User {
     /// assert!(user.len() > 0usize);
     ///
     /// let _ = User::delete(&conn, "test_get_all".to_string()).unwrap();
-    pub fn get_all(conn: &crate::DbConnection) -> Result<Vec<Self>, DieselError> {
+    pub async fn get_all(conn: &crate::DbConnection) -> Result<Vec<Self>, DatabaseError> {
         use crate::schema::users;
 
         Ok(users::table
             .select((users::dsl::username, users::dsl::roles))
-            .load::<(String, String)>(conn)?
+            .load_async::<(String, String)>(conn)
+            .await?
             .iter()
             .cloned()
             .map(|(username, roles)| Self {
@@ -135,24 +136,25 @@ impl User {
     /// assert!(err_rows.is_err());
     ///
     /// let _ = User::delete(&conn, "test_get_one".to_string()).unwrap();
-    pub fn get_one(
+    pub async fn get_one(
         conn: &crate::DbConnection,
         uname: String,
         pw: String,
-    ) -> Result<Self, DieselError> {
+    ) -> Result<Self, DatabaseError> {
         use crate::schema::users;
-        users::table
+        Ok(users::table
             .filter(
                 users::dsl::username
                     .eq(uname.clone())
                     .and(users::dsl::password.eq(hash(uname, pw))),
             )
             .select((users::dsl::username, users::dsl::roles))
-            .first::<(String, String)>(conn)
+            .first_async::<(String, String)>(conn)
+            .await
             .map(|(username, roles)| Self {
                 username,
                 roles: roles.split(",").map(|x| x.to_string()).collect(),
-            })
+            })?)
     }
 
     /// Method deletes a entry from the table users and returns the number of rows deleted.
@@ -183,9 +185,13 @@ impl User {
     ///
     /// let err_rows = User::delete(&conn, "random".to_string()).unwrap();
     /// assert_eq!(err_rows, 0usize);
-    pub fn delete(conn: &crate::DbConnection, uname: String) -> Result<usize, DieselError> {
+    pub async fn delete(conn: &crate::DbConnection, uname: String) -> Result<usize, DatabaseError> {
         use crate::schema::users;
-        diesel::delete(users::table.filter(users::dsl::username.eq(uname))).execute(conn)
+        Ok(
+            diesel::delete(users::table.filter(users::dsl::username.eq(uname)))
+                .execute_async(conn)
+                .await?,
+        )
     }
 }
 
@@ -219,7 +225,7 @@ impl InsertableUser {
     ///
     /// let _ = User::delete(&conn, "test_insert".to_string()).unwrap();
     /// ```
-    pub fn insert(self, conn: &crate::DbConnection) -> Result<String, DieselError> {
+    pub async fn insert(self, conn: &crate::DbConnection) -> Result<String, DatabaseError> {
         use crate::schema::users;
 
         diesel::insert_into(users::table)
@@ -228,52 +234,71 @@ impl InsertableUser {
                 users::dsl::password.eq(hash(self.username.clone(), self.password)),
                 users::dsl::roles.eq(self.roles.join(",")),
             ))
-            .execute(conn)?;
+            .execute_async(conn)
+            .await?;
 
         Ok(self.username)
     }
 }
 
+#[derive(Deserialize)]
+pub struct Login {
+    pub username: String,
+    pub password: String,
+    pub invite_token: Option<String>,
+}
+
 impl Login {
-    pub fn invite_token_valid(&self, conn: &crate::DbConnection) -> Result<bool, DieselError> {
+    pub async fn invite_token_valid(
+        &self,
+        conn: &crate::DbConnection,
+    ) -> Result<bool, DatabaseError> {
         use crate::schema::invites;
 
-        if let Some(ref x) = self.invite_token {
-            return diesel::select(diesel::dsl::exists(
+        if let Some(x) = self.invite_token.clone() {
+            return Ok(diesel::select(diesel::dsl::exists(
                 invites::table.filter(invites::token.eq(x)),
             ))
-            .get_result(conn);
+            .get_result_async(conn)
+            .await?);
         }
         Ok(false)
     }
 
-    pub fn invalidate_token(&self, conn: &crate::DbConnection) -> Result<usize, DieselError> {
+    pub async fn invalidate_token(
+        &self,
+        conn: &crate::DbConnection,
+    ) -> Result<usize, DatabaseError> {
         use crate::schema::invites;
 
-        if let Some(ref x) = self.invite_token {
-            return diesel::delete(invites::table.filter(invites::token.eq(x))).execute(conn);
+        if let Some(x) = self.invite_token.clone() {
+            return Ok(diesel::delete(invites::table.filter(invites::token.eq(x)))
+                .execute_async(conn)
+                .await?);
         }
 
         Ok(0usize)
     }
 
-    pub fn new_invite(conn: &crate::DbConnection) -> Result<String, DieselError> {
+    pub async fn new_invite(conn: &crate::DbConnection) -> Result<String, DatabaseError> {
         use crate::schema::invites;
 
         let token = uuid::Uuid::new_v4().to_hyphenated().to_string();
 
         diesel::insert_into(invites::table)
             .values(invites::token.eq(token.clone()))
-            .execute(conn)?;
+            .execute_async(conn)
+            .await?;
 
         Ok(token)
     }
 
-    pub fn get_all_invites(conn: &crate::DbConnection) -> Result<Vec<String>, DieselError> {
+    pub async fn get_all_invites(conn: &crate::DbConnection) -> Result<Vec<String>, DatabaseError> {
         use crate::schema::invites;
 
-        invites::table
+        Ok(invites::table
             .select(invites::dsl::token)
-            .load::<String>(conn)
+            .load_async::<String>(conn)
+            .await?)
     }
 }
