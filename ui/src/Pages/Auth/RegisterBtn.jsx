@@ -44,13 +44,11 @@ function RegisterBtn(props) {
         return;
       }
 
-      dispatch(register(username, pass, invite)).then(() => {
-          dispatch(authenticate(username, pass));
-      });
+      await dispatch(register(username, pass, invite))
+      dispatch(authenticate(username, pass));
     } else {
-      dispatch(register(username, pass)).then(() => {
-          dispatch(authenticate(username, pass));
-      });
+      await dispatch(register(username, pass))
+      dispatch(authenticate(username, pass));
     }
   }, [admin_exists, dispatch, invite, pass, registering, setInviteErr, setPassErr, setUsernameErr, username]);
 
