@@ -1,4 +1,4 @@
-#![feature(rustc_private, once_cell)]
+#![feature(rustc_private, once_cell, async_closure, box_syntax)]
 #![feature(proc_macro_hygiene, decl_macro)]
 
 #[macro_use]
@@ -23,6 +23,7 @@ use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
 pub mod episode;
+pub mod error;
 pub mod genre;
 pub mod library;
 pub mod media;
@@ -34,6 +35,8 @@ pub mod season;
 pub mod streamable_media;
 pub mod tv;
 pub mod user;
+
+pub use crate::error::DatabaseError;
 
 #[cfg(all(feature = "sqlite", feature = "postgres"))]
 compile_error!("Features sqlite and postgres are mutually exclusive");

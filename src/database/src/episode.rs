@@ -6,9 +6,14 @@ use crate::schema::episode;
 use crate::season::Season;
 use crate::streamable_media::StreamableMedia;
 use crate::tv::TVShow;
+use crate::DatabaseError;
 
 use cfg_if::cfg_if;
 use diesel::prelude::*;
+use tokio_diesel::*;
+
+use futures::stream;
+use futures::StreamExt;
 
 /// Episode struct encapsulates a media entry representing a episode
 #[derive(Clone, Serialize, Debug)]
@@ -70,26 +75,25 @@ pub struct UpdateEpisodeWrapper {
 }
 
 impl Episode {
-    pub fn get_first_for_season(
+    pub async fn get_first_for_season(
         conn: &crate::DbConnection,
         season: &Season,
-    ) -> Result<Self, diesel::result::Error> {
+    ) -> Result<Self, DatabaseError> {
         use crate::schema::episode::dsl::*;
         use crate::schema::media;
 
-        EpisodeWrapper::belonging_to(season)
+        let wrapper = episode
+            .filter(seasonid.eq(season.id))
             .order(episode_.asc())
-            .first::<EpisodeWrapper>(conn)
-            .map(|l| {
-                (
-                    l,
-                    media::dsl::media
-                        .filter(media::dsl::id.eq(l.id))
-                        .first::<Media>(conn)
-                        .unwrap(),
-                )
-            })
-            .map(|(l, z)| l.into(z))
+            .first_async::<EpisodeWrapper>(conn)
+            .await?;
+
+        let ep = media::dsl::media
+            .filter(media::dsl::id.eq(wrapper.id))
+            .first_async::<Media>(conn)
+            .await?;
+
+        Ok(wrapper.into_episode(ep))
     }
 
     /// Method returns all of the episodes belonging to a tv show.
@@ -159,35 +163,44 @@ impl Episode {
     /// assert_eq!(episode.episode, 1);
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn get_all_of_tv(
+    pub async fn get_all_of_tv(
         conn: &crate::DbConnection,
         media: &Media,
-    ) -> Result<Vec<Episode>, diesel::result::Error> {
+    ) -> Result<Vec<Episode>, DatabaseError> {
         use crate::schema::media;
+        use crate::schema::season;
+        use crate::schema::tv_show;
 
-        let tv_show = TVShow::belonging_to(media).first::<TVShow>(conn)?;
-        Ok(Season::belonging_to(&tv_show)
-            .load::<Season>(conn)?
-            .iter()
-            .map(|x| {
-                EpisodeWrapper::belonging_to(x)
-                    .load::<EpisodeWrapper>(conn)
-                    .unwrap()
-                    .iter()
-                    .map(|l| {
-                        (
-                            *l,
-                            media::dsl::media
-                                .filter(media::dsl::id.eq(l.id))
-                                .first::<Media>(conn)
-                                .unwrap(),
-                        )
-                    })
-                    .map(|(l, z)| l.into(z))
-                    .collect::<Vec<Episode>>()
+        let tv_show = tv_show::dsl::tv_show
+            .filter(tv_show::dsl::id.eq(media.id))
+            .first_async::<TVShow>(conn)
+            .await?;
+
+        let seasons = season::dsl::season
+            .filter(season::tvshowid.eq(tv_show.id))
+            .load_async::<Season>(conn)
+            .await?;
+
+        Ok(stream::iter(seasons)
+            .filter_map(|x| async move {
+                episode::dsl::episode
+                    .filter(episode::dsl::id.eq(x.id))
+                    .load_async::<EpisodeWrapper>(conn)
+                    .await
+                    .map(stream::iter)
+                    .ok()
             })
             .flatten()
-            .collect::<Vec<Episode>>())
+            .filter_map(|x| async move {
+                media::dsl::media
+                    .filter(media::dsl::id.eq(x.id))
+                    .first_async::<Media>(conn)
+                    .await
+                    .ok()
+                    .map(|y| x.into_episode(y))
+            })
+            .collect::<Vec<Episode>>()
+            .await)
     }
 
     /// Method returns all of the episodes belonging to a season.
@@ -257,27 +270,28 @@ impl Episode {
     /// assert_eq!(episode.episode, 1);
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn get_all_of_season(
+    pub async fn get_all_of_season(
         conn: &crate::DbConnection,
         media: &Season,
-    ) -> Result<Vec<Episode>, diesel::result::Error> {
+    ) -> Result<Vec<Episode>, DatabaseError> {
         use crate::schema::media;
 
-        Ok(EpisodeWrapper::belonging_to(media)
-            .load::<EpisodeWrapper>(conn)
-            .unwrap()
-            .iter()
-            .map(|l| {
-                (
-                    *l,
-                    media::dsl::media
-                        .filter(media::dsl::id.eq(l.id))
-                        .first::<Media>(conn)
-                        .unwrap(),
-                )
+        let wrappers = episode::dsl::episode
+            .filter(episode::id.eq(media.id))
+            .load_async::<EpisodeWrapper>(conn)
+            .await?;
+
+        Ok(stream::iter(wrappers)
+            .filter_map(|x| async move {
+                media::dsl::media
+                    .filter(media::dsl::id.eq(x.id))
+                    .first_async::<Media>(conn)
+                    .await
+                    .map(|y| x.into_episode(y))
+                    .ok()
             })
-            .map(|(l, z)| l.into(z))
-            .collect::<Vec<Episode>>())
+            .collect()
+            .await)
     }
 
     /// Method returns a episodes discriminated by episode number, season number and tv show id
@@ -346,31 +360,39 @@ impl Episode {
     /// assert_eq!(episode.episode, 1);
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn get(
+    pub async fn get(
         conn: &crate::DbConnection,
         id: i32,
         season_num: i32,
         ep_num: i32,
-    ) -> Result<Episode, diesel::result::Error> {
+    ) -> Result<Episode, DatabaseError> {
         use crate::schema::media;
         use crate::schema::season;
         use crate::schema::tv_show;
 
-        let tv_show = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
+        let tv_show = tv_show::dsl::tv_show
+            .find(id)
+            .get_result_async::<TVShow>(conn)
+            .await?;
 
-        let season = Season::belonging_to(&tv_show)
+        let season = season::dsl::season
+            .filter(season::tvshowid.eq(tv_show.id))
             .filter(season::dsl::season_number.eq(season_num))
-            .first::<Season>(conn)?;
+            .first_async::<Season>(conn)
+            .await?;
 
-        let episode = EpisodeWrapper::belonging_to(&season)
+        let episode = episode::dsl::episode
+            .filter(episode::seasonid.eq(season.id))
             .filter(episode::dsl::episode_.eq(ep_num))
-            .first::<EpisodeWrapper>(conn)?;
+            .first_async::<EpisodeWrapper>(conn)
+            .await?;
 
         let media = media::dsl::media
             .filter(media::dsl::id.eq(episode.id))
-            .first::<Media>(conn)?;
+            .first_async::<Media>(conn)
+            .await?;
 
-        let result = episode.into(media);
+        let result = episode.into_episode(media);
 
         Ok(result)
     }
@@ -444,26 +466,34 @@ impl Episode {
     /// assert!(all_episodes.len() == 0);
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn delete(
+    pub async fn delete(
         conn: &crate::DbConnection,
         id: i32,
         season_num: i32,
         ep_num: i32,
-    ) -> Result<usize, diesel::result::Error> {
+    ) -> Result<usize, DatabaseError> {
         use crate::schema::season;
         use crate::schema::tv_show;
-        let tv_show = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
 
-        let season = Season::belonging_to(&tv_show)
+        let tv_show = tv_show::dsl::tv_show
+            .find(id)
+            .get_result_async::<TVShow>(conn)
+            .await?;
+
+        let season = season::dsl::season
+            .filter(season::tvshowid.eq(tv_show.id))
             .filter(season::dsl::season_number.eq(season_num))
-            .first::<Season>(conn)?;
+            .first_async::<Season>(conn)
+            .await?;
 
-        let episode = EpisodeWrapper::belonging_to(&season)
+        let episode = Box::leak(box episode::dsl::episode
+            .filter(episode::seasonid.eq(season.id))
             .filter(episode::dsl::episode_.eq(ep_num))
-            .first::<EpisodeWrapper>(conn)?;
+            .first_async::<EpisodeWrapper>(conn)
+            .await?);
 
-        Media::delete(conn, episode.id)?;
-        Ok(diesel::delete(&episode).execute(conn)?)
+        Media::delete(conn, episode.id).await?;
+        Ok(diesel::delete(&*episode).execute_async(conn).await?)
     }
 }
 
@@ -538,21 +568,25 @@ impl InsertableEpisode {
     /// assert_eq!(episode.episode, 1);
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn insert(
-        &self,
-        conn: &crate::DbConnection,
-        id: i32,
-    ) -> Result<i32, diesel::result::Error> {
+    pub async fn insert(&self, conn: &crate::DbConnection, id: i32) -> Result<i32, DatabaseError> {
         use crate::schema::season;
         use crate::schema::tv_show;
 
-        let _tv_show = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
+        let _tv_show = tv_show::dsl::tv_show
+            .find(id)
+            .get_result_async::<TVShow>(conn)
+            .await?;
 
-        let season = season::table.find(self.seasonid).first::<Season>(conn)?;
+        let season = season::table
+            .find(self.seasonid)
+            .first_async::<Season>(conn)
+            .await?;
 
+        // we use InsertableMovie with Some as it doesnt matter
         let media_id = self
             .media
-            .into_streamable::<InsertableMovie>(conn, Some(()))?; // we use InsertableMovie with Some as it doesnt matter
+            .into_streamable::<InsertableMovie>(conn, Some(()))
+            .await?;
 
         let episode: InsertableEpisodeWrapper = self.into();
 
@@ -566,11 +600,11 @@ impl InsertableEpisode {
         // `last_insert_row` function.
         cfg_if! {
             if #[cfg(feature = "postgres")] {
-                query.returning(episode::id)
-                    .get_result(conn)
+                Ok(query.returning(episode::id)
+                    .get_result_async(conn).await?)
             } else {
-                query.execute(conn)?;
-                diesel::select(crate::last_insert_rowid).get_result::<i32>(conn)
+                query.execute_async(conn).await?;
+                Ok(diesel::select(crate::last_insert_rowid).get_result_async::<i32>(conn).await?)
             }
         }
     }
@@ -583,7 +617,7 @@ impl InsertableEpisode {
 }
 
 impl EpisodeWrapper {
-    fn into(self, media: Media) -> Episode {
+    pub fn into_episode(self, media: Media) -> Episode {
         Episode {
             id: self.id,
             seasonid: self.seasonid,
@@ -671,27 +705,40 @@ impl UpdateEpisode {
     /// assert_eq!(episode.episode, 2);
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn update(
+    pub async fn update(
         &self,
         conn: &crate::DbConnection,
         id: i32,
         season_num: i32,
         ep_num: i32,
-    ) -> Result<(), diesel::result::Error> {
+    ) -> Result<(), DatabaseError> {
         use crate::schema::season;
         use crate::schema::tv_show;
 
-        let tv = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
-        let season = Season::belonging_to(&tv)
+        let tv = tv_show::dsl::tv_show
+            .find(id)
+            .get_result_async::<TVShow>(conn)
+            .await?;
+
+        let season = season::dsl::season
+            .filter(season::dsl::tvshowid.eq(tv.id))
             .filter(season::dsl::season_number.eq(season_num))
-            .first::<Season>(conn)?;
+            .first_async::<Season>(conn)
+            .await?;
 
-        let episode = EpisodeWrapper::belonging_to(&season)
-            .filter(episode::dsl::episode_.eq(ep_num))
-            .first::<EpisodeWrapper>(conn)?;
+        let episode = Box::leak(
+            box episode::dsl::episode
+                .filter(episode::dsl::seasonid.eq(season.id))
+                .filter(episode::dsl::episode_.eq(ep_num))
+                .first_async::<EpisodeWrapper>(conn)
+                .await?,
+        );
 
-        let _ = self.media.update(conn, episode.id);
-        let _ = diesel::update(&episode).set(self.into()).execute(conn);
+        let _ = self.media.update(conn, episode.id).await;
+        let _ = diesel::update(&*episode)
+            .set(self.into())
+            .execute_async(conn)
+            .await;
         Ok(())
     }
 
