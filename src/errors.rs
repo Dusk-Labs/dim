@@ -88,6 +88,23 @@ impl From<DieselError> for DimError {
     }
 }
 
+use database::DatabaseError;
+impl From<DatabaseError> for DimError {
+    fn from(e: DatabaseError) -> Self {
+        let DatabaseError::AsyncError(e) = e;
+        Self::from(e)
+    }
+}
+
+impl From<tokio_diesel::AsyncError> for DimError {
+    fn from(e: tokio_diesel::AsyncError) -> Self {
+        match e {
+            tokio_diesel::AsyncError::Error(e) => Self::from(e),
+            _ => Self::UnknownError,
+        }
+    }
+}
+
 impl From<std::option::NoneError> for DimError {
     fn from(_: std::option::NoneError) -> Self {
         Self::NoneError
@@ -118,8 +135,24 @@ impl From<DieselError> for AuthError {
     }
 }
 
-impl Responder<'static> for DimError {
-    fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
+impl From<DatabaseError> for AuthError {
+    fn from(e: DatabaseError) -> Self {
+        let DatabaseError::AsyncError(e) = e;
+        Self::from(e)
+    }
+}
+
+impl From<tokio_diesel::AsyncError> for AuthError {
+    fn from(e: tokio_diesel::AsyncError) -> Self {
+        match e {
+            tokio_diesel::AsyncError::Error(e) => Self::from(e),
+            _ => Self::DatabaseError,
+        }
+    }
+}
+
+impl<'r> Responder<'r, 'static> for DimError {
+    fn respond_to(self, _: &'r Request<'_>) -> Result<Response<'static>, Status> {
         let status = match self {
             Self::NoneError | Self::NotFoundError => Status::NotFound,
             Self::StreamingError(_) | Self::DatabaseError | Self::UnknownError | Self::IOError => {
@@ -132,13 +165,13 @@ impl Responder<'static> for DimError {
         Response::build()
             .status(status)
             .header(ContentType::JSON)
-            .sized_body(Cursor::new(serde_json::to_string(&self).unwrap()))
+            .streamed_body(Cursor::new(serde_json::to_string(&self).unwrap()))
             .ok()
     }
 }
 
-impl Responder<'static> for AuthError {
-    fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
+impl<'r> Responder<'r, 'static> for AuthError {
+    fn respond_to(self, _: &'r Request<'_>) -> Result<Response<'static>, Status> {
         let status = match self {
             Self::NoTokenError => Status::Ok,
             Self::UsernameTaken => Status::Ok,
@@ -150,13 +183,13 @@ impl Responder<'static> for AuthError {
         Response::build()
             .status(status)
             .header(ContentType::JSON)
-            .sized_body(Cursor::new(serde_json::to_string(&self).unwrap()))
+            .streamed_body(Cursor::new(serde_json::to_string(&self).unwrap()))
             .ok()
     }
 }
 
-impl Responder<'static> for StreamingErrors {
-    fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
+impl<'r> Responder<'r, 'static> for StreamingErrors {
+    fn respond_to(self, _: &'r Request<'_>) -> Result<Response<'static>, Status> {
         let status = match self {
             Self::OtherNightfall(NightfallError::ChunkNotDone) => Status::Processing,
             Self::NoMediaFileFound(_) => Status::NotFound,
@@ -166,7 +199,7 @@ impl Responder<'static> for StreamingErrors {
         Response::build()
             .status(status)
             .header(ContentType::JSON)
-            .sized_body(Cursor::new(serde_json::to_string(&self).unwrap()))
+            .streamed_body(Cursor::new(serde_json::to_string(&self).unwrap()))
             .ok()
     }
 }

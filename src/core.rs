@@ -1,11 +1,11 @@
 use crate::routes;
-use crate::scanners;
+//use crate::scanners;
 use crate::stream_tracking::StreamTracking;
 
+use rocket::fairing::Fairing;
 use rocket::http::Method;
 use rocket_contrib::databases::diesel;
 use rocket_contrib::helmet::SpaceHelmet;
-use rocket_slog::SlogFairing;
 
 use rocket_cors::AllowedHeaders;
 use rocket_cors::AllowedOrigins;
@@ -34,29 +34,7 @@ use std::sync::Mutex;
 use std::thread;
 
 pub type StateManager = nightfall::StateManager;
-
-cfg_if! {
-    if #[cfg(feature = "postgres")] {
-        #[database("dimpostgres")]
-        pub struct DbConnection(PgConnection);
-
-        impl AsRef<PgConnection> for DbConnection {
-            fn as_ref(&self) -> &PgConnection {
-                &*self
-            }
-        }
-    } else {
-        #[database("dimpostgres")]
-        pub struct DbConnection(SqliteConnection);
-
-        impl AsRef<SqliteConnection> for DbConnection {
-            fn as_ref(&self) -> &SqliteConnection {
-                &*self
-            }
-        }
-    }
-}
-
+pub type DbConnection = database::DbConnection;
 pub type EventTx = UnboundedSender<String>;
 
 lazy_static! {
@@ -98,9 +76,9 @@ pub static METADATA_FETCHER_TX: OnceCell<CloneOnDeref<mpsc::Sender<String>>> = O
 /// * `log` - Logger to which to log shit
 /// * `tx` - this is the websocket channel to which we can send websocket events to which get
 /// dispatched to clients.
-pub fn run_scanners(log: Logger, tx: EventTx) {
+pub async fn run_scanners(log: Logger, tx: EventTx) {
     if let Ok(conn) = database::get_conn_logged(&log) {
-        for lib in database::library::Library::get_all(&conn) {
+        for lib in database::library::Library::get_all(&conn).await {
             slog::info!(log, "Starting scanner for {} with id: {}", lib.name, lib.id);
             let log_clone = log.clone();
             let library_id = lib.id;
@@ -108,6 +86,7 @@ pub fn run_scanners(log: Logger, tx: EventTx) {
 
             // NOTE: Its a good idea to just let the binary panic if the LIB_SCANNERS cannot be
             //       locked. This is because such a error is unrecoverable.
+            /*
             LIB_SCANNERS.lock().unwrap().insert(
                 library_id,
                 thread::spawn(move || {
@@ -119,6 +98,7 @@ pub fn run_scanners(log: Logger, tx: EventTx) {
                     });
                 }),
             );
+            */
         }
     }
 }
@@ -174,30 +154,17 @@ pub async fn start_event_server() -> EventTx {
     tx
 }
 
-pub fn rocket_pad(
+pub async fn rocket_pad(
     logger: slog::Logger,
     event_tx: EventTx,
     config: rocket::config::Config,
     stream_manager: StateManager,
-    tokio_handle: tokio::runtime::Handle,
-) -> rocket::Rocket {
-    let fairing = SlogFairing::new(logger);
-
+) -> rocket::Rocket<rocket::Build> {
     // At the moment we dont really care if cors access is global so we create CORS options to
     // target every route.
     let allowed_origins = AllowedOrigins::all();
     let cors = CorsOptions {
         allowed_origins,
-        allowed_methods: vec![
-            Method::Options,
-            Method::Get,
-            Method::Post,
-            Method::Delete,
-            Method::Patch,
-        ]
-        .into_iter()
-        .map(From::from)
-        .collect(),
         allowed_headers: AllowedHeaders::all(),
         allow_credentials: true,
         ..Default::default()
@@ -208,9 +175,8 @@ pub fn rocket_pad(
     let stream_tracking = StreamTracking::default();
 
     rocket::custom(config)
-        .attach(DbConnection::fairing())
         .attach(SpaceHelmet::default())
-        .attach(fairing)
+        .attach(cors)
         .mount(
             "/",
             routes![
@@ -296,11 +262,12 @@ pub fn rocket_pad(
                 routes::auth::generate_invite
             ],
         )
-        .attach(cors)
+        .manage(logger)
         .manage(Arc::new(Mutex::new(event_tx)))
+        .manage(database::get_conn().expect("Failed to get db connection"))
         .manage(stream_tracking)
         .manage(stream_manager)
-        .manage(tokio_handle)
+        .manage(tokio::runtime::Handle::current())
 }
 
 /// Method launch
@@ -313,13 +280,15 @@ pub fn rocket_pad(
 ///           a sink for logs.
 /// * `event_tx` - This is the tx channel over which modules in dim can dispatch websocket events.
 /// * `config` - Specifies the configuration we'd like to pass to our rocket_pad.
-pub fn launch(
+pub async fn launch(
     log: slog::Logger,
     event_tx: EventTx,
     config: rocket::config::Config,
     stream_manager: StateManager,
-    tokio_handle: tokio::runtime::Handle,
 ) -> ! {
-    let error = rocket_pad(log, event_tx, config, stream_manager, tokio_handle).launch();
+    let error = rocket_pad(log, event_tx, config, stream_manager)
+        .await
+        .launch()
+        .await;
     panic!("Launch error: {:?}", error);
 }

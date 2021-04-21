@@ -27,7 +27,8 @@
     decl_macro,
     try_trait,
     negative_impls,
-    result_flattening
+    result_flattening,
+    type_ascription
 )]
 // #![forbid(missing_docs)]
 #![cfg_attr(debug_assertions, allow(unused_variables, unused_imports, dead_code))]
@@ -47,9 +48,8 @@ use chrono::Utc;
 use clap::App;
 use clap::Arg;
 
-use rocket::config::ConfigBuilder;
-use rocket::config::Environment;
-use rocket::config::LoggingLevel;
+use rocket::config::Config;
+use rocket::config::LogLevel;
 
 use slog::error;
 use slog::info;
@@ -87,7 +87,7 @@ pub mod errors;
 /// Contains all of the routes exposed by the webapi.
 mod routes;
 /// Contains our media scanners and so on.
-pub mod scanners;
+// pub mod scanners;
 /// Contains the fairing which tracks streams across rest api
 pub mod stream_tracking;
 /// Contains all the logic needed for streaming and on-the-fly transcoding.
