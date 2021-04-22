@@ -98,6 +98,9 @@ fn main() {
         }
     }
 
+    let rt = tokio::runtime::Runtime::new().expect("Failed to start the runtime for block_ons.");
+    let handle = rt.handle().clone();
+
     tokio::runtime::Runtime::new()
         .expect("Failed to create a tokio runtime.")
         .block_on(async move {
@@ -145,11 +148,11 @@ fn main() {
                 tls,
                 address: [0, 0, 0, 0].into(),
                 port: 8000,
-                log_level: LogLevel::Off,
+                log_level: LogLevel::Normal,
                 ..Default::default()
             };
 
             info!(logger, "Summoning Dim v{}...", clap::crate_version!());
-            core::launch(logger, event_tx, rocket_config, stream_manager).await;
+            core::launch(logger, event_tx, rocket_config, stream_manager, handle).await;
         });
 }

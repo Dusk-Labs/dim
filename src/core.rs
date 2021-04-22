@@ -27,6 +27,7 @@ use std::fs::File;
 use std::io::copy;
 use std::io::Cursor;
 use std::io::Read;
+use std::lazy::SyncLazy;
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::sync::Arc;
@@ -159,6 +160,7 @@ pub async fn rocket_pad(
     event_tx: EventTx,
     config: rocket::config::Config,
     stream_manager: StateManager,
+    handle: tokio::runtime::Handle,
 ) -> rocket::Rocket<rocket::Build> {
     // At the moment we dont really care if cors access is global so we create CORS options to
     // target every route.
@@ -267,7 +269,7 @@ pub async fn rocket_pad(
         .manage(database::get_conn().expect("Failed to get db connection"))
         .manage(stream_tracking)
         .manage(stream_manager)
-        .manage(tokio::runtime::Handle::current())
+        .manage(handle)
 }
 
 /// Method launch
@@ -285,10 +287,16 @@ pub async fn launch(
     event_tx: EventTx,
     config: rocket::config::Config,
     stream_manager: StateManager,
-) -> ! {
-    let error = rocket_pad(log, event_tx, config, stream_manager)
+    handle: tokio::runtime::Handle,
+) {
+    let error = rocket_pad(log, event_tx, config, stream_manager, handle)
         .await
         .launch()
         .await;
-    panic!("Launch error: {:?}", error);
+
+    if let Err(e) = error {
+        panic!("Launch error: {}", e);
+    }
+
+    println!("Good bye ;3");
 }

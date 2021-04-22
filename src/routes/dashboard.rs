@@ -90,41 +90,57 @@ pub async fn dashboard(
 // lifetime and opaque type issues. The bigger problem is that the `rocket::get` macro hides the
 // error and makes it unreadable and removing the macro gets rid of the issue completely.
 #[get("/dashboard/banner")]
-pub fn banners(
+pub async fn banners(
     conn: State<'_, DbConnection>,
     user: Auth,
-    rt: State<'_, tokio::runtime::Handle>,
 ) -> Result<Json<Vec<JsonValue>>, errors::DimError> {
-    let results = rt
-        .block_on(
-            media::table
-                .filter(media::media_type.ne(MediaType::Episode))
-                .filter(media::backdrop_path.ne(None: Option<String>))
-                .group_by(media::id)
-                .order(RANDOM)
-                .limit(10)
-                .load_async::<Media>(&conn),
-        )?
-        .iter()
-        .filter(|x| rt.block_on(get_top_duration(&conn, &x)).is_ok())
-        // make sure we show medias for which the total amount watched is nil
-        /*
-        .filter(|x| {
-            matches!(
-                Progress::get_total_for_media(&conn, x, user.0.claims.get_user()),
-                Err(_) | Ok(0)
-            )
-        })
-        */
-        .filter_map(|x| match x.media_type {
-            Some(MediaType::Tv) => rt.block_on(banner_for_show(&conn, &user, &x)).ok(),
-            Some(MediaType::Movie) => rt.block_on(banner_for_movie(&conn, &user, &x)).ok(),
-            _ => unreachable!(),
-        })
-        .take(3)
-        .collect::<Vec<_>>();
+    // make sure we show medias for which the total amount watched is nil
+    /*
+       .filter(|x| {
+           matches!(
+               Progress::get_total_for_media(&conn, x, user.0.claims.get_user()),
+               Err(_) | Ok(0)
+           )
+       })
+    */
 
-    Ok(Json(results))
+    let results = stream::iter(
+        media::table
+            .filter(media::media_type.ne(MediaType::Episode))
+            .filter(media::backdrop_path.ne(None: Option<String>))
+            .group_by(media::id)
+            .order(RANDOM)
+            .limit(10)
+            .load_async::<Media>(&conn)
+            .await?,
+    )
+    .filter(|x| {
+        let x = x.clone();
+        async {
+            let x = x;
+            get_top_duration(&conn, &x).await.is_ok()
+        }
+    })
+    .collect::<Vec<Media>>()
+    .await;
+
+    let banners = stream::iter(results)
+        .filter_map(|x| {
+            let x = x.clone();
+            async {
+                let x = x;
+                match x.media_type {
+                    Some(MediaType::Tv) => banner_for_show(&conn, &user, &x).await.ok(),
+                    Some(MediaType::Movie) => banner_for_movie(&conn, &user, &x).await.ok(),
+                    _ => unreachable!(),
+                }
+            }
+        })
+        .take(3: usize)
+        .collect::<Vec<JsonValue>>()
+        .await;
+
+    Ok(Json(banners))
 }
 
 async fn banner_for_movie(
