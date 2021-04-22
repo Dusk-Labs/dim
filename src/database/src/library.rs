@@ -6,14 +6,26 @@ use cfg_if::cfg_if;
 use diesel::prelude::*;
 use tokio_diesel::*;
 
+use std::fmt;
+
 /// Enum represents a media type and can be used on a library or on a media.
 /// When returned in a http response, the fields are lowercase.
-#[derive(Serialize, Debug, Clone, DbEnum, Eq, PartialEq, Deserialize)]
+#[derive(Copy, Serialize, Debug, Clone, DbEnum, Eq, PartialEq, Deserialize, Hash)]
 #[serde(rename_all = "lowercase")]
 pub enum MediaType {
     Movie,
     Tv,
     Episode,
+}
+
+impl fmt::Display for MediaType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", match self {
+            Self::Movie => "movie",
+            Self::Tv => "tv",
+            Self::Episode => "episode",
+        })
+    }
 }
 
 impl Default for MediaType {

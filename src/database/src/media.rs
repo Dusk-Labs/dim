@@ -208,6 +208,18 @@ impl Media {
             .await?)
     }
 
+    pub async fn get_by_name_and_lib_id(
+        conn: &crate::DbConnection,
+        library: i32,
+        name: &str,
+    ) -> Result<Self, DatabaseError> {
+        Ok(media::dsl::media
+            .filter(media::library_id.eq(library))
+            .filter(media::name.eq(name.to_string()))
+            .first_async::<Self>(conn)
+            .await?)
+    }
+
     pub async fn get_of_mediafile(
         conn: &crate::DbConnection,
         mediafile: &MediaFile,
