@@ -180,6 +180,7 @@ pub async fn rocket_pad(
         .attach(SpaceHelmet::default())
         .attach(cors)
         .attach(RequestLogger::new(logger.clone()))
+        .register("/api", catchers![routes::catchers::not_found, routes::catchers::internal_server_error])
         .mount(
             "/",
             routes![

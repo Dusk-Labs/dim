@@ -23,6 +23,7 @@ pub mod library;
 pub mod media;
 pub mod mediafile;
 pub mod statik;
+pub mod catchers;
 pub mod stream;
 pub mod tv;
 
