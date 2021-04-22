@@ -17,13 +17,13 @@ use std::io;
 use std::path::PathBuf;
 
 pub mod auth;
+pub mod catchers;
 pub mod dashboard;
 pub mod general;
 pub mod library;
 pub mod media;
 pub mod mediafile;
 pub mod statik;
-pub mod catchers;
 pub mod stream;
 pub mod tv;
 

@@ -17,8 +17,8 @@ use rocket::{http::Status, State};
 use rocket_contrib::json::{Json, JsonValue};
 
 use std::collections::HashMap;
-use std::sync::Arc;
 use std::path::Path;
+use std::sync::Arc;
 use std::sync::Mutex;
 
 use futures::stream;
@@ -186,7 +186,8 @@ pub async fn get_all_unmatched_media(
     let mut result = HashMap::new();
     let lib = Library::get_one(&conn, id).await?;
 
-    let filtered = MediaFile::get_by_lib_null_media(&conn, &lib).await?
+    let filtered = MediaFile::get_by_lib_null_media(&conn, &lib)
+        .await?
         .into_iter()
         .map(|x| {
             let mut path = Path::new(&x.target_file).to_path_buf();
@@ -202,12 +203,13 @@ pub async fn get_all_unmatched_media(
         })
         .collect::<Vec<_>>();
 
-        stream::iter(filtered)
+    stream::iter(filtered)
         .filter_map(|(k, v)| {
             let (k, v) = (k.clone(), v.clone());
             async {
                 let (k, v) = (k, v);
-                construct_standard(&conn, &v.into(), &user).await
+                construct_standard(&conn, &v.into(), &user)
+                    .await
                     .ok()
                     .and_then(|x| Some((k, x)))
             }

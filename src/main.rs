@@ -14,7 +14,6 @@ use std::time::Duration;
 
 use xtra::spawn::Tokio;
 
-use dim::bootstrap;
 use dim::build_logger;
 use dim::core;
 use dim::streaming;
@@ -69,10 +68,7 @@ fn main() {
         );
 
     let matches = matches.get_matches();
-    let debug = cfg!(debug_assertions) || matches.is_present("debug");
     let logger = build_logger();
-
-    bootstrap::bootstrap(logger.clone());
 
     // never panics because we set a default value to metadata_dir
     let meta_dir = matches.value_of("metadata-dir").unwrap();
@@ -82,7 +78,6 @@ fn main() {
         .set(meta_dir.to_owned())
         .expect("Failed to set METADATA_PATH");
 
-    core::tmdb_poster_fetcher(logger.clone());
 
     {
         // We check if ffmpeg and ffprobe binaries exist and exit gracefully if they dont exist.
@@ -104,6 +99,8 @@ fn main() {
     tokio::runtime::Runtime::new()
         .expect("Failed to create a tokio runtime.")
         .block_on(async move {
+            core::tmdb_poster_fetcher(logger.clone()).await;
+
             info!(logger, "Starting the WS service on port 3012");
             let event_tx = core::start_event_server().await;
 
