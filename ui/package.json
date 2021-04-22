@@ -33,6 +33,15 @@
     "extends": [
       "react-app",
       "react-app/jest"
+    ],
+    "overrides": [
+      {
+        "files": ["**/*.js?(x)"],
+        "rules": {
+          "indent": ["error", 2, {"SwitchCase": 1}],
+          "no-trailing-spaces": "error"
+        }
+      }
     ]
   },
   "browserslist": {
