@@ -63,21 +63,19 @@ use std::sync::{Arc, Mutex};
 /// # Additional types
 /// [`MediaType`](`database::library::MediaType`)
 #[get("/<id>")]
-pub fn get_media_by_id(
+pub async fn get_media_by_id(
     conn: State<'_, DbConnection>,
     id: i32,
     _user: Auth,
-    rt: State<'_, tokio::runtime::Handle>,
 ) -> Result<JsonValue, errors::DimError> {
-    let data = rt.block_on(Media::get(&conn, id))?;
+    let data = Media::get(&conn, id).await?;
 
-    let duration = match rt.block_on(MediaFile::get_of_media(&conn, &data)) {
+    let duration = match MediaFile::get_of_media(&conn, &data).await {
         Ok(mut x) => x.pop()?.duration?,
         Err(_) => 0,
     };
 
-    let genres = rt
-        .block_on(Genre::get_by_media(&conn, data.id))?
+    let genres = Genre::get_by_media(&conn, data.id).await?
         .into_iter()
         .map(|x| x.name)
         .collect::<Vec<String>>();
@@ -87,14 +85,23 @@ pub fn get_media_by_id(
             format!("{} min", duration / 60)
         }
         Some(MediaType::Tv) => {
-            let all_eps = rt.block_on(Episode::get_all_of_tv(&conn, &data))?;
-            let total_len: i32 = all_eps
+            let all_eps = Episode::get_all_of_tv(&conn, &data).await?;
+            let total_eps = all_eps.len();
+            let total_len: i32 = stream::iter(all_eps)
+                .filter_map(|x| {
+                    let x = x.clone();
+                    async {
+                        let x = x;
+                        MediaFile::get_of_media(&conn, &x.media).await.ok()
+                    }
+                })
+                .collect::<Vec<_>>()
+                .await
                 .iter()
-                .filter_map(|x| rt.block_on(MediaFile::get_of_media(&conn, &x.media)).ok())
                 .filter(|x| !x.is_empty())
                 .filter_map(|x| x.last().and_then(|x| x.duration))
                 .sum();
-            format!("{} episodes | {} hr", all_eps.len(), total_len / 3600)
+            format!("{} episodes | {} hr", total_eps, total_len / 3600)
         }
     };
 

@@ -184,7 +184,7 @@ impl Episode {
         let episodes = stream::iter(seasons)
             .filter_map(|x: Season| async move {
                 episode::dsl::episode
-                    .filter(episode::dsl::id.eq(x.id))
+                    .filter(episode::dsl::seasonid.eq(x.id))
                     .load_async::<EpisodeWrapper>(conn)
                     .await
                     .ok()
@@ -282,7 +282,7 @@ impl Episode {
         use crate::schema::media;
 
         let wrappers = episode::dsl::episode
-            .filter(episode::id.eq(media.id))
+            .filter(episode::seasonid.eq(media.id))
             .load_async::<EpisodeWrapper>(conn)
             .await?;
 
