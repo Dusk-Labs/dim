@@ -48,7 +48,7 @@ chrono = "0.4.11"
 err-derive = "0.2.3"
 rust-embed = "^5.9.0"
 torrent-name-parser = "0.3.0"
-reqwest = { version = "0.11.0", features = ["blocking", "json", "default-tls"], default-features = false }
+reqwest = { version = "0.11.0", features = ["json", "default-tls"], default-features = false }
 notify = "4.0.15"
 cfg-if = "0.1.10"
 once_cell = "1.5.2"
@@ -61,6 +61,7 @@ xtra = { version = "0.5.1", features = ["with-tokio-1"] }
 xtra_proc = { git = "https://github.com/vgarleanu/xtra_proc" }
 async-trait = "0.1.50"
 tokio-diesel = { git = "https://github.com/mehcode/tokio-diesel" }
+async-recursion = "0.3.2"
 
 [dev-dependencies]
 criterion = "0.3.4"
