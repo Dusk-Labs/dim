@@ -107,7 +107,6 @@ pub async fn banners(
     let results = stream::iter(
         media::table
             .filter(media::media_type.ne(MediaType::Episode))
-            .filter(media::backdrop_path.ne(None: Option<String>))
             .group_by(media::id)
             .order(RANDOM)
             .limit(10)
