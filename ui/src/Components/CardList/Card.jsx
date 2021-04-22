@@ -11,6 +11,7 @@ function Card(props) {
   const cardPopup = useRef(null);
   const card = useRef(null);
 
+  const [mediaProgress, setMediaProgress] = useState(0);
   const [hovering, setHovering] = useState(false);
   const [timeoutID, setTimeoutID] = useState(null);
 
@@ -44,12 +45,12 @@ function Card(props) {
 
   const { name, poster_path, id, media_type } = props.data;
 
-  let mediaProgress;
-
-  if (media_type === "movie") {
-    const { duration, progress } = props.data;
-    mediaProgress = (progress / duration) * 100;
-  }
+  useEffect(() => {
+    if (media_type === "movie") {
+      const { duration, progress } = props.data;
+      setMediaProgress((progress / duration) * 100);
+    }
+  }, [media_type, props.data]);
 
   return (
     <div

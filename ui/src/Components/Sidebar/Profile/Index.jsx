@@ -1,5 +1,5 @@
 import React from "react";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import ProfileImage from "./Image.jsx";
@@ -7,8 +7,10 @@ import ProfileImage from "./Image.jsx";
 import "./Index.scss";
 
 function Profile(props) {
+  const user = useSelector(store => store.user);
+
   // FETCH_USER_START
-  if (props.user.fetching) {
+  if (user.fetching) {
     return (
       <div className="profile">
         <div className="icon loading">
@@ -19,7 +21,7 @@ function Profile(props) {
   }
 
   // FETCH_USER_ERR
-  if (props.user.fetched && props.user.error) {
+  if (user.fetched && user.error) {
     return (
       <div className="profile">
         <div className="icon">
@@ -35,8 +37,8 @@ function Profile(props) {
   }
 
   // FETCH_USER_OK
-  if (props.user.fetched && !props.user.error) {
-    const { username, picture, spentWatching } = props.user.info;
+  if (user.fetched && !user.error) {
+    const { username, picture, spentWatching } = user.info;
 
     return (
       <div className="profile">
@@ -56,8 +58,4 @@ function Profile(props) {
   return <div className="profile"/>;
 }
 
-const mapStateToProps = (state) => ({
-  user: state.user
-});
-
-export default connect(mapStateToProps)(Profile);
+export default Profile;
