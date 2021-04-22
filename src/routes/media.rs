@@ -228,6 +228,11 @@ async fn get_for_show(
             json!({
                 "id": s.id,
                 "season_number": s.season_number,
+                "name": if s.season_number == 0 {
+                    "Extras".to_string()
+                } else {
+                    format!("Season {}", s.season_number)
+                },
                 "added": s.added,
                 "poster": s.poster,
                 "episodes": e
@@ -237,29 +242,7 @@ async fn get_for_show(
         .await;
 
     Ok(json!({
-<<<<<<< HEAD
         "seasons": seasons,
-=======
-        "seasons":
-            Season::get_all(conn.as_ref(), media.id)?
-                .into_iter()
-                .filter_map(|x| Episode::get_all_of_season(&conn, &x).map(|y| (x, y)).ok())
-                .map(|(x, y)| {
-                    json!({
-                        "id": x.id,
-                        "season_number": x.season_number,
-                        "name": if x.season_number == 0 {
-                            "Extras".to_string()
-                        } else {
-                            format!("Season {}", x.season_number)
-                        },
-                        "added": x.added,
-                        "poster": x.poster,
-                        "episodes": y.into_iter().filter_map(|z| get_for_episode(&conn, z, &user).ok()).collect::<Vec<JsonValue>>()
-                    })
-                })
-                .collect::<Vec<JsonValue>>()
->>>>>>> 9d311035b9e30327123707675c6f28d9a7a4f8c0
     }))
 }
 

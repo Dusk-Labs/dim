@@ -18,6 +18,7 @@ use rocket_contrib::json::{Json, JsonValue};
 
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::path::Path;
 use std::sync::Mutex;
 
 use futures::stream;
@@ -185,17 +186,7 @@ pub async fn get_all_unmatched_media(
     let mut result = HashMap::new();
     let lib = Library::get_one(&conn, id).await?;
 
-<<<<<<< HEAD
-    let data = MediaFile::get_by_lib_null_media(&conn, &lib).await?;
-    result.insert(
-        "Unmatched Media".into(),
-        stream::iter(data)
-            .filter_map(|x| async { construct_standard(&conn, &x.into(), &user).await.ok() })
-            .collect::<Vec<JsonValue>>()
-            .await,
-    );
-=======
-    MediaFile::get_by_lib_null_media(conn.as_ref(), &lib)?
+    let filtered = MediaFile::get_by_lib_null_media(&conn, &lib).await?
         .into_iter()
         .map(|x| {
             let mut path = Path::new(&x.target_file).to_path_buf();
@@ -209,13 +200,22 @@ pub async fn get_all_unmatched_media(
 
             (group, x)
         })
+        .collect::<Vec<_>>();
+
+        stream::iter(filtered)
         .filter_map(|(k, v)| {
-            construct_standard(&conn, &v.into(), &user, false)
-                .ok()
-                .and_then(|x| Some((k, x)))
+            let (k, v) = (k.clone(), v.clone());
+            async {
+                let (k, v) = (k, v);
+                construct_standard(&conn, &v.into(), &user).await
+                    .ok()
+                    .and_then(|x| Some((k, x)))
+            }
         })
+        .collect::<Vec<_>>()
+        .await
+        .into_iter()
         .for_each(|(k, v)| result.entry(k).or_insert(vec![]).push(v));
->>>>>>> 9d311035b9e30327123707675c6f28d9a7a4f8c0
 
     Ok(Json(result))
 }
