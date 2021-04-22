@@ -1,5 +1,6 @@
 use crate::routes;
 //use crate::scanners;
+use crate::logger::RequestLogger;
 use crate::stream_tracking::StreamTracking;
 
 use rocket::fairing::Fairing;
@@ -27,7 +28,6 @@ use std::fs::File;
 use std::io::copy;
 use std::io::Cursor;
 use std::io::Read;
-use std::lazy::SyncLazy;
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::sync::Arc;
@@ -179,6 +179,7 @@ pub async fn rocket_pad(
     rocket::custom(config)
         .attach(SpaceHelmet::default())
         .attach(cors)
+        .attach(RequestLogger::new(logger.clone()))
         .mount(
             "/",
             routes![

@@ -28,8 +28,7 @@
     try_trait,
     negative_impls,
     result_flattening,
-    type_ascription,
-    once_cell
+    type_ascription
 )]
 // #![forbid(missing_docs)]
 #![cfg_attr(debug_assertions, allow(unused_variables, unused_imports, dead_code))]
@@ -85,6 +84,8 @@ pub mod bootstrap;
 pub mod core;
 /// Module contains all the error definitions used in dim, and returned by the web-service.
 pub mod errors;
+/// Contains our custom logger for rocket
+pub mod logger;
 /// Contains all of the routes exposed by the webapi.
 mod routes;
 /// Contains our media scanners and so on.
@@ -100,11 +101,14 @@ mod tests;
 pub mod websocket;
 
 /// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.
-pub fn build_logger(_debug: bool) -> slog::Logger {
+pub fn build_logger() -> slog::Logger {
     let date_now = Utc::now();
 
     let decorator = TermDecorator::new().build();
-    let drain = FullFormat::new(decorator).build().fuse();
+    let drain = FullFormat::new(decorator)
+        .use_original_order()
+        .build()
+        .fuse();
     let drain = Async::new(drain).build().fuse();
 
     let _ = create_dir_all("logs");
@@ -119,7 +123,9 @@ pub fn build_logger(_debug: bool) -> slog::Logger {
         }
     }
 
-    let json_drain = Mutex::new(slog_json_default::default(file)).map(Fuse);
+    let json_drain = Async::new(slog_json_default::default(file).fuse())
+        .build()
+        .fuse();
 
     Logger::root(Duplicate::new(drain, json_drain).fuse(), o!())
 }
