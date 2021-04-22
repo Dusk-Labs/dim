@@ -75,7 +75,8 @@ pub async fn get_media_by_id(
         Err(_) => 0,
     };
 
-    let genres = Genre::get_by_media(&conn, data.id).await?
+    let genres = Genre::get_by_media(&conn, data.id)
+        .await?
         .into_iter()
         .map(|x| x.name)
         .collect::<Vec<String>>();

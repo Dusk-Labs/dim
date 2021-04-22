@@ -70,7 +70,7 @@ fn main() {
 
     let matches = matches.get_matches();
     let debug = cfg!(debug_assertions) || matches.is_present("debug");
-    let logger = build_logger(debug);
+    let logger = build_logger();
 
     bootstrap::bootstrap(logger.clone());
 
