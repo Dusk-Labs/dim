@@ -14,8 +14,8 @@ function Profile(props) {
     return (
       <div className="profile">
         <div className="icon loading">
-            <div className="placeholder-icon"/>
-          </div>
+          <div className="placeholder-icon"/>
+        </div>
       </div>
     )
   }
@@ -46,10 +46,10 @@ function Profile(props) {
           <ProfileImage src={picture}/>
         </div>
         <div className="info">
-            <h4>{username || "eray_chumak"}</h4>
-            {props.hoursSpentWatching &&
-              <h5>Spent {spentWatching || 0}h watching</h5>
-            }
+          <h4>{username || "eray_chumak"}</h4>
+          {props.hoursSpentWatching &&
+            <h5>Spent {spentWatching || 0}h watching</h5>
+          }
         </div>
       </div>
     );

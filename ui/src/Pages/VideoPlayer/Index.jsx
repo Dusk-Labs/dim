@@ -61,7 +61,7 @@ function VideoPlayer(props) {
     (async () => {
       const config = {
         headers: {
-            "authorization": token
+          "authorization": token
         }
       };
 

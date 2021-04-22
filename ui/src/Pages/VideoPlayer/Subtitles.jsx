@@ -10,8 +10,8 @@ function VideoSubtitles() {
   const [currentCue, setCurrentCue] = useState("");
   const [show, setShow] = useState(false);
 
-   // relative to window width
-   const updateBlackBarHeight = useCallback(() => {
+  // relative to window width
+  const updateBlackBarHeight = useCallback(() => {
     const videoHeight = calcNewSize(
       video.current.videoWidth,
       video.current.videoHeight,
