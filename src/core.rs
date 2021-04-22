@@ -20,7 +20,10 @@ use once_cell::sync::OnceCell;
 use slog::error;
 use slog::info;
 use slog::Logger;
+
 use tokio::sync::mpsc::UnboundedSender;
+use tokio::sync::mpsc::UnboundedReceiver;
+use tokio::sync::mpsc::unbounded_channel;
 
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -29,7 +32,6 @@ use std::io::copy;
 use std::io::Cursor;
 use std::io::Read;
 use std::path::PathBuf;
-use std::sync::mpsc;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
@@ -68,7 +70,7 @@ pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
 // NOTE: While the sender is wrapped in a Mutex, we dont really care as wel copy the inner type at
 // some point anyway.
 /// Contains the tx channel over which we can send images to be cached locally.
-pub static METADATA_FETCHER_TX: OnceCell<CloneOnDeref<mpsc::Sender<String>>> = OnceCell::new();
+pub static METADATA_FETCHER_TX: OnceCell<CloneOnDeref<UnboundedSender<String>>> = OnceCell::new();
 
 /// Function dumps a list of all libraries in the database and starts a scanner for each which
 /// monitors for new files using fsnotify. It also scans all orphans on boot.
@@ -104,12 +106,12 @@ pub async fn run_scanners(log: Logger, tx: EventTx) {
     }
 }
 
-pub fn tmdb_poster_fetcher(log: Logger) {
-    let (tx, rx): (mpsc::Sender<String>, mpsc::Receiver<String>) = mpsc::channel();
+pub async fn tmdb_poster_fetcher(log: Logger) {
+    let (tx, mut rx): (UnboundedSender<String>, UnboundedReceiver<String>) = unbounded_channel();
 
-    thread::spawn(move || {
-        while let Ok(url) = rx.recv() {
-            match reqwest::blocking::get(url.as_str()) {
+    tokio::spawn(async move {
+        while let Some(url) = rx.recv().await {
+            match reqwest::get(url.as_str()).await {
                 Ok(resp) => {
                     if let Some(fname) = resp.url().path_segments().and_then(|segs| segs.last()) {
                         let meta_path = METADATA_PATH.get().unwrap();
@@ -119,7 +121,7 @@ pub fn tmdb_poster_fetcher(log: Logger) {
                         info!(log, "Caching {} -> {:?}", url, out_path);
 
                         if let Ok(mut file) = File::create(out_path) {
-                            if let Ok(bytes) = resp.bytes() {
+                            if let Ok(bytes) = resp.bytes().await {
                                 let mut content = Cursor::new(bytes);
                                 if let Err(e) = copy(&mut content, &mut file) {
                                     error!(log, "Failed to cache {} locally, e={:?}", url, e);
@@ -180,7 +182,13 @@ pub async fn rocket_pad(
         .attach(SpaceHelmet::default())
         .attach(cors)
         .attach(RequestLogger::new(logger.clone()))
-        .register("/api", catchers![routes::catchers::not_found, routes::catchers::internal_server_error])
+        .register(
+            "/api",
+            catchers![
+                routes::catchers::not_found,
+                routes::catchers::internal_server_error
+            ],
+        )
         .mount(
             "/",
             routes![
