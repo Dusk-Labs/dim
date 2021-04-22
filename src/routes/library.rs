@@ -29,8 +29,7 @@ use tokio_diesel::*;
 /// Method maps to `GET /api/v1/library` and returns a list of all libraries in te database.
 /// This method can only be accessed by authenticated users.
 ///
-/// # Arguments
-/// * `conn` - database connection
+/// # Arguments * `conn` - database connection
 /// * `_log` - logger
 /// * `_user` - Authentication middleware
 #[get("/")]
@@ -186,6 +185,7 @@ pub async fn get_all_unmatched_media(
     let mut result = HashMap::new();
     let lib = Library::get_one(&conn, id).await?;
 
+<<<<<<< HEAD
     let data = MediaFile::get_by_lib_null_media(&conn, &lib).await?;
     result.insert(
         "Unmatched Media".into(),
@@ -194,6 +194,28 @@ pub async fn get_all_unmatched_media(
             .collect::<Vec<JsonValue>>()
             .await,
     );
+=======
+    MediaFile::get_by_lib_null_media(conn.as_ref(), &lib)?
+        .into_iter()
+        .map(|x| {
+            let mut path = Path::new(&x.target_file).to_path_buf();
+            let file_name = path.file_name().unwrap().to_string_lossy().to_string();
+            path.pop();
+
+            let dir = path.file_name();
+            let group = dir
+                .map(|x| x.to_string_lossy().to_string())
+                .unwrap_or(file_name);
+
+            (group, x)
+        })
+        .filter_map(|(k, v)| {
+            construct_standard(&conn, &v.into(), &user, false)
+                .ok()
+                .and_then(|x| Some((k, x)))
+        })
+        .for_each(|(k, v)| result.entry(k).or_insert(vec![]).push(v));
+>>>>>>> 9d311035b9e30327123707675c6f28d9a7a4f8c0
 
     Ok(Json(result))
 }

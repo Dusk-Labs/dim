@@ -1,17 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-
-import {
-  fetchMediaSeasons,
-  fetchMediaSeasonEpisodes
-} from "../../actions/card.js";
 
 import CardImage from "./CardImage.jsx";
 
 import "./Index.scss";
 
-function Media(props) {
+function Media() {
+  const extra_media_info = useSelector(store => (
+    store.card.extra_media_info
+  ));
+
   const episodes = useRef(null);
 
   const [ scrollSmoothly, setScrollSmoothly ] = useState(false);
@@ -22,7 +21,7 @@ function Media(props) {
     episodes.current?.scrollIntoView({behavior: "smooth"});
   }, [scrollSmoothly]);
 
-  const { info, fetched, error } = props.extra_media_info;
+  const { info, fetched, error } = extra_media_info;
 
   useEffect(() => {
     if (info.seasons.length === 1) {
@@ -97,15 +96,4 @@ function Media(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-  media_info: state.card.media_info,
-  extra_media_info: state.card.extra_media_info,
-});
-
-const mapActionsToProps = {
-  fetchMediaSeasons,
-  fetchMediaSeasonEpisodes
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(Media);
+export default Media;

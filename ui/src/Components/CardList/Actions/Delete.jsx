@@ -1,24 +1,29 @@
 import { useCallback } from "react";
-import { connect } from "react-redux";
 import { useHistory } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+
 import { delLibrary } from "../../../actions/library";
 import ConfirmationBox from "../../../Modals/ConfirmationBox";
 
 const Delete = (props) => {
-  const history = useHistory();
+  const dispatch = useDispatch();
 
-  const { del_library, auth, delLibrary } = props;
+  const del_library  = useSelector(store => (
+    store.library.del_library
+  ));
+
+  const history = useHistory();
 
   const removeLib = useCallback(async () => {
     if (del_library.deleting) return;
 
-    await delLibrary(auth.token, props.id);
+    await dispatch(delLibrary(props.id));
 
     // redirect to dashboard when removed
     history.push("/");
-  }, [auth.token, delLibrary, del_library.deleting, history, props.id]);
+  }, [del_library.deleting, dispatch, history, props.id]);
 
-  const { deleting } = props.del_library;
+  const { deleting } = del_library;
 
   return (
     <div className="deleteLibraryAction">
@@ -29,19 +34,12 @@ const Delete = (props) => {
         action={removeLib}
         msg="Are you sure you want to remove this library?"
       >
-        <button className={`deleting-${deleting}`}>Remove library</button>
+        <button className={`delete deleting-${deleting}`}>
+          Remove library
+        </button>
       </ConfirmationBox>
     </div>
   )
 };
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-  del_library: state.library.del_library
-});
-
-const mapActionsToProps = {
-  delLibrary
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(Delete);
+export default Delete;
