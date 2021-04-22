@@ -77,9 +77,6 @@ use std::time::Duration;
 use xtra::spawn::Tokio;
 use xtra::Actor;
 
-/// Module contains a lot of the bootstrapping code that we use on first run of dim.
-#[doc(hidden)]
-pub mod bootstrap;
 /// Module contains our core initialization logic.
 pub mod core;
 /// Module contains all the error definitions used in dim, and returned by the web-service.
@@ -89,7 +86,7 @@ pub mod logger;
 /// Contains all of the routes exposed by the webapi.
 mod routes;
 /// Contains our media scanners and so on.
-// pub mod scanners;
+pub mod scanners;
 /// Contains the fairing which tracks streams across rest api
 pub mod stream_tracking;
 /// Contains all the logic needed for streaming and on-the-fly transcoding.
