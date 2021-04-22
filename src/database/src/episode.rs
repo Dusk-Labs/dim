@@ -181,17 +181,22 @@ impl Episode {
             .load_async::<Season>(conn)
             .await?;
 
-        Ok(stream::iter(seasons)
-            .filter_map(|x| async move {
+        let episodes = stream::iter(seasons)
+            .filter_map(|x: Season| async move {
                 episode::dsl::episode
                     .filter(episode::dsl::id.eq(x.id))
                     .load_async::<EpisodeWrapper>(conn)
                     .await
-                    .map(stream::iter)
                     .ok()
             })
-            .flatten()
-            .filter_map(|x| async move {
+            .collect::<Vec<Vec<EpisodeWrapper>>>()
+            .await;
+
+
+        let episodes = episodes.iter().flatten().cloned().collect::<Vec<EpisodeWrapper>>();
+
+        Ok(stream::iter(episodes)
+            .filter_map(|x: EpisodeWrapper| async move {
                 media::dsl::media
                     .filter(media::dsl::id.eq(x.id))
                     .first_async::<Media>(conn)
@@ -486,11 +491,13 @@ impl Episode {
             .first_async::<Season>(conn)
             .await?;
 
-        let episode = Box::leak(box episode::dsl::episode
-            .filter(episode::seasonid.eq(season.id))
-            .filter(episode::dsl::episode_.eq(ep_num))
-            .first_async::<EpisodeWrapper>(conn)
-            .await?);
+        let episode = Box::leak(
+            box episode::dsl::episode
+                .filter(episode::seasonid.eq(season.id))
+                .filter(episode::dsl::episode_.eq(ep_num))
+                .first_async::<EpisodeWrapper>(conn)
+                .await?,
+        );
 
         Media::delete(conn, episode.id).await?;
         Ok(diesel::delete(&*episode).execute_async(conn).await?)

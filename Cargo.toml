@@ -53,14 +53,14 @@ notify = "4.0.15"
 cfg-if = "0.1.10"
 once_cell = "1.5.2"
 bytes = "1.0.1"
-tokio = { version = "^1.0", features = ["rt"] }
+tokio = { version = "1", features = ["rt"] }
 uuid = { version = "0.8.2", features = ["v4"] }
 tokio-tungstenite = "0.14.0"
 futures = "0.3.14"
 xtra = { version = "0.5.1", features = ["with-tokio-1"] }
 xtra_proc = { git = "https://github.com/vgarleanu/xtra_proc" }
 async-trait = "0.1.50"
-tokio-diesel = "0.3.0"
+tokio-diesel = { git = "https://github.com/mehcode/tokio-diesel" }
 
 [dev-dependencies]
 criterion = "0.3.4"

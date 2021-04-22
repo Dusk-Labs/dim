@@ -28,7 +28,8 @@
     try_trait,
     negative_impls,
     result_flattening,
-    type_ascription
+    type_ascription,
+    once_cell
 )]
 // #![forbid(missing_docs)]
 #![cfg_attr(debug_assertions, allow(unused_variables, unused_imports, dead_code))]
