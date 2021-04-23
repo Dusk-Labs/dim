@@ -19,21 +19,21 @@ export default function userReducer(state = initialState, action) {
         fetching: true,
         fetched: false,
         error: null
-      }
+      };
     case FETCH_USER_OK:
       return {
         ...state,
         fetching: false,
         fetched: true,
         info: action.payload
-      }
+      };
     case FETCH_USER_ERR:
       return {
         ...state,
         fetching: false,
         fetched: true,
         error: action.payload
-      }
+      };
     default:
       return state;
   }

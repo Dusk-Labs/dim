@@ -94,7 +94,7 @@ function Banner(props) {
     );
   }
 
-  return <div className="banner"/>
+  return <div className="banner"/>;
 }
 
 export default Banner;

@@ -39,7 +39,7 @@ const Delete = (props) => {
         </button>
       </ConfirmationBox>
     </div>
-  )
+  );
 };
 
 export default Delete;

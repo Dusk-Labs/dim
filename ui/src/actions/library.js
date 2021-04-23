@@ -164,7 +164,7 @@ export const handleWsDelLibrary = (id) => async (dispatch) => {
     type: RM_LIBRARY,
     id: id,
   });
-}
+};
 
 export const handleWsNewLibrary = (id) => async (dispatch, getState) => {
   const token = getState().auth.token;
@@ -189,4 +189,4 @@ export const handleWsNewLibrary = (id) => async (dispatch, getState) => {
       payload: info
     });
   } catch(err) {}
-}
+};

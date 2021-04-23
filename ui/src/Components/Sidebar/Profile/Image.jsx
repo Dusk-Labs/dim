@@ -15,7 +15,7 @@ function ProfileImage(props) {
       setLoaded(false);
       setErr(false);
     }
-  }, [currentSrc, props.src])
+  }, [currentSrc, props.src]);
 
   const swapSrc = useCallback((e) => {
     if (e.animationName !== "onHideProfileImage") return;
@@ -44,7 +44,7 @@ function ProfileImage(props) {
   if (error) {
     return (
       <div className="placeholder-icon"/>
-    )
+    );
   }
 
   return (

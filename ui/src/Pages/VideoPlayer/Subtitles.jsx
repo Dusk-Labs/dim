@@ -61,5 +61,4 @@ function VideoSubtitles() {
   );
 }
 
-
 export default VideoSubtitles;

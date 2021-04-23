@@ -20,7 +20,7 @@ function Login() {
   // AUTH_LOGIN_ERR
   useEffect(() => {
     if (auth.login.error) {
-      setPasswordErr(auth.login.error)
+      setPasswordErr(auth.login.error);
     }
   }, [auth.login.error]);
 
@@ -56,7 +56,7 @@ function Login() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
 
 export default Login;

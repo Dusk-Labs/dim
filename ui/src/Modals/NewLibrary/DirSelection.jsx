@@ -49,7 +49,7 @@ function DirSelection(props) {
     path.pop();
 
     select(path.join(slash));
-  }, [current, select])
+  }, [current, select]);
 
   let dirs;
 
@@ -80,7 +80,7 @@ function DirSelection(props) {
               <FontAwesomeIcon icon="folder"/>
               <p>{dir.replace(props.current, "").replace("C:\\", "").replace("/", "").replace("\\", "")}</p>
             </div>
-          )
+          );
         });
       }
     }
@@ -119,7 +119,7 @@ function DirSelection(props) {
         <h4>Selected: <span>{props.current}</span></h4>
       </div>
     </div>
-  )
-};
+  );
+}
 
 export default DirSelection;

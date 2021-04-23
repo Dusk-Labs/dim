@@ -26,6 +26,6 @@ const SelectMediaVersion = (props) => (
       </div>
     )}
   </ModalBox>
-)
+);
 
 export default SelectMediaVersion;

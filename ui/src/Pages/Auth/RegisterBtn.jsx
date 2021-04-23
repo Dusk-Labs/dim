@@ -44,10 +44,10 @@ function RegisterBtn(props) {
         return;
       }
 
-      await dispatch(register(username, pass, invite))
+      await dispatch(register(username, pass, invite));
       dispatch(authenticate(username, pass));
     } else {
-      await dispatch(register(username, pass))
+      await dispatch(register(username, pass));
       dispatch(authenticate(username, pass));
     }
   }, [admin_exists, dispatch, invite, pass, registering, setInviteErr, setPassErr, setUsernameErr, username]);
@@ -56,19 +56,19 @@ function RegisterBtn(props) {
     if (e.keyCode === 13) {
       authorize();
     }
-  }, [authorize])
+  }, [authorize]);
 
   useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
 
     return () => {
       window.removeEventListener("keydown", onKeyDown);
-    }
-  }, [onKeyDown])
+    };
+  }, [onKeyDown]);
 
   return (
     <button className={`${auth.registering}`} onClick={authorize}>Register</button>
-  )
+  );
 }
 
 export default RegisterBtn;

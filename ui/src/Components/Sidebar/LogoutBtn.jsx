@@ -29,6 +29,6 @@ function LogoutBtn() {
       </button>
     </ConfirmationBox>
   );
-};
+}
 
 export default LogoutBtn;

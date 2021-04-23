@@ -14,7 +14,7 @@ export const fetchDirectories = (path) => async (dispatch, getState) => {
       headers: {
         "authorization": token,
       }
-    }
+    };
 
     const res = await fetch(`//${window.host}:8000/api/v1/filebrowser/${path}`, config);
 
@@ -37,4 +37,4 @@ export const fetchDirectories = (path) => async (dispatch, getState) => {
       payload: err
     });
   }
-}
+};

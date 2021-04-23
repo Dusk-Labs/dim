@@ -18,7 +18,7 @@ function Card(props) {
   useEffect(() => {
     return () => {
       clearTimeout(timeoutID);
-    }
+    };
   }, [timeoutID]);
 
   const showPopup = useCallback(() => {

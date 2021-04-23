@@ -25,7 +25,7 @@ function Dropdown() {
 
     return () => {
       window.removeEventListener("click", handleClick);
-    }
+    };
   }, [handleClick]);
 
   return (

@@ -6,7 +6,7 @@ import CardList from "../Components/CardList/Index";
 function Dashboard() {
   useEffect(() => {
     document.title = "Dim - Dashboard";
-  }, [])
+  }, []);
 
   return (
     <div className="dashboard">
@@ -14,6 +14,6 @@ function Dashboard() {
       <CardList path={`//${window.host}:8000/api/v1/dashboard`}/>
     </div>
   );
-};
+}
 
 export default Dashboard;

@@ -23,7 +23,7 @@ function PlayButton(props) {
           <FontAwesomeIcon icon="play"/>
         </Link>
       </div>
-    )
+    );
   } else {
     return (
       <SelectMediaVersion mediaID={mediaID} versions={versions}>

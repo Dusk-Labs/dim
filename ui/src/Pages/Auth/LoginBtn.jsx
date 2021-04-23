@@ -19,7 +19,6 @@ function LoginBtn(props) {
     const usernameValidChars = allowedChars.test(username);
     const usernameValidLength = username.length >= 3 && username.length <= 30;
 
-
     if (!usernameValidLength) {
       setUsernameErr("Minimum 3 and maximum 30 characters");
       return;
@@ -42,19 +41,19 @@ function LoginBtn(props) {
     if (e.keyCode === 13) {
       authorize();
     }
-  }, [authorize])
+  }, [authorize]);
 
   useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
 
     return () => {
       window.removeEventListener("keydown", onKeyDown);
-    }
+    };
   }, [onKeyDown]);
 
   return (
     <button className={`${auth.logging_in}`} onClick={authorize}>Login</button>
-  )
+  );
 }
 
 export default LoginBtn;

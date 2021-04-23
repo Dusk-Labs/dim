@@ -6,7 +6,7 @@ function ErrorBox(props) {
     window.location.reload();
   };
 
-  console.log(error)
+  console.log(error);
 
   return (
     <div className="errorBox">
