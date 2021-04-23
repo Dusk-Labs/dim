@@ -29,21 +29,6 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ],
-    "overrides": [
-      {
-        "files": ["**/*.js?(x)"],
-        "rules": {
-          "indent": ["error", 2, {"SwitchCase": 1}],
-          "no-trailing-spaces": "error"
-        }
-      }
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",
