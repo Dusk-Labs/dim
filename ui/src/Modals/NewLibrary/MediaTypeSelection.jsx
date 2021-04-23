@@ -56,7 +56,7 @@ function MediaTypeSelection(props) {
         </div>
       </div>
     </div>
-  )
-};
+  );
+}
 
 export default MediaTypeSelection;

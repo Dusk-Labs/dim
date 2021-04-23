@@ -72,7 +72,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: false,
           error: null
         }
-      }
+      };
     case FETCH_CARDS_OK:
       return {
         ...state,
@@ -83,7 +83,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: true,
           error: null
         }
-      }
+      };
     case FETCH_CARDS_ERR:
       return {
         ...state,
@@ -94,7 +94,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: true,
           error: action.payload
         }
-      }
+      };
     case FETCH_MEDIA_INFO_START:
       return {
         ...state,
@@ -105,7 +105,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: false,
           error: null
         }
-      }
+      };
     case FETCH_MEDIA_INFO_OK:
       return {
         ...state,
@@ -116,7 +116,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: true,
           error: null
         }
-      }
+      };
     case FETCH_MEDIA_INFO_ERR:
       return {
         ...state,
@@ -127,7 +127,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: true,
           error: action.payload
         }
-      }
+      };
     case FETCH_MEDIA_INFO_CLEAR:
       return {
         ...state,
@@ -138,7 +138,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: false,
           error: null
         }
-      }
+      };
     case FETCH_EXTRA_MEDIA_INFO_START:
       return {
         ...state,
@@ -149,7 +149,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: false,
           error: null
         }
-      }
+      };
     case FETCH_EXTRA_MEDIA_INFO_OK:
       return {
         ...state,
@@ -160,7 +160,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: true,
           error: null
         }
-      }
+      };
     case FETCH_EXTRA_MEDIA_INFO_ERR:
       return {
         ...state,
@@ -171,7 +171,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: true,
           error: action.payload
         }
-      }
+      };
     case FETCH_MEDIA_SEASONS_START:
       return {
         ...state,
@@ -182,7 +182,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: false,
           error: null
         }
-      }
+      };
     case FETCH_MEDIA_SEASONS_OK:
       return {
         ...state,
@@ -193,7 +193,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: true,
           error: null
         }
-      }
+      };
     case FETCH_MEDIA_SEASONS_ERR:
       return {
         ...state,
@@ -204,7 +204,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: true,
           error: action.payload
         }
-      }
+      };
     case FETCH_MEDIA_SEASON_EPISODES_START:
       return {
         ...state,
@@ -215,7 +215,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: false,
           error: null
         }
-      }
+      };
     case FETCH_MEDIA_SEASON_EPISODES_OK:
       return {
         ...state,
@@ -226,7 +226,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: true,
           error: null
         }
-      }
+      };
     case FETCH_MEDIA_SEASON_EPISODES_ERR:
       return {
         ...state,
@@ -237,7 +237,7 @@ export default function cardReducer(state = initialState, action) {
           fetched: true,
           error: action.payload
         }
-      }
+      };
     default:
       return state;
   }

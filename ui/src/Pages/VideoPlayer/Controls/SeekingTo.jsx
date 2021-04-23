@@ -62,7 +62,7 @@ function SeekingTo(props) {
     return () => {
       bar.removeEventListener("mousemove", handleMousemove);
       bar.removeEventListener("mouseleave", handleMouseleave);
-    }
+    };
   }, [handleMouseleave, handleMousemove, seekBar]);
 
   return (

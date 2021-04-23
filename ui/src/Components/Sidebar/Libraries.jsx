@@ -60,7 +60,7 @@ function Libraries() {
         {media_type === "tv" && <FontAwesomeIcon icon="tv"/>}
         <p>{name}</p>
       </NavLink>
-    ))
+    ));
   }
 
   return (

@@ -30,7 +30,7 @@ function Search() {
 
     return () => {
       window.removeEventListener("click", handleClick);
-    }
+    };
   }, [handleClick]);
 
   const handleOnChange = useCallback(e => {

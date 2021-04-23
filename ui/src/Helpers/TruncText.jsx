@@ -5,11 +5,11 @@ class TruncText extends Component {
     const words = this.props.content.split(" ");
 
     if (words.length < this.props.max) {
-      return <Fragment>{words.join(" ")}</Fragment>
+      return <Fragment>{words.join(" ")}</Fragment>;
     }
 
     words.length = this.props.max;
-    return <Fragment>{words.join(" ") + "..."}</Fragment>
+    return <Fragment>{words.join(" ") + "..."}</Fragment>;
   }
 }
 

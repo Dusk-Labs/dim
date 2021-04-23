@@ -29,7 +29,7 @@ function VideoSeekBar(props) {
         headers: {
           "authorization": token,
         }
-      }
+      };
 
       console.log("saving progress");
 
@@ -41,13 +41,13 @@ function VideoSeekBar(props) {
   useEffect(() => {
     const position = (currentTime / duration) * 100;
     seekBarCurrent.current.style.width = `${position}%`;
-  }, [currentTime, duration])
+  }, [currentTime, duration]);
 
   // buffer
   useEffect(() => {
     const position = ((currentTime + buffer) / duration) * 100;
     bufferBar.current.style.width = `${position}%`;
-  }, [buffer, currentTime, duration])
+  }, [buffer, currentTime, duration]);
 
   const onSeek = useCallback(async (e) => {
     if (seeking) return;

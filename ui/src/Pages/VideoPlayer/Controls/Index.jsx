@@ -24,7 +24,7 @@ function VideoControls() {
     if (!overlay) return;
 
     overlay.style.background = visible ? "linear-gradient(to top, #000, transparent 30%)" : "unset";
-  }, [overlay, visible])
+  }, [overlay, visible]);
 
   return (
     <div className={`videoControls ${visible}`}>

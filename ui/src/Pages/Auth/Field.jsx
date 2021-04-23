@@ -7,7 +7,7 @@ function Field(
   const [ value, setValue ] = data;
   const [ err, setErr ] = error;
 
-  useEffect(() => setErr(""), [setErr, value])
+  useEffect(() => setErr(""), [setErr, value]);
 
   return (
     <label>
@@ -31,7 +31,7 @@ function Field(
         type={type}
       />
     </label>
-  )
+  );
 }
 
 export default Field;

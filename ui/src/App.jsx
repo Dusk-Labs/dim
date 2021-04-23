@@ -91,12 +91,12 @@ function App() {
       document.head.append(darkLogo);
     }
 
-    mql.addEventListener("change", handleMQL)
+    mql.addEventListener("change", handleMQL);
 
     return () => {
-      mql.removeEventListener("change", handleMQL)
-    }
-  }, [])
+      mql.removeEventListener("change", handleMQL);
+    };
+  }, []);
 
   return (
     <BrowserRouter>

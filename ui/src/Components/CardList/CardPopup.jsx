@@ -81,7 +81,7 @@ function CardPopup(props) {
   };
 
   if (genres.length > 3) {
-    genres.length = 3
+    genres.length = 3;
   }
 
   return (

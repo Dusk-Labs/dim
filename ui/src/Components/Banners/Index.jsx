@@ -43,7 +43,7 @@ function Banners() {
     }, 14000);
 
     return () => clearTimeout(timeout);
-  }, [activeIndex, banners.items])
+  }, [activeIndex, banners.items]);
 
   const toggle = useCallback(e => {
     clearTimeout(currentTimeoutID);

@@ -17,7 +17,7 @@ function Profile(props) {
           <div className="placeholder-icon"/>
         </div>
       </div>
-    )
+    );
   }
 
   // FETCH_USER_ERR
@@ -33,7 +33,7 @@ function Profile(props) {
           <h5>Cannot load data</h5>
         </div>
       </div>
-    )
+    );
   }
 
   // FETCH_USER_OK

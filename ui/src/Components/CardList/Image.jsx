@@ -44,7 +44,7 @@ function CardImage(props) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default CardImage;

@@ -37,7 +37,7 @@ export default function searchReducer(state = initialState, action) {
           fetched: false,
           error: null
         }
-      }
+      };
     case SEARCH_OK:
       return {
         ...state,
@@ -47,7 +47,7 @@ export default function searchReducer(state = initialState, action) {
           fetching: false,
           fetched: true
         }
-      }
+      };
     case SEARCH_ERR:
       return {
         ...state,
@@ -57,7 +57,7 @@ export default function searchReducer(state = initialState, action) {
           fetched: true,
           error: action.payload
         }
-      }
+      };
     case QUICK_SEARCH_START:
       return {
         ...state,
@@ -67,7 +67,7 @@ export default function searchReducer(state = initialState, action) {
           fetched: false,
           error: null
         }
-      }
+      };
     case QUICK_SEARCH_OK:
       return {
         ...state,
@@ -77,7 +77,7 @@ export default function searchReducer(state = initialState, action) {
           fetching: false,
           fetched: true
         }
-      }
+      };
     case QUICK_SEARCH_ERR:
       return {
         ...state,
@@ -87,7 +87,7 @@ export default function searchReducer(state = initialState, action) {
           fetched: true,
           error: action.payload
         }
-      }
+      };
     default:
       return state;
   }
