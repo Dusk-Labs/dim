@@ -231,7 +231,9 @@ impl MetadataMatcher {
             }
         };
 
-        let mut seasons: Vec<super::ApiSeason> = self.tv_tmdb.get_seasons_for(result.id)
+        let mut seasons: Vec<super::ApiSeason> = self
+            .tv_tmdb
+            .get_seasons_for(result.id)
             .await
             .unwrap_or_default()
             .into_iter()
@@ -239,13 +241,14 @@ impl MetadataMatcher {
             .collect();
 
         for season in seasons.iter_mut() {
-            season.episodes = self.tv_tmdb.get_episodes_for(result.id, season.season_number)
+            season.episodes = self
+                .tv_tmdb
+                .get_episodes_for(result.id, season.season_number)
                 .await
                 .unwrap_or_default()
                 .into_iter()
                 .map(Into::into)
                 .collect();
-
         }
 
         let matcher = TvShowMatcher {
