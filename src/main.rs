@@ -78,7 +78,6 @@ fn main() {
         .set(meta_dir.to_owned())
         .expect("Failed to set METADATA_PATH");
 
-
     {
         // We check if ffmpeg and ffprobe binaries exist and exit gracefully if they dont exist.
         let mut bucket: Vec<Box<str>> = Vec::new();

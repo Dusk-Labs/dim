@@ -2,7 +2,7 @@ use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors;
 use crate::routes::construct_standard;
-//use crate::scanners;
+use crate::scanners;
 
 use auth::Wrapper as Auth;
 
@@ -62,13 +62,11 @@ pub async fn library_post(
     let id = new_library.insert(&conn).await?;
     let tx = event_tx.lock().unwrap();
     let tx_clone = tx.clone();
+    let log_clone = log.inner().clone();
 
-    // TODO: Throw this into the thread map
-    /*
-    std::thread::spawn(move || {
-        scanners::start(id, log.get(), tx_clone).unwrap();
+    tokio::spawn(async move {
+        scanners::start(id, log_clone, tx_clone).await;
     });
-    */
 
     let event = Message {
         id,

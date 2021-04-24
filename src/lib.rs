@@ -28,6 +28,7 @@
     try_trait,
     negative_impls,
     result_flattening,
+    once_cell,
     type_ascription
 )]
 // #![forbid(missing_docs)]
