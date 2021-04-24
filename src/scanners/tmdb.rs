@@ -63,7 +63,8 @@ impl Tmdb {
     ) -> Result<super::ApiMedia, TmdbError> {
         self.search_by_name(title, year, None)
             .await?
-            .pop()
+            .first()
+            .cloned()
             .map(Into::into)
             .ok_or(TmdbError::NoResults)
     }
@@ -260,6 +261,35 @@ impl Tmdb {
             .ok_or(TmdbError::NoResults)
     }
 }
+/*
+
+ {
+  "page": 1,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/1stUIsjawROZxjiCMtqqXqgfZWC.jpg",
+      "genre_ids": [
+        12,
+        14
+      ],
+      "id": 672,
+      "original_language": "en",
+      "original_title": "Harry Potter and the Chamber of Secrets",
+      "overview": "Cars fly, trees fight back, and a mysterious house-elf comes to warn Harry Potter at the start of his second year at Hogwarts. Adventure and danger await when bloody writing on a wall announces: The Chamber Of Secrets Has Been Opened. To save Hogwarts will require all of Harry, Ron and Hermione’s magical abilities and courage.",
+      "popularity": 118.243,
+      "poster_path": "/sdEOH0992YZ0QSxgXNIGLq1ToUi.jpg",
+      "release_date": "2002-11-13",
+      "title": "Harry Potter and the Chamber of Secrets",
+      "video": false,
+      "vote_average": 7.7,
+      "vote_count": 16310
+    }
+  ],
+  "total_pages": 1,
+  "total_results": 1
+}
+*/
 
 #[derive(Deserialize, Clone)]
 struct SearchResult {
@@ -278,6 +308,7 @@ pub struct Media {
     pub poster_path: Option<String>,
     pub backdrop_path: Option<String>,
     pub genre_ids: Option<Vec<u64>>,
+    #[serde(skip_deserializing)]
     pub genres: Vec<String>,
 }
 
