@@ -369,17 +369,31 @@ impl InsertableMedia {
             .first_async::<Library>(conn)
             .await?;
 
-        let query = diesel::insert_into(media::table).values(self.clone());
+        // we need to atomically select or insert.
+        Ok(conn
+            .transaction::<_, _>(|conn| {
+                let result = media::table
+                    .filter(media::name.eq(self.name.clone()))
+                    .select(media::id)
+                    .get_result::<i32>(conn);
 
-        cfg_if! {
-            if #[cfg(feature = "postgres")] {
-                Ok(query.returning(media::id)
-                    .get_result_async(conn).await?)
-            } else {
-                query.execute_async(conn).await?;
-                Ok(diesel::select(crate::last_insert_rowid).get_result_async(conn).await?)
-            }
-        }
+                if let Ok(x) = result {
+                    return Ok(x);
+                }
+
+                let query = diesel::insert_into(media::table).values(self.clone());
+
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        Ok(query.returning(media::id)
+                           .get_result(conn)?)
+                    } else {
+                        query.execute(conn)?;
+                        Ok(diesel::select(crate::last_insert_rowid).get_result(conn)?)
+                    }
+                }
+            })
+            .await?)
     }
 
     /// Method used as a intermediary to insert media objects into a middle table used as a marker
@@ -423,9 +437,9 @@ impl InsertableMedia {
     pub async fn into_streamable<T: StreamableTrait>(
         &self,
         conn: &crate::DbConnection,
+        id: i32,
         manual_insert: Option<()>,
     ) -> Result<i32, DatabaseError> {
-        let id = self.insert(conn).await?;
         let _ = InsertableStreamableMedia::insert(id, conn).await?;
 
         match manual_insert {
