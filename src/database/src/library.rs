@@ -20,11 +20,15 @@ pub enum MediaType {
 
 impl fmt::Display for MediaType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", match self {
-            Self::Movie => "movie",
-            Self::Tv => "tv",
-            Self::Episode => "episode",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Movie => "movie",
+                Self::Tv => "tv",
+                Self::Episode => "episode",
+            }
+        )
     }
 }
 

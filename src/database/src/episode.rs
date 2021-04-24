@@ -192,8 +192,11 @@ impl Episode {
             .collect::<Vec<Vec<EpisodeWrapper>>>()
             .await;
 
-
-        let episodes = episodes.iter().flatten().cloned().collect::<Vec<EpisodeWrapper>>();
+        let episodes = episodes
+            .iter()
+            .flatten()
+            .cloned()
+            .collect::<Vec<EpisodeWrapper>>();
 
         Ok(stream::iter(episodes)
             .filter_map(|x: EpisodeWrapper| async move {
@@ -589,10 +592,10 @@ impl InsertableEpisode {
             .first_async::<Season>(conn)
             .await?;
 
+        let media_id = self.media.insert(conn).await?;
         // we use InsertableMovie with Some as it doesnt matter
-        let media_id = self
-            .media
-            .into_streamable::<InsertableMovie>(conn, Some(()))
+        self.media
+            .into_streamable::<InsertableMovie>(conn, media_id, Some(()))
             .await?;
 
         let episode: InsertableEpisodeWrapper = self.into();
