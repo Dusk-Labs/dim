@@ -21,9 +21,9 @@ use slog::error;
 use slog::info;
 use slog::Logger;
 
-use tokio::sync::mpsc::UnboundedSender;
-use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::sync::mpsc::unbounded_channel;
+use tokio::sync::mpsc::UnboundedReceiver;
+use tokio::sync::mpsc::UnboundedSender;
 
 use std::borrow::Cow;
 use std::collections::HashMap;
