@@ -81,6 +81,7 @@ impl<'a> MovieMatcher<'a> {
         };
 
         if let Err(e) = self.insert(orphan, media, result).await {
+            println!("{:?}", e);
             warn!(
                 self.log,
                 "Failed to insert new media";
@@ -96,17 +97,10 @@ impl<'a> MovieMatcher<'a> {
         media: InsertableMedia,
         result: super::ApiMedia,
     ) -> Result<(), super::base::ScannerError> {
-        let media_id =
-            match Media::get_by_name_and_lib_id(&self.conn, media.library_id, media.name.as_str())
-                .await
-            {
-                Ok(x) => x.id,
-                Err(_) => {
-                    media
-                        .into_streamable::<InsertableMovie>(&self.conn, None)
-                        .await?
-                }
-            };
+        let media_id = media.insert(&self.conn).await?;
+        media
+            .into_streamable::<InsertableMovie>(&self.conn, media_id, None)
+            .await?;
 
         for name in result.genres {
             let genre = InsertableGenre { name };
