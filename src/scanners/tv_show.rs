@@ -106,18 +106,14 @@ impl<'a> TvShowMatcher<'a> {
             {
                 Ok(x) => x.id,
                 Err(_) => {
-                    let id = media
-                        .into_static::<InsertableTVShow>(&self.conn)
-                        .await?;
+                    let id = media.into_static::<InsertableTVShow>(&self.conn).await?;
                     self.push_event(id);
                     id
                 }
             };
 
         for name in result.genres {
-            let genre = InsertableGenre {
-                name
-            };
+            let genre = InsertableGenre { name };
 
             if let Ok(x) = genre.insert(&self.conn).await {
                 InsertableGenreMedia::insert_pair(x, media_id, &self.conn).await;
@@ -150,7 +146,7 @@ impl<'a> TvShowMatcher<'a> {
                 };
 
                 season.insert(&self.conn, media_id).await?
-            },
+            }
         };
 
         let episode_id = match Episode::get(
@@ -158,7 +154,9 @@ impl<'a> TvShowMatcher<'a> {
             media_id,
             orphan.season.unwrap_or(0),
             orphan.episode.unwrap_or(0),
-        ).await {
+        )
+        .await
+        {
             Err(_) => {
                 let search_ep = {
                     let orphan_episode = orphan.episode.unwrap_or(0) as u64;
@@ -197,7 +195,7 @@ impl<'a> TvShowMatcher<'a> {
                 };
 
                 episode.insert(&self.conn, media_id).await?
-            },
+            }
             Ok(x) => x.id,
         };
 

@@ -7,6 +7,7 @@ pub mod tv_show;
 use database::get_conn;
 use database::library;
 use database::library::Library;
+use database::library::MediaType;
 use database::mediafile::InsertableMediaFile;
 use database::mediafile::MediaFile;
 
@@ -24,10 +25,12 @@ use slog::Logger;
 use walkdir::WalkDir;
 
 use std::fmt;
+use std::lazy::SyncOnceCell;
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
+use std::time::Instant;
 
 use serde::Deserialize;
 use serde::Serialize;
@@ -67,106 +70,90 @@ pub struct ApiEpisode {
     pub still_file: Option<String>,
 }
 
-/*
-    /// Function starts listing all the files in the library directory and starts scanning them.
-    fn start(&self, custom_path: Option<&str>) {
-        let lib = self.library_ref();
-        let log = self.logger_ref();
-        // sanity check
-        debug_assert!(lib.media_type == Self::MEDIA_TYPE);
-        info!(
-            log,
-            "Enumerating files for library={} with media_type={:?}",
-            lib.id,
-            Self::MEDIA_TYPE
-        );
+pub async fn start(
+    library_id: i32,
+    log: slog::Logger,
+    tx: EventTx,
+) -> Result<(), self::base::ScannerError> {
+    info!(log, "Scanning library"; "mod" => "scanner", "library_id" => library_id);
 
-        let path = custom_path.unwrap_or(lib.location.as_str());
-        let files: Vec<PathBuf> = WalkDir::new(path)
-            // we want to follow all symlinks in case of complex dir structures
-            .follow_links(true)
-            .into_iter()
-            .filter_map(Result::ok)
-            // ignore all hidden files.
-            .filter(|f| {
-                !f.path()
-                    .iter()
-                    .any(|s| s.to_str().map(|x| x.starts_with('.')).unwrap_or(false))
-            })
-            // check whether `f` has a supported extension
-            .filter(|f| {
-                f.path()
-                    .extension()
-                    .and_then(|e| e.to_str())
-                    .map_or(false, |e| Self::SUPPORTED_EXTS.contains(&e))
-            })
-            .map(|f| f.into_path())
-            .collect();
+    static METADATA_EXTRACTOR: SyncOnceCell<base::MetadataExtractor> = SyncOnceCell::new();
+    static METADATA_MATCHER: SyncOnceCell<base::MetadataMatcher> = SyncOnceCell::new();
+    static SUPPORTED_EXTS: &[&str] = &["mp4", "mkv", "avi", "webm"];
 
-        info!(
-            log,
-            "Scanning {} files for library {} of {:?}",
-            files.len(),
-            lib.id,
-            Self::MEDIA_TYPE
-        );
+    let conn = get_conn().expect("Failed to grab the conn pool");
+    let mut handle = xtra::spawn::Tokio::Global;
 
-        // mount the files found into the database.
-        // Essentially we extract the bare minimum information from each file such as its codec,
-        // title, year and container, and insert it into the database as an orphan media file.
-        for file in files {
-            if let Err(e) = self.mount_file(file) {
-                error!(log, "Failed to mount file into the database: {:?}", e);
+    let workers = if cfg!(feature = "postgres") { 8 } else { 1 };
+
+    let extractor = METADATA_EXTRACTOR
+        .get_or_init(|| base::MetadataExtractor::cluster(&mut handle, workers, log.clone()).1);
+    let matcher = METADATA_MATCHER.get_or_init(|| {
+        base::MetadataMatcher::cluster(&mut handle, workers, log.clone(), conn.clone(), tx.clone())
+            .1
+    });
+
+    let lib = Library::get_one(&conn, library_id).await?;
+    let path = lib.location.as_str();
+    let files: Vec<PathBuf> = WalkDir::new(path)
+        // we want to follow all symlinks in case of complex dir structures
+        .follow_links(true)
+        .into_iter()
+        .filter_map(Result::ok)
+        // ignore all hidden files.
+        .filter(|f| {
+            !f.path()
+                .iter()
+                .any(|s| s.to_str().map(|x| x.starts_with('.')).unwrap_or(false))
+        })
+        // check whether `f` has a supported extension
+        .filter(|f| {
+            f.path()
+                .extension()
+                .and_then(|e| e.to_str())
+                .map_or(false, |e| SUPPORTED_EXTS.contains(&e))
+        })
+        .map(|f| f.into_path())
+        .collect();
+
+    let total_files = files.len();
+
+    info!(
+        log,
+        "Walked library directory";
+        "mod" => "scanner",
+        "library_id" => library_id,
+        "files" => total_files,
+    );
+
+    let mut futures = Vec::new();
+    let now = Instant::now();
+    let media_type = lib.media_type;
+
+    for file in files {
+        futures.push(async move {
+            if let Ok(mfile) = extractor.mount_file(file, library_id, media_type).await {
+                match media_type {
+                    MediaType::Movie => {
+                        matcher.match_movie(mfile).await;
+                    }
+                    MediaType::Tv => {
+                        matcher.match_tv(mfile).await;
+                    }
+                    _ => unreachable!(),
+                }
             }
-        }
-
-        self.fix_orphans();
+        })
     }
 
-pub fn start(library_id: i32, log: &Logger, tx: EventTx) -> Result<(), ()> {
-    info!(log, "Summoning scanner for Library with id: {}", library_id);
-
-    if get_conn().is_ok() {
-        let log_clone = log.clone();
-        let tx_clone = tx.clone();
-
-        let log = log_clone.clone();
-        if let Err(e) = scanner_from_library(library_id, log_clone, tx_clone) {
-            error!(
-                log,
-                "Scanner for lib: {} has failed to start with error: {:?}", library_id, e
-            )
-        }
-    } else {
-        error!(log, "Failed to connect to db");
-        return Err(());
-    }
+    futures::future::join_all(futures).await;
+    info!(
+        log,
+        "Finished scanning library";
+        "library_id" => library_id,
+        "files" => total_files,
+        "duration" => now.elapsed().as_secs(),
+    );
 
     Ok(())
 }
-
-fn scanner_from_library(lib_id: i32, log: Logger, tx: EventTx) -> Result<(), ScannerError> {
-    use self::movie::MovieScanner;
-    use self::tv_show::TvShowScanner;
-    use database::library::MediaType;
-
-    let conn = get_conn()?;
-    let library = Library::get_one(&conn, lib_id)?;
-
-    match library.media_type {
-        MediaType::Movie => {
-            let scanner = MovieScanner::new(conn, lib_id, log, tx)?;
-            scanner.start(None);
-            scanner.start_daemon()?;
-        }
-        MediaType::Tv => {
-            let scanner = TvShowScanner::new(conn, lib_id, log, tx)?;
-            scanner.start(None);
-            scanner.start_daemon()?;
-        }
-        _ => unreachable!(),
-    }
-
-    Ok(())
-}
-*/
