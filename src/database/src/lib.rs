@@ -81,11 +81,6 @@ fn create_database(conn: &crate::DbConnection) -> Result<(), diesel::result::Err
             let _ = diesel::sql_query("CREATE DATABASE dim").execute(&conn)?;
             let _ = diesel::sql_query("CREATE DATABASE dim_devel").execute(&conn)?;
             let _ = diesel::sql_query("CREATE DATABASE pg_trgm").execute(&conn)?;
-        } else {
-            let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn)?;
-            let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn)?;
-            let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(&conn)?;
-            let _ = diesel::sql_query("PRAGMA foreign_keys = ON").execute(&conn)?;
         }
     }
     Ok(())
@@ -133,13 +128,7 @@ pub fn get_conn_devel() -> Result<crate::DbConnection, r2d2::Error> {
             )?;
         } else {
             let manager = Manager::new("./dim.db");
-            let pool = Pool::new(manager)?;
-            let conn = pool.get()?;
-
-            let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
-            let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn);
-            let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(&conn);
-            let _ = diesel::sql_query("PRAGMA foreign_keys = ON").execute(&conn);
+            let pool = Pool::builder().max_size(1).build_unchecked(manager);
         }
     }
 
@@ -167,7 +156,6 @@ pub fn get_conn_logged(log: &Logger) -> Result<DbConnection, r2d2::Error> {
     Ok(conn)
 }
 
-#[allow(dead_code)]
 fn internal_get_conn(log: Option<&Logger>) -> Result<DbConnection, r2d2::Error> {
     cfg_if! {
         if #[cfg(feature = "postgres")] {
@@ -177,14 +165,23 @@ fn internal_get_conn(log: Option<&Logger>) -> Result<DbConnection, r2d2::Error> 
                 "postgres://postgres:dimpostgres@postgres/dim",
             )
         } else {
-            let manager = Manager::new("./dim.db");
-            let pool = Pool::new(manager)?;
-            let conn = pool.get()?;
+            #[derive(Debug)]
+            struct Pragmas;
 
-            let _ = diesel::sql_query("PRAGMA foreign_keys=ON;").execute(&conn);
-            let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
-            let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn);
-            let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(&conn);
+            impl<E> diesel::r2d2::CustomizeConnection<diesel::SqliteConnection, E> for Pragmas {
+                fn on_acquire(&self, conn: &mut diesel::SqliteConnection) -> Result<(), E> {
+                    use diesel::connection::SimpleConnection;
+                    conn.batch_execute("PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 20000;").unwrap();
+                    conn.batch_execute("PRAGMA synchronous = NORMAL;").unwrap();
+                    conn.batch_execute("PRAGMA wal_checkpoint(TRUNCATE);").unwrap();
+                    conn.batch_execute("PRAGMA wal_autocheckpoint = 1000; PRAGMA foreign_keys = ON;").unwrap();
+
+                    Ok(())
+                }
+            }
+
+            let manager = Manager::new("./dim.db");
+            let pool = Pool::builder().max_size(16).min_idle(Some(1)).connection_customizer(Box::new(Pragmas)).build(manager)?;
             Ok(pool)
         }
     }
