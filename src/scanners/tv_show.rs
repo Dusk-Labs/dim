@@ -143,8 +143,7 @@ impl<'a> TvShowMatcher<'a> {
             season.and_then(|x| {
                 x.episodes
                     .iter()
-                    .cloned()
-                    .find(|s| s.episode == Some(orphan_episode))
+                    .find(|&s| s.episode == Some(orphan_episode))
             })
         };
 
@@ -168,7 +167,7 @@ impl<'a> TvShowMatcher<'a> {
                     .map(|x| x.overview.clone())
                     .unwrap_or_default(),
                 backdrop_path: search_ep
-                    .and_then(|x| x.still_file)
+                    .and_then(|x| x.still_file.clone())
                     .map(|s| format!("images/{}", s)),
                 ..Default::default()
             },
@@ -181,7 +180,7 @@ impl<'a> TvShowMatcher<'a> {
             .into_streamable::<InsertableMovie>(&self.conn, raw_ep_id, Some(()))
             .await;
 
-        let episode_id = dbg!(episode.insert(&self.conn, media_id, raw_ep_id).await)?;
+        let episode_id = episode.insert(&self.conn, media_id, raw_ep_id).await?;
 
         let updated_mediafile = UpdateMediaFile {
             media_id: Some(episode_id),
