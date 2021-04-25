@@ -1,5 +1,8 @@
 import { useEffect } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import TimesCircleIcon from "../../assets/Icons/TimesCircle";
+import UserIcon from "../../assets/Icons/User";
+import KeyIcon from "../../assets/Icons/Key";
 
 function Field(
   { name, icon, data, error, type = "text" }
@@ -12,11 +15,12 @@ function Field(
   return (
     <label>
       <div className="name">
-        <FontAwesomeIcon icon={icon}/>
+        {icon === "user" && <UserIcon/>}
+        {icon === "key" && <KeyIcon/>}
         <p>{name}</p>
         {err && (
           <div className="horizontal-err">
-            <FontAwesomeIcon icon="times-circle"/>
+            <TimesCircleIcon/>
             <p>{err}</p>
           </div>
         )}

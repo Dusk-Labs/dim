@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSelector } from "react-redux";
 
 import ProgressBar from "./ProgressBar.jsx";
@@ -8,6 +7,7 @@ import Image from "./Image.jsx";
 import PlayButton from "../PlayButton.jsx";
 import TruncText from "../../Helpers/TruncText.jsx";
 import NewLibraryModal from "../../Modals/NewLibrary/Index";
+import CircleIcon from "../../assets/Icons/Circle";
 
 import "./Banner.scss";
 
@@ -71,7 +71,7 @@ function Banner(props) {
         <div className="extras">
           <Link to={`/search?year=${year}`}>{year}</Link>
           {genres.length > 0 && (
-            <FontAwesomeIcon icon="circle"/>
+            <CircleIcon/>
           )}
           {genres.map((genre, i) => (
             <Link

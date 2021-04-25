@@ -35,8 +35,11 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      color: #f7931e;
       font-size: 24px;
+
+      svg {
+        fill: #f7931e;
+      }
     }
   }
 
