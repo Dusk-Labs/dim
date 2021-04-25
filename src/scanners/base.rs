@@ -251,6 +251,8 @@ impl MetadataMatcher {
                 .collect();
         }
 
+        result.seasons = seasons;
+
         let matcher = TvShowMatcher {
             conn: &self.conn,
             log: &self.log,
