@@ -17,9 +17,10 @@ postgres = ["database/postgres", "diesel/postgres", "rocket_contrib/diesel_postg
 sqlite = ["database/sqlite", "diesel/sqlite", "rocket_contrib/diesel_sqlite_pool"]
 
 [dependencies]
-rocket = { git = "https://github.com/SergioBenitez/Rocket", default-features = false, features = ["tls"] }
-rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket", default-features = false }
-rocket_contrib = { git = "https://github.com/SergioBenitez/Rocket", default-features = false, optional = true, features = ["json", "helmet"] }
+rocket = { git = "https://github.com/SergioBenitez/Rocket", rev = "801e04b", default-features = false, features = ["tls"] }
+rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket", rev = "801e04b", default-features = false }
+rocket_contrib = { git = "https://github.com/SergioBenitez/Rocket", rev = "801e04b", default-features = false, optional = true, features = ["json", "helmet"] }
+
 rocket_cors = { git = "https://github.com/vgarleanu/rocket_cors" }
 
 # needs upsert support for sqlite which isnt released yet.
