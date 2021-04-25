@@ -1,6 +1,6 @@
-use crate::routes;
-//use crate::scanners;
 use crate::logger::RequestLogger;
+use crate::routes;
+use crate::scanners;
 use crate::stream_tracking::StreamTracking;
 
 use rocket::fairing::Fairing;
@@ -39,12 +39,6 @@ use std::thread;
 pub type StateManager = nightfall::StateManager;
 pub type DbConnection = database::DbConnection;
 pub type EventTx = UnboundedSender<String>;
-
-lazy_static! {
-    /// Holds a map of all threads keyed against the library id that they were started for
-    static ref LIB_SCANNERS: Mutex<HashMap<i32, thread::JoinHandle<()>>> =
-        Mutex::new(HashMap::new());
-}
 
 /// Hacky type we use to implement clone on deref types.
 #[derive(Clone, Debug)]
@@ -87,21 +81,7 @@ pub async fn run_scanners(log: Logger, tx: EventTx) {
             let library_id = lib.id;
             let tx_clone = tx.clone();
 
-            // NOTE: Its a good idea to just let the binary panic if the LIB_SCANNERS cannot be
-            //       locked. This is because such a error is unrecoverable.
-            /*
-            LIB_SCANNERS.lock().unwrap().insert(
-                library_id,
-                thread::spawn(move || {
-                    let _ = scanners::start(library_id, &log_clone, tx_clone).map_err(|x| {
-                        error!(
-                            log_clone,
-                            "A scanner thread has returned with error: {:?}", x
-                        )
-                    });
-                }),
-            );
-            */
+            tokio::spawn(scanners::start(library_id, log_clone.clone(), tx_clone));
         }
     }
 }
