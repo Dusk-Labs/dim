@@ -12,6 +12,7 @@ use database::media::InsertableMedia;
 use database::media::Media;
 use database::mediafile::MediaFile;
 use database::mediafile::UpdateMediaFile;
+use database::movie::InsertableMovie;
 use database::season::InsertableSeason;
 use database::season::Season;
 use database::tv::InsertableTVShow;
@@ -87,7 +88,7 @@ impl<'a> TvShowMatcher<'a> {
                 self.log,
                 "Failed to insert new media";
                 "id" => orphan.id,
-                "reason" => e.to_string(),
+                "reason" => format!("{:?}", e),
             );
         }
     }
@@ -100,17 +101,10 @@ impl<'a> TvShowMatcher<'a> {
     ) -> Result<(), super::base::ScannerError> {
         let meta_fetcher = crate::core::METADATA_FETCHER_TX.get().unwrap().get();
 
-        let media_id =
-            match Media::get_by_name_and_lib_id(&self.conn, media.library_id, media.name.as_str())
-                .await
-            {
-                Ok(x) => x.id,
-                Err(_) => {
-                    let id = media.into_static::<InsertableTVShow>(&self.conn).await?;
-                    self.push_event(id);
-                    id
-                }
-            };
+        let media_id = media.insert(&self.conn).await?;
+        let _ = media
+            .into_static::<InsertableTVShow>(&self.conn, media_id)
+            .await;
 
         for name in result.genres {
             let genre = InsertableGenre { name };
@@ -133,71 +127,61 @@ impl<'a> TvShowMatcher<'a> {
             let _ = meta_fetcher.send(x.clone());
         }
 
-        let seasonid = match Season::get(&self.conn, media_id, orphan.season.unwrap_or(1)).await {
-            Ok(x) => x.id,
-            Err(_) => {
-                let season = InsertableSeason {
-                    season_number: orphan.season.unwrap_or(0),
-                    added: Utc::now().to_string(),
-                    poster: season
-                        .and_then(|x| x.poster_file.clone())
-                        .map(|s| format!("images/{}", s))
-                        .unwrap_or_default(),
-                };
-
-                season.insert(&self.conn, media_id).await?
-            }
+        let insertable_season = InsertableSeason {
+            season_number: orphan.season.unwrap_or(0),
+            added: Utc::now().to_string(),
+            poster: season
+                .and_then(|x| x.poster_file.clone())
+                .map(|s| format!("images/{}", s))
+                .unwrap_or_default(),
         };
 
-        let episode_id = match Episode::get(
-            &self.conn,
-            media_id,
-            orphan.season.unwrap_or(0),
-            orphan.episode.unwrap_or(0),
-        )
-        .await
-        {
-            Err(_) => {
-                let search_ep = {
-                    let orphan_episode = orphan.episode.unwrap_or(0) as u64;
-                    season.and_then(|x| {
-                        x.episodes
-                            .iter()
-                            .cloned()
-                            .find(|s| s.episode == Some(orphan_episode))
-                    })
-                };
+        let seasonid = insertable_season.insert(&self.conn, media_id).await?;
 
-                if let Some(x) = search_ep.as_ref().and_then(|x| x.still.clone()) {
-                    let _ = meta_fetcher.send(x);
-                }
-
-                let episode = InsertableEpisode {
-                    episode: orphan.episode.unwrap_or(0),
-                    seasonid,
-                    media: InsertableMedia {
-                        library_id: orphan.library_id,
-                        name: search_ep
-                            .as_ref()
-                            .and_then(|x| x.name.clone())
-                            .unwrap_or_else(|| orphan.episode.unwrap_or(0).to_string()),
-                        added: Utc::now().to_string(),
-                        media_type: MediaType::Episode,
-                        description: search_ep
-                            .as_ref()
-                            .map(|x| x.overview.clone())
-                            .unwrap_or_default(),
-                        backdrop_path: search_ep
-                            .and_then(|x| x.still_file)
-                            .map(|s| format!("images/{}", s)),
-                        ..Default::default()
-                    },
-                };
-
-                episode.insert(&self.conn, media_id).await?
-            }
-            Ok(x) => x.id,
+        let search_ep = {
+            let orphan_episode = orphan.episode.unwrap_or(0) as u64;
+            season.and_then(|x| {
+                x.episodes
+                    .iter()
+                    .cloned()
+                    .find(|s| s.episode == Some(orphan_episode))
+            })
         };
+
+        if let Some(x) = search_ep.as_ref().and_then(|x| x.still.clone()) {
+            let _ = meta_fetcher.send(x);
+        }
+
+        let episode = InsertableEpisode {
+            episode: orphan.episode.unwrap_or(0),
+            seasonid,
+            media: InsertableMedia {
+                library_id: orphan.library_id,
+                name: search_ep
+                    .as_ref()
+                    .and_then(|x| x.name.clone())
+                    .unwrap_or_else(|| orphan.episode.unwrap_or(0).to_string()),
+                added: Utc::now().to_string(),
+                media_type: MediaType::Episode,
+                description: search_ep
+                    .as_ref()
+                    .map(|x| x.overview.clone())
+                    .unwrap_or_default(),
+                backdrop_path: search_ep
+                    .and_then(|x| x.still_file)
+                    .map(|s| format!("images/{}", s)),
+                ..Default::default()
+            },
+        };
+
+        // manually insert the underlying `media` into the table and convert it into a streamable movie/ep
+        let raw_ep_id = episode.media.insert(&self.conn).await?;
+        let _ = episode
+            .media
+            .into_streamable::<InsertableMovie>(&self.conn, raw_ep_id, Some(()))
+            .await;
+
+        let episode_id = dbg!(episode.insert(&self.conn, media_id, raw_ep_id).await)?;
 
         let updated_mediafile = UpdateMediaFile {
             media_id: Some(episode_id),
