@@ -94,7 +94,7 @@ impl MetadataExtractor {
                 "file" => file.to_string_lossy().to_string(),
                 "library_id" => library_id,
             );
-            return Ok(media_file);
+            return Err(ScannerError::UnknownError);
         }
 
         info!(
