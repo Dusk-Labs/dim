@@ -14,7 +14,6 @@ use cfg_if::cfg_if;
 
 use diesel::r2d2::ConnectionManager;
 use diesel::r2d2::Pool;
-use diesel::RunQueryDsl;
 
 use slog::Logger;
 
@@ -171,17 +170,21 @@ fn internal_get_conn(log: Option<&Logger>) -> Result<DbConnection, r2d2::Error> 
             impl<E> diesel::r2d2::CustomizeConnection<diesel::SqliteConnection, E> for Pragmas {
                 fn on_acquire(&self, conn: &mut diesel::SqliteConnection) -> Result<(), E> {
                     use diesel::connection::SimpleConnection;
-                    conn.batch_execute("PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 20000;").unwrap();
-                    conn.batch_execute("PRAGMA synchronous = NORMAL;").unwrap();
-                    conn.batch_execute("PRAGMA wal_checkpoint(TRUNCATE);").unwrap();
-                    conn.batch_execute("PRAGMA wal_autocheckpoint = 1000; PRAGMA foreign_keys = ON;").unwrap();
+                    conn.batch_execute("PRAGMA journal_mode=wal").unwrap();
+                    conn.batch_execute("PRAGMA busy_timeout=5000").unwrap();
+                    conn.batch_execute("PRAGMA synchronous=NORMAL").unwrap();
+                    conn.batch_execute("PRAGMA wal_checkpoint(FULL)").unwrap();
+                    conn.batch_execute("PRAGMA wal_autocheckpoint = 1000").unwrap();
+                    conn.batch_execute("PRAGMA foreign_keys = ON").unwrap();
 
                     Ok(())
                 }
             }
 
             let manager = Manager::new("./dim.db");
-            let pool = Pool::builder().max_size(16).min_idle(Some(1)).connection_customizer(Box::new(Pragmas)).build(manager)?;
+            // FIXME: Theres a weird bug with `Pool` or `sqlite` where the pragmas above are not respected and are ignored.
+            // This yields database errors at runtime.
+            let pool = Pool::builder().max_size(1).min_idle(Some(1)).connection_customizer(Box::new(Pragmas)).build(manager)?;
             Ok(pool)
         }
     }
