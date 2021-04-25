@@ -1,7 +1,7 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import "./ProgressBar.scss";
+import CircleIcon from "../../assets/Icons/Circle";
 
 function ProgressBar(props) {
   const { season, episode } = props.data;
@@ -18,7 +18,7 @@ function ProgressBar(props) {
       {((season || season === 0) && (episode || episode === 0)) && (
         <div className="s-e">
           <p>S{season}</p>
-          <FontAwesomeIcon icon="circle"/>
+          <CircleIcon/>
           <p>E{episode}</p>
         </div>
       )}

@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import ConfirmationBox from "../../Modals/ConfirmationBox.jsx";
 
+import ConfirmationBox from "../../Modals/ConfirmationBox.jsx";
 import { logout } from "../../actions/auth.js";
+import LogoutIcon from "../../assets/Icons/Logout";
 
 function LogoutBtn() {
   const dispatch = useDispatch();
@@ -24,7 +24,7 @@ function LogoutBtn() {
       msg="Are you sure you want to logout?"
     >
       <button className="item logout">
-        <FontAwesomeIcon icon="sign-out-alt"/>
+        <LogoutIcon/>
         <p className="logout">Logout</p>
       </button>
     </ConfirmationBox>
