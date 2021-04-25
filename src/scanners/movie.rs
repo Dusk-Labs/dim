@@ -98,9 +98,10 @@ impl<'a> MovieMatcher<'a> {
         result: super::ApiMedia,
     ) -> Result<(), super::base::ScannerError> {
         let media_id = media.insert(&self.conn).await?;
-        media
+        // the reason we ignore the result here is that in some cases this can fail. Specifically when there are multiple mediafiles for a movie.
+        let _ = media
             .into_streamable::<InsertableMovie>(&self.conn, media_id, None)
-            .await?;
+            .await;
 
         for name in result.genres {
             let genre = InsertableGenre { name };
