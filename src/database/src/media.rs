@@ -489,8 +489,8 @@ impl InsertableMedia {
     pub async fn into_static<T: StaticTrait>(
         &self,
         conn: &crate::DbConnection,
+        id: i32,
     ) -> Result<i32, DatabaseError> {
-        let id = self.insert(conn).await?;
         T::new(id).insert(conn).await
     }
 }

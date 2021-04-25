@@ -345,19 +345,33 @@ impl InsertableSeason {
             .get_result_async::<TVShow>(conn)
             .await?;
 
-        // We insert the tvshowid separately
-        let query =
-            diesel::insert_into(season::table).values((self.clone(), season::dsl::tvshowid.eq(id)));
+        Ok(conn
+            .transaction::<_, _>(|conn| {
+                let result = season::table
+                    .filter(season::season_number.eq(self.season_number))
+                    .filter(season::tvshowid.eq(id))
+                    .select(season::id)
+                    .get_result::<i32>(conn);
 
-        cfg_if! {
-            if #[cfg(feature = "postgres")] {
-                Ok(query.returning(season::id)
-                    .get_result_async(conn).await?)
-            } else {
-                query.execute_async(conn).await?;
-                Ok(diesel::select(crate::last_insert_rowid).get_result_async(conn).await?)
-            }
-        }
+                if let Ok(x) = result {
+                    return Ok(x);
+                }
+
+                // We insert the tvshowid separately
+                let query = diesel::insert_into(season::table)
+                    .values((self.clone(), season::dsl::tvshowid.eq(id)));
+
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        Ok(query.returning(season::id)
+                            .get_result(conn)?)
+                    } else {
+                        query.execute(conn)?;
+                        Ok(diesel::select(crate::last_insert_rowid).get_result(conn)?)
+                    }
+                }
+            })
+            .await?)
     }
 }
 
@@ -445,7 +459,7 @@ impl UpdateSeason {
         use crate::schema::season::dsl::*;
         use crate::schema::tv_show;
 
-        let tv = tv_show::dsl::tv_show
+        let _ = tv_show::dsl::tv_show
             .filter(id.eq(_id))
             .execute_async(conn)
             .await?;

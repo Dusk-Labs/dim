@@ -578,7 +578,13 @@ impl InsertableEpisode {
     /// assert_eq!(episode.episode, 1);
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub async fn insert(&self, conn: &crate::DbConnection, id: i32) -> Result<i32, DatabaseError> {
+    pub async fn insert(
+        &self,
+        conn: &crate::DbConnection,
+        id: i32,
+        media_id: i32,
+    ) -> Result<i32, DatabaseError> {
+        use crate::schema::media;
         use crate::schema::season;
         use crate::schema::tv_show;
 
@@ -587,36 +593,41 @@ impl InsertableEpisode {
             .get_result_async::<TVShow>(conn)
             .await?;
 
-        let season = season::table
-            .find(self.seasonid)
-            .first_async::<Season>(conn)
-            .await?;
+        Ok(conn
+            .transaction::<_, _>(|conn| {
+                let season = season::table.find(self.seasonid).first::<Season>(conn)?;
 
-        let media_id = self.media.insert(conn).await?;
-        // we use InsertableMovie with Some as it doesnt matter
-        self.media
-            .into_streamable::<InsertableMovie>(conn, media_id, Some(()))
-            .await?;
+                let episode_id = episode::table
+                    .filter(episode::seasonid.eq(self.seasonid))
+                    .filter(episode::episode_.eq(self.episode))
+                    .select(episode::id)
+                    .first(conn);
 
-        let episode: InsertableEpisodeWrapper = self.into();
+                if let Ok(episode_id) = episode_id {
+                    return Ok(episode_id);
+                }
 
-        let query = diesel::insert_into(episode::table).values((
-            episode::dsl::id.eq(media_id),
-            episode,
-            episode::dsl::seasonid.eq(season.id),
-        ));
+                let episode: InsertableEpisodeWrapper = self.into();
 
-        // Sqlite doesnt support get_result queries, so we have to emulate it with
-        // `last_insert_row` function.
-        cfg_if! {
-            if #[cfg(feature = "postgres")] {
-                Ok(query.returning(episode::id)
-                    .get_result_async(conn).await?)
-            } else {
-                query.execute_async(conn).await?;
-                Ok(diesel::select(crate::last_insert_rowid).get_result_async::<i32>(conn).await?)
-            }
-        }
+                let query = diesel::insert_into(episode::table).values((
+                    episode::dsl::id.eq(media_id),
+                    episode,
+                    episode::dsl::seasonid.eq(season.id),
+                ));
+
+                // Sqlite doesnt support get_result queries, so we have to emulate it with
+                // `last_insert_row` function.
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        Ok(query.returning(episode::id)
+                            .get_result(conn).?)
+                    } else {
+                        query.execute(conn)?;
+                        Ok(diesel::select(crate::last_insert_rowid).get_result::<i32>(conn)?)
+                    }
+                }
+            })
+            .await?)
     }
 
     fn into(&self) -> InsertableEpisodeWrapper {
