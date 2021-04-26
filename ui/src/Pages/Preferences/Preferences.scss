@@ -5,8 +5,106 @@
   .preferences {
     display: grid;
     grid-template-areas: "nav content";
-    grid-template-columns: auto 1fr;
-    grid-gap: 5em;
+    grid-template-columns: min-content 1fr;
+    grid-gap: 2em;
+
+    .leftBar {
+      padding: 0 1rem;
+      display: grid;
+      grid-gap: 1rem;
+
+      .leftBarSep {
+        border: 1px #77777747 solid;
+      }
+
+      .leftBarTabs {
+        display: grid;
+        grid-gap: 1rem;
+        height: 100%;
+        min-height: 7rem;
+
+        div {
+          transition: 0.15s ease-in-out;
+          font-size: 1.2rem;
+          color: #777777;
+        }
+
+        .active {
+          font-size: 1.4rem;
+          color: white;
+        }
+      }
+
+      .leftBarUsername {
+        font-weight: 200;
+        font-size: 1.8rem;
+      }
+
+      .leftBarNames {
+        flex-direction: column;
+      }
+
+      .leftBarStatistics {
+        display: grid;
+        grid-template-columns: auto;
+
+        .leftBarStat {
+          grid-row: 1;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .leftBarStatValue {
+          font-size: 1.5rem;
+          font-weight: 500;
+        }
+
+        .leftBarStatName {
+          color: #777777;
+          font-size: 0.8rem;
+        }
+      }
+
+      .leftBarProfileImg {
+        border-radius: 50%;
+        height: 12rem;
+        width: 12rem;
+        object-fit: cover;
+        border: 2px solid white;
+      }
+
+      .leftBarImgParent {
+        width: fit-content;
+        position: relative;
+        display: block;
+      }
+
+      .leftBarImgEdit {
+        height: 25px;
+        width: 25px;
+        border-radius: 50%;
+        align-self: center;
+        background: #555555;
+      }
+
+      .circle {
+        transform: rotate(-40deg);
+        transform-origin: 0% 50%;
+        position: absolute;
+        display: flex;
+        justify-content: flex-end;
+        margin-right: 0 auto;
+      }
+
+      .leftBarImgContainer {
+        display: flex;
+        justify-content: center;
+      }
+
+      div {
+        display: flex;
+      }
+    }
 
     nav {
       grid-area: nav;
@@ -45,6 +143,7 @@
     }
 
     .content {
+      background: #222222;
       grid-area: content;
 
       section {
