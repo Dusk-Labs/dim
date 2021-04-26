@@ -17,6 +17,7 @@ use diesel::prelude::*;
 use lazy_static::lazy_static;
 use once_cell::sync::OnceCell;
 
+use slog::debug;
 use slog::error;
 use slog::info;
 use slog::Logger;
@@ -98,7 +99,7 @@ pub async fn tmdb_poster_fetcher(log: Logger) {
                         let mut out_path = PathBuf::from(meta_path);
                         out_path.push(fname);
 
-                        info!(log, "Caching {} -> {:?}", url, out_path);
+                        debug!(log, "Caching {} -> {:?}", url, out_path);
 
                         if let Ok(mut file) = File::create(out_path) {
                             if let Ok(bytes) = resp.bytes().await {
