@@ -65,6 +65,25 @@ lazy_static::lazy_static! {
     static ref MIGRATIONS_FLAG: AtomicBool = AtomicBool::new(false);
 }
 
+static __GLOBAL: SyncOnceCell<crate::DbConnection> = SyncOnceCell::new();
+
+#[derive(Debug)]
+struct Pragmas;
+
+impl<E> diesel::r2d2::CustomizeConnection<diesel::SqliteConnection, E> for Pragmas {
+    fn on_acquire(&self, conn: &mut diesel::SqliteConnection) -> Result<(), E> {
+        use diesel::connection::Connection;
+        conn.execute("PRAGMA busy_timeout=5000").unwrap();
+        conn.execute("PRAGMA journal_mode=wal").unwrap();
+        conn.execute("PRAGMA synchronous=NORMAL").unwrap();
+        conn.execute("PRAGMA wal_checkpoint(FULL)").unwrap();
+        conn.execute("PRAGMA wal_autocheckpoint = 1000").unwrap();
+        conn.execute("PRAGMA foreign_keys = ON").unwrap();
+
+        Ok(())
+    }
+}
+
 cfg_if! {
     if #[cfg(feature = "postgres")] {
         embed_migrations!("../../migrations/postgres");
@@ -105,7 +124,6 @@ fn run_migrations(conn: &crate::DbConnection) -> Result<(), diesel_migrations::R
 /// let conn = get_conn().unwrap(); // panics if connection failed.
 /// ```
 pub fn get_conn() -> Result<crate::DbConnection, r2d2::Error> {
-    static __GLOBAL: SyncOnceCell<crate::DbConnection> = SyncOnceCell::new();
     let conn = __GLOBAL.get_or_try_init(|| -> Result<_, _> { internal_get_conn(None) })?;
 
     if !MIGRATIONS_FLAG.load(Ordering::SeqCst) && dbg!(run_migrations(conn)).is_ok() {
@@ -126,8 +144,12 @@ pub fn get_conn_devel() -> Result<crate::DbConnection, r2d2::Error> {
                 "postgres://postgres:dimpostgres@postgres/dim_devel",
             )?;
         } else {
-            let manager = Manager::new("./dim.db");
-            let pool = Pool::builder().max_size(1).build_unchecked(manager);
+            let manager = Manager::new("./dim_dev.db");
+            let pool = Pool::builder()
+                .max_size(1)
+                .min_idle(Some(1))
+                .connection_customizer(Box::new(Pragmas))
+                .build(manager)?;
         }
     }
 
@@ -145,14 +167,14 @@ pub fn get_conn_devel() -> Result<crate::DbConnection, r2d2::Error> {
 /// * `log` - a Slog logger instance
 pub fn get_conn_logged(log: &Logger) -> Result<DbConnection, r2d2::Error> {
     // This is the URL for the database inside a docker container
-    let conn = internal_get_conn(Some(&log))?;
+    let conn = __GLOBAL.get_or_try_init(|| -> Result<_, _> { internal_get_conn(Some(log)) })?;
     slog::info!(log, "Creating new database connection");
 
     if !MIGRATIONS_FLAG.load(Ordering::SeqCst) && dbg!(run_migrations(&conn)).is_ok() {
         MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
     }
 
-    Ok(conn)
+    Ok(conn.clone())
 }
 
 fn internal_get_conn(log: Option<&Logger>) -> Result<DbConnection, r2d2::Error> {
@@ -164,27 +186,15 @@ fn internal_get_conn(log: Option<&Logger>) -> Result<DbConnection, r2d2::Error> 
                 "postgres://postgres:dimpostgres@postgres/dim",
             )
         } else {
-            #[derive(Debug)]
-            struct Pragmas;
-
-            impl<E> diesel::r2d2::CustomizeConnection<diesel::SqliteConnection, E> for Pragmas {
-                fn on_acquire(&self, conn: &mut diesel::SqliteConnection) -> Result<(), E> {
-                    use diesel::connection::SimpleConnection;
-                    conn.batch_execute("PRAGMA journal_mode=wal").unwrap();
-                    conn.batch_execute("PRAGMA busy_timeout=5000").unwrap();
-                    conn.batch_execute("PRAGMA synchronous=NORMAL").unwrap();
-                    conn.batch_execute("PRAGMA wal_checkpoint(FULL)").unwrap();
-                    conn.batch_execute("PRAGMA wal_autocheckpoint = 1000").unwrap();
-                    conn.batch_execute("PRAGMA foreign_keys = ON").unwrap();
-
-                    Ok(())
-                }
-            }
-
             let manager = Manager::new("./dim.db");
             // FIXME: Theres a weird bug with `Pool` or `sqlite` where the pragmas above are not respected and are ignored.
             // This yields database errors at runtime.
-            let pool = Pool::builder().max_size(1).min_idle(Some(1)).connection_customizer(Box::new(Pragmas)).build(manager)?;
+            let pool = Pool::builder()
+                .max_size(1)
+                .min_idle(Some(1))
+                .connection_customizer(Box::new(Pragmas))
+                .build(manager)?;
+
             Ok(pool)
         }
     }
