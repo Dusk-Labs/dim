@@ -65,7 +65,20 @@ pub async fn library_post(
     let log_clone = log.inner().clone();
 
     tokio::spawn(async move {
-        scanners::start(id, log_clone, tx_clone).await;
+        let _ = scanners::start(id, log_clone, tx_clone).await;
+    });
+
+    let media_type = new_library.media_type;
+    let tx_clone = tx.clone();
+    let log_clone = log.inner().clone();
+
+    tokio::spawn(async move {
+        let watcher = scanners::scanner_daemon::FsWatcher::new(log_clone, id, media_type, tx_clone);
+
+        watcher
+            .start_daemon()
+            .await
+            .expect("Something went wrong with the fs-watcher");
     });
 
     let event = Message {
