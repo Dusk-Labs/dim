@@ -84,7 +84,7 @@ pub async fn start(
     let conn = get_conn().expect("Failed to grab the conn pool");
     let mut handle = xtra::spawn::Tokio::Global;
 
-    let workers = if cfg!(feature = "postgres") { 8 } else { 1 };
+    let workers = if cfg!(feature = "postgres") { 8 } else { 2 };
 
     let extractor = METADATA_EXTRACTOR
         .get_or_init(|| base::MetadataExtractor::cluster(&mut handle, workers, log.clone()).1);
