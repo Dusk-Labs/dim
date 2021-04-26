@@ -1,8 +1,8 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import LogoutBtn from "./LogoutBtn.jsx";
-import WrenchIcon from "../../assets/Icons/Wrench";
 
 const Account = () => (
   <section className="your-account">
@@ -11,7 +11,7 @@ const Account = () => (
     </header>
     <div className="list">
       <NavLink to="/preferences" className="item">
-        <WrenchIcon/>
+        <FontAwesomeIcon icon="wrench"/>
         <p>Preferences</p>
       </NavLink>
       <LogoutBtn/>
