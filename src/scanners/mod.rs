@@ -89,7 +89,7 @@ pub fn get_extractor(log: &slog::Logger, tx: &EventTx) -> &'static base::Metadat
 pub fn get_matcher(log: &slog::Logger, tx: &EventTx) -> &'static base::MetadataMatcher {
     let mut handle = xtra::spawn::Tokio::Global;
 
-    let workers = if cfg!(feature = "postgres") { 8 } else { 2 };
+    let workers = 8;
 
     METADATA_MATCHER.get_or_init(|| {
         let conn = get_conn().expect("Failed to grab the conn pool");
