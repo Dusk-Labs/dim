@@ -396,6 +396,35 @@ impl InsertableMedia {
             .await?)
     }
 
+    /// Method blindly inserts `self` into the database without checking whether a similar entry exists.
+    /// This is especially useful for tv shows as they usually have similar metadata with key differences
+    /// which are not indexed in the database.
+    pub async fn insert_blind(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
+        use crate::schema::library::dsl::*;
+
+        library
+            .filter(id.eq(self.library_id))
+            .first_async::<Library>(conn)
+            .await?;
+
+        // we need to atomically select or insert.
+        Ok(conn
+            .transaction::<_, _>(|conn| {
+                let query = diesel::insert_into(media::table).values(self.clone());
+
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        Ok(query.returning(media::id)
+                           .get_result(conn)?)
+                    } else {
+                        query.execute(conn)?;
+                        Ok(diesel::select(crate::last_insert_rowid).get_result(conn)?)
+                    }
+                }
+            })
+            .await?)
+    }
+
     /// Method used as a intermediary to insert media objects into a middle table used as a marker
     /// for anything that can be streamed. For example movies and episodes would be using this
     /// method on insertion, while tv shows dont as they cant be streamed.
