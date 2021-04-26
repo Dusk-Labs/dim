@@ -1,8 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import ProfileImage from "./Image.jsx";
-import CircleIcon from "../../../assets/Icons/Circle";
 
 import "./Index.scss";
 
@@ -26,7 +26,7 @@ function Profile(props) {
       <div className="profile">
         <div className="icon">
           <div className="error-icon">
-            <CircleIcon/>
+            <FontAwesomeIcon icon="times-circle"/>
           </div>
         </div>
         <div className="info">
