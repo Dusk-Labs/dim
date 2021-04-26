@@ -1,7 +1,6 @@
 use crate::media::InsertableMedia;
 use crate::media::Media;
 use crate::media::UpdateMedia;
-use crate::movie::InsertableMovie;
 use crate::schema::episode;
 use crate::season::Season;
 use crate::streamable_media::StreamableMedia;
@@ -584,7 +583,6 @@ impl InsertableEpisode {
         id: i32,
         media_id: i32,
     ) -> Result<i32, DatabaseError> {
-        use crate::schema::media;
         use crate::schema::season;
         use crate::schema::tv_show;
 
