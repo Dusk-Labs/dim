@@ -1,6 +1,6 @@
 pub mod base;
 pub mod movie;
-//pub mod scanner_daemon;
+pub mod scanner_daemon;
 pub mod tmdb;
 pub mod tv_show;
 
@@ -26,6 +26,7 @@ use walkdir::WalkDir;
 
 use std::fmt;
 use std::lazy::SyncOnceCell;
+use std::path::Path;
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::thread;
@@ -70,31 +71,46 @@ pub struct ApiEpisode {
     pub still_file: Option<String>,
 }
 
-pub async fn start(
-    library_id: i32,
-    log: slog::Logger,
-    tx: EventTx,
-) -> Result<(), self::base::ScannerError> {
-    info!(log, "Scanning library"; "mod" => "scanner", "library_id" => library_id);
+pub(super) static METADATA_EXTRACTOR: SyncOnceCell<base::MetadataExtractor> = SyncOnceCell::new();
+pub(super) static METADATA_MATCHER: SyncOnceCell<base::MetadataMatcher> = SyncOnceCell::new();
+pub(super) static SUPPORTED_EXTS: &[&str] = &["mp4", "mkv", "avi", "webm"];
 
-    static METADATA_EXTRACTOR: SyncOnceCell<base::MetadataExtractor> = SyncOnceCell::new();
-    static METADATA_MATCHER: SyncOnceCell<base::MetadataMatcher> = SyncOnceCell::new();
-    static SUPPORTED_EXTS: &[&str] = &["mp4", "mkv", "avi", "webm"];
-
-    let conn = get_conn().expect("Failed to grab the conn pool");
+pub fn get_extractor(log: &slog::Logger, tx: &EventTx) -> &'static base::MetadataExtractor {
     let mut handle = xtra::spawn::Tokio::Global;
 
     let workers = if cfg!(feature = "postgres") { 8 } else { 2 };
 
-    let extractor = METADATA_EXTRACTOR
-        .get_or_init(|| base::MetadataExtractor::cluster(&mut handle, workers, log.clone()).1);
-    let matcher = METADATA_MATCHER.get_or_init(|| {
-        base::MetadataMatcher::cluster(&mut handle, workers, log.clone(), conn.clone(), tx.clone())
-            .1
-    });
+    METADATA_EXTRACTOR.get_or_init(|| {
+        let conn = get_conn().expect("Failed to grab the conn pool");
+        base::MetadataExtractor::cluster(&mut handle, workers, log.clone()).1
+    })
+}
 
-    let lib = Library::get_one(&conn, library_id).await?;
-    let path = lib.location.as_str();
+pub fn get_matcher(log: &slog::Logger, tx: &EventTx) -> &'static base::MetadataMatcher {
+    let mut handle = xtra::spawn::Tokio::Global;
+
+    let workers = if cfg!(feature = "postgres") { 8 } else { 2 };
+
+    METADATA_MATCHER.get_or_init(|| {
+        let conn = get_conn().expect("Failed to grab the conn pool");
+        base::MetadataMatcher::cluster(&mut handle, workers, log.clone(), conn, tx.clone()).1
+    })
+}
+
+pub async fn start_custom<T: AsRef<Path>>(
+    library_id: i32,
+    log: slog::Logger,
+    tx: EventTx,
+    path: T,
+    media_type: MediaType,
+) -> Result<(), self::base::ScannerError> {
+    info!(log, "Scanning library"; "mod" => "scanner", "library_id" => library_id);
+
+    let conn = get_conn().expect("Failed to grab the conn pool");
+
+    let extractor = get_extractor(&log, &tx);
+    let matcher = get_matcher(&log, &tx);
+
     let files: Vec<PathBuf> = WalkDir::new(path)
         // we want to follow all symlinks in case of complex dir structures
         .follow_links(true)
@@ -128,17 +144,16 @@ pub async fn start(
 
     let mut futures = Vec::new();
     let now = Instant::now();
-    let media_type = lib.media_type;
 
     for file in files {
         futures.push(async move {
             if let Ok(mfile) = extractor.mount_file(file, library_id, media_type).await {
                 match media_type {
                     MediaType::Movie => {
-                        matcher.match_movie(mfile).await;
+                        let _ = matcher.match_movie(mfile).await;
                     }
                     MediaType::Tv => {
-                        matcher.match_tv(mfile).await;
+                        let _ = matcher.match_tv(mfile).await;
                     }
                     _ => unreachable!(),
                 }
@@ -156,4 +171,15 @@ pub async fn start(
     );
 
     Ok(())
+}
+
+pub async fn start(
+    library_id: i32,
+    log: slog::Logger,
+    tx: EventTx,
+) -> Result<(), self::base::ScannerError> {
+    let conn = get_conn().expect("Failed to grab the conn pool");
+    let lib = Library::get_one(&conn, library_id).await?;
+    let path = lib.location.as_str();
+    start_custom(library_id, log, tx, path, lib.media_type).await
 }
