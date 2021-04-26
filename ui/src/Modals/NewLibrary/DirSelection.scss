@@ -59,6 +59,9 @@
     align-items: center;
 
     button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       filter: saturate(0.7);
       transition: filter 0.3s ease-in-out;
       font-family: "Roboto Bold";
