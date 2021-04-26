@@ -1,4 +1,4 @@
-use lazy_static::lazy_static;
+/*use lazy_static::lazy_static;
 #[allow(unused_imports)]
 use {
     rocket::config::{ConfigBuilder, Environment, LoggingLevel},
@@ -6,7 +6,9 @@ use {
 };
 
 use std::sync::{Arc, Mutex};
+*/
 
+/*
 #[cfg(test)]
 lazy_static! {
     pub static ref CLIENT: Arc<Mutex<Client>> = {
@@ -39,7 +41,9 @@ lazy_static! {
         Arc::new(Mutex::new(Client::new(rocket).expect("Rocket client")))
     };
 }
+*/
 
+/*
 #[cfg(test)]
 pub fn drop_all_data() {
     use database::get_conn_devel;
@@ -88,6 +92,9 @@ pub fn put_garbage() {
     .insert(&conn)
     .unwrap();
 }
+*/
 
+/*
 pub mod route_library_tests;
 pub mod route_media_tests;
+*/

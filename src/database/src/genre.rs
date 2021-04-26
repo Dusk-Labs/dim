@@ -1,6 +1,9 @@
 use crate::schema::{genre, genre_media};
+use crate::DatabaseError;
 use cfg_if::cfg_if;
+
 use diesel::prelude::*;
+use tokio_diesel::*;
 
 /// Struct shows a single genre entry
 #[derive(Clone, Identifiable, Queryable, Serialize, Deserialize, PartialEq, Debug)]
@@ -16,22 +19,6 @@ pub struct Genre {
 #[table_name = "genre_media"]
 pub struct GenreMedia {
     pub id: i32,
-    pub genre_id: i32,
-    pub media_id: i32,
-}
-
-/// Genre entry that can be inserted into the db.
-#[derive(Insertable)]
-#[table_name = "genre"]
-pub struct InsertableGenre {
-    /// Genre name
-    pub name: String,
-}
-
-/// Struct which is used to pair a genre to a media
-#[derive(Insertable)]
-#[table_name = "genre_media"]
-pub struct InsertableGenreMedia {
     pub genre_id: i32,
     pub media_id: i32,
 }
@@ -62,17 +49,17 @@ impl Genre {
     /// assert_eq!(genre.name, "test2".to_string());
     ///
     /// Genre::delete(&conn, id);
-    pub fn get_by_name(
+    pub async fn get_by_name(
         conn: &crate::DbConnection,
         query: String,
-    ) -> Result<Self, diesel::result::Error> {
+    ) -> Result<Self, DatabaseError> {
         use crate::schema::genre::dsl::*;
 
         cfg_if! {
             if #[cfg(feature = "postgres")] {
-                genre.filter(name.ilike(query)).first::<Self>(conn)
+                Ok(genre.filter(name.ilike(query)).first_async::<Self>(conn).await?)
             } else {
-                genre.filter(crate::upper(name).like(query.to_uppercase())).first::<Self>(conn)
+                Ok(genre.filter(crate::upper(name).like(query.to_uppercase())).first_async::<Self>(conn).await?)
             }
         }
     }
@@ -130,15 +117,16 @@ impl Genre {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     /// Genre::delete(&conn, genre_id);
-    pub fn get_by_media(
+    pub async fn get_by_media(
         conn: &crate::DbConnection,
         query: i32,
-    ) -> Result<Vec<Self>, diesel::result::Error> {
-        genre::table
+    ) -> Result<Vec<Self>, DatabaseError> {
+        Ok(genre::table
             .inner_join(genre_media::table)
             .filter(genre_media::media_id.eq(query))
             .select((genre::dsl::id, genre::dsl::name))
-            .load::<Self>(&*conn)
+            .load_async::<Self>(conn)
+            .await?)
     }
 
     /// Method returns a genre based on genre_id and media_id
@@ -194,17 +182,18 @@ impl Genre {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     /// Genre::delete(&conn, genre_id);
-    pub fn get_by_media_and_genre(
+    pub async fn get_by_media_and_genre(
         conn: &crate::DbConnection,
         genre_id: i32,
         media_id: i32,
-    ) -> Result<Self, diesel::result::Error> {
-        genre::table
+    ) -> Result<Self, DatabaseError> {
+        Ok(genre::table
             .inner_join(genre_media::table)
             .filter(genre_media::media_id.eq(media_id))
             .filter(genre_media::genre_id.eq(genre_id))
             .select((genre::dsl::id, genre::dsl::name))
-            .first::<Self>(&*conn)
+            .first_async::<Self>(conn)
+            .await?)
     }
 
     /// Method removes a genre from the genre table based on its id
@@ -234,14 +223,21 @@ impl Genre {
     /// Genre::delete(&conn, id);
     ///
     /// assert!(Genre::get_by_name(&conn, "test".into()).is_err());
-    pub fn delete(
-        conn: &crate::DbConnection,
-        genre_id: i32,
-    ) -> Result<usize, diesel::result::Error> {
+    pub async fn delete(conn: &crate::DbConnection, genre_id: i32) -> Result<usize, DatabaseError> {
         use crate::schema::genre::dsl::*;
 
-        diesel::delete(genre.filter(id.eq(genre_id))).execute(conn)
+        Ok(diesel::delete(genre.filter(id.eq(genre_id)))
+            .execute_async(conn)
+            .await?)
     }
+}
+
+/// Genre entry that can be inserted into the db.
+#[derive(Clone, Insertable)]
+#[table_name = "genre"]
+pub struct InsertableGenre {
+    /// Genre name
+    pub name: String,
 }
 
 impl InsertableGenre {
@@ -273,27 +269,34 @@ impl InsertableGenre {
     ///
     /// Genre::delete(&conn, id);
     /// ```
-    pub fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error> {
+    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
         use crate::schema::genre::dsl::*;
 
         // first check if exists
-        if let Ok(x) = Genre::get_by_name(&conn, self.name.clone()) {
+        if let Ok(x) = Genre::get_by_name(&conn, self.name.clone()).await {
             return Ok(x.id);
         }
 
-        let query = diesel::insert_into(genre).values(self);
+        let query = diesel::insert_into(genre).values(self.clone());
 
         cfg_if! {
             if #[cfg(feature = "postgres")] {
-                query.returning(id)
-                    .get_result(conn)
+                Ok(query.returning(id)
+                    .get_result_async(conn).await?)
             } else {
-                query.execute(conn)?;
+                query.execute_async(conn).await?;
 
-                diesel::select(crate::last_insert_rowid).get_result(conn)
+                Ok(diesel::select(crate::last_insert_rowid).get_result_async(conn).await?)
             }
         }
     }
+}
+/// Struct which is used to pair a genre to a media
+#[derive(Clone, Insertable)]
+#[table_name = "genre_media"]
+pub struct InsertableGenreMedia {
+    pub genre_id: i32,
+    pub media_id: i32,
 }
 
 impl InsertableGenreMedia {
@@ -348,9 +351,12 @@ impl InsertableGenreMedia {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     /// Genre::delete(&conn, genre_id);
-    pub fn insert(&self, conn: &crate::DbConnection) {
+    pub async fn insert(&self, conn: &crate::DbConnection) {
         use crate::schema::genre_media::dsl::*;
-        let _ = diesel::insert_into(genre_media).values(self).execute(conn);
+        let _ = diesel::insert_into(genre_media)
+            .values(self.clone())
+            .execute_async(conn)
+            .await;
     }
 
     /// Method inserts a pair into the genre media table based on a genre_id and media_id.
@@ -402,13 +408,16 @@ impl InsertableGenreMedia {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     /// Genre::delete(&conn, genre_id);
-    pub fn insert_pair(genre_id: i32, media_id: i32, conn: &crate::DbConnection) {
-        if Genre::get_by_media_and_genre(&conn, genre_id, media_id).is_ok() {
+    pub async fn insert_pair(genre_id: i32, media_id: i32, conn: &crate::DbConnection) {
+        if Genre::get_by_media_and_genre(&conn, genre_id, media_id)
+            .await
+            .is_ok()
+        {
             return;
         }
 
         let pair = Self { genre_id, media_id };
 
-        pair.insert(conn);
+        pair.insert(conn).await;
     }
 }

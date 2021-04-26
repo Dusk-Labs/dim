@@ -5,6 +5,7 @@ use database::DbConnection;
 
 use database::library;
 use database::library::Library;
+use database::library::MediaType;
 
 use database::media::InsertableMedia;
 use database::media::Media;
@@ -27,19 +28,15 @@ use crate::core::EventTx;
 
 use super::tmdb;
 use super::tmdb::Tmdb;
-use super::MediaScanner;
-use super::MetadataAgent;
-use super::ScannerDaemon;
 
-pub struct MovieScanner {
-    conn: DbConnection,
-    lib: Library,
-    log: Logger,
-    event_tx: EventTx,
+pub struct MovieMatcher<'a> {
+    pub conn: &'a DbConnection,
+    pub log: &'a Logger,
+    pub event_tx: &'a EventTx,
 }
 
-impl MovieScanner {
-    fn match_media_to_tmdb(&self, result: super::ApiMedia, orphan: &MediaFile) {
+impl<'a> MovieMatcher<'a> {
+    pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
         let name = result.title.clone();
 
         let year: Option<i32> = result
@@ -67,7 +64,7 @@ impl MovieScanner {
         }
 
         let media = InsertableMedia {
-            library_id: self.lib.id,
+            library_id: orphan.library_id,
             name,
             description: result.overview.clone(),
             rating: result.rating,
@@ -80,40 +77,38 @@ impl MovieScanner {
                 .clone()
                 .map(|x| format!("images/{}", x)),
 
-            media_type: Self::MEDIA_TYPE,
+            media_type: MediaType::Movie,
         };
 
-        if self.insert(orphan, media, result).is_err() {
+        if let Err(e) = self.insert(orphan, media, result).await {
+            println!("{:?}", e);
             warn!(
                 self.log,
-                "Failed to insert new media for orphan={}", orphan.id
+                "Failed to insert new media";
+                "id" => orphan.id,
+                "reason" => e.to_string(),
             );
         }
     }
 
-    fn insert(
+    async fn insert(
         &self,
         orphan: &MediaFile,
         media: InsertableMedia,
         result: super::ApiMedia,
-    ) -> Result<(), ()> {
-        let media_id = Media::get_by_name_and_lib(&self.conn, &self.lib, media.name.as_str())
-            .map_or_else(
-                |_| {
-                    // this should never panic unless some serious fuckup happened to the db
-                    media
-                        .into_streamable::<InsertableMovie>(&self.conn, None)
-                        .unwrap()
-                },
-                |x| x.id,
-            );
+    ) -> Result<(), super::base::ScannerError> {
+        let media_id = media.insert(&self.conn).await?;
+        // the reason we ignore the result here is that in some cases this can fail. Specifically when there are multiple mediafiles for a movie.
+        let _ = media
+            .into_streamable::<InsertableMovie>(&self.conn, media_id, None)
+            .await;
 
         for name in result.genres {
             let genre = InsertableGenre { name };
 
-            let _ = genre
-                .insert(&self.conn)
-                .map(|z| InsertableGenreMedia::insert_pair(z, media_id, &self.conn));
+            if let Ok(x) = genre.insert(&self.conn).await {
+                InsertableGenreMedia::insert_pair(x, media_id, &self.conn).await;
+            }
         }
 
         let updated_mediafile = UpdateMediaFile {
@@ -121,16 +116,14 @@ impl MovieScanner {
             ..Default::default()
         };
 
-        updated_mediafile
-            .update(&self.conn, orphan.id)
-            .map_err(|_| ())?;
+        updated_mediafile.update(&self.conn, orphan.id).await?;
 
-        self.push_event(media_id);
+        self.push_event(media_id).await;
 
         Ok(())
     }
 
-    fn push_event(&self, id: i32) {
+    async fn push_event(&self, id: i32) {
         let event = Message {
             id,
             event_type: PushEventType::EventNewCard,
@@ -139,66 +132,3 @@ impl MovieScanner {
         let _ = self.event_tx.send(serde_json::to_string(&event).unwrap());
     }
 }
-
-impl MediaScanner for MovieScanner {
-    const MEDIA_TYPE: library::MediaType = library::MediaType::Movie;
-
-    fn new_unchecked(conn: DbConnection, lib: Library, log: Logger, event_tx: EventTx) -> Self {
-        Self {
-            conn,
-            lib,
-            log,
-            event_tx,
-        }
-    }
-
-    fn logger_ref(&self) -> &Logger {
-        &self.log
-    }
-
-    fn library_ref(&self) -> &Library {
-        &self.lib
-    }
-
-    fn conn_ref(&self) -> &DbConnection {
-        &self.conn
-    }
-
-    fn fix_orphans(&self) {
-        assert!(self.lib.media_type == Self::MEDIA_TYPE);
-        info!(self.log, "Scanning orphans for lib={}", self.lib.id);
-
-        let mut tmdb_session = Tmdb::new(
-            "38c372f5bc572c8aadde7a802638534e".to_string(),
-            tmdb::MediaType::Movie,
-        );
-        let orphans = match MediaFile::get_by_lib(&self.conn, &self.lib) {
-            Ok(x) => x,
-            Err(e) => {
-                error!(self.log, "Database fucked up somehow: {:?}", e);
-                return;
-            }
-        };
-
-        for orphan in orphans {
-            if orphan.media_id.is_none() {
-                info!(
-                    self.log,
-                    "Scanning orphan with raw name: {}", orphan.raw_name
-                );
-
-                let result = match tmdb_session.search(orphan.raw_name.clone(), orphan.raw_year) {
-                    Ok(v) => v,
-                    Err(e) => {
-                        error!(self.log, "fix-orphans: {:?}", e);
-                        continue;
-                    }
-                };
-
-                self.match_media_to_tmdb(result, &orphan);
-            }
-        }
-    }
-}
-
-impl ScannerDaemon for MovieScanner {}

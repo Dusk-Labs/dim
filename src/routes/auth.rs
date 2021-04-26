@@ -9,20 +9,21 @@ use database::user::Login;
 use database::user::User;
 
 use diesel::prelude::*;
-use rocket::http::Cookie;
-use rocket::http::Cookies;
+
+use rocket::State;
 use rocket_contrib::json::{Json, JsonValue};
 
+use tokio_diesel::*;
+
 #[post("/login", data = "<new_login>")]
-pub fn login(
-    conn: DbConnection,
+pub async fn login(
+    conn: State<'_, DbConnection>,
     new_login: Json<Login>,
-    cookies: Cookies,
 ) -> Result<JsonValue, errors::AuthError> {
     use database::schema::users::dsl::*;
-    let user: (String, String, String) = users
-        .filter(username.eq(&new_login.username))
-        .first(conn.as_ref())?;
+    let uname = new_login.username.clone();
+    let user: (String, String, String) =
+        users.filter(username.eq(uname)).first_async(&conn).await?;
 
     if verify(user.0.clone(), user.1.clone(), new_login.password.clone()) {
         let token = jwt_generate(user.0, user.2.split(",").map(|x| x.to_string()).collect());
@@ -36,28 +37,31 @@ pub fn login(
 }
 
 #[get("/whoami")]
-pub fn whoami(conn: DbConnection, user: Auth) -> JsonValue {
+pub async fn whoami(conn: State<'_, DbConnection>, user: Auth) -> JsonValue {
     json!({
         "username": user.0.claims.get_user(),
         "picture": "https://i.redd.it/3n1if40vxxv31.png",
-        "spentWatching": Progress::get_total_time_spent_watching(&conn, user.0.claims.get_user()).unwrap_or(0) / 3600
+        "spentWatching": Progress::get_total_time_spent_watching(&conn, user.0.claims.get_user()).await.unwrap_or(0) / 3600
     })
 }
 
 #[get("/admin_exists")]
-pub fn admin_exists(conn: DbConnection) -> Result<JsonValue, errors::DimError> {
+pub async fn admin_exists(conn: State<'_, DbConnection>) -> Result<JsonValue, errors::DimError> {
     Ok(json!({
-        "exists": !User::get_all(conn.as_ref())?.is_empty()
+        "exists": !User::get_all(&conn).await?.is_empty()
     }))
 }
 
 #[post("/register", data = "<new_user>")]
-pub fn register(conn: DbConnection, new_user: Json<Login>) -> Result<JsonValue, errors::AuthError> {
-    let users_empty = User::get_all(&conn)?.is_empty();
+pub async fn register(
+    conn: State<'_, DbConnection>,
+    new_user: Json<Login>,
+) -> Result<JsonValue, errors::AuthError> {
+    let users_empty = User::get_all(&conn).await?.is_empty();
 
     if !users_empty
         && (new_user.invite_token.is_none()
-            || !new_user.invite_token_valid(conn.as_ref()).unwrap_or(false))
+            || !new_user.invite_token_valid(&conn).await.unwrap_or(false))
     {
         return Err(errors::AuthError::NoTokenError);
     }
@@ -73,20 +77,24 @@ pub fn register(conn: DbConnection, new_user: Json<Login>) -> Result<JsonValue, 
         password: new_user.password.clone(),
         roles,
     }
-    .insert(conn.as_ref())?;
+    .insert(&conn)
+    .await?;
 
     if users_empty {
-        new_user.invalidate_token(conn.as_ref())?;
+        new_user.invalidate_token(&conn).await?;
     }
 
     Ok(json!({ "username": res }))
 }
 
 #[get("/invites")]
-pub fn get_all_invites(conn: DbConnection, user: Auth) -> Result<JsonValue, errors::AuthError> {
+pub async fn get_all_invites(
+    conn: State<'_, DbConnection>,
+    user: Auth,
+) -> Result<JsonValue, errors::AuthError> {
     if user.0.claims.has_role("owner") {
         return Ok(json!({
-            "invites": Login::get_all_invites(conn.as_ref())?
+            "invites": Login::get_all_invites(&conn).await?
         }));
     }
 
@@ -94,12 +102,15 @@ pub fn get_all_invites(conn: DbConnection, user: Auth) -> Result<JsonValue, erro
 }
 
 #[post("/new_invite")]
-pub fn generate_invite(conn: DbConnection, user: Auth) -> Result<JsonValue, errors::AuthError> {
+pub async fn generate_invite(
+    conn: State<'_, DbConnection>,
+    user: Auth,
+) -> Result<JsonValue, errors::AuthError> {
     if !user.0.claims.has_role("owner") {
         return Err(errors::AuthError::Unauthorized);
     }
 
     Ok(json!({
-        "token": Login::new_invite(conn.as_ref())?
+        "token": Login::new_invite(&conn).await?
     }))
 }

@@ -4,7 +4,7 @@ use rocket::State;
 
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::sync::RwLock;
+use tokio::sync::RwLock;
 
 use tokio::runtime::Handle;
 
@@ -13,25 +13,25 @@ pub struct StreamTracking {
 }
 
 impl StreamTracking {
-    pub fn insert(&self, id: u128, stream_id: String) {
-        let mut lock = self.streaming_sessions.write().unwrap();
+    pub async fn insert(&self, id: u128, stream_id: String) {
+        let mut lock = self.streaming_sessions.write().await;
         lock.entry(id).or_default().push(stream_id);
     }
 
-    pub fn kill_all(&self, tokio_rt: &State<Handle>, state: &State<StateManager>, id: u128) {
-        let mut lock = self.streaming_sessions.write().unwrap();
+    pub async fn kill_all(&self, state: &State<'_, StateManager>, id: u128) {
+        let mut lock = self.streaming_sessions.write().await;
 
         if let Some(v) = lock.get_mut(&id) {
             if !v.is_empty() {
                 for id in v.drain(..) {
-                    let _ = tokio_rt.block_on(state.die(id));
+                    let _ = state.die(id).await;
                 }
             }
         }
     }
 
-    pub fn get_for_gid(&self, gid: u128) -> Option<Vec<String>> {
-        let lock = self.streaming_sessions.read().unwrap();
+    pub async fn get_for_gid(&self, gid: u128) -> Option<Vec<String>> {
+        let lock = self.streaming_sessions.read().await;
         lock.get(&gid).cloned()
     }
 }
