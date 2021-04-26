@@ -7,18 +7,17 @@ use database::mediafile::MediaFile;
 
 use rocket::{http::Status, State};
 use rocket_contrib::{json, json::JsonValue};
-use rocket_slog::SyncLogger;
 use std::sync::{Arc, Mutex};
 
 /// Method mapped to `GET /api/v1/mediafile/<id>/` is used to get information about a mediafile by its id
 #[get("/<id>")]
-pub fn get_mediafile_info(
-    conn: DbConnection,
-    log: SyncLogger,
+pub async fn get_mediafile_info(
+    conn: State<'_, DbConnection>,
+    log: State<'_, slog::Logger>,
     id: i32,
     _user: Auth,
 ) -> Result<JsonValue, errors::DimError> {
-    let mediafile = MediaFile::get_one(&conn, id)?;
+    let mediafile = MediaFile::get_one(&conn, id).await?;
 
     Ok(json!({
         "id": mediafile.id,
@@ -40,10 +39,10 @@ pub fn get_mediafile_info(
 /// * `tmdb_id` - the tmdb id of the proper metadata we want to fetch for the media
 // Part of /api/v1/mediafile route
 #[patch("/<id>/match?<tmdb_id>")]
-pub fn rematch_mediafile(
-    conn: DbConnection,
-    log: SyncLogger,
-    event_tx: State<Arc<Mutex<EventTx>>>,
+pub async fn rematch_mediafile(
+    conn: State<'_, DbConnection>,
+    log: State<'_, slog::Logger>,
+    event_tx: State<'_, Arc<Mutex<EventTx>>>,
     id: i32,
     tmdb_id: i32,
 ) -> Result<Status, errors::DimError> {

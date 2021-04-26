@@ -1,8 +1,8 @@
+use crate::core::EventTx;
+
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::time::Duration;
-
-use super::MediaScanner;
 
 use database::get_conn;
 use database::library::Library;
@@ -10,6 +10,7 @@ use database::library::MediaType;
 use database::media::Media;
 use database::mediafile::MediaFile;
 use database::mediafile::UpdateMediaFile;
+use database::DbConnection;
 
 use slog::debug;
 use slog::error;
@@ -19,79 +20,134 @@ use slog::Logger;
 use notify::DebouncedEvent;
 use notify::RecommendedWatcher;
 use notify::RecursiveMode;
-use notify::Result as nResult;
 use notify::Watcher;
 
-pub trait ScannerDaemon: MediaScanner {
-    fn start_daemon(&self) -> nResult<()> {
-        let (tx, rx) = mpsc::channel();
-        let mut watcher = <RecommendedWatcher as Watcher>::new(tx, Duration::from_secs(1))?;
-        let log = self.logger_ref();
+use err_derive::Error;
+use tokio::task::spawn_blocking;
 
-        watcher.watch(
-            self.library_ref().location.as_str(),
-            RecursiveMode::Recursive,
-        )?;
+#[derive(Debug, Error)]
+pub enum FsWatcherError {
+    #[error(display = "A database error has occured")]
+    DatabaseError(#[source] database::DatabaseError),
+    #[error(display = "A error with notify has occured")]
+    NotifyError(#[source] notify::Error),
+}
+
+pub struct FsWatcher {
+    media_type: MediaType,
+    library_id: i32,
+    tx: EventTx,
+    logger: slog::Logger,
+    conn: DbConnection,
+}
+
+impl FsWatcher {
+    pub fn new(logger: slog::Logger, library_id: i32, media_type: MediaType, tx: EventTx) -> Self {
+        Self {
+            library_id,
+            media_type,
+            tx,
+            logger,
+            conn: get_conn().expect("Failed to grab the connection pool."),
+        }
+    }
+
+    pub async fn start_daemon(&self) -> Result<(), FsWatcherError> {
+        let library = Library::get_one(&self.conn, self.library_id).await?;
+
+        let (tx, mut rx) = mpsc::channel();
+        let mut watcher = <RecommendedWatcher as Watcher>::new(tx, Duration::from_secs(1))?;
+
+        watcher.watch(library.location.as_str(), RecursiveMode::Recursive)?;
 
         loop {
-            match rx.recv() {
-                Ok(DebouncedEvent::Create(path)) => self.handle_create(path),
-                Ok(DebouncedEvent::Rename(from, to)) => self.handle_rename(from, to),
-                Ok(DebouncedEvent::Remove(path)) => self.handle_remove(path),
-                Ok(event) => debug!(log, "Tried to handle unmatched event {:?}", event),
-                Err(e) => error!(log, "Received error: {:?}", e),
+            // NOTE: God forgive me
+            let (_rx, result) = spawn_blocking(move || {
+                let rx = rx;
+                let res = rx.recv();
+                (rx, res)
+            })
+            .await
+            .unwrap();
+
+            rx = _rx;
+
+            match result {
+                Ok(DebouncedEvent::Create(path)) => self.handle_create(path).await,
+                Ok(DebouncedEvent::Rename(from, to)) => self.handle_rename(from, to).await,
+                Ok(DebouncedEvent::Remove(path)) => self.handle_remove(path).await,
+                Ok(event) => debug!(self.logger, "Tried to handle unmatched event {:?}", event),
+                Err(e) => error!(self.logger, "Received error: {:?}", e),
             }
         }
     }
 
-    fn handle_create(&self, path: PathBuf) {
-        let log = self.logger_ref();
-
-        debug!(log, "Received handle_create event type: {:?}", path);
+    async fn handle_create(&self, path: PathBuf) {
+        debug!(self.logger, "Received handle_create event type: {:?}", path);
 
         if path.is_file()
             && path
                 .extension()
                 .and_then(|e| e.to_str())
-                .map_or(false, |e| {
-                    <Self as MediaScanner>::SUPPORTED_EXTS.contains(&e)
-                })
+                .map_or(false, |e| super::SUPPORTED_EXTS.contains(&e))
         {
-            if let Err(e) = self.mount_file(path.clone()) {
-                warn!(log, "Failed to mount file={:?} e={:?}", path, e);
-                return;
+            let extractor = super::get_extractor(&self.logger, &self.tx);
+            let matcher = super::get_matcher(&self.logger, &self.tx);
+
+            if let Ok(mfile) = extractor
+                .mount_file(path.clone(), self.library_id, self.media_type)
+                .await
+            {
+                match self.media_type {
+                    MediaType::Movie => {
+                        let _ = matcher.match_movie(mfile).await;
+                    }
+                    MediaType::Tv => {
+                        let _ = matcher.match_tv(mfile).await;
+                    }
+                    _ => unreachable!(),
+                }
             }
         } else if path.is_dir() {
-            self.start(path.to_str());
+            if let Some(x) = path.to_str() {
+                let _ = super::start_custom(
+                    self.library_id,
+                    self.logger.clone(),
+                    self.tx.clone(),
+                    x,
+                    self.media_type,
+                )
+                .await;
+            }
         }
-
-        self.fix_orphans();
     }
 
-    fn handle_remove(&self, path: PathBuf) {
-        let log = self.logger_ref();
-        let conn = self.conn_ref();
+    async fn handle_remove(&self, path: PathBuf) {
+        debug!(self.logger, "Received handle remove {:?}", path);
 
-        debug!(log, "Received handle remove {:?}", path);
+        let path = match path.to_str() {
+            Some(x) => x,
+            None => {
+                warn!(self.logger, "Received path thats not unicode"; "path" => format!("{:?}", path));
+                return;
+            }
+        };
 
-        if let Some(media_file) = path
-            .to_str()
-            .and_then(|x| MediaFile::get_by_file(conn, x).ok())
-        {
-            let media = Media::get_of_mediafile(conn, &media_file);
+        if let Some(media_file) = MediaFile::get_by_file(&self.conn, path).await.ok() {
+            let media = Media::get_of_mediafile(&self.conn, &media_file).await;
 
-            if let Err(e) = MediaFile::delete(conn, media_file.id) {
-                error!(log, "Failed to remove mediafile because e={:?}", e);
+            if let Err(e) = MediaFile::delete(&self.conn, media_file.id).await {
+                error!(self.logger, "Failed to remove mediafile"; "reason" => format!("{:?}", e));
                 return;
             }
 
             // if we have a media with no mediafiles we want to purge it as it is a ghost media
             // entry.
             if let Ok(media) = media {
-                if let Ok(media_files) = MediaFile::get_of_media(conn, &media) {
+                if let Ok(media_files) = MediaFile::get_of_media(&self.conn, &media).await {
                     if media_files.is_empty() {
-                        if let Err(e) = Media::delete(conn, media.id) {
-                            error!(log, "Failed to delete ghost media {:?}", e);
+                        if let Err(e) = Media::delete(&self.conn, media.id).await {
+                            error!(self.logger, "Failed to delete ghost media {:?}", e);
                             return;
                         }
                     }
@@ -100,28 +156,43 @@ pub trait ScannerDaemon: MediaScanner {
         }
     }
 
-    fn handle_rename(&self, from: PathBuf, to: PathBuf) {
+    async fn handle_rename(&self, from: PathBuf, to: PathBuf) {
         debug!(
-            self.logger_ref(),
-            "Received handle rename {:?} -> {:?}", from, to
+            self.logger,
+            "Received handle rename";
+            "from" => format!("{:?}", from),
+            "to" => format!("{:?}", to),
         );
 
-        if let Some(media_file) = from
-            .to_str()
-            .and_then(|x| MediaFile::get_by_file(self.conn_ref(), x).ok())
-        {
+        let from = match from.to_str() {
+            Some(x) => x,
+            None => {
+                warn!(self.logger, "Received path thats not unicode"; "path" => format!("{:?}", from));
+                return;
+            }
+        };
+
+        let to = match to.to_str() {
+            Some(x) => x,
+            None => {
+                warn!(self.logger, "Received path thats not unicode"; "path" => format!("{:?}", to));
+                return;
+            }
+        };
+
+        if let Some(media_file) = MediaFile::get_by_file(&self.conn, from).await.ok() {
             let update_query = UpdateMediaFile {
-                target_file: Some(to.to_str().unwrap().to_string()),
+                target_file: Some(to.into()),
                 ..Default::default()
             };
 
-            if let Err(e) = update_query.update(self.conn_ref(), media_file.id) {
+            if let Err(e) = update_query.update(&self.conn, media_file.id).await {
                 error!(
-                    self.logger_ref(),
-                    "Failed to update target file {:?} -> {:?} for mediafile_id={}",
-                    from,
-                    to,
-                    media_file.id
+                    self.logger,
+                    "Failed to update target file";
+                    "from" => format!("{:?}", from),
+                    "to" => format!("{:?}", to),
+                    "mediafile_id" => media_file.id
                 );
             }
         }

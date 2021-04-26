@@ -1,12 +1,16 @@
 use crate::media::Media;
 use crate::schema::streamable_media;
-use diesel::prelude::*;
+use crate::DatabaseError;
+
+use async_trait::async_trait;
+use tokio_diesel::*;
 
 /// Trait used to tell between a static media, ie. tv show and a streamable media such as a movie
 /// or episode.
+#[async_trait]
 pub trait StreamableTrait {
     /// Required method that inserts Self into the database returning the id of it or a error.
-    fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error>;
+    async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError>;
     /// Method should return a instance of Self.
     fn new(id: i32) -> Self;
 }
@@ -36,13 +40,11 @@ impl InsertableStreamableMedia {
     /// # Arguments
     /// * `id` - id of a media entry we'd like to mark as streamable.
     /// * `conn` - diesel connection reference to postgres
-    pub(crate) fn insert(
-        id: i32,
-        conn: &crate::DbConnection,
-    ) -> Result<i32, diesel::result::Error> {
+    pub(crate) async fn insert(id: i32, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
         diesel::insert_into(streamable_media::table)
             .values(InsertableStreamableMedia { id })
-            .execute(conn)?;
+            .execute_async(conn)
+            .await?;
 
         Ok(id)
     }

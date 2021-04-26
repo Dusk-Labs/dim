@@ -22,13 +22,15 @@ pub enum DimError {
     NoneError,
     #[error(display = "Some unknown error has occured")]
     UnknownError,
+    #[error(display = "An internal server error has occured. Contact your admin.")]
+    InternalServerError,
     #[error(display = "An Io error has occured")]
     IOError,
-    #[error(display = "Database failed to fetch such item")]
+    #[error(display = "The requested resource does not exist.")]
     NotFoundError,
-    #[error(display = "Authentication is required for this route")]
+    #[error(display = "Authentication is required for this route.")]
     AuthRequired,
-    #[error(display = "Invalid media_type supplied, options are [movie, tv]")]
+    #[error(display = "Invalid media_type supplied, options are [movie, tv].")]
     InvalidMediaType,
     #[error(display = "A error in the streaming library has occured")]
     StreamingError(#[error(source)] StreamingErrors),
@@ -88,6 +90,23 @@ impl From<DieselError> for DimError {
     }
 }
 
+use database::DatabaseError;
+impl From<DatabaseError> for DimError {
+    fn from(e: DatabaseError) -> Self {
+        let DatabaseError::AsyncError(e) = e;
+        Self::from(e)
+    }
+}
+
+impl From<tokio_diesel::AsyncError> for DimError {
+    fn from(e: tokio_diesel::AsyncError) -> Self {
+        match e {
+            tokio_diesel::AsyncError::Error(e) => Self::from(e),
+            _ => Self::UnknownError,
+        }
+    }
+}
+
 impl From<std::option::NoneError> for DimError {
     fn from(_: std::option::NoneError) -> Self {
         Self::NoneError
@@ -118,27 +137,65 @@ impl From<DieselError> for AuthError {
     }
 }
 
-impl Responder<'static> for DimError {
-    fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
+impl From<DatabaseError> for AuthError {
+    fn from(e: DatabaseError) -> Self {
+        let DatabaseError::AsyncError(e) = e;
+        Self::from(e)
+    }
+}
+
+impl From<tokio_diesel::AsyncError> for AuthError {
+    fn from(e: tokio_diesel::AsyncError) -> Self {
+        match e {
+            tokio_diesel::AsyncError::Error(e) => Self::from(e),
+            _ => Self::DatabaseError,
+        }
+    }
+}
+
+impl<'r> Responder<'r, 'static> for DimError {
+    fn respond_to(self, req: &'r Request<'_>) -> Result<Response<'static>, Status> {
+        let request_id = req
+            .headers()
+            .get("x-request-id")
+            .next()
+            .map(ToString::to_string)
+            .unwrap_or_default();
+
         let status = match self {
             Self::NoneError | Self::NotFoundError => Status::NotFound,
-            Self::StreamingError(_) | Self::DatabaseError | Self::UnknownError | Self::IOError => {
-                Status::InternalServerError
-            }
+            Self::StreamingError(_)
+            | Self::DatabaseError
+            | Self::UnknownError
+            | Self::IOError
+            | Self::InternalServerError => Status::InternalServerError,
             Self::AuthRequired => Status::Unauthorized,
             Self::InvalidMediaType => Status::NotModified,
         };
 
+        let resp = json!({
+            "error": json!(&self)["error"],
+            "messsage": self.to_string(),
+            "request_id": request_id,
+        });
+
         Response::build()
             .status(status)
             .header(ContentType::JSON)
-            .sized_body(Cursor::new(serde_json::to_string(&self).unwrap()))
+            .streamed_body(Cursor::new(serde_json::to_string(&resp).unwrap()))
             .ok()
     }
 }
 
-impl Responder<'static> for AuthError {
-    fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
+impl<'r> Responder<'r, 'static> for AuthError {
+    fn respond_to(self, req: &'r Request<'_>) -> Result<Response<'static>, Status> {
+        let request_id = req
+            .headers()
+            .get("x-request-id")
+            .next()
+            .map(ToString::to_string)
+            .unwrap_or_default();
+
         let status = match self {
             Self::NoTokenError => Status::Ok,
             Self::UsernameTaken => Status::Ok,
@@ -147,26 +204,45 @@ impl Responder<'static> for AuthError {
             Self::WrongPassword | Self::FailedAuth => Status::Forbidden,
         };
 
+        let resp = json!({
+            "error": json!(&self)["error"],
+            "messsage": self.to_string(),
+            "request_id": request_id,
+        });
+
         Response::build()
             .status(status)
             .header(ContentType::JSON)
-            .sized_body(Cursor::new(serde_json::to_string(&self).unwrap()))
+            .streamed_body(Cursor::new(serde_json::to_string(&resp).unwrap()))
             .ok()
     }
 }
 
-impl Responder<'static> for StreamingErrors {
-    fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
+impl<'r> Responder<'r, 'static> for StreamingErrors {
+    fn respond_to(self, req: &'r Request<'_>) -> Result<Response<'static>, Status> {
+        let request_id = req
+            .headers()
+            .get("x-request-id")
+            .next()
+            .map(ToString::to_string)
+            .unwrap_or_default();
+
         let status = match self {
             Self::OtherNightfall(NightfallError::ChunkNotDone) => Status::Processing,
             Self::NoMediaFileFound(_) => Status::NotFound,
             _ => Status::InternalServerError,
         };
 
+        let resp = json!({
+            "error": json!(&self)["error"],
+            "messsage": self.to_string(),
+            "request_id": request_id,
+        });
+
         Response::build()
             .status(status)
             .header(ContentType::JSON)
-            .sized_body(Cursor::new(serde_json::to_string(&self).unwrap()))
+            .streamed_body(Cursor::new(serde_json::to_string(&resp).unwrap()))
             .ok()
     }
 }

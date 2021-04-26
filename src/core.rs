@@ -1,11 +1,12 @@
+use crate::logger::RequestLogger;
 use crate::routes;
 use crate::scanners;
 use crate::stream_tracking::StreamTracking;
 
+use rocket::fairing::Fairing;
 use rocket::http::Method;
 use rocket_contrib::databases::diesel;
 use rocket_contrib::helmet::SpaceHelmet;
-use rocket_slog::SlogFairing;
 
 use rocket_cors::AllowedHeaders;
 use rocket_cors::AllowedOrigins;
@@ -16,9 +17,13 @@ use diesel::prelude::*;
 use lazy_static::lazy_static;
 use once_cell::sync::OnceCell;
 
+use slog::debug;
 use slog::error;
 use slog::info;
 use slog::Logger;
+
+use tokio::sync::mpsc::unbounded_channel;
+use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::sync::mpsc::UnboundedSender;
 
 use std::borrow::Cow;
@@ -28,42 +33,13 @@ use std::io::copy;
 use std::io::Cursor;
 use std::io::Read;
 use std::path::PathBuf;
-use std::sync::mpsc;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
 
 pub type StateManager = nightfall::StateManager;
-
-cfg_if! {
-    if #[cfg(feature = "postgres")] {
-        #[database("dimpostgres")]
-        pub struct DbConnection(PgConnection);
-
-        impl AsRef<PgConnection> for DbConnection {
-            fn as_ref(&self) -> &PgConnection {
-                &*self
-            }
-        }
-    } else {
-        #[database("dimpostgres")]
-        pub struct DbConnection(SqliteConnection);
-
-        impl AsRef<SqliteConnection> for DbConnection {
-            fn as_ref(&self) -> &SqliteConnection {
-                &*self
-            }
-        }
-    }
-}
-
+pub type DbConnection = database::DbConnection;
 pub type EventTx = UnboundedSender<String>;
-
-lazy_static! {
-    /// Holds a map of all threads keyed against the library id that they were started for
-    static ref LIB_SCANNERS: Mutex<HashMap<i32, thread::JoinHandle<()>>> =
-        Mutex::new(HashMap::new());
-}
 
 /// Hacky type we use to implement clone on deref types.
 #[derive(Clone, Debug)]
@@ -89,7 +65,7 @@ pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
 // NOTE: While the sender is wrapped in a Mutex, we dont really care as wel copy the inner type at
 // some point anyway.
 /// Contains the tx channel over which we can send images to be cached locally.
-pub static METADATA_FETCHER_TX: OnceCell<CloneOnDeref<mpsc::Sender<String>>> = OnceCell::new();
+pub static METADATA_FETCHER_TX: OnceCell<CloneOnDeref<UnboundedSender<String>>> = OnceCell::new();
 
 /// Function dumps a list of all libraries in the database and starts a scanner for each which
 /// monitors for new files using fsnotify. It also scans all orphans on boot.
@@ -98,47 +74,51 @@ pub static METADATA_FETCHER_TX: OnceCell<CloneOnDeref<mpsc::Sender<String>>> = O
 /// * `log` - Logger to which to log shit
 /// * `tx` - this is the websocket channel to which we can send websocket events to which get
 /// dispatched to clients.
-pub(crate) fn run_scanners(log: Logger, tx: EventTx) {
+pub async fn run_scanners(log: Logger, tx: EventTx) {
     if let Ok(conn) = database::get_conn_logged(&log) {
-        for lib in database::library::Library::get_all(&conn) {
+        for lib in database::library::Library::get_all(&conn).await {
             slog::info!(log, "Starting scanner for {} with id: {}", lib.name, lib.id);
             let log_clone = log.clone();
             let library_id = lib.id;
             let tx_clone = tx.clone();
+            let media_type = lib.media_type;
 
-            // NOTE: Its a good idea to just let the binary panic if the LIB_SCANNERS cannot be
-            //       locked. This is because such a error is unrecoverable.
-            LIB_SCANNERS.lock().unwrap().insert(
-                library_id,
-                thread::spawn(move || {
-                    let _ = scanners::start(library_id, &log_clone, tx_clone).map_err(|x| {
-                        error!(
-                            log_clone,
-                            "A scanner thread has returned with error: {:?}", x
-                        )
-                    });
-                }),
-            );
+            tokio::spawn(scanners::start(library_id, log_clone.clone(), tx_clone));
+
+            let log_clone = log.clone();
+            let library_id = lib.id;
+            let tx_clone = tx.clone();
+            let media_type = lib.media_type;
+            tokio::spawn(async move {
+                let watcher = scanners::scanner_daemon::FsWatcher::new(
+                    log_clone, library_id, media_type, tx_clone,
+                );
+
+                watcher
+                    .start_daemon()
+                    .await
+                    .expect("Something went wrong with the fs-watcher");
+            });
         }
     }
 }
 
-pub(crate) fn tmdb_poster_fetcher(log: Logger) {
-    let (tx, rx): (mpsc::Sender<String>, mpsc::Receiver<String>) = mpsc::channel();
+pub async fn tmdb_poster_fetcher(log: Logger) {
+    let (tx, mut rx): (UnboundedSender<String>, UnboundedReceiver<String>) = unbounded_channel();
 
-    thread::spawn(move || {
-        while let Ok(url) = rx.recv() {
-            match reqwest::blocking::get(url.as_str()) {
+    tokio::spawn(async move {
+        while let Some(url) = rx.recv().await {
+            match reqwest::get(url.as_str()).await {
                 Ok(resp) => {
                     if let Some(fname) = resp.url().path_segments().and_then(|segs| segs.last()) {
                         let meta_path = METADATA_PATH.get().unwrap();
                         let mut out_path = PathBuf::from(meta_path);
                         out_path.push(fname);
 
-                        info!(log, "Caching {} -> {:?}", url, out_path);
+                        debug!(log, "Caching {} -> {:?}", url, out_path);
 
                         if let Ok(mut file) = File::create(out_path) {
-                            if let Ok(bytes) = resp.bytes() {
+                            if let Ok(bytes) = resp.bytes().await {
                                 let mut content = Cursor::new(bytes);
                                 if let Err(e) = copy(&mut content, &mut file) {
                                     error!(log, "Failed to cache {} locally, e={:?}", url, e);
@@ -162,7 +142,7 @@ pub(crate) fn tmdb_poster_fetcher(log: Logger) {
 // TODO: Handle launch failures and fallback to a new port.
 // TODO: Store the port of the server in a dynamic config which can be queried by clients in case
 // the port changes as we dont want this hardcoded in.
-pub(crate) async fn start_event_server() -> EventTx {
+pub async fn start_event_server() -> EventTx {
     let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
     tokio::spawn(crate::websocket::serve(
@@ -174,30 +154,18 @@ pub(crate) async fn start_event_server() -> EventTx {
     tx
 }
 
-pub fn rocket_pad(
+pub async fn rocket_pad(
     logger: slog::Logger,
     event_tx: EventTx,
     config: rocket::config::Config,
     stream_manager: StateManager,
-    tokio_handle: tokio::runtime::Handle,
-) -> rocket::Rocket {
-    let fairing = SlogFairing::new(logger);
-
+    handle: tokio::runtime::Handle,
+) -> rocket::Rocket<rocket::Build> {
     // At the moment we dont really care if cors access is global so we create CORS options to
     // target every route.
     let allowed_origins = AllowedOrigins::all();
     let cors = CorsOptions {
         allowed_origins,
-        allowed_methods: vec![
-            Method::Options,
-            Method::Get,
-            Method::Post,
-            Method::Delete,
-            Method::Patch,
-        ]
-        .into_iter()
-        .map(From::from)
-        .collect(),
         allowed_headers: AllowedHeaders::all(),
         allow_credentials: true,
         ..Default::default()
@@ -208,9 +176,16 @@ pub fn rocket_pad(
     let stream_tracking = StreamTracking::default();
 
     rocket::custom(config)
-        .attach(DbConnection::fairing())
         .attach(SpaceHelmet::default())
-        .attach(fairing)
+        .attach(cors)
+        .attach(RequestLogger::new(logger.clone()))
+        .register(
+            "/api",
+            catchers![
+                routes::catchers::not_found,
+                routes::catchers::internal_server_error
+            ],
+        )
         .mount(
             "/",
             routes![
@@ -296,11 +271,12 @@ pub fn rocket_pad(
                 routes::auth::generate_invite
             ],
         )
-        .attach(cors)
+        .manage(logger)
         .manage(Arc::new(Mutex::new(event_tx)))
+        .manage(database::get_conn().expect("Failed to get db connection"))
         .manage(stream_tracking)
         .manage(stream_manager)
-        .manage(tokio_handle)
+        .manage(handle)
 }
 
 /// Method launch
@@ -313,13 +289,21 @@ pub fn rocket_pad(
 ///           a sink for logs.
 /// * `event_tx` - This is the tx channel over which modules in dim can dispatch websocket events.
 /// * `config` - Specifies the configuration we'd like to pass to our rocket_pad.
-pub fn launch(
+pub async fn launch(
     log: slog::Logger,
     event_tx: EventTx,
     config: rocket::config::Config,
     stream_manager: StateManager,
-    tokio_handle: tokio::runtime::Handle,
-) -> ! {
-    let error = rocket_pad(log, event_tx, config, stream_manager, tokio_handle).launch();
-    panic!("Launch error: {:?}", error);
+    handle: tokio::runtime::Handle,
+) {
+    let error = rocket_pad(log, event_tx, config, stream_manager, handle)
+        .await
+        .launch()
+        .await;
+
+    if let Err(e) = error {
+        panic!("Launch error: {}", e);
+    }
+
+    println!("Good bye ;3");
 }

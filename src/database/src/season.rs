@@ -1,7 +1,10 @@
 use crate::schema::season;
 use crate::tv::TVShow;
+use crate::DatabaseError;
+
 use cfg_if::cfg_if;
 use diesel::prelude::*;
+use tokio_diesel::*;
 
 /// Struct represents a season entry in the database.
 #[derive(
@@ -18,28 +21,6 @@ pub struct Season {
     /// String holding the date when the season was added to the database.
     pub added: Option<String>,
     /// URL to the location of the poster for this season.
-    pub poster: Option<String>,
-}
-
-/// Struct representing a insertable season
-/// Its exactly the same as [`Season`](Season) except it misses the tvshowid field and the id
-/// field.
-#[derive(Insertable, Serialize, Deserialize)]
-#[table_name = "season"]
-pub struct InsertableSeason {
-    pub season_number: i32,
-    pub added: String,
-    pub poster: String,
-}
-
-/// Struct used to update information about a season in the database.
-/// All fields are updateable and optional except the primary key id
-#[derive(AsChangeset, Deserialize, PartialEq, Debug)]
-#[table_name = "season"]
-pub struct UpdateSeason {
-    pub season_number: Option<i32>,
-    pub tvshowid: Option<i32>,
-    pub added: Option<String>,
     pub poster: Option<String>,
 }
 
@@ -97,16 +78,21 @@ impl Season {
     /// assert_eq!(season.poster, Some("test".to_string()));
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn get_all(
+    pub async fn get_all(
         conn: &crate::DbConnection,
         tv_id: i32,
-    ) -> Result<Vec<Self>, diesel::result::Error> {
+    ) -> Result<Vec<Self>, DatabaseError> {
         use crate::schema::tv_show;
+
         let tv_show = tv_show::dsl::tv_show
             .find(tv_id)
-            .get_result::<TVShow>(conn)?;
+            .get_result_async::<TVShow>(conn)
+            .await?;
 
-        let result = Self::belonging_to(&tv_show).load::<Self>(conn)?;
+        let result = season::dsl::season
+            .filter(season::tvshowid.eq(tv_show.id))
+            .load_async::<Self>(conn)
+            .await?;
 
         Ok(result)
     }
@@ -162,20 +148,24 @@ impl Season {
     /// assert_eq!(season.poster, Some("test".to_string()));
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn get(
+    pub async fn get(
         conn: &crate::DbConnection,
         tv_id: i32,
         season_num: i32,
-    ) -> Result<Season, diesel::result::Error> {
+    ) -> Result<Season, DatabaseError> {
         use crate::schema::season::dsl::*;
         use crate::schema::tv_show;
+
         let tv_show = tv_show::dsl::tv_show
             .find(tv_id)
-            .get_result::<TVShow>(conn)?;
+            .get_result_async::<TVShow>(conn)
+            .await?;
 
-        Self::belonging_to(&tv_show)
+        Ok(season
+            .filter(tvshowid.eq(tv_show.id))
             .filter(season_number.eq(season_num))
-            .first::<Self>(conn)
+            .first_async::<Self>(conn)
+            .await?)
     }
 
     /// Method deletes a season entry that belongs to a tv show.
@@ -235,43 +225,62 @@ impl Season {
     /// assert!(season.is_err());
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn delete(
+    pub async fn delete(
         conn: &crate::DbConnection,
         tv_id: i32,
         season_num: i32,
-    ) -> Result<usize, diesel::result::Error> {
+    ) -> Result<usize, DatabaseError> {
+        use crate::schema::season::dsl::*;
         use crate::schema::tv_show;
 
         let tv_show = tv_show::dsl::tv_show
             .find(tv_id)
-            .get_result::<TVShow>(conn)?;
+            .get_result_async::<TVShow>(conn)
+            .await?;
 
-        let entry =
-            Season::belonging_to(&tv_show).filter(season::dsl::season_number.eq(season_num));
+        let entry = season
+            .filter(tvshowid.eq(tv_show.id))
+            .filter(season_number.eq(season_num));
 
-        let result = diesel::delete(entry).execute(conn)?;
+        let result = diesel::delete(entry).execute_async(conn).await?;
         Ok(result)
     }
 
-    pub fn get_first(
+    pub async fn get_first(
         conn: &crate::DbConnection,
         media: &TVShow,
-    ) -> Result<Self, diesel::result::Error> {
+    ) -> Result<Self, DatabaseError> {
         use crate::schema::season::dsl::*;
 
-        Self::belonging_to(media)
+        Ok(season
+            .filter(tvshowid.eq(media.id))
             .order(season_number.asc())
-            .first::<Self>(conn)
+            .first_async::<Self>(conn)
+            .await?)
     }
 
-    pub fn get_by_id(
+    pub async fn get_by_id(
         conn: &crate::DbConnection,
         season_id: i32,
-    ) -> Result<Self, diesel::result::Error> {
+    ) -> Result<Self, DatabaseError> {
         use crate::schema::season::dsl::*;
 
-        season.filter(id.eq(season_id)).first::<Self>(conn)
+        Ok(season
+            .filter(id.eq(season_id))
+            .first_async::<Self>(conn)
+            .await?)
     }
+}
+
+/// Struct representing a insertable season
+/// Its exactly the same as [`Season`](Season) except it misses the tvshowid field and the id
+/// field.
+#[derive(Clone, Insertable, Serialize, Deserialize)]
+#[table_name = "season"]
+pub struct InsertableSeason {
+    pub season_number: i32,
+    pub added: String,
+    pub poster: String,
 }
 
 impl InsertableSeason {
@@ -325,31 +334,56 @@ impl InsertableSeason {
     /// assert_eq!(season.poster, Some("test".to_string()));
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn insert(
-        &self,
-        conn: &crate::DbConnection,
-        id: i32,
-    ) -> Result<i32, diesel::result::Error> {
+    pub async fn insert(&self, conn: &crate::DbConnection, id: i32) -> Result<i32, DatabaseError> {
         use crate::schema::tv_show;
 
         // We check if the tv show exists
         // if it doesnt exist the ? operator would automatically
         // return Err(diesel::result::Error)
-        let _ = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
+        let _ = tv_show::dsl::tv_show
+            .find(id)
+            .get_result_async::<TVShow>(conn)
+            .await?;
 
-        // We insert the tvshowid separately
-        let query = diesel::insert_into(season::table).values((self, season::dsl::tvshowid.eq(id)));
+        Ok(conn
+            .transaction::<_, _>(|conn| {
+                let result = season::table
+                    .filter(season::season_number.eq(self.season_number))
+                    .filter(season::tvshowid.eq(id))
+                    .select(season::id)
+                    .get_result::<i32>(conn);
 
-        cfg_if! {
-            if #[cfg(feature = "postgres")] {
-                query.returning(season::id)
-                    .get_result(conn)
-            } else {
-                query.execute(conn)?;
-                diesel::select(crate::last_insert_rowid).get_result(conn)
-            }
-        }
+                if let Ok(x) = result {
+                    return Ok(x);
+                }
+
+                // We insert the tvshowid separately
+                let query = diesel::insert_into(season::table)
+                    .values((self.clone(), season::dsl::tvshowid.eq(id)));
+
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        Ok(query.returning(season::id)
+                            .get_result(conn)?)
+                    } else {
+                        query.execute(conn)?;
+                        Ok(diesel::select(crate::last_insert_rowid).get_result(conn)?)
+                    }
+                }
+            })
+            .await?)
     }
+}
+
+/// Struct used to update information about a season in the database.
+/// All fields are updateable and optional except the primary key id
+#[derive(Clone, AsChangeset, Deserialize, PartialEq, Debug)]
+#[table_name = "season"]
+pub struct UpdateSeason {
+    pub season_number: Option<i32>,
+    pub tvshowid: Option<i32>,
+    pub added: Option<String>,
+    pub poster: Option<String>,
 }
 
 impl UpdateSeason {
@@ -416,18 +450,24 @@ impl UpdateSeason {
     /// assert_ne!(season.added, season2.added);
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn update(
-        &self,
+    pub async fn update(
+        self,
         conn: &crate::DbConnection,
-        id: i32,
+        _id: i32,
         season_num: i32,
-    ) -> Result<usize, diesel::result::Error> {
+    ) -> Result<usize, DatabaseError> {
+        use crate::schema::season::dsl::*;
         use crate::schema::tv_show;
 
-        let tv = tv_show::dsl::tv_show.find(id).get_result::<TVShow>(conn)?;
+        let _ = tv_show::dsl::tv_show
+            .filter(id.eq(_id))
+            .execute_async(conn)
+            .await?;
 
-        let entry = Season::belonging_to(&tv).filter(season::dsl::season_number.eq(season_num));
+        let entry = season
+            .filter(tvshowid.eq(_id))
+            .filter(season_number.eq(season_num));
 
-        diesel::update(entry).set(self).execute(conn)
+        Ok(diesel::update(entry).set(self).execute_async(conn).await?)
     }
 }

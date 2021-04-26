@@ -1,10 +1,16 @@
 use crate::media::*;
 use crate::schema::tv_show;
-use cfg_if::cfg_if;
+use crate::DatabaseError;
+
 use diesel::prelude::*;
+use tokio_diesel::*;
+
+use async_trait::async_trait;
+use cfg_if::cfg_if;
 
 /// Trait used as a marker to mark media entries that cannot be streamed, as in not being directly
 /// linked to a file on the filesystem. For example tv shows.
+#[async_trait]
 pub trait StaticTrait {
     /// Required method returning a instance of a object we'd like to mark as static.
     ///
@@ -12,7 +18,7 @@ pub trait StaticTrait {
     /// * `id` - id of a media object.
     fn new(id: i32) -> Self;
     /// Required method that inserts Self into the database returning its id.
-    fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error>;
+    async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError>;
 }
 
 /// Struct represents a tv show entry in the database.
@@ -27,7 +33,7 @@ pub struct TVShow {
 
 /// Struct represents a insertable tv show entry in the database.
 /// This is mostly used as a marker to mark shows from movies, and episodes.
-#[derive(Insertable, Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Insertable, Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[table_name = "tv_show"]
 pub struct InsertableTVShow {
     /// id of a media object we'd like to mark as a tv show.
@@ -74,9 +80,9 @@ impl TVShow {
     /// assert_eq!(show.library_id, library_id);
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn get(conn: &crate::DbConnection, req_id: i32) -> Result<Media, diesel::result::Error> {
+    pub async fn get(conn: &crate::DbConnection, req_id: i32) -> Result<Media, DatabaseError> {
         use crate::schema::media::dsl::*;
-        media.filter(id.eq(req_id)).first(conn)
+        Ok(media.filter(id.eq(req_id)).first_async(conn).await?)
     }
 
     /// Method returns all the tv shows in the database.
@@ -114,16 +120,18 @@ impl TVShow {
     /// let show = TVShow::get_all(&conn).unwrap();
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    pub fn get_all(conn: &crate::DbConnection) -> Result<Vec<Media>, diesel::result::Error> {
+    pub async fn get_all(conn: &crate::DbConnection) -> Result<Vec<Media>, DatabaseError> {
         use crate::schema::media;
-        let result = media::dsl::media
+
+        Ok(media::dsl::media
             .inner_join(tv_show::dsl::tv_show)
             .select(media::all_columns)
-            .load(conn)?;
-        Ok(result)
+            .load_async(conn)
+            .await?)
     }
 }
 
+#[async_trait]
 impl StaticTrait for InsertableTVShow {
     fn new(id: i32) -> Self {
         Self { id }
@@ -166,16 +174,16 @@ impl StaticTrait for InsertableTVShow {
     /// assert_eq!(media_id, show_id);
     ///
     /// Library::delete(&conn, library_id).unwrap();
-    fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error> {
-        let query = diesel::insert_into(tv_show::table).values(self);
+    async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
+        let query = diesel::insert_into(tv_show::table).values(self.clone());
 
         cfg_if! {
             if #[cfg(feature = "postgres")] {
-                query.returning(tv_show::id)
-                    .get_result(conn)
+                Ok(query.returning(tv_show::id)
+                    .get_result_async(conn).await?)
             } else {
-                query.execute(conn)?;
-                diesel::select(crate::last_insert_rowid).get_result::<i32>(conn)
+                query.execute_async(conn).await?;
+                Ok(diesel::select(crate::last_insert_rowid).get_result_async::<i32>(conn).await?)
             }
         }
     }

@@ -1,16 +1,35 @@
 use crate::media::*;
 use crate::schema::library;
+use crate::DatabaseError;
 use cfg_if::cfg_if;
+
 use diesel::prelude::*;
+use tokio_diesel::*;
+
+use std::fmt;
 
 /// Enum represents a media type and can be used on a library or on a media.
 /// When returned in a http response, the fields are lowercase.
-#[derive(Serialize, Debug, Clone, DbEnum, Eq, PartialEq, Deserialize)]
+#[derive(Copy, Serialize, Debug, Clone, DbEnum, Eq, PartialEq, Deserialize, Hash)]
 #[serde(rename_all = "lowercase")]
 pub enum MediaType {
     Movie,
     Tv,
     Episode,
+}
+
+impl fmt::Display for MediaType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Movie => "movie",
+                Self::Tv => "tv",
+                Self::Episode => "episode",
+            }
+        )
+    }
 }
 
 impl Default for MediaType {
@@ -39,15 +58,6 @@ pub struct Library {
     pub media_type: MediaType,
 }
 
-/// InsertableLibrary struct, same as [`Library`](Library) but without the id field.
-#[derive(Insertable, Serialize, Deserialize)]
-#[table_name = "library"]
-pub struct InsertableLibrary {
-    pub name: String,
-    pub location: String,
-    pub media_type: MediaType,
-}
-
 impl Library {
     /// Method returns all libraries that exist in the database in the form of a Vec.
     /// If no libraries are found the the Vec will just be empty.
@@ -72,13 +82,14 @@ impl Library {
     /// // clean up the test
     /// let _ = Library::delete(&conn, new_id).unwrap();
     /// ```
-    pub fn get_all(conn: &crate::DbConnection) -> Vec<Self> {
+    pub async fn get_all(conn: &crate::DbConnection) -> Vec<Self> {
         use crate::schema::library::dsl::*;
 
         // TODO: Dont panic on error event tho this technically never panics and just returns a
         // null vec
         library
-            .load::<Self>(conn)
+            .load_async::<Self>(conn)
+            .await
             .expect("Error querying all libraries")
     }
 
@@ -111,13 +122,16 @@ impl Library {
     /// // clean up the test
     /// let _ = Library::delete(&conn, new_id).unwrap();
     /// ```
-    pub fn get_one(
+    pub async fn get_one(
         conn: &crate::DbConnection,
         lib_id: i32,
-    ) -> Result<Library, diesel::result::Error> {
+    ) -> Result<Library, DatabaseError> {
         use crate::schema::library::dsl::*;
 
-        library.filter(id.eq(lib_id)).first::<Self>(conn)
+        Ok(library
+            .filter(id.eq(lib_id))
+            .first_async::<Self>(conn)
+            .await?)
     }
 
     /// Method filters the database for a library with the id supplied and all Media objects
@@ -156,14 +170,14 @@ impl Library {
     /// // clean up the test
     /// let _ = Library::delete(&conn, library_id);
     /// ```
-    pub fn get(
-        conn: &crate::DbConnection,
-        lib_id: i32,
-    ) -> Result<Vec<Media>, diesel::result::Error> {
+    pub async fn get(conn: &crate::DbConnection, lib_id: i32) -> Result<Vec<Media>, DatabaseError> {
         use crate::schema::library::dsl::*;
-        let result = library.filter(id.eq(lib_id)).first::<Self>(conn)?;
+        let result = library
+            .filter(id.eq(lib_id))
+            .first_async::<Self>(conn)
+            .await?;
 
-        Media::get_all(conn, result)
+        Media::get_all(conn, result).await
     }
 
     /// Method filters the database for a library with the id supplied and deletes it.
@@ -188,16 +202,27 @@ impl Library {
     /// let rows = Library::delete(&conn, library_id).unwrap();
     /// assert_eq!(rows, 1usize);
     /// ```
-    pub fn delete(
+    pub async fn delete(
         conn: &crate::DbConnection,
         id_to_del: i32,
-    ) -> Result<usize, diesel::result::Error> {
+    ) -> Result<usize, DatabaseError> {
         use crate::schema::library::dsl::*;
 
-        let result = diesel::delete(library.filter(id.eq(id_to_del))).execute(conn)?;
+        let result = diesel::delete(library.filter(id.eq(id_to_del)))
+            .execute_async(conn)
+            .await?;
 
         Ok(result)
     }
+}
+
+/// InsertableLibrary struct, same as [`Library`](Library) but without the id field.
+#[derive(Clone, Insertable, Serialize, Deserialize)]
+#[table_name = "library"]
+pub struct InsertableLibrary {
+    pub name: String,
+    pub location: String,
+    pub media_type: MediaType,
 }
 
 impl InsertableLibrary {
@@ -229,16 +254,16 @@ impl InsertableLibrary {
     /// // clean up the test
     /// let _ = Library::delete(&conn, new_id);
     /// ```
-    pub fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error> {
-        let query = diesel::insert_into(library::table).values(self);
+    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
+        let query = diesel::insert_into(library::table).values(self.clone());
 
         cfg_if! {
             if #[cfg(feature = "postgres")] {
-                query.returning(library::id)
-                    .get_result(conn)
+                Ok(query.returning(library::id)
+                    .get_result_async(conn).await?)
             } else {
-                query.execute(conn)?;
-                diesel::select(crate::last_insert_rowid).get_result(conn)
+                query.execute_async(conn).await?;
+                Ok(diesel::select(crate::last_insert_rowid).get_result_async(conn).await?)
             }
         }
     }

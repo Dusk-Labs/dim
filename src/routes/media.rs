@@ -1,13 +1,15 @@
+use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors;
-use crate::{core::DbConnection, scanners::MetadataAgent};
 
+/*
 use crate::scanners::movie::MovieScanner;
 use crate::scanners::tv_show::TvShowScanner;
 use crate::scanners::MediaScanner;
 
 use crate::scanners::tmdb::MediaType as TmdbMediaType;
 use crate::scanners::tmdb::Tmdb;
+*/
 
 use auth::Wrapper as Auth;
 use database::{
@@ -19,12 +21,16 @@ use database::{
     progress::Progress,
     season::Season,
 };
-use rocket::{http::Status, State};
-use rocket_contrib::{
-    json,
-    json::{Json, JsonValue},
-};
-use rocket_slog::SyncLogger;
+
+use rocket::http::Status;
+use rocket::State;
+
+use rocket_contrib::json;
+use rocket_contrib::json::Json;
+use rocket_contrib::json::JsonValue;
+
+use futures::stream;
+use futures::StreamExt;
 use std::sync::{Arc, Mutex};
 
 /// Method mapped to `GET /api/v1/media/<id>` returns info about a media based on the id queried.
@@ -57,19 +63,20 @@ use std::sync::{Arc, Mutex};
 /// # Additional types
 /// [`MediaType`](`database::library::MediaType`)
 #[get("/<id>")]
-pub fn get_media_by_id(
-    conn: DbConnection,
+pub async fn get_media_by_id(
+    conn: State<'_, DbConnection>,
     id: i32,
     _user: Auth,
 ) -> Result<JsonValue, errors::DimError> {
-    let data = Media::get(conn.as_ref(), id)?;
+    let data = Media::get(&conn, id).await?;
 
-    let duration = match MediaFile::get_of_media(conn.as_ref(), &data) {
+    let duration = match MediaFile::get_of_media(&conn, &data).await {
         Ok(mut x) => x.pop()?.duration?,
         Err(_) => 0,
     };
 
-    let genres = Genre::get_by_media(conn.as_ref(), data.id)?
+    let genres = Genre::get_by_media(&conn, data.id)
+        .await?
         .into_iter()
         .map(|x| x.name)
         .collect::<Vec<String>>();
@@ -79,14 +86,23 @@ pub fn get_media_by_id(
             format!("{} min", duration / 60)
         }
         Some(MediaType::Tv) => {
-            let all_eps = Episode::get_all_of_tv(&conn, &data)?;
-            let total_len: i32 = all_eps
+            let all_eps = Episode::get_all_of_tv(&conn, &data).await?;
+            let total_eps = all_eps.len();
+            let total_len: i32 = stream::iter(all_eps)
+                .filter_map(|x| {
+                    let x = x.clone();
+                    async {
+                        let x = x;
+                        MediaFile::get_of_media(&conn, &x.media).await.ok()
+                    }
+                })
+                .collect::<Vec<_>>()
+                .await
                 .iter()
-                .filter_map(|x| MediaFile::get_of_media(&conn, &x.media).ok())
                 .filter(|x| !x.is_empty())
                 .filter_map(|x| x.last().and_then(|x| x.duration))
                 .sum();
-            format!("{} episodes | {} hr", all_eps.len(), total_len / 3600)
+            format!("{} episodes | {} hr", total_eps, total_len / 3600)
         }
     };
 
@@ -117,30 +133,30 @@ pub fn get_media_by_id(
 /// * `id` - id of the media we want to query info of
 /// * `_user` - Auth middleware
 #[get("/<id>/info")]
-pub fn get_extra_info_by_id(
-    conn: DbConnection,
+pub async fn get_extra_info_by_id(
+    conn: State<'_, DbConnection>,
     id: i32,
     user: Auth,
 ) -> Result<JsonValue, errors::DimError> {
-    let media = Media::get(conn.as_ref(), id)?;
+    let media = Media::get(&conn, id).await?;
 
     match media.media_type {
         Some(MediaType::Movie) | Some(MediaType::Episode) | None => {
-            get_for_streamable(conn, media, user)
+            get_for_streamable(conn, media, user).await
         }
-        Some(MediaType::Tv) => get_for_show(conn, media, user),
+        Some(MediaType::Tv) => get_for_show(conn, media, user).await,
     }
 }
 
-fn get_for_streamable(
-    conn: DbConnection,
+async fn get_for_streamable(
+    conn: State<'_, DbConnection>,
     media: Media,
     user: Auth,
 ) -> Result<JsonValue, errors::DimError> {
-    let media_files = MediaFile::get_of_media(conn.as_ref(), &media)?;
+    let media_files = MediaFile::get_of_media(&conn, &media).await?;
 
     Ok(json!({
-        "progress": Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), media.id)
+        "progress": Progress::get_for_media_user(&conn, user.0.claims.get_user(), media.id).await
             .map(|x| x.delta)
             .unwrap_or(0),
         "versions": media_files.iter().map(|x| json!({
@@ -155,16 +171,17 @@ fn get_for_streamable(
     }))
 }
 
-fn get_for_episode(
+async fn get_for_episode(
     conn: &DbConnection,
     media: Episode,
     user: &Auth,
 ) -> Result<JsonValue, errors::DimError> {
-    let media_files = MediaFile::get_of_media(conn.as_ref(), &media.media)?;
+    let media_files = MediaFile::get_of_media(&conn, &media.media).await?;
 
     Ok(json!({
         "id": media.id,
-        "progress": Progress::get_for_media_user(conn.as_ref(), user.0.claims.get_user(), media.id)
+        "progress": Progress::get_for_media_user(&conn, user.0.claims.get_user(), media.id)
+            .await
             .map(|x| x.delta)
             .unwrap_or(0),
         "episode": media.episode,
@@ -183,31 +200,49 @@ fn get_for_episode(
     }))
 }
 
-fn get_for_show(
-    conn: DbConnection,
+async fn get_for_show(
+    conn: State<'_, DbConnection>,
     media: Media,
     user: Auth,
 ) -> Result<JsonValue, errors::DimError> {
+    let seasons = Season::get_all(&conn, media.id).await?;
+
+    let seasons: Vec<JsonValue> = stream::iter(seasons)
+        .filter_map(|x| {
+            let x = x.clone();
+            async {
+                let x = x;
+                if let Ok(eps) = Episode::get_all_of_season(&conn, &x).await {
+                    let mut episodes = vec![];
+                    for i in eps {
+                        if let Ok(y) = get_for_episode(&conn, i, &user).await {
+                            episodes.push(y);
+                        }
+                    }
+                    return Some((x, episodes));
+                }
+                None
+            }
+        })
+        .map(|(s, e)| {
+            json!({
+                "id": s.id,
+                "season_number": s.season_number,
+                "name": if s.season_number == 0 {
+                    "Extras".to_string()
+                } else {
+                    format!("Season {}", s.season_number)
+                },
+                "added": s.added,
+                "poster": s.poster,
+                "episodes": e
+            })
+        })
+        .collect::<Vec<_>>()
+        .await;
+
     Ok(json!({
-        "seasons":
-            Season::get_all(conn.as_ref(), media.id)?
-                .into_iter()
-                .filter_map(|x| Episode::get_all_of_season(&conn, &x).map(|y| (x, y)).ok())
-                .map(|(x, y)| {
-                    json!({
-                        "id": x.id,
-                        "season_number": x.season_number,
-                        "name": if x.season_number == 0 {
-                            "Extras".to_string()
-                        } else {
-                            format!("Season {}", x.season_number)
-                        },
-                        "added": x.added,
-                        "poster": x.poster,
-                        "episodes": y.into_iter().filter_map(|z| get_for_episode(&conn, z, &user).ok()).collect::<Vec<JsonValue>>()
-                    })
-                })
-                .collect::<Vec<JsonValue>>()
+        "seasons": seasons,
     }))
 }
 
@@ -220,13 +255,13 @@ fn get_for_show(
 /// * `data` - the info that we changed about the media entry
 /// * `_user` - Auth middleware
 #[patch("/<id>", format = "application/json", data = "<data>")]
-pub fn update_media_by_id(
-    conn: DbConnection,
+pub async fn update_media_by_id(
+    conn: State<'_, DbConnection>,
     id: i32,
     data: Json<UpdateMedia>,
     _user: Auth,
 ) -> Result<Status, Status> {
-    match data.update(conn.as_ref(), id) {
+    match data.update(&conn, id).await {
         Ok(_) => Ok(Status::NoContent),
         Err(_) => Err(Status::NotModified),
     }
@@ -240,12 +275,12 @@ pub fn update_media_by_id(
 /// * `id` - id of the media we want to delete
 /// * `_user` - auth middleware
 #[delete("/<id>")]
-pub fn delete_media_by_id(
-    conn: DbConnection,
+pub async fn delete_media_by_id(
+    conn: State<'_, DbConnection>,
     id: i32,
     _user: Auth,
 ) -> Result<Status, errors::DimError> {
-    Media::delete(conn.as_ref(), id)?;
+    Media::delete(&conn, id).await?;
     Ok(Status::Ok)
 }
 
@@ -263,6 +298,7 @@ pub fn tmdb_search(
     media_type: String,
     _user: Auth,
 ) -> Result<JsonValue, errors::DimError> {
+    /*
     let media_type = match media_type.as_ref() {
         "movie" => TmdbMediaType::Movie,
         "tv" => TmdbMediaType::Tv,
@@ -272,6 +308,8 @@ pub fn tmdb_search(
     let mut tmdb_session = Tmdb::new("38c372f5bc572c8aadde7a802638534e".to_string(), media_type);
 
     Ok(json!(tmdb_session.search_many(query, year, 15)))
+    */
+    todo!()
 }
 
 /// Method mapped to `PATCH /api/v1/media/<id>/match` used to rematch a media entry to a new tmdb
@@ -285,16 +323,16 @@ pub fn tmdb_search(
 /// * `id` - id of the media we want to rematch
 /// * `tmdb_id` - the tmdb id of the proper metadata we want to fetch for the media
 #[patch("/<id>/match?<tmdb_id>")]
-pub fn rematch(
-    conn: DbConnection,
-    log: SyncLogger,
-    event_tx: State<Arc<Mutex<EventTx>>>,
+pub async fn rematch(
+    conn: State<'_, DbConnection>,
+    log: State<'_, slog::Logger>,
+    event_tx: State<'_, Arc<Mutex<EventTx>>>,
     id: i32,
     tmdb_id: i32,
     _user: Auth,
 ) -> Result<Status, errors::DimError> {
     /*
-    let media = Media::get(conn.as_ref(), id)?;
+    let media = Media::get(&conn, id)?;
     let tx = event_tx.lock().unwrap();
     // let scanner = IterativeScanner::new(media.library_id, log.get().clone(), tx.clone())?;
     std::thread::spawn(move || {
@@ -312,12 +350,12 @@ pub fn rematch(
 /// * `conn` - database connection
 /// * `id` -
 #[post("/<id>/progress?<offset>")]
-pub fn map_progress(
-    conn: DbConnection,
+pub async fn map_progress(
+    conn: State<'_, DbConnection>,
     id: i32,
     offset: i32,
     user: Auth,
 ) -> Result<Status, errors::DimError> {
-    Progress::set(conn.as_ref(), offset, user.0.claims.get_user(), id)?;
+    Progress::set(&conn, offset, user.0.claims.get_user(), id).await?;
     Ok(Status::Ok)
 }
