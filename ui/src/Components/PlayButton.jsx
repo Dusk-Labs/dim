@@ -1,7 +1,8 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import SelectMediaVersion from "../Modals/SelectMediaVersion";
 import { Link } from "react-router-dom";
+
+import SelectMediaVersion from "../Modals/SelectMediaVersion";
+import PlayIcon from "../assets/Icons/Play";
 
 import "./PlayButton.scss";
 
@@ -20,7 +21,7 @@ function PlayButton(props) {
           <p style={accentCSS}>
             {progress > 0 ? "Resume media" : "Play media"}
           </p>
-          <FontAwesomeIcon icon="play"/>
+          <PlayIcon/>
         </Link>
       </div>
     );
@@ -31,7 +32,7 @@ function PlayButton(props) {
           <p style={accentCSS}>
             {progress > 0 ? "Resume media" : "Play media"}
           </p>
-          <FontAwesomeIcon icon="play"/>
+          <PlayIcon/>
         </button>
       </SelectMediaVersion>
     );
