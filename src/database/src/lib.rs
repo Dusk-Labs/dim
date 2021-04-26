@@ -92,10 +92,10 @@ cfg_if! {
     }
 }
 
-fn create_database(conn: &crate::DbConnection) -> Result<(), diesel::result::Error> {
-    let conn = conn.get().unwrap();
+fn create_database(_conn: &crate::DbConnection) -> Result<(), diesel::result::Error> {
     cfg_if! {
         if #[cfg(feature = "postgres")] {
+            let conn = _conn.get().unwrap();
             let _ = diesel::sql_query("CREATE DATABASE dim").execute(&conn)?;
             let _ = diesel::sql_query("CREATE DATABASE dim_devel").execute(&conn)?;
             let _ = diesel::sql_query("CREATE DATABASE pg_trgm").execute(&conn)?;
@@ -177,11 +177,11 @@ pub fn get_conn_logged(log: &Logger) -> Result<DbConnection, r2d2::Error> {
     Ok(conn.clone())
 }
 
-fn internal_get_conn(log: Option<&Logger>) -> Result<DbConnection, r2d2::Error> {
+fn internal_get_conn(_log: Option<&Logger>) -> Result<DbConnection, r2d2::Error> {
     cfg_if! {
         if #[cfg(feature = "postgres")] {
             internal_get_conn_custom(
-                log,
+                _log,
                 "postgres://postgres:dimpostgres@127.0.0.1/dim",
                 "postgres://postgres:dimpostgres@postgres/dim",
             )
@@ -213,7 +213,7 @@ fn internal_get_conn_custom(
         return Ok(pool?);
     }
 
-    if let Err(e) = pool {
+    if pool.is_err() {
         let manager = Manager::new("postgres://postgres:dimpostgres@127.0.0.1/");
         let pool = Pool::builder().build(manager);
 
