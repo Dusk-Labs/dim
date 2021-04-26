@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 
 import QuickSearchResults from "./QuickSearchResults";
 import { quickSearch } from "../../actions/search.js";
-import SearchIcon from "../../assets/Icons/Search";
 
 import "./Search.scss";
 
@@ -81,7 +81,7 @@ function Search() {
           placeholder="Search"
         />
         <button onClick={fullSearch}>
-          <SearchIcon/>
+          <FontAwesomeIcon icon="search"/>
         </button>
       </div>
       {showResults && <QuickSearchResults/>}

@@ -1,7 +1,6 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import ModalBox from "./Index";
-
-import FileVideoIcon from "../assets/Icons/FileVideo";
 
 import "./SelectMediaVersion.scss";
 
@@ -15,7 +14,7 @@ const SelectMediaVersion = (props) => (
           <div className="fileVersions">
             {props.versions.map((version, i) => (
               <Link to={`/play/${version.id}`} className="fileVersion" key={i}>
-                <FileVideoIcon/>
+                <FontAwesomeIcon icon="file-video"/>
                 <p>{version.display_name}</p>
               </Link>
             ))}

@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { fetchDirectories } from "../../actions/fileBrowser.js";
-import FolderIcon from "../../assets/Icons/Folder";
-import TimesCircleIcon from "../../assets/Icons/TimesCircle";
-import ArrowLeftIcon from "../../assets/Icons/ArrowLeft";
 
 import "./DirSelection.scss";
 
@@ -80,7 +77,7 @@ function DirSelection(props) {
         dirs = items.map((dir, i) => {
           return (
             <div key={i} onClick={() => select(dir)} className="dir">
-              <FolderIcon/>
+              <FontAwesomeIcon icon="folder"/>
               <p>{dir.replace(props.current, "").replace("C:\\", "").replace("/", "").replace("\\", "")}</p>
             </div>
           );
@@ -93,14 +90,14 @@ function DirSelection(props) {
     if (items.length === 0) {
       dirs = (
         <div className="vertical-err">
-          <TimesCircleIcon/>
+          <FontAwesomeIcon icon="times-circle"/>
           <p>NO FOLDERS</p>
         </div>
       );
     } else {
       dirs = items.map((dir, i) => (
         <div key={i} onClick={() => select(dir)} className="dir">
-          <FolderIcon/>
+          <FontAwesomeIcon icon="folder"/>
           <p>{dir.replace(props.current, "").replace("C:\\", "").replace("/", "").replace("\\", "")}</p>
         </div>
       ));
@@ -117,7 +114,7 @@ function DirSelection(props) {
       </div>
       <div className="controls">
         <button onClick={goBack}>
-          <ArrowLeftIcon/>
+          <FontAwesomeIcon icon="arrow-left"/>
         </button>
         <h4>Selected: <span>{props.current}</span></h4>
       </div>
