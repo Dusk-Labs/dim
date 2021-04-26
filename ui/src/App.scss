@@ -73,11 +73,6 @@ img {
   }
 }
 
-svg {
-  width: 1em;
-  fill: #eee;
-}
-
 /*
   used by layout skeletons, appears only if takes a while to load,
   else prevent flicker on load e.g. when loading in cached results
