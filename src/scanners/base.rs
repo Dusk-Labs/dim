@@ -97,13 +97,6 @@ impl MetadataExtractor {
             return Err(ScannerError::UnknownError);
         }
 
-        info!(
-            self.logger,
-            "Scanning";
-            "file" => &target_file,
-            "library_id" => library_id
-        );
-
         let ctx = FFProbeCtx::new(&FFPROBE_BIN);
 
         // we clone so that we can strip the extension.
@@ -159,6 +152,19 @@ impl MetadataExtractor {
         let file_id = media_file.insert(&self.conn).await?;
 
         let id = MediaFile::get_one(&self.conn, file_id).await?;
+
+        assert!(file_id == id.id);
+
+        info!(
+            self.logger,
+            "Scanned file";
+            "file" => &target_file,
+            "library_id" => library_id,
+            "id" => file_id,
+            "2nd_pass_id" => id.id,
+            "season" => metadata.season().unwrap_or(0),
+            "episode" => metadata.episode().unwrap_or(0),
+        );
 
         Ok(id)
     }
