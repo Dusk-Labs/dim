@@ -151,6 +151,14 @@ impl<'a> TvShowMatcher<'a> {
             let _ = meta_fetcher.send(x);
         }
 
+        debug!(
+            self.log,
+            "Inserting new episode";
+            "seasonid" => seasonid,
+            "episode" => orphan.episode.unwrap_or(0),
+            "target_file" => &orphan.target_file,
+        );
+
         let episode = InsertableEpisode {
             episode: orphan.episode.unwrap_or(0),
             seasonid,
@@ -174,11 +182,20 @@ impl<'a> TvShowMatcher<'a> {
         };
 
         // manually insert the underlying `media` into the table and convert it into a streamable movie/ep
-        let raw_ep_id = episode.media.insert(&self.conn).await?;
-        let _ = episode
+        let raw_ep_id = episode.media.insert_blind(&self.conn).await?;
+        if let Err(e) = episode
             .media
             .into_streamable::<InsertableMovie>(&self.conn, raw_ep_id, Some(()))
-            .await;
+            .await
+        {
+            error!(
+                self.log,
+                "Failed to turn episode into a streamable movie";
+                "error" => format!("{:?}", e),
+                "episode_id" => raw_ep_id,
+                "file" => &orphan.target_file,
+            );
+        }
 
         let episode_id = episode.insert(&self.conn, media_id, raw_ep_id).await?;
 
