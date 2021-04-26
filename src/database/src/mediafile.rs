@@ -481,15 +481,19 @@ impl InsertableMediaFile {
 
         let query = diesel::insert_into(mediafile).values(self.clone());
 
-        cfg_if! {
-            if #[cfg(feature = "postgres")] {
-                Ok(query.returning(id)
-                    .get_result_async(conn).await?)
-            } else {
-                query.execute_async(conn).await?;
-                Ok(diesel::select(crate::last_insert_rowid).get_result_async(conn).await?)
-            }
-        }
+        Ok(conn
+            .transaction::<_, _>(|conn| {
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        query.returning(id)
+                            .get_result(conn)
+                    } else {
+                        query.execute(conn)?;
+                        diesel::select(crate::last_insert_rowid).get_result(conn)
+                    }
+                }
+            })
+            .await?)
     }
 }
 
