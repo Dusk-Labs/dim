@@ -1,10 +1,6 @@
 import { useEffect } from "react";
 import { BrowserRouter, Switch } from "react-router-dom";
 
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { fas } from "@fortawesome/free-solid-svg-icons";
-import { far } from "@fortawesome/free-regular-svg-icons";
-
 import NotAuthedOnlyRoute from "./Routes/NotAuthedOnly";
 import PrivateRoute from "./Routes/Private";
 
@@ -20,8 +16,6 @@ import Register from "./Pages/Auth/Register";
 import MainLayout from "./Layouts/MainLayout";
 
 import "./App.scss";
-
-library.add(fas, far);
 
 // quick hack to get proper requests
 window.host = window.location.hostname;
