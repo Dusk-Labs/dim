@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import TruncText from "../../Helpers/TruncText.jsx";
 import IMDbLogo from "../../assets/imdb.png";
 import PlayButton from "../PlayButton.jsx";
+import CircleIcon from "../../assets/Icons/Circle";
 
 import "./CardPopup.scss";
 
@@ -81,7 +81,7 @@ function CardPopup(props) {
   };
 
   if (genres.length > 3) {
-    genres.length = 3
+    genres.length = 3;
   }
 
   return (
@@ -111,7 +111,7 @@ function CardPopup(props) {
         {(year && genres) && (
           <section className="tags">
             <Link to={`/search?year=${year}`}>{year}</Link>
-            <FontAwesomeIcon icon="circle"/>
+            <CircleIcon/>
             <div className="genres">
               {genres.map((genre, i) => (
                 <Link

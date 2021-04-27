@@ -61,7 +61,7 @@ function VideoPlayer(props) {
     (async () => {
       const config = {
         headers: {
-            "authorization": token
+          "authorization": token
         }
       };
 
@@ -106,7 +106,7 @@ function VideoPlayer(props) {
 
   useEffect(() => {
     dispatch(fetchExtraMediaInfo(mediaID));
-    return () => dispatch(clearMediaInfo())
+    return () => dispatch(clearMediaInfo());
   }, [dispatch, mediaID]);
 
   useEffect(() => {
@@ -162,7 +162,7 @@ function VideoPlayer(props) {
         modifyRequestURL: function (url) {
           return url;
         }
-      }
+      };
     });
 
     mediaPlayer.initialize(video.current, url, true);
@@ -181,7 +181,7 @@ function VideoPlayer(props) {
         await fetch(`//${window.host}:8000/api/v1/stream/${uuid}/state/kill`);
         sessionStorage.clear();
       })();
-    }
+    };
   }, [auth.token, params.fileID]);
 
   const seekTo = useCallback(async newTime => {
@@ -225,7 +225,7 @@ function VideoPlayer(props) {
   const eError = useCallback(e => {
     // segment not available
     if (e.error.code === 27) {
-      console.log("segment not available", e.error.message)
+      console.log("segment not available", e.error.message);
       return;
     }
 
@@ -279,8 +279,8 @@ function VideoPlayer(props) {
       player.off(MediaPlayer.events.PLAYBACK_NOT_ALLOWED, ePlayBackNotAllowed);
       player.off(MediaPlayer.events.PLAYBACK_ENDED, ePlayBackEnded);
       player.off(MediaPlayer.events.ERROR, eError);
-    }
-  }, [eCanPlay, eError, eManifestLoad, ePlayBackEnded, ePlayBackNotAllowed, ePlayBackPaused, ePlayBackPlaying, ePlayBackTimeUpdated, ePlayBackWaiting, player])
+    };
+  }, [eCanPlay, eError, eManifestLoad, ePlayBackEnded, ePlayBackNotAllowed, ePlayBackPaused, ePlayBackPlaying, ePlayBackTimeUpdated, ePlayBackWaiting, player]);
 
   const initialValue = {
     player,

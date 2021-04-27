@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { clearMediaInfo, fetchMediaInfo } from "../../actions/card.js";
 import PlayButton from "../../Components/PlayButton.jsx";
+import CircleIcon from "../../assets/Icons/Circle";
 
 import "./MetaContent.scss";
 
@@ -91,7 +91,7 @@ function MetaContent() {
         <h1>{name}</h1>
         <div className="genres">
           <Link to={`/search?year=${year}`}>{year}</Link>
-          <FontAwesomeIcon icon="circle"/>
+          <CircleIcon/>
           {genres &&
             genres.map((genre, i) => <Link to={`/search?genre=${genre}`} key={i}>{genre}</Link>)
           }

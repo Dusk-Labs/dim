@@ -3,11 +3,14 @@ use crate::library::MediaType;
 use crate::media::Media;
 use crate::schema::progress;
 use crate::user::User;
+use crate::DatabaseError as DieselError;
 
 use diesel::prelude::*;
-use diesel::result::Error as DieselError;
-use serde::Serialize;
+use futures::stream::iter;
+use futures::StreamExt;
+use tokio_diesel::*;
 
+use serde::Serialize;
 use std::time::SystemTime;
 
 #[derive(Queryable, Debug, Identifiable, Associations, Serialize)]
@@ -23,7 +26,7 @@ pub struct Progress {
 }
 
 impl Progress {
-    pub fn set(
+    pub async fn set(
         conn: &crate::DbConnection,
         delta: i32,
         uid: String,
@@ -42,10 +45,11 @@ impl Progress {
                 progress::user_id.eq(uid.clone()),
                 progress::populated.eq(timestamp as i32),
             ))
-            .execute(conn)
+            .execute_async(conn)
+            .await
             .is_err()
         {
-            diesel::update(
+            Ok(diesel::update(
                 progress::table
                     .filter(progress::media_id.eq(mid))
                     .filter(progress::user_id.eq(uid)),
@@ -54,13 +58,14 @@ impl Progress {
                 progress::delta.eq(delta),
                 progress::populated.eq(timestamp as i32),
             ))
-            .execute(conn)
+            .execute_async(conn)
+            .await?)
         } else {
             Ok(1)
         }
     }
 
-    pub fn get_for_media_user(
+    pub async fn get_for_media_user(
         conn: &crate::DbConnection,
         uid: String,
         mid: i32,
@@ -70,21 +75,22 @@ impl Progress {
         match progress
             .filter(media_id.eq(mid))
             .filter(user_id.eq(uid.clone()))
-            .first::<Self>(conn)
+            .first_async::<Self>(conn)
+            .await
         {
             Ok(x) => Ok(x),
-            Err(DieselError::NotFound) => Ok(Self {
+            Err(tokio_diesel::AsyncError::Error(diesel::result::Error::NotFound)) => Ok(Self {
                 id: 0,
                 delta: 0,
                 media_id: mid,
                 user_id: uid,
                 populated: 0,
             }),
-            Err(e) => Err(e),
+            Err(e) => Err(DieselError::AsyncError(e)),
         }
     }
 
-    pub fn get_total_time_spent_watching(
+    pub async fn get_total_time_spent_watching(
         conn: &crate::DbConnection,
         uid: String,
     ) -> Result<i32, DieselError> {
@@ -93,33 +99,44 @@ impl Progress {
         Ok(progress
             .filter(user_id.eq(uid))
             .select(delta)
-            .load::<i32>(conn)?
+            .load_async::<i32>(conn)
+            .await?
             .iter()
             .sum())
     }
 
-    pub fn get_total_for_media(
+    pub async fn get_total_for_media(
         conn: &crate::DbConnection,
         media: &Media,
         uid: String,
     ) -> Result<i32, DieselError> {
         match media.media_type {
-            Some(MediaType::Tv) => Self::get_total_for_tv(conn, uid, media),
-            _ => Self::get_for_media_user(conn, uid, media.id).map(|x| x.delta),
+            Some(MediaType::Tv) => Ok(Self::get_total_for_tv(conn, uid, media).await?),
+            _ => Ok(Self::get_for_media_user(conn, uid, media.id)
+                .await
+                .map(|x| x.delta)?),
         }
     }
 
-    pub fn get_total_for_tv(
+    pub async fn get_total_for_tv(
         conn: &crate::DbConnection,
         uid: String,
         media: &Media,
     ) -> Result<i32, DieselError> {
-        let episodes = Episode::get_all_of_tv(conn, media)?;
-
-        Ok(episodes
+        let episodes = Episode::get_all_of_tv(conn, media)
+            .await?
             .iter()
-            .filter_map(|x| Self::get_for_media_user(conn, uid.clone(), x.media.id).ok())
+            .map(|x| (uid.clone(), x.clone()))
+            .collect::<Vec<_>>();
+
+        Ok(iter(episodes)
+            .filter_map(|(uid, x)| async move {
+                Self::get_for_media_user(conn, uid, x.media.id).await.ok()
+            })
             .map(|x| x.delta)
+            .collect::<Vec<_>>()
+            .await
+            .iter()
             .sum())
     }
 }

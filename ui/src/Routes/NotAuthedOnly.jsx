@@ -19,7 +19,7 @@ function NotAuthedOnlyRoute(props) {
       dispatch(updateAuthToken(tokenInCookie));
     }
 
-		if (logged_in && token && !error && !tokenInCookie) {
+    if (logged_in && token && !error && !tokenInCookie) {
       const dateExpires = new Date();
 
       dateExpires.setTime(dateExpires.getTime() + 604800000);
@@ -28,7 +28,7 @@ function NotAuthedOnlyRoute(props) {
         `token=${token};expires=${dateExpires.toGMTString()};`
       );
 
-      history.push("/")
+      history.push("/");
     }
 
     if (token && tokenInCookie) {

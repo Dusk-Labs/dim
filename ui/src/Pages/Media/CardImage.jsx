@@ -34,7 +34,7 @@ function CardImage(props) {
         <div className="placeholder"/>
       )}
     </div>
-  )
+  );
 }
 
 export default CardImage;

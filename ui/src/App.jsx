@@ -1,10 +1,6 @@
 import { useEffect } from "react";
 import { BrowserRouter, Switch } from "react-router-dom";
 
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { fas } from "@fortawesome/free-solid-svg-icons";
-import { far } from "@fortawesome/free-regular-svg-icons";
-
 import NotAuthedOnlyRoute from "./Routes/NotAuthedOnly";
 import PrivateRoute from "./Routes/Private";
 
@@ -15,17 +11,23 @@ import VideoPlayer from "./Pages/VideoPlayer/Index";
 import SearchResults from "./Pages/SearchResults";
 import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
-import Preferences from "./Pages/Preferences";
+// import Preferences from "./Pages/Preferences";
 
 import MainLayout from "./Layouts/MainLayout";
 
 import "./App.scss";
 
-library.add(fas, far);
-
 // quick hack to get proper requests
 window.host = window.location.hostname;
 window.backend_port = "8000";
+
+/*
+    <PrivateRoute exact path="/preferences">
+      <MainLayout>
+        <Preferences/>
+      </MainLayout>
+    </PrivateRoute>
+*/
 
 const routes = (
   <Switch>
@@ -43,11 +45,6 @@ const routes = (
     <PrivateRoute exact path="/library/:id">
       <MainLayout>
         <Library/>
-      </MainLayout>
-    </PrivateRoute>
-    <PrivateRoute exact path="/preferences">
-      <MainLayout>
-        <Preferences/>
       </MainLayout>
     </PrivateRoute>
     <PrivateRoute path="/search" render={(props) => (
@@ -91,12 +88,12 @@ function App() {
       document.head.append(darkLogo);
     }
 
-    mql.addEventListener("change", handleMQL)
+    mql.addEventListener("change", handleMQL);
 
     return () => {
-      mql.removeEventListener("change", handleMQL)
-    }
-  }, [])
+      mql.removeEventListener("change", handleMQL);
+    };
+  }, []);
 
   return (
     <BrowserRouter>

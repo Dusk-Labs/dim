@@ -4,12 +4,14 @@ use jsonwebtoken::Algorithm;
 use jsonwebtoken::Header;
 use jsonwebtoken::TokenData;
 use jsonwebtoken::Validation;
+use jsonwebtoken::DecodingKey;
+use jsonwebtoken::EncodingKey;
 
 use rocket::http::Status;
+use rocket::outcome::Outcome;
 use rocket::request;
 use rocket::request::FromRequest;
 use rocket::request::Request;
-use rocket::Outcome;
 
 use serde::Deserialize;
 use serde::Serialize;
@@ -44,7 +46,7 @@ pub struct UserRolesToken {
 #[derive(Debug)]
 pub struct Wrapper(pub TokenData<UserRolesToken>);
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum JWTError {
     Missing,
     Invalid,
@@ -102,7 +104,7 @@ pub fn jwt_generate(user: String, roles: Vec<String>) -> String {
         roles,
     };
 
-    encode(&Header::new(Algorithm::HS512), &payload, KEY).unwrap()
+    encode(&Header::new(Algorithm::HS512), &payload, &EncodingKey::from_secret(KEY)).unwrap()
 }
 
 /// Function checks the token supplied and validates it
@@ -121,7 +123,7 @@ pub fn jwt_generate(user: String, roles: Vec<String>) -> String {
 /// ```
 #[cfg(not(feature = "null_auth"))]
 pub fn jwt_check(token: String) -> Result<TokenData<UserRolesToken>, jsonwebtoken::errors::Error> {
-    decode::<UserRolesToken>(&token, KEY, &Validation::new(Algorithm::HS512))
+    decode::<UserRolesToken>(&token, &DecodingKey::from_secret(KEY), &Validation::new(Algorithm::HS512))
 }
 
 #[cfg(all(debug_assertions, feature = "null_auth"))]
@@ -141,10 +143,11 @@ pub fn jwt_check(_: String) -> Result<TokenData<UserRolesToken>, jsonwebtoken::e
     })
 }
 
-impl<'a, 'r> FromRequest<'a, 'r> for Wrapper {
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for Wrapper {
     type Error = JWTError;
 
-    fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
+    async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
         if cfg!(all(debug_assertions, feature = "null_auth")) {
             return Outcome::Success(Wrapper(jwt_check(String::new()).unwrap()));
         }

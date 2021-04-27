@@ -56,7 +56,7 @@ export const authenticate = (username, password) => async (dispatch) => {
       dispatch({
         type: AUTH_LOGIN_ERR,
         payload: "Network Error"
-      })
+      });
     } else {
       dispatch({
         type: AUTH_LOGIN_ERR,

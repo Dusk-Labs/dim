@@ -21,7 +21,7 @@ export default function fileBrowserReducer(state = initialState, action) {
         fetching: true,
         fetched: false,
         error: null
-      }
+      };
     case FETCH_DIRECTORIES_OK:
       return {
         ...state,
@@ -32,14 +32,14 @@ export default function fileBrowserReducer(state = initialState, action) {
         },
         fetching: false,
         fetched: true
-      }
+      };
     case FETCH_DIRECTORIES_ERR:
       return {
         ...state,
         fetching: false,
         fetched: true,
         error: action.payload
-      }
+      };
     default:
       return state;
   }

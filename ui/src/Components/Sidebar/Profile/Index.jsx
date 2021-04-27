@@ -1,8 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import ProfileImage from "./Image.jsx";
+import CircleIcon from "../../../assets/Icons/Circle";
 
 import "./Index.scss";
 
@@ -14,10 +14,10 @@ function Profile(props) {
     return (
       <div className="profile">
         <div className="icon loading">
-            <div className="placeholder-icon"/>
-          </div>
+          <div className="placeholder-icon"/>
+        </div>
       </div>
-    )
+    );
   }
 
   // FETCH_USER_ERR
@@ -26,14 +26,14 @@ function Profile(props) {
       <div className="profile">
         <div className="icon">
           <div className="error-icon">
-            <FontAwesomeIcon icon="times-circle"/>
+            <CircleIcon/>
           </div>
         </div>
         <div className="info">
           <h5>Cannot load data</h5>
         </div>
       </div>
-    )
+    );
   }
 
   // FETCH_USER_OK
@@ -46,10 +46,10 @@ function Profile(props) {
           <ProfileImage src={picture}/>
         </div>
         <div className="info">
-            <h4>{username || "eray_chumak"}</h4>
-            {props.hoursSpentWatching &&
-              <h5>Spent {spentWatching || 0}h watching</h5>
-            }
+          <h4>{username || "eray_chumak"}</h4>
+          {props.hoursSpentWatching &&
+            <h5>Spent {spentWatching || 0}h watching</h5>
+          }
         </div>
       </div>
     );

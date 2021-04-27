@@ -4,8 +4,11 @@ use crate::schema::media;
 use crate::streamable_media::InsertableStreamableMedia;
 use crate::streamable_media::StreamableTrait;
 use crate::tv::StaticTrait;
+use crate::DatabaseError;
 use cfg_if::cfg_if;
+
 use diesel::prelude::*;
+use tokio_diesel::*;
 
 /// Marker trait used to mark media types that inherit from Media.
 /// Used internally by InsertableTVShow.
@@ -92,14 +95,15 @@ impl Media {
     /// // clean up the test
     /// let _ = Library::delete(&conn, library_id);
     /// ```
-    pub fn get_all(
+    pub async fn get_all(
         conn: &crate::DbConnection,
         library: Library,
-    ) -> Result<Vec<Self>, diesel::result::Error> {
-        let result = Self::belonging_to(&library)
+    ) -> Result<Vec<Self>, DatabaseError> {
+        Ok(media::dsl::media
+            .filter(media::library_id.eq(library.id))
             .filter(media::media_type.ne(MediaType::Episode))
-            .load::<Self>(conn)?;
-        Ok(result)
+            .load_async::<Self>(conn)
+            .await?)
     }
 
     /// Method returns a media object based on its id
@@ -138,10 +142,13 @@ impl Media {
     /// // clean up the test
     /// let _ = Library::delete(&conn, library_id);
     /// ```
-    pub fn get(conn: &crate::DbConnection, req_id: i32) -> Result<Self, diesel::result::Error> {
+    pub async fn get(conn: &crate::DbConnection, req_id: i32) -> Result<Self, DatabaseError> {
         use crate::schema::media::dsl::*;
 
-        let result = media.filter(id.eq(req_id)).first::<Self>(conn)?;
+        let result = media
+            .filter(id.eq(req_id))
+            .first_async::<Self>(conn)
+            .await?;
 
         Ok(result)
     }
@@ -189,34 +196,42 @@ impl Media {
     /// // clean up the test
     /// let _ = Library::delete(&conn, library_id);
     /// ```
-    pub fn get_by_name_and_lib(
+    pub async fn get_by_name_and_lib(
         conn: &crate::DbConnection,
         library: &Library,
         name: &str,
-    ) -> Result<Self, diesel::result::Error> {
-        let result = Self::belonging_to(library).load::<Self>(conn)?;
-
-        // Manual filter because of a bug with combining filter with belonging_to
-        for i in result {
-            if i.name == *name {
-                return Ok(i);
-            }
-        }
-
-        Err(diesel::result::Error::NotFound)
+    ) -> Result<Self, DatabaseError> {
+        Ok(media::dsl::media
+            .filter(media::library_id.eq(library.id))
+            .filter(media::name.eq(name.to_string()))
+            .first_async::<Self>(conn)
+            .await?)
     }
 
-    pub fn get_of_mediafile(
+    pub async fn get_by_name_and_lib_id(
+        conn: &crate::DbConnection,
+        library: i32,
+        name: &str,
+    ) -> Result<Self, DatabaseError> {
+        Ok(media::dsl::media
+            .filter(media::library_id.eq(library))
+            .filter(media::name.eq(name.to_string()))
+            .first_async::<Self>(conn)
+            .await?)
+    }
+
+    pub async fn get_of_mediafile(
         conn: &crate::DbConnection,
         mediafile: &MediaFile,
-    ) -> Result<Self, diesel::result::Error> {
+    ) -> Result<Self, DatabaseError> {
         use crate::schema::mediafile;
 
-        mediafile::table
+        Ok(mediafile::table
             .inner_join(media::table)
             .filter(mediafile::id.eq(mediafile.id))
             .select(media::all_columns)
-            .first::<Self>(conn)
+            .first_async::<Self>(conn)
+            .await?)
     }
 
     /// Method deletes a media object based on its id.
@@ -257,25 +272,29 @@ impl Media {
     /// // clean up the test
     /// let _ = Library::delete(&conn, library_id);
     /// ```
-    pub fn delete(
+    pub async fn delete(
         conn: &crate::DbConnection,
         id_to_del: i32,
-    ) -> Result<usize, diesel::result::Error> {
+    ) -> Result<usize, DatabaseError> {
         use crate::schema::media::dsl::*;
 
-        let result = diesel::delete(media.filter(id.eq(id_to_del))).execute(conn)?;
+        let result = diesel::delete(media.filter(id.eq(id_to_del)))
+            .execute_async(conn)
+            .await?;
         Ok(result)
     }
 
     /// This function exists because for some reason `CASCADE DELETE` doesnt work with a sqlite
     /// backend. Thus we must manually delete entries when deleting a library.
-    pub fn delete_by_lib_id(
+    pub async fn delete_by_lib_id(
         conn: &crate::DbConnection,
         lib_id: i32,
-    ) -> Result<usize, diesel::result::Error> {
+    ) -> Result<usize, DatabaseError> {
         use crate::schema::media::dsl::*;
 
-        diesel::delete(media.filter(library_id.eq(lib_id))).execute(conn)
+        Ok(diesel::delete(media.filter(library_id.eq(lib_id)))
+            .execute_async(conn)
+            .await?)
     }
 }
 
@@ -288,7 +307,7 @@ impl Into<super::tv::TVShow> for Media {
 /// Struct which represents a insertable media object. It is usually used only by the scanners to
 /// insert new media objects. It is the same as [`Media`](Media) except it doesnt have the
 /// [`id`](Media::id) field.
-#[derive(Default, Insertable, Debug)]
+#[derive(Clone, Default, Insertable, Debug)]
 #[table_name = "media"]
 pub struct InsertableMedia {
     pub library_id: i32,
@@ -342,24 +361,68 @@ impl InsertableMedia {
     /// // clean up the test
     /// let _ = Library::delete(&conn, library_id);
     /// ```
-    pub fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error> {
+    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
         use crate::schema::library::dsl::*;
 
         library
             .filter(id.eq(self.library_id))
-            .first::<Library>(conn)?;
+            .first_async::<Library>(conn)
+            .await?;
 
-        let query = diesel::insert_into(media::table).values(self);
+        // we need to atomically select or insert.
+        Ok(conn
+            .transaction::<_, _>(|conn| {
+                let result = media::table
+                    .filter(media::name.eq(self.name.clone()))
+                    .select(media::id)
+                    .get_result::<i32>(conn);
 
-        cfg_if! {
-            if #[cfg(feature = "postgres")] {
-                query.returning(media::id)
-                    .get_result(conn)
-            } else {
-                query.execute(conn)?;
-                diesel::select(crate::last_insert_rowid).get_result(conn)
-            }
-        }
+                if let Ok(x) = result {
+                    return Ok(x);
+                }
+
+                let query = diesel::insert_into(media::table).values(self.clone());
+
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        Ok(query.returning(media::id)
+                           .get_result(conn)?)
+                    } else {
+                        query.execute(conn)?;
+                        Ok(diesel::select(crate::last_insert_rowid).get_result(conn)?)
+                    }
+                }
+            })
+            .await?)
+    }
+
+    /// Method blindly inserts `self` into the database without checking whether a similar entry exists.
+    /// This is especially useful for tv shows as they usually have similar metadata with key differences
+    /// which are not indexed in the database.
+    pub async fn insert_blind(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
+        use crate::schema::library::dsl::*;
+
+        library
+            .filter(id.eq(self.library_id))
+            .first_async::<Library>(conn)
+            .await?;
+
+        // we need to atomically select or insert.
+        Ok(conn
+            .transaction::<_, _>(|conn| {
+                let query = diesel::insert_into(media::table).values(self.clone());
+
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        Ok(query.returning(media::id)
+                           .get_result(conn)?)
+                    } else {
+                        query.execute(conn)?;
+                        Ok(diesel::select(crate::last_insert_rowid).get_result(conn)?)
+                    }
+                }
+            })
+            .await?)
     }
 
     /// Method used as a intermediary to insert media objects into a middle table used as a marker
@@ -400,17 +463,17 @@ impl InsertableMedia {
     ///
     /// // clean up the test
     /// let _ = Library::delete(&conn, library_id);
-    pub fn into_streamable<T: StreamableTrait>(
+    pub async fn into_streamable<T: StreamableTrait>(
         &self,
         conn: &crate::DbConnection,
+        id: i32,
         manual_insert: Option<()>,
-    ) -> Result<i32, diesel::result::Error> {
-        let id = self.insert(conn).unwrap();
-        let _ = InsertableStreamableMedia::insert(id, conn)?;
+    ) -> Result<i32, DatabaseError> {
+        let _ = InsertableStreamableMedia::insert(id, conn).await?;
 
         match manual_insert {
             Some(_) => Ok(id),
-            None => T::new(id).insert(conn),
+            None => T::new(id).insert(conn).await,
         }
     }
 
@@ -452,19 +515,19 @@ impl InsertableMedia {
     ///
     /// // clean up the test
     /// let _ = Library::delete(&conn, library_id);
-    pub fn into_static<T: StaticTrait>(
+    pub async fn into_static<T: StaticTrait>(
         &self,
         conn: &crate::DbConnection,
-    ) -> Result<i32, diesel::result::Error> {
-        let id = self.insert(conn).unwrap();
-        T::new(id).insert(conn)
+        id: i32,
+    ) -> Result<i32, DatabaseError> {
+        T::new(id).insert(conn).await
     }
 }
 
 /// Struct which is used when we need to update information about a media object. Same as
 /// [`InsertableMedia`](InsertableMedia) except `library_id` cannot be changed and everything field
 /// is a `Option<T>`.
-#[derive(Default, AsChangeset, Deserialize, Debug)]
+#[derive(Clone, Default, AsChangeset, Deserialize, Debug)]
 #[table_name = "media"]
 pub struct UpdateMedia {
     pub name: Option<String>,
@@ -525,15 +588,18 @@ impl UpdateMedia {
     /// // clean up the test
     /// let _ = Library::delete(&conn, library_id);
     /// ```
-    pub fn update(
+    pub async fn update(
         &self,
         conn: &crate::DbConnection,
         _id: i32,
-    ) -> Result<usize, diesel::result::Error> {
+    ) -> Result<usize, DatabaseError> {
         use crate::schema::media::dsl::*;
 
         let entry = media.filter(id.eq(_id));
 
-        diesel::update(entry).set(self).execute(conn)
+        Ok(diesel::update(entry)
+            .set(self.clone())
+            .execute_async(conn)
+            .await?)
     }
 }
