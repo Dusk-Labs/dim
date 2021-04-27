@@ -15,7 +15,7 @@ import VideoPlayer from "./Pages/VideoPlayer/Index";
 import SearchResults from "./Pages/SearchResults";
 import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
-import Preferences from "./Pages/Preferences";
+// import Preferences from "./Pages/Preferences";
 
 import MainLayout from "./Layouts/MainLayout";
 
@@ -26,6 +26,14 @@ library.add(fas, far);
 // quick hack to get proper requests
 window.host = window.location.hostname;
 window.backend_port = "8000";
+
+/*
+    <PrivateRoute exact path="/preferences">
+      <MainLayout>
+        <Preferences/>
+      </MainLayout>
+    </PrivateRoute>
+*/
 
 const routes = (
   <Switch>
@@ -43,11 +51,6 @@ const routes = (
     <PrivateRoute exact path="/library/:id">
       <MainLayout>
         <Library/>
-      </MainLayout>
-    </PrivateRoute>
-    <PrivateRoute exact path="/preferences">
-      <MainLayout>
-        <Preferences/>
       </MainLayout>
     </PrivateRoute>
     <PrivateRoute path="/search" render={(props) => (
