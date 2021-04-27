@@ -34,7 +34,7 @@ function BannerImage(props) {
         <div className="placeholder"/>
       )}
     </div>
-  )
+  );
 }
 
 export default BannerImage;

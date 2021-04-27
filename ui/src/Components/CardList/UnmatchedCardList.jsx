@@ -17,7 +17,7 @@ function UnmatchedCardList(props) {
             {items[media].map((card, i) => <Card key={i} data={card}/>)}
           </div>
         </div>
-      )
+      );
     }
   }
 

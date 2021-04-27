@@ -1,6 +1,5 @@
 import React from "react";
 
-
 const DimLogo = () => (
   <svg className="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 202.832 143.542">
     <g transform="translate(-397.21 -251.229)">
@@ -10,6 +9,6 @@ const DimLogo = () => (
       <rect width="14" height="88" rx="7" transform="translate(494 252)" fill="#fff"/>
     </g>
   </svg>
-)
+);
 
 export default DimLogo;

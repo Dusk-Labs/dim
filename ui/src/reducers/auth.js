@@ -93,7 +93,7 @@ export default function authReducer(state = initialState, action) {
           logged_in: true,
           error: null
         }
-      }
+      };
     case AUTH_LOGOUT:
       return initialState;
     case AUTH_REGISTER_START:

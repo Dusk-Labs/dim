@@ -30,7 +30,7 @@ function Register() {
   }, [auth.register.error]);
 
   useEffect(() => {
-    dispatch(checkAdminExists())
+    dispatch(checkAdminExists());
   }, [dispatch]);
 
   return (

@@ -14,7 +14,7 @@ export const fetchBanners = () => async (dispatch, getState) => {
       headers: {
         "authorization": token,
       }
-    }
+    };
 
     const res = await fetch(`//${window.host}:8000/api/v1/dashboard/banner`, config);
 

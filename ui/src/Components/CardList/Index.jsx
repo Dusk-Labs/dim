@@ -35,7 +35,7 @@ function CardList(props) {
     return () => {
       library_ws.removeEventListener("message", handleWS);
       library_ws.close();
-    }
+    };
   }, [handleWS]);
 
   useEffect(() => {

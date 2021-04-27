@@ -40,7 +40,7 @@ const ModalBox = (props) => {
         {props.children(close)}
       </Modal>
     </div>
-  )
+  );
 };
 
 export default ModalBox;

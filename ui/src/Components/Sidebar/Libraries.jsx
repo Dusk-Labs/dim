@@ -1,10 +1,13 @@
 import { useCallback, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import NewLibraryModal from "../../Modals/NewLibrary/Index";
 
 import { fetchLibraries, handleWsNewLibrary, handleWsDelLibrary } from "../../actions/library.js";
+
+import HomeIcon from "../../assets/Icons/Home";
+import FilmIcon from "../../assets/Icons/Film";
+import TvIcon from "../../assets/Icons/TvIcon";
 
 function Libraries() {
   const dispatch = useDispatch();
@@ -56,11 +59,11 @@ function Libraries() {
         to={"/library/" + id}
         className="item" key={i}
       >
-        {media_type === "movie" && <FontAwesomeIcon icon="film"/>}
-        {media_type === "tv" && <FontAwesomeIcon icon="tv"/>}
+        {media_type === "movie" && <FilmIcon/>}
+        {media_type === "tv" && <TvIcon/>}
         <p>{name}</p>
       </NavLink>
-    ))
+    ));
   }
 
   return (
@@ -75,7 +78,7 @@ function Libraries() {
       </header>
       <div className="list">
         <NavLink className="item" to="/" exact>
-          <FontAwesomeIcon icon="home"/>
+          <HomeIcon/>
           <p>Dashboard</p>
         </NavLink>
         {libs}

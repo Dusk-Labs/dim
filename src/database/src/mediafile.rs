@@ -2,8 +2,12 @@ use crate::library::Library;
 use crate::media::Media;
 use crate::schema::mediafile;
 use crate::streamable_media::StreamableMedia;
+use crate::DatabaseError;
+
 use cfg_if::cfg_if;
+
 use diesel::prelude::*;
+use tokio_diesel::*;
 
 /// MediaFile struct which represents a media file on the filesystem. This struct holds some basic
 /// information which the video player on the front end might require.
@@ -92,11 +96,14 @@ impl MediaFile {
     /// let _ = Library::delete(&conn, library_id);
     /// let _ = MediaFile::delete(&conn, media.id);
     /// ```
-    pub fn get_by_lib(
+    pub async fn get_by_lib(
         conn: &crate::DbConnection,
         lib: &Library,
-    ) -> Result<Vec<Self>, diesel::result::Error> {
-        Self::belonging_to(lib).load::<Self>(conn)
+    ) -> Result<Vec<Self>, DatabaseError> {
+        Ok(mediafile::dsl::mediafile
+            .filter(mediafile::library_id.eq(lib.id))
+            .load_async::<Self>(conn)
+            .await?)
     }
 
     /// Method returns all mediafiles associated with a library and filters for those not
@@ -138,13 +145,15 @@ impl MediaFile {
     /// let _ = Library::delete(&conn, library_id);
     /// let _ = MediaFile::delete(&conn, media.id);
     /// ```
-    pub fn get_by_lib_null_media(
+    pub async fn get_by_lib_null_media(
         conn: &crate::DbConnection,
         lib: &Library,
-    ) -> Result<Vec<Self>, diesel::result::Error> {
-        Self::belonging_to(lib)
+    ) -> Result<Vec<Self>, DatabaseError> {
+        Ok(mediafile::dsl::mediafile
+            .filter(mediafile::library_id.eq(lib.id))
             .filter(mediafile::media_id.is_null())
-            .load::<Self>(conn)
+            .load_async::<Self>(conn)
+            .await?)
     }
     /// Method returns all mediafiles associated with a Media object.
     ///
@@ -196,18 +205,23 @@ impl MediaFile {
     /// let _ = Library::delete(&conn, library_id);
     /// let _ = MediaFile::delete(&conn, media.id);
     /// ```
-    pub fn get_of_media(
+    pub async fn get_of_media(
         conn: &crate::DbConnection,
         media: &Media,
-    ) -> Result<Vec<Self>, diesel::result::Error> {
-        let streamable_media =
-            StreamableMedia::belonging_to(media).first::<StreamableMedia>(conn)?;
+    ) -> Result<Vec<Self>, DatabaseError> {
+        use crate::schema::streamable_media;
+
+        let streamable_media = streamable_media::dsl::streamable_media
+            .filter(streamable_media::id.eq(media.id))
+            .first_async::<StreamableMedia>(conn)
+            .await?;
 
         // TODO: Figure out why the fuck .filter against mediafile::corrupted doesnt fucking work.
         // Fuck you.
-        let result = Self::belonging_to(&streamable_media).load::<Self>(conn)?;
-
-        Ok(result)
+        Ok(mediafile::dsl::mediafile
+            .filter(mediafile::media_id.eq(streamable_media.id))
+            .load_async::<Self>(conn)
+            .await?)
     }
 
     /// Method returns all metadata of a mediafile based on the id supplied.
@@ -253,12 +267,13 @@ impl MediaFile {
     /// let _ = Library::delete(&conn, library_id);
     /// let _ = MediaFile::delete(&conn, mediafile.id);
     /// ```
-    pub fn get_one(conn: &crate::DbConnection, _id: i32) -> Result<Self, diesel::result::Error> {
+    pub async fn get_one(conn: &crate::DbConnection, _id: i32) -> Result<Self, DatabaseError> {
         use crate::schema::mediafile::dsl::*;
 
-        let result = mediafile.filter(id.eq(_id)).first::<Self>(conn)?;
-
-        Ok(result)
+        Ok(mediafile
+            .filter(id.eq(_id))
+            .first_async::<Self>(conn)
+            .await?)
     }
 
     /// Method checks whether a mediafile entry with the filepath supplied exists or not, returning
@@ -303,22 +318,29 @@ impl MediaFile {
     /// let _ = Library::delete(&conn, library_id);
     /// let _ = MediaFile::delete(&conn, mediafile_id);
     /// ```
-    pub fn exists_by_file(conn: &crate::DbConnection, file: &str) -> bool {
+    pub async fn exists_by_file(conn: &crate::DbConnection, file: &str) -> bool {
         use crate::schema::mediafile::dsl::*;
         use diesel::dsl::exists;
         use diesel::dsl::select;
+
+        let file = file.to_string();
+
         select(exists(mediafile.filter(target_file.eq(file))))
-            .get_result(conn)
+            .get_result_async(conn)
+            .await
             .unwrap()
     }
 
-    pub fn get_by_file(
+    pub async fn get_by_file(
         conn: &crate::DbConnection,
         file: &str,
-    ) -> Result<Self, diesel::result::Error> {
+    ) -> Result<Self, DatabaseError> {
         use crate::schema::mediafile::dsl::*;
 
-        mediafile.filter(target_file.eq(file)).first::<Self>(conn)
+        Ok(mediafile
+            .filter(target_file.eq(file.to_string()))
+            .first_async::<Self>(conn)
+            .await?)
     }
 
     /// Method deletes mediafile matching the id supplied
@@ -364,27 +386,30 @@ impl MediaFile {
     /// // clean up the test
     /// let _ = Library::delete(&conn, library_id);
     /// ```
-    pub fn delete(conn: &crate::DbConnection, _id: i32) -> Result<usize, diesel::result::Error> {
+    pub async fn delete(conn: &crate::DbConnection, _id: i32) -> Result<usize, DatabaseError> {
         use crate::schema::mediafile::dsl::*;
 
-        let result = diesel::delete(mediafile.filter(id.eq(_id))).execute(conn)?;
-        Ok(result)
+        Ok(diesel::delete(mediafile.filter(id.eq(_id)))
+            .execute_async(conn)
+            .await?)
     }
 
     /// Function deletes all mediafiles with `library_id` of lib_id. This function is used when
     /// deleting a library with a sqlite backend.
-    pub fn delete_by_lib_id(
+    pub async fn delete_by_lib_id(
         conn: &crate::DbConnection,
         lib_id: i32,
-    ) -> Result<usize, diesel::result::Error> {
+    ) -> Result<usize, DatabaseError> {
         use crate::schema::mediafile::dsl::*;
 
-        diesel::delete(mediafile.filter(library_id.eq(lib_id))).execute(conn)
+        Ok(diesel::delete(mediafile.filter(library_id.eq(lib_id)))
+            .execute_async(conn)
+            .await?)
     }
 }
 
 /// Same as [`MediaFile`](MediaFile) except its missing the id field.
-#[derive(Insertable, Serialize, Debug, Default)]
+#[derive(Clone, Insertable, Serialize, Debug, Default)]
 #[table_name = "mediafile"]
 pub struct InsertableMediaFile {
     pub media_id: Option<i32>,
@@ -451,26 +476,30 @@ impl InsertableMediaFile {
     /// let _ = Library::delete(&conn, library_id);
     /// let _ = MediaFile::delete(&conn, mediafile_id);
     /// ```
-    pub fn insert(&self, conn: &crate::DbConnection) -> Result<i32, diesel::result::Error> {
+    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
         use crate::schema::mediafile::dsl::*;
 
-        let query = diesel::insert_into(mediafile).values(self);
+        let query = diesel::insert_into(mediafile).values(self.clone());
 
-        cfg_if! {
-            if #[cfg(feature = "postgres")] {
-                query.returning(id)
-                    .get_result(conn)
-            } else {
-                query.execute(conn)?;
-                diesel::select(crate::last_insert_rowid).get_result(conn)
-            }
-        }
+        Ok(conn
+            .transaction::<_, _>(|conn| {
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        query.returning(id)
+                            .get_result(conn)
+                    } else {
+                        query.execute(conn)?;
+                        diesel::select(crate::last_insert_rowid).get_result(conn)
+                    }
+                }
+            })
+            .await?)
     }
 }
 
 /// Same as [`MediaFile`](MediaFile) except its missing the id and library_id fields. Everything is
 /// optional too.
-#[derive(Default, AsChangeset, Deserialize, PartialEq, Debug)]
+#[derive(Clone, Default, AsChangeset, Deserialize, PartialEq, Debug)]
 #[table_name = "mediafile"]
 pub struct UpdateMediaFile {
     pub media_id: Option<i32>,
@@ -556,15 +585,18 @@ impl UpdateMediaFile {
     /// let _ = Library::delete(&conn, library_id);
     /// let _ = MediaFile::delete(&conn, mediafile_id);
     /// ```
-    pub fn update(
+    pub async fn update(
         &self,
         conn: &crate::DbConnection,
         _id: i32,
-    ) -> Result<usize, diesel::result::Error> {
+    ) -> Result<usize, DatabaseError> {
         use crate::schema::mediafile::dsl::*;
-        let entry = mediafile.filter(id.eq(_id));
 
-        diesel::update(entry).set(self).execute(conn)
+        let entry = mediafile.filter(id.eq(_id));
+        Ok(diesel::update(entry)
+            .set(self.clone())
+            .execute_async(conn)
+            .await?)
     }
 }
 

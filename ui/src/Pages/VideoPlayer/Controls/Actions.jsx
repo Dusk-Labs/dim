@@ -54,7 +54,7 @@ function VideoActions(props) {
 
     try {
       if (!fullscreen) {
-        await videoPlayer.current.requestFullscreen()
+        await videoPlayer.current.requestFullscreen();
       } else {
         await document.exitFullscreen();
       }
@@ -63,7 +63,7 @@ function VideoActions(props) {
 
   const handleFullscreenChange = useCallback(() => {
     setIdleCount(0);
-    setFullscreen(document.fullscreenElement)
+    setFullscreen(document.fullscreenElement);
   }, [setFullscreen]);
 
   const toggleMute = useCallback(() => {
@@ -71,7 +71,7 @@ function VideoActions(props) {
     const currentMuteState = player.isMuted();
 
     player.setMute(!currentMuteState);
-    setMuted(!currentMuteState)
+    setMuted(!currentMuteState);
   }, [player, setMuted]);
 
   const toggleSubtitles = useCallback(() => {
@@ -144,7 +144,7 @@ function VideoActions(props) {
       document.removeEventListener("mousemove", showPlayer);
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
       document.removeEventListener("keydown", handleKeyDown);
-    }
+    };
   }, [handleFullscreenChange, handleKeyDown, showPlayer]);
 
   return (

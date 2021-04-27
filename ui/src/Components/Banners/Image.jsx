@@ -8,14 +8,14 @@ function BannerImage(props) {
   const [error, setErr] = useState(false);
 
   useEffect(() => {
-    const propsSrcFile = props.src?.substring(props.src.lastIndexOf('/') + 1);
-    const currentSrcFile = currentSrc?.substring(currentSrc.lastIndexOf('/') + 1);
+    const propsSrcFile = props.src?.substring(props.src.lastIndexOf("/") + 1);
+    const currentSrcFile = currentSrc?.substring(currentSrc.lastIndexOf("/") + 1);
 
     if (propsSrcFile !== currentSrcFile) {
       setShow(false);
       setLoaded(false);
     }
-  }, [currentSrc, props.src])
+  }, [currentSrc, props.src]);
 
   const swapSrc = useCallback(e => {
     if (e.animationName !== props.hideAnimationName) return;
@@ -56,7 +56,7 @@ function BannerImage(props) {
       )}
       {error && <div className="placeholder"/>}
     </div>
-  )
+  );
 }
 
 export default BannerImage;

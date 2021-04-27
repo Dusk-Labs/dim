@@ -82,7 +82,7 @@ function NewLibraryModal(props) {
         </div>
       )}
     </ModalBox>
-  )
-};
+  );
+}
 
 export default NewLibraryModal;

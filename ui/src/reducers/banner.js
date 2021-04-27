@@ -19,21 +19,21 @@ export default function bannerReducer(state = initialState, action) {
         fetching: true,
         fetched: false,
         error: null
-      }
+      };
     case FETCH_BANNERS_OK:
       return {
         ...state,
         fetching: false,
         fetched: true,
         items: action.payload
-      }
+      };
     case FETCH_BANNERS_ERR:
       return {
         ...state,
         fetching: false,
         fetched: true,
         error: action.payload
-      }
+      };
     default:
       return state;
   }

@@ -1,4 +1,4 @@
-#![feature(rustc_private)]
+#![feature(rustc_private, once_cell, async_closure, box_syntax)]
 #![feature(proc_macro_hygiene, decl_macro)]
 
 #[macro_use]
@@ -11,12 +11,18 @@ extern crate diesel_migrations;
 extern crate diesel_derive_enum;
 
 use cfg_if::cfg_if;
-use diesel::connection::Connection;
-use diesel::{result::ConnectionError, RunQueryDsl};
+
+use diesel::r2d2::ConnectionManager;
+use diesel::r2d2::Pool;
+
 use slog::Logger;
-use std::sync::atomic::{AtomicBool, Ordering};
+
+use std::lazy::SyncOnceCell;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering;
 
 pub mod episode;
+pub mod error;
 pub mod genre;
 pub mod library;
 pub mod media;
@@ -29,12 +35,15 @@ pub mod streamable_media;
 pub mod tv;
 pub mod user;
 
+pub use crate::error::DatabaseError;
+
 #[cfg(all(feature = "sqlite", feature = "postgres"))]
 compile_error!("Features sqlite and postgres are mutually exclusive");
 
 cfg_if! {
     if #[cfg(feature = "sqlite")] {
-        pub type DbConnection = diesel::SqliteConnection;
+        pub type Manager = ConnectionManager<diesel::SqliteConnection>;
+        pub type DbConnection = Pool<Manager>;
 
         // Necessary for get_result like functionality for sqlite.
         no_arg_sql_function!(
@@ -47,12 +56,32 @@ cfg_if! {
         use diesel::sql_types::Text;
         sql_function!(fn upper(x: Text) -> Text);
     } else {
-        pub type DbConnection = diesel::PgConnection;
+        pub type Manager = ConnectionManager<diesel::PgConnection>;
+        pub type DbConnection = Pool<Manager>;
     }
 }
 
 lazy_static::lazy_static! {
     static ref MIGRATIONS_FLAG: AtomicBool = AtomicBool::new(false);
+}
+
+static __GLOBAL: SyncOnceCell<crate::DbConnection> = SyncOnceCell::new();
+
+#[derive(Debug)]
+struct Pragmas;
+
+impl<E> diesel::r2d2::CustomizeConnection<diesel::SqliteConnection, E> for Pragmas {
+    fn on_acquire(&self, conn: &mut diesel::SqliteConnection) -> Result<(), E> {
+        use diesel::connection::Connection;
+        conn.execute("PRAGMA busy_timeout=5000").unwrap();
+        conn.execute("PRAGMA journal_mode=wal").unwrap();
+        conn.execute("PRAGMA synchronous=NORMAL").unwrap();
+        conn.execute("PRAGMA wal_checkpoint(FULL)").unwrap();
+        conn.execute("PRAGMA wal_autocheckpoint = 1000").unwrap();
+        conn.execute("PRAGMA foreign_keys = ON").unwrap();
+
+        Ok(())
+    }
 }
 
 cfg_if! {
@@ -63,17 +92,13 @@ cfg_if! {
     }
 }
 
-fn create_database(conn: &crate::DbConnection) -> Result<(), diesel::result::Error> {
+fn create_database(_conn: &crate::DbConnection) -> Result<(), diesel::result::Error> {
     cfg_if! {
         if #[cfg(feature = "postgres")] {
-            let _ = diesel::sql_query("CREATE DATABASE dim").execute(conn)?;
-            let _ = diesel::sql_query("CREATE DATABASE dim_devel").execute(conn)?;
-            let _ = diesel::sql_query("CREATE DATABASE pg_trgm").execute(conn)?;
-        } else {
-            let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(conn)?;
-            let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(conn)?;
-            let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(conn)?;
-            let _ = diesel::sql_query("PRAGMA foreign_keys = ON").execute(conn)?;
+            let conn = _conn.get().unwrap();
+            let _ = diesel::sql_query("CREATE DATABASE dim").execute(&conn)?;
+            let _ = diesel::sql_query("CREATE DATABASE dim_devel").execute(&conn)?;
+            let _ = diesel::sql_query("CREATE DATABASE pg_trgm").execute(&conn)?;
         }
     }
     Ok(())
@@ -85,7 +110,8 @@ fn create_database(conn: &crate::DbConnection) -> Result<(), diesel::result::Err
 /// * `conn` - diesel connection
 fn run_migrations(conn: &crate::DbConnection) -> Result<(), diesel_migrations::RunMigrationsError> {
     // TODO: Move the init.sql queries into here.
-    embedded_migrations::run(conn)
+    let conn = conn.get().unwrap();
+    embedded_migrations::run(&conn)
 }
 
 /// Function which returns a Result<T, E> where T is a new connection session or E is a connection
@@ -97,41 +123,41 @@ fn run_migrations(conn: &crate::DbConnection) -> Result<(), diesel_migrations::R
 ///
 /// let conn = get_conn().unwrap(); // panics if connection failed.
 /// ```
-pub fn get_conn() -> Result<crate::DbConnection, diesel::result::ConnectionError> {
-    // This is the URL for the database inside a docker container
-    let conn = internal_get_conn(None)?;
+pub fn get_conn() -> Result<crate::DbConnection, r2d2::Error> {
+    let conn = __GLOBAL.get_or_try_init(|| -> Result<_, _> { internal_get_conn(None) })?;
 
-    if !MIGRATIONS_FLAG.load(Ordering::SeqCst) && dbg!(run_migrations(&conn)).is_ok() {
+    if !MIGRATIONS_FLAG.load(Ordering::SeqCst) && dbg!(run_migrations(conn)).is_ok() {
         MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
     }
 
-    Ok(conn)
+    Ok(conn.clone())
 }
 
 /// Function returns a connection to the development table of dim. This is mainly used for unit
 /// tests.
-pub fn get_conn_devel() -> Result<crate::DbConnection, diesel::result::ConnectionError> {
+pub fn get_conn_devel() -> Result<crate::DbConnection, r2d2::Error> {
     cfg_if! {
         if #[cfg(feature = "postgres")] {
-            let conn = internal_get_conn_custom(
+            let pool = internal_get_conn_custom(
                 None,
                 "postgres://postgres:dimpostgres@127.0.0.1/dim_devel",
                 "postgres://postgres:dimpostgres@postgres/dim_devel",
             )?;
         } else {
-            let conn = DbConnection::establish("./dim_devel.db;")?;
-            let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
-            let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn);
-            let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(&conn);
-            let _ = diesel::sql_query("PRAGMA foreign_keys = ON").execute(&conn);
+            let manager = Manager::new("./dim_dev.db");
+            let pool = Pool::builder()
+                .max_size(1)
+                .min_idle(Some(1))
+                .connection_customizer(Box::new(Pragmas))
+                .build(manager)?;
         }
     }
 
-    if !MIGRATIONS_FLAG.load(Ordering::SeqCst) && run_migrations(&conn).is_ok() {
+    if !MIGRATIONS_FLAG.load(Ordering::SeqCst) && run_migrations(&pool).is_ok() {
         MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
     }
 
-    Ok(conn)
+    Ok(pool)
 }
 
 /// Function which returns a Result<T, E> where T is a new connection session or E is a connection
@@ -139,36 +165,37 @@ pub fn get_conn_devel() -> Result<crate::DbConnection, diesel::result::Connectio
 ///
 /// # Arguments
 /// * `log` - a Slog logger instance
-pub fn get_conn_logged(log: &Logger) -> Result<DbConnection, diesel::result::ConnectionError> {
+pub fn get_conn_logged(log: &Logger) -> Result<DbConnection, r2d2::Error> {
     // This is the URL for the database inside a docker container
-    let conn = internal_get_conn(Some(&log))?;
+    let conn = __GLOBAL.get_or_try_init(|| -> Result<_, _> { internal_get_conn(Some(log)) })?;
     slog::info!(log, "Creating new database connection");
 
     if !MIGRATIONS_FLAG.load(Ordering::SeqCst) && dbg!(run_migrations(&conn)).is_ok() {
         MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
     }
 
-    Ok(conn)
+    Ok(conn.clone())
 }
 
-#[allow(dead_code)]
-fn internal_get_conn(
-    _log: Option<&Logger>,
-) -> Result<DbConnection, diesel::result::ConnectionError> {
+fn internal_get_conn(_log: Option<&Logger>) -> Result<DbConnection, r2d2::Error> {
     cfg_if! {
         if #[cfg(feature = "postgres")] {
             internal_get_conn_custom(
-                log,
+                _log,
                 "postgres://postgres:dimpostgres@127.0.0.1/dim",
                 "postgres://postgres:dimpostgres@postgres/dim",
             )
         } else {
-            let conn = DbConnection::establish("./dim.db")?;
-            let _ = diesel::sql_query("PRAGMA foreign_keys=ON;").execute(&conn).unwrap();
-            let _ = diesel::sql_query("PRAGMA journal_mode=WAL").execute(&conn);
-            let _ = diesel::sql_query("PRAGMA synchronous=NORMAL").execute(&conn);
-            let _ = diesel::sql_query("PRAGMA busy_timeout=50000").execute(&conn);
-            Ok(conn)
+            let manager = Manager::new("./dim.db");
+            // FIXME: Theres a weird bug with `Pool` or `sqlite` where the pragmas above are not respected and are ignored.
+            // This yields database errors at runtime.
+            let pool = Pool::builder()
+                .max_size(1)
+                .min_idle(Some(1))
+                .connection_customizer(Box::new(Pragmas))
+                .build(manager)?;
+
+            Ok(pool)
         }
     }
 }
@@ -177,38 +204,26 @@ fn internal_get_conn(
 fn internal_get_conn_custom(
     log: Option<&Logger>,
     main: &str,
-    fallback: &str,
-) -> Result<DbConnection, diesel::result::ConnectionError> {
-    let conn = DbConnection::establish(main);
+    _fallback: &str,
+) -> Result<DbConnection, r2d2::Error> {
+    let manager = Manager::new(main);
+    let pool = Pool::builder().build(manager);
 
-    let conn = if conn.is_ok() {
-        conn
-    } else {
-        DbConnection::establish(fallback)
-    };
-
-    if conn.is_ok() {
-        return Ok(conn?);
+    if pool.is_ok() {
+        return Ok(pool?);
     }
 
-    if let Err(e) = conn {
-        if let ConnectionError::BadConnection(_) = e {
-            let conn = DbConnection::establish("postgres://postgres:dimpostgres@127.0.0.1/");
+    if pool.is_err() {
+        let manager = Manager::new("postgres://postgres:dimpostgres@127.0.0.1/");
+        let pool = Pool::builder().build(manager);
 
-            let conn = if conn.is_ok() {
-                conn
-            } else {
-                DbConnection::establish("postgres://postgres:dimpostgres@postgres/")
-            }?;
-
-            if let Some(log) = log {
-                slog::warn!(
-                    log,
-                    "Database dim seems to not exist, creating...standby..."
-                );
-            }
-            let _ = create_database(&conn);
+        if let Some(log) = log {
+            slog::warn!(
+                log,
+                "Database dim seems to not exist, creating...standby..."
+            );
         }
+        let _ = create_database(&pool?);
     };
 
     Ok(internal_get_conn(log)?)

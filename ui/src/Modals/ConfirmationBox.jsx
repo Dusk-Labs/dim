@@ -30,7 +30,7 @@ const ConfirmationBox = (props) => {
         </div>
       )}
     </ModalBox>
-  )
+  );
 };
 
 export default ConfirmationBox;

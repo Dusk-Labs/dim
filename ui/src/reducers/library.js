@@ -61,7 +61,7 @@ export default function libraryReducer(state = initialState, action) {
           fetched: false,
           error: null
         }
-      }
+      };
     case FETCH_LIBRARIES_OK:
       return {
         ...state,
@@ -71,7 +71,7 @@ export default function libraryReducer(state = initialState, action) {
           fetched: true,
           items: action.payload
         }
-      }
+      };
     case FETCH_LIBRARIES_ERR:
       return {
         ...state,
@@ -81,7 +81,7 @@ export default function libraryReducer(state = initialState, action) {
           fetched: true,
           error: action.payload
         }
-      }
+      };
     case FETCH_LIBRARY_UNMATCHED_START:
       return {
         ...state,
@@ -91,7 +91,7 @@ export default function libraryReducer(state = initialState, action) {
           fetched: false,
           error: null
         }
-      }
+      };
     case FETCH_LIBRARY_UNMATCHED_OK:
       return {
         ...state,
@@ -101,7 +101,7 @@ export default function libraryReducer(state = initialState, action) {
           fetched: true,
           items: action.payload
         }
-      }
+      };
     case FETCH_LIBRARY_UNMATCHED_ERR:
       return {
         ...state,
@@ -111,7 +111,7 @@ export default function libraryReducer(state = initialState, action) {
           fetched: true,
           error: action.payload
         }
-      }
+      };
     case FETCH_LIBRARY_INFO:
       return state;
     case FETCH_LIBRARY_MEDIA:
@@ -124,7 +124,7 @@ export default function libraryReducer(state = initialState, action) {
           created: false,
           error: null
         }
-      }
+      };
     case NEW_LIBRARY_OK:
       return {
         ...state,
@@ -133,7 +133,7 @@ export default function libraryReducer(state = initialState, action) {
           creating: false,
           created: true
         }
-      }
+      };
     case NEW_LIBRARY_ERR:
       return {
         ...state,
@@ -142,7 +142,7 @@ export default function libraryReducer(state = initialState, action) {
           created: false,
           error: action.payload
         }
-      }
+      };
     case DEL_LIBRARY_START:
       return {
         ...state,
@@ -151,7 +151,7 @@ export default function libraryReducer(state = initialState, action) {
           deleted: false,
           error: null
         }
-      }
+      };
     case DEL_LIBRARY_OK:
       return {
         ...state,
@@ -160,7 +160,7 @@ export default function libraryReducer(state = initialState, action) {
           deleting: false,
           deleted: true
         }
-      }
+      };
     case DEL_LIBRARY_ERR:
       return {
         ...state,
@@ -169,7 +169,7 @@ export default function libraryReducer(state = initialState, action) {
           deleted: false,
           error: action.payload
         }
-      }
+      };
     case RM_LIBRARY:
       return {
         ...state,
@@ -177,7 +177,7 @@ export default function libraryReducer(state = initialState, action) {
           ...state.fetch_libraries,
           items: state.fetch_libraries.items.filter(item => item.id !== action.id)
         }
-      }
+      };
     case ADD_LIBRARY:
       return {
         ...state,
@@ -185,7 +185,7 @@ export default function libraryReducer(state = initialState, action) {
           ...state.fetch_libraries,
           items: [...state.fetch_libraries.items, action.payload]
         }
-      }
+      };
     default:
       return state;
   }

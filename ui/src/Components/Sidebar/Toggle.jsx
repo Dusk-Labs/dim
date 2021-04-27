@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import DimLogo from "../../assets/DimLogo";
+import AngleLeftIcon from "../../assets/Icons/AngleLeft";
 
 import "./Toggle.scss";
 
@@ -56,7 +56,7 @@ function Toggle(props) {
     if (defaultSidebarVisible === "false") {
       toggleSidebar(false);
     }
-    
+
     setDefaultChecked(true);
   }, [defaultChecked, toggleSidebar]);
 
@@ -64,7 +64,7 @@ function Toggle(props) {
     <section className="sidebarToggleWrapper">
       <DimLogo/>
       <div className="toggle" onClick={toggleSidebar}>
-          <FontAwesomeIcon icon="angle-left"/>
+        <AngleLeftIcon/>
       </div>
     </section>
   );
