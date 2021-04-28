@@ -2,6 +2,10 @@ name: React
 
 on: [push, pull_request]
 
+defaults:
+  run:
+    working-directory: ui
+
 jobs:
   build:
     name: Build
@@ -22,6 +26,5 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      - run: cd ui
       - run: yarn
       - run: yarn build
