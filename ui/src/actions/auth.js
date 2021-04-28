@@ -67,14 +67,7 @@ export const authenticate = (username, password) => async (dispatch) => {
 };
 
 export const logout = () => async (dispatch) => {
-  const cookies = document.cookie.split(";");
-
-  cookies.forEach(cookie => {
-    const pos = cookie.indexOf("=");
-    const name = pos > -1 ? cookie.substr(0, pos) : cookie;
-
-    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  });
+  document.cookie = "token=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
   const bc = new BroadcastChannel("dim");
 
