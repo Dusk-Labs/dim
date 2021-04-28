@@ -22,5 +22,6 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
+      - run: cd ui
       - run: yarn
       - run: yarn build
