@@ -6,7 +6,6 @@ import {
 
 const initialState = {
   items: [],
-  cache: {},
   fetching: false,
   fetched: false,
   error: null
@@ -26,10 +25,6 @@ export default function fileBrowserReducer(state = initialState, action) {
       return {
         ...state,
         items: action.payload.dirs,
-        cache: {
-          ...state.cache,
-          [action.payload.path]: action.payload.dirs
-        },
         fetching: false,
         fetched: true
       };
