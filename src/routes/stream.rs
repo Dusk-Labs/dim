@@ -7,6 +7,7 @@ use crate::errors;
 use crate::stream_tracking::StreamTracking;
 use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::get_avc1_tag;
+use crate::streaming::level_to_tag;
 use crate::streaming::Avc1Level;
 
 use chrono::prelude::*;
@@ -65,8 +66,8 @@ pub async fn return_manifest(
 
     let target_file = media.target_file.clone();
     let info = spawn_blocking(move || {
-        FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
-            .get_meta(&std::path::PathBuf::from(target_file))
+        dbg!(FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
+            .get_meta(&std::path::PathBuf::from(target_file)))
     })
     .await
     .unwrap()
@@ -109,6 +110,13 @@ pub async fn return_manifest(
         VideoProfile::Direct
     };
 
+    // temporarily fix High@L4.1 streams from not playing.
+    let profile = if video_stream.level == Some(41) {
+        VideoProfile::Native
+    } else {
+        profile
+    };
+
     let video = state
         .create(
             StreamType::Video {
@@ -122,12 +130,15 @@ pub async fn return_manifest(
     stream_tracking.insert(gid, video.clone()).await;
 
     // FIXME: Stop hardcoding a fps of 24
-    let video_avc = get_avc1_tag(
-        video_stream.width.clone().unwrap_or(1920) as u64,
-        video_stream.height.clone().unwrap_or(1080) as u64,
-        info.get_bitrate().parse().unwrap(),
-        24,
-    );
+    let video_avc = video_stream
+        .level
+        .and_then(|x| level_to_tag(x))
+        .unwrap_or(get_avc1_tag(
+            video_stream.width.clone().unwrap_or(1920) as u64,
+            video_stream.height.clone().unwrap_or(1080) as u64,
+            info.get_bitrate().parse().unwrap(),
+            24,
+        ));
 
     tracks.push(format!(
         include_str!("../static/video_segment.mpd"),
