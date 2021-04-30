@@ -91,8 +91,6 @@ pub async fn return_virtual_manifest(
         Utc,
     );
 
-    let mut tracks: Vec<VirtualManifest> = Vec::new();
-
     let video_stream = info
         .find_by_codec("video")
         .first()
@@ -232,7 +230,7 @@ pub async fn return_manifest(
     should_kill: Option<bool>,
     includes: Option<String>,
 ) -> Result<Response<'static>, errors::StreamingErrors> {
-    if should_kill.unwrap_or(false) {
+    if should_kill.unwrap_or(true) {
         stream_tracking.kill_all(&state, gid).await;
     }
 
