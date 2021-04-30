@@ -4,6 +4,10 @@
   width: 40px;
   height: 40px;
 
+  &.small-true div {
+    border: .2em dotted #f7931e;
+  }
+
   div {
     display: block;
     position: absolute;
