@@ -6,8 +6,7 @@ import NewLibraryModal from "../../Modals/NewLibrary/Index";
 import { fetchLibraries, handleWsNewLibrary, handleWsDelLibrary } from "../../actions/library.js";
 
 import HomeIcon from "../../assets/Icons/Home";
-import FilmIcon from "../../assets/Icons/Film";
-import TvIcon from "../../assets/Icons/TvIcon";
+import Library from "./Library";
 
 function Libraries() {
   const dispatch = useDispatch();
@@ -52,17 +51,8 @@ function Libraries() {
 
   // FETCH_LIBRARIES_OK
   if (fetched && !error && items.length > 0) {
-    libs = items.map((
-      { name, id, media_type }, i
-    ) => (
-      <NavLink
-        to={"/library/" + id}
-        className="item" key={i}
-      >
-        {media_type === "movie" && <FilmIcon/>}
-        {media_type === "tv" && <TvIcon/>}
-        <p>{name}</p>
-      </NavLink>
+    libs = items.map((props, i) => (
+      <Library {...props} key={i}/>
     ));
   }
 
