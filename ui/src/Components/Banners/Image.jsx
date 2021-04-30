@@ -38,7 +38,7 @@ function BannerImage(props) {
       };
 
       img.src = new RegExp("/^(?:/|[a-z]+://)/").test(props.src)
-        ? props.src : `//${window.host}:${window.backend_port}/${props.src}`;
+        ? props.src : `/${props.src}`;
     }
   }, [currentSrc, props.hideAnimationName, props.src]);
 

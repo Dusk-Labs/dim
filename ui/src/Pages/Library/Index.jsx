@@ -23,7 +23,7 @@ const Library = () => {
 
   return (
     <div className="library">
-      <CardList path={`//${window.host}:8000/api/v1/library/${params.id}/media`} actions={true}/>
+      <CardList path={`/api/v1/library/${params.id}/media`} actions={true}/>
       {(fetched && Object.keys(items).length > 0) && (
         <>
           <div className="separator"/>

@@ -59,7 +59,7 @@ function Banners() {
   }, [dispatch]);
 
   useEffect(() => {
-    const library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
+    const library_ws = new WebSocket(`ws://${window.location.hostname}:3012/events/library`);
     setWS(library_ws);
     return () => library_ws.close();
   }, []);
