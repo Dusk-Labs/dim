@@ -32,7 +32,7 @@ function Libraries() {
   }, [dispatch]);
 
   useEffect(() => {
-    const library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
+    const library_ws = new WebSocket(`ws://${window.location.hostname}:3012/events/library`);
 
     if (window.location.protocol !== "https:") {
       library_ws.addEventListener("message", handle_ws_msg);
