@@ -142,16 +142,24 @@ function VideoPlayer(props) {
     const url = `//${window.host}:8000/api/v1/stream/${params.fileID}/manifest.mpd?gid=${uuid}`;
     const mediaPlayer = MediaPlayer().create();
 
-    mediaPlayer.updateSettings({
+    // even with these settings, high bitrate movies fail.
+    // The only solution is to have a constant bitrate and cosistent segments.
+    // Thus transcoding is the only solution.
+    let settings = {
       streaming: {
-        stableBufferTime: 10,
+        stableBufferTime: 20,
         bufferToKeep: 10,
         bufferTimeAtTopQuality: 20,
         bufferTimeAtTopQualityLongForm: 20,
-        useAppendWindowEnd: false,
+        useAppendWindow: true,
         bufferPruningInterval: 10,
+        smallGapLimit: 1000,
       }
-    });
+    };
+
+    console.log(settings);
+
+    mediaPlayer.updateSettings(settings);
 
     mediaPlayer.extend("RequestModifier", function () {
       return {
