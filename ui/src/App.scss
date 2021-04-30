@@ -220,24 +220,6 @@ main {
   }
 }
 
-.ScrollbarsCustom-TrackY {
-  top: 0 !important;
-  height: 100% !important;
-}
-
-.ScrollbarsCustom-TrackY {
-  width: 5px !important;
-
-  &:hover {
-    opacity: 1;
-  }
-
-  & > .ScrollbarsCustom-Thumb {
-    transition: height .3s ease-in-out;
-    background: #f7931e none repeat scroll 0% 0% !important;
-  }
-}
-
 /*
     * === KEYFRAMES ===
 */
