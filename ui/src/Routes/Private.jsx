@@ -72,7 +72,7 @@ function PrivateRoute(props) {
     if (!videoUUID) return;
 
     (async () => {
-      await fetch(`//${window.host}:8000/api/v1/stream/${videoUUID}/state/kill`);
+      await fetch(`/api/v1/stream/${videoUUID}/state/kill`);
       sessionStorage.clear();
     })();
   }, [history.location.pathname]);

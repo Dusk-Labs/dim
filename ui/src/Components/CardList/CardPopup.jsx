@@ -58,7 +58,7 @@ function CardPopup(props) {
         }
       };
 
-      const res = await fetch(`//${window.host}:8000/api/v1/media/${id}/info`, config);
+      const res = await fetch(`/api/v1/media/${id}/info`, config);
 
       if (res.status !== 200) return;
 

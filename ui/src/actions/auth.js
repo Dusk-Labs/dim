@@ -32,7 +32,7 @@ export const authenticate = (username, password) => async (dispatch) => {
   };
 
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/auth/login`, config);
+    const res = await fetch("/api/v1/auth/login", config);
 
     if (res.status !== 200) {
       return dispatch({
@@ -100,7 +100,7 @@ export const register = (username, password, invite) => async (dispatch) => {
   };
 
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/auth/register`, config);
+    const res = await fetch("/api/v1/auth/register", config);
     const payload = await res.json();
 
     if (res.status !== 200) {
@@ -126,7 +126,7 @@ export const register = (username, password, invite) => async (dispatch) => {
 
 export const checkAdminExists = () => async (dispatch) => {
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/auth/admin_exists`);
+    const res = await fetch("/api/v1/auth/admin_exists");
 
     if (res.status !== 200) {
       return dispatch({
@@ -162,7 +162,7 @@ export const createNewInvite = () => async (dispatch, getState) => {
   };
 
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/auth/new_invite`, config);
+    const res = await fetch("/api/v1/auth/new_invite", config);
 
     if (res.status !== 200) {
       return dispatch({
@@ -197,7 +197,7 @@ export const fetchInvites = () => async (dispatch, getState) => {
       }
     };
 
-    const res = await fetch(`//${window.host}:8000/api/v1/auth/invites`, config);
+    const res = await fetch("/api/v1/auth/invites", config);
 
     if (res.status !== 200) {
       return dispatch({

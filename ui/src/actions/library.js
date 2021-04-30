@@ -29,7 +29,7 @@ export const fetchLibraries = () => async (dispatch, getState) => {
       }
     };
 
-    const res = await fetch(`//${window.host}:8000/api/v1/library`, config);
+    const res = await fetch("/api/v1/library", config);
 
     if (res.status !== 200) {
       return dispatch({
@@ -64,7 +64,7 @@ export const fetchLibraryUnmatched = (id) => async (dispatch, getState) => {
       }
     };
 
-    const res = await fetch(`//${window.host}:8000/api/v1/library/${id}/unmatched`, config);
+    const res = await fetch(`/api/v1/library/${id}/unmatched`, config);
 
     if (res.status !== 200) {
       return dispatch({
@@ -102,7 +102,7 @@ export const newLibrary = (data) => async (dispatch, getState) => {
   };
 
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/library`, options);
+    const res = await fetch("/api/v1/library", options);
 
     if (res.status !== 201) {
       return dispatch({
@@ -133,7 +133,7 @@ export const delLibrary = (id) => async (dispatch, getState) => {
   };
 
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/library/${id}`, options);
+    const res = await fetch(`/api/v1/library/${id}`, options);
 
     if (res.status !== 204) {
       return dispatch({
@@ -176,7 +176,7 @@ export const handleWsNewLibrary = (id) => async (dispatch, getState) => {
   };
 
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/library/${id}`, options);
+    const res = await fetch(`/api/v1/library/${id}`, options);
 
     if (res.status !== 200) {
       return;
