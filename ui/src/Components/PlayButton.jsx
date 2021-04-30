@@ -12,14 +12,18 @@ function PlayButton(props) {
     color: props.textColor
   };
 
-  const { versions, mediaID, progress } = props;
+  const { versions, mediaID, progress, seasonep } = props;
+
+  const name = (
+    seasonep?.season ? `S${seasonep.season} E${seasonep.episode}` : "movie"
+  );
 
   if (versions.length === 1) {
     return (
       <div>
         <Link to={`/play/${versions[0].id}`} className="playBtn">
           <p style={accentCSS}>
-            {progress > 0 ? "Resume media" : "Play media"}
+            {progress > 0 ? "Resume" : "Play"} {name}
           </p>
           <PlayIcon/>
         </Link>
@@ -30,7 +34,7 @@ function PlayButton(props) {
       <SelectMediaVersion mediaID={mediaID} versions={versions}>
         <button className="playBtn">
           <p style={accentCSS}>
-            {progress > 0 ? "Resume media" : "Play media"}
+            {progress > 0 ? "Resume" : "Play"} {name}
           </p>
           <PlayIcon/>
         </button>
