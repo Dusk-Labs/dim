@@ -17,10 +17,12 @@ import {
   FETCH_MEDIA_SEASON_EPISODES_ERR
 } from "./types.js";
 
-export const fetchCards = (path) => async (dispatch, getState) => {
+export const fetchCards = (path, reset = true) => async (dispatch, getState) => {
   const token = getState().auth.token;
 
-  dispatch({ type: FETCH_CARDS_START });
+  if (reset) {
+    dispatch({ type: FETCH_CARDS_START });
+  }
 
   try {
     const config = {
