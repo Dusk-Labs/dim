@@ -8,16 +8,12 @@
   transition: padding .3s ease-in-out;
   animation: appear .5s ease-in-out;
 
+  .sectionDesc {
+    color: #ddd;
+    margin: .5em 0 1em 0;
+  }
+
   &.unmatched {
-    h1 {
-      margin-bottom: .5em;
-    }
-
-    .sectionDesc {
-      color: #ddd;
-      margin-bottom: 1em;
-    }
-
     .mediaCards {
       margin: 2em 0;
 
