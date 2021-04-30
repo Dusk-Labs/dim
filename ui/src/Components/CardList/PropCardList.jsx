@@ -14,7 +14,7 @@ function PropCardList(props) {
     card_list = (
       <section>
         <h1>{props.title}</h1>
-        <p>Could not load results</p>
+        <p className="sectionDesc">Could not load results</p>
       </section>
     );
   }
