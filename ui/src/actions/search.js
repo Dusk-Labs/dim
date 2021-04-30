@@ -18,7 +18,7 @@ export const search = (params) => async (dispatch, getState) => {
       }
     };
 
-    const res = await fetch(`//${window.host}:8000/api/v1/search${params}`, config);
+    const res = await fetch(`/api/v1/search${params}`, config);
 
     if (res.status === 404) {
       return dispatch({
@@ -58,7 +58,7 @@ export const quickSearch = (query) => async (dispatch, getState) => {
       }
     };
 
-    const res = await fetch(`//${window.host}:8000/api/v1/search?query=${query}&quick=true`, config);
+    const res = await fetch(`/api/v1/search?query=${query}&quick=true`, config);
 
     if (res.status !== 200) {
       return dispatch({

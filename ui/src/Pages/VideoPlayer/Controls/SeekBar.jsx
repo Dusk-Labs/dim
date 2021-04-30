@@ -33,7 +33,7 @@ function VideoSeekBar(props) {
 
       console.log("saving progress");
 
-      await fetch(`//${window.host}:8000/api/v1/media/${episode?.id || mediaID}/progress?offset=${currentTime}`, config);
+      await fetch(`/api/v1/media/${episode?.id || mediaID}/progress?offset=${currentTime}`, config);
     })();
   }, [currentTime, episode?.id, mediaID, token]);
 
