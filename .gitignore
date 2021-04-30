@@ -11,7 +11,7 @@ target/*
 expanded.rs
 *.db
 build
-*.lock
+Cargo.lock
 logs/
 *.jpg
 transcoding
