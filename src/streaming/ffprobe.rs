@@ -17,7 +17,6 @@ struct FFPStream {
 pub struct Stream {
     pub index: i64,
     pub codec_name: String,
-    codec_long_name: String,
     profile: Option<String>,
     codec_type: String,
     codec_time_base: Option<String>,
@@ -27,6 +26,7 @@ pub struct Stream {
     coded_height: Option<i64>,
     display_aspect_ratio: Option<String>,
     is_avc: Option<String>,
+    pub level: Option<i64>,
     pub tags: Option<Tags>,
     sample_rate: Option<String>,
     channels: Option<i64>,
@@ -147,7 +147,7 @@ impl FFPWrapper {
 
     pub fn get_audio_type(&self) -> Option<String> {
         if let Some(ctx) = self.ffpstream.clone() {
-            ctx.streams.get(1).map(|x| x.codec_long_name.clone())
+            ctx.streams.get(1).map(|x| x.codec_name.clone())
         } else {
             None
         }
