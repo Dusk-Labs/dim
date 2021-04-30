@@ -11,6 +11,8 @@ function Banners() {
   const dispatch = useDispatch();
   const banners = useSelector(store => store.banner);
 
+  const [WS, setWS] = useState();
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [currentTimeoutID, setCurrentTimeoutID] = useState();
 
@@ -21,10 +23,12 @@ function Banners() {
       dispatch(fetchBanners());
     }
 
-    if (type === "EventNewLibrary") {
+    if (banners.items.length >= 3) return;
+
+    if (type === "EventNewCard") {
       dispatch(fetchBanners());
     }
-  }, [dispatch]);
+  }, [banners.items.length, dispatch]);
 
   useEffect(() => {
     const timeout = setTimeout(timeoutID => {
@@ -52,15 +56,20 @@ function Banners() {
 
   useEffect(() => {
     dispatch(fetchBanners());
+  }, [dispatch]);
 
+  useEffect(() => {
     const library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
-    library_ws.addEventListener("message", handleWS);
+    setWS(library_ws);
+    return () => library_ws.close();
+  }, []);
 
-    return () => {
-      library_ws.removeEventListener("message", handleWS);
-      library_ws.close();
-    };
-  }, [dispatch, handleWS]);
+  useEffect(() => {
+    if (!WS) return;
+
+    WS.addEventListener("message", handleWS);
+    return () => WS.removeEventListener("message", handleWS);
+  }, [WS, handleWS]);
 
   return (
     <div className="banner-wrapper">
