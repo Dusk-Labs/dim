@@ -123,7 +123,9 @@ function MetaContent() {
             <p>{rating}/10</p>
           </div>
         </div>
-        <PlayButton mediaID={id} versions={mediaVersions}/>
+        {media_type !== "tv" && (
+          <PlayButton mediaID={id} versions={mediaVersions}/>
+        )}
       </div>
     );
   }
