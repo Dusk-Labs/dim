@@ -57,7 +57,11 @@ pub async fn return_virtual_manifest(
     conn: State<'_, DbConnection>,
     id: i32,
     gid: Option<u128>,
-) -> Result<JsonValue, errors::StreamingErrors> {
+) -> Result<Json<Vec<VirtualManifest>>, errors::StreamingErrors> {
+    if let Some(gid) = gid {
+        return Ok(Json(stream_tracking.get_for_gid(gid).await));
+    }
+
     let gid = uuid::Uuid::new_v4().as_u128();
 
     let media = MediaFile::get_one(&conn, id)
@@ -214,12 +218,10 @@ pub async fn return_virtual_manifest(
             .await;
     }
 
-    Ok(json!({
-        "todo": "asd",
-    }))
+    Ok(Json(stream_tracking.get_for_gid(gid).await))
 }
 
-#[get("/<gid>/manifest.mpd?<start_num>&<should_kill>")]
+#[get("/<gid>/manifest.mpd?<start_num>&<should_kill>&<includes>")]
 pub async fn return_manifest(
     state: State<'_, StateManager>,
     stream_tracking: State<'_, StreamTracking>,
@@ -228,15 +230,28 @@ pub async fn return_manifest(
     gid: u128,
     start_num: Option<u64>,
     should_kill: Option<bool>,
+    includes: Option<String>,
 ) -> Result<Response<'static>, errors::StreamingErrors> {
     if should_kill.unwrap_or(false) {
         stream_tracking.kill_all(&state, gid).await;
     }
 
-    let manifest = stream_tracking
-        .compile(gid, start_num.unwrap_or(0))
-        .await
-        .unwrap();
+    let manifest = if let Some(includes) = includes {
+        let includes = includes
+            .split(",")
+            .map(ToString::to_string)
+            .collect::<Vec<_>>();
+
+        stream_tracking
+            .compile_only(gid, start_num.unwrap_or(0), includes)
+            .await
+            .unwrap()
+    } else {
+        stream_tracking
+            .compile(gid, start_num.unwrap_or(0))
+            .await
+            .unwrap()
+    };
 
     Response::build()
         .header(http::ContentType::new("application", "dash+xml"))

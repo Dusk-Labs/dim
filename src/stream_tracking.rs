@@ -96,11 +96,36 @@ impl StreamTracking {
     }
 
     pub async fn compile(&self, gid: u128, start_num: u64) -> Option<String> {
-        let mut lock = self.streaming_sessions.write().await;
+        let lock = self.streaming_sessions.read().await;
         let manifests = lock.get(&gid)?;
 
         let tracks = manifests
             .iter()
+            .filter_map(|x| x.compile(start_num))
+            .collect::<Vec<_>>();
+
+        let duration = manifests.first().and_then(|x| x.duration)?;
+
+        Some(format!(
+            include_str!("./static/manifest.mpd"),
+            duration = duration,
+            base_url = "/api/v1/stream/",
+            segments = tracks.join("\n")
+        ))
+    }
+
+    pub async fn compile_only(
+        &self,
+        gid: u128,
+        start_num: u64,
+        filter: Vec<String>,
+    ) -> Option<String> {
+        let lock = self.streaming_sessions.read().await;
+        let manifests = lock.get(&gid)?;
+
+        let tracks = manifests
+            .iter()
+            .filter(|x| filter.contains(&x.id))
             .filter_map(|x| x.compile(start_num))
             .collect::<Vec<_>>();
 
