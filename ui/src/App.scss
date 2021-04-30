@@ -209,6 +209,7 @@ main {
   position: relative;
   margin-left: 150px;
   color: #fff;
+  transition: margin-left 300ms ease-in-out;
 
   &.full {
     margin-left: 0;
