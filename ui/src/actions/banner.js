@@ -16,7 +16,7 @@ export const fetchBanners = () => async (dispatch, getState) => {
       }
     };
 
-    const res = await fetch(`//${window.host}:8000/api/v1/dashboard/banner`, config);
+    const res = await fetch("/api/v1/dashboard/banner", config);
 
     if (res.status !== 200) {
       return dispatch({

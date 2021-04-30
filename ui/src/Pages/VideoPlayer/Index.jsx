@@ -65,7 +65,7 @@ function VideoPlayer(props) {
         }
       };
 
-      const res = await fetch(`//${window.host}:8000/api/v1/mediafile/${params.fileID}`, config);
+      const res = await fetch(`/api/v1/mediafile/${params.fileID}`, config);
 
       if (res.status !== 200) {
         return;
@@ -139,7 +139,7 @@ function VideoPlayer(props) {
       sessionStorage.setItem("videoUUID", uuid);
     }
 
-    const url = `//${window.host}:8000/api/v1/stream/${params.fileID}/manifest.mpd?gid=${uuid}`;
+    const url = `/api/v1/stream/${params.fileID}/manifest.mpd?gid=${uuid}`;
     const mediaPlayer = MediaPlayer().create();
 
     mediaPlayer.updateSettings({
@@ -178,7 +178,7 @@ function VideoPlayer(props) {
       if (!uuid) return;
 
       (async () => {
-        await fetch(`//${window.host}:8000/api/v1/stream/${uuid}/state/kill`);
+        await fetch(`/api/v1/stream/${uuid}/state/kill`);
         sessionStorage.clear();
       })();
     };
@@ -190,7 +190,7 @@ function VideoPlayer(props) {
     setCurrentTime(newTime);
     setBuffer(0);
 
-    player.attachSource(`//${window.host}:8000/api/v1/stream/${params.fileID}/manifest.mpd?start_num=${newSegment}&gid=${videoUUID}`);
+    player.attachSource(`/api/v1/stream/${params.fileID}/manifest.mpd?start_num=${newSegment}&gid=${videoUUID}`);
 
     setSeeking(false);
   }, [params.fileID, player, videoUUID]);
@@ -230,7 +230,7 @@ function VideoPlayer(props) {
     }
 
     (async () => {
-      const res = await fetch(`//${window.host}:8000/api/v1/stream/${videoUUID}/state/get_stderr`);
+      const res = await fetch(`/api/v1/stream/${videoUUID}/state/get_stderr`);
       const error = await res.json();
 
       setError({
