@@ -27,7 +27,7 @@ function CardList(props) {
   }, [dispatch, path]);
 
   useEffect(() => {
-    const library_ws = new WebSocket(`ws://${window.location.hostname}:3012/events/library`);
+    const library_ws = new WebSocket(`ws://${window.location.hostname}:3012/`);
     library_ws.addEventListener("message", handleWS);
 
     return () => {

@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import NewLibraryModal from "../../Modals/NewLibrary/Index";
 
-import { fetchLibraries, handleWsNewLibrary, handleWsDelLibrary } from "../../actions/library.js";
+import { fetchLibraries, handleWsNewLibrary, handleWsDelLibrary, handleWsStartedScanning, handleWsStoppedScanning } from "../../actions/library.js";
 
 import HomeIcon from "../../assets/Icons/Home";
 import Library from "./Library";
@@ -25,13 +25,19 @@ function Libraries() {
       case "EventNewLibrary":
         dispatch(handleWsNewLibrary(payload.id));
         break;
+      case "EventStartedScanning":
+        dispatch(handleWsStartedScanning(payload.id));
+        break;
+      case "EventStoppedScanning":
+        dispatch(handleWsStoppedScanning(payload.id));
+        break;
       default:
         break;
     }
   }, [dispatch]);
 
   useEffect(() => {
-    const library_ws = new WebSocket(`ws://${window.location.hostname}:3012/events/library`);
+    const library_ws = new WebSocket(`ws://${window.location.hostname}:3012/`);
 
     if (window.location.protocol !== "https:") {
       library_ws.addEventListener("message", handle_ws_msg);

@@ -6,26 +6,11 @@ import FilmIcon from "../../assets/Icons/Film";
 import TvIcon from "../../assets/Icons/TvIcon";
 import Ring from "../Load/Ring";
 import BarLoad from "../Load/Bar";
-import { useCallback, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 // TODO: show progress loading when scanning lib
 function Library(props) {
-  const [WS, setWS] = useState(false);
-  const [scanning, setScanning] = useState(false);
-
-  const handleWS = useCallback(e => {
-    const { type } = JSON.parse(e.data);
-
-    if (type === "EventRemoveLibrary") {
-    }
-  }, []);
-
-  useEffect(() => {
-    const library_ws = new WebSocket(`ws://${window.location.hostname}:3012/events/library`);
-    setWS(library_ws);
-    return () => library_ws.close();
-  }, []);
-
+  const status = useSelector(store => store.library.scan_progress);
   const { id, media_type, name } = props;
 
   return (
@@ -36,7 +21,7 @@ function Library(props) {
       {media_type === "movie" && <FilmIcon/>}
       {media_type === "tv" && <TvIcon/>}
       <p>{name}</p>
-      {scanning && (
+      {status[id] && (
         <>
           <Ring small={true}/>
           <BarLoad/>
