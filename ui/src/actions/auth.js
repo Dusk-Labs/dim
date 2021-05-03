@@ -42,10 +42,13 @@ export const authenticate = (username, password) => async (dispatch) => {
     }
 
     const payload = await res.json();
-    const bc = new BroadcastChannel("dim");
 
-    bc.postMessage("login");
-    bc.close();
+    if ("BroadcastChannel" in window) {
+      const bc = new BroadcastChannel("dim");
+
+      bc.postMessage("login");
+      bc.close();
+    }
 
     dispatch({
       type: AUTH_LOGIN_OK,
@@ -69,10 +72,12 @@ export const authenticate = (username, password) => async (dispatch) => {
 export const logout = () => async (dispatch) => {
   document.cookie = "token=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
-  const bc = new BroadcastChannel("dim");
+  if ("BroadcastChannel" in window) {
+    const bc = new BroadcastChannel("dim");
 
-  bc.postMessage("logout");
-  bc.close();
+    bc.postMessage("logout");
+    bc.close();
+  }
 
   dispatch({ type: AUTH_LOGOUT });
 };
