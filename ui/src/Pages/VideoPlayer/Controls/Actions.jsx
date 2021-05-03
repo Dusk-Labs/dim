@@ -17,7 +17,15 @@ function VideoActions(props) {
   const { textTrackEnabled, setTextTrackEnabled, duration, muted, setMuted, videoPlayer, fullscreen, setFullscreen, currentTime, player, paused } = useContext(VideoPlayerContext);
   const { seekTo, setVisible } = props;
 
-  const [ idleCount, setIdleCount ] = useState(0);
+  const [currentVolume, setCurrentVolume] = useState(100);
+  const [idleCount, setIdleCount] = useState(0);
+
+  const onVolumeChange = useCallback((e) => {
+    const newVolume = e.target.value / 100;
+
+    setCurrentVolume(newVolume * 100);
+    player.setVolume(newVolume);
+  }, [player]);
 
   const play = useCallback(() => {
     setIdleCount(0);
@@ -68,11 +76,20 @@ function VideoActions(props) {
 
   const toggleMute = useCallback(() => {
     setIdleCount(0);
-    const currentMuteState = player.isMuted();
 
-    player.setMute(!currentMuteState);
-    setMuted(!currentMuteState);
-  }, [player, setMuted]);
+    if (currentVolume === 0) {
+      player.setMute(false);
+      player.setVolume(1);
+      setCurrentVolume(100);
+    }
+
+    if (currentVolume > 0) {
+      const currentMuteState = player.isMuted();
+
+      player.setMute(!currentMuteState);
+      setMuted(!currentMuteState);
+    }
+  }, [currentVolume, player, setMuted]);
 
   const toggleSubtitles = useCallback(() => {
     setTextTrackEnabled(state => !state);
@@ -149,34 +166,47 @@ function VideoActions(props) {
 
   return (
     <div className="videoActions">
-      <button onClick={toggleMute} className="volume">
-        {!muted && <VolumeUpIcon/>}
-        {muted && <VolumeMuteIcon/>}
-      </button>
-      <button onClick={toggleSubtitles} className={`cc active-${textTrackEnabled}`}>
-        <CCIcon/>
-      </button>
-      <button onClick={seekBackward} className="backward">
-        <BackwardIcon/>
-      </button>
-      {paused && (
-        <button onClick={play} className="playpause">
-          <PlayIcon/>
+      <section className="left">
+        <button onClick={toggleMute} className="volume">
+          {(!muted && currentVolume > 0) && <VolumeUpIcon/>}
+          {(muted || currentVolume === 0) && <VolumeMuteIcon/>}
         </button>
-      )}
-      {!paused && (
-        <button onClick={pause} className="playpause">
-          <PauseIcon/>
+        <input
+          className="volumeSlider"
+          type="range"
+          min="0"
+          max="100"
+          value={currentVolume}
+          onChange={onVolumeChange}
+        />
+      </section>
+      <section className="middle">
+        <button onClick={seekBackward} className="backward">
+          <BackwardIcon/>
         </button>
-      )}
-      <button onClick={seekForward} className="forward">
-        <ForwardIcon/>
-      </button>
-      <div className="filler"/>
-      <button onClick={toggleFullscreen} className="fullscreen">
-        {fullscreen && <CompressIcon/>}
-        {!fullscreen && <ExpandIcon/>}
-      </button>
+        {paused && (
+          <button onClick={play} className="playpause">
+            <PlayIcon/>
+          </button>
+        )}
+        {!paused && (
+          <button onClick={pause} className="playpause">
+            <PauseIcon/>
+          </button>
+        )}
+        <button onClick={seekForward} className="forward">
+          <ForwardIcon/>
+        </button>
+      </section>
+      <section className="right">
+        <button onClick={toggleSubtitles} className={`cc active-${textTrackEnabled}`}>
+          <CCIcon/>
+        </button>
+        <button onClick={toggleFullscreen} className="fullscreen">
+          {fullscreen && <CompressIcon/>}
+          {!fullscreen && <ExpandIcon/>}
+        </button>
+      </section>
     </div>
   );
 }
