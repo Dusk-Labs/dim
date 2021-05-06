@@ -64,11 +64,32 @@ impl VirtualManifest {
     }
 
     fn compile_audio(&self, start_num: u64) -> Option<String> {
-        todo!()
+        Some(format!(
+            include_str!("./static/audio_segment.mpd"),
+            id = &self.id,
+            bandwidth = self.bandwidth.to_string(),
+            mimeType = &self.mime,
+            codecs = &self.codecs,
+            init = format!("{}?start_num={}", self.init_seg.clone().unwrap(), start_num),
+            chunk_path = self.chunk_path.clone(),
+            start_num = start_num,
+        ))
     }
 
     fn compile_sub(&self) -> Option<String> {
-        todo!()
+        Some(format!(
+            include_str!("./static/subtitle_segment.mpd"),
+            id = &self.id,
+            bandwidth = self.bandwidth.to_string(),
+            mimeType = &self.mime,
+            path = self.chunk_path.clone(),
+            args = self
+                .args
+                .iter()
+                .map(|(k, v)| format!("{}=\"{}\"", k, v))
+                .collect::<Vec<_>>()
+                .join(" ")
+        ))
     }
 }
 
@@ -87,8 +108,8 @@ impl StreamTracking {
 
         if let Some(v) = lock.get_mut(id) {
             if !v.is_empty() {
-                for manifest in v.drain(..) {
-                    let _ = state.die(manifest.id).await;
+                for manifest in v {
+                    let _ = state.die(manifest.id.clone()).await;
                 }
             }
         }
@@ -112,7 +133,7 @@ impl StreamTracking {
 
         Some(format!(
             include_str!("./static/manifest.mpd"),
-            duration = duration,
+            duration = format!("PT{}S", duration),
             base_url = "/api/v1/stream/",
             segments = tracks.join("\n")
         ))
