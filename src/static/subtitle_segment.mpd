@@ -1,5 +1,5 @@
-<AdaptationSet mimeType="text/vtt" title="{title}">
-    <Representation id="{id}" bandwidth="256">
+<AdaptationSet mimeType="{mimeType}" {args}>
+    <Representation id="{id}" bandwidth="{bandwidth}">
         <BaseURL>{path}</BaseURL>
     </Representation>
 </AdaptationSet>
