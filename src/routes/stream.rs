@@ -27,6 +27,7 @@ use rocket::State;
 
 use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
+use rocket_contrib::uuid::Uuid;
 
 use slog::info;
 use slog::Logger;
@@ -56,16 +57,16 @@ pub async fn return_virtual_manifest(
     auth: Auth,
     conn: State<'_, DbConnection>,
     id: i32,
-    gid: Option<u128>,
+    gid: Option<Uuid>,
 ) -> Result<JsonValue, errors::StreamingErrors> {
     if let Some(gid) = gid {
         return Ok(json!({
-            "tracks": stream_tracking.get_for_gid(gid).await,
-            "gid": gid,
+            "tracks": stream_tracking.get_for_gid(&gid).await,
+            "gid": gid.to_hyphenated().to_string(),
         }));
     }
 
-    let gid = uuid::Uuid::new_v4().as_u128();
+    let gid = uuid::Uuid::new_v4();
 
     let media = MediaFile::get_one(&conn, id)
         .await
@@ -129,9 +130,10 @@ pub async fn return_virtual_manifest(
 
     stream_tracking
         .insert(
-            gid,
+            &gid,
             VirtualManifest {
                 id: video.clone(),
+                is_direct: true,
                 mime: "video/mp4".into(),
                 duration: info.get_duration(),
                 content_type: ContentType::Video,
@@ -166,9 +168,10 @@ pub async fn return_virtual_manifest(
 
         stream_tracking
             .insert(
-                gid,
+                &gid,
                 VirtualManifest {
                     id: audio.clone(),
+                    is_direct: false,
                     mime: "audio/mp4".into(),
                     duration: info.get_duration(),
                     codecs: "mp4a.40.2".into(),
@@ -197,9 +200,10 @@ pub async fn return_virtual_manifest(
 
         stream_tracking
             .insert(
-                gid,
+                &gid,
                 VirtualManifest {
                     id: subtitle.clone(),
+                    is_direct: false,
                     content_type: ContentType::Subtitle,
                     mime: "text/vtt".into(),
                     codecs: "vtt".into(), //ignored
@@ -220,8 +224,8 @@ pub async fn return_virtual_manifest(
     }
 
     Ok(json!({
-        "tracks": stream_tracking.get_for_gid(gid).await,
-        "gid": gid,
+        "tracks": stream_tracking.get_for_gid(&gid).await,
+        "gid": gid.to_hyphenated().to_string(),
     }))
 }
 
@@ -231,13 +235,13 @@ pub async fn return_manifest(
     stream_tracking: State<'_, StreamTracking>,
     auth: Auth,
     conn: State<'_, DbConnection>,
-    gid: u128,
+    gid: Uuid,
     start_num: Option<u64>,
     should_kill: Option<bool>,
     includes: Option<String>,
 ) -> Result<Response<'static>, errors::StreamingErrors> {
     if should_kill.unwrap_or(true) {
-        stream_tracking.kill_all(&state, gid).await;
+        stream_tracking.kill_all(&state, &gid).await;
     }
 
     let manifest = if let Some(includes) = includes {
@@ -247,12 +251,12 @@ pub async fn return_manifest(
             .collect::<Vec<_>>();
 
         stream_tracking
-            .compile_only(gid, start_num.unwrap_or(0), includes)
+            .compile_only(&gid, start_num.unwrap_or(0), includes)
             .await
             .unwrap()
     } else {
         stream_tracking
-            .compile(gid, start_num.unwrap_or(0))
+            .compile(&gid, start_num.unwrap_or(0))
             .await
             .unwrap()
     };
@@ -368,10 +372,10 @@ pub async fn get_subtitle(
 pub async fn should_client_hard_seek(
     state: State<'_, StateManager>,
     stream_tracking: State<'_, StreamTracking>,
-    gid: u128,
+    gid: Uuid,
     chunk_num: u32,
 ) -> Result<JsonValue, errors::StreamingErrors> {
-    let ids = stream_tracking.get_for_gid(gid).await;
+    let ids = stream_tracking.get_for_gid(&gid).await;
 
     let mut should_client_hard_seek = false;
 
@@ -388,11 +392,11 @@ pub async fn should_client_hard_seek(
 pub async fn session_get_stderr(
     state: State<'_, StateManager>,
     stream_tracking: State<'_, StreamTracking>,
-    gid: u128,
+    gid: Uuid,
 ) -> Result<JsonValue, errors::StreamingErrors> {
     Ok(json!({
     "errors": stream::iter(stream_tracking
-        .get_for_gid(gid)
+        .get_for_gid(&gid)
         .await)
         .filter_map(|x| async { state.get_stderr(x.id).await.ok() })
         .collect::<Vec<_>>().await,
@@ -403,9 +407,9 @@ pub async fn session_get_stderr(
 pub async fn kill_session(
     state: State<'_, StateManager>,
     stream_tracking: State<'_, StreamTracking>,
-    gid: u128,
+    gid: Uuid,
 ) -> Result<Status, errors::StreamingErrors> {
-    for manifest in stream_tracking.get_for_gid(gid).await {
+    for manifest in stream_tracking.get_for_gid(&gid).await {
         let _ = state.die(manifest.id).await;
     }
 

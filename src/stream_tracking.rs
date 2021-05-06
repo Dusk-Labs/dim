@@ -5,13 +5,15 @@ use rocket::State;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use uuid::Uuid;
+
 use tokio::runtime::Handle;
 use tokio::sync::RwLock;
 
 use serde::Serialize;
 
 #[derive(Debug, Clone, Copy, Serialize)]
-#[serde(rename = "lowercase")]
+#[serde(rename_all = "lowercase")]
 pub enum ContentType {
     Video,
     Audio,
@@ -22,6 +24,7 @@ pub enum ContentType {
 pub struct VirtualManifest {
     pub content_type: ContentType,
     pub id: String,
+    pub is_direct: bool,
     pub mime: String,
     pub codecs: String,
     pub bandwidth: u64,
@@ -70,19 +73,19 @@ impl VirtualManifest {
 }
 
 pub struct StreamTracking {
-    streaming_sessions: Arc<RwLock<HashMap<u128, Vec<VirtualManifest>>>>,
+    streaming_sessions: Arc<RwLock<HashMap<Uuid, Vec<VirtualManifest>>>>,
 }
 
 impl StreamTracking {
-    pub async fn insert(&self, id: u128, manifest: VirtualManifest) {
+    pub async fn insert(&self, id: &Uuid, manifest: VirtualManifest) {
         let mut lock = self.streaming_sessions.write().await;
-        lock.entry(id).or_default().push(manifest);
+        lock.entry(id.clone()).or_default().push(manifest);
     }
 
-    pub async fn kill_all(&self, state: &State<'_, StateManager>, id: u128) {
+    pub async fn kill_all(&self, state: &State<'_, StateManager>, id: &Uuid) {
         let mut lock = self.streaming_sessions.write().await;
 
-        if let Some(v) = lock.get_mut(&id) {
+        if let Some(v) = lock.get_mut(id) {
             if !v.is_empty() {
                 for manifest in v.drain(..) {
                     let _ = state.die(manifest.id).await;
@@ -91,14 +94,14 @@ impl StreamTracking {
         }
     }
 
-    pub async fn get_for_gid(&self, gid: u128) -> Vec<VirtualManifest> {
+    pub async fn get_for_gid(&self, gid: &Uuid) -> Vec<VirtualManifest> {
         let lock = self.streaming_sessions.read().await;
-        lock.get(&gid).cloned().unwrap_or_default()
+        lock.get(gid).cloned().unwrap_or_default()
     }
 
-    pub async fn compile(&self, gid: u128, start_num: u64) -> Option<String> {
+    pub async fn compile(&self, gid: &Uuid, start_num: u64) -> Option<String> {
         let lock = self.streaming_sessions.read().await;
-        let manifests = lock.get(&gid)?;
+        let manifests = lock.get(gid)?;
 
         let tracks = manifests
             .iter()
@@ -117,12 +120,12 @@ impl StreamTracking {
 
     pub async fn compile_only(
         &self,
-        gid: u128,
+        gid: &Uuid,
         start_num: u64,
         filter: Vec<String>,
     ) -> Option<String> {
         let lock = self.streaming_sessions.read().await;
-        let manifests = lock.get(&gid)?;
+        let manifests = lock.get(gid)?;
 
         let tracks = manifests
             .iter()
