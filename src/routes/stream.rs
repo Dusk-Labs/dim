@@ -57,9 +57,12 @@ pub async fn return_virtual_manifest(
     conn: State<'_, DbConnection>,
     id: i32,
     gid: Option<u128>,
-) -> Result<Json<Vec<VirtualManifest>>, errors::StreamingErrors> {
+) -> Result<JsonValue, errors::StreamingErrors> {
     if let Some(gid) = gid {
-        return Ok(Json(stream_tracking.get_for_gid(gid).await));
+        return Ok(json!({
+            "tracks": stream_tracking.get_for_gid(gid).await,
+            "gid": gid,
+        }));
     }
 
     let gid = uuid::Uuid::new_v4().as_u128();
@@ -216,7 +219,10 @@ pub async fn return_virtual_manifest(
             .await;
     }
 
-    Ok(Json(stream_tracking.get_for_gid(gid).await))
+    Ok(json!({
+        "tracks": stream_tracking.get_for_gid(gid).await,
+        "gid": gid,
+    }))
 }
 
 #[get("/<gid>/manifest.mpd?<start_num>&<should_kill>&<includes>")]
