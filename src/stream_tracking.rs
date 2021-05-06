@@ -11,6 +11,7 @@ use tokio::sync::RwLock;
 use serde::Serialize;
 
 #[derive(Debug, Clone, Copy, Serialize)]
+#[serde(rename = "lowercase")]
 pub enum ContentType {
     Video,
     Audio,
