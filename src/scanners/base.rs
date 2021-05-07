@@ -250,18 +250,50 @@ impl MetadataMatcher {
             .search(media.raw_name.clone(), media.raw_year)
             .await;
 
+        if media.episode.is_none() {
+            // NOTE: In some cases our base matcher extracts the correct title from the filename but incorrect episode and season numbers.
+            let anitomy_episode = els
+                .get(ElementCategory::EpisodeNumber)
+                .and_then(|x| x.parse::<i32>().ok())
+                .or(media.episode);
+
+            let updated_mediafile = UpdateMediaFile {
+                episode: anitomy_episode,
+                ..Default::default()
+            };
+
+            let _ = updated_mediafile.update(&self.conn, media.id).await;
+            media.episode = anitomy_episode;
+        }
+
+        if media.season.is_none() {
+            // NOTE: Some releases dont include season number, so we just assume its the first one.
+            let anitomy_season = els
+                .get(ElementCategory::AnimeSeason)
+                .and_then(|x| x.parse::<i32>().ok())
+                .or(Some(1));
+
+            let updated_mediafile = UpdateMediaFile {
+                season: anitomy_season,
+                ..Default::default()
+            };
+
+            let _ = updated_mediafile.update(&self.conn, media.id).await;
+            media.season = anitomy_season;
+        }
+
         if let Some(x) = els.get(ElementCategory::AnimeTitle) {
             if result.is_err() {
                 // NOTE: If we got here then we assume that the file uses common anime release naming schemes.
                 // Thus we prioritise metadata extracted by anitomy.
-                result = result.or(self.tv_tmdb.search(x.to_string(), None).await);
+                result = self.tv_tmdb.search(x.to_string(), None).await;
 
+                // NOTE: Some releases dont include season number, so we just assume its the first one.
                 let anitomy_episode = els
                     .get(ElementCategory::EpisodeNumber)
                     .and_then(|x| x.parse::<i32>().ok())
                     .or(media.episode);
 
-                // NOTE: Some releases dont include season number, so we just assume its the first one.
                 let anitomy_season = els
                     .get(ElementCategory::AnimeSeason)
                     .and_then(|x| x.parse::<i32>().ok())
