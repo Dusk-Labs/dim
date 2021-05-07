@@ -95,7 +95,7 @@ pub fn get_directory_structure(
 }
 
 #[get("/search?<query>&<year>&<library_id>&<genre>&<quick>")]
-pub fn search(
+pub async fn search(
     conn: State<'_, DbConnection>,
     query: Option<String>,
     year: Option<i32>,
@@ -103,9 +103,9 @@ pub fn search(
     genre: Option<String>,
     quick: Option<bool>,
     user: Auth,
-    rt: State<'_, tokio::runtime::Handle>,
 ) -> Result<Json<Vec<JsonValue>>, errors::DimError> {
-    let quick = quick.unwrap_or(false);
+    /*
+     * NOTE: Until tokio-diesel merges support for BoxedDsl we cant stack filters.
     let mut result = media::table.into_boxed();
 
     result = result.filter(media::media_type.ne(MediaType::Episode));
@@ -135,47 +135,126 @@ pub fn search(
     }
 
     if let Some(x) = genre {
-        let genre_row = rt.block_on(Genre::get_by_name(&conn, x))?.id;
+        let genre_row = Genre::get_by_name(&conn, x).await?.id;
 
         let new_result = result
             .inner_join(genre_media::table)
             .filter(genre_media::genre_id.eq(genre_row));
 
-        let conn_clone = conn
-            .get()
-            .expect("Failed to acquire a connection to the db");
+        let new_result = new_result.load_async::<Media>(&conn).await?;
 
-        let new_result = new_result.load::<Media>(&conn_clone)?;
         return Ok(Json(
-            new_result
-                .iter()
-                .filter_map(|x| {
+            stream::iter(new_result)
+                .filter_map(|x| async move {
                     if quick {
-                        rt.block_on(construct_standard_quick(&x)).ok()
+                        construct_standard_quick(&x).await.ok()
                     } else {
-                        rt.block_on(construct_standard(&conn, &x, &user)).ok()
+                        construct_standard(&conn, &x, &user).await.ok()
                     }
                 })
-                .collect::<Vec<JsonValue>>(),
+                .collect::<Vec<JsonValue>>()
+                .await,
         ));
     }
 
     // to avoid weird issue with boxed dsl not being send
-    let conn_clone = conn
-        .get()
-        .expect("Failed to acquire a connection to the db");
-
-    let result = result.load::<Media>(&conn_clone).unwrap_or_default();
+    let result = result.load_async::<Media>(&conn).await.unwrap_or_default();
     Ok(Json(
-        result
-            .iter()
-            .filter_map(|x| {
+        stream::iter(result)
+            .filter_map(|x| async {
                 if quick {
-                    rt.block_on(construct_standard_quick(&x)).ok()
+                    construct_standard_quick(&x).await.ok()
                 } else {
-                    rt.block_on(construct_standard(&conn, &x, &user)).ok()
+                    construct_standard(&conn, &x, &user).await.ok()
                 }
             })
-            .collect::<Vec<JsonValue>>(),
+            .collect::<Vec<JsonValue>>()
+            .await,
     ))
+    */
+    let quick = quick.unwrap_or(false);
+
+    if let Some(query_string) = query {
+        let query_string = query_string
+            .split(' ')
+            .collect::<Vec<&str>>()
+            .as_slice()
+            .join("% %");
+
+        cfg_if! {
+            if #[cfg(feature = "postgres")] {
+                let result = media::table.filter(media::name.ilike(format!("%{}%", query_string)));
+            } else {
+                let result = media::table.filter(upper(media::name).like(format!("%{}%", query_string)));
+            }
+        }
+
+        let result = result.load_async::<Media>(&conn).await.unwrap_or_default();
+        let mut items = Vec::new();
+
+        for x in result {
+            if quick {
+                if let Ok(x) = construct_standard_quick(&x).await {
+                    items.push(x);
+                }
+            } else {
+                if let Ok(x) = construct_standard(&conn, &x, &user).await {
+                    items.push(x);
+                }
+            }
+        }
+
+        return Ok(Json(items));
+    }
+
+    if let Some(x) = genre {
+        let genre_row = Genre::get_by_name(&conn, x).await?.id;
+
+        let new_result = media::table
+            .inner_join(genre_media::table)
+            .filter(genre_media::genre_id.eq(genre_row))
+            .select(media::all_columns);
+
+        let new_result = new_result.load_async::<Media>(&conn).await?;
+        let mut items = Vec::new();
+
+        for x in new_result {
+            if quick {
+                if let Ok(x) = construct_standard_quick(&x).await {
+                    items.push(x);
+                }
+            } else {
+                if let Ok(x) = construct_standard(&conn, &x, &user).await {
+                    items.push(x);
+                }
+            }
+        }
+
+        return Ok(Json(items));
+    }
+
+    if let Some(x) = year {
+        let result = media::table
+            .filter(media::year.eq(year))
+            .load_async::<Media>(&conn)
+            .await?;
+
+        let mut items = Vec::new();
+
+        for x in result {
+            if quick {
+                if let Ok(x) = construct_standard_quick(&x).await {
+                    items.push(x);
+                }
+            } else {
+                if let Ok(x) = construct_standard(&conn, &x, &user).await {
+                    items.push(x);
+                }
+            }
+        }
+
+        return Ok(Json(items));
+    }
+
+    Err(errors::DimError::NotFoundError)
 }
