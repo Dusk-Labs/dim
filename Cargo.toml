@@ -64,6 +64,7 @@ xtra_proc = { git = "https://github.com/vgarleanu/xtra_proc" }
 async-trait = "0.1.50"
 tokio-diesel = { git = "https://github.com/vgarleanu/tokio-diesel" }
 async-recursion = "0.3.2"
+anitomy = "0.1.2"
 
 [dev-dependencies]
 criterion = "0.3.4"
