@@ -66,8 +66,8 @@ pub async fn return_manifest(
 
     let target_file = media.target_file.clone();
     let info = spawn_blocking(move || {
-        dbg!(FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
-            .get_meta(&std::path::PathBuf::from(target_file)))
+        FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
+            .get_meta(&std::path::PathBuf::from(target_file))
     })
     .await
     .unwrap()
