@@ -272,23 +272,35 @@ impl InsertableGenre {
     pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
         use crate::schema::genre::dsl::*;
 
-        // first check if exists
-        if let Ok(x) = Genre::get_by_name(&conn, self.name.clone()).await {
-            return Ok(x.id);
-        }
+        Ok(conn
+            .transaction::<_, _>(|conn| {
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        let entry = genre.filter(name.ilike(self.name.clone())).first::<Genre>(conn);
+                    } else {
+                        let entry = genre
+                            .filter(crate::upper(name).like(self.name.clone().to_uppercase()))
+                            .first::<Genre>(conn);
+                    }
+                }
 
-        let query = diesel::insert_into(genre).values(self.clone());
+                if let Ok(x) = entry {
+                    return Ok(x.id);
+                }
 
-        cfg_if! {
-            if #[cfg(feature = "postgres")] {
-                Ok(query.returning(id)
-                    .get_result_async(conn).await?)
-            } else {
-                query.execute_async(conn).await?;
+                let query = diesel::insert_into(genre).values(self.clone());
 
-                Ok(diesel::select(crate::last_insert_rowid).get_result_async(conn).await?)
-            }
-        }
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        Ok(query.returning(id)
+                            .get_result(conn)?)
+                    } else {
+                        query.execute(conn)?;
+                        Ok(diesel::select(crate::last_insert_rowid).get_result(conn)?)
+                    }
+                }
+            })
+            .await?)
     }
 }
 /// Struct which is used to pair a genre to a media
@@ -408,16 +420,31 @@ impl InsertableGenreMedia {
     ///
     /// Library::delete(&conn, library_id).unwrap();
     /// Genre::delete(&conn, genre_id);
-    pub async fn insert_pair(genre_id: i32, media_id: i32, conn: &crate::DbConnection) {
-        if Genre::get_by_media_and_genre(&conn, genre_id, media_id)
-            .await
-            .is_ok()
-        {
-            return;
-        }
+    pub async fn insert_pair(_genre_id: i32, _media_id: i32, conn: &crate::DbConnection) {
+        use crate::schema::genre_media::dsl::*;
 
-        let pair = Self { genre_id, media_id };
+        let _ = conn
+            .transaction::<_, _>(|conn| {
+                if genre::table
+                    .inner_join(genre_media)
+                    .filter(media_id.eq(_media_id))
+                    .filter(genre_id.eq(_genre_id))
+                    .select(genre::dsl::id)
+                    .first::<i32>(conn)
+                    .is_ok()
+                {
+                    return Ok(());
+                }
 
-        pair.insert(conn).await;
+                let pair = Self {
+                    genre_id: _genre_id,
+                    media_id: _media_id,
+                };
+                diesel::insert_into(genre_media)
+                    .values(pair)
+                    .execute(conn)?;
+                Ok(())
+            })
+            .await;
     }
 }
