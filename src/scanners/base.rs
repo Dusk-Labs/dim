@@ -288,6 +288,7 @@ impl MetadataMatcher {
                     self.log,
                     "Could not match tv show to tmdb";
                     "reason" => e.to_string(),
+                    "file" => &media.target_file
                 );
                 return Err(ScannerError::UnknownError);
             }
