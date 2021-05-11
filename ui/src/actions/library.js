@@ -12,6 +12,8 @@ import {
   DEL_LIBRARY_ERR,
   RM_LIBRARY,
   ADD_LIBRARY,
+  SCAN_START,
+  SCAN_STOP,
   FETCH_LIBRARY_UNMATCHED_START,
   FETCH_LIBRARY_UNMATCHED_ERR,
   FETCH_LIBRARY_UNMATCHED_OK
@@ -28,7 +30,6 @@ export const fetchLibraries = () => async (dispatch, getState) => {
         "authorization": token
       }
     };
-
     const res = await fetch("/api/v1/library", config);
 
     if (res.status !== 200) {
@@ -189,4 +190,18 @@ export const handleWsNewLibrary = (id) => async (dispatch, getState) => {
       payload: info
     });
   } catch(err) {}
+};
+
+export const wsScanStart = (id) => async (dispatch) => {
+  dispatch({
+    type: SCAN_START,
+    id
+  });
+};
+
+export const wsScanStop = (id) => async (dispatch) => {
+  dispatch({
+    type: SCAN_STOP,
+    id
+  });
 };

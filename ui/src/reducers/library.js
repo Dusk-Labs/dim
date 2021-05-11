@@ -12,6 +12,8 @@ import {
   DEL_LIBRARY_ERR,
   RM_LIBRARY,
   ADD_LIBRARY,
+  SCAN_START,
+  SCAN_STOP,
   FETCH_LIBRARY_UNMATCHED_START,
   FETCH_LIBRARY_UNMATCHED_OK,
   FETCH_LIBRARY_UNMATCHED_ERR,
@@ -43,11 +45,14 @@ const del_library = {
   error: null
 };
 
+const scanning = [];
+
 const initialState = {
   fetch_libraries,
   fetch_library_unmatched,
   new_library,
-  del_library
+  del_library,
+  scanning
 };
 
 export default function libraryReducer(state = initialState, action) {
@@ -185,6 +190,16 @@ export default function libraryReducer(state = initialState, action) {
           ...state.fetch_libraries,
           items: [...state.fetch_libraries.items, action.payload]
         }
+      };
+    case SCAN_START:
+      return {
+        ...state,
+        scanning: [...scanning, action.id]
+      };
+    case SCAN_STOP:
+      return {
+        ...state,
+        scanning: scanning.filter(id => id !== action.id)
       };
     default:
       return state;
