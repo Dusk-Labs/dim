@@ -12,8 +12,8 @@ import {
   DEL_LIBRARY_ERR,
   RM_LIBRARY,
   ADD_LIBRARY,
-  START_SCANNING,
-  STOP_SCANNING,
+  SCAN_START,
+  SCAN_STOP,
   FETCH_LIBRARY_UNMATCHED_START,
   FETCH_LIBRARY_UNMATCHED_ERR,
   FETCH_LIBRARY_UNMATCHED_OK
@@ -192,20 +192,16 @@ export const handleWsNewLibrary = (id) => async (dispatch, getState) => {
   } catch(err) {}
 };
 
-export const handleWsStartedScanning = (id) => async (dispatch) => {
+export const wsScanStart = (id) => async (dispatch) => {
   dispatch({
-    type: START_SCANNING,
-    payload: {
-      id
-    }
+    type: SCAN_START,
+    id
   });
 };
 
-export const handleWsStoppedScanning = (id) => async (dispatch) => {
+export const wsScanStop = (id) => async (dispatch) => {
   dispatch({
-    type: START_SCANNING,
-    payload: {
-      id
-    }
+    type: SCAN_STOP,
+    id
   });
 };
