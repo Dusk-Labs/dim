@@ -12,6 +12,8 @@ import {
   DEL_LIBRARY_ERR,
   RM_LIBRARY,
   ADD_LIBRARY,
+  SCAN_START,
+  SCAN_STOP,
   FETCH_LIBRARY_UNMATCHED_START,
   FETCH_LIBRARY_UNMATCHED_ERR,
   FETCH_LIBRARY_UNMATCHED_OK
@@ -28,8 +30,7 @@ export const fetchLibraries = () => async (dispatch, getState) => {
         "authorization": token
       }
     };
-
-    const res = await fetch(`//${window.host}:8000/api/v1/library`, config);
+    const res = await fetch("/api/v1/library", config);
 
     if (res.status !== 200) {
       return dispatch({
@@ -64,7 +65,7 @@ export const fetchLibraryUnmatched = (id) => async (dispatch, getState) => {
       }
     };
 
-    const res = await fetch(`//${window.host}:8000/api/v1/library/${id}/unmatched`, config);
+    const res = await fetch(`/api/v1/library/${id}/unmatched`, config);
 
     if (res.status !== 200) {
       return dispatch({
@@ -102,7 +103,7 @@ export const newLibrary = (data) => async (dispatch, getState) => {
   };
 
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/library`, options);
+    const res = await fetch("/api/v1/library", options);
 
     if (res.status !== 201) {
       return dispatch({
@@ -133,7 +134,7 @@ export const delLibrary = (id) => async (dispatch, getState) => {
   };
 
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/library/${id}`, options);
+    const res = await fetch(`/api/v1/library/${id}`, options);
 
     if (res.status !== 204) {
       return dispatch({
@@ -176,7 +177,7 @@ export const handleWsNewLibrary = (id) => async (dispatch, getState) => {
   };
 
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/library/${id}`, options);
+    const res = await fetch(`/api/v1/library/${id}`, options);
 
     if (res.status !== 200) {
       return;
@@ -189,4 +190,18 @@ export const handleWsNewLibrary = (id) => async (dispatch, getState) => {
       payload: info
     });
   } catch(err) {}
+};
+
+export const wsScanStart = (id) => async (dispatch) => {
+  dispatch({
+    type: SCAN_START,
+    id
+  });
+};
+
+export const wsScanStop = (id) => async (dispatch) => {
+  dispatch({
+    type: SCAN_STOP,
+    id
+  });
 };

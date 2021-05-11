@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchDirectories } from "../../actions/fileBrowser.js";
 import FolderIcon from "../../assets/Icons/Folder";
-import TimesCircleIcon from "../../assets/Icons/TimesCircle";
 import ArrowLeftIcon from "../../assets/Icons/ArrowLeft";
 
 import "./DirSelection.scss";
@@ -12,30 +11,18 @@ function DirSelection(props) {
   const dispatch = useDispatch();
   const fileBrowser = useSelector(store => store.fileBrowser);
 
-  const [cache, setCache] = useState(false);
-
   const { current, setCurrent } = props;
 
   const select = useCallback(path => {
-    if (path in fileBrowser.cache) {
-      setCurrent(path);
-      setCache(true);
-
-      return;
-    }
-
     dispatch(fetchDirectories(path.replace("C:\\", "")));
     setCurrent(path);
-
-    setCache(false);
-  }, [dispatch, fileBrowser.cache, setCurrent]);
+  }, [dispatch, setCurrent]);
 
   useEffect(() => {
     const path = "";
 
     dispatch(fetchDirectories(path.replace("C:\\", "")));
     setCurrent(path);
-    setCache(false);
   }, [dispatch, setCurrent]);
 
   const goBack = useCallback(() => {
@@ -56,54 +43,34 @@ function DirSelection(props) {
 
   let dirs;
 
-  if (!cache) {
-    // FETCH_DIRECTORIES_ERR
-    if (fileBrowser.fetched && fileBrowser.error) {
-      dirs = (
-        <div className="vertical-err">
-          <p>Cannot load data</p>
-        </div>
-      );
-    }
+  // FETCH_DIRECTORIES_ERR
+  if (fileBrowser.fetched && fileBrowser.error) {
+    dirs = (
+      <div className="vertical-err">
+        <p>Cannot load data</p>
+      </div>
+    );
+  }
 
-    // FETCH_DIRECTORIES_OK
-    if (fileBrowser.fetched && !fileBrowser.error) {
-      const { items } = fileBrowser;
-
-      if (items.length === 0) {
-        dirs = (
-          <div className="vertical-err">
-            <p>Empty</p>
-          </div>
-        );
-      } else {
-        dirs = items.map((dir, i) => {
-          return (
-            <div key={i} onClick={() => select(dir)} className="dir">
-              <FolderIcon/>
-              <p>{dir.replace(props.current, "").replace("C:\\", "").replace("/", "").replace("\\", "")}</p>
-            </div>
-          );
-        });
-      }
-    }
-  } else {
-    const items = fileBrowser.cache[props.current];
+  // FETCH_DIRECTORIES_OK
+  if (fileBrowser.fetched && !fileBrowser.error) {
+    const { items } = fileBrowser;
 
     if (items.length === 0) {
       dirs = (
         <div className="vertical-err">
-          <TimesCircleIcon/>
-          <p>NO FOLDERS</p>
+          <p>Empty</p>
         </div>
       );
     } else {
-      dirs = items.map((dir, i) => (
-        <div key={i} onClick={() => select(dir)} className="dir">
-          <FolderIcon/>
-          <p>{dir.replace(props.current, "").replace("C:\\", "").replace("/", "").replace("\\", "")}</p>
-        </div>
-      ));
+      dirs = items.map((dir, i) => {
+        return (
+          <div key={i} onClick={() => select(dir)} className="dir">
+            <FolderIcon/>
+            <p>{dir.replace(props.current, "").replace("C:\\", "").replace("/", "").replace("\\", "")}</p>
+          </div>
+        );
+      });
     }
   }
 

@@ -54,6 +54,8 @@ export const DEL_LIBRARY_ERR = "DEL_LIBRARY_ERR";
 // [WEBSOCKET] LIBRARY
 export const RM_LIBRARY = "RM_LIBRARY";
 export const ADD_LIBRARY = "ADD_LIBRARY";
+export const SCAN_START = "SCAN_START";
+export const SCAN_STOP = "SCAN_STOP";
 
 /*
     * == CARD ACTIONS ==
@@ -144,3 +146,11 @@ export const CREATE_NEW_INVITE_ERR = "CREATE_NEW_INVITE_ERR";
 export const FETCH_INVITES_START = "FETCH_INVITES_START";
 export const FETCH_INVITES_OK = "FETCH_INVITES_OK";
 export const FETCH_INVITES_ERR = "FETCH_INVITES_ERR";
+
+/*
+    * WS ACTIONS
+*/
+
+export const WS_CONNECT_START = "WS_CONNECT_START";
+export const WS_CONNECTED = "WS_CONNECTED";
+export const WS_CONNECT_ERR = "WS_CONNECT_ERR";

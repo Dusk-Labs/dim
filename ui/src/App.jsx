@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import { BrowserRouter, Switch } from "react-router-dom";
 
+import WS from "./Components/WS";
 import NotAuthedOnlyRoute from "./Routes/NotAuthedOnly";
 import PrivateRoute from "./Routes/Private";
+import MainLayout from "./Layouts/MainLayout";
 
 import Dashboard from "./Pages/Dashboard";
 import Library from "./Pages/Library/Index";
@@ -13,13 +15,7 @@ import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
 // import Preferences from "./Pages/Preferences";
 
-import MainLayout from "./Layouts/MainLayout";
-
 import "./App.scss";
-
-// quick hack to get proper requests
-window.host = window.location.hostname;
-window.backend_port = "8000";
 
 /*
     <PrivateRoute exact path="/preferences">
@@ -96,9 +92,11 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      {routes}
-    </BrowserRouter>
+    <WS>
+      <BrowserRouter>
+        {routes}
+      </BrowserRouter>
+    </WS>
   );
 }
 

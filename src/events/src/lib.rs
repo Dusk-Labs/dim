@@ -14,6 +14,12 @@ pub struct Message {
     pub event_type: PushEventType,
 }
 
+impl ToString for Message {
+    fn to_string(&self) -> String {
+        serde_json::to_string(&self).unwrap()
+    }
+}
+
 /// Enum holds all event types used within dim that are dispatched over ws.
 #[derive(Serialize)]
 #[serde(tag = "type")]
@@ -30,4 +36,8 @@ pub enum PushEventType {
     EventStreamIsReady,
     /// Holds a hashmap of stats collected from ffmpeg over stdout.
     EventStreamStats(HashMap<String, String>),
+    /// A library is being scanned.
+    EventStartedScanning,
+    /// A library has finished scanning.
+    EventStoppedScanning,
 }
