@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import NewLibraryModal from "../../Modals/NewLibrary/Index";
 
-import { fetchLibraries, handleWsNewLibrary, handleWsDelLibrary, handleWsStartedScanning, handleWsStoppedScanning } from "../../actions/library.js";
+import { fetchLibraries, handleWsNewLibrary, handleWsDelLibrary, wsScanStart, wsScanStop } from "../../actions/library.js";
 
 import HomeIcon from "../../assets/Icons/Home";
 import Library from "./Library";
@@ -18,21 +18,20 @@ function Libraries() {
   const handle_ws_msg = useCallback(async ({data}) => {
     const payload = JSON.parse(data);
 
-    switch(payload.type) {
-      case "EventRemoveLibrary":
-        dispatch(handleWsDelLibrary(payload.id));
-        break;
-      case "EventNewLibrary":
-        dispatch(handleWsNewLibrary(payload.id));
-        break;
-      case "EventStartedScanning":
-        dispatch(handleWsStartedScanning(payload.id));
-        break;
-      case "EventStoppedScanning":
-        dispatch(handleWsStoppedScanning(payload.id));
-        break;
-      default:
-        break;
+    if (payload.type === "EventStartedScanning") {
+      dispatch(wsScanStart(payload.id));
+    }
+
+    if (payload.type === "EventStoppedScanning") {
+      dispatch(wsScanStop(payload.id));
+    }
+
+    if (payload.type === "EventNewLibrary") {
+      dispatch(handleWsNewLibrary(payload.id));
+    }
+
+    if (payload.type === "EventRemoveLibrary") {
+      dispatch(handleWsDelLibrary(payload.id));
     }
   }, [dispatch]);
 
