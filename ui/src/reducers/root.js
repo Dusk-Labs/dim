@@ -1,6 +1,7 @@
 import { combineReducers } from "redux";
 
 import auth from "./auth";
+import ws from "./ws.js";
 import user from "./user.js";
 import library from "./library.js";
 import fileBrowser from "./fileBrowser.js";
@@ -10,6 +11,7 @@ import banner from "./banner.js";
 
 export default combineReducers({
   auth,
+  ws,
   user,
   library,
   fileBrowser,

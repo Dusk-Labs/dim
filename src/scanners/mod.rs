@@ -105,6 +105,14 @@ pub async fn start_custom<T: AsRef<Path>>(
     media_type: MediaType,
 ) -> Result<(), self::base::ScannerError> {
     info!(log, "Scanning library"; "mod" => "scanner", "library_id" => library_id);
+    tx.send(
+        events::Message {
+            id: library_id,
+            event_type: events::PushEventType::EventStartedScanning,
+        }
+        .to_string(),
+    )
+    .unwrap();
 
     let conn = get_conn().expect("Failed to grab the conn pool");
 
@@ -169,6 +177,14 @@ pub async fn start_custom<T: AsRef<Path>>(
         "files" => total_files,
         "duration" => now.elapsed().as_secs(),
     );
+    tx.send(
+        events::Message {
+            id: library_id,
+            event_type: events::PushEventType::EventStoppedScanning,
+        }
+        .to_string(),
+    )
+    .unwrap();
 
     Ok(())
 }
