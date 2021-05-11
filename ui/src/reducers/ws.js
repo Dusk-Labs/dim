@@ -5,7 +5,7 @@ import {
 } from "../actions/types.js";
 
 const initialState = {
-  ws: null,
+  conn: null,
   connecting: false,
   connected: false,
   error: null
@@ -15,7 +15,7 @@ export default function wsReducer(state = initialState, action) {
   switch(action.type) {
     case WS_CONNECT_START:
       return {
-        ws: null,
+        conn: null,
         connecting: true,
         connected: false,
         error: null
@@ -25,7 +25,7 @@ export default function wsReducer(state = initialState, action) {
         ...state,
         connecting: false,
         connected: true,
-        ws: action.ws
+        conn: action.conn
       };
     case WS_CONNECT_ERR:
       return {
