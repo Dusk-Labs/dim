@@ -1,6 +1,14 @@
 name: React
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+    - "ui/**"
+  pull_request:
+    paths:
+    - "ui/**"
+    branches:
+    - master
 
 defaults:
   run:

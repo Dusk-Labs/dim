@@ -38,6 +38,8 @@ function PrivateRoute(props) {
 
   // auto logout when logged out in another tab
   useEffect(() => {
+    if (!("BroadcastChannel" in window)) return;
+
     const bc = new BroadcastChannel("dim");
 
     bc.onmessage = (e) => {

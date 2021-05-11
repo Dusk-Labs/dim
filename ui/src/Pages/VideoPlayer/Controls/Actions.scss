@@ -1,11 +1,28 @@
 .videoActions {
   display: grid;
   width: 100%;
-  grid-template-columns: auto auto 1fr auto auto auto 1fr auto auto;
-  grid-template-areas:
-    "volume cc . backward playpause forward . filler fullscreen";
+  grid-template-columns: repeat(3, 1fr);
   justify-self: center;
   grid-area: actions;
+
+  .volumeSlider {
+    display: none;
+    animation: appear 250ms ease-in-out;
+    width: 80px;
+  }
+
+  section {
+    display: flex;
+    width: 100%;
+
+    &.middle {
+      justify-content: center;
+    }
+
+    &.right {
+      justify-content: flex-end;
+    }
+  }
 
   button, .filler {
     display: flex;
@@ -35,32 +52,23 @@
   }
 
   .filler {
+    flex: 1;
     grid-area: filler;
   }
 
   .volume {
-    grid-area: volume;
     padding: 1em 1em 1em 0;
   }
 
-  .cc {
-    grid-area: cc;
-  }
-
-  .backward {
-    grid-area: backward;
-  }
-
-  .playpause {
-    grid-area: playpause;
-  }
-
-  .forward {
-    grid-area: forward;
-  }
-
   .fullscreen {
-    grid-area: fullscreen;
     padding: 1em 0 1em 1em;
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  .videoActions {
+    .volumeSlider {
+      display: block;
+    }
   }
 }
