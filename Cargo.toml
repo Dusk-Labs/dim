@@ -17,10 +17,12 @@ postgres = ["database/postgres", "diesel/postgres", "rocket_contrib/diesel_postg
 sqlite = ["database/sqlite", "diesel/sqlite", "rocket_contrib/diesel_sqlite_pool"]
 
 [dependencies]
+# Currently pointing to master of rocket so we can get async/await
 rocket = { git = "https://github.com/SergioBenitez/Rocket", rev = "801e04b", default-features = false, features = ["tls"] }
 rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket", rev = "801e04b", default-features = false }
 rocket_contrib = { git = "https://github.com/SergioBenitez/Rocket", rev = "801e04b", default-features = false, optional = true, features = ["json", "helmet"] }
-
+# point to fork of tokio-diesel and rocket_cors which point to git for rocket.
+tokio-diesel = { git = "https://github.com/vgarleanu/tokio-diesel" }
 rocket_cors = { git = "https://github.com/vgarleanu/rocket_cors" }
 
 # needs upsert support for sqlite which isnt released yet.
@@ -33,8 +35,7 @@ serde_json = "1.0.48"
 database = { path = "./src/database", default-features = false, optional = true }
 events = { path = "./src/events" }
 auth = { path = "./src/auth" }
-nightfall = { git = "https://github.com/vgarleanu/nightfall" }
-#nightfall = { path = "../nightfall" }
+nightfall = "0.1.0"
 
 lazy_static = "1.4.0"
 walkdir = "2.3.1"
@@ -60,10 +61,10 @@ uuid = { version = "0.8.2", features = ["v4"] }
 tokio-tungstenite = "0.14.0"
 futures = "0.3.14"
 xtra = { version = "0.5.1", features = ["with-tokio-1"] }
-xtra_proc = { git = "https://github.com/vgarleanu/xtra_proc" }
+xtra_proc = "0.1.0"
 async-trait = "0.1.50"
-tokio-diesel = { git = "https://github.com/vgarleanu/tokio-diesel" }
 async-recursion = "0.3.2"
+anitomy = "0.1.2"
 
 [dev-dependencies]
 criterion = "0.3.4"

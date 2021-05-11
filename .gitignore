@@ -15,11 +15,14 @@ Cargo.lock
 logs/
 *.jpg
 transcoding
+benches/bench_1.mkv
+benches/bench_1.txt
 
 # UI
 node_modules
 ui/coverage
 ui/build
+ui/yarn.lock
 
 npm-debug.log*
 yarn-debug.log*

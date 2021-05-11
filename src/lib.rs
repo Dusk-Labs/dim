@@ -29,7 +29,8 @@
     negative_impls,
     result_flattening,
     once_cell,
-    type_ascription
+    type_ascription,
+    result_into_ok_or_err
 )]
 // #![forbid(missing_docs)]
 #![cfg_attr(debug_assertions, allow(unused_variables, unused_imports, dead_code))]

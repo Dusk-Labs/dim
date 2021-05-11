@@ -1,9 +1,11 @@
 use err_derive::Error;
+use std::path::Path;
 use std::path::PathBuf;
 
 use database::library::MediaType;
 use database::mediafile::InsertableMediaFile;
 use database::mediafile::MediaFile;
+use database::mediafile::UpdateMediaFile;
 use database::DbConnection;
 
 use crate::core::EventTx;
@@ -28,6 +30,10 @@ use tokio::task::spawn_blocking;
 use async_trait::async_trait;
 use xtra_proc::actor;
 use xtra_proc::handler;
+
+use anitomy::Anitomy;
+use anitomy::ElementCategory;
+use anitomy::Elements;
 
 #[derive(Debug, Error)]
 pub enum ScannerError {
@@ -221,17 +227,100 @@ impl MetadataMatcher {
 
     #[handler]
     pub async fn match_tv(&mut self, media: MediaFile) -> Result<(), ScannerError> {
-        let mut result = match self
+        // FIXME: Our handler macro cant handle `mut` keyword yet.
+        let mut media = media;
+
+        let path = Path::new(&media.target_file);
+        let filename = path
+            .file_name()
+            .and_then(|x| x.to_str())
+            .map(ToString::to_string)
+            .unwrap_or_default();
+
+        let els: Elements = spawn_blocking(move || {
+            let mut anitomy = Anitomy::new();
+            anitomy.parse(filename.as_str())
+        })
+        .await
+        .unwrap()
+        .into_ok_or_err();
+
+        let mut result = self
             .tv_tmdb
             .search(media.raw_name.clone(), media.raw_year)
-            .await
-        {
+            .await;
+
+        if media.episode.is_none() {
+            // NOTE: In some cases our base matcher extracts the correct title from the filename but incorrect episode and season numbers.
+            let anitomy_episode = els
+                .get(ElementCategory::EpisodeNumber)
+                .and_then(|x| x.parse::<i32>().ok())
+                .or(media.episode);
+
+            let updated_mediafile = UpdateMediaFile {
+                episode: anitomy_episode,
+                ..Default::default()
+            };
+
+            let _ = updated_mediafile.update(&self.conn, media.id).await;
+            media.episode = anitomy_episode;
+        }
+
+        if media.season.is_none() {
+            // NOTE: Some releases dont include season number, so we just assume its the first one.
+            let anitomy_season = els
+                .get(ElementCategory::AnimeSeason)
+                .and_then(|x| x.parse::<i32>().ok())
+                .or(Some(1));
+
+            let updated_mediafile = UpdateMediaFile {
+                season: anitomy_season,
+                ..Default::default()
+            };
+
+            let _ = updated_mediafile.update(&self.conn, media.id).await;
+            media.season = anitomy_season;
+        }
+
+        if let Some(x) = els.get(ElementCategory::AnimeTitle) {
+            if result.is_err() {
+                // NOTE: If we got here then we assume that the file uses common anime release naming schemes.
+                // Thus we prioritise metadata extracted by anitomy.
+                result = self.tv_tmdb.search(x.to_string(), None).await;
+
+                // NOTE: Some releases dont include season number, so we just assume its the first one.
+                let anitomy_episode = els
+                    .get(ElementCategory::EpisodeNumber)
+                    .and_then(|x| x.parse::<i32>().ok())
+                    .or(media.episode);
+
+                let anitomy_season = els
+                    .get(ElementCategory::AnimeSeason)
+                    .and_then(|x| x.parse::<i32>().ok())
+                    .or(Some(1));
+
+                let update_mediafile = UpdateMediaFile {
+                    episode: anitomy_episode,
+                    season: anitomy_season,
+                    raw_name: Some(x.to_string()),
+                    ..Default::default()
+                };
+
+                let _ = update_mediafile.update(&self.conn, media.id).await;
+
+                media.episode = anitomy_episode;
+                media.season = anitomy_season;
+            }
+        }
+
+        let mut result = match result {
             Ok(v) => v,
             Err(e) => {
                 error!(
                     self.log,
                     "Could not match tv show to tmdb";
                     "reason" => e.to_string(),
+                    "file" => &media.target_file
                 );
                 return Err(ScannerError::UnknownError);
             }

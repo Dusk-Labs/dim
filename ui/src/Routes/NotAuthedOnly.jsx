@@ -38,6 +38,8 @@ function NotAuthedOnlyRoute(props) {
 
   // auto login when logged in another instance
   useEffect(() => {
+    if (!("BroadcastChannel" in window)) return;
+
     const bc = new BroadcastChannel("dim");
 
     bc.onmessage = (e) => {
