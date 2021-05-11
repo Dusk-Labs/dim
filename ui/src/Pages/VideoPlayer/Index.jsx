@@ -32,8 +32,14 @@ function VideoPlayer(props) {
   const video = useRef(null);
 
   const [mediaID, setMediaID] = useState();
-
   const [player, setPlayer] = useState();
+
+  const [ GID, setGID ] = useState();
+
+  const [ videoTracks, setVideoTracks ] = useState([]);
+  const [ currentVideoTrack, setCurrentVideoTrack ] = useState(0);
+  const [ audioTracks, setAudioTracks ] = useState([]);
+  const [ currentAudioTrack, setCurrentAudioTrack ] = useState(0);
 
   const [manifestLoading, setManifestLoading] = useState(false);
   const [manifestLoaded, setManifestLoaded] = useState(false);
@@ -56,6 +62,45 @@ function VideoPlayer(props) {
   const { match } = props;
   const { params } = match;
   const { token } = auth;
+
+  useEffect(() => {
+    if (GID) return;
+
+    const savedGID = sessionStorage.getItem("videoGID");
+
+    const host = (
+      `/api/v1/stream/${params.fileID}/manifest${savedGID ? `?gid=${savedGID}` : ""}`
+    );
+
+    (async () => {
+      const config = {
+        headers: {
+          "authorization": token
+        }
+      };
+
+      const res = await fetch(host, config);
+      const payload = await res.json();
+      console.log("RES", res);
+      console.log("PAYLOAD", payload);
+
+      setGID(payload.gid);
+
+      if (!savedGID) {
+        sessionStorage.setItem("videoGID", payload.gid);
+      }
+
+      for (const track of payload.tracks) {
+        if (track.content_type === "video") {
+          setVideoTracks(state => [...state, track]);
+        }
+
+        if (track.content_type === "audio") {
+          setAudioTracks(state => [...state, track]);
+        }
+      }
+    })();
+  }, [GID, params.fileID, token]);
 
   useEffect(() => {
     (async () => {
@@ -105,11 +150,13 @@ function VideoPlayer(props) {
   }, [extra_media_info.info, params.fileID]);
 
   useEffect(() => {
+    if (!mediaID) return;
     dispatch(fetchExtraMediaInfo(mediaID));
     return () => dispatch(clearMediaInfo());
   }, [dispatch, mediaID]);
 
   useEffect(() => {
+    if (!mediaID) return;
     dispatch(fetchMediaInfo(mediaID));
     return () => dispatch(clearMediaInfo());
   }, [dispatch, mediaID]);
@@ -123,23 +170,12 @@ function VideoPlayer(props) {
   }, [media_info.info.name]);
 
   useEffect(() => {
-    if (!params.fileID) return;
+    if (!GID || videoTracks.length === 0 || audioTracks.length === 0) return;
 
     setManifestLoaded(false);
     setManifestLoading(true);
 
-    const existingUUID = sessionStorage.getItem("videoUUID");
-
-    let uuid;
-
-    if (existingUUID) {
-      uuid = existingUUID;
-    } else {
-      uuid = "xxxxxxxxxxxxxxxx".replace(/[xy]/g, () => Math.round(Math.random() * 8));
-      sessionStorage.setItem("videoUUID", uuid);
-    }
-
-    const url = `/api/v1/stream/${params.fileID}/manifest.mpd?gid=${uuid}`;
+    const url = `/api/v1/stream/${GID}/manifest.mpd?start_num=0&should_kill=false&includes=${videoTracks[currentVideoTrack].id},${audioTracks[currentVideoTrack].id}`;
     const mediaPlayer = MediaPlayer().create();
 
     // even with these settings, high bitrate movies fail.
@@ -156,8 +192,6 @@ function VideoPlayer(props) {
         smallGapLimit: 1000,
       }
     };
-
-    console.log(settings);
 
     mediaPlayer.updateSettings(settings);
 
@@ -177,20 +211,18 @@ function VideoPlayer(props) {
     mediaPlayer.enableForcedTextStreaming(true);
 
     setPlayer(mediaPlayer);
-    setVideoUUID(uuid);
 
     return () => {
       mediaPlayer.destroy();
 
-      const uuid = sessionStorage.getItem("videoUUID");
-      if (!uuid) return;
+      if (!GID) return;
 
       (async () => {
-        await fetch(`/api/v1/stream/${uuid}/state/kill`);
+        await fetch(`/api/v1/stream/${GID}/state/kill`);
         sessionStorage.clear();
       })();
     };
-  }, [auth.token, params.fileID]);
+  }, [GID, audioTracks, auth.token, currentVideoTrack, videoTracks]);
 
   const seekTo = useCallback(async newTime => {
     const newSegment = Math.floor(newTime / 5);
@@ -198,10 +230,10 @@ function VideoPlayer(props) {
     setCurrentTime(newTime);
     setBuffer(0);
 
-    player.attachSource(`/api/v1/stream/${params.fileID}/manifest.mpd?start_num=${newSegment}&gid=${videoUUID}`);
+    player.attachSource(`/api/v1/stream/${GID}/manifest.mpd?start_num=${newSegment}&should_kill=true&includes=${videoTracks[currentVideoTrack].id},${audioTracks[currentVideoTrack].id}`);
 
     setSeeking(false);
-  }, [params.fileID, player, videoUUID]);
+  }, [GID, audioTracks, currentVideoTrack, player, videoTracks]);
 
   const eManifestLoad = useCallback(() => {
     setManifestLoading(false);
@@ -238,7 +270,7 @@ function VideoPlayer(props) {
     }
 
     (async () => {
-      const res = await fetch(`/api/v1/stream/${videoUUID}/state/get_stderr`);
+      const res = await fetch(`/api/v1/stream/${GID}/state/get_stderr`);
       const error = await res.json();
 
       setError({
@@ -246,7 +278,7 @@ function VideoPlayer(props) {
         errors: error.errors
       });
     })();
-  }, [videoUUID]);
+  }, [GID]);
 
   const ePlayBackNotAllowed = useCallback(e => {
     if (e.type === "playbackNotAllowed") {
