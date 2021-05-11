@@ -16,7 +16,7 @@ export const fetchUser = () => async (dispatch, getState) => {
   };
 
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/auth/whoami`, config);
+    const res = await fetch("/api/v1/auth/whoami", config);
 
     if (res.status !== 200) {
       return dispatch({

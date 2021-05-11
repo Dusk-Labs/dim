@@ -32,7 +32,7 @@ export const authenticate = (username, password) => async (dispatch) => {
   };
 
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/auth/login`, config);
+    const res = await fetch("/api/v1/auth/login", config);
 
     if (res.status !== 200) {
       return dispatch({
@@ -42,10 +42,13 @@ export const authenticate = (username, password) => async (dispatch) => {
     }
 
     const payload = await res.json();
-    const bc = new BroadcastChannel("dim");
 
-    bc.postMessage("login");
-    bc.close();
+    if ("BroadcastChannel" in window) {
+      const bc = new BroadcastChannel("dim");
+
+      bc.postMessage("login");
+      bc.close();
+    }
 
     dispatch({
       type: AUTH_LOGIN_OK,
@@ -69,10 +72,12 @@ export const authenticate = (username, password) => async (dispatch) => {
 export const logout = () => async (dispatch) => {
   document.cookie = "token=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
-  const bc = new BroadcastChannel("dim");
+  if ("BroadcastChannel" in window) {
+    const bc = new BroadcastChannel("dim");
 
-  bc.postMessage("logout");
-  bc.close();
+    bc.postMessage("logout");
+    bc.close();
+  }
 
   dispatch({ type: AUTH_LOGOUT });
 };
@@ -100,7 +105,7 @@ export const register = (username, password, invite) => async (dispatch) => {
   };
 
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/auth/register`, config);
+    const res = await fetch("/api/v1/auth/register", config);
     const payload = await res.json();
 
     if (res.status !== 200) {
@@ -126,7 +131,7 @@ export const register = (username, password, invite) => async (dispatch) => {
 
 export const checkAdminExists = () => async (dispatch) => {
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/auth/admin_exists`);
+    const res = await fetch("/api/v1/auth/admin_exists");
 
     if (res.status !== 200) {
       return dispatch({
@@ -162,7 +167,7 @@ export const createNewInvite = () => async (dispatch, getState) => {
   };
 
   try {
-    const res = await fetch(`//${window.host}:8000/api/v1/auth/new_invite`, config);
+    const res = await fetch("/api/v1/auth/new_invite", config);
 
     if (res.status !== 200) {
       return dispatch({
@@ -197,7 +202,7 @@ export const fetchInvites = () => async (dispatch, getState) => {
       }
     };
 
-    const res = await fetch(`//${window.host}:8000/api/v1/auth/invites`, config);
+    const res = await fetch("/api/v1/auth/invites", config);
 
     if (res.status !== 200) {
       return dispatch({

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router";
 
 import { fetchCards } from "../../actions/card.js";
 import Card from "./Card.jsx";
@@ -9,6 +10,7 @@ import Dropdown from "./Dropdown.jsx";
 import "./Index.scss";
 
 function CardList(props) {
+  const location = useLocation();
   const dispatch = useDispatch();
   const cards = useSelector(store => store.card.cards);
 
@@ -19,17 +21,13 @@ function CardList(props) {
   const handleWS = useCallback((e) => {
     const { type } = JSON.parse(e.data);
 
-    if (
-      type === "EventRemoveLibrary"
-      || type === "EventNewLibrary"
-      || type === "EventNewCard"
-    ) {
-      dispatch(fetchCards(path));
+    if (type === "EventNewCard") {
+      dispatch(fetchCards(path, false));
     }
   }, [dispatch, path]);
 
   useEffect(() => {
-    const library_ws = new WebSocket(`ws://${window.host}:3012/events/library`);
+    const library_ws = new WebSocket(`ws://${window.location.hostname}:3012/`);
     library_ws.addEventListener("message", handleWS);
 
     return () => {
@@ -57,44 +55,46 @@ function CardList(props) {
   // FETCH_CARDS_OK
   if (cards.fetched && !cards.error) {
     const sectionsEmpty = Object.values(cards.items).flat().length === 0;
+    const emptyDashboard = sectionsEmpty && location.pathname === "/";
 
-    if (!sectionsEmpty) {
-      const items = Object.keys(cards.items);
+    if (emptyDashboard) {
+      card_list = <GhostCards/>;
+    }
 
-      if (items.length > 0) {
-        let sections = {};
+    const items = Object.keys(cards.items);
 
-        for (const section of items) {
-          sections[section] = (
-            cards.items[section].map((card, i) => (
-              <Card key={i} data={card}/>
-            ))
-          );
-        }
+    if (items.length > 0 && !emptyDashboard) {
+      let sections = {};
 
-        card_list = items.map(section => (
-          <section key={section}>
-            <div className="sectionHeader">
-              <h1>{section}</h1>
-              {props.actions && (
-                <div className="actions">
-                  <Dropdown/>
-                </div>
-              )}
-            </div>
+      for (const section of items) {
+        sections[section] = (
+          cards.items[section].map((card, i) => (
+            <Card key={i} data={card}/>
+          ))
+        );
+      }
+
+      card_list = items.map(section => (
+        <section key={section}>
+          <div className="sectionHeader">
+            <h1>{section}</h1>
+            {props.actions && (
+              <div className="actions">
+                <Dropdown/>
+              </div>
+            )}
+          </div>
+          {sections[section].length === 0 && (
+            <p>No media has been found</p>
+          )}
+          {sections[section].length > 0 && (
             <div className="cards">
               {sections[section]}
             </div>
-          </section>
-        ));
-      } else {
-        card_list = (
-          <section>
-            <p>Empty</p>
-          </section>
-        );
-      }
-    } else card_list = <GhostCards/>;
+          )}
+        </section>
+      ));
+    }
   }
 
   return (

@@ -34,6 +34,51 @@
   }
 }
 
+input[type=range] {
+  -webkit-appearance: none;
+  background: transparent;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::-webkit-slider-thumb {
+    height: 16px;
+    width: 16px;
+    -webkit-appearance: none;
+    margin-top: -4px;
+    border-radius: 10px;
+    background: #eee;
+    border: none;
+    cursor: pointer;
+  }
+
+  &::-moz-range-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 10px;
+    background: #eee;
+    cursor: pointer;
+  }
+
+  &::-webkit-slider-runnable-track {
+    border-radius: 10px;
+    width: 100%;
+    height: 8.4px;
+    cursor: pointer;
+    background: #f7931e;
+  }
+
+  &::-moz-range-track {
+    width: 100%;
+    height: 8.4px;
+    cursor: pointer;
+    background: #f7931e;
+    border-radius: 10px;
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -209,6 +254,7 @@ main {
   position: relative;
   margin-left: 150px;
   color: #fff;
+  transition: margin-left 300ms ease-in-out;
 
   &.full {
     margin-left: 0;
@@ -216,24 +262,6 @@ main {
 
   &.shrunk {
     margin-left: 150px;
-  }
-}
-
-.ScrollbarsCustom-TrackY {
-  top: 0 !important;
-  height: 100% !important;
-}
-
-.ScrollbarsCustom-TrackY {
-  width: 5px !important;
-
-  &:hover {
-    opacity: 1;
-  }
-
-  & > .ScrollbarsCustom-Thumb {
-    transition: height .3s ease-in-out;
-    background: #f7931e none repeat scroll 0% 0% !important;
   }
 }
 

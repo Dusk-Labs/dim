@@ -1,8 +1,8 @@
 import "./Ring.scss";
 
-function RingLoad() {
+function RingLoad(props) {
   return (
-    <div className="ringLoad">
+    <div className={`ringLoad small-${props.small}`}>
       <div/>
     </div>
   );

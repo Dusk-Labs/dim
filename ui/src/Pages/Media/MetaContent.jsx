@@ -37,7 +37,7 @@ function MetaContent() {
         }
       };
 
-      const res = await fetch(`//${window.host}:8000/api/v1/media/${id}/info`, config);
+      const res = await fetch(`/api/v1/media/${id}/info`, config);
 
       if (res.status !== 200) return;
 
@@ -123,7 +123,9 @@ function MetaContent() {
             <p>{rating}/10</p>
           </div>
         </div>
-        <PlayButton mediaID={id} versions={mediaVersions}/>
+        {media_type !== "tv" && (
+          <PlayButton mediaID={id} versions={mediaVersions}/>
+        )}
       </div>
     );
   }

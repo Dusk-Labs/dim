@@ -92,8 +92,18 @@
       gap: .5em;
       border-radius: 10px;
       align-items: center;
-      transition: 0.1s ease-in-out;
-      transition-property: padding, background, transform, font-size;
+      transition: 100ms ease-in-out;
+      transition-property: padding, background, transform;
+
+      .ringLoad {
+        animation: appear 300ms ease-in-out;
+        display: none;
+      }
+
+      .barLoad {
+        animation: appear 300ms ease-in-out;
+        background: #5a5a5a;
+      }
 
       &:focus,
       &:hover {
@@ -115,6 +125,10 @@
 
         &:focus, &:hover {
           background: #5a5a5a;
+        }
+
+        .barLoad {
+          background: #7a7a7a;
         }
       }
     }
@@ -186,9 +200,30 @@
     }
 
     .list .item {
+      text-align: left;
       justify-content: left;
-      grid-template-columns: 40px auto;
+      grid-template-columns: 40px 1fr auto;
+      grid-template-areas: "icon name ring";
       padding: .8em .5em;
+
+      p {
+        grid-area: name;
+      }
+
+      svg {
+        grid-area: icon;
+      }
+
+      .ringLoad {
+        display: block;
+        grid-area: ring;
+        width: 20px;
+        height: 20px;
+      }
+
+      .barLoad {
+        display: none;
+      }
     }
   }
 }

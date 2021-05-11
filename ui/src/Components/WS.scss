@@ -1,0 +1,18 @@
+.appLoad {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  flex-direction: column;
+  gap: 2em;
+  color: #eee;
+
+  svg {
+    width: 10em;
+    overflow: unset;
+  }
+
+  .barLoad {
+    width: 5em;
+  }
+}

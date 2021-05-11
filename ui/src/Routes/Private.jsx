@@ -38,6 +38,8 @@ function PrivateRoute(props) {
 
   // auto logout when logged out in another tab
   useEffect(() => {
+    if (!("BroadcastChannel" in window)) return;
+
     const bc = new BroadcastChannel("dim");
 
     bc.onmessage = (e) => {
@@ -72,7 +74,7 @@ function PrivateRoute(props) {
     if (!videoUUID) return;
 
     (async () => {
-      await fetch(`//${window.host}:8000/api/v1/stream/${videoUUID}/state/kill`);
+      await fetch(`/api/v1/stream/${videoUUID}/state/kill`);
       sessionStorage.clear();
     })();
   }, [history.location.pathname]);
