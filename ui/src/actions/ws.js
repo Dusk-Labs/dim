@@ -19,7 +19,7 @@ export const wsConnect = () => async (dispatch) => {
 
     dispatch({
       type: WS_CONNECTED,
-      ws
+      conn: ws
     });
   } catch(err) {
     dispatch({
