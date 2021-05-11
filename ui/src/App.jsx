@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Switch } from "react-router-dom";
 
+import WS from "./Components/WS";
 import NotAuthedOnlyRoute from "./Routes/NotAuthedOnly";
 import PrivateRoute from "./Routes/Private";
 import MainLayout from "./Layouts/MainLayout";
@@ -91,9 +92,11 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      {routes}
-    </BrowserRouter>
+    <WS>
+      <BrowserRouter>
+        {routes}
+      </BrowserRouter>
+    </WS>
   );
 }
 
