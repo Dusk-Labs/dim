@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-
 import { NavLink } from "react-router-dom";
 
 import FilmIcon from "../../assets/Icons/Film";
@@ -8,9 +6,8 @@ import Ring from "../Load/Ring";
 import BarLoad from "../Load/Bar";
 import { useSelector } from "react-redux";
 
-// TODO: show progress loading when scanning lib
 function Library(props) {
-  const status = useSelector(store => store.library.scan_progress);
+  const scanning = useSelector(store => store.library.scanning);
   const { id, media_type, name } = props;
 
   return (
@@ -21,7 +18,7 @@ function Library(props) {
       {media_type === "movie" && <FilmIcon/>}
       {media_type === "tv" && <TvIcon/>}
       <p>{name}</p>
-      {status[id] && (
+      {scanning.includes(id) && (
         <>
           <Ring small={true}/>
           <BarLoad/>
