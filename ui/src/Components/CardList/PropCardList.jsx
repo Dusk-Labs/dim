@@ -44,6 +44,7 @@ function PropCardList(props) {
       card_list = Object.keys(sections).map(section => (
         <section key={section}>
           <h1>{props.title}</h1>
+          <p className="sectionDesc">Found {sections[section].length} result{sections[section].length > 1 ? "s" : ""}</p>
           <div className="cards">
             {sections[section]}
           </div>
