@@ -113,7 +113,9 @@ function CardPopup(props) {
         {(year && genres) && (
           <section className="tags">
             <Link to={`/search?year=${year}`}>{year}</Link>
-            <CircleIcon/>
+            {genres.length > 0 && (
+              <CircleIcon/>
+            )}
             <div className="genres">
               {genres.map((genre, i) => (
                 <Link
