@@ -35,7 +35,7 @@ const createNewInvite = {
   error: null
 };
 
-const fetchInvites = {
+const invites = {
   items: [],
   fetching: false,
   fetched: false,
@@ -48,7 +48,7 @@ const initialState = {
   login,
   register,
   createNewInvite,
-  fetchInvites
+  invites
 };
 
 export default function authReducer(state = initialState, action) {
@@ -155,8 +155,8 @@ export default function authReducer(state = initialState, action) {
     case FETCH_INVITES_START:
       return {
         ...state,
-        fetchInvites: {
-          ...state.fetchInvites,
+        invites: {
+          ...state.invites,
           fetching: true,
           fetched: false,
           error: null
@@ -171,8 +171,8 @@ export default function authReducer(state = initialState, action) {
     case FETCH_INVITES_ERR:
       return {
         ...state,
-        fetchInvites: {
-          ...state.fetchInvites,
+        invites: {
+          ...state.invites,
           fetching: false,
           fetched: false,
           error: action.payload
@@ -181,8 +181,8 @@ export default function authReducer(state = initialState, action) {
     case FETCH_INVITES_OK:
       return {
         ...state,
-        fetchInvites: {
-          ...state.fetchInvites,
+        invites: {
+          ...state.invites,
           items: action.payload.invites,
           fetching: false,
           fetched: true
