@@ -94,14 +94,13 @@
   }
 
   footer {
-    .actions {
-      a {
-        display: block;
+    a {
+      &:hover {
+        text-decoration: underline;
+      }
 
-        &:last-child {
-          margin-top: .5em;
-          color: #aaa;
-        }
+      &:last-child {
+        margin-top: .5em;
       }
     }
 
