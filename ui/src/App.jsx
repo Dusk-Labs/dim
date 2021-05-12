@@ -13,17 +13,9 @@ import VideoPlayer from "./Pages/VideoPlayer/Index";
 import SearchResults from "./Pages/SearchResults";
 import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
-// import Preferences from "./Pages/Preferences";
+import Preferences from "./Pages/Preferences/Index";
 
 import "./App.scss";
-
-/*
-    <PrivateRoute exact path="/preferences">
-      <MainLayout>
-        <Preferences/>
-      </MainLayout>
-    </PrivateRoute>
-*/
 
 const routes = (
   <Switch>
@@ -56,6 +48,11 @@ const routes = (
     <PrivateRoute exact path="/play/:fileID" render={(props) => (
       <VideoPlayer {...props}/>
     )}/>
+    <PrivateRoute exact path="/preferences">
+      <MainLayout>
+        <Preferences/>
+      </MainLayout>
+    </PrivateRoute>
   </Switch>
 );
 
