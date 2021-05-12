@@ -1,99 +1,113 @@
 .preferencesPage {
   height: 100%;
-  padding: 50px 90px;
+  padding: 30px;
+  display: grid;
+  grid-template-areas: "nav" "content";
+  grid-gap: 30px;
 
-  .preferences {
-    display: grid;
+  .content {
+    h3 {
+      margin-bottom: 1em;
+    }
+
+    p {
+      color: #ddd;
+    }
+  }
+
+  nav {
+    h1 {
+      margin-bottom: 1em;
+    }
+
+    .items {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1em;
+
+      .item {
+        display: flex;
+        align-items: center;
+        transition: background 100ms ease-in-out;
+        padding: .6em .8em;
+        border-radius: 10px;
+        cursor: pointer;
+        background: #2a2a2a;
+
+        &:hover {
+          background: #222;
+        }
+
+        &.active {
+          background: #5a5a5a;
+        }
+      }
+    }
+  }
+
+  .content {
+    grid-area: content;
+
+    section {
+      animation: appear 200ms ease-in-out;
+      & > p {
+        margin-bottom: 1em;
+      }
+    }
+
+    .invites {
+      button {
+        transition: filter 0.3s ease-in-out;
+        filter: saturate(0.7);
+        margin-bottom: 1rem;
+        display: inline-block;
+        font-family: "Roboto Bold";
+        padding: 7px 30px;
+        border-radius: 5px;
+        background: #f7931e;
+        text-shadow: none;
+        outline: none;
+        color: #fff;
+        font-family: "Roboto Regular";
+        cursor: pointer;
+
+        &:focus,
+        &:hover {
+          filter: saturate(1);
+        }
+      }
+
+      .invitesList {
+        .item-wrapper {
+          margin-bottom: 1rem;
+          background: #222;
+          height: 40px;
+          width: 200px;
+          border-radius: 10px;
+        }
+
+        p {
+          margin-bottom: 1rem;
+        }
+      }
+    }
+  }
+}
+
+@media only screen and (min-width: 1000px) {
+  .preferencesPage {
+    padding: 60px 90px;
     grid-template-areas: "nav content";
     grid-template-columns: auto 1fr;
     grid-gap: 90px;
 
-    .content {
-      h3 {
-        margin-bottom: 1em;
-      }
+    nav .items {
+      gap: unset;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 
-      p {
-        color: #ddd;
-      }
-    }
-
-    nav {
-      grid-area: nav;
-      display: flex;
-      flex-direction: column;
-
-      section {
-        & > p {
-          margin: 0 0 10px 10px;
-          font-family: "Roboto Bold";
-        }
-
-        .field {
-          display: flex;
-          align-items: center;
-          transition: background .1s ease-in-out;
-          height: 40px;
-          width: 240px;
-          padding: 0 10px;
-          border-radius: 10px;
-          cursor: pointer;
-
-          &:hover {
-            background: #222;
-          }
-
-          &.active {
-            background: #555;
-          }
-        }
-      }
-    }
-
-    .content {
-      grid-area: content;
-
-      section {
-        & > p {
-          margin-bottom: 10px;
-        }
-      }
-
-      .invites {
-        button {
-          transition: filter 0.3s ease-in-out;
-          filter: saturate(0.7);
-          margin-bottom: 1rem;
-          display: inline-block;
-          font-family: "Roboto Bold";
-          padding: 7px 30px;
-          border-radius: 5px;
-          background: #f7931e;
-          text-shadow: none;
-          outline: none;
-          color: #fff;
-          font-family: "Roboto Regular";
-          cursor: pointer;
-
-          &:focus,
-          &:hover {
-            filter: saturate(1);
-          }
-        }
-
-        .invitesList {
-          .item-wrapper {
-            margin-bottom: 1rem;
-            background: #222;
-            height: 40px;
-            width: 200px;
-            border-radius: 10px;
-          }
-
-          p {
-            margin-bottom: 1rem;
-          }
-        }
+      .item {
+        background: transparent;
+        margin-left: -.8em;
       }
     }
   }
