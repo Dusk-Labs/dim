@@ -63,7 +63,8 @@
       justify-content: center;
       align-items: center;
       filter: saturate(0.7);
-      transition: filter 0.3s ease-in-out;
+      transition: 300ms ease-in-out;
+      transition-property: filter, opacity;
       font-family: "Roboto Bold";
       padding: 5px 10px;
       border-radius: 10px;
@@ -75,6 +76,11 @@
       &:focus,
       &:hover {
         filter: saturate(1);
+      }
+
+      &.disable-true {
+        cursor: not-allowed;
+        opacity: .5;
       }
     }
 
