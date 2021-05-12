@@ -26,6 +26,28 @@ function NewLibraryModal(props) {
     }
   }, [name]);
 
+  useEffect(() => {
+    if (!name) return;
+
+    const movieRegex = new RegExp("movie|film", "gi");
+    const tvShowRegex = new RegExp("tv|show|anime", "gi");
+    const matchesMovie = movieRegex.test(name);
+    const matchesTvOrShows = tvShowRegex.test(name);
+
+    // TODO: set to 'mixed' when available.
+    if (matchesMovie && matchesTvOrShows) {
+      return;
+    }
+
+    if (matchesMovie) {
+      setMediaType("movie");
+    }
+
+    if (matchesTvOrShows) {
+      setMediaType("tv");
+    }
+  }, [name]);
+
   const add = useCallback(async (closeModal) => {
     if (!name) {
       nameInput.current.style.border = "solid 2px #ff6961";
