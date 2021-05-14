@@ -91,7 +91,9 @@ function MetaContent() {
         <h1>{name}</h1>
         <div className="genres">
           <Link to={`/search?year=${year}`}>{year}</Link>
-          <CircleIcon/>
+          {genres.length > 0 && (
+            <CircleIcon/>
+          )}
           {genres &&
             genres.map((genre, i) => <Link to={`/search?genre=${genre}`} key={i}>{genre}</Link>)
           }

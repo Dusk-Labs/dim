@@ -19,13 +19,15 @@ function DirSelection(props) {
   }, [dispatch, setCurrent]);
 
   useEffect(() => {
-    const path = "";
+    const path = "C:";
 
     dispatch(fetchDirectories(path.replace("C:\\", "")));
     setCurrent(path);
   }, [dispatch, setCurrent]);
 
   const goBack = useCallback(() => {
+    if (current === "C:") return;
+
     let slash = "/";
 
     if (current.includes("\\")) {
@@ -83,7 +85,7 @@ function DirSelection(props) {
         </div>
       </div>
       <div className="controls">
-        <button onClick={goBack}>
+        <button onClick={goBack} className={`disable-${props.current === "C:"}`}>
           <ArrowLeftIcon/>
         </button>
         <h4>Selected: <span>{props.current}</span></h4>

@@ -51,9 +51,7 @@ function Login() {
           credentials={[username, password]}
           error={[setUsernameErr, setPasswordErr]}
         />
-        <div className="actions">
-          <Link to="/register">Create a new account</Link>
-        </div>
+        <Link to="/register">Create a new account</Link>
       </footer>
     </div>
   );

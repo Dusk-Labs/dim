@@ -35,7 +35,7 @@ function SearchResults() {
     dispatch(search(location.search));
   }, [dispatch, fKey, fValue, location.search]);
 
-  return <PropCardList title={`${fKey} results for ${fValue}`} cards={searchList}/>;
+  return <PropCardList title={`${fKey} results for '${fValue}'`} cards={searchList}/>;
 }
 
 export default SearchResults;

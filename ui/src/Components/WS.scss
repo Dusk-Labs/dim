@@ -15,4 +15,39 @@
   .barLoad {
     width: 5em;
   }
+
+  .error {
+    animation: appear 200ms ease-in-out;
+    text-align: center;
+  }
+
+  p {
+    margin-top: .5em;
+    color: #aaa;
+  }
+
+  button {
+    margin-top: 1em;
+    padding: .8em;
+    transition: .2s ease-in-out;
+    transition-property: filter, background;
+    filter: saturate(0.7);
+    font-family: "Roboto Bold";
+    border-radius: 10px;
+    background: #f7931e;
+    outline: none;
+    cursor: pointer;
+    color: #eee;
+    font-size: 1em;
+
+    &:focus,
+    &:hover {
+      filter: saturate(1);
+    }
+
+    p {
+      padding: .5em .8em;
+      background: #f7931e;
+    }
+  }
 }

@@ -108,6 +108,7 @@
 
     // separator
     svg {
+      display: none;
       margin: 0 10px;
       font-size: 0.4em;
       fill: #f7931e;
@@ -115,6 +116,7 @@
 
     // not year
     a:not(:first-child) {
+      display: none;
       margin: 0 15px 0 0;
       transition: color .2s ease-in-out;
 
@@ -145,6 +147,18 @@
 /*
     * == MEDIA QUERIES ==
 */
+
+@media only screen and (min-width: 700px) {
+  .banner .extras {
+    svg {
+      display: block;
+    }
+    // not year
+    a:not(:first-child) {
+      display: block;
+    }
+  }
+}
 
 @media only screen and (max-width: 2560px) and (max-height: 1440px) {
   .banner img {
