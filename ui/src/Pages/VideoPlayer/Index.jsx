@@ -40,6 +40,9 @@ function VideoPlayer(props) {
   const [ currentVideoTrack, setCurrentVideoTrack ] = useState(0);
   const [ audioTracks, setAudioTracks ] = useState([]);
   const [ currentAudioTrack, setCurrentAudioTrack ] = useState(0);
+  const [ subtitleTracks, setSubtitleTracks ] = useState([]);
+  const [ currentSubtitleTrack, setCurrentSubtitleTrack ] = useState(0);
+  const [ virtualManifestLoaded, setVirtualManifestLoaded ] = useState(false);
 
   const [manifestLoading, setManifestLoading] = useState(false);
   const [manifestLoaded, setManifestLoaded] = useState(false);
@@ -81,8 +84,6 @@ function VideoPlayer(props) {
 
       const res = await fetch(host, config);
       const payload = await res.json();
-      console.log("RES", res);
-      console.log("PAYLOAD", payload);
 
       setGID(payload.gid);
 
@@ -90,15 +91,15 @@ function VideoPlayer(props) {
         sessionStorage.setItem("videoGID", payload.gid);
       }
 
-      for (const track of payload.tracks) {
-        if (track.content_type === "video") {
-          setVideoTracks(state => [...state, track]);
-        }
+      const tVideos = payload.tracks.filter(track => track.content_type === "video");
+      const tAudios = payload.tracks.filter(track => track.content_type === "audio");
+      const tSubtitles = payload.tracks.filter(track => track.content_type === "subtitle");
 
-        if (track.content_type === "audio") {
-          setAudioTracks(state => [...state, track]);
-        }
-      }
+      setVideoTracks(tVideos);
+      setAudioTracks(tAudios);
+      setSubtitleTracks(tSubtitles);
+
+      setVirtualManifestLoaded(true);
     })();
   }, [GID, params.fileID, token]);
 
@@ -170,12 +171,13 @@ function VideoPlayer(props) {
   }, [media_info.info.name]);
 
   useEffect(() => {
-    if (!GID || videoTracks.length === 0 || audioTracks.length === 0) return;
+    if (!GID || !virtualManifestLoaded) return;
 
     setManifestLoaded(false);
     setManifestLoading(true);
 
-    const url = `/api/v1/stream/${GID}/manifest.mpd?start_num=0&should_kill=false&includes=${videoTracks[currentVideoTrack].id},${audioTracks[currentVideoTrack].id}`;
+    const includes = `${videoTracks[currentVideoTrack].id},${audioTracks[currentAudioTrack].id}${subtitleTracks.length > 0 ? `,${subtitleTracks[currentSubtitleTrack].id}` : ""}`;
+    const url = `/api/v1/stream/${GID}/manifest.mpd?start_num=0&should_kill=false&includes=${includes}`;
     const mediaPlayer = MediaPlayer().create();
 
     // even with these settings, high bitrate movies fail.
@@ -208,7 +210,6 @@ function VideoPlayer(props) {
     });
 
     mediaPlayer.initialize(video.current, url, true);
-    mediaPlayer.enableForcedTextStreaming(true);
 
     setPlayer(mediaPlayer);
 
@@ -222,7 +223,7 @@ function VideoPlayer(props) {
         sessionStorage.clear();
       })();
     };
-  }, [GID, audioTracks, auth.token, currentVideoTrack, videoTracks]);
+  }, [GID, audioTracks, auth.token, currentAudioTrack, currentSubtitleTrack, currentVideoTrack, subtitleTracks, videoTracks, virtualManifestLoaded]);
 
   const seekTo = useCallback(async newTime => {
     const newSegment = Math.floor(newTime / 5);
@@ -230,10 +231,13 @@ function VideoPlayer(props) {
     setCurrentTime(newTime);
     setBuffer(0);
 
-    player.attachSource(`/api/v1/stream/${GID}/manifest.mpd?start_num=${newSegment}&should_kill=true&includes=${videoTracks[currentVideoTrack].id},${audioTracks[currentVideoTrack].id}`);
+    const includes = `${videoTracks[currentVideoTrack].id},${audioTracks[currentAudioTrack].id}${subtitleTracks.length > 0 ? `,${subtitleTracks[currentSubtitleTrack].id}` : ""}`;
+    const url = `/api/v1/stream/${GID}/manifest.mpd?start_num=${newSegment}&should_kill=true&includes=${includes}`;
+
+    player.attachSource(url);
 
     setSeeking(false);
-  }, [GID, audioTracks, currentVideoTrack, player, videoTracks]);
+  }, [GID, audioTracks, currentAudioTrack, currentSubtitleTrack, currentVideoTrack, player, subtitleTracks, videoTracks]);
 
   const eManifestLoad = useCallback(() => {
     setManifestLoading(false);
@@ -350,7 +354,13 @@ function VideoPlayer(props) {
     videoUUID,
     overlay: overlay.current,
     seekTo,
-    episode
+    episode,
+    videoTracks,
+    currentVideoTrack,
+    audioTracks,
+    currentAudioTrack,
+    subtitleTracks,
+    currentSubtitleTrack
   };
 
   return (
