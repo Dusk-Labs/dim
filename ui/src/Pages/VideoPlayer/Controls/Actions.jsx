@@ -95,14 +95,6 @@ function VideoActions(props) {
     setTextTrackEnabled(state => !state);
   }, [setTextTrackEnabled]);
 
-  useEffect(() => {
-    player.enableText(textTrackEnabled);
-
-    if (textTrackEnabled) {
-      player.setTextTrack(0);
-    }
-  }, [player, textTrackEnabled]);
-
   const handleKeyDown = useCallback(e => {
     if (e.key === "f") {
       toggleFullscreen();
