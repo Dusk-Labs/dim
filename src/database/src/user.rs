@@ -2,6 +2,7 @@ use diesel::prelude::*;
 use tokio_diesel::*;
 
 use crate::DatabaseError;
+use std::collections::HashMap;
 use std::num::NonZeroU32;
 
 use serde::Deserialize;
@@ -16,6 +17,31 @@ const HASH_ROUNDS: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(10_000) };
 
 pub type Credential = [u8; CREDENTIAL_LEN];
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Theme {
+    Light,
+    Dark,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserSettings {
+    /// Theme of the app
+    theme: Theme,
+    /// Defines whether the sidebar should be collapsed or not
+    is_sidebar_compact: bool,
+    show_card_names: bool,
+    /// If this contains a string then the filebrowser/explorer will default to this path instead of `/`.
+    filebrowser_default_path: Option<String>,
+    filebrowser_list_view: bool,
+    /// If a file has subtitles then the subtitles with this language will be selected.
+    default_subtitle_language: Option<String>,
+    /// If a file has audio then the audio track with this language will be selected, otherwise the first one.
+    default_audio_language: Option<String>,
+
+    /// Any other external args.
+    external_args: HashMap<String, String>,
+}
+
 // NOTE: Figure out the bug with this not being a valid postgres type
 #[derive(Serialize, Deserialize, Debug, DbEnum, Eq, PartialEq)]
 pub enum Role {
@@ -27,13 +53,8 @@ pub enum Role {
 pub struct User {
     pub username: String,
     pub roles: Vec<String>,
-}
-
-#[derive(Deserialize)]
-pub struct InsertableUser {
-    pub username: String,
-    pub password: String,
-    pub roles: Vec<String>,
+    pub profile_picture: String,
+    pub settings: UserSettings,
 }
 
 pub fn hash(salt: String, s: String) -> String {
@@ -91,14 +112,22 @@ impl User {
         use crate::schema::users;
 
         Ok(users::table
-            .select((users::dsl::username, users::dsl::roles))
-            .load_async::<(String, String)>(conn)
+            .select((
+                users::dsl::username,
+                users::dsl::roles,
+                users::dsl::profile_picture,
+                users::dsl::settings,
+            ))
+            .load_async::<(String, String, String, String)>(conn)
             .await?
             .iter()
             .cloned()
-            .map(|(username, roles)| Self {
+            .map(|(username, roles, profile_picture, settings)| Self {
                 username,
+                profile_picture,
                 roles: roles.split(",").map(|x| x.to_string()).collect(),
+                // Should never panic because we arent ever inserting arbitrary invalid data into the field.
+                settings: serde_json::from_str(&settings).unwrap(),
             })
             .collect())
     }
@@ -150,12 +179,19 @@ impl User {
                     .eq(uname.clone())
                     .and(users::dsl::password.eq(hash(uname, pw))),
             )
-            .select((users::dsl::username, users::dsl::roles))
-            .first_async::<(String, String)>(conn)
+            .select((
+                users::dsl::username,
+                users::dsl::roles,
+                users::dsl::profile_picture,
+                users::dsl::settings,
+            ))
+            .first_async::<(String, String, String, String)>(conn)
             .await
-            .map(|(username, roles)| Self {
+            .map(|(username, roles, profile_picture, settings)| Self {
                 username,
+                profile_picture,
                 roles: roles.split(",").map(|x| x.to_string()).collect(),
+                settings: serde_json::from_str(&settings).unwrap(),
             })?)
     }
 
@@ -197,6 +233,15 @@ impl User {
     }
 }
 
+#[derive(Deserialize)]
+pub struct InsertableUser {
+    pub username: String,
+    pub password: String,
+    pub roles: Vec<String>,
+    pub profile_picture: String,
+    pub settings: UserSettings,
+}
+
 impl InsertableUser {
     /// Method consumes a InsertableUser object and inserts the values under it into postgres users
     /// table as a new user
@@ -235,6 +280,8 @@ impl InsertableUser {
                 users::dsl::username.eq(self.username.clone()),
                 users::dsl::password.eq(hash(self.username.clone(), self.password)),
                 users::dsl::roles.eq(self.roles.join(",")),
+                users::dsl::profile_picture.eq(self.profile_picture.clone()),
+                users::dsl::settings.eq(serde_json::to_string(&self.settings).unwrap()),
             ))
             .execute_async(conn)
             .await?;
