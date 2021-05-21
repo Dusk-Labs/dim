@@ -195,6 +195,30 @@ impl User {
             })?)
     }
 
+    pub async fn get_one_unchecked(
+        conn: &crate::DbConnection,
+        uname: String,
+    ) -> Result<Self, DatabaseError> {
+        use crate::schema::users;
+
+        Ok(users::table
+            .filter(users::dsl::username.eq(uname))
+            .select((
+                users::dsl::username,
+                users::dsl::roles,
+                users::dsl::profile_picture,
+                users::dsl::settings,
+            ))
+            .first_async::<(String, String, String, String)>(conn)
+            .await
+            .map(|(username, roles, profile_picture, settings)| Self {
+                username,
+                profile_picture,
+                roles: roles.split(",").map(|x| x.to_string()).collect(),
+                settings: serde_json::from_str(&settings).unwrap(),
+            })?)
+    }
+
     /// Method deletes a entry from the table users and returns the number of rows deleted.
     /// NOTE: Return should always be 1
     ///
@@ -287,6 +311,51 @@ impl InsertableUser {
             .await?;
 
         Ok(self.username)
+    }
+}
+
+#[derive(Deserialize)]
+pub struct UpdateableUser {
+    pub username: Option<String>,
+    pub password: Option<String>,
+    pub profile_picture: Option<String>,
+    pub settings: Option<UserSettings>,
+}
+
+impl UpdateableUser {
+    pub async fn update(
+        self,
+        conn: &crate::DbConnection,
+        _username: String,
+    ) -> Result<usize, DatabaseError> {
+        use crate::schema::users;
+
+        let entry = User::get_one_unchecked(conn, _username).await?;
+
+        #[derive(Clone, Default, AsChangeset, Debug)]
+        #[table_name = "users"]
+        struct InnerUser {
+            username: Option<String>,
+            password: Option<String>,
+            profile_picture: Option<String>,
+            settings: Option<String>,
+        }
+
+        let username = self.username.clone().unwrap_or(entry.username.clone());
+
+        let values = InnerUser {
+            username: self.username,
+            password: self.password.map(|x| hash(username, x)),
+            profile_picture: self.profile_picture,
+            settings: self.settings.and_then(|x| serde_json::to_string(&x).ok()),
+        };
+
+        Ok(
+            diesel::update(users::dsl::users.filter(users::dsl::username.eq(&entry.username)))
+                .set(values)
+                .execute_async(conn)
+                .await?,
+        )
     }
 }
 
