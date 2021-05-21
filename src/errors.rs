@@ -34,6 +34,8 @@ pub enum DimError {
     InvalidMediaType,
     #[error(display = "A error in the streaming library has occured")]
     StreamingError(#[error(source)] StreamingErrors),
+    #[error(display = "You do not have permission to access this route")]
+    Unauthorized,
 }
 
 #[derive(Debug, Error, Serialize)]
@@ -169,7 +171,7 @@ impl<'r> Responder<'r, 'static> for DimError {
             | Self::UnknownError
             | Self::IOError
             | Self::InternalServerError => Status::InternalServerError,
-            Self::AuthRequired => Status::Unauthorized,
+            Self::AuthRequired | Self::Unauthorized => Status::Unauthorized,
             Self::InvalidMediaType => Status::NotModified,
         };
 

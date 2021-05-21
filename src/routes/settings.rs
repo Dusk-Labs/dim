@@ -126,6 +126,10 @@ pub async fn http_set_global_settings(
     user: Auth,
     new_settings: Json<GlobalSettings>,
 ) -> Result<Json<Option<&'static GlobalSettings>>, errors::DimError> {
-    let _ = set_global_settings(new_settings.into_inner());
-    Ok(Json(get_global_settings()))
+    if user.0.claims.has_role("owner") {
+        let _ = set_global_settings(new_settings.into_inner());
+        return Ok(Json(get_global_settings()));
+    }
+
+    Err(errors::DimError::Unauthorized)
 }
