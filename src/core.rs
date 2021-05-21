@@ -261,7 +261,7 @@ pub async fn rocket_pad(
             ],
         )
         .mount(
-            "/api/v1/auth",
+            "api/v1/auth",
             routes![
                 routes::auth::login,
                 routes::auth::register,
@@ -276,6 +276,13 @@ pub async fn rocket_pad(
             routes![
                 routes::settings::get_user_settings,
                 routes::settings::post_user_settings,
+            ],
+        )
+        .mount(
+            "/api/v1/host",
+            routes![
+                routes::settings::http_get_global_settings,
+                routes::settings::http_set_global_settings,
             ],
         )
         .manage(logger)
