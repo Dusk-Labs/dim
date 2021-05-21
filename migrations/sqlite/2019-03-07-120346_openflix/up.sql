@@ -100,6 +100,8 @@ CREATE TABLE mediafile (
 CREATE TABLE users (
     username TEXT PRIMARY KEY,
     password TEXT NOT NULL,
+    profile_picture TEXT NOT NULL DEFAULT 'https://i.redd.it/3n1if40vxxv31.png',
+    settings TEXT NOT NULL DEFAULT '{}',
     roles TEXT[] NOT NULL DEFAULT 'User'
 );
 
