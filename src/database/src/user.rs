@@ -42,6 +42,21 @@ pub struct UserSettings {
     external_args: HashMap<String, String>,
 }
 
+impl Default for UserSettings {
+    fn default() -> Self {
+        Self {
+            theme: Theme::Dark,
+            is_sidebar_compact: false,
+            show_card_names: true,
+            filebrowser_default_path: None,
+            filebrowser_list_view: true,
+            default_subtitle_language: Some("english".into()),
+            default_audio_language: Some("english".into()),
+            external_args: HashMap::new(),
+        }
+    }
+}
+
 // NOTE: Figure out the bug with this not being a valid postgres type
 #[derive(Serialize, Deserialize, Debug, DbEnum, Eq, PartialEq)]
 pub enum Role {
