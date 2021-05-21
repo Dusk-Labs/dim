@@ -271,6 +271,13 @@ pub async fn rocket_pad(
                 routes::auth::generate_invite
             ],
         )
+        .mount(
+            "/api/v1/user",
+            routes![
+                routes::settings::get_user_settings,
+                routes::settings::post_user_settings,
+            ],
+        )
         .manage(logger)
         .manage(Arc::new(Mutex::new(event_tx)))
         .manage(database::get_conn().expect("Failed to get db connection"))

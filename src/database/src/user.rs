@@ -37,7 +37,6 @@ pub struct UserSettings {
     default_subtitle_language: Option<String>,
     /// If a file has audio then the audio track with this language will be selected, otherwise the first one.
     default_audio_language: Option<String>,
-
     /// Any other external args.
     external_args: HashMap<String, String>,
 }
@@ -281,9 +280,20 @@ pub struct InsertableUser {
     pub settings: UserSettings,
 }
 
+impl Default for InsertableUser {
+    fn default() -> Self {
+        Self {
+            username: String::new(),
+            password: String::new(),
+            roles: vec!["User".into()],
+            profile_picture: "https://i.redd.it/3n1if40vxxv31.png".into(),
+            settings: UserSettings::default(),
+        }
+    }
+}
+
 impl InsertableUser {
-    /// Method consumes a InsertableUser object and inserts the values under it into postgres users
-    /// table as a new user
+    /// Method consumes a InsertableUser object and inserts the values under it into postgres users table as a new user
     ///
     /// # Arguments
     /// * `self` - instance of InsertableUser which gets consumed
@@ -329,7 +339,7 @@ impl InsertableUser {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Default)]
 pub struct UpdateableUser {
     pub username: Option<String>,
     pub password: Option<String>,

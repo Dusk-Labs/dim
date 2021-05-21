@@ -22,7 +22,7 @@ pub async fn login(
 ) -> Result<JsonValue, errors::AuthError> {
     use database::schema::users::dsl::*;
     let uname = new_login.username.clone();
-    let user: (String, String, String) =
+    let user: (String, String, String, String, String) =
         users.filter(username.eq(uname)).first_async(&conn).await?;
 
     if verify(user.0.clone(), user.1.clone(), new_login.password.clone()) {
@@ -76,6 +76,7 @@ pub async fn register(
         username: new_user.username.clone(),
         password: new_user.password.clone(),
         roles,
+        ..Default::default()
     }
     .insert(&conn)
     .await?;
