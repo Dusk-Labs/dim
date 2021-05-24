@@ -14,11 +14,10 @@ import CCIcon from "../../../assets/Icons/CC";
 import "./Actions.scss";
 
 function VideoActions(props) {
-  const { textTrackEnabled, setTextTrackEnabled, duration, muted, setMuted, videoPlayer, fullscreen, setFullscreen, currentTime, player, paused } = useContext(VideoPlayerContext);
+  const { idleCount, setIdleCount, setShowSubSelection, textTrackEnabled, showSubSelection, duration, muted, setMuted, videoPlayer, fullscreen, setFullscreen, currentTime, player, paused } = useContext(VideoPlayerContext);
   const { seekTo, setVisible } = props;
 
   const [currentVolume, setCurrentVolume] = useState(100);
-  const [idleCount, setIdleCount] = useState(0);
 
   const onVolumeChange = useCallback((e) => {
     const newVolume = e.target.value / 100;
@@ -30,12 +29,12 @@ function VideoActions(props) {
   const play = useCallback(() => {
     setIdleCount(0);
     player.play();
-  }, [player]);
+  }, [player, setIdleCount]);
 
   const pause = useCallback(() => {
     setIdleCount(0);
     player.pause();
-  }, [player]);
+  }, [player, setIdleCount]);
 
   const seekForward = useCallback(() => {
     setIdleCount(0);
@@ -45,7 +44,7 @@ function VideoActions(props) {
     } else {
       seekTo(currentTime + 15);
     }
-  }, [currentTime, duration, seekTo]);
+  }, [currentTime, duration, seekTo, setIdleCount]);
 
   const seekBackward = useCallback(() => {
     setIdleCount(0);
@@ -55,7 +54,7 @@ function VideoActions(props) {
     } else {
       seekTo(currentTime - 15);
     }
-  }, [currentTime, seekTo]);
+  }, [currentTime, seekTo, setIdleCount]);
 
   const toggleFullscreen = useCallback(async () => {
     setIdleCount(0);
@@ -67,12 +66,12 @@ function VideoActions(props) {
         await document.exitFullscreen();
       }
     } catch (e) {}
-  }, [fullscreen, videoPlayer]);
+  }, [fullscreen, setIdleCount, videoPlayer]);
 
   const handleFullscreenChange = useCallback(() => {
     setIdleCount(0);
     setFullscreen(document.fullscreenElement);
-  }, [setFullscreen]);
+  }, [setFullscreen, setIdleCount]);
 
   const toggleMute = useCallback(() => {
     setIdleCount(0);
@@ -89,11 +88,11 @@ function VideoActions(props) {
       player.setMute(!currentMuteState);
       setMuted(!currentMuteState);
     }
-  }, [currentVolume, player, setMuted]);
+  }, [currentVolume, player, setIdleCount, setMuted]);
 
   const toggleSubtitles = useCallback(() => {
-    setTextTrackEnabled(state => !state);
-  }, [setTextTrackEnabled]);
+    setShowSubSelection(state => !state);
+  }, [setShowSubSelection]);
 
   const handleKeyDown = useCallback(e => {
     if (e.key === "f") {
@@ -133,16 +132,13 @@ function VideoActions(props) {
       setVisible(true);
       document.getElementsByTagName("body")[0].style.cursor = "default";
     }
-
-    setIdleCount(state => state += 1);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentTime]);
+  }, [idleCount, setVisible]);
 
   const showPlayer = useCallback(() => {
     setIdleCount(0);
     setVisible(true);
     document.getElementsByTagName("body")[0].style.cursor = "default";
-  }, [setVisible]);
+  }, [setIdleCount, setVisible]);
 
   useEffect(() => {
     document.addEventListener("mousemove", showPlayer);
@@ -191,7 +187,7 @@ function VideoActions(props) {
         </button>
       </section>
       <section className="right">
-        <button onClick={toggleSubtitles} className={`cc active-${textTrackEnabled}`}>
+        <button onClick={toggleSubtitles} className={`cc trackActive-${textTrackEnabled} menuActive-${showSubSelection}`}>
           <CCIcon/>
         </button>
         <button onClick={toggleFullscreen} className="fullscreen">
