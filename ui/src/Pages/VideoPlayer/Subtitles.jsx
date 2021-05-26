@@ -51,7 +51,6 @@ function VideoSubtitles() {
       if (text && text.length === prev.length) {
         console.log("[Subtitles] subtitles fully loaded");
         clearInterval(intervalID);
-        setSubReady(true);
         setPrevSubs(currentSubtitleTrack);
       } else {
         console.log("[Subtitles] partially loaded, re-fetching again in 3 seconds");
@@ -61,6 +60,7 @@ function VideoSubtitles() {
       for(let cue of cues) {
         videoSubTrack.addCue(cue);
       }
+      setSubReady(true);
     }, 3000);
 
     return () => {
