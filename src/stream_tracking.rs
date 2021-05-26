@@ -103,13 +103,39 @@ impl StreamTracking {
         lock.entry(id.clone()).or_default().push(manifest);
     }
 
-    pub async fn kill_all(&self, state: &State<'_, StateManager>, id: &Uuid) {
+    pub async fn kill_all(&self, state: &State<'_, StateManager>, id: &Uuid, ignore_gc: bool) {
         let mut lock = self.streaming_sessions.write().await;
 
         if let Some(v) = lock.get_mut(id) {
             if !v.is_empty() {
                 for manifest in v {
-                    let _ = state.die(manifest.id.clone()).await;
+                    let _ = if ignore_gc {
+                        state.die_ignore_gc(manifest.id.clone()).await
+                    } else {
+                        state.die(manifest.id.clone()).await
+                    };
+                }
+            }
+        }
+    }
+
+    pub async fn kill(
+        &self,
+        state: &State<'_, StateManager>,
+        gid: &Uuid,
+        ids: Vec<String>,
+        ignore_gc: bool,
+    ) {
+        let mut lock = self.streaming_sessions.read().await;
+
+        if let Some(v) = lock.get(gid) {
+            if !v.is_empty() {
+                for id in ids {
+                    let _ = if ignore_gc {
+                        state.die_ignore_gc(id).await
+                    } else {
+                        state.die(id).await
+                    };
                 }
             }
         }
