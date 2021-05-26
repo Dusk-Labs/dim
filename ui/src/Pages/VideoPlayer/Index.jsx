@@ -81,10 +81,8 @@ function VideoPlayer(props) {
   useEffect(() => {
     if (GID) return;
 
-    const savedGID = sessionStorage.getItem("videoGID");
-
     const host = (
-      `/api/v1/stream/${params.fileID}/manifest${savedGID ? `?gid=${savedGID}` : ""}`
+      `/api/v1/stream/${params.fileID}/manifest`
     );
 
     (async () => {
@@ -98,10 +96,6 @@ function VideoPlayer(props) {
       const payload = await res.json();
 
       setGID(payload.gid);
-
-      if (!savedGID) {
-        sessionStorage.setItem("videoGID", payload.gid);
-      }
 
       const tVideos = payload.tracks.filter(track => track.content_type === "video");
       const tAudios = payload.tracks.filter(track => track.content_type === "audio");
