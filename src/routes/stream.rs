@@ -213,7 +213,11 @@ pub async fn return_virtual_manifest(
                     init_seg: None,
                     args: {
                         let mut x = HashMap::new();
-                        if let Some(y) = stream.tags.as_ref().and_then(|x| x.title.clone()) {
+                        if let Some(y) = stream
+                            .tags
+                            .as_ref()
+                            .and_then(|x| x.title.clone().or(x.language.clone()))
+                        {
                             x.insert("title".to_string(), y);
                         }
                         x
