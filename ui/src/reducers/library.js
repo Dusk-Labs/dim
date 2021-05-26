@@ -16,7 +16,7 @@ import {
   SCAN_STOP,
   FETCH_LIBRARY_UNMATCHED_START,
   FETCH_LIBRARY_UNMATCHED_OK,
-  FETCH_LIBRARY_UNMATCHED_ERR,
+  FETCH_LIBRARY_UNMATCHED_ERR
 } from "../actions/types.js";
 
 const fetch_libraries = {

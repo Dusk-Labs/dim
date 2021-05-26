@@ -37,17 +37,17 @@ function VideoPlayer(props) {
   const [mediaID, setMediaID] = useState();
   const [player, setPlayer] = useState();
 
-  const [ GID, setGID ] = useState();
+  const [GID, setGID] = useState();
 
-  const [ videoTracks, setVideoTracks ] = useState([]);
+  const [videoTracks, setVideoTracks] = useState([]);
   // eslint-disable-next-line no-unused-vars
-  const [ currentVideoTrack, setCurrentVideoTrack ] = useState(0);
-  const [ audioTracks, setAudioTracks ] = useState([]);
+  const [currentVideoTrack, setCurrentVideoTrack] = useState(0);
+  const [audioTracks, setAudioTracks] = useState([]);
   // eslint-disable-next-line no-unused-vars
-  const [ currentAudioTrack, setCurrentAudioTrack ] = useState(0);
-  const [ subtitleTracks, setSubtitleTracks ] = useState([]);
-  const [ currentSubtitleTrack, setCurrentSubtitleTrack ] = useState(-1);
-  const [ virtualManifestLoaded, setVirtualManifestLoaded ] = useState(false);
+  const [currentAudioTrack, setCurrentAudioTrack] = useState(0);
+  const [subtitleTracks, setSubtitleTracks] = useState([]);
+  const [currentSubtitleTrack, setCurrentSubtitleTrack] = useState(-1);
+  const [virtualManifestLoaded, setVirtualManifestLoaded] = useState(false);
 
   const [subReady, setSubReady] = useState(false);
   const [prevSubs, setPrevSubs] = useState();
@@ -69,10 +69,10 @@ function VideoPlayer(props) {
   const [duration, setDuration] = useState(0);
   const [currentCue, setCurrentCue] = useState("");
 
-  const [ prevSubTrack, setPrevSubTrack ] = useState(0);
-  const [ showSubSelection, setShowSubSelection ] = useState(false);
+  const [prevSubTrack, setPrevSubTrack] = useState(0);
+  const [showSubSelection, setShowSubSelection] = useState(false);
 
-  const [ idleCount, setIdleCount ] = useState(0);
+  const [idleCount, setIdleCount] = useState(0);
 
   const { match } = props;
   const { params } = match;
@@ -197,7 +197,7 @@ function VideoPlayer(props) {
         bufferTimeAtTopQualityLongForm: 20,
         useAppendWindow: true,
         bufferPruningInterval: 10,
-        smallGapLimit: 1000,
+        smallGapLimit: 1000
       }
     };
 
