@@ -4,6 +4,8 @@ import { MediaPlayer } from "dashjs";
 
 import { clearMediaInfo, fetchExtraMediaInfo, fetchMediaInfo } from "../../actions/card";
 import { VideoPlayerContext } from "./Context";
+import VideoEvents from "./Events";
+
 import RingLoad from "../../Components/Load/Ring";
 import Menus from "./Menus";
 import VideoControls from "./Controls/Index";
@@ -250,97 +252,10 @@ function VideoPlayer(props) {
     setSeeking(false);
   }, [GID, audioTracks, currentAudioTrack, currentVideoTrack, player, videoTracks]);
 
-  const eManifestLoad = useCallback(() => {
-    setManifestLoading(false);
-    setManifestLoaded(true);
-  }, []);
-
-  const eCanPlay = useCallback(() => {
-    setDuration(Math.round(player.duration()) | 0);
-    setCanPlay(true);
-    setWaiting(false);
-  }, [player]);
-
-  const ePlayBackPaused = useCallback(() => {
-    setPaused(true);
-  }, []);
-
-  const ePlayBackPlaying = useCallback(() => {
-    setPaused(false);
-  }, []);
-
-  const ePlayBackWaiting = useCallback(e => {
-    setWaiting(true);
-  }, []);
-
-  const ePlayBackEnded = useCallback(e => {
-    console.log("PLAYBACK ENDED", e);
-  }, []);
-
-  const eError = useCallback(e => {
-    // segment not available
-    if (e.error.code === 27) {
-      console.log("segment not available", e.error.message);
-      return;
-    }
-
-    (async () => {
-      const res = await fetch(`/api/v1/stream/${GID}/state/get_stderr`);
-      const error = await res.json();
-
-      setError({
-        msg: e.error.message,
-        errors: error.errors
-      });
-    })();
-  }, [GID]);
-
-  const ePlayBackNotAllowed = useCallback(e => {
-    if (e.type === "playbackNotAllowed") {
-      setPaused(true);
-    }
-  }, []);
-
-  const ePlayBackTimeUpdated = useCallback(e => {
-    setCurrentTime(Math.floor(e.time));
-    /*
-      PLAYBACK_PROGRESS event stops after error occurs
-      so using this event from now on to get buffer length
-    */
-    setBuffer(Math.round(player.getBufferLength()));
-  }, [player]);
-
   useEffect(() => {
     if (showSubSelection) return;
     setIdleCount(state => state += 1);
   }, [currentTime, showSubSelection]);
-
-  // video events
-  useEffect(() => {
-    if (!player) return;
-
-    player.on(MediaPlayer.events.MANIFEST_LOADED, eManifestLoad);
-    player.on(MediaPlayer.events.CAN_PLAY, eCanPlay);
-    player.on(MediaPlayer.events.PLAYBACK_PAUSED, ePlayBackPaused);
-    player.on(MediaPlayer.events.PLAYBACK_PLAYING, ePlayBackPlaying);
-    player.on(MediaPlayer.events.PLAYBACK_WAITING, ePlayBackWaiting);
-    player.on(MediaPlayer.events.PLAYBACK_TIME_UPDATED, ePlayBackTimeUpdated);
-    player.on(MediaPlayer.events.PLAYBACK_NOT_ALLOWED, ePlayBackNotAllowed);
-    player.on(MediaPlayer.events.PLAYBACK_ENDED, ePlayBackEnded);
-    player.on(MediaPlayer.events.ERROR, eError);
-
-    return () => {
-      player.off(MediaPlayer.events.MANIFEST_LOADED, eManifestLoad);
-      player.off(MediaPlayer.events.CAN_PLAY, eCanPlay);
-      player.off(MediaPlayer.events.PLAYBACK_PAUSED, ePlayBackPaused);
-      player.off(MediaPlayer.events.PLAYBACK_PLAYING, ePlayBackPlaying);
-      player.off(MediaPlayer.events.PLAYBACK_WAITING, ePlayBackWaiting);
-      player.off(MediaPlayer.events.PLAYBACK_TIME_UPDATED, ePlayBackTimeUpdated);
-      player.off(MediaPlayer.events.PLAYBACK_NOT_ALLOWED, ePlayBackNotAllowed);
-      player.off(MediaPlayer.events.PLAYBACK_ENDED, ePlayBackEnded);
-      player.off(MediaPlayer.events.ERROR, eError);
-    };
-  }, [eCanPlay, eError, eManifestLoad, ePlayBackEnded, ePlayBackNotAllowed, ePlayBackPaused, ePlayBackPlaying, ePlayBackTimeUpdated, ePlayBackWaiting, player]);
 
   const initialValue = {
     player,
@@ -387,11 +302,18 @@ function VideoPlayer(props) {
     prevSubs,
     setPrevSubs,
     idleCount,
-    setIdleCount
+    setIdleCount,
+    setCanPlay,
+    setWaiting,
+    setPaused,
+    setDuration,
+    setManifestLoading,
+    setManifestLoaded
   };
 
   return (
     <VideoPlayerContext.Provider value={initialValue}>
+      <VideoEvents/>
       <div className="videoPlayer" ref={videoPlayer}>
         <video ref={video}>
           <track
