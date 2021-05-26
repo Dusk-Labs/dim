@@ -103,9 +103,14 @@ function VideoSubtitles() {
     }
   }, [canPlay, currentSubtitleTrack, handleCueChange, subReady, video]);
 
+  let cues = currentCue
+    .replace(/<[^>]*>?/gm, "")
+    .split("\n")
+    .map((x) => <p>{x}</p>);
+
   return (
     <div className={`videoSubtitles show-${textTrackEnabled && show}`}>
-      <p>{currentCue.replace(/<[^>]*>?/gm, "")}</p>
+      {cues}
     </div>
   );
 }
