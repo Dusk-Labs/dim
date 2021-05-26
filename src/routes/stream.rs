@@ -245,7 +245,14 @@ pub async fn return_manifest(
     includes: Option<String>,
 ) -> Result<Response<'static>, errors::StreamingErrors> {
     if should_kill.unwrap_or(true) {
-        stream_tracking.kill_all(&state, &gid).await;
+        let ids = stream_tracking
+            .get_for_gid(&gid)
+            .await
+            .into_iter()
+            .filter(|x| !matches!(x.content_type, ContentType::Video | ContentType::Audio))
+            .map(|x| x.id)
+            .collect::<Vec<_>>();
+        stream_tracking.kill(&state, &gid, ids, true).await;
     }
 
     let manifest = if let Some(includes) = includes {
