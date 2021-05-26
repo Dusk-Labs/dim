@@ -11,7 +11,7 @@ export const calcNewSize = (
   currentWidth,
   currentHeight,
   newWidth = undefined,
-  newHeight = undefined,
+  newHeight = undefined
 ) => {
   const ratio = currentWidth / currentHeight;
 

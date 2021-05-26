@@ -8,7 +8,7 @@ function SeekingTo(props) {
   const seekingToDiv = useRef(null);
 
   const { player } = useContext(VideoPlayerContext);
-  const [ seekingTo, setSeekingTo ] = useState(formatHHMMSS(0));
+  const [seekingTo, setSeekingTo] = useState(formatHHMMSS(0));
 
   const { nameRef, timeRef, seekBar } = props;
 

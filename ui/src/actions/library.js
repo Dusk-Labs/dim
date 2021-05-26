@@ -163,7 +163,7 @@ export const fetchLibraryMedia = () => async (dispatch) => {
 export const handleWsDelLibrary = (id) => async (dispatch) => {
   dispatch({
     type: RM_LIBRARY,
-    id: id,
+    id
   });
 };
 

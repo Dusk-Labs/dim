@@ -114,13 +114,13 @@ export default function authReducer(state = initialState, action) {
         register: {
           registering: false,
           registered: false,
-          error: action.payload,
+          error: action.payload
         }
       };
     case AUTH_CHECK_ADMIN_OK:
       return {
         ...state,
-        admin_exists: action.payload.exists,
+        admin_exists: action.payload.exists
       };
     case CREATE_NEW_INVITE_START:
       return {
