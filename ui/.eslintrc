@@ -15,7 +15,12 @@
       "line-comment-position": "error",
       "eqeqeq": "error",
       "no-multi-str": "error",
-      "no-multiple-empty-lines": ["error", {"max": 1}]
+      "no-multiple-empty-lines": ["error", {"max": 1}],
+      "no-multi-spaces": "error",
+      "block-spacing": "error",
+      "space-before-blocks": "error",
+      "array-bracket-spacing": "error",
+      "comma-dangle": "error"
     }
   }]
 }
