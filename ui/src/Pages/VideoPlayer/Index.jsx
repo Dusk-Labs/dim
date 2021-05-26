@@ -81,10 +81,8 @@ function VideoPlayer(props) {
   useEffect(() => {
     if (GID) return;
 
-    const savedGID = sessionStorage.getItem("videoGID");
-
     const host = (
-      `/api/v1/stream/${params.fileID}/manifest${savedGID ? `?gid=${savedGID}` : ""}`
+      `/api/v1/stream/${params.fileID}/manifest`
     );
 
     (async () => {
