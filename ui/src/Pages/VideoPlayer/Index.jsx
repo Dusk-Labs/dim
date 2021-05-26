@@ -309,7 +309,7 @@ function VideoPlayer(props) {
     <VideoPlayerContext.Provider value={initialValue}>
       <VideoEvents/>
       <div className="videoPlayer" ref={videoPlayer}>
-        <video ref={video}>
+        <video ref={video} id="videoEl">
           <track
             id="videoSubTrack"
             kind="subtitles"
