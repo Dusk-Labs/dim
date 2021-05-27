@@ -126,7 +126,7 @@ impl StreamTracking {
         ids: Vec<String>,
         ignore_gc: bool,
     ) {
-        let mut lock = self.streaming_sessions.read().await;
+        let lock = self.streaming_sessions.read().await;
 
         if let Some(v) = lock.get(gid) {
             if !v.is_empty() {
