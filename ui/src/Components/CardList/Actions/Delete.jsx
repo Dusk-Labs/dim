@@ -8,7 +8,7 @@ import ConfirmationBox from "../../../Modals/ConfirmationBox";
 const Delete = (props) => {
   const dispatch = useDispatch();
 
-  const del_library  = useSelector(store => (
+  const del_library = useSelector(store => (
     store.library.del_library
   ));
 

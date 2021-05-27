@@ -7,8 +7,8 @@ import KeyIcon from "../../assets/Icons/Key";
 function Field(
   { name, icon, data, error, type = "text" }
 ) {
-  const [ value, setValue ] = data;
-  const [ err, setErr ] = error;
+  const [value, setValue] = data;
+  const [err, setErr] = error;
 
   useEffect(() => setErr(""), [setErr, value]);
 

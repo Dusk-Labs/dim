@@ -27,7 +27,7 @@ function VideoSeekBar(props) {
       const config = {
         method: "POST",
         headers: {
-          "authorization": token,
+          "authorization": token
         }
       };
 

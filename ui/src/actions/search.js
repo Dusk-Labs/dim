@@ -14,7 +14,7 @@ export const search = (params) => async (dispatch, getState) => {
   try {
     const config = {
       headers: {
-        "authorization": token,
+        "authorization": token
       }
     };
 
@@ -54,7 +54,7 @@ export const quickSearch = (query) => async (dispatch, getState) => {
   try {
     const config = {
       headers: {
-        "authorization": token,
+        "authorization": token
       }
     };
 

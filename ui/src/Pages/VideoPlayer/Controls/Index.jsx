@@ -18,7 +18,7 @@ function VideoControls() {
   const timeDiv = useRef(null);
 
   const { mediaInfo, episode, seekTo, overlay, currentTime, duration } = useContext(VideoPlayerContext);
-  const [ visible, setVisible ] = useState(true);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     if (!overlay) return;

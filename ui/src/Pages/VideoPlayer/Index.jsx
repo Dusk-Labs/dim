@@ -4,7 +4,10 @@ import { MediaPlayer } from "dashjs";
 
 import { clearMediaInfo, fetchExtraMediaInfo, fetchMediaInfo } from "../../actions/card";
 import { VideoPlayerContext } from "./Context";
+import VideoEvents from "./Events";
+
 import RingLoad from "../../Components/Load/Ring";
+import Menus from "./Menus";
 import VideoControls from "./Controls/Index";
 import ErrorBox from "./ErrorBox";
 import ContinueProgress from "./ContinueProgress";
@@ -32,8 +35,22 @@ function VideoPlayer(props) {
   const video = useRef(null);
 
   const [mediaID, setMediaID] = useState();
-
   const [player, setPlayer] = useState();
+
+  const [GID, setGID] = useState();
+
+  const [videoTracks, setVideoTracks] = useState([]);
+  // eslint-disable-next-line no-unused-vars
+  const [currentVideoTrack, setCurrentVideoTrack] = useState(0);
+  const [audioTracks, setAudioTracks] = useState([]);
+  // eslint-disable-next-line no-unused-vars
+  const [currentAudioTrack, setCurrentAudioTrack] = useState(0);
+  const [subtitleTracks, setSubtitleTracks] = useState([]);
+  const [currentSubtitleTrack, setCurrentSubtitleTrack] = useState(-1);
+  const [virtualManifestLoaded, setVirtualManifestLoaded] = useState(false);
+
+  const [subReady, setSubReady] = useState(false);
+  const [prevSubs, setPrevSubs] = useState();
 
   const [manifestLoading, setManifestLoading] = useState(false);
   const [manifestLoaded, setManifestLoaded] = useState(false);
@@ -43,19 +60,54 @@ function VideoPlayer(props) {
   const [fullscreen, setFullscreen] = useState(false);
   const [muted, setMuted] = useState(false);
   const [error, setError] = useState();
-  const [videoUUID, setVideoUUID] = useState();
   const [paused, setPaused] = useState(false);
-  const [currentTextTrack, setCurrentTextTrack] = useState(0);
   const [textTrackEnabled, setTextTrackEnabled] = useState(false);
   const [episode, setEpisode] = useState();
 
   const [buffer, setBuffer] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [currentCue, setCurrentCue] = useState("");
+
+  const [prevSubTrack, setPrevSubTrack] = useState(0);
+  const [showSubSelection, setShowSubSelection] = useState(false);
+
+  const [idleCount, setIdleCount] = useState(0);
 
   const { match } = props;
   const { params } = match;
   const { token } = auth;
+
+  useEffect(() => {
+    if (GID) return;
+
+    const host = (
+      `/api/v1/stream/${params.fileID}/manifest`
+    );
+
+    (async () => {
+      const config = {
+        headers: {
+          "authorization": token
+        }
+      };
+
+      const res = await fetch(host, config);
+      const payload = await res.json();
+
+      setGID(payload.gid);
+
+      const tVideos = payload.tracks.filter(track => track.content_type === "video");
+      const tAudios = payload.tracks.filter(track => track.content_type === "audio");
+      const tSubtitles = payload.tracks.filter(track => track.content_type === "subtitle");
+
+      setVideoTracks(tVideos);
+      setAudioTracks(tAudios);
+      setSubtitleTracks(tSubtitles);
+
+      setVirtualManifestLoaded(true);
+    })();
+  }, [GID, params.fileID, token]);
 
   useEffect(() => {
     (async () => {
@@ -105,11 +157,13 @@ function VideoPlayer(props) {
   }, [extra_media_info.info, params.fileID]);
 
   useEffect(() => {
+    if (!mediaID) return;
     dispatch(fetchExtraMediaInfo(mediaID));
     return () => dispatch(clearMediaInfo());
   }, [dispatch, mediaID]);
 
   useEffect(() => {
+    if (!mediaID) return;
     dispatch(fetchMediaInfo(mediaID));
     return () => dispatch(clearMediaInfo());
   }, [dispatch, mediaID]);
@@ -123,35 +177,31 @@ function VideoPlayer(props) {
   }, [media_info.info.name]);
 
   useEffect(() => {
-    if (!params.fileID) return;
+    if (!GID || !virtualManifestLoaded) return;
 
     setManifestLoaded(false);
     setManifestLoading(true);
 
-    const existingUUID = sessionStorage.getItem("videoUUID");
-
-    let uuid;
-
-    if (existingUUID) {
-      uuid = existingUUID;
-    } else {
-      uuid = "xxxxxxxxxxxxxxxx".replace(/[xy]/g, () => Math.round(Math.random() * 8));
-      sessionStorage.setItem("videoUUID", uuid);
-    }
-
-    const url = `/api/v1/stream/${params.fileID}/manifest.mpd?gid=${uuid}`;
+    const includes = `${videoTracks[currentVideoTrack].id},${audioTracks[currentAudioTrack].id}`;
+    const url = `/api/v1/stream/${GID}/manifest.mpd?start_num=0&should_kill=false&includes=${includes}`;
     const mediaPlayer = MediaPlayer().create();
 
-    mediaPlayer.updateSettings({
+    // even with these settings, high bitrate movies fail.
+    // The only solution is to have a constant bitrate and cosistent segments.
+    // Thus transcoding is the only solution.
+    let settings = {
       streaming: {
-        stableBufferTime: 10,
+        stableBufferTime: 20,
         bufferToKeep: 10,
         bufferTimeAtTopQuality: 20,
         bufferTimeAtTopQualityLongForm: 20,
-        useAppendWindowEnd: false,
+        useAppendWindow: true,
         bufferPruningInterval: 10,
+        smallGapLimit: 1000
       }
-    });
+    };
+
+    mediaPlayer.updateSettings(settings);
 
     mediaPlayer.extend("RequestModifier", function () {
       return {
@@ -166,121 +216,40 @@ function VideoPlayer(props) {
     });
 
     mediaPlayer.initialize(video.current, url, true);
-    mediaPlayer.enableForcedTextStreaming(true);
 
     setPlayer(mediaPlayer);
-    setVideoUUID(uuid);
 
     return () => {
       mediaPlayer.destroy();
 
-      const uuid = sessionStorage.getItem("videoUUID");
-      if (!uuid) return;
+      if (!GID) return;
 
       (async () => {
-        await fetch(`/api/v1/stream/${uuid}/state/kill`);
+        await fetch(`/api/v1/stream/${GID}/state/kill`);
         sessionStorage.clear();
       })();
     };
-  }, [auth.token, params.fileID]);
+  }, [GID, audioTracks, auth.token, currentAudioTrack, currentVideoTrack, videoTracks, virtualManifestLoaded]);
 
   const seekTo = useCallback(async newTime => {
     const newSegment = Math.floor(newTime / 5);
 
+    setCurrentCue("");
     setCurrentTime(newTime);
     setBuffer(0);
 
-    player.attachSource(`/api/v1/stream/${params.fileID}/manifest.mpd?start_num=${newSegment}&gid=${videoUUID}`);
+    const includes = `${videoTracks[currentVideoTrack].id},${audioTracks[currentAudioTrack].id}`;
+    const url = `/api/v1/stream/${GID}/manifest.mpd?start_num=${newSegment}&should_kill=true&includes=${includes}`;
+
+    player.attachSource(url);
 
     setSeeking(false);
-  }, [params.fileID, player, videoUUID]);
+  }, [GID, audioTracks, currentAudioTrack, currentVideoTrack, player, videoTracks]);
 
-  const eManifestLoad = useCallback(() => {
-    setManifestLoading(false);
-    setManifestLoaded(true);
-  }, []);
-
-  const eCanPlay = useCallback(() => {
-    setDuration(Math.round(player.duration()) | 0);
-    setCanPlay(true);
-    setWaiting(false);
-  }, [player]);
-
-  const ePlayBackPaused = useCallback(() => {
-    setPaused(true);
-  }, []);
-
-  const ePlayBackPlaying = useCallback(() => {
-    setPaused(false);
-  }, []);
-
-  const ePlayBackWaiting = useCallback(e => {
-    setWaiting(true);
-  }, []);
-
-  const ePlayBackEnded = useCallback(e => {
-    console.log("PLAYBACK ENDED", e);
-  }, []);
-
-  const eError = useCallback(e => {
-    // segment not available
-    if (e.error.code === 27) {
-      console.log("segment not available", e.error.message);
-      return;
-    }
-
-    (async () => {
-      const res = await fetch(`/api/v1/stream/${videoUUID}/state/get_stderr`);
-      const error = await res.json();
-
-      setError({
-        msg: e.error.message,
-        errors: error.errors
-      });
-    })();
-  }, [videoUUID]);
-
-  const ePlayBackNotAllowed = useCallback(e => {
-    if (e.type === "playbackNotAllowed") {
-      setPaused(true);
-    }
-  }, []);
-
-  const ePlayBackTimeUpdated = useCallback(e => {
-    setCurrentTime(Math.floor(e.time));
-    /*
-      PLAYBACK_PROGRESS event stops after error occurs
-      so using this event from now on to get buffer length
-    */
-    setBuffer(Math.round(player.getBufferLength()));
-  }, [player]);
-
-  // video events
   useEffect(() => {
-    if (!player) return;
-
-    player.on(MediaPlayer.events.MANIFEST_LOADED, eManifestLoad);
-    player.on(MediaPlayer.events.CAN_PLAY, eCanPlay);
-    player.on(MediaPlayer.events.PLAYBACK_PAUSED, ePlayBackPaused);
-    player.on(MediaPlayer.events.PLAYBACK_PLAYING, ePlayBackPlaying);
-    player.on(MediaPlayer.events.PLAYBACK_WAITING, ePlayBackWaiting);
-    player.on(MediaPlayer.events.PLAYBACK_TIME_UPDATED, ePlayBackTimeUpdated);
-    player.on(MediaPlayer.events.PLAYBACK_NOT_ALLOWED, ePlayBackNotAllowed);
-    player.on(MediaPlayer.events.PLAYBACK_ENDED, ePlayBackEnded);
-    player.on(MediaPlayer.events.ERROR, eError);
-
-    return () => {
-      player.off(MediaPlayer.events.MANIFEST_LOADED, eManifestLoad);
-      player.off(MediaPlayer.events.CAN_PLAY, eCanPlay);
-      player.off(MediaPlayer.events.PLAYBACK_PAUSED, ePlayBackPaused);
-      player.off(MediaPlayer.events.PLAYBACK_PLAYING, ePlayBackPlaying);
-      player.off(MediaPlayer.events.PLAYBACK_WAITING, ePlayBackWaiting);
-      player.off(MediaPlayer.events.PLAYBACK_TIME_UPDATED, ePlayBackTimeUpdated);
-      player.off(MediaPlayer.events.PLAYBACK_NOT_ALLOWED, ePlayBackNotAllowed);
-      player.off(MediaPlayer.events.PLAYBACK_ENDED, ePlayBackEnded);
-      player.off(MediaPlayer.events.ERROR, eError);
-    };
-  }, [eCanPlay, eError, eManifestLoad, ePlayBackEnded, ePlayBackNotAllowed, ePlayBackPaused, ePlayBackPlaying, ePlayBackTimeUpdated, ePlayBackWaiting, player]);
+    if (showSubSelection) return;
+    setIdleCount(state => state += 1);
+  }, [currentTime, showSubSelection]);
 
   const initialValue = {
     player,
@@ -303,22 +272,47 @@ function VideoPlayer(props) {
     buffer,
     paused,
     canPlay,
-    currentTextTrack,
-    setCurrentTextTrack,
     textTrackEnabled,
     setTextTrackEnabled,
-    videoUUID,
     overlay: overlay.current,
     seekTo,
-    episode
+    episode,
+    videoTracks,
+    currentVideoTrack,
+    audioTracks,
+    currentAudioTrack,
+    subtitleTracks,
+    currentSubtitleTrack,
+    setCurrentSubtitleTrack,
+    GID,
+    currentCue,
+    setCurrentCue,
+    showSubSelection,
+    setShowSubSelection,
+    prevSubTrack,
+    setPrevSubTrack,
+    subReady,
+    setSubReady,
+    prevSubs,
+    setPrevSubs,
+    idleCount,
+    setIdleCount,
+    setCanPlay,
+    setWaiting,
+    setPaused,
+    setDuration,
+    setManifestLoading,
+    setManifestLoaded
   };
 
   return (
     <VideoPlayerContext.Provider value={initialValue}>
+      <VideoEvents/>
       <div className="videoPlayer" ref={videoPlayer}>
         <video ref={video}/>
         <VideoSubtitles/>
         <div className="overlay" ref={overlay}>
+          {(!error && (manifestLoaded && canPlay && showSubSelection)) && <Menus/>}
           {(!error && (manifestLoaded && canPlay)) && <VideoControls/>}
           {(!error & (manifestLoading || !canPlay) || waiting) && <RingLoad/>}
           {((!error && (manifestLoaded && canPlay)) && extra_media_info.info.progress > 0) && (

@@ -69,12 +69,12 @@ function PrivateRoute(props) {
   useEffect(() => {
     if (history.location.pathname.includes("/play/")) return;
 
-    const videoUUID = sessionStorage.getItem("videoUUID");
+    const GID = sessionStorage.getItem("GID");
 
-    if (!videoUUID) return;
+    if (!GID) return;
 
     (async () => {
-      await fetch(`/api/v1/stream/${videoUUID}/state/kill`);
+      await fetch(`/api/v1/stream/${GID}/state/kill`);
       sessionStorage.clear();
     })();
   }, [history.location.pathname]);
