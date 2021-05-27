@@ -107,12 +107,6 @@ impl From<tokio_diesel::AsyncError> for DimError {
     }
 }
 
-impl From<std::option::NoneError> for DimError {
-    fn from(_: std::option::NoneError) -> Self {
-        Self::NoneError
-    }
-}
-
 impl From<()> for DimError {
     fn from(_: ()) -> Self {
         Self::UnknownError
