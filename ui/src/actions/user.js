@@ -11,7 +11,7 @@ export const fetchUser = () => async (dispatch, getState) => {
 
   const config = {
     headers: {
-      "Authorization": token,
+      "Authorization": token
     }
   };
 

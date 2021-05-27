@@ -4,7 +4,9 @@ use errors::StreamingErrors;
 use crate::core::DbConnection;
 use crate::core::StateManager;
 use crate::errors;
+use crate::stream_tracking::ContentType;
 use crate::stream_tracking::StreamTracking;
+use crate::stream_tracking::VirtualManifest;
 use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::get_avc1_tag;
 use crate::streaming::level_to_tag;
@@ -16,7 +18,7 @@ use chrono::Utc;
 
 use database::mediafile::MediaFile;
 
-use rocket::http::ContentType;
+use rocket::http;
 use rocket::http::Header;
 use rocket::http::Status;
 use rocket::response::NamedFile;
@@ -25,6 +27,7 @@ use rocket::State;
 
 use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
+use rocket_contrib::uuid::Uuid;
 
 use slog::info;
 use slog::Logger;
@@ -47,17 +50,24 @@ use futures::StreamExt;
 use std::future::Future;
 use tokio::task::spawn_blocking;
 
-#[get("/<id>/manifest.mpd?<start_num>&<gid>")]
-pub async fn return_manifest(
+#[get("/<id>/manifest?<gid>")]
+pub async fn return_virtual_manifest(
     state: State<'_, StateManager>,
     stream_tracking: State<'_, StreamTracking>,
     auth: Auth,
     conn: State<'_, DbConnection>,
     id: i32,
-    start_num: Option<u32>,
-    gid: Option<u128>,
-) -> Result<Response<'static>, errors::StreamingErrors> {
-    let start_num = start_num.unwrap_or(0);
+    gid: Option<Uuid>,
+) -> Result<JsonValue, errors::StreamingErrors> {
+    if let Some(gid) = gid {
+        return Ok(json!({
+            "tracks": stream_tracking.get_for_gid(&gid).await,
+            "gid": gid.to_hyphenated().to_string(),
+        }));
+    }
+
+    let gid = uuid::Uuid::new_v4();
+
     let media = MediaFile::get_one(&conn, id)
         .await
         .map_err(|e| errors::StreamingErrors::NoMediaFileFound(e.to_string()))?;
@@ -80,23 +90,10 @@ pub async fn return_manifest(
 
     ms.truncate(4);
 
-    let gid = gid.unwrap_or(uuid::Uuid::new_v4().as_u128());
-    stream_tracking.kill_all(&state, gid).await;
-
     let duration = chrono::DateTime::<Utc>::from_utc(
         NaiveDateTime::from_timestamp(info.get_duration().unwrap() as i64, 0),
         Utc,
     );
-
-    let duration_string = format!(
-        "PT{}H{}M{}.{}S",
-        duration.hour(),
-        duration.minute(),
-        duration.second(),
-        ms
-    );
-
-    let mut tracks = Vec::new();
 
     let video_stream = info
         .find_by_codec("video")
@@ -110,13 +107,6 @@ pub async fn return_manifest(
         VideoProfile::Direct
     };
 
-    // temporarily fix High@L4.1 streams from not playing.
-    let profile = if video_stream.level == Some(41) {
-        VideoProfile::Native
-    } else {
-        profile
-    };
-
     let video = state
         .create(
             StreamType::Video {
@@ -126,8 +116,6 @@ pub async fn return_manifest(
             media.target_file.clone().into(),
         )
         .await?;
-
-    stream_tracking.insert(gid, video.clone()).await;
 
     // FIXME: Stop hardcoding a fps of 24
     let video_avc = video_stream
@@ -140,16 +128,30 @@ pub async fn return_manifest(
             24,
         ));
 
-    tracks.push(format!(
-        include_str!("../static/video_segment.mpd"),
-        id = video.clone(),
-        height = video_stream.height.clone().unwrap_or(1080),
-        bandwidth = info.get_bitrate().parse::<i32>().unwrap(),
-        init = format!("{}/data/init.mp4?start_num={}", video.clone(), start_num),
-        chunk_path = format!("{}/data/$Number$.m4s", video.clone()),
-        start_num = start_num,
-        avc = video_avc.to_string(),
-    ));
+    stream_tracking
+        .insert(
+            &gid,
+            VirtualManifest {
+                id: video.clone(),
+                is_direct: true,
+                mime: "video/mp4".into(),
+                duration: info.get_duration(),
+                content_type: ContentType::Video,
+                chunk_path: format!("{}/data/$Number$.m4s", video.clone()),
+                init_seg: Some(format!("{}/data/init.mp4", video.clone())),
+                codecs: video_avc.to_string(),
+                bandwidth: info.get_bitrate().parse::<u64>().unwrap(),
+                args: {
+                    let mut x = HashMap::new();
+                    x.insert(
+                        "height".to_string(),
+                        video_stream.height.clone().unwrap().to_string(),
+                    );
+                    x
+                },
+            },
+        )
+        .await;
 
     let audio_streams = info.find_by_codec("audio");
 
@@ -164,15 +166,23 @@ pub async fn return_manifest(
             )
             .await?;
 
-        tracks.push(format!(
-            include_str!("../static/audio_segment.mpd"),
-            id = audio.clone(),
-            init = format!("{}/data/init.mp4?start_num={}", audio.clone(), start_num),
-            chunk_path = format!("{}/data/$Number$.m4s", audio.clone()),
-            start_num = start_num,
-        ));
-
-        stream_tracking.insert(gid, audio.clone()).await;
+        stream_tracking
+            .insert(
+                &gid,
+                VirtualManifest {
+                    id: audio.clone(),
+                    is_direct: false,
+                    mime: "audio/mp4".into(),
+                    duration: info.get_duration(),
+                    codecs: "mp4a.40.2".into(),
+                    bandwidth: 120_000,
+                    content_type: ContentType::Audio,
+                    chunk_path: format!("{}/data/$Number$.m4s", audio.clone()),
+                    init_seg: Some(format!("{}/data/init.mp4", audio.clone())),
+                    args: HashMap::new(),
+                },
+            )
+            .await;
     }
 
     let subtitles = info.find_by_codec("subtitle");
@@ -188,29 +198,82 @@ pub async fn return_manifest(
             )
             .await?;
 
-        tracks.push(format!(
-            include_str!("../static/subtitle_segment.mpd"),
-            id = subtitle.clone(),
-            title = stream
-                .tags
-                .clone()
-                .and_then(|x| x.title)
-                .unwrap_or(format!("Subtitle {}", stream.index)),
-            path = format!("{}/data/stream.vtt", subtitle.clone())
-        ));
-
-        stream_tracking.insert(gid, subtitle.clone()).await;
+        stream_tracking
+            .insert(
+                &gid,
+                VirtualManifest {
+                    id: subtitle.clone(),
+                    is_direct: false,
+                    content_type: ContentType::Subtitle,
+                    mime: "text/vtt".into(),
+                    codecs: "vtt".into(), //ignored
+                    bandwidth: 0,         // ignored
+                    duration: None,
+                    chunk_path: format!("{}/data/stream.vtt", subtitle.clone()),
+                    init_seg: None,
+                    args: {
+                        let mut x = HashMap::new();
+                        if let Some(y) = stream
+                            .tags
+                            .as_ref()
+                            .and_then(|x| x.title.clone().or(x.language.clone()))
+                        {
+                            x.insert("title".to_string(), y);
+                        }
+                        x
+                    },
+                },
+            )
+            .await;
     }
 
-    let manifest = format!(
-        include_str!("../static/manifest.mpd"),
-        duration = duration_string,
-        base_url = "/api/v1/stream/",
-        segments = tracks.join("\n"),
-    );
+    Ok(json!({
+        "tracks": stream_tracking.get_for_gid(&gid).await,
+        "gid": gid.to_hyphenated().to_string(),
+    }))
+}
+
+#[get("/<gid>/manifest.mpd?<start_num>&<should_kill>&<includes>")]
+pub async fn return_manifest(
+    state: State<'_, StateManager>,
+    stream_tracking: State<'_, StreamTracking>,
+    auth: Auth,
+    conn: State<'_, DbConnection>,
+    gid: Uuid,
+    start_num: Option<u64>,
+    should_kill: Option<bool>,
+    includes: Option<String>,
+) -> Result<Response<'static>, errors::StreamingErrors> {
+    if should_kill.unwrap_or(true) {
+        let ids = stream_tracking
+            .get_for_gid(&gid)
+            .await
+            .into_iter()
+            .filter(|x| !matches!(x.content_type, ContentType::Video | ContentType::Audio))
+            .map(|x| x.id)
+            .collect::<Vec<_>>();
+        stream_tracking.kill(&state, &gid, ids, true).await;
+    }
+
+    let manifest = if let Some(includes) = includes {
+        let includes = includes
+            .split(",")
+            .map(ToString::to_string)
+            .collect::<Vec<_>>();
+
+        stream_tracking
+            .compile_only(&gid, start_num.unwrap_or(0), includes)
+            .await
+            .unwrap()
+    } else {
+        stream_tracking
+            .compile(&gid, start_num.unwrap_or(0))
+            .await
+            .unwrap()
+    };
 
     Response::build()
-        .header(ContentType::new("application", "dash+xml"))
+        .header(http::ContentType::new("application", "dash+xml"))
         .streamed_body(Cursor::new(manifest))
         .ok()
 }
@@ -320,18 +383,15 @@ pub async fn get_subtitle(
 pub async fn should_client_hard_seek(
     state: State<'_, StateManager>,
     stream_tracking: State<'_, StreamTracking>,
-    gid: u128,
+    gid: Uuid,
     chunk_num: u32,
 ) -> Result<JsonValue, errors::StreamingErrors> {
-    let ids = stream_tracking
-        .get_for_gid(gid)
-        .await
-        .ok_or(errors::StreamingErrors::InvalidRequest)?;
+    let ids = stream_tracking.get_for_gid(&gid).await;
 
     let mut should_client_hard_seek = false;
 
-    for id in ids {
-        should_client_hard_seek |= state.should_hard_seek(id, chunk_num).await?;
+    for manifest in ids {
+        should_client_hard_seek |= state.should_hard_seek(manifest.id, chunk_num).await?;
     }
 
     Ok(json!({
@@ -343,14 +403,13 @@ pub async fn should_client_hard_seek(
 pub async fn session_get_stderr(
     state: State<'_, StateManager>,
     stream_tracking: State<'_, StreamTracking>,
-    gid: u128,
+    gid: Uuid,
 ) -> Result<JsonValue, errors::StreamingErrors> {
     Ok(json!({
     "errors": stream::iter(stream_tracking
-        .get_for_gid(gid)
-        .await
-        .ok_or(errors::StreamingErrors::InvalidRequest)?)
-        .filter_map(|x| async { state.get_stderr(x).await.ok() })
+        .get_for_gid(&gid)
+        .await)
+        .filter_map(|x| async { state.get_stderr(x.id).await.ok() })
         .collect::<Vec<_>>().await,
     }))
 }
@@ -359,14 +418,10 @@ pub async fn session_get_stderr(
 pub async fn kill_session(
     state: State<'_, StateManager>,
     stream_tracking: State<'_, StreamTracking>,
-    gid: u128,
+    gid: Uuid,
 ) -> Result<Status, errors::StreamingErrors> {
-    for id in stream_tracking
-        .get_for_gid(gid)
-        .await
-        .ok_or(errors::StreamingErrors::InvalidRequest)?
-    {
-        let _ = state.die(id).await;
+    for manifest in stream_tracking.get_for_gid(&gid).await {
+        let _ = state.die(manifest.id).await;
     }
 
     Ok(Status::NoContent)

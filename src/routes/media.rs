@@ -71,7 +71,10 @@ pub async fn get_media_by_id(
     let data = Media::get(&conn, id).await?;
 
     let duration = match MediaFile::get_of_media(&conn, &data).await {
-        Ok(mut x) => x.pop()?.duration?,
+        Ok(mut x) => x
+            .pop()
+            .and_then(|x| x.duration)
+            .ok_or(errors::DimError::NoneError)?,
         Err(_) => 0,
     };
 

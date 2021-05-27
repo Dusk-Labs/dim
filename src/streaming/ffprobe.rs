@@ -40,7 +40,7 @@ pub struct Stream {
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Tags {
-    language: Option<String>,
+    pub language: Option<String>,
     pub title: Option<String>,
     #[serde(rename = "BPS-eng")]
     bps_eng: Option<String>,

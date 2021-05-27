@@ -36,18 +36,24 @@
       fill: #f7931e;
     }
 
-    &.active-true {
-      background: #2a2a2a;
-    }
-
-    svg {
-      transition: fill 100ms ease-in-out;
-    }
-
-
     svg {
       fill: #eee;
+      transition: fill 100ms ease-in-out;
       width: 16px;
+    }
+
+    &.trackActive-true {
+      &:not(.menuActive-true):hover {
+        background: #1a1a1a;
+      }
+
+      svg {
+        fill: #f7931e;
+      }
+    }
+
+    &.menuActive-true {
+      background: #2a2a2a;
     }
   }
 

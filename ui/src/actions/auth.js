@@ -27,7 +27,7 @@ export const authenticate = (username, password) => async (dispatch) => {
     },
     body: JSON.stringify({
       "username": username,
-      "password": password,
+      "password": password
     })
   };
 
@@ -37,7 +37,7 @@ export const authenticate = (username, password) => async (dispatch) => {
     if (res.status !== 200) {
       return dispatch({
         type: AUTH_LOGIN_ERR,
-        payload: res.statusText,
+        payload: res.statusText
       });
     }
 
@@ -162,7 +162,7 @@ export const createNewInvite = () => async (dispatch, getState) => {
   const config = {
     method: "POST",
     headers: {
-      "authorization": token,
+      "authorization": token
     }
   };
 
@@ -180,7 +180,7 @@ export const createNewInvite = () => async (dispatch, getState) => {
 
     dispatch({
       type: CREATE_NEW_INVITE_OK,
-      payload,
+      payload
     });
   } catch(err) {
     dispatch({
@@ -198,7 +198,7 @@ export const fetchInvites = () => async (dispatch, getState) => {
   try {
     const config = {
       headers: {
-        "authorization": token,
+        "authorization": token
       }
     };
 
@@ -215,7 +215,7 @@ export const fetchInvites = () => async (dispatch, getState) => {
 
     dispatch({
       type: FETCH_INVITES_OK,
-      payload,
+      payload
     });
   } catch(err) {
     dispatch({
