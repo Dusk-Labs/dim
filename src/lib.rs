@@ -25,7 +25,6 @@
     rustc_private,
     proc_macro_hygiene,
     decl_macro,
-    try_trait,
     negative_impls,
     result_flattening,
     once_cell,
