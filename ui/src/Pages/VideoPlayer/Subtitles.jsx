@@ -61,7 +61,7 @@ function VideoSubtitles() {
         videoSubTrack.addCue(cue);
       }
       setSubReady(true);
-    }, 3000);
+    }, 1000);
 
     return () => {
       console.log("[Subtitles] component unmounted, clearing fetching interval");
