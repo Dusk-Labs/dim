@@ -39,6 +39,34 @@ function VideoSubtitles() {
     }
   }, [setCurrentCue]);
 
+  /*
+    delete and create new text track as there is no API
+    to simply clear text track cues and append new ones
+  */
+  useEffect(() => {
+    if (!video.current || !textTrackEnabled) return;
+
+    console.log("[Subtitles] track changed, removing old text track and creating new one");
+
+    for (const [i, track] of Object.entries(video.current.children)) {
+      if (track.kind === "subtitles") {
+        video.current.removeChild(video.current.children[i]);
+      }
+    }
+
+    const newTrack = document.createElement("track");
+
+    newTrack.kind = "subtitles";
+    newTrack.track.mode = textTrackEnabled ? "showing" : "hidden";
+
+    video.current.appendChild(newTrack);
+  }, [video, currentSubtitleTrack, textTrackEnabled]);
+
+  // clear current cue if track changed
+  useEffect(() => {
+    setCurrentCue("");
+  }, [currentSubtitleTrack, setCurrentCue]);
+
   useEffect(() => {
     if (subtitleTracks.length === 0 || !textTrackEnabled || !video.current || currentSubtitleTrack === -1 || prevSubs === currentSubtitleTrack) return;
 
@@ -55,16 +83,17 @@ function VideoSubtitles() {
       const diff = text.split(prev).join("");
       const cues = parseVtt(diff);
 
+      console.log("diff", diff);
+
       if (text && text.length === prev.length) {
         console.log("[Subtitles] subtitles fully loaded");
         clearInterval(intervalID);
         setPrevSubs(currentSubtitleTrack);
       } else {
-        console.log("[Subtitles] partially loaded, re-fetching again in 1 second");
         prev = text;
       }
 
-      for(let cue of cues) {
+      for (let cue of cues) {
         videoSubTrack.addCue(cue);
       }
 
