@@ -309,13 +309,7 @@ function VideoPlayer(props) {
     <VideoPlayerContext.Provider value={initialValue}>
       <VideoEvents/>
       <div className="videoPlayer" ref={videoPlayer}>
-        <video ref={video}>
-          <track
-            id="videoSubTrack"
-            kind="subtitles"
-            default
-          />
-        </video>
+        <video ref={video}/>
         <VideoSubtitles/>
         <div className="overlay" ref={overlay}>
           {(!error && (manifestLoaded && canPlay && showSubSelection)) && <Menus/>}
