@@ -83,8 +83,6 @@ function VideoSubtitles() {
       const diff = text.split(prev).join("");
       const cues = parseVtt(diff);
 
-      console.log("diff", diff);
-
       if (text && text.length === prev.length) {
         console.log("[Subtitles] subtitles fully loaded");
         clearInterval(intervalID);
