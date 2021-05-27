@@ -14,7 +14,8 @@ function VideoMenus() {
     setSubReady(false);
     setCurrentSubtitleTrack(i);
     setTextTrackEnabled(true);
-  }, [currentSubtitleTrack, setCurrentSubtitleTrack, setSubReady, setTextTrackEnabled]);
+    setShowSubSelection(false);
+  }, [currentSubtitleTrack, setCurrentSubtitleTrack, setShowSubSelection, setSubReady, setTextTrackEnabled]);
 
   const turnOffSubs = useCallback(() => {
     if (currentSubtitleTrack === -1) return;
