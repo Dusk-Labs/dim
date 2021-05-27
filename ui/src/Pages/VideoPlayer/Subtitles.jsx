@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, useContext } from "react";
 import { calcNewSize } from "../../Helpers/utils";
 import { VideoPlayerContext } from "./Context";
+import { parseVtt } from "../../Helpers/utils";
 
 import "./Subtitles.scss";
 
@@ -26,7 +27,12 @@ function VideoSubtitles() {
 
   const handleCueChange = useCallback((e) => {
     if (e.srcElement.activeCues.length > 0) {
-      setCurrentCue(e.srcElement.activeCues[0].text);
+
+      const cue = e.srcElement.activeCues[0].text
+        .replace(/<[^>]*>?/gm, "")
+        .split("\n");
+
+      setCurrentCue(cue);
       setShow(true);
     } else {
       setShow(false);
@@ -41,7 +47,8 @@ function VideoSubtitles() {
     console.log("[Subtitles] preparing subtitle track", subtitleTracks[currentSubtitleTrack]);
 
     const intervalID = setInterval(async () => {
-      const videoSubTrack = document.getElementById("videoEl").textTracks[0];
+      const videoSubTrack = video.current.textTracks[0];
+
       const req = await fetch(`/api/v1/stream/${subtitleTracks[currentSubtitleTrack].id}/data/stream.vtt`);
       const text = await req.text();
 
@@ -53,13 +60,14 @@ function VideoSubtitles() {
         clearInterval(intervalID);
         setPrevSubs(currentSubtitleTrack);
       } else {
-        console.log("[Subtitles] partially loaded, re-fetching again in 3 seconds");
+        console.log("[Subtitles] partially loaded, re-fetching again in 1 second");
         prev = text;
       }
 
       for(let cue of cues) {
         videoSubTrack.addCue(cue);
       }
+
       setSubReady(true);
     }, 1000);
 
@@ -103,48 +111,11 @@ function VideoSubtitles() {
     }
   }, [canPlay, currentSubtitleTrack, handleCueChange, subReady, video]);
 
-  let cues = currentCue
-    .replace(/<[^>]*>?/gm, "")
-    .split("\n")
-    .map((x) => <p>{x}</p>);
-
   return (
     <div className={`videoSubtitles show-${textTrackEnabled && show}`}>
-      {cues}
+      <p>{currentCue}</p>
     </div>
   );
-}
-
-function parseVtt(text) {
-  let cues = [];
-
-  let segs = text.split("\n\n").filter((x) => x !== "");
-
-  if(segs[0] === "WEBVTT") {
-    segs.shift();
-  }
-
-  for(let raw_seg of segs) {
-    let seg = raw_seg.split("\n").filter((x) => x.length !== 0);
-    let [sts, ets] = seg[0].split(" --> ").map((x) => parseHms(x));
-    seg.shift();
-
-    cues.push(new VTTCue(sts, ets, seg.join(" \n")));
-  }
-
-  return cues;
-}
-
-function parseHms(str) {
-  let p = str.split(":"),
-    s = 0, m = 1;
-
-  while (p.length > 0) {
-    s += m * parseFloat(p.pop(), 10);
-    m *= 60;
-  }
-
-  return s;
 }
 
 export default VideoSubtitles;

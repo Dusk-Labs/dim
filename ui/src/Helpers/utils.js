@@ -23,3 +23,36 @@ export const calcNewSize = (
     return Math.round(newHeight * ratio);
   }
 };
+
+const parseHMS = (str) => {
+  const p = str.split(":");
+
+  let s = 0;
+  let m = 1;
+
+  while (p.length > 0) {
+    s += m * parseFloat(p.pop(), 10);
+    m *= 60;
+  }
+
+  return s;
+};
+
+export const parseVtt = (text) => {
+  const cues = [];
+  const segs = text.split("\n\n").filter(seg => seg);
+
+  if (segs[0] === "WEBVTT") {
+    segs.shift();
+  }
+
+  for (let raw_seg of segs) {
+    const seg = raw_seg.split("\n").filter((x) => x.length !== 0);
+    const [sts, ets] = seg[0].split(" --> ").map((x) => parseHMS(x));
+
+    seg.shift();
+    cues.push(new VTTCue(sts, ets, seg.join(" \n")));
+  }
+
+  return cues;
+};
