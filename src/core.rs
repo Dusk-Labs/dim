@@ -305,6 +305,4 @@ pub async fn launch(
     if let Err(e) = error {
         panic!("Launch error: {}", e);
     }
-
-    println!("Good bye ;3");
 }
