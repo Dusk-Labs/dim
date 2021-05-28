@@ -88,6 +88,7 @@ function VideoSubtitles() {
         clearInterval(intervalID);
         setPrevSubs(currentSubtitleTrack);
       } else {
+        console.log(`Gonna try again ${text.length}`);
         prev = text;
       }
 
