@@ -30,7 +30,8 @@
     once_cell,
     type_ascription,
     result_into_ok_or_err,
-    stmt_expr_attributes
+    stmt_expr_attributes,
+    with_options
 )]
 // #![forbid(missing_docs)]
 #![cfg_attr(debug_assertions, allow(unused_variables, unused_imports, dead_code))]
@@ -99,8 +100,13 @@ mod tests;
 /// Websocket related logic.
 pub mod websocket;
 
+pub use routes::settings::get_global_settings;
+pub use routes::settings::init_global_settings;
+pub use routes::settings::set_global_settings;
+pub use routes::settings::GlobalSettings;
+
 /// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.
-pub fn build_logger() -> slog::Logger {
+pub fn build_logger(debug: bool) -> slog::Logger {
     let date_now = Utc::now();
 
     let decorator = TermDecorator::new().build();
@@ -109,11 +115,14 @@ pub fn build_logger() -> slog::Logger {
         .build()
         .fuse();
 
-    let drain = Async::new(drain)
-        .chan_size(2048)
-        .overflow_strategy(slog_async::OverflowStrategy::Block)
-        .build()
-        .fuse();
+    let drain = slog::Filter::new(
+        Async::new(drain)
+            .chan_size(2048)
+            .overflow_strategy(slog_async::OverflowStrategy::Block)
+            .build()
+            .fuse(),
+        move |r| debug || !matches!(r.level(), slog::Level::Trace | slog::Level::Debug),
+    );
 
     let _ = create_dir_all("logs");
 
@@ -128,6 +137,8 @@ pub fn build_logger() -> slog::Logger {
     }
 
     let json_drain = Async::new(slog_json_default::default(file).fuse())
+        .chan_size(2048)
+        .overflow_strategy(slog_async::OverflowStrategy::Block)
         .build()
         .fuse();
 

@@ -24,58 +24,28 @@ fn main() {
         .about("Dim, a media manager fueled by dark forces.")
         .author(clap::crate_authors!())
         .arg(
-            Arg::with_name("debug")
-                .short("d")
-                .long("debug")
-                .help("Enable debug mode? Print all logs to stdout"),
-        )
-        .arg(
-            Arg::with_name("port")
-                .short("p")
-                .long("port")
-                .help("Specify the port to use for the HTTP/S service"),
-        )
-        .arg(
-            Arg::with_name("priv-key")
+            Arg::with_name("config")
+                .long("config")
+                .short("c")
                 .takes_value(true)
-                .long("priv-key")
-                .help("Path to the private key to use with the ssl module"),
-        )
-        .arg(
-            Arg::with_name("ssl-cert")
-                .takes_value(true)
-                .long("ssl-cert")
-                .help("Path to the SSL certificate we want to use"),
-        )
-        .arg(
-            Arg::with_name("cache-dir")
-                .takes_value(true)
-                .long("cache-dir")
-                .default_value("/tmp/streaming_cache")
-                .help("Path where all transcoder data is kept"),
-        )
-        .arg(
-            Arg::with_name("metadata-dir")
-                .takes_value(true)
-                .long("metadata-dir")
-                .default_value("./metadata")
-                .help("Path where all metadata is kept, such as posters and backdrops"),
-        )
-        .arg(
-            Arg::with_name("no-scanners")
-                .long("no-scan")
-                .help("Disable the library scanners on boot"),
+                .help("Path to the dim configuration file. (default: `./config.json`)"),
         );
 
     let matches = matches.get_matches();
-    let logger = build_logger();
+
+    // initialize global settings.
+    dim::init_global_settings(matches.value_of("config").map(ToString::to_string))
+        .expect("Failed to initialize global settings.");
+
+    let global_settings = dim::get_global_settings();
+
+    let logger = build_logger(global_settings.verbose);
 
     // never panics because we set a default value to metadata_dir
-    let meta_dir = matches.value_of("metadata-dir").unwrap();
-    let _ = create_dir_all(meta_dir);
+    let _ = create_dir_all(&global_settings.metadata_dir);
 
     core::METADATA_PATH
-        .set(meta_dir.to_owned())
+        .set(global_settings.metadata_dir.clone())
         .expect("Failed to set METADATA_PATH");
 
     {
@@ -105,7 +75,7 @@ fn main() {
 
             let stream_manager = nightfall::StateManager::new(
                 &mut Tokio::Global,
-                matches.value_of("cache-dir").unwrap().to_string(),
+                global_settings.cache_dir.clone(),
                 crate::streaming::FFMPEG_BIN.to_string(),
                 logger.clone(),
             );
@@ -123,15 +93,15 @@ fn main() {
                 }
             });
 
-            if !matches.is_present("no-scanners") {
+            if !global_settings.quiet_boot {
                 info!(logger, "Transposing scanners from the netherworld...");
                 core::run_scanners(logger.clone(), event_tx.clone()).await;
             }
 
-            let key = matches.value_of("priv-key").map(ToString::to_string);
-            let tls = matches
-                .value_of("ssl-cert")
-                .map(ToString::to_string)
+            let key = global_settings.priv_key.clone();
+            let tls = global_settings
+                .ssl_cert
+                .clone()
                 .and_then(|x| Some(TlsConfig::from_paths(x, key?)));
 
             if tls.is_some() {
@@ -144,7 +114,7 @@ fn main() {
                 tls,
                 address: [0, 0, 0, 0].into(),
                 port: 8000,
-                log_level: LogLevel::Normal,
+                log_level: LogLevel::Debug,
                 ..Default::default()
             };
 

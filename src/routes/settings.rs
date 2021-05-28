@@ -19,18 +19,20 @@ use std::fs::File;
 use std::io::Read;
 use std::lazy::SyncOnceCell;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct GlobalSettings {
-    enable_ssl: bool,
-    port: u32,
-    priv_key: Option<String>,
-    ssl_cert: Option<String>,
+    pub enable_ssl: bool,
+    pub port: u32,
+    pub priv_key: Option<String>,
+    pub ssl_cert: Option<String>,
 
-    cache_dir: String,
-    metadata_dir: String,
-    quiet_boot: bool,
+    pub cache_dir: String,
+    pub metadata_dir: String,
+    pub quiet_boot: bool,
 
-    disable_auth: bool,
+    pub disable_auth: bool,
+
+    pub verbose: bool,
 }
 
 impl Default for GlobalSettings {
@@ -52,6 +54,7 @@ impl Default for GlobalSettings {
             metadata_dir: "./metadata".into(),
             quiet_boot: false,
             disable_auth: false,
+            verbose: false,
         }
     }
 }
@@ -59,17 +62,27 @@ impl Default for GlobalSettings {
 static GLOBAL_SETTINGS: SyncOnceCell<GlobalSettings> = SyncOnceCell::new();
 static SETTINGS_PATH: SyncOnceCell<String> = SyncOnceCell::new();
 
-pub fn get_global_settings() -> Option<&'static GlobalSettings> {
-    GLOBAL_SETTINGS.get()
+pub fn get_global_settings() -> &'static GlobalSettings {
+    if let Some(x) = GLOBAL_SETTINGS.get() {
+        return x;
+    }
+
+    unreachable!("Global settings not initialized.");
 }
 
 pub fn init_global_settings(path: Option<String>) -> Result<(), Box<dyn Error>> {
     let path = path.unwrap_or("./config.json".into());
     let _ = SETTINGS_PATH.set(path.clone());
     let mut content = String::new();
-    File::open(path)?.read_to_string(&mut content)?;
+    File::with_options()
+        .write(true)
+        .create(true)
+        .read(true)
+        .open(path)?
+        .read_to_string(&mut content)?;
 
-    let _ = GLOBAL_SETTINGS.set(serde_json::from_str(&content)?);
+    let _ = GLOBAL_SETTINGS.set(serde_json::from_str(&content).unwrap_or_default());
+    set_global_settings(get_global_settings().clone());
 
     Ok(())
 }
@@ -86,7 +99,7 @@ pub fn set_global_settings(settings: GlobalSettings) -> Result<(), Box<dyn Error
     Ok(())
 }
 
-#[get("/settings")]
+#[get("/user/settings")]
 pub async fn get_user_settings(
     db: State<'_, DbConnection>,
     user: Auth,
@@ -98,7 +111,7 @@ pub async fn get_user_settings(
     ))
 }
 
-#[post("/settings", format = "json", data = "<new_settings>")]
+#[post("/user/settings", format = "json", data = "<new_settings>")]
 pub async fn post_user_settings(
     db: State<'_, DbConnection>,
     user: Auth,
@@ -114,18 +127,18 @@ pub async fn post_user_settings(
     Ok(new_settings)
 }
 
-#[get("/settings")]
+#[get("/host/settings")]
 pub async fn http_get_global_settings(
     user: Auth,
-) -> Result<Json<Option<&'static GlobalSettings>>, errors::DimError> {
+) -> Result<Json<&'static GlobalSettings>, errors::DimError> {
     Ok(Json(get_global_settings()))
 }
 
-#[post("/settings", format = "json", data = "<new_settings>")]
+#[post("/host/settings", format = "json", data = "<new_settings>")]
 pub async fn http_set_global_settings(
     user: Auth,
     new_settings: Json<GlobalSettings>,
-) -> Result<Json<Option<&'static GlobalSettings>>, errors::DimError> {
+) -> Result<Json<&'static GlobalSettings>, errors::DimError> {
     if user.0.claims.has_role("owner") {
         let _ = set_global_settings(new_settings.into_inner());
         return Ok(Json(get_global_settings()));

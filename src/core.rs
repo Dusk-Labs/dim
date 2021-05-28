@@ -204,6 +204,10 @@ pub async fn rocket_pad(
                 routes::general::get_directory_structure,
                 routes::general::get_root_directory_structure,
                 routes::general::search,
+                routes::settings::http_get_global_settings,
+                routes::settings::http_set_global_settings,
+                routes::settings::post_user_settings,
+                routes::settings::get_user_settings,
             ],
         )
         .mount(
@@ -262,7 +266,7 @@ pub async fn rocket_pad(
             ],
         )
         .mount(
-            "api/v1/auth",
+            "/api/v1/auth",
             routes![
                 routes::auth::login,
                 routes::auth::register,
@@ -270,20 +274,6 @@ pub async fn rocket_pad(
                 routes::auth::admin_exists,
                 routes::auth::get_all_invites,
                 routes::auth::generate_invite
-            ],
-        )
-        .mount(
-            "/api/v1/user",
-            routes![
-                routes::settings::get_user_settings,
-                routes::settings::post_user_settings,
-            ],
-        )
-        .mount(
-            "/api/v1/host",
-            routes![
-                routes::settings::http_get_global_settings,
-                routes::settings::http_set_global_settings,
             ],
         )
         .manage(logger)
@@ -317,6 +307,6 @@ pub async fn launch(
         .await;
 
     if let Err(e) = error {
-        panic!("Launch error: {}", e);
-    }
+        panic!("{}", e);
+    };
 }

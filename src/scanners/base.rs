@@ -123,7 +123,14 @@ impl MetadataExtractor {
         // `Metadata::from` directly.
         let meta_from_string =
             move || Metadata::from(&clone).map_err(|_| ScannerError::FilenameParserError);
-        let metadata = spawn_blocking(meta_from_string).await.unwrap()?;
+
+        let metadata = match spawn_blocking(meta_from_string).await {
+            Ok(x) => x?,
+            Err(e) => {
+                error!(self.logger, "Metadata::from possibly panic'd"; "e" => e.to_string());
+                return Err(ScannerError::UnknownError);
+            }
+        };
 
         let ffprobe_data = if let Ok(data) = ctx.get_meta(&file) {
             data
