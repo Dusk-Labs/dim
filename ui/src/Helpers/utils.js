@@ -51,7 +51,11 @@ export const parseVtt = (text) => {
     const [sts, ets] = seg[0].split(" --> ").map((x) => parseHMS(x));
 
     seg.shift();
-    cues.push(new VTTCue(sts, ets, seg.join(" \n")));
+    try {
+      cues.push(new VTTCue(sts, ets, seg.join(" \n")));
+    } catch (e) {
+      console.warn(`failed to parse a cue raw_seg=${raw_seg} sts=${sts} ets=${ets}`);
+    }
   }
 
   return cues;
