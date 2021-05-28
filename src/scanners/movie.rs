@@ -81,7 +81,6 @@ impl<'a> MovieMatcher<'a> {
         };
 
         if let Err(e) = self.insert(orphan, media, result).await {
-            println!("{:?}", e);
             warn!(
                 self.log,
                 "Failed to insert new media";

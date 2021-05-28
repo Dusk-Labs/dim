@@ -20,7 +20,8 @@ sqlite = ["database/sqlite", "diesel/sqlite", "rocket_contrib/diesel_sqlite_pool
 # Currently pointing to master of rocket so we can get async/await
 rocket = { git = "https://github.com/SergioBenitez/Rocket", rev = "801e04b", default-features = false, features = ["tls"] }
 rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket", rev = "801e04b", default-features = false }
-rocket_contrib = { git = "https://github.com/SergioBenitez/Rocket", rev = "801e04b", default-features = false, optional = true, features = ["json", "helmet"] }
+
+rocket_contrib = { git = "https://github.com/SergioBenitez/Rocket", rev = "801e04b", default-features = false, optional = true, features = ["json", "helmet", "uuid"] }
 # point to fork of tokio-diesel and rocket_cors which point to git for rocket.
 tokio-diesel = { git = "https://github.com/vgarleanu/tokio-diesel" }
 rocket_cors = { git = "https://github.com/vgarleanu/rocket_cors" }
@@ -28,14 +29,14 @@ rocket_cors = { git = "https://github.com/vgarleanu/rocket_cors" }
 # needs upsert support for sqlite which isnt released yet.
 diesel = { version = "1.4.6", default-features = false, optional = true }
 
-serde = { version = "1.0.115", default-features = false, features = ["derive", "std"] }
-serde_derive = "1.0.115"
-serde_json = "1.0.48"
+serde = { version = "^1.0.125", default-features = false, features = ["derive", "std"] }
+serde_derive = "^1.0.125"
+serde_json = "^1.0.64"
 
 database = { path = "./src/database", default-features = false, optional = true }
 events = { path = "./src/events" }
 auth = { path = "./src/auth" }
-nightfall = "0.1.0"
+nightfall = "0.1.6"
 
 lazy_static = "1.4.0"
 walkdir = "2.3.1"

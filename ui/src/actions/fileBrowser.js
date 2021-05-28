@@ -12,7 +12,7 @@ export const fetchDirectories = (path) => async (dispatch, getState) => {
   try {
     const config = {
       headers: {
-        "authorization": token,
+        "authorization": token
       }
     };
 

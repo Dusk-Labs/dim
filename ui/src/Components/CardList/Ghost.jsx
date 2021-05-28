@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 function GhostCards() {
   const sectionRef = useRef(null);
 
-  const [ count, setCount ] = useState(0);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     if (!sectionRef.current) return;

@@ -13,8 +13,8 @@ function Media() {
 
   const episodes = useRef(null);
 
-  const [ scrollSmoothly, setScrollSmoothly ] = useState(false);
-  const [ season, setSeason ] = useState();
+  const [scrollSmoothly, setScrollSmoothly] = useState(false);
+  const [season, setSeason] = useState();
 
   useEffect(() => {
     if (!scrollSmoothly) return;

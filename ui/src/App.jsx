@@ -57,34 +57,31 @@ const routes = (
 );
 
 function App() {
-  const handleMQL = (e) => {
-    const darkLogo = document.getElementById("logo-dark");
-    const lightLogo = document.getElementById("logo-light");
+  /*
+    true: white logo (dark mode)
+    false: black logo (light mode)
+  */
+  const updateLogo = (color) => {
+    const favicon = document.getElementById("favicon");
+    const textFavicon = document.getElementById("textFavicon");
 
-    if (e.matches) {
-      lightLogo.remove();
-      document.head.append(darkLogo);
+    if (color) {
+      favicon.href = "/logoWhite128.png";
+      textFavicon.href = "/textLogoWhite128.png";
     } else {
-      darkLogo.remove();
-      document.head.append(lightLogo);
+      favicon.href = "/logoBlack128.png";
+      textFavicon.href = "/textLogoBlack128.png";
     }
   };
 
   useEffect(() => {
-    const darkLogo = document.getElementById("logo-dark");
-    const lightLogo = document.getElementById("logo-light");
-
     const mql = matchMedia("(prefers-color-scheme: dark)");
+    updateLogo(mql.matches);
 
-    if (mql.matches && lightLogo) {
-      lightLogo.remove();
-      document.head.append(darkLogo);
-    }
-
-    mql.addEventListener("change", handleMQL);
+    mql.addEventListener("change", (e) => updateLogo(e.matches));
 
     return () => {
-      mql.removeEventListener("change", handleMQL);
+      mql.removeEventListener("change", (e) => updateLogo(e.matches));
     };
   }, []);
 

@@ -27,7 +27,7 @@ export const fetchCards = (path, reset = true) => async (dispatch, getState) => 
   try {
     const config = {
       headers: {
-        "authorization": token,
+        "authorization": token
       }
     };
 

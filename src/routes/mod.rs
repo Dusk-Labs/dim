@@ -38,7 +38,7 @@ pub async fn get_top_duration(conn: &DbConnection, data: &Media) -> Result<i32, 
 
             match last {
                 None => Ok(0),
-                Some(file) => Ok(file.duration?),
+                Some(file) => file.duration.ok_or(errors::DimError::NoneError),
             }
         }
         Err(_) => Ok(0),
@@ -59,7 +59,7 @@ pub async fn get_episode(conn: &DbConnection, data: &Season) -> Result<Episode, 
     let mut episodes = Episode::get_all_of_season(conn, data).await?;
     episodes.sort_by(|b, a| a.episode.cmp(&b.episode));
 
-    Ok(episodes.pop()?)
+    episodes.pop().ok_or(errors::DimError::NoneError)
 }
 
 pub async fn construct_standard_quick(data: &Media) -> Result<JsonValue, errors::DimError> {

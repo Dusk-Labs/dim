@@ -216,6 +216,7 @@ pub async fn rocket_pad(
                 routes::stream::should_client_hard_seek,
                 routes::stream::session_get_stderr,
                 routes::stream::kill_session,
+                routes::stream::return_virtual_manifest,
             ],
         )
         .mount(
@@ -318,6 +319,4 @@ pub async fn launch(
     if let Err(e) = error {
         panic!("Launch error: {}", e);
     }
-
-    println!("Good bye ;3");
 }
