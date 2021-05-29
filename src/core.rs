@@ -37,6 +37,8 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
 
+use self::fetcher::PosterType;
+
 pub type StateManager = nightfall::StateManager;
 pub type DbConnection = database::DbConnection;
 pub type EventTx = UnboundedSender<String>;
@@ -65,7 +67,8 @@ pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
 // NOTE: While the sender is wrapped in a Mutex, we dont really care as wel copy the inner type at
 // some point anyway.
 /// Contains the tx channel over which we can send images to be cached locally.
-pub static METADATA_FETCHER_TX: OnceCell<CloneOnDeref<UnboundedSender<String>>> = OnceCell::new();
+pub static METADATA_FETCHER_TX: OnceCell<CloneOnDeref<UnboundedSender<PosterType>>> =
+    OnceCell::new();
 
 /// Function dumps a list of all libraries in the database and starts a scanner for each which
 /// monitors for new files using fsnotify. It also scans all orphans on boot.
@@ -103,38 +106,101 @@ pub async fn run_scanners(log: Logger, tx: EventTx) {
     }
 }
 
-pub async fn tmdb_poster_fetcher(log: Logger) {
-    let (tx, mut rx): (UnboundedSender<String>, UnboundedReceiver<String>) = unbounded_channel();
+pub mod fetcher {
+    use std::{
+        cmp::Ordering,
+        collections::{BTreeMap, BTreeSet},
+        time::Duration,
+    };
 
-    tokio::spawn(async move {
-        while let Some(url) = rx.recv().await {
-            match reqwest::get(url.as_str()).await {
-                Ok(resp) => {
-                    if let Some(fname) = resp.url().path_segments().and_then(|segs| segs.last()) {
-                        let meta_path = METADATA_PATH.get().unwrap();
-                        let mut out_path = PathBuf::from(meta_path);
-                        out_path.push(fname);
+    use tokio::{select, time::Interval};
 
-                        debug!(log, "Caching {} -> {:?}", url, out_path);
+    use super::*;
 
-                        if let Ok(mut file) = File::create(out_path) {
-                            if let Ok(bytes) = resp.bytes().await {
-                                let mut content = Cursor::new(bytes);
-                                if let Err(e) = copy(&mut content, &mut file) {
-                                    error!(log, "Failed to cache {} locally, e={:?}", url, e);
+    #[derive(Debug, Clone, PartialEq, PartialOrd, Eq)]
+    pub enum PosterType {
+        Banner(String),
+        Season(String),
+        Episode(String),
+    }
+
+    impl Ord for PosterType {
+        fn cmp(&self, other: &Self) -> Ordering {
+            match (self, other) {
+                (PosterType::Banner(_), PosterType::Banner(_)) => Ordering::Equal,
+                (PosterType::Banner(_), PosterType::Season(_)) => Ordering::Greater,
+                (PosterType::Banner(_), PosterType::Episode(_)) => Ordering::Greater,
+                (PosterType::Season(_), PosterType::Banner(_)) => Ordering::Less,
+                (PosterType::Season(_), PosterType::Season(_)) => Ordering::Equal,
+                (PosterType::Season(_), PosterType::Episode(_)) => Ordering::Greater,
+                (PosterType::Episode(_), PosterType::Banner(_)) => Ordering::Less,
+                (PosterType::Episode(_), PosterType::Season(_)) => Ordering::Less,
+                (PosterType::Episode(_), PosterType::Episode(_)) => Ordering::Equal,
+            }
+        }
+    }
+
+    impl From<PosterType> for String {
+        fn from(poster: PosterType) -> Self {
+            match poster {
+                PosterType::Banner(st) | PosterType::Season(st) | PosterType::Episode(st) => st,
+            }
+        }
+    }
+
+    pub async fn tmdb_poster_fetcher(log: Logger) {
+        let (tx, mut rx): (UnboundedSender<PosterType>, UnboundedReceiver<PosterType>) =
+            unbounded_channel();
+
+        let fut = async move {
+            let mut processing = BTreeSet::<PosterType>::new();
+
+            let mut timer = tokio::time::interval(Duration::from_millis(5));
+
+            loop {
+                tokio::select! {
+                _ = timer.tick() => {
+                    while let Some(poster) = processing.pop_last() {
+                        let url: String = poster.clone().into();
+
+                        match reqwest::get(url.as_str()).await {
+                            Ok(resp) => {
+                                if let Some(fname) = resp.url().path_segments().and_then(|segs| segs.last()) {
+                                    let meta_path = METADATA_PATH.get().unwrap();
+                                    let mut out_path = PathBuf::from(meta_path);
+                                    out_path.push(fname);
+
+                                    debug!(log, "Caching {} -> {:?}", url, out_path);
+
+                                    if let Ok(mut file) = File::create(out_path) {
+                                        if let Ok(bytes) = resp.bytes().await {
+                                            let mut content = Cursor::new(bytes);
+                                            if let Err(e) = copy(&mut content, &mut file) {
+                                                error!(log, "Failed to cache {} locally, e={:?}", url, e);
+                                            }
+                                        }
+                                    }
                                 }
                             }
+                            Err(e) => {
+                                error!(log, "Failed to cache {} locally, e={:?}", url, e);
+                                processing.insert(poster);
+                            },
                         }
                     }
                 }
-                Err(e) => error!(log, "Failed to cache {} locally, e={:?}", url, e),
-            }
-        }
-    });
 
-    METADATA_FETCHER_TX
-        .set(CloneOnDeref::new(tx))
-        .expect("Failed to set METADATA_FETCHER_TX");
+                Some(poster) = rx.recv() => { processing.insert(poster); }
+                }
+            }
+        };
+
+        tokio::spawn(fut);
+
+        METADATA_FETCHER_TX
+            .set(CloneOnDeref::new(tx))
+            .expect("Failed to set METADATA_FETCHER_TX");
+    }
 }
 
 /// Function spins up a new Websocket server which we use to dispatch events over to clients

@@ -98,7 +98,7 @@ fn main() {
     tokio::runtime::Runtime::new()
         .expect("Failed to create a tokio runtime.")
         .block_on(async move {
-            core::tmdb_poster_fetcher(logger.clone()).await;
+            core::fetcher::tmdb_poster_fetcher(logger.clone()).await;
 
             info!(logger, "Starting the WS service on port 3012");
             let event_tx = core::start_event_server().await;

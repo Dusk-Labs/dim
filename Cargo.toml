@@ -81,6 +81,9 @@ tar = "0.4.32"
 [target.'cfg(windows)'.dependencies]
 zip = "0.5.10"
 
+[profile.dev]
+codegen-units = 8
+
 [profile.release]
 lto = true
 opt-level = 'z'
