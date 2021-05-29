@@ -4,7 +4,8 @@ import {
   SET_TRACKS,
   SET_SHOW_SUB_SWITCHER,
   UPDATE_TRACK,
-  UPDATE_VIDEO
+  UPDATE_VIDEO,
+  CLEAR_VIDEO_DATA
 } from "./types.js";
 
 export const setGID = (gid) => async (dispatch) => {
@@ -61,4 +62,8 @@ export const incIdleCount = () => async (dispatch, getState) => {
       idleCount: state + 1
     }
   });
+};
+
+export const clearVideoData = () => async (dispatch) => {
+  dispatch({ type: CLEAR_VIDEO_DATA });
 };

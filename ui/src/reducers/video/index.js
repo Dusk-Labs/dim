@@ -4,7 +4,8 @@ import {
   SET_TRACKS,
   SET_SHOW_SUB_SWITCHER,
   UPDATE_TRACK,
-  UPDATE_VIDEO
+  UPDATE_VIDEO,
+  CLEAR_VIDEO_DATA
 } from "../../actions/types.js";
 
 import trackReducer from "./track";
@@ -100,6 +101,8 @@ export default function videoReducer(state = initialState, action) {
           ...action.state
         }
       };
+    case CLEAR_VIDEO_DATA:
+      return initialState;
     default:
       return state;
   }

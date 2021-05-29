@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { MediaPlayer } from "dashjs";
 
-import { setTracks, setGID, setManifestState, updateVideo, incIdleCount } from "../../actions/video";
+import { setTracks, setGID, setManifestState, updateVideo, incIdleCount, clearVideoData } from "../../actions/video";
 import { VideoPlayerContext } from "./Context";
 import VideoEvents from "./Events";
 import VideoMediaData from "./MediaData";
@@ -130,6 +130,7 @@ function VideoPlayer() {
     }));
 
     return () => {
+      dispatch(clearVideoData());
       mediaPlayer.destroy();
 
       if (!video.gid) return;
