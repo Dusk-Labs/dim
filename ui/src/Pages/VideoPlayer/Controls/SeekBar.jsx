@@ -1,17 +1,21 @@
-import { useCallback, useContext, useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useCallback, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import { VideoPlayerContext } from "../Context";
 import SeekingTo from "./SeekingTo";
 
 import "./SeekBar.scss";
+import { updateVideo } from "../../../actions/video";
 
 function VideoSeekBar(props) {
-  const auth = useSelector(store => store.auth);
+  const dispatch = useDispatch();
+
+  const { auth, video, player } = useSelector(store => ({
+    auth: store.auth,
+    video: store.video,
+    player: store.video.player
+  }));
 
   const seekBar = useRef(null);
-
-  const { episode, mediaID, seeking, setSeeking, player, duration, currentTime, buffer } = useContext(VideoPlayerContext);
 
   const seekBarCurrent = useRef(null);
   const bufferBar = useRef(null);
@@ -21,7 +25,7 @@ function VideoSeekBar(props) {
 
   // save progress every 15 seconds
   useEffect(() => {
-    if (currentTime % 15 !== 0 || currentTime === 0) return;
+    if (video.currentTime % 15 !== 0 || video.currentTime === 0) return;
 
     (async () => {
       const config = {
@@ -31,28 +35,30 @@ function VideoSeekBar(props) {
         }
       };
 
-      console.log("saving progress");
+      console.log("[VIDEO] saving progress at", video.currentTime);
 
-      await fetch(`/api/v1/media/${episode?.id || mediaID}/progress?offset=${currentTime}`, config);
+      await fetch(`/api/v1/media/${video.episode?.id || video.mediaID}/progress?offset=${video.currentTime}`, config);
     })();
-  }, [currentTime, episode?.id, mediaID, token]);
+  }, [video.currentTime, token, video.episode?.id, video.mediaID]);
 
   // current time
   useEffect(() => {
-    const position = (currentTime / duration) * 100;
+    const position = (video.currentTime / video.duration) * 100;
     seekBarCurrent.current.style.width = `${position}%`;
-  }, [currentTime, duration]);
+  }, [video.currentTime, video.duration]);
 
   // buffer
   useEffect(() => {
-    const position = ((currentTime + buffer) / duration) * 100;
+    const position = ((video.currentTime + video.buffer) / video.duration) * 100;
     bufferBar.current.style.width = `${position}%`;
-  }, [buffer, currentTime, duration]);
+  }, [video.currentTime, video.duration, video.buffer]);
 
   const onSeek = useCallback(async (e) => {
-    if (seeking) return;
+    if (video.seeking) return;
 
-    setSeeking(true);
+    dispatch(updateVideo({
+      seeking: true
+    }));
 
     const rect = e.target.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
@@ -60,7 +66,7 @@ function VideoSeekBar(props) {
     const newTime = Math.floor(percent * videoDuration);
 
     seekTo(newTime);
-  }, [player, seekTo, seeking, setSeeking]);
+  }, [dispatch, player, seekTo, video.seeking]);
 
   return (
     <div className="seekBarContainer">

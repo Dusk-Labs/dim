@@ -1,48 +1,57 @@
-import { useCallback, useContext, useEffect } from "react";
-import { VideoPlayerContext } from "./Context";
+import { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { MediaPlayer } from "dashjs";
 
+import { setManifestState, updateVideo } from "../../actions/video";
+
 function VideoEvents() {
-  const {
-    player,
-    GID,
-    setManifestLoading,
-    setManifestLoaded,
-    setCanPlay,
-    setWaiting,
-    setError,
-    setPaused,
-    setBuffer,
-    setCurrentTime,
-    setDuration
-  } = useContext(VideoPlayerContext);
+  const dispatch = useDispatch();
+
+  const { video, player } = useSelector(store => ({
+    video: store.video,
+    player: store.video.player
+  }));
 
   const eManifestLoad = useCallback(() => {
     console.log("[VIDEO] manifest loaded");
-    setManifestLoading(false);
-    setManifestLoaded(true);
-  }, [setManifestLoaded, setManifestLoading]);
+
+    dispatch(setManifestState({
+      loading: false,
+      loaded: true
+    }));
+  }, [dispatch]);
 
   const eCanPlay = useCallback(() => {
     console.log("[VIDEO] can play");
-    setDuration(Math.round(player.duration()) | 0);
-    setCanPlay(true);
-    setWaiting(false);
-  }, [player, setCanPlay, setDuration, setWaiting]);
+
+    dispatch(updateVideo({
+      canPlay: true,
+      waiting: false,
+      duration: Math.round(player.duration()) | 0
+    }));
+  }, [dispatch, player]);
 
   const ePlayBackPaused = useCallback(() => {
     console.log("[VIDEO] paused");
-    setPaused(true);
-  }, [setPaused]);
+
+    dispatch(updateVideo({
+      paused: true
+    }));
+  }, [dispatch]);
 
   const ePlayBackPlaying = useCallback(() => {
-    setPaused(false);
-  }, [setPaused]);
+    dispatch(updateVideo({
+      paused: false
+    }));
+  }, [dispatch]);
 
   const ePlayBackWaiting = useCallback(() => {
     console.log("[VIDEO] playback waiting");
-    setWaiting(true);
-  }, [setWaiting]);
+
+    dispatch(updateVideo({
+      waiting: true
+    }));
+  }, [dispatch]);
 
   const ePlayBackEnded = useCallback(e => {
     console.log("[VIDEO] playback ended", e);
@@ -57,32 +66,38 @@ function VideoEvents() {
 
     (async () => {
       console.log("[VIDEO] fetching stderr");
-      const res = await fetch(`/api/v1/stream/${GID}/state/get_stderr`);
+      const res = await fetch(`/api/v1/stream/${video.gid}/state/get_stderr`);
       const error = await res.json();
 
-      setError({
-        msg: e.error.message,
-        errors: error.errors
-      });
+      dispatch(updateVideo({
+        error: {
+          msg: e.error.message,
+          errors: error.errors
+        }
+      }));
     })();
-  }, [GID, setError]);
+  }, [dispatch, video.gid]);
 
   const ePlayBackNotAllowed = useCallback(e => {
     console.log("[VIDEO] playback not allowed");
 
     if (e.type === "playbackNotAllowed") {
-      setPaused(true);
+      dispatch(updateVideo({
+        paused: true
+      }));
     }
-  }, [setPaused]);
+  }, [dispatch]);
 
+  /*
+    PLAYBACK_PROGRESS event stops after error occurs
+    so using this event from now on to get buffer length
+  */
   const ePlayBackTimeUpdated = useCallback(e => {
-    setCurrentTime(Math.floor(e.time));
-    /*
-      PLAYBACK_PROGRESS event stops after error occurs
-      so using this event from now on to get buffer length
-    */
-    setBuffer(Math.round(player.getBufferLength()));
-  }, [player, setBuffer, setCurrentTime]);
+    dispatch(updateVideo({
+      currentTime: Math.floor(e.time),
+      buffer: Math.round(player.getBufferLength())
+    }));
+  }, [dispatch, player]);
 
   // other events
   useEffect(() => {

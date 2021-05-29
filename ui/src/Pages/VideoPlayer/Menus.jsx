@@ -1,42 +1,65 @@
 import { useCallback, useEffect, useRef } from "react";
-import { useContext } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import { VideoPlayerContext } from "./Context";
+import { updateTrack, updateVideo } from "../../actions/video";
 
 function VideoMenus() {
-  const { idleCount, setSubReady, setTextTrackEnabled, setShowSubSelection, currentSubtitleTrack, subtitleTracks, setCurrentSubtitleTrack } = useContext(VideoPlayerContext);
+  const dispatch = useDispatch();
+
+  const { video, subtitleTracks } = useSelector(store => ({
+    video: store.video,
+    subtitleTracks: store.video.tracks.subtitle
+  }));
 
   const menuRef = useRef(null);
 
   const changeTrack = useCallback((i) => {
-    console.log(currentSubtitleTrack, i);
-    if (currentSubtitleTrack === i) return;
-    setSubReady(false);
-    setCurrentSubtitleTrack(i);
-    setTextTrackEnabled(true);
-    setShowSubSelection(false);
-  }, [currentSubtitleTrack, setCurrentSubtitleTrack, setShowSubSelection, setSubReady, setTextTrackEnabled]);
+    console.log(subtitleTracks.current, i);
+
+    if (subtitleTracks.current === i) return;
+
+    dispatch(updateTrack("subtitle", {
+      current: i,
+      ready: false
+    }));
+
+    dispatch(updateVideo({
+      textTrackEnabled: true,
+      showSubSwitcher: false
+    }));
+  }, [dispatch, subtitleTracks]);
 
   const turnOffSubs = useCallback(() => {
-    if (currentSubtitleTrack === -1) return;
+    if (subtitleTracks.current === -1) return;
     console.log("[Subtitles] turning off subs");
-    setTextTrackEnabled(false);
-    setCurrentSubtitleTrack(-1);
-  }, [currentSubtitleTrack, setCurrentSubtitleTrack, setTextTrackEnabled]);
+
+    dispatch(updateVideo({
+      textTrackEnabled: false
+    }));
+
+    dispatch(updateTrack("subtitle", {
+      current: -1,
+      ready: false
+    }));
+  }, [dispatch, subtitleTracks]);
 
   const handleClick = useCallback((e) => {
-    if (!menuRef.current) return;
+    if (!menuRef.current || e.target.nodeName !== "DIV") return;
 
     if (!menuRef.current.contains(e.target)) {
-      setShowSubSelection(false);
+      dispatch(updateVideo({
+        showSubSwitcher: false
+      }));
     }
-  }, [setShowSubSelection]);
+  }, [dispatch]);
 
   useEffect(() => {
-    if (idleCount >= 2) {
-      setShowSubSelection(false);
+    if (video.idleCount >= 2) {
+      dispatch(updateVideo({
+        showSubSwitcher: false
+      }));
     }
-  }, [idleCount, setShowSubSelection]);
+  }, [video.idleCount, dispatch]);
 
   useEffect(() => {
     window.addEventListener("click", handleClick);
@@ -52,11 +75,11 @@ function VideoMenus() {
         <h3>Select subtitle</h3>
         <div className="separator"/>
         <div className="tracks">
-          <div className={`track ${currentSubtitleTrack === -1 ? "active" : ""}`} onClick={turnOffSubs}>
+          <div className={`track ${subtitleTracks.current === -1 ? "active" : ""}`} onClick={turnOffSubs}>
             <p>Off</p>
           </div>
-          {subtitleTracks.map((track, i) => (
-            <div key={i} className={`track ${currentSubtitleTrack === i ? "active" : ""}`} onClick={() => changeTrack(i)}>
+          {subtitleTracks.list.map((track, i) => (
+            <div key={i} className={`track ${subtitleTracks.current === i ? "active" : ""}`} onClick={() => changeTrack(i)}>
               <p>{track.title || "No title"}</p>
             </div>
           ))}

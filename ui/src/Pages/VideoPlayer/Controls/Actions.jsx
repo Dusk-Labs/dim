@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { VideoPlayerContext } from "../Context";
 
 import PlayIcon from "../../../assets/Icons/Play";
@@ -11,10 +12,19 @@ import VolumeUpIcon from "../../../assets/Icons/VolumeUp";
 import VolumeMuteIcon from "../../../assets/Icons/VolumeMute";
 import CCIcon from "../../../assets/Icons/CC";
 
+import { toggleShowSubSwitcher, updateVideo } from "../../../actions/video";
+
 import "./Actions.scss";
 
 function VideoActions(props) {
-  const { idleCount, setIdleCount, setShowSubSelection, textTrackEnabled, showSubSelection, duration, muted, setMuted, videoPlayer, fullscreen, setFullscreen, currentTime, player, paused } = useContext(VideoPlayerContext);
+  const dispatch = useDispatch();
+
+  const { video, player } = useSelector(store => ({
+    video: store.video,
+    player: store.video.player
+  }));
+
+  const { videoPlayer } = useContext(VideoPlayerContext);
   const { seekTo, setVisible } = props;
 
   const [currentVolume, setCurrentVolume] = useState(100);
@@ -27,54 +37,70 @@ function VideoActions(props) {
   }, [player]);
 
   const play = useCallback(() => {
-    setIdleCount(0);
+    dispatch(updateVideo({
+      idleCount: 0
+    }));
+
     player.play();
-  }, [player, setIdleCount]);
+  }, [dispatch, player]);
 
   const pause = useCallback(() => {
-    setIdleCount(0);
+    dispatch(updateVideo({
+      idleCount: 0
+    }));
+
     player.pause();
-  }, [player, setIdleCount]);
+  }, [dispatch, player]);
 
   const seekForward = useCallback(() => {
-    setIdleCount(0);
+    dispatch(updateVideo({
+      idleCount: 0
+    }));
 
-    if (currentTime + 15 >= duration) {
-      seekTo(duration);
+    if (video.currentTime + 15 >= video.duration) {
+      seekTo(video.duration);
     } else {
-      seekTo(currentTime + 15);
+      seekTo(video.currentTime + 15);
     }
-  }, [currentTime, duration, seekTo, setIdleCount]);
+  }, [dispatch, seekTo, video.currentTime, video.duration]);
 
   const seekBackward = useCallback(() => {
-    setIdleCount(0);
+    dispatch(updateVideo({
+      idleCount: 0
+    }));
 
-    if (currentTime - 15 <= 0) {
+    if (video.currentTime - 15 <= 0) {
       seekTo(0);
     } else {
-      seekTo(currentTime - 15);
+      seekTo(video.currentTime - 15);
     }
-  }, [currentTime, seekTo, setIdleCount]);
+  }, [dispatch, seekTo, video.currentTime]);
 
   const toggleFullscreen = useCallback(async () => {
-    setIdleCount(0);
+    dispatch(updateVideo({
+      idleCount: 0
+    }));
 
     try {
-      if (!fullscreen) {
+      if (!video.fullscreen) {
         await videoPlayer.current.requestFullscreen();
       } else {
         await document.exitFullscreen();
       }
     } catch (e) {}
-  }, [fullscreen, setIdleCount, videoPlayer]);
+  }, [dispatch, video.fullscreen, videoPlayer]);
 
   const handleFullscreenChange = useCallback(() => {
-    setIdleCount(0);
-    setFullscreen(document.fullscreenElement);
-  }, [setFullscreen, setIdleCount]);
+    dispatch(updateVideo({
+      fullscreen: document.fullscreenElement,
+      idleCount: 0
+    }));
+  }, [dispatch]);
 
   const toggleMute = useCallback(() => {
-    setIdleCount(0);
+    dispatch(updateVideo({
+      idleCount: 0
+    }));
 
     if (currentVolume === 0) {
       player.setMute(false);
@@ -86,13 +112,16 @@ function VideoActions(props) {
       const currentMuteState = player.isMuted();
 
       player.setMute(!currentMuteState);
-      setMuted(!currentMuteState);
+
+      dispatch(updateVideo({
+        muted: !currentMuteState
+      }));
     }
-  }, [currentVolume, player, setIdleCount, setMuted]);
+  }, [currentVolume, dispatch, player]);
 
   const toggleSubtitles = useCallback(() => {
-    setShowSubSelection(state => !state);
-  }, [setShowSubSelection]);
+    dispatch(toggleShowSubSwitcher());
+  }, [dispatch]);
 
   const handleKeyDown = useCallback(e => {
     if (e.key === "f") {
@@ -125,20 +154,23 @@ function VideoActions(props) {
   }, [pause, play, player, seekBackward, seekForward, toggleFullscreen, toggleMute, toggleSubtitles]);
 
   useEffect(() => {
-    if (idleCount >= 2) {
+    if (video.idleCount >= 2) {
       setVisible(false);
       document.getElementsByTagName("body")[0].style.cursor = "none";
     } else {
       setVisible(true);
       document.getElementsByTagName("body")[0].style.cursor = "default";
     }
-  }, [idleCount, setVisible]);
+  }, [video.idleCount, setVisible]);
 
   const showPlayer = useCallback(() => {
-    setIdleCount(0);
+    dispatch(updateVideo({
+      idleCount: 0
+    }));
+
     setVisible(true);
     document.getElementsByTagName("body")[0].style.cursor = "default";
-  }, [setIdleCount, setVisible]);
+  }, [dispatch, setVisible]);
 
   useEffect(() => {
     document.addEventListener("mousemove", showPlayer);
@@ -156,8 +188,8 @@ function VideoActions(props) {
     <div className="videoActions">
       <section className="left">
         <button onClick={toggleMute} className="volume">
-          {(!muted && currentVolume > 0) && <VolumeUpIcon/>}
-          {(muted || currentVolume === 0) && <VolumeMuteIcon/>}
+          {(!video.muted && currentVolume > 0) && <VolumeUpIcon/>}
+          {(video.muted || currentVolume === 0) && <VolumeMuteIcon/>}
         </button>
         <input
           className="volumeSlider"
@@ -172,12 +204,12 @@ function VideoActions(props) {
         <button onClick={seekBackward} className="backward">
           <BackwardIcon/>
         </button>
-        {paused && (
+        {video.paused && (
           <button onClick={play} className="playpause">
             <PlayIcon/>
           </button>
         )}
-        {!paused && (
+        {!video.paused && (
           <button onClick={pause} className="playpause">
             <PauseIcon/>
           </button>
@@ -187,12 +219,12 @@ function VideoActions(props) {
         </button>
       </section>
       <section className="right">
-        <button onClick={toggleSubtitles} className={`cc trackActive-${textTrackEnabled} menuActive-${showSubSelection}`}>
+        <button onClick={toggleSubtitles} className={`cc trackActive-${video.textTrackEnabled} menuActive-${video.showSubSwitcher}`}>
           <CCIcon/>
         </button>
         <button onClick={toggleFullscreen} className="fullscreen">
-          {fullscreen && <CompressIcon/>}
-          {!fullscreen && <ExpandIcon/>}
+          {video.fullscreen && <CompressIcon/>}
+          {!video.fullscreen && <ExpandIcon/>}
         </button>
       </section>
     </div>
