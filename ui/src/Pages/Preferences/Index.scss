@@ -1,113 +1,321 @@
 .preferencesPage {
   height: 100%;
-  padding: 30px;
-  display: grid;
-  grid-template-areas: "nav" "content";
-  grid-gap: 30px;
+  padding: 50px 90px;
 
-  .content {
-    h3 {
-      margin-bottom: 1em;
-    }
-
-    p {
-      color: #ddd;
-    }
-  }
-
-  nav {
-    h1 {
-      margin-bottom: 1em;
-    }
-
-    .items {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 1em;
-
-      .item {
-        display: flex;
-        align-items: center;
-        transition: background 100ms ease-in-out;
-        padding: .6em .8em;
-        border-radius: 10px;
-        cursor: pointer;
-        background: #2a2a2a;
-
-        &:hover {
-          background: #222;
-        }
-
-        &.active {
-          background: #5a5a5a;
-        }
-      }
-    }
-  }
-
-  .content {
-    grid-area: content;
-
-    section {
-      animation: appear 200ms ease-in-out;
-      & > p {
-        margin-bottom: 1em;
-      }
-    }
-
-    .invites {
-      button {
-        transition: filter 0.3s ease-in-out;
-        filter: saturate(0.7);
-        margin-bottom: 1rem;
-        display: inline-block;
-        font-family: "Roboto Bold";
-        padding: 7px 30px;
-        border-radius: 5px;
-        background: #f7931e;
-        text-shadow: none;
-        outline: none;
-        color: #fff;
-        font-family: "Roboto Regular";
-        cursor: pointer;
-
-        &:focus,
-        &:hover {
-          filter: saturate(1);
-        }
-      }
-
-      .invitesList {
-        .item-wrapper {
-          margin-bottom: 1rem;
-          background: #222;
-          height: 40px;
-          width: 200px;
-          border-radius: 10px;
-        }
-
-        p {
-          margin-bottom: 1rem;
-        }
-      }
-    }
-  }
-}
-
-@media only screen and (min-width: 1000px) {
-  .preferencesPage {
-    padding: 60px 90px;
+  .preferences {
+    display: grid;
     grid-template-areas: "nav content";
-    grid-template-columns: auto 1fr;
-    grid-gap: 90px;
+    grid-template-columns: min-content 1fr;
+    grid-gap: 2em;
 
-    nav .items {
-      gap: unset;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    .leftBar {
+      padding: 0 1rem;
+      display: grid;
+      grid-gap: 1rem;
 
-      .item {
-        background: transparent;
-        margin-left: -.8em;
+      .leftBarSep {
+        border: 1px #77777747 solid;
+      }
+
+      .leftBarTabs {
+        display: grid;
+        grid-gap: 1rem;
+        height: 100%;
+        min-height: 7rem;
+
+        div {
+          transition: 0.15s ease-in-out;
+          font-size: 1.2rem;
+          color: #777777;
+        }
+
+        .active {
+          font-size: 1.4rem;
+          color: white;
+        }
+      }
+
+      .leftBarUsername {
+        font-weight: 200;
+        font-size: 1.8rem;
+      }
+
+      .leftBarNames {
+        flex-direction: column;
+      }
+
+      .leftBarStatistics {
+        display: grid;
+        grid-template-columns: auto;
+
+        .leftBarStat {
+          grid-row: 1;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .leftBarStatValue {
+          font-size: 1.5rem;
+          font-weight: 500;
+        }
+
+        .leftBarStatName {
+          color: #777777;
+          font-size: 0.8rem;
+        }
+      }
+
+      .leftBarProfileImg {
+        border-radius: 50%;
+        height: 12rem;
+        width: 12rem;
+        object-fit: cover;
+        border: 2px solid white;
+      }
+
+      .leftBarImgParent {
+        width: fit-content;
+        position: relative;
+        display: block;
+      }
+
+      .leftBarImgEdit {
+        height: 25px;
+        width: 25px;
+        border-radius: 50%;
+        align-self: center;
+        background: #555555;
+      }
+
+      .circle {
+        transform: rotate(-40deg);
+        transform-origin: 0% 50%;
+        position: absolute;
+        display: flex;
+        justify-content: flex-end;
+        margin-right: 0 auto;
+      }
+
+      .leftBarImgContainer {
+        display: flex;
+        justify-content: center;
+      }
+
+      div {
+        display: flex;
+      }
+    }
+
+    nav {
+      grid-area: nav;
+      display: flex;
+      flex-direction: column;
+
+      section {
+        & > p {
+          margin: 0 0 10px 10px;
+          font-family: "Roboto Bold";
+        }
+
+        .field {
+          display: flex;
+          align-items: center;
+          transition: background .1s ease-in-out;
+          height: 40px;
+          width: 240px;
+          padding: 0 10px;
+          border-radius: 10px;
+          cursor: pointer;
+
+          &:hover {
+            background: #222;
+          }
+
+          &.active {
+            background: #555;
+
+            &:hover {
+              background: #666;
+            }
+          }
+        }
+      }
+    }
+
+    .content {
+      padding: 1rem;
+      grid-area: content;
+
+      .accountSection {
+        background: #222222;
+        padding: 1rem 0 1rem 0;
+        border-radius: 10px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+
+      .accountSection > div {
+        border-right: 1px solid #777777;
+      }
+
+      .accountSection > div:last-child {
+        border-right: none;
+      }
+
+      section {
+        height: 100%;
+        & > p {
+          margin-bottom: 10px;
+        }        
+
+        .tabContainer {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .tabSubContainer {
+            background: #262626;
+            border-radius: 10px;
+            padding: 1rem;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+
+            .formRowContainer {
+              width: 100%;
+              display: flex;
+              justify-content: space-between;
+            }
+
+            .formRowLabel {
+              align-items: flex-start;
+              flex-direction: column;
+
+              .formLabelText {
+                color: #8D8D8D;
+                margin-bottom: 0.2rem;
+              }
+
+              .formValueText {
+                font-size: 0.9rem;
+              }
+            }
+
+            .formRowContainer > div :not(.formRowLabel){
+              display: flex;
+              align-items: center;
+            }
+
+            .editBtn {
+              background-color: #555555;
+              font-size: 1rem;
+              color: white;
+              padding: 0.5rem 1rem 0.5rem 1rem;
+              border-radius: 10px;
+              border: none;
+              height: 100%;
+            }
+        }
+
+        .tabPreference {
+          background: #222222;
+          border-radius: 10px;
+          padding: 1rem;
+          width: 100%;
+          height: 100%;
+          display: grid;
+          grid-gap: 1rem;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          grid-auto-flow: dense;
+
+          .profileContainer {
+            display: grid;
+            grid-gap: 1rem;
+            .profilePreview {
+              display: flex;
+              align-items: center;
+              gap: 1.5rem;
+
+              .pfpContainer {
+                overflow: hidden;
+                height: 8rem;
+                width: 8rem;
+                border: 2px solid white;
+                border-radius: 50%;
+              }
+
+              .pfpImage {
+                object-fit: cover;
+                height: inherit;
+                width: inherit;
+              }
+            }
+          }
+
+        }
+
+        .account {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          max-width: 300px;
+          padding: 1rem;
+          border-radius: 10px;
+          background: #222;
+
+          .edit {
+            transition: background .1s ease-in-out;
+            cursor: pointer;
+            height: 40px;
+            padding: 10px;
+            width: 40px;
+            border-radius: 10px;
+            cursor: not-allowed;
+
+            &:hover {
+              background: #333;
+            }
+          }
+        }
+      }
+
+      .invites {
+        button {
+          transition: filter 0.3s ease-in-out;
+          filter: saturate(0.7);
+          margin-bottom: 1rem;
+          display: inline-block;
+          font-family: "Roboto Bold";
+          padding: 7px 30px;
+          border-radius: 5px;
+          background: #f7931e;
+          text-shadow: none;
+          outline: none;
+          color: #fff;
+          font-family: "Roboto Regular";
+          cursor: pointer;
+
+          &:focus,
+          &:hover {
+            filter: saturate(1);
+          }
+        }
+
+        .invitesList {
+          .item-wrapper {
+            margin-bottom: 1rem;
+            background: #222;
+            height: 40px;
+            width: 200px;
+            border-radius: 10px;
+          }
+
+          p {
+            margin-bottom: 1rem;
+          }
+        }
       }
     }
   }

@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { checkAdminExists } from "../../actions/auth.js";
 
 import Account from "./Account";
-import Invites from "./Invites";
-import FileBrowser from "./FileBrowser";
-import Appearance from "./Appearance";
-import Advanced from "./Advanced";
+// import Invites from "./Invites";
+// import FileBrowser from "./FileBrowser";
+// import Appearance from "./Appearance";
+// import Advanced from "./Advanced";
 
 import "./Index.scss";
 
@@ -15,13 +15,12 @@ function Preferences(props) {
   const user = useSelector(store => store.user);
   const dispatch = useDispatch();
 
-  const [active, setActive] = useState(1);
+  const [active, setActive] = useState(0);
 
   const editBadge = useRef(null);
   const leftProfilePic = useRef(null);
   const badge = useRef(null);
 
-  const [tabs, setTabs] = useState([]);
   const [badgePos, setBagePos] = useState({right: 0, top: 0});
 
   const tempStats = [
@@ -31,16 +30,8 @@ function Preferences(props) {
   ];
 
   useEffect(() => {
-    document.title = "Dim - Preferences";
-  }, []);
-
-  useEffect(() => {
     dispatch(checkAdminExists());
   }, [dispatch]);
-
-  const switchTo = useCallback((i) => {
-    setActive(i);
-  }, []);
 
   function computeCirclePos() {
     let containerHeight = leftProfilePic.current.clientHeight;
@@ -61,7 +52,7 @@ function Preferences(props) {
         <div className="leftBar">
           <div className="leftBarImgContainer">
             <div ref={leftProfilePic} class="leftBarImgParent">
-              <img className="leftBarProfileImg" src={user.info.picture}/>
+              <img alt="ProfilePic" className="leftBarProfileImg" onLoad={computeCirclePos} src={user.info.picture}/>
               <div className="circle" style={badgePos} ref={editBadge}><div ref={badge} className="leftBarImgEdit"/></div>
             </div>
           </div>
@@ -89,7 +80,7 @@ function Preferences(props) {
           </div>
         </div>
         <div className="content">
-
+          {active === 0 && <Account/>}
         </div>
       </div>
     </div>
