@@ -1,20 +1,33 @@
 import { useCallback, useEffect, useState, useContext } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 import { calcNewSize } from "../../Helpers/utils";
 import { VideoPlayerContext } from "./Context";
 import { parseVtt } from "../../Helpers/utils";
+import { updateTrack, updateVideo } from "../../actions/video";
 
 import "./Subtitles.scss";
 
 function VideoSubtitles() {
-  const { prevSubs, setPrevSubs, subReady, setSubReady, currentCue, setCurrentCue, subtitleTracks, currentSubtitleTrack, player, textTrackEnabled, video, canPlay } = useContext(VideoPlayerContext);
+  const dispatch = useDispatch();
+
+  const { video, player, current, tracks, ready } = useSelector(store => ({
+    video: store.video,
+    player: store.video.player,
+    current: store.video.tracks.subtitle.current,
+    tracks: store.video.tracks.subtitle.list,
+    ready: store.video.tracks.subtitle.ready
+  }));
+
+  const { videoRef } = useContext(VideoPlayerContext);
 
   const [show, setShow] = useState(false);
 
   // relative to window width
   const updateBlackBarHeight = useCallback(() => {
     const videoHeight = calcNewSize(
-      video.current.videoWidth,
-      video.current.videoHeight,
+      videoRef.current.videoWidth,
+      videoRef.current.videoHeight,
       window.innerWidth
     );
 
@@ -23,7 +36,7 @@ function VideoSubtitles() {
     if (blackBarHeight > 100) {
       document.documentElement.style.setProperty("--blackBarHeight", `${blackBarHeight}px`);
     }
-  }, [video]);
+  }, [videoRef]);
 
   const handleCueChange = useCallback((e) => {
     if (e.srcElement.activeCues.length > 0) {
@@ -32,52 +45,58 @@ function VideoSubtitles() {
         .replace(/<[^>]*>?/gm, "")
         .split("\n");
 
-      setCurrentCue(cue);
+      dispatch(updateVideo({
+        currentCue: cue
+      }));
       setShow(true);
     } else {
       setShow(false);
     }
-  }, [setCurrentCue]);
+  }, [dispatch]);
 
   /*
     delete and create new text track as there is no API
     to simply clear text track cues and append new ones
   */
   useEffect(() => {
-    if (!video.current || !textTrackEnabled) return;
+    if (!videoRef.current || !video.textTrackEnabled) return;
 
-    console.log("[Subtitles] track changed, removing old text track and creating new one");
+    console.log("[Subtitles] track changed");
 
-    for (const [i, track] of Object.entries(video.current.children)) {
+    for (const [i, track] of Object.entries(videoRef.current.children)) {
       if (track.kind === "subtitles") {
-        video.current.removeChild(video.current.children[i]);
+        console.log("[Subtitles] removed old text track");
+        videoRef.current.removeChild(videoRef.current.children[i]);
       }
     }
 
     const newTrack = document.createElement("track");
 
     newTrack.kind = "subtitles";
-    newTrack.track.mode = textTrackEnabled ? "showing" : "hidden";
+    newTrack.track.mode = video.textTrackEnabled ? "showing" : "hidden";
 
-    video.current.appendChild(newTrack);
-  }, [video, currentSubtitleTrack, textTrackEnabled]);
+    console.log("[Subtitles] created and appended new track");
+    videoRef.current.appendChild(newTrack);
+  }, [video.textTrackEnabled, videoRef, current]);
 
   // clear current cue if track changed
   useEffect(() => {
-    setCurrentCue("");
-  }, [currentSubtitleTrack, setCurrentCue]);
+    dispatch(updateVideo({
+      currentCue: ""
+    }));
+  }, [dispatch, current]);
 
   useEffect(() => {
-    if (subtitleTracks.length === 0 || !textTrackEnabled || !video.current || currentSubtitleTrack === -1 || prevSubs === currentSubtitleTrack) return;
+    if (!video.textTrackEnabled || !videoRef.current || current === -1 || video.prevSubs === current) return;
 
     let prev = 0;
 
-    console.log("[Subtitles] preparing subtitle track", subtitleTracks[currentSubtitleTrack]);
+    console.log("[Subtitles] preparing subtitle track", tracks[current]);
 
     const intervalID = setInterval(async () => {
-      const videoSubTrack = video.current.textTracks[0];
+      const videoSubTrack = videoRef.current.textTracks[0];
 
-      const req = await fetch(`/api/v1/stream/${subtitleTracks[currentSubtitleTrack].id}/data/stream.vtt`);
+      const req = await fetch(`/api/v1/stream/${tracks[current].id}/data/stream.vtt`);
       const text = await req.text();
 
       const diff = text.split(prev).join("");
@@ -85,10 +104,14 @@ function VideoSubtitles() {
 
       if (text && text.length === prev.length) {
         console.log("[Subtitles] subtitles fully loaded");
+
         clearInterval(intervalID);
-        setPrevSubs(currentSubtitleTrack);
+
+        dispatch(updateVideo({
+          prevSubs: current
+        }));
       } else {
-        console.log(`Gonna try again ${text.length}`);
+        console.log("[Subtitles] fetching again in 1 second", text.length);
         prev = text;
       }
 
@@ -96,26 +119,28 @@ function VideoSubtitles() {
         videoSubTrack.addCue(cue);
       }
 
-      setSubReady(true);
+      dispatch(updateTrack("subtitle", {
+        ready: true
+      }));
     }, 1000);
 
     return () => {
       console.log("[Subtitles] component unmounted, clearing fetching interval");
       clearInterval(intervalID);
     };
-  }, [currentSubtitleTrack, prevSubs, setPrevSubs, setSubReady, subtitleTracks, textTrackEnabled, video]);
+  }, [current, dispatch, tracks, video.prevSubs, video.textTrackEnabled, videoRef]);
 
   useEffect(() => {
-    if (!subReady || !player) return;
+    if (!ready || !player) return;
 
-    console.log("[Subtitles] ready to show subtitles", currentSubtitleTrack);
-  }, [currentSubtitleTrack, player, subReady, textTrackEnabled]);
+    console.log("[Subtitles] ready to show subtitles", current);
+  }, [current, player, ready]);
 
   useEffect(() => {
-    if (video.current) return;
-    console.log("[Subtitles] setting player text status to", textTrackEnabled);
-    video.current.textTracks[0].mode = textTrackEnabled ? "showing" : "hidden";
-  }, [textTrackEnabled, video]);
+    if (videoRef.current) return;
+    console.log("[Subtitles] setting player text status to", video.textTrackEnabled);
+    videoRef.current.textTracks[0].mode = video.textTrackEnabled ? "showing" : "hidden";
+  }, [video.textTrackEnabled, videoRef]);
 
   useEffect(() => {
     window.addEventListener("resize", updateBlackBarHeight);
@@ -123,25 +148,25 @@ function VideoSubtitles() {
   }, [updateBlackBarHeight]);
 
   useEffect(() => {
-    if (!canPlay) return;
+    if (!video.canPlay) return;
     updateBlackBarHeight();
-  }, [canPlay, updateBlackBarHeight]);
+  }, [video.canPlay, updateBlackBarHeight]);
 
   useEffect(() => {
-    if (!video.current || !canPlay || !subReady) return;
+    if (!videoRef.current || !video.canPlay || !ready) return;
 
-    console.log("[Subtitles] html video tracks", video.current.textTracks);
+    console.log("[Subtitles] html video tracks", videoRef.current.textTracks);
 
-    const track = video.current.textTracks[0];
+    const track = videoRef.current.textTracks[0];
 
     if (track) {
       track.addEventListener("cuechange", handleCueChange);
     }
-  }, [canPlay, currentSubtitleTrack, handleCueChange, subReady, video]);
+  }, [handleCueChange, ready, video.canPlay, videoRef]);
 
   return (
-    <div className={`videoSubtitles show-${textTrackEnabled && show}`}>
-      <p>{currentCue}</p>
+    <div className={`videoSubtitles show-${video.textTrackEnabled && show}`}>
+      <p>{video.currentCue}</p>
     </div>
   );
 }
