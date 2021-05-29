@@ -8,6 +8,7 @@ import fileBrowser from "./fileBrowser.js";
 import search from "./search.js";
 import card from "./card.js";
 import banner from "./banner.js";
+import video from "./video/index";
 
 export default combineReducers({
   auth,
@@ -17,5 +18,6 @@ export default combineReducers({
   fileBrowser,
   search,
   card,
-  banner
+  banner,
+  video
 });
