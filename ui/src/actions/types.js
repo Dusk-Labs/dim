@@ -154,3 +154,14 @@ export const FETCH_INVITES_ERR = "FETCH_INVITES_ERR";
 export const WS_CONNECT_START = "WS_CONNECT_START";
 export const WS_CONNECTED = "WS_CONNECTED";
 export const WS_CONNECT_ERR = "WS_CONNECT_ERR";
+
+/*
+    * VIDEO ACTIONS
+*/
+
+export const SET_GID = "SET_GID";
+export const SET_MANIFEST_STATE = "SET_MANIFEST_STATE";
+export const SET_TRACKS = "SET_TRACKS";
+export const UPDATE_TRACK = "UPDATE_TRACK";
+export const UPDATE_VIDEO = "UPDATE_VIDEO";
+export const SET_SHOW_SUB_SWITCHER = "SET_SHOW_SUB_SWITCHER";
