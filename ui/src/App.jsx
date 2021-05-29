@@ -43,19 +43,19 @@ const routes = (
         <Library/>
       </MainLayout>
     </PrivateRoute>
-    <PrivateRoute path="/search" render={(props) => (
+    <PrivateRoute path="/search">
       <MainLayout>
-        <SearchResults {...props}/>
+        <SearchResults/>
       </MainLayout>
-    )}/>
-    <PrivateRoute exact path="/media/:id" render={(props) => (
+    </PrivateRoute>
+    <PrivateRoute exact path="/media/:id">
       <MainLayout>
-        <Media {...props}/>
+        <Media/>
       </MainLayout>
-    )}/>
-    <PrivateRoute exact path="/play/:fileID" render={(props) => (
-      <VideoPlayer {...props}/>
-    )}/>
+    </PrivateRoute>
+    <PrivateRoute exact path="/play/:fileID">
+      <VideoPlayer/>
+    </PrivateRoute>
   </Switch>
 );
 
