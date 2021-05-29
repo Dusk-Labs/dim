@@ -17,9 +17,8 @@ function VideoActionVolume() {
   const volSliderRef = useRef(null);
   const volRef = useRef(null);
 
-  const [currentVolume, setCurrentVolume] = useState(100);
+  const [currentVolume, setCurrentVolume] = useState(0);
   const [dragging, setDragging] = useState(false);
-  const [timeoutID, setTimeoutID] = useState();
   const [showVolCount, setShowVolCount] = useState(false);
 
   const toggleMute = useCallback(() => {
@@ -68,17 +67,8 @@ function VideoActionVolume() {
 
     setCurrentVolume(percent);
     setShowVolCount(true);
-
-    if (timeoutID) {
-      clearTimeout(timeoutID);
-    }
-
-    const id = setTimeout(() => {
-      setShowVolCount(false);
-    }, 1000);
-
-    setTimeoutID(id);
-  }, [timeoutID]);
+    localStorage.setItem("videoVolume", percent);
+  }, []);
 
   const handleMouseDown = useCallback(() => {
     setDragging(true);
@@ -86,17 +76,8 @@ function VideoActionVolume() {
 
   const handleMouseUp = useCallback(() => {
     setDragging(false);
-
-    if (timeoutID) {
-      clearTimeout(timeoutID);
-    }
-
-    const id = setTimeout(() => {
-      setShowVolCount(false);
-    }, 1000);
-
-    setTimeoutID(id);
-  }, [timeoutID]);
+    localStorage.setItem("videoVolume", currentVolume);
+  }, [currentVolume]);
 
   const handleMouseMove = useCallback((e) => {
     if (dragging) {
@@ -126,9 +107,21 @@ function VideoActionVolume() {
     const newVolume = currentVolume / 100;
 
     player.setVolume(newVolume);
+
     volRef.current.style.width = `${currentVolume}%`;
     volSliderRef.current.setAttribute("data-currentVolume", currentVolume);
   }, [currentVolume, player]);
+
+  useEffect(() => {
+    if (!player) return;
+
+    const prefVideoVolume = localStorage.getItem("videoVolume");
+
+    if (prefVideoVolume) {
+      setCurrentVolume(prefVideoVolume);
+      player.setVolume(prefVideoVolume / 100);
+    }
+  }, [player]);
 
   useEffect(() => {
     const volSlider = volSliderRef.current;
@@ -147,12 +140,8 @@ function VideoActionVolume() {
       volSlider.removeEventListener("mousemove", handleMouseMove);
 
       document.removeEventListener("keydown", handleKeyDown);
-
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
     };
-  }, [handleClick, handleKeyDown, handleMouseDown, handleMouseMove, handleMouseUp, timeoutID]);
+  }, [handleClick, handleKeyDown, handleMouseDown, handleMouseMove, handleMouseUp]);
 
   return (
     <>
