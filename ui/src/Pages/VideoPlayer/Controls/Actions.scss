@@ -28,6 +28,10 @@
 
     &:hover .volSlider {
       height: 10px;
+
+      &::after {
+        opacity: 1;
+      }
     }
 
     .volSlider {
@@ -40,9 +44,6 @@
       overflow: hidden;
       transition: height 100ms ease-in-out;
 
-      &.dragging-true::after {
-        opacity: 1;
-      }
 
       &::after {
         content: attr(data-currentVolume);
