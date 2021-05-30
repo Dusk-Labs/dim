@@ -1,10 +1,28 @@
 function Account() {
   return (
-    <section>
-      <h3>This section will house the following features:</h3>
-      <p>Change username and profile picture</p>
-      <p>Manage password</p>
-    </section>
+    <>
+      <section className="accountSection">
+        <div/>
+        <div/>
+        <div/>
+      </section>
+      <section className="usersSection">
+        <div className="sectionHeading">
+          <span>Users</span>
+          <button className="editBtn">
+            edit
+          </button>
+        </div>
+      </section>
+      <section className="tokenSection">
+        <div className="sectionHeading">
+          <span>Tokens</span>
+          <button className="editBtn">
+            add
+          </button>
+        </div>
+      </section>
+    </>
   );
 }
 

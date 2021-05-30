@@ -5,11 +5,12 @@
   .preferences {
     display: grid;
     grid-template-areas: "nav content";
-    grid-template-columns: min-content 1fr;
+    grid-template-columns: min-content 2fr;
     grid-gap: 2em;
 
     .leftBar {
       padding: 0 1rem;
+      height: 10rem;
       display: grid;
       grid-gap: 1rem;
 
@@ -24,6 +25,7 @@
         min-height: 7rem;
 
         div {
+          cursor: pointer;
           transition: 0.15s ease-in-out;
           font-size: 1.2rem;
           color: #777777;
@@ -146,12 +148,48 @@
       padding: 1rem;
       grid-area: content;
 
+      .editBtn {
+        background: #555555;
+        padding: 0.5rem;
+        color: white;
+        border-radius: 10px;
+      }
+
       .accountSection {
+        height: 15rem;
         background: #222222;
         padding: 1rem 0 1rem 0;
         border-radius: 10px;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+
+      .sectionHeading {
+        display: flex;
+        justify-content: space-between;
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      .sectionHeading > span {
+        color: #777777;
+      }
+      
+      .usersSection {
+        background: #222222;
+        padding: 1rem 0 1rem 0;
+        border-radius: 10px;
+        margin-top: 1rem;
+        height: 10rem;
+
+      }
+
+      .tokenSection {
+        background: #222222;
+        padding: 1rem 0 1rem 0;
+        border-radius: 10px;
+        margin-top: 1rem;
+        height: 18rem;
       }
 
       .accountSection > div {
