@@ -361,7 +361,6 @@ struct SearchResult {
 pub struct Media {
     pub id: u64,
     #[serde(rename(
-        deserialize = "original_title",
         deserialize = "title",
         deserialize = "name"
     ))]
