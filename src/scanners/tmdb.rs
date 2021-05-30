@@ -86,11 +86,7 @@ impl Tmdb {
         #[derive(Deserialize, Clone, Debug)]
         struct WMedia {
             pub id: u64,
-            #[serde(rename(
-                deserialize = "original_title",
-                deserialize = "title",
-                deserialize = "name"
-            ))]
+            #[serde(rename(deserialize = "original_title", deserialize = "original_name"))]
             pub title: String,
             #[serde(rename(deserialize = "release_date", deserialize = "first_air_date"))]
             pub release_date: Option<String>,
@@ -360,10 +356,7 @@ struct SearchResult {
 #[derive(Deserialize, Clone, Debug)]
 pub struct Media {
     pub id: u64,
-    #[serde(rename(
-        deserialize = "title",
-        deserialize = "name"
-    ))]
+    #[serde(rename(deserialize = "title", deserialize = "name"))]
     pub title: String,
     #[serde(rename(deserialize = "release_date", deserialize = "first_air_date"))]
     pub release_date: Option<String>,
