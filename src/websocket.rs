@@ -34,7 +34,12 @@ where
         addr: A,
     },
 
-    Send(M),
+    SendTo {
+        addr: A,
+        message: M,
+    },
+
+    SendAll(M),
 }
 
 impl<A, T> CtrlEvent<A, T>
@@ -47,6 +52,10 @@ where
         let mut discard = vec![];
 
         while let Some(ev) = rx.recv().await {
+            for addr in &discard {
+                let _ = peers.remove(addr);
+            }
+
             discard.clear();
 
             match ev {
@@ -58,7 +67,7 @@ where
                     peers.remove(addr);
                 }
 
-                CtrlEvent::Send(body) => {
+                CtrlEvent::SendAll(body) => {
                     for (addr, sink) in peers.iter_mut() {
                         let result = sink.send(body.clone().into()).await;
 
@@ -67,12 +76,17 @@ where
                             discard.push(addr.clone());
                         }
                     }
+                }
 
-                    for addr in &discard {
-                        let _ = peers.remove(addr);
+                CtrlEvent::SendTo { addr, message } => {
+                    if let Some(sink) = peers.get_mut(&addr) {
+                        let result = sink.send(message.clone().into()).await;
+
+                        if result.is_err() {
+                            let _ = sink.close().await;
+                            discard.push(addr.clone());
+                        }
                     }
-
-                    continue;
                 }
             };
         }
@@ -116,7 +130,7 @@ pub(crate) trait WebsocketServer {
 
             async move {
                 while let Some(st) = event_rx.recv().await {
-                    let _ = i_tx.send(CtrlEvent::Send(st));
+                    let _ = i_tx.send(CtrlEvent::SendAll(st));
                 }
             }
         };
@@ -200,9 +214,11 @@ pub async fn serve<S, M>(
 ) -> std::io::Result<()>
 where
     M: Sync + Send + fmt::Debug + Into<Message> + Clone + 'static,
-    S: std::net::ToSocketAddrs
+    S: std::net::ToSocketAddrs,
 {
     let listener = std::net::TcpListener::bind(address)?;
 
-    Some(listener).serve("<already bound>", rt_handle, event_rx).await
+    Some(listener)
+        .serve("<already bound>", rt_handle, event_rx)
+        .await
 }
