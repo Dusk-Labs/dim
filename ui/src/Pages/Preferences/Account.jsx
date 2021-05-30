@@ -1,3 +1,5 @@
+import UserCard from "../../Components/CardList/UserCard";
+
 function Account() {
   return (
     <>
@@ -13,6 +15,10 @@ function Account() {
             edit
           </button>
         </div>
+        <div className="userListContainer">
+          <UserCard user={{"name": "placeholder", "image": "https://i.redd.it/3n1if40vxxv31.png"}}/>
+          <UserCard user={{"name": "placeholder2", "image": "https://i.redd.it/3n1if40vxxv31.png"}}/>
+        </div>
       </section>
       <section className="tokenSection">
         <div className="sectionHeading">
@@ -20,6 +26,20 @@ function Account() {
           <button className="editBtn">
             add
           </button>
+        </div>
+        <div className="tableSection">
+          <table className="tokenTable">
+            <tr>
+              <th style={{width: "65%"}}>Token</th>
+              <th>Created</th>
+              <th>Claimed by</th>
+              <th>Remove</th>
+            </tr>
+            <tr>
+              <td>aksdflkjaslkdjflkajsdlkfjalksjdfl;kjasldkjf</td>
+              <td>2</td>
+            </tr>
+          </table>
         </div>
       </section>
     </>

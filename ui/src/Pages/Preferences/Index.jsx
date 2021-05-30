@@ -6,8 +6,8 @@ import { checkAdminExists } from "../../actions/auth.js";
 import Account from "./Account";
 // import Invites from "./Invites";
 // import FileBrowser from "./FileBrowser";
-// import Appearance from "./Appearance";
-// import Advanced from "./Advanced";
+import Appearance from "./Appearance";
+import Advanced from "./Advanced";
 
 import "./Index.scss";
 
@@ -81,6 +81,8 @@ function Preferences(props) {
         </div>
         <div className="content">
           {active === 0 && <Account/>}
+          {active === 1 && <Appearance/>}
+          {active === 2 && <Advanced/>}
         </div>
       </div>
     </div>
