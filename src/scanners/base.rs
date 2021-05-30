@@ -37,7 +37,7 @@ use anitomy::Anitomy;
 use anitomy::ElementCategory;
 use anitomy::Elements;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, Serialize, Clone)]
 pub enum ScannerError {
     #[error(display = "Could not get a connection to the db")]
     DatabaseConnectionError,
@@ -48,7 +48,13 @@ pub enum ScannerError {
     #[error(display = "An unknown error has occured")]
     UnknownError,
     #[error(display = "Database error")]
-    DatabaseError(#[source] database::DatabaseError),
+    DatabaseError,
+}
+
+impl From<database::DatabaseError> for ScannerError {
+    fn from(_: database::DatabaseError) -> Self {
+        Self::DatabaseError
+    }
 }
 
 /// `MetadataExtractor` is an actor that processes files on the local filesystem. It parses the

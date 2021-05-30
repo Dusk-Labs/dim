@@ -97,6 +97,10 @@ pub fn get_matcher(log: &slog::Logger, tx: &EventTx) -> &'static base::MetadataM
     })
 }
 
+pub fn get_matcher_unchecked() -> &'static base::MetadataMatcher {
+    METADATA_MATCHER.get().unwrap()
+}
+
 pub async fn start_custom<T: AsRef<Path>>(
     library_id: i32,
     log: slog::Logger,
