@@ -38,22 +38,40 @@ pub async fn get_mediafile_info(
 /// * `id` - id of the orphan mediafile we want to rematch
 /// * `tmdb_id` - the tmdb id of the proper metadata we want to fetch for the media
 // Part of /api/v1/mediafile route
-#[patch("/<id>/match?<tmdb_id>")]
+#[patch("/<id>/match?<tmdb_id>&<media_type>")]
 pub async fn rematch_mediafile(
     conn: State<'_, DbConnection>,
     log: State<'_, slog::Logger>,
-    event_tx: State<'_, Arc<Mutex<EventTx>>>,
     id: i32,
     tmdb_id: i32,
+    media_type: String,
 ) -> Result<Status, errors::DimError> {
-    /*
-    let mediafile = MediaFile::get_one(conn.as_ref(), id)?;
-    let tx = event_tx.lock().unwrap();
-    let scanner = IterativeScanner::new(mediafile.library_id, log.get().clone(), tx.clone())?;
-    std::thread::spawn(move || {
-        scanner.match_mediafile_to_tmdb_id(mediafile, tmdb_id);
-    });
+    use crate::scanners::tmdb::Tmdb;
+    use database::library::MediaType;
+
+    let mediafile = MediaFile::get_one(&conn, id).await?;
+    let matcher = crate::scanners::get_matcher_unchecked();
+
+    let mut tmdb = match media_type.to_lowercase().as_ref() {
+        "movie" => Tmdb::new("38c372f5bc572c8aadde7a802638534e".into(), MediaType::Movie),
+        "tv" => Tmdb::new("38c372f5bc572c8aadde7a802638534e".into(), MediaType::Tv),
+        _ => return Err(errors::DimError::InvalidMediaType),
+    };
+
+    let result = tmdb
+        .search_by_id(tmdb_id)
+        .await
+        .map_err(|_| errors::DimError::NotFoundError)?;
+
+    match media_type.to_lowercase().as_ref() {
+        "movie" => {
+            matcher
+                .match_movie_to_result(mediafile, result.into())
+                .await?
+        }
+        "tv" => matcher.match_tv_to_result(mediafile, result.into()).await?,
+        _ => unreachable!(),
+    }
+
     Ok(Status::Ok)
-    */
-    Ok(Status::ServiceUnavailable)
 }

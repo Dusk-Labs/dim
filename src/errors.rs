@@ -13,6 +13,8 @@ use std::io::Cursor;
 
 use nightfall::error::NightfallError;
 
+use crate::scanners::base::ScannerError;
+
 #[derive(Debug, Error, Serialize)]
 #[serde(tag = "error")]
 pub enum DimError {
@@ -34,6 +36,8 @@ pub enum DimError {
     InvalidMediaType,
     #[error(display = "A error in the streaming library has occured")]
     StreamingError(#[error(source)] StreamingErrors),
+    #[error(display = "A error has occured when matching.")]
+    ScannerError(#[error(source)] ScannerError),
 }
 
 #[derive(Debug, Error, Serialize)]
@@ -162,7 +166,8 @@ impl<'r> Responder<'r, 'static> for DimError {
             | Self::DatabaseError
             | Self::UnknownError
             | Self::IOError
-            | Self::InternalServerError => Status::InternalServerError,
+            | Self::InternalServerError
+            | Self::ScannerError(_) => Status::InternalServerError,
             Self::AuthRequired => Status::Unauthorized,
             Self::InvalidMediaType => Status::NotModified,
         };

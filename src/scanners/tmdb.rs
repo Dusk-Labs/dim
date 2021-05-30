@@ -69,6 +69,67 @@ impl Tmdb {
             .ok_or(TmdbError::NoResults)
     }
 
+    pub async fn search_by_id(&mut self, id: i32) -> Result<Media, TmdbError> {
+        let mut args: Vec<(String, String)> = Vec::new();
+        args.push(("api_key".into(), self.api_key.clone()));
+        args.push(("language".into(), "en-US".into()));
+
+        let url = format!("{}/{}/{}", self.base, self.media_type.to_string(), id);
+        let req = self
+            .client
+            .get(url)
+            .query(&args)
+            .send()
+            .await
+            .map_err(|_| TmdbError::ReqwestError)?;
+
+        #[derive(Deserialize, Clone, Debug)]
+        struct WMedia {
+            pub id: u64,
+            #[serde(rename(
+                deserialize = "original_title",
+                deserialize = "title",
+                deserialize = "name"
+            ))]
+            pub title: String,
+            #[serde(rename(deserialize = "release_date", deserialize = "first_air_date"))]
+            pub release_date: Option<String>,
+            pub overview: Option<String>,
+            pub vote_average: Option<f64>,
+            pub poster_path: Option<String>,
+            pub backdrop_path: Option<String>,
+            pub genres: Vec<GenrePair>,
+        }
+
+        #[derive(Deserialize, Clone, Debug)]
+        struct GenrePair {
+            pub id: u64,
+            pub name: String,
+        }
+
+        let result: WMedia = req
+            .json::<WMedia>()
+            .await
+            .map_err(|_| TmdbError::DeserializationError)?;
+
+        Ok(Media {
+            id: result.id,
+            title: result.title,
+            release_date: result.release_date,
+            overview: result.overview,
+            vote_average: result.vote_average,
+            poster_path: result.poster_path,
+            backdrop_path: result.backdrop_path,
+            genre_ids: None,
+            genres: result
+                .genres
+                .clone()
+                .into_iter()
+                .map(|x| x.name)
+                .collect::<Vec<String>>(),
+        })
+    }
+
     #[async_recursion]
     pub async fn search_by_name(
         &mut self,
@@ -299,7 +360,11 @@ struct SearchResult {
 #[derive(Deserialize, Clone, Debug)]
 pub struct Media {
     pub id: u64,
-    #[serde(rename(deserialize = "title", deserialize = "name"))]
+    #[serde(rename(
+        deserialize = "original_title",
+        deserialize = "title",
+        deserialize = "name"
+    ))]
     pub title: String,
     #[serde(rename(deserialize = "release_date", deserialize = "first_air_date"))]
     pub release_date: Option<String>,
