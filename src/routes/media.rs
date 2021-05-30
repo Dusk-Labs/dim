@@ -295,24 +295,32 @@ pub async fn delete_media_by_id(
 /// * `year` - optional parameter specifying the release year of the media we want to look up
 /// * `media_type` - parameter that tells us what media type we are querying, ie movie or tv show
 #[get("/tmdb_search?<query>&<year>&<media_type>")]
-pub fn tmdb_search(
+pub async fn tmdb_search(
     query: String,
     year: Option<i32>,
     media_type: String,
     _user: Auth,
-) -> Result<JsonValue, errors::DimError> {
-    /*
+) -> Result<Json<Vec<crate::scanners::ApiMedia>>, errors::DimError> {
+    use crate::scanners::tmdb::Tmdb;
+    use database::library::MediaType;
+
     let media_type = match media_type.as_ref() {
-        "movie" => TmdbMediaType::Movie,
-        "tv" => TmdbMediaType::Tv,
+        "movie" => MediaType::Movie,
+        "tv" => MediaType::Tv,
         _ => return Err(errors::DimError::InvalidMediaType),
     };
 
     let mut tmdb_session = Tmdb::new("38c372f5bc572c8aadde7a802638534e".to_string(), media_type);
 
-    Ok(json!(tmdb_session.search_many(query, year, 15)))
-    */
-    todo!()
+    Ok(Json(
+        tmdb_session
+            .search_by_name(query, year, None)
+            .await
+            .map_err(|_| errors::DimError::NotFoundError)?
+            .into_iter()
+            .map(Into::into)
+            .collect::<Vec<_>>(),
+    ))
 }
 
 /// Method mapped to `PATCH /api/v1/media/<id>/match` used to rematch a media entry to a new tmdb
