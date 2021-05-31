@@ -19,7 +19,11 @@ const ModalBox = (props) => {
 
   const close = useCallback(() => {
     setVisible(false);
-  }, []);
+
+    if (props.cleanUp) {
+      props.cleanUp();
+    }
+  }, [props]);
 
   const open = useCallback(() => {
     setVisible(true);
