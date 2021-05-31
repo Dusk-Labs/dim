@@ -166,6 +166,10 @@ pub(crate) trait WebsocketServer {
             tokio::select! {
                 biased;
 
+                _ = tokio::signal::ctrl_c() => {
+                    break 'outer;
+                }
+
                 incoming = listener.accept() => {
                     let (stream, addr) = match incoming {
                         Ok(sa) => sa,
