@@ -1,4 +1,7 @@
 import Card from "./Card.jsx";
+import SelectUnmatchedMedia from "../../Modals/SelectUnmatchedMedia";
+
+import "./UnmatchedCardList.scss";
 
 function UnmatchedCardList(props) {
   const { fetched, error } = props.cards;
@@ -26,6 +29,9 @@ function UnmatchedCardList(props) {
       <section>
         <h1>Unmatched</h1>
         <p className="sectionDesc">Could not find an accurate match for these files.</p>
+        <SelectUnmatchedMedia unmatched={props.cards.items}>
+          <button>Manually match</button>
+        </SelectUnmatchedMedia>
         {sections}
       </section>
     </div>
