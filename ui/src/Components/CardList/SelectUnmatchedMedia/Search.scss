@@ -1,0 +1,74 @@
+.selectUnmatchedMediaSearch {
+  animation: appear 300ms ease-in-out;
+
+  input {
+    width: 100%;
+    background: #2a2a2a;
+    color: #fff;
+    border-radius: 10px;
+    padding: 1em;
+    font-size: 1em;
+    outline: none;
+    border: none;
+    font-family: "Roboto Regular";
+  }
+
+  .tmdbResults {
+    margin-top: 1em;
+    gap: 2em;
+    overflow-y: auto;
+    border-radius: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    width: 100%;
+    display: grid;
+    scrollbar-width: thin;
+    animation: appear 300ms ease-in-out;
+
+    .resultCard {
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      gap: .5em;
+      animation: appear 200ms ease-in-out;
+      cursor: pointer;
+      transition: 150ms ease-in-out;
+      transition-property: filter, opacity;
+
+      &:hover {
+        filter: brightness(1.2);
+      }
+
+      &.selected-false {
+        opacity: .2;
+      }
+
+      .cardImageWrapper {
+        height: 200px;
+
+        .placeholder {
+          display: flex;
+          justify-content: center;
+
+          svg {
+            font-size: 2em;
+          }
+        }
+
+        img {
+          background: #2a2a2a;
+          height: 100%;
+          width: 100%;
+          border-radius: 10px;
+          object-fit: cover;
+          animation: appear 200ms ease-in-out;
+        }
+
+      }
+      p {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+}
