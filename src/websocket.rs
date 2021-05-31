@@ -56,15 +56,6 @@ where
     }
 }
 
-impl IntoCtrlEvent<SocketAddr, String> for crate::plugin::runner::Envelope {
-    fn into_ctrl_event(self) -> CtrlEvent<SocketAddr, String> {
-        CtrlEvent::SendTo {
-            addr: self.0,
-            message: serde_json::to_string(&self.1).unwrap(),
-        }
-    }
-}
-
 impl<A, T> CtrlEvent<A, T>
 where
     T: Into<Message> + Clone,
