@@ -97,6 +97,8 @@ pub mod streaming;
 mod tests;
 /// Websocket related logic.
 pub mod websocket;
+#[cfg(not(target_os = "windows"))]
+pub mod plugin;
 
 /// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.
 pub fn build_logger() -> slog::Logger {

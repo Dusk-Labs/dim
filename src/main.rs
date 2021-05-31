@@ -1,6 +1,7 @@
 use clap::App;
 use clap::Arg;
 
+use dim::plugin;
 use rocket::config::Config;
 use rocket::config::LogLevel;
 use rocket::config::TlsConfig;
@@ -122,6 +123,11 @@ fn main() {
                     let _ = stream_manager_clone.garbage_collect().await.unwrap();
                 }
             });
+
+            #[cfg(not(target_os = "windows"))]
+            plugin::start_plugin_host(logger.clone(), ["./foo.py"].iter())
+                .await
+                .unwrap();
 
             if !matches.is_present("no-scanners") {
                 info!(logger, "Transposing scanners from the netherworld...");
