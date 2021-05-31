@@ -1,0 +1,71 @@
+.selectUnmatchedMediaFolders {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  position: relative;
+  overflow-y: auto;
+  border-radius: inherit;
+  gap: 1em;
+  height: 100px;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: #f7931e #4a4a4a;
+
+  .vertical-err {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+  }
+
+  .folder {
+    scroll-snap-align: start;
+    display: flex;
+    justify-content: baseline;
+    border-radius: 10px;
+    flex-direction: column;
+    height: 100px;
+    gap: .5em;
+    align-items: center;
+    text-align: center;
+    transition: background 0.1s ease-in-out;
+    cursor: pointer;
+    padding: 1em;
+    border: solid 2px #2a2a2a;
+    color: #eee;
+
+    &:hover {
+      background: #2a2a2a;
+    }
+
+    &.selected-true {
+      background: #4a4a4a;
+      cursor: default;
+    }
+
+    .folderIcon {
+      position: relative;
+
+      p {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #4a4a4a;
+        font-size: .8em;
+        font-family: "Roboto Bold";
+        position: absolute;
+        animation: appear 200ms ease-in-out;
+      }
+    }
+
+    svg {
+      font-size: 2em;
+    }
+
+    // path name
+    p {
+      user-select: none;
+      overflow-wrap: break-word;
+      overflow: hidden;
+      word-break: break-all;
+    }
+  }
+}
