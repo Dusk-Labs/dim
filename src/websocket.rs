@@ -19,11 +19,9 @@ use futures::stream::{SplitSink, SplitStream};
 use xtra::Actor;
 use xtra::Address;
 
-#[derive(Debug)]
-enum CtrlEvent<A, M>
+pub enum CtrlEvent<A, M>
 where
     A: Hash + Eq,
-    M: Debug,
 {
     Track {
         addr: A,
@@ -42,9 +40,34 @@ where
     SendAll(M),
 }
 
+pub trait IntoCtrlEvent<A, M>: Into<Message> + Sync + Send + Clone + 'static
+where
+    A: Hash + Eq,
+{
+    fn into_ctrl_event(self) -> CtrlEvent<A, M>;
+}
+
+impl<A> IntoCtrlEvent<A, String> for String
+where
+    A: Hash + Eq,
+{
+    fn into_ctrl_event(self) -> CtrlEvent<A, String> {
+        CtrlEvent::SendAll(self)
+    }
+}
+
+impl IntoCtrlEvent<SocketAddr, String> for crate::plugin::runner::Envelope {
+    fn into_ctrl_event(self) -> CtrlEvent<SocketAddr, String> {
+        CtrlEvent::SendTo {
+            addr: self.0,
+            message: serde_json::to_string(&self.1).unwrap(),
+        }
+    }
+}
+
 impl<A, T> CtrlEvent<A, T>
 where
-    T: Into<Message> + Clone + Debug,
+    T: Into<Message> + Clone,
     A: Hash + Eq + Clone,
 {
     async fn recv_from_rx(mut rx: UnboundedReceiver<Self>) {
@@ -116,26 +139,26 @@ pub(crate) trait WebsocketServer {
         mut event_rx: UnboundedReceiver<M>,
     ) -> io::Result<()>
     where
-        M: Sync + Send + fmt::Debug + Into<Message> + Clone + 'static,
+        M: IntoCtrlEvent<SocketAddr, String>,
         S: ToSocketAddrs + Send,
     {
         let listener = self.bind(address).await?;
 
-        let (i_tx, i_rx) = unbounded_channel::<CtrlEvent<SocketAddr, M>>();
+        let (i_tx, i_rx) = unbounded_channel::<CtrlEvent<SocketAddr, String>>();
 
-        rt_handle.spawn(CtrlEvent::recv_from_rx(i_rx));
+        let ev = rt_handle.spawn(CtrlEvent::recv_from_rx(i_rx));
 
         let forwarder_fut = {
             let i_tx = i_tx.clone();
 
             async move {
                 while let Some(st) = event_rx.recv().await {
-                    let _ = i_tx.send(CtrlEvent::SendAll(st));
+                    let _ = i_tx.send(st.into_ctrl_event());
                 }
             }
         };
 
-        rt_handle.spawn(forwarder_fut);
+        let forwarder = rt_handle.spawn(forwarder_fut);
 
         let (m_tx, mut m_rx) = unbounded_channel::<(SocketAddr, Message)>();
 
@@ -210,10 +233,10 @@ impl WebsocketServer for Option<std::net::TcpListener> {
 pub async fn serve<S, M>(
     address: S,
     rt_handle: Handle,
-    mut event_rx: UnboundedReceiver<M>,
+    event_rx: UnboundedReceiver<M>,
 ) -> std::io::Result<()>
 where
-    M: Sync + Send + fmt::Debug + Into<Message> + Clone + 'static,
+    M: IntoCtrlEvent<SocketAddr, String>,
     S: std::net::ToSocketAddrs,
 {
     let listener = std::net::TcpListener::bind(address)?;
