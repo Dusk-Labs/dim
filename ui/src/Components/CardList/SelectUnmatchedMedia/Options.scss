@@ -1,0 +1,52 @@
+.selectUnmatchedMediaOptions {
+  background: #1a1a1a;
+  display: flex;
+  bottom: 0;
+  margin-bottom: 30px;
+  gap: .5em;
+  width: 100%;
+  justify-content: flex-end;
+
+  button {
+    font-size: 16px;
+    filter: saturate(0.7);
+    transition: filter 0.3s ease-in-out;
+    font-family: "Roboto Bold";
+    padding: .5em;
+    border-radius: 10px;
+    outline: none;
+    background: #f7931e;
+    color: #ffffff;
+
+    &:focus,
+    &:hover {
+      filter: saturate(1);
+    }
+
+    &.disabled-true {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+  }
+
+  .cancelBtn {
+    transition: color 0.3s ease-in-out;
+    background: transparent;
+
+    &:focus,
+    &:hover {
+      color: #ff6961;
+    }
+  }
+}
+
+
+/*
+    * == MEDIA QUERIES ==
+*/
+
+@media only screen and (min-width: 1080px) {
+  .selectUnmatchedMediaOptions {
+    margin-bottom: 60px;
+  }
+}
