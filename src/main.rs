@@ -157,6 +157,6 @@ fn main() {
             */
 
             info!(logger, "Summoning Dim v{}...", clap::crate_version!());
-            // core::launch(logger, event_tx, rocket_config, stream_manager, handle).await;
+            core::warp_core(logger, event_tx, stream_manager).await;
         });
 }
