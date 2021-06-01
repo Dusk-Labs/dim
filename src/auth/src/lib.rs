@@ -7,12 +7,6 @@ use jsonwebtoken::Validation;
 use jsonwebtoken::DecodingKey;
 use jsonwebtoken::EncodingKey;
 
-use rocket::http::Status;
-use rocket::outcome::Outcome;
-use rocket::request;
-use rocket::request::FromRequest;
-use rocket::request::Request;
-
 use serde::Deserialize;
 use serde::Serialize;
 use time::get_time;
@@ -143,6 +137,7 @@ pub fn jwt_check(_: String) -> Result<TokenData<UserRolesToken>, jsonwebtoken::e
     })
 }
 
+/*
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for Wrapper {
     type Error = JWTError;
@@ -160,3 +155,4 @@ impl<'r> FromRequest<'r> for Wrapper {
         }
     }
 }
+*/

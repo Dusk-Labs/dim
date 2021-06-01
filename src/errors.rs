@@ -1,8 +1,10 @@
+/*
 use rocket::http::ContentType;
 use rocket::http::Status;
 use rocket::response::Responder;
 use rocket::Request;
 use rocket::Response;
+*/
 
 use diesel::result::DatabaseErrorKind;
 use diesel::result::Error as DieselError;
@@ -151,6 +153,7 @@ impl From<tokio_diesel::AsyncError> for AuthError {
     }
 }
 
+/*
 impl<'r> Responder<'r, 'static> for DimError {
     fn respond_to(self, req: &'r Request<'_>) -> Result<Response<'static>, Status> {
         let request_id = req
@@ -245,3 +248,4 @@ impl<'r> Responder<'r, 'static> for StreamingErrors {
             .ok()
     }
 }
+*/

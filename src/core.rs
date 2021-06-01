@@ -1,8 +1,9 @@
-use crate::logger::RequestLogger;
-use crate::routes;
+// use crate::logger::RequestLogger;
+// use crate::routes;
 use crate::scanners;
 use crate::stream_tracking::StreamTracking;
 
+/*
 use rocket::fairing::Fairing;
 use rocket::http::Method;
 use rocket_contrib::databases::diesel;
@@ -11,6 +12,7 @@ use rocket_contrib::helmet::SpaceHelmet;
 use rocket_cors::AllowedHeaders;
 use rocket_cors::AllowedOrigins;
 use rocket_cors::CorsOptions;
+*/
 
 use cfg_if::cfg_if;
 use diesel::prelude::*;
@@ -220,6 +222,7 @@ pub async fn start_event_server() -> EventTx {
     tx
 }
 
+/*
 pub async fn rocket_pad(
     logger: slog::Logger,
     event_tx: EventTx,
@@ -345,6 +348,7 @@ pub async fn rocket_pad(
         .manage(stream_manager)
         .manage(handle)
 }
+*/
 
 /// Method launch
 /// This method created a new rocket pad and launches it using the configuration passed in. This
@@ -356,6 +360,8 @@ pub async fn rocket_pad(
 ///           a sink for logs.
 /// * `event_tx` - This is the tx channel over which modules in dim can dispatch websocket events.
 /// * `config` - Specifies the configuration we'd like to pass to our rocket_pad.
+pub async fn launch() {}
+/*
 pub async fn launch(
     log: slog::Logger,
     event_tx: EventTx,
@@ -372,3 +378,4 @@ pub async fn launch(
         panic!("Launch error: {}", e);
     }
 }
+*/
