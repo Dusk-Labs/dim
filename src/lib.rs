@@ -76,7 +76,7 @@ pub mod core;
 /// Module contains all the error definitions used in dim, and returned by the web-service.
 pub mod errors;
 /// Contains our custom logger for rocket
-//pub mod logger;
+pub mod logger;
 /// Contains all of the routes exposed by the webapi.
 mod routes;
 /// Contains our media scanners and so on.
