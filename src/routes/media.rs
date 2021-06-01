@@ -323,37 +323,6 @@ pub async fn tmdb_search(
     ))
 }
 
-/// Method mapped to `PATCH /api/v1/media/<id>/match` used to rematch a media entry to a new tmdb
-/// id passed in as the paramter `tmdb_id`.
-///
-/// # Arguments
-/// * `conn` - database connection
-/// * `log` - logger
-/// * `event_tx` - websocket channel over which we dispatch a event notifying other clients of the
-/// new metadata
-/// * `id` - id of the media we want to rematch
-/// * `tmdb_id` - the tmdb id of the proper metadata we want to fetch for the media
-#[patch("/<id>/match?<tmdb_id>")]
-pub async fn rematch(
-    conn: State<'_, DbConnection>,
-    log: State<'_, slog::Logger>,
-    event_tx: State<'_, Arc<Mutex<EventTx>>>,
-    id: i32,
-    tmdb_id: i32,
-    _user: Auth,
-) -> Result<Status, errors::DimError> {
-    /*
-    let media = Media::get(&conn, id)?;
-    let tx = event_tx.lock().unwrap();
-    // let scanner = IterativeScanner::new(media.library_id, log.get().clone(), tx.clone())?;
-    std::thread::spawn(move || {
-        scanner.match_media_to_tmdb_id(media, tmdb_id);
-    });
-    Ok(Status::Ok)
-    */
-    Ok(Status::ServiceUnavailable)
-}
-
 /// Method mapped to `POST /api/v1/media/<id>/progress` is used to map progress for a certain media
 /// to the user. This is useful for remembering progress for a movie etc.
 ///
