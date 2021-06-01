@@ -54,7 +54,7 @@ once_cell = "1.5.2"
 bytes = "1.0.1"
 tokio = { version = "1", features = ["rt", "signal"] }
 uuid = { version = "0.8.2", features = ["v4"] }
-tokio-tungstenite = "0.14.0"
+tokio-tungstenite = "^0.13.0"
 futures = "0.3.14"
 xtra = { version = "0.5.1", features = ["with-tokio-1"] }
 xtra_proc = "0.1.0"
@@ -62,9 +62,6 @@ async-trait = "0.1.50"
 async-recursion = "0.3.2"
 anitomy = "0.1.2"
 warp = { version = "0.3.1", features = ["tls", "tokio-rustls"] }
-
-[dev-dependencies]
-criterion = "0.3.4"
 
 [build-dependencies]
 fs_extra = "1.1.0"
@@ -81,7 +78,3 @@ codegen-units = 8
 [profile.release]
 lto = true
 opt-level = 'z'
-
-[[bench]]
-name = "scanner"
-harness = false
