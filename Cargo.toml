@@ -6,7 +6,7 @@ authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
 
 [features]
-default = ["sqlite"]
+default = ["no_build", "embed_ui", "sqlite"]
 null_auth = ["auth/null_auth"]
 
 # the build script usually will enable this if `yarn` is installed.

@@ -321,17 +321,6 @@ pub async fn rocket_pad(
                 routes::tv::delete_episode_by_id,
             ],
         )
-        .mount(
-            "/api/v1/auth",
-            routes![
-                routes::auth::login,
-                routes::auth::register,
-                routes::auth::whoami,
-                routes::auth::admin_exists,
-                routes::auth::get_all_invites,
-                routes::auth::generate_invite
-            ],
-        )
         .manage(logger)
         .manage(Arc::new(Mutex::new(event_tx)))
         .manage(database::get_conn().expect("Failed to get db connection"))
@@ -344,10 +333,12 @@ pub async fn rocket_pad(
 pub async fn warp_core(log: slog::Logger, event_tx: EventTx, stream_manager: StateManager) {
     let conn = database::get_conn().expect("Failed to grab a handle to the connection pool.");
     let request_logger = RequestLogger::new(log);
-    let warp_logger = warp::filters::log::custom(move |x| {
-        request_logger.on_response(x);
-    });
-    let routes = routes::auth::auth_routes(conn.clone()).with(warp_logger);
+
+    let routes = routes::auth::auth_routes(conn.clone())
+        .with(warp::filters::log::custom(move |x| {
+            request_logger.on_response(x);
+        }))
+        .with(warp::cors().allow_any_origin());
 
     tokio::select! {
         _ = warp::serve(routes).run(([127, 0, 0, 1], 8000)) => {},
