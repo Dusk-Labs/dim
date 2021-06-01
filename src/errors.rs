@@ -48,6 +48,8 @@ pub enum DimError {
     ScannerError(#[error(source)] ScannerError),
 }
 
+impl warp::reject::Reject for DimError {}
+
 #[derive(Clone, Debug, Error, Serialize)]
 #[serde(tag = "error")]
 pub enum AuthError {

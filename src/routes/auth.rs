@@ -23,7 +23,13 @@ use std::convert::Infallible;
 pub fn auth_routes(
     conn: DbConnection,
 ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    filters::login(conn.clone()).recover(filters::handle_rejection)
+    filters::login(conn.clone())
+        .or(filters::whoami(conn.clone()))
+        .or(filters::admin_exists(conn.clone()))
+        .or(filters::register(conn.clone()))
+        .or(filters::get_all_invites(conn.clone()))
+        .or(filters::generate_invite(conn.clone()))
+        .recover(filters::handle_rejection)
 }
 
 mod filters {
@@ -51,6 +57,71 @@ mod filters {
             })
     }
 
+    pub fn whoami(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "auth" / "whoami")
+            .and(warp::get())
+            .and(auth::with_auth())
+            .and(with_db(conn))
+            .and_then(super::whoami)
+    }
+
+    pub fn admin_exists(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "auth" / "admin_exists")
+            .and(warp::get())
+            .and(with_db(conn))
+            .and_then(|conn: DbConnection| async move {
+                super::admin_exists(conn)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn register(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "auth" / "register")
+            .and(warp::post())
+            .and(warp::body::json::<Login>())
+            .and(with_db(conn))
+            .and_then(|new_login: Login, conn: DbConnection| async move {
+                super::register(new_login, conn)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn get_all_invites(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "auth" / "invites")
+            .and(warp::get())
+            .and(auth::with_auth())
+            .and(with_db(conn))
+            .and_then(|user: auth::Wrapper, conn: DbConnection| async move {
+                super::get_all_invites(conn, user)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn generate_invite(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "auth" / "new_invite")
+            .and(warp::post())
+            .and(auth::with_auth())
+            .and(with_db(conn))
+            .and_then(|user: auth::Wrapper, conn: DbConnection| async move {
+                super::generate_invite(conn, user)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
     fn with_db(
         conn: DbConnection,
     ) -> impl Filter<Extract = (DbConnection,), Error = Infallible> + Clone {
@@ -68,7 +139,6 @@ mod filters {
     }
 }
 
-//#[post("/login", data = "<new_login>")]
 pub async fn login(
     new_login: Login,
     conn: DbConnection,
@@ -89,8 +159,7 @@ pub async fn login(
     Err(errors::AuthError::WrongPassword)
 }
 
-// #[get("/whoami")]
-pub async fn whoami(conn: DbConnection, user: Auth) -> Result<impl warp::Reply, Infallible> {
+pub async fn whoami(user: Auth, conn: DbConnection) -> Result<impl warp::Reply, Infallible> {
     Ok(reply::json(&json!({
         "username": user.0.claims.get_user(),
         "picture": "https://i.redd.it/3n1if40vxxv31.png",
@@ -98,17 +167,15 @@ pub async fn whoami(conn: DbConnection, user: Auth) -> Result<impl warp::Reply, 
     })))
 }
 
-//#[get("/admin_exists")]
 pub async fn admin_exists(conn: DbConnection) -> Result<impl warp::Reply, errors::DimError> {
     Ok(reply::json(&json!({
         "exists": !User::get_all(&conn).await?.is_empty()
     })))
 }
 
-// #[post("/register", data = "<new_user>")]
 pub async fn register(
-    conn: DbConnection,
     new_user: Login,
+    conn: DbConnection,
 ) -> Result<impl warp::Reply, errors::AuthError> {
     let users_empty = User::get_all(&conn).await?.is_empty();
 
@@ -140,7 +207,6 @@ pub async fn register(
     Ok(reply::json(&json!({ "username": res })))
 }
 
-// #[get("/invites")]
 pub async fn get_all_invites(
     conn: DbConnection,
     user: Auth,
@@ -154,7 +220,6 @@ pub async fn get_all_invites(
     Err(errors::AuthError::Unauthorized)
 }
 
-// #[post("/new_invite")]
 pub async fn generate_invite(
     conn: DbConnection,
     user: Auth,
