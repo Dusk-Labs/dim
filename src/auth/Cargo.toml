@@ -14,3 +14,4 @@ jsonwebtoken = "8.0.0-beta.2"
 time = "0.1.42"
 uuid = { version = "0.8.2", features = ["v4"] }
 rand = "0.8.3"
+warp = "0.3.1"
