@@ -1,18 +1,7 @@
-// use crate::logger::RequestLogger;
-// use crate::routes;
+use crate::logger::RequestLogger;
+use crate::routes;
 use crate::scanners;
 use crate::stream_tracking::StreamTracking;
-
-/*
-use rocket::fairing::Fairing;
-use rocket::http::Method;
-use rocket_contrib::databases::diesel;
-use rocket_contrib::helmet::SpaceHelmet;
-
-use rocket_cors::AllowedHeaders;
-use rocket_cors::AllowedOrigins;
-use rocket_cors::CorsOptions;
-*/
 
 use cfg_if::cfg_if;
 use diesel::prelude::*;
@@ -40,6 +29,8 @@ use std::sync::Mutex;
 use std::thread;
 
 use self::fetcher::PosterType;
+
+use warp::Filter;
 
 pub type StateManager = nightfall::StateManager;
 pub type DbConnection = database::DbConnection;
@@ -352,8 +343,11 @@ pub async fn rocket_pad(
 
 pub async fn warp_core(log: slog::Logger, event_tx: EventTx, stream_manager: StateManager) {
     let conn = database::get_conn().expect("Failed to grab a handle to the connection pool.");
-
-    let routes = crate::routes::auth::auth_routes(conn.clone());
+    let request_logger = RequestLogger::new(log);
+    let warp_logger = warp::filters::log::custom(move |x| {
+        request_logger.on_response(x);
+    });
+    let routes = routes::auth::auth_routes(conn.clone()).with(warp_logger);
 
     tokio::select! {
         _ = warp::serve(routes).run(([127, 0, 0, 1], 8000)) => {},

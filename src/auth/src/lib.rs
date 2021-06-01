@@ -11,6 +11,13 @@ use serde::Deserialize;
 use serde::Serialize;
 use time::get_time;
 
+use warp::filters::header::headers_cloned;
+use warp::http::header::HeaderMap;
+use warp::http::header::AUTHORIZATION;
+use warp::reject;
+use warp::Filter;
+use warp::Rejection;
+
 #[cfg(all(not(debug_assertions), feature = "null_auth"))]
 std::compile_error!("Cannot disable authentication for non-devel environments.");
 
@@ -147,14 +154,6 @@ pub fn jwt_check(_: String) -> Result<TokenData<UserRolesToken>, jsonwebtoken::e
         },
     })
 }
-
-use warp::filters::header::headers_cloned;
-use warp::http::header::HeaderMap;
-use warp::http::header::HeaderValue;
-use warp::http::header::AUTHORIZATION;
-use warp::reject;
-use warp::Filter;
-use warp::Rejection;
 
 pub fn with_auth() -> impl Filter<Extract = (Wrapper,), Error = Rejection> + Clone {
     headers_cloned().and_then(|x: HeaderMap| async move {
