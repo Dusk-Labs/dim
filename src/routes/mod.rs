@@ -5,8 +5,6 @@ use database::{
     episode::Episode, genre::*, library::MediaType, media::Media, mediafile::MediaFile,
     progress::Progress, schema::season, season::Season,
 };
-use rocket::http::RawStr;
-use rocket_contrib::json::{Json, JsonValue};
 
 use diesel::prelude::*;
 use diesel::sql_types::Text;
@@ -17,15 +15,15 @@ use std::io;
 use std::path::PathBuf;
 
 pub mod auth;
-pub mod catchers;
-pub mod dashboard;
-pub mod general;
-pub mod library;
-pub mod media;
-pub mod mediafile;
-pub mod statik;
-pub mod stream;
-pub mod tv;
+// pub mod catchers;
+// pub mod dashboard;
+// pub mod general;
+// pub mod library;
+// pub mod media;
+// pub mod mediafile;
+// pub mod statik;
+// pub mod stream;
+// pub mod tv;
 
 pub async fn get_top_duration(conn: &DbConnection, data: &Media) -> Result<i32, errors::DimError> {
     match MediaFile::get_of_media(conn, data).await {
