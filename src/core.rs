@@ -350,32 +350,15 @@ pub async fn rocket_pad(
 }
 */
 
-/// Method launch
-/// This method created a new rocket pad and launches it using the configuration passed in. This
-/// function returns once the server has finished running and all the scanner threads have been
-/// joined.
-///
-/// # Arguments
-/// * `log` - a Logger object which will be propagated to subsequent modules which can use this as
-///           a sink for logs.
-/// * `event_tx` - This is the tx channel over which modules in dim can dispatch websocket events.
-/// * `config` - Specifies the configuration we'd like to pass to our rocket_pad.
-pub async fn launch() {}
-/*
-pub async fn launch(
-    log: slog::Logger,
-    event_tx: EventTx,
-    config: rocket::config::Config,
-    stream_manager: StateManager,
-    handle: tokio::runtime::Handle,
-) {
-    let error = rocket_pad(log, event_tx, config, stream_manager, handle)
-        .await
-        .launch()
-        .await;
+pub async fn warp_core(log: slog::Logger, event_tx: EventTx, stream_manager: StateManager) {
+    let conn = database::get_conn().expect("Failed to grab a handle to the connection pool.");
 
-    if let Err(e) = error {
-        panic!("Launch error: {}", e);
+    let routes = crate::routes::auth::auth_routes(conn.clone());
+
+    tokio::select! {
+        _ = warp::serve(routes).run(([127, 0, 0, 1], 8000)) => {},
+        _ = tokio::signal::ctrl_c() => {
+            std::process::exit(0);
+        }
     }
 }
-*/

@@ -11,11 +11,17 @@ use diesel::result::Error as DieselError;
 use err_derive::Error;
 
 use serde::Serialize;
+use serde_json::json;
+
+use std::convert::Infallible;
 use std::io::Cursor;
 
 use nightfall::error::NightfallError;
 
 use crate::scanners::base::ScannerError;
+
+use http::Response;
+use http::StatusCode;
 
 #[derive(Debug, Error, Serialize)]
 #[serde(tag = "error")]
@@ -42,7 +48,7 @@ pub enum DimError {
     ScannerError(#[error(source)] ScannerError),
 }
 
-#[derive(Debug, Error, Serialize)]
+#[derive(Clone, Debug, Error, Serialize)]
 #[serde(tag = "error")]
 pub enum AuthError {
     #[error(display = "Authentication failed")]
@@ -57,6 +63,39 @@ pub enum AuthError {
     WrongPassword,
     #[error(display = "Username Taken")]
     UsernameTaken,
+}
+
+impl warp::reject::Reject for AuthError {}
+
+impl warp::Reply for AuthError {
+    fn into_response(self) -> warp::reply::Response {
+        /*
+        let request_id = req
+            .headers()
+            .get("x-request-id")
+            .next()
+            .map(ToString::to_string)
+            .unwrap_or_default();
+        */
+
+        let status = match self {
+            Self::NoTokenError | Self::UsernameTaken => StatusCode::OK,
+            Self::DatabaseError => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::Unauthorized => StatusCode::UNAUTHORIZED,
+            Self::WrongPassword | Self::FailedAuth => StatusCode::FORBIDDEN,
+        };
+
+        let resp = json!({
+            "error": json!(&self)["error"],
+            "messsage": self.to_string(),
+        });
+
+        warp::http::Response::builder()
+            .status(status)
+            .header("ContentType", "application/json")
+            .body(serde_json::to_string(&resp).unwrap().into())
+            .unwrap()
+    }
 }
 
 #[derive(Debug, Error, Serialize)]

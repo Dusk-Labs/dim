@@ -78,7 +78,7 @@ pub mod errors;
 /// Contains our custom logger for rocket
 //pub mod logger;
 /// Contains all of the routes exposed by the webapi.
-// mod routes;
+mod routes;
 /// Contains our media scanners and so on.
 pub mod scanners;
 /// Contains the fairing which tracks streams across rest api

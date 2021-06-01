@@ -9,17 +9,70 @@ use database::user::Login;
 use database::user::User;
 
 use diesel::prelude::*;
-
-use rocket::State;
-use rocket_contrib::json::{Json, JsonValue};
-
 use tokio_diesel::*;
 
-#[post("/login", data = "<new_login>")]
+use serde_json::json;
+
+use warp::reject;
+use warp::reply;
+use warp::reply::Json;
+use warp::Filter;
+
+use std::convert::Infallible;
+
+pub fn auth_routes(
+    conn: DbConnection,
+) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    filters::login(conn.clone()).recover(filters::handle_rejection)
+}
+
+mod filters {
+    use crate::core::DbConnection;
+    use serde::Deserialize;
+
+    use warp::reject;
+    use warp::Filter;
+
+    use database::user::Login;
+
+    use std::convert::Infallible;
+
+    pub fn login(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "auth" / "login")
+            .and(warp::post())
+            .and(warp::body::json::<Login>())
+            .and(with_db(conn))
+            .and_then(|new_login: Login, conn: DbConnection| async move {
+                super::login(new_login, conn)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    fn with_db(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = (DbConnection,), Error = Infallible> + Clone {
+        warp::any().map(move || conn.clone())
+    }
+
+    pub async fn handle_rejection(
+        err: warp::reject::Rejection,
+    ) -> Result<impl warp::Reply, warp::reject::Rejection> {
+        if let Some(e) = err.find::<crate::errors::AuthError>() {
+            return Ok(e.clone());
+        }
+
+        Err(err)
+    }
+}
+
+//#[post("/login", data = "<new_login>")]
 pub async fn login(
-    conn: State<'_, DbConnection>,
-    new_login: Json<Login>,
-) -> Result<JsonValue, errors::AuthError> {
+    new_login: Login,
+    conn: DbConnection,
+) -> Result<impl warp::Reply, errors::AuthError> {
     use database::schema::users::dsl::*;
     let uname = new_login.username.clone();
     let user: (String, String, String) =
@@ -28,35 +81,35 @@ pub async fn login(
     if verify(user.0.clone(), user.1.clone(), new_login.password.clone()) {
         let token = jwt_generate(user.0, user.2.split(",").map(|x| x.to_string()).collect());
 
-        return Ok(json!({
+        return Ok(reply::json(&json!({
             "token": token,
-        }));
+        })));
     }
 
     Err(errors::AuthError::WrongPassword)
 }
 
-#[get("/whoami")]
-pub async fn whoami(conn: State<'_, DbConnection>, user: Auth) -> JsonValue {
-    json!({
+// #[get("/whoami")]
+pub async fn whoami(conn: DbConnection, user: Auth) -> Result<impl warp::Reply, Infallible> {
+    Ok(reply::json(&json!({
         "username": user.0.claims.get_user(),
         "picture": "https://i.redd.it/3n1if40vxxv31.png",
         "spentWatching": Progress::get_total_time_spent_watching(&conn, user.0.claims.get_user()).await.unwrap_or(0) / 3600
-    })
+    })))
 }
 
-#[get("/admin_exists")]
-pub async fn admin_exists(conn: State<'_, DbConnection>) -> Result<JsonValue, errors::DimError> {
-    Ok(json!({
+//#[get("/admin_exists")]
+pub async fn admin_exists(conn: DbConnection) -> Result<impl warp::Reply, errors::DimError> {
+    Ok(reply::json(&json!({
         "exists": !User::get_all(&conn).await?.is_empty()
-    }))
+    })))
 }
 
-#[post("/register", data = "<new_user>")]
+// #[post("/register", data = "<new_user>")]
 pub async fn register(
-    conn: State<'_, DbConnection>,
-    new_user: Json<Login>,
-) -> Result<JsonValue, errors::AuthError> {
+    conn: DbConnection,
+    new_user: Login,
+) -> Result<impl warp::Reply, errors::AuthError> {
     let users_empty = User::get_all(&conn).await?.is_empty();
 
     if !users_empty
@@ -84,33 +137,33 @@ pub async fn register(
         new_user.invalidate_token(&conn).await?;
     }
 
-    Ok(json!({ "username": res }))
+    Ok(reply::json(&json!({ "username": res })))
 }
 
-#[get("/invites")]
+// #[get("/invites")]
 pub async fn get_all_invites(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     user: Auth,
-) -> Result<JsonValue, errors::AuthError> {
+) -> Result<impl warp::Reply, errors::AuthError> {
     if user.0.claims.has_role("owner") {
-        return Ok(json!({
+        return Ok(reply::json(&json!({
             "invites": Login::get_all_invites(&conn).await?
-        }));
+        })));
     }
 
     Err(errors::AuthError::Unauthorized)
 }
 
-#[post("/new_invite")]
+// #[post("/new_invite")]
 pub async fn generate_invite(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     user: Auth,
-) -> Result<JsonValue, errors::AuthError> {
+) -> Result<impl warp::Reply, errors::AuthError> {
     if !user.0.claims.has_role("owner") {
         return Err(errors::AuthError::Unauthorized);
     }
 
-    Ok(json!({
+    Ok(reply::json(&json!({
         "token": Login::new_invite(&conn).await?
-    }))
+    })))
 }
