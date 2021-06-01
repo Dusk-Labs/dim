@@ -38,10 +38,6 @@
 #[macro_use]
 extern crate diesel;
 #[macro_use]
-extern crate rocket_codegen;
-#[macro_use]
-extern crate rocket_contrib;
-#[macro_use]
 extern crate rust_embed;
 
 use cfg_if::cfg_if;
@@ -49,10 +45,6 @@ use chrono::Utc;
 
 use clap::App;
 use clap::Arg;
-
-use rocket::config::Config;
-use rocket::config::LogLevel;
-
 use slog::error;
 use slog::info;
 use slog::o;
@@ -84,9 +76,9 @@ pub mod core;
 /// Module contains all the error definitions used in dim, and returned by the web-service.
 pub mod errors;
 /// Contains our custom logger for rocket
-pub mod logger;
+//pub mod logger;
 /// Contains all of the routes exposed by the webapi.
-mod routes;
+// mod routes;
 /// Contains our media scanners and so on.
 pub mod scanners;
 /// Contains the fairing which tracks streams across rest api

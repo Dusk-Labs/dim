@@ -10,8 +10,7 @@ null_auth = []
 
 [dependencies]
 serde = { version = "^1.0.105", features = ["derive"], default-features = false }
-jsonwebtoken = "7.2.0"
+jsonwebtoken = "8.0.0-beta.2"
 time = "0.1.42"
-rocket = { git = "https://github.com/SergioBenitez/Rocket", rev = "801e04b", default-features = false, features = ["tls"] }
 uuid = { version = "0.8.2", features = ["v4"] }
 rand = "0.8.3"
