@@ -70,6 +70,7 @@ static __GLOBAL: SyncOnceCell<crate::DbConnection> = SyncOnceCell::new();
 #[derive(Debug)]
 struct Pragmas;
 
+#[cfg(not(feature = "postgres"))]
 impl<E> diesel::r2d2::CustomizeConnection<diesel::SqliteConnection, E> for Pragmas {
     fn on_acquire(&self, conn: &mut diesel::SqliteConnection) -> Result<(), E> {
         use diesel::connection::Connection;
@@ -93,6 +94,8 @@ cfg_if! {
 }
 
 fn create_database(_conn: &crate::DbConnection) -> Result<(), diesel::result::Error> {
+    use crate::diesel::RunQueryDsl;
+
     cfg_if! {
         if #[cfg(feature = "postgres")] {
             let conn = _conn.get().unwrap();
