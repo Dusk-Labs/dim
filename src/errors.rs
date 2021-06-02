@@ -15,7 +15,7 @@ use crate::scanners::base::ScannerError;
 use http::Response;
 use http::StatusCode;
 
-#[derive(Debug, Error, Serialize)]
+#[derive(Clone, Debug, Error, Serialize)]
 #[serde(tag = "error")]
 pub enum DimError {
     #[error(display = "A database error occured")]
@@ -42,6 +42,33 @@ pub enum DimError {
 
 impl warp::reject::Reject for DimError {}
 
+impl warp::Reply for DimError {
+    fn into_response(self) -> warp::reply::Response {
+        let status = match self {
+            Self::NoneError | Self::NotFoundError => StatusCode::NOT_FOUND,
+            Self::StreamingError(_)
+            | Self::DatabaseError
+            | Self::UnknownError
+            | Self::IOError
+            | Self::InternalServerError
+            | Self::ScannerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::AuthRequired => StatusCode::UNAUTHORIZED,
+            Self::InvalidMediaType => StatusCode::NOT_ACCEPTABLE,
+        };
+
+        let resp = json!({
+            "error": json!(&self)["error"],
+            "messsage": self.to_string(),
+        });
+
+        warp::http::Response::builder()
+            .status(status)
+            .header("ContentType", "application/json")
+            .body(serde_json::to_string(&resp).unwrap().into())
+            .unwrap()
+    }
+}
+
 #[derive(Clone, Debug, Error, Serialize)]
 #[serde(tag = "error")]
 pub enum AuthError {
@@ -63,15 +90,6 @@ impl warp::reject::Reject for AuthError {}
 
 impl warp::Reply for AuthError {
     fn into_response(self) -> warp::reply::Response {
-        /*
-        let request_id = req
-            .headers()
-            .get("x-request-id")
-            .next()
-            .map(ToString::to_string)
-            .unwrap_or_default();
-        */
-
         let status = match self {
             Self::NoTokenError | Self::UsernameTaken => StatusCode::OK,
             Self::DatabaseError => StatusCode::INTERNAL_SERVER_ERROR,
@@ -92,7 +110,7 @@ impl warp::Reply for AuthError {
     }
 }
 
-#[derive(Debug, Error, Serialize)]
+#[derive(Clone, Debug, Error, Serialize)]
 pub enum StreamingErrors {
     #[error(display = "Failed to start process")]
     ProcFailed,
@@ -187,72 +205,6 @@ impl From<tokio_diesel::AsyncError> for AuthError {
 }
 
 /*
-impl<'r> Responder<'r, 'static> for DimError {
-    fn respond_to(self, req: &'r Request<'_>) -> Result<Response<'static>, Status> {
-        let request_id = req
-            .headers()
-            .get("x-request-id")
-            .next()
-            .map(ToString::to_string)
-            .unwrap_or_default();
-
-        let status = match self {
-            Self::NoneError | Self::NotFoundError => Status::NotFound,
-            Self::StreamingError(_)
-            | Self::DatabaseError
-            | Self::UnknownError
-            | Self::IOError
-            | Self::InternalServerError
-            | Self::ScannerError(_) => Status::InternalServerError,
-            Self::AuthRequired => Status::Unauthorized,
-            Self::InvalidMediaType => Status::NotModified,
-        };
-
-        let resp = json!({
-            "error": json!(&self)["error"],
-            "messsage": self.to_string(),
-            "request_id": request_id,
-        });
-
-        Response::build()
-            .status(status)
-            .header(ContentType::JSON)
-            .streamed_body(Cursor::new(serde_json::to_string(&resp).unwrap()))
-            .ok()
-    }
-}
-
-impl<'r> Responder<'r, 'static> for AuthError {
-    fn respond_to(self, req: &'r Request<'_>) -> Result<Response<'static>, Status> {
-        let request_id = req
-            .headers()
-            .get("x-request-id")
-            .next()
-            .map(ToString::to_string)
-            .unwrap_or_default();
-
-        let status = match self {
-            Self::NoTokenError => Status::Ok,
-            Self::UsernameTaken => Status::Ok,
-            Self::DatabaseError => Status::InternalServerError,
-            Self::Unauthorized => Status::Unauthorized,
-            Self::WrongPassword | Self::FailedAuth => Status::Forbidden,
-        };
-
-        let resp = json!({
-            "error": json!(&self)["error"],
-            "messsage": self.to_string(),
-            "request_id": request_id,
-        });
-
-        Response::build()
-            .status(status)
-            .header(ContentType::JSON)
-            .streamed_body(Cursor::new(serde_json::to_string(&resp).unwrap()))
-            .ok()
-    }
-}
-
 impl<'r> Responder<'r, 'static> for StreamingErrors {
     fn respond_to(self, req: &'r Request<'_>) -> Result<Response<'static>, Status> {
         let request_id = req
