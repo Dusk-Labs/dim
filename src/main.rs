@@ -157,6 +157,12 @@ fn main() {
             */
 
             info!(logger, "Summoning Dim v{}...", clap::crate_version!());
-            core::warp_core(logger, event_tx, stream_manager).await;
+            core::warp_core(
+                logger,
+                event_tx,
+                stream_manager,
+                tokio::runtime::Handle::current(),
+            )
+            .await;
         });
 }
