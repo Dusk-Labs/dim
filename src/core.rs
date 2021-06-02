@@ -332,9 +332,14 @@ pub async fn rocket_pad(
 
 pub async fn warp_core(log: slog::Logger, event_tx: EventTx, stream_manager: StateManager) {
     let conn = database::get_conn().expect("Failed to grab a handle to the connection pool.");
-    let request_logger = RequestLogger::new(log);
+    let request_logger = RequestLogger::new(log.clone());
 
     let routes = routes::auth::auth_routes(conn.clone())
+        .or(routes::library::library_routes(
+            conn.clone(),
+            log.clone(),
+            event_tx.clone(),
+        ))
         .or(routes::statik::statik_routes())
         .with(warp::filters::log::custom(move |x| {
             request_logger.on_response(x);

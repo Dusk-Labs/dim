@@ -29,7 +29,7 @@ pub mod auth;
 // pub mod catchers;
 // pub mod dashboard;
 // pub mod general;
-// pub mod library;
+pub mod library;
 // pub mod media;
 // pub mod mediafile;
 pub mod statik;
@@ -46,6 +46,12 @@ pub mod global_filters {
         conn: DbConnection,
     ) -> impl Filter<Extract = (DbConnection,), Error = Infallible> + Clone {
         warp::any().map(move || conn.clone())
+    }
+
+    pub fn with_state<T: Send + Clone>(
+        state: T,
+    ) -> impl Filter<Extract = (T,), Error = Infallible> + Clone {
+        warp::any().map(move || state.clone())
     }
 
     pub async fn handle_rejection(
