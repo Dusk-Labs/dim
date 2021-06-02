@@ -29,7 +29,7 @@ pub fn auth_routes(
         .or(filters::register(conn.clone()))
         .or(filters::get_all_invites(conn.clone()))
         .or(filters::generate_invite(conn.clone()))
-        .recover(filters::handle_rejection)
+        .recover(super::global_filters::handle_rejection)
 }
 
 mod filters {
@@ -42,6 +42,8 @@ mod filters {
     use database::user::Login;
 
     use std::convert::Infallible;
+
+    use super::super::global_filters::with_db;
 
     pub fn login(
         conn: DbConnection,
@@ -120,22 +122,6 @@ mod filters {
                     .await
                     .map_err(|e| reject::custom(e))
             })
-    }
-
-    fn with_db(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = (DbConnection,), Error = Infallible> + Clone {
-        warp::any().map(move || conn.clone())
-    }
-
-    pub async fn handle_rejection(
-        err: warp::reject::Rejection,
-    ) -> Result<impl warp::Reply, warp::reject::Rejection> {
-        if let Some(e) = err.find::<crate::errors::AuthError>() {
-            return Ok(e.clone());
-        }
-
-        Err(err)
     }
 }
 
