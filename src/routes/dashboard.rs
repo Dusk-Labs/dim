@@ -24,24 +24,48 @@ use diesel::prelude::*;
 use diesel::sql_types::Text;
 use tokio_diesel::*;
 
-use rocket::http::RawStr;
-use rocket::State;
-use rocket_contrib::json::{Json, JsonValue};
-
 use futures::stream;
 use futures::StreamExt;
 use std::fs;
 use std::io;
 use std::path::PathBuf;
 
+use serde_json::json;
+use serde_json::Value;
+
+use warp::reply;
+
 no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
 
-#[get("/dashboard")]
+mod filters {
+    use database::DbConnection;
+    use warp::Filter;
+
+    fn dashboard(
+        conn: DbConnection,
+        rt: tokio::runtime::Handle,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "dashboard")
+            .and(warp::get())
+            .and(auth::with_auth())
+            .and(with_db(conn))
+            .and(with_rt(rt))
+            .and_then(
+                |rt: tokio::runtime::Handle, user: Auth, conn: DbConnection| {
+                    super::dashboard(conn, user, rt)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                },
+            )
+    }
+}
+
+//#[get("/dashboard")]
 pub async fn dashboard(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     user: Auth,
-    rt: State<'_, tokio::runtime::Handle>,
-) -> Result<JsonValue, errors::DimError> {
+    rt: tokio::runtime::Handle,
+) -> Result<impl warp::Reply, errors::DimError> {
     let mut top_rated = media::table
         .filter(media::media_type.ne(MediaType::Episode))
         .group_by((media::id, media::name))
@@ -59,7 +83,7 @@ pub async fn dashboard(
             async move { construct_standard(&conn, &x, &user).await.ok() }
         })
         .take(10)
-        .collect::<Vec<JsonValue>>()
+        .collect::<Vec<Value>>()
         .await;
 
     let recently_added = stream::iter(
@@ -77,14 +101,15 @@ pub async fn dashboard(
         async move { construct_standard(&conn, &x, &user).await.ok() }
     })
     .take(10)
-    .collect::<Vec<JsonValue>>()
+    .collect::<Vec<Value>>()
     .await;
 
-    Ok(json!({
+    Ok(reply::json(json!({
         "TOP RATED": top_rated,
         "FRESHLY ADDED": recently_added,
-    }))
+    })))
 }
+/*
 
 // FIXME: Basically this function purely async just kinda fails to compile because of various
 // lifetime and opaque type issues. The bigger problem is that the `rocket::get` macro hides the
@@ -269,3 +294,4 @@ async fn banner_for_show(
         })).collect::<Vec<_>>(),
     }))
 }
+*/
