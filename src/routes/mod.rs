@@ -28,7 +28,7 @@ use warp::reply::Json;
 pub mod auth;
 // pub mod catchers;
 pub mod dashboard;
-// pub mod general;
+pub mod general;
 pub mod library;
 // pub mod media;
 // pub mod mediafile;
@@ -41,6 +41,7 @@ pub mod global_filters {
 
     use std::convert::Infallible;
     use warp::Filter;
+    use warp::Reply;
 
     pub fn with_db(
         conn: DbConnection,
@@ -58,7 +59,9 @@ pub mod global_filters {
         err: warp::reject::Rejection,
     ) -> Result<impl warp::Reply, warp::reject::Rejection> {
         if let Some(e) = err.find::<crate::errors::AuthError>() {
-            return Ok(e.clone());
+            return Ok(e.clone().into_response());
+        } else if let Some(e) = err.find::<crate::errors::DimError>() {
+            return Ok(e.clone().into_response());
         }
 
         Err(err)
