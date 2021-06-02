@@ -32,9 +32,32 @@ pub mod auth;
 // pub mod library;
 // pub mod media;
 // pub mod mediafile;
-// pub mod statik;
+pub mod statik;
 // pub mod stream;
 // pub mod tv;
+
+pub mod global_filters {
+    use database::DbConnection;
+
+    use std::convert::Infallible;
+    use warp::Filter;
+
+    pub fn with_db(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = (DbConnection,), Error = Infallible> + Clone {
+        warp::any().map(move || conn.clone())
+    }
+
+    pub async fn handle_rejection(
+        err: warp::reject::Rejection,
+    ) -> Result<impl warp::Reply, warp::reject::Rejection> {
+        if let Some(e) = err.find::<crate::errors::AuthError>() {
+            return Ok(e.clone());
+        }
+
+        Err(err)
+    }
+}
 
 pub async fn get_top_duration(conn: &DbConnection, data: &Media) -> Result<i32, errors::DimError> {
     match MediaFile::get_of_media(conn, data).await {

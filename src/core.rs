@@ -335,6 +335,7 @@ pub async fn warp_core(log: slog::Logger, event_tx: EventTx, stream_manager: Sta
     let request_logger = RequestLogger::new(log);
 
     let routes = routes::auth::auth_routes(conn.clone())
+        .or(routes::statik::statik_routes())
         .with(warp::filters::log::custom(move |x| {
             request_logger.on_response(x);
         }))
