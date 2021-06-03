@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { checkAdminExists } from "../../actions/auth.js";
+import { fetchGlobalSettings } from "../../actions/settings.js";
 
 import Account from "./Account";
 // import Invites from "./Invites";
@@ -12,7 +13,10 @@ import Advanced from "./Advanced";
 import "./Index.scss";
 
 function Preferences(props) {
-  const user = useSelector(store => store.user);
+  const user = useSelector(store => {
+    console.log(store.settings);
+    return store.user;
+  });
   const dispatch = useDispatch();
 
   const [active, setActive] = useState(0);
@@ -31,6 +35,7 @@ function Preferences(props) {
 
   useEffect(() => {
     dispatch(checkAdminExists());
+    dispatch(fetchGlobalSettings());
   }, [dispatch]);
 
   function computeCirclePos() {
