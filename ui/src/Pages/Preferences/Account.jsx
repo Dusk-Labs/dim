@@ -1,12 +1,26 @@
 import UserCard from "../../Components/CardList/UserCard";
 
+function AccountSection(props) {
+  return (
+    <div className="accountSectionParent">
+      <span className="accountHeadingText">{props.heading}</span>
+      <div className="accountSectionContent">
+        {props.children}
+      </div>
+    </div>
+  );
+}
+
 function Account() {
   return (
     <>
       <section className="accountSection">
-        <div/>
-        <div/>
-        <div/>
+        <AccountSection heading="My Account">
+          <label>Username</label>
+          <input className="inputField" placeholder="Enter username..."/>
+        </AccountSection>
+        <AccountSection heading="Password and Authentication"/>
+        <AccountSection heading="Account removal"/>
       </section>
       <section className="usersSection">
         <div className="sectionHeading">
@@ -24,21 +38,27 @@ function Account() {
         <div className="sectionHeading">
           <span>Tokens</span>
           <button className="editBtn">
-            add
+            new
           </button>
         </div>
         <div className="tableSection">
           <table className="tokenTable">
-            <tr>
-              <th style={{width: "65%"}}>Token</th>
-              <th>Created</th>
-              <th>Claimed by</th>
-              <th>Remove</th>
-            </tr>
-            <tr>
-              <td>aksdflkjaslkdjflkajsdlkfjalksjdfl;kjasldkjf</td>
-              <td>2</td>
-            </tr>
+            <thead>
+              <tr>
+                <th style={{width: "65%"}}>Token</th>
+                <th>Created</th>
+                <th>Claimed by</th>
+                <th className="removeHeader">Remove</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>9ebe4e49d6244e12ba7c2e1e5a15aa59</td>
+                <td>2</td>
+                <td>Liam</td>
+                <td>1</td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </section>

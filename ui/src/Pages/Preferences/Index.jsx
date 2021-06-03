@@ -13,9 +13,8 @@ import Advanced from "./Advanced";
 import "./Index.scss";
 
 function Preferences(props) {
-  const user = useSelector(store => {
-    console.log(store.settings);
-    return store.user;
+  const {user, settings} = useSelector(store => {
+    return {user: store.user, settings: store.settings};
   });
   const dispatch = useDispatch();
 
@@ -37,6 +36,10 @@ function Preferences(props) {
     dispatch(checkAdminExists());
     dispatch(fetchGlobalSettings());
   }, [dispatch]);
+
+  useEffect(() => {
+    console.log(settings);
+  }, [settings]);
 
   function computeCirclePos() {
     let containerHeight = leftProfilePic.current.clientHeight;

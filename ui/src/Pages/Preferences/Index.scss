@@ -175,10 +175,23 @@
         width: 100%;
         padding: 0 1rem 0 1rem;
         .tokenTable {
+          margin-top: 0.5rem;
           border-collapse: collapse;
           width: 100%;
 
-          tr:nth-child(1) {
+          .removeHeader {
+            width: 0;
+          }
+
+          td {
+            max-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-left: 0.2rem;
+          }
+
+          thead tr:nth-child(1) {
+            padding-bottom: 1rem !important;
             border-bottom: 1px solid #737373;
           }
 
@@ -189,7 +202,18 @@
           th {
             text-align: left;
             white-space: nowrap;
+            padding-right: 0.8rem;
+            padding-left: 0.2rem;
           }
+
+          th:not(:nth-child(1)) {
+            border-left: 1px solid #737373;
+          }
+
+          td:not(:nth-child(1)) {
+            border-left: 1px solid #737373;
+          }
+
         }
       }
 
@@ -200,6 +224,32 @@
         border-radius: 10px;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+        .accountSectionParent {
+          padding: 0 1rem 0 1rem;
+        }
+
+        .accountHeadingText {
+          font-size: 1rem;
+        }
+
+        .inputField {
+          all: unset;
+          background: #303030;
+          border-radius: 10px;
+          padding: 0.5rem 1rem 0.5rem 1rem;
+        }
+
+        .accountSectionContent {
+          margin-top: 0.8rem;
+          display: flex;
+          flex-direction: column;
+
+          label {
+            color: #777777;
+            padding-bottom: 0.2rem;
+          }
+        }
       }
 
       .sectionHeading {
