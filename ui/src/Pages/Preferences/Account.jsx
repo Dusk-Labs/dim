@@ -18,9 +18,19 @@ function Account() {
         <AccountSection heading="My Account">
           <label>Username</label>
           <input className="inputField" placeholder="Enter username..."/>
+          <label className="multiSelectLabel">Language</label>
+          <div className="inputSelect">
+
+          </div>
         </AccountSection>
-        <AccountSection heading="Password and Authentication"/>
-        <AccountSection heading="Account removal"/>
+        <AccountSection heading="Password and Authentication">
+          <label>Password</label>
+          <input type="password" className="inputField" placeholder="Enter password..."/>
+        </AccountSection>
+        <AccountSection heading="Account removal">
+          <label>Delete account</label>
+          <button className="removeAccountButton">Delete</button>
+        </AccountSection>
       </section>
       <section className="usersSection">
         <div className="sectionHeading">

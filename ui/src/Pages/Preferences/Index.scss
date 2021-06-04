@@ -184,6 +184,7 @@
           }
 
           td {
+            padding-top: 0.2rem;
             max-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -217,8 +218,81 @@
         }
       }
 
+      .uiSection {
+        height: auto;
+        margin-top: 1rem;
+        background: #222222;
+        padding: 1rem 0 1rem 0;
+        border-radius: 10px;
+
+        .uiContainer {
+          padding: 1rem;
+        }
+      }
+
+      .appearanceSection {
+        background: #222222;
+        padding: 1rem 0 1rem 0;
+        border-radius: 10px;
+        height: auto;
+
+        .themeContainer {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, 15rem);
+          grid-gap: 2rem;
+          padding: 1rem;
+          padding-bottom: 0;
+
+          .themeParent {
+            width: 15rem;
+            height: 9rem;
+            border-radius: 10px;
+            // border: 2px solid #F7931E;
+            background: #303030;
+            display: grid;
+            grid-template-rows: 0.7fr 0.3fr;
+            overflow: hidden;
+          }
+
+          .themeImage {
+            background-size: cover;
+          }
+
+          .themeInfo {
+            display: flex;
+            align-items: center;
+            padding-left: 1rem;
+
+            span {
+              display: flex;
+              align-items: center;
+            }
+
+            .selected:before {
+              display: inline-block;
+              content: " ";
+              height: 10px;
+              width: 10px;
+              background: #F7931E;
+              margin-right: 0.5rem;
+              border-radius: 50%;
+            }
+
+            span:before {
+              display: inline-block;
+              content: " ";
+              height: 10px;
+              width: 10px;
+              border-radius: 50%;
+              margin-right: 0.5rem;
+              border: 3px solid #F7931E;
+            }
+          }
+        }
+      }
+
       .accountSection {
-        height: 15rem;
+        height: auto;
         background: #222222;
         padding: 1rem 0 1rem 0;
         border-radius: 10px;
@@ -240,6 +314,13 @@
           padding: 0.5rem 1rem 0.5rem 1rem;
         }
 
+        .inputSelect {
+          border-radius: 10px;
+          height: 6rem;
+          width: 100%;
+          background: #303030;
+        }
+
         .accountSectionContent {
           margin-top: 0.8rem;
           display: flex;
@@ -247,7 +328,21 @@
 
           label {
             color: #777777;
-            padding-bottom: 0.2rem;
+            padding-bottom: 0.4rem;
+          }
+
+          .multiSelectLabel {
+            padding-top: 0.5rem;
+          }
+
+          .removeAccountButton {
+            width: fit-content;
+            padding: 0.4rem 1rem 0.4rem 1rem;
+            background: #303030;
+            border: 2px solid #934040;
+            box-sizing: border-box;
+            border-radius: 10px;
+            color: #934040;
           }
         }
       }
