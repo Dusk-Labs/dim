@@ -350,7 +350,7 @@ pub async fn warp_core(
             conn.clone(),
             rt.clone(),
         ))
-        //.or(routes::statik::statik_routes())
+        .or(routes::statik::statik_routes())
         .with(warp::filters::log::custom(move |x| {
             request_logger.on_response(x);
         }))
