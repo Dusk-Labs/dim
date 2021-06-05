@@ -27,7 +27,9 @@ mod filters {
 
     pub fn get_image() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         let metadata_path = crate::core::METADATA_PATH.get().unwrap();
-        warp::path!("images").and(warp::fs::dir(metadata_path))
+        warp::path!("images")
+            .and(warp::get())
+            .and(warp::fs::dir(metadata_path))
     }
 
     pub fn dist_static() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
