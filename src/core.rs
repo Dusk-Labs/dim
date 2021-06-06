@@ -252,37 +252,6 @@ pub async fn rocket_pad(
                 routes::stream::return_virtual_manifest,
             ],
         )
-        .mount(
-            "/api/v1/media",
-            routes![
-                routes::media::get_media_by_id,
-                routes::media::get_extra_info_by_id,
-                routes::media::update_media_by_id,
-                routes::media::delete_media_by_id,
-                routes::media::tmdb_search,
-                routes::media::map_progress,
-            ],
-        )
-        .mount(
-            "/api/v1/mediafile",
-            routes![
-                routes::mediafile::get_mediafile_info,
-                routes::mediafile::rematch_mediafile,
-            ],
-        )
-        .mount(
-            "/api/v1/tv",
-            routes![
-                routes::tv::get_tv_by_id,
-                routes::tv::get_tv_seasons,
-                routes::tv::get_season_by_num,
-                routes::tv::patch_season_by_num,
-                routes::tv::delete_season_by_num,
-                routes::tv::get_episode_by_id,
-                routes::tv::patch_episode_by_id,
-                routes::tv::delete_episode_by_id,
-            ],
-        )
         .manage(logger)
         .manage(Arc::new(Mutex::new(event_tx)))
         .manage(database::get_conn().expect("Failed to get db connection"))
@@ -312,6 +281,13 @@ pub async fn warp_core(
             conn.clone(),
             rt.clone(),
         ))
+        .or(routes::media::media_router(conn.clone()))
+        .or(routes::tv::tv_router(conn.clone()))
+        .or(routes::mediafile::mediafile_router(
+            conn.clone(),
+            log.clone(),
+        ))
+        .or(routes::stream::stream_router(conn.clone(), stream_manager, Default::default()))
         .or(routes::statik::statik_routes())
         .with(warp::filters::log::custom(move |x| {
             request_logger.on_response(x);
