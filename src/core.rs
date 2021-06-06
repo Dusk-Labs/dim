@@ -239,33 +239,6 @@ pub async fn rocket_pad(
         .attach(SpaceHelmet::default())
         .attach(cors)
         .attach(RequestLogger::new(logger.clone()))
-        .register(
-            "/api",
-            catchers![
-                routes::catchers::not_found,
-                routes::catchers::internal_server_error
-            ],
-        )
-        .mount(
-            "/",
-            routes![
-                routes::statik::get_image,
-                routes::statik::index_redirect,
-                routes::statik::dist_asset,
-                routes::statik::dist_static,
-                routes::statik::react_routes,
-            ],
-        )
-        .mount(
-            "/api/v1/",
-            routes![
-                routes::dashboard::dashboard,
-                routes::dashboard::banners,
-                routes::general::get_directory_structure,
-                routes::general::get_root_directory_structure,
-                routes::general::search,
-            ],
-        )
         .mount(
             "/api/v1/stream",
             routes![
@@ -277,17 +250,6 @@ pub async fn rocket_pad(
                 routes::stream::session_get_stderr,
                 routes::stream::kill_session,
                 routes::stream::return_virtual_manifest,
-            ],
-        )
-        .mount(
-            "/api/v1/library",
-            routes![
-                routes::library::library_get,
-                routes::library::get_self,
-                routes::library::library_post,
-                routes::library::library_delete,
-                routes::library::get_all_library,
-                routes::library::get_all_unmatched_media,
             ],
         )
         .mount(

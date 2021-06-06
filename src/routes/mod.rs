@@ -26,7 +26,6 @@ use warp::reply::json;
 use warp::reply::Json;
 
 pub mod auth;
-// pub mod catchers;
 pub mod dashboard;
 pub mod general;
 pub mod library;
