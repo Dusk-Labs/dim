@@ -2,36 +2,155 @@ use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors;
 
-/*
-use crate::scanners::movie::MovieScanner;
-use crate::scanners::tv_show::TvShowScanner;
-use crate::scanners::MediaScanner;
-
-use crate::scanners::tmdb::MediaType as TmdbMediaType;
-use crate::scanners::tmdb::Tmdb;
-*/
-
 use auth::Wrapper as Auth;
-use database::{
-    episode::Episode,
-    genre::Genre,
-    library::MediaType,
-    media::{Media, UpdateMedia},
-    mediafile::MediaFile,
-    progress::Progress,
-    season::Season,
-};
 
-use rocket::http::Status;
-use rocket::State;
+use std::convert::Infallible;
+use std::sync::Arc;
+use std::sync::Mutex;
 
-use rocket_contrib::json;
-use rocket_contrib::json::Json;
-use rocket_contrib::json::JsonValue;
+use database::episode::Episode;
+use database::genre::Genre;
+use database::library::MediaType;
+use database::media::Media;
+use database::media::UpdateMedia;
+use database::mediafile::MediaFile;
+use database::progress::Progress;
+use database::season::Season;
 
 use futures::stream;
 use futures::StreamExt;
-use std::sync::{Arc, Mutex};
+
+use serde_json::json;
+use serde_json::Value;
+
+use warp::http::status::StatusCode;
+use warp::reply;
+use warp::Filter;
+
+pub fn media_router(
+    conn: DbConnection,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    filters::get_media_by_id(conn.clone())
+        .or(filters::get_extra_info_by_id(conn.clone()))
+        .or(filters::update_media_by_id(conn.clone()))
+        .or(filters::delete_media_by_id(conn.clone()))
+        .or(filters::tmdb_search())
+        .or(filters::map_progress(conn.clone()))
+        .recover(super::global_filters::handle_rejection)
+}
+
+mod filters {
+    use warp::reject;
+    use warp::Filter;
+    use warp::Rejection;
+
+    use super::super::global_filters::with_state;
+    use auth::Wrapper as Auth;
+    use serde::Deserialize;
+
+    use database::media::UpdateMedia;
+    use database::DbConnection;
+
+    pub fn get_media_by_id(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "media" / i32)
+            .and(warp::get())
+            .and(with_state::<DbConnection>(conn))
+            .and(auth::with_auth())
+            .and_then(|id: i32, conn: DbConnection, user: Auth| async move {
+                super::get_media_by_id(conn, id, user)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn get_extra_info_by_id(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "media" / i32 / "info")
+            .and(warp::get())
+            .and(with_state::<DbConnection>(conn))
+            .and(auth::with_auth())
+            .and_then(|id: i32, conn: DbConnection, user: Auth| async move {
+                super::get_extra_info_by_id(conn, id, user)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn update_media_by_id(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "media" / i32)
+            .and(warp::patch())
+            .and(warp::body::json::<UpdateMedia>())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and_then(super::update_media_by_id)
+    }
+
+    pub fn delete_media_by_id(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "media" / i32)
+            .and(warp::delete())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and_then(|id: i32, auth: Auth, conn: DbConnection| async move {
+                super::delete_media_by_id(conn, id, auth)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn tmdb_search() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
+    {
+        #[derive(Deserialize)]
+        struct RouteArgs {
+            query: String,
+            year: Option<i32>,
+            media_type: String,
+        }
+
+        warp::path!("api" / "v1" / "media" / "tmdb_search")
+            .and(warp::get())
+            .and(warp::query::query::<RouteArgs>())
+            .and(auth::with_auth())
+            .and_then(
+                |RouteArgs {
+                     query,
+                     year,
+                     media_type,
+                 }: RouteArgs,
+                 auth: Auth| async move {
+                    super::tmdb_search(query, year, media_type, auth)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                },
+            )
+    }
+
+    pub fn map_progress(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        #[derive(Deserialize)]
+        struct RouteArgs {
+            offset: i32,
+        }
+
+        warp::path!("api" / "v1" / "media" / i32 / "progress")
+            .and(warp::post())
+            .and(warp::query::query::<RouteArgs>())
+            .and(with_state::<DbConnection>(conn))
+            .and(auth::with_auth())
+            .and_then(|id: i32, RouteArgs { offset }: RouteArgs, conn: DbConnection, auth: Auth| async move {
+                super::map_progress(conn, id, offset, auth)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+}
 
 /// Method mapped to `GET /api/v1/media/<id>` returns info about a media based on the id queried.
 /// This method can only be accessed by authenticated users.
@@ -62,12 +181,11 @@ use std::sync::{Arc, Mutex};
 ///
 /// # Additional types
 /// [`MediaType`](`database::library::MediaType`)
-#[get("/<id>")]
 pub async fn get_media_by_id(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     id: i32,
     _user: Auth,
-) -> Result<JsonValue, errors::DimError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     let data = Media::get(&conn, id).await?;
 
     let duration = match MediaFile::get_of_media(&conn, &data).await {
@@ -110,7 +228,7 @@ pub async fn get_media_by_id(
     };
 
     // FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
-    Ok(json!({
+    Ok(reply::json(&json!({
         "id": data.id,
         "library_id": data.library_id,
         "name": data.name,
@@ -124,7 +242,7 @@ pub async fn get_media_by_id(
         "genres": genres,
         "duration": duration,
         "duration_pretty": duration_pretty,
-    }))
+    })))
 }
 
 /// Method mapped to `GET /api/v1/media/<id>/info` returns extra information about the media object
@@ -135,27 +253,30 @@ pub async fn get_media_by_id(
 /// * `conn` - database connection
 /// * `id` - id of the media we want to query info of
 /// * `_user` - Auth middleware
-#[get("/<id>/info")]
 pub async fn get_extra_info_by_id(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     id: i32,
     user: Auth,
-) -> Result<JsonValue, errors::DimError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     let media = Media::get(&conn, id).await?;
 
     match media.media_type {
         Some(MediaType::Movie) | Some(MediaType::Episode) | None => {
-            get_for_streamable(conn, media, user).await
+            get_for_streamable(conn, media, user)
+                .await
+                .map(|x| reply::json(&x))
         }
-        Some(MediaType::Tv) => get_for_show(conn, media, user).await,
+        Some(MediaType::Tv) => get_for_show(conn, media, user)
+            .await
+            .map(|x| reply::json(&x)),
     }
 }
 
 async fn get_for_streamable(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     media: Media,
     user: Auth,
-) -> Result<JsonValue, errors::DimError> {
+) -> Result<Value, errors::DimError> {
     let media_files = MediaFile::get_of_media(&conn, &media).await?;
 
     Ok(json!({
@@ -178,7 +299,7 @@ async fn get_for_episode(
     conn: &DbConnection,
     media: Episode,
     user: &Auth,
-) -> Result<JsonValue, errors::DimError> {
+) -> Result<Value, errors::DimError> {
     let media_files = MediaFile::get_of_media(&conn, &media.media).await?;
 
     Ok(json!({
@@ -204,13 +325,13 @@ async fn get_for_episode(
 }
 
 async fn get_for_show(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     media: Media,
     user: Auth,
-) -> Result<JsonValue, errors::DimError> {
+) -> Result<Value, errors::DimError> {
     let seasons = Season::get_all(&conn, media.id).await?;
 
-    let seasons: Vec<JsonValue> = stream::iter(seasons)
+    let seasons: Vec<Value> = stream::iter(seasons)
         .filter_map(|x| {
             let x = x.clone();
             async {
@@ -257,17 +378,19 @@ async fn get_for_show(
 /// * `id` - id of the media we want to edit
 /// * `data` - the info that we changed about the media entry
 /// * `_user` - Auth middleware
-#[patch("/<id>", format = "application/json", data = "<data>")]
 pub async fn update_media_by_id(
-    conn: State<'_, DbConnection>,
     id: i32,
-    data: Json<UpdateMedia>,
+    data: UpdateMedia,
     _user: Auth,
-) -> Result<Status, Status> {
-    match data.update(&conn, id).await {
-        Ok(_) => Ok(Status::NoContent),
-        Err(_) => Err(Status::NotModified),
-    }
+    conn: DbConnection,
+) -> Result<impl warp::Reply, Infallible> {
+    let status = if data.update(&conn, id).await.is_ok() {
+        StatusCode::NO_CONTENT
+    } else {
+        StatusCode::NOT_MODIFIED
+    };
+
+    Ok(status)
 }
 
 /// Method mapped to `DELETE /api/v1/media/<id>` is used to delete a media entry for the library.
@@ -277,14 +400,13 @@ pub async fn update_media_by_id(
 /// * `conn` - database connection
 /// * `id` - id of the media we want to delete
 /// * `_user` - auth middleware
-#[delete("/<id>")]
 pub async fn delete_media_by_id(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     id: i32,
     _user: Auth,
-) -> Result<Status, errors::DimError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     Media::delete(&conn, id).await?;
-    Ok(Status::Ok)
+    Ok(StatusCode::OK)
 }
 
 /// Method mapped to `GET /api/v1/media/tmdb_search` is used to quickly search TMDB based on 3
@@ -294,13 +416,12 @@ pub async fn delete_media_by_id(
 /// * `query` - the query we want to send to tmdb, ie movie title, tv show title
 /// * `year` - optional parameter specifying the release year of the media we want to look up
 /// * `media_type` - parameter that tells us what media type we are querying, ie movie or tv show
-#[get("/tmdb_search?<query>&<year>&<media_type>")]
 pub async fn tmdb_search(
     query: String,
     year: Option<i32>,
     media_type: String,
     _user: Auth,
-) -> Result<Json<Vec<crate::scanners::ApiMedia>>, errors::DimError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     use crate::scanners::tmdb::Tmdb;
     use database::library::MediaType;
 
@@ -312,61 +433,31 @@ pub async fn tmdb_search(
 
     let mut tmdb_session = Tmdb::new("38c372f5bc572c8aadde7a802638534e".to_string(), media_type);
 
-    Ok(Json(
-        tmdb_session
+    Ok(reply::json(
+        &tmdb_session
             .search_by_name(query, year, None)
             .await
             .map_err(|_| errors::DimError::NotFoundError)?
             .into_iter()
-            .map(Into::into)
+            .map(Into::<crate::scanners::ApiMedia>::into)
             .collect::<Vec<_>>(),
     ))
-}
-
-/// Method mapped to `PATCH /api/v1/media/<id>/match` used to rematch a media entry to a new tmdb
-/// id passed in as the paramter `tmdb_id`.
-///
-/// # Arguments
-/// * `conn` - database connection
-/// * `log` - logger
-/// * `event_tx` - websocket channel over which we dispatch a event notifying other clients of the
-/// new metadata
-/// * `id` - id of the media we want to rematch
-/// * `tmdb_id` - the tmdb id of the proper metadata we want to fetch for the media
-#[patch("/<id>/match?<tmdb_id>")]
-pub async fn rematch(
-    conn: State<'_, DbConnection>,
-    log: State<'_, slog::Logger>,
-    event_tx: State<'_, Arc<Mutex<EventTx>>>,
-    id: i32,
-    tmdb_id: i32,
-    _user: Auth,
-) -> Result<Status, errors::DimError> {
-    /*
-    let media = Media::get(&conn, id)?;
-    let tx = event_tx.lock().unwrap();
-    // let scanner = IterativeScanner::new(media.library_id, log.get().clone(), tx.clone())?;
-    std::thread::spawn(move || {
-        scanner.match_media_to_tmdb_id(media, tmdb_id);
-    });
-    Ok(Status::Ok)
-    */
-    Ok(Status::ServiceUnavailable)
 }
 
 /// Method mapped to `POST /api/v1/media/<id>/progress` is used to map progress for a certain media
 /// to the user. This is useful for remembering progress for a movie etc.
 ///
 /// # Arguments
-/// * `conn` - database connection
-/// * `id` -
-#[post("/<id>/progress?<offset>")]
+/// * `id` - id of the media to modify
+///
+/// # Query params
+/// * `offset` - offset in seconds
 pub async fn map_progress(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     id: i32,
     offset: i32,
     user: Auth,
-) -> Result<Status, errors::DimError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     Progress::set(&conn, offset, user.0.claims.get_user(), id).await?;
-    Ok(Status::Ok)
+    Ok(StatusCode::OK)
 }

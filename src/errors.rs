@@ -130,6 +130,31 @@ pub enum StreamingErrors {
     NoMediaFileFound(String),
     #[error(display = "Failed to create a ffprobe context")]
     FFProbeCtxFailed,
+    #[error(display = "Could not parse the gid")]
+    GidParseError,
+}
+
+impl warp::reject::Reject for StreamingErrors {}
+
+impl warp::Reply for StreamingErrors {
+    fn into_response(self) -> warp::reply::Response {
+        let status = match self {
+            Self::OtherNightfall(NightfallError::ChunkNotDone) => StatusCode::PROCESSING,
+            Self::NoMediaFileFound(_) => StatusCode::NOT_FOUND,
+            _ => StatusCode::INTERNAL_SERVER_ERROR,
+        };
+
+        let resp = json!({
+            "error": json!(&self)["error"],
+            "messsage": self.to_string(),
+        });
+
+        warp::http::Response::builder()
+            .status(status)
+            .header("ContentType", "application/json")
+            .body(serde_json::to_string(&resp).unwrap().into())
+            .unwrap()
+    }
 }
 
 impl From<std::io::Error> for StreamingErrors {
@@ -203,34 +228,3 @@ impl From<tokio_diesel::AsyncError> for AuthError {
         }
     }
 }
-
-/*
-impl<'r> Responder<'r, 'static> for StreamingErrors {
-    fn respond_to(self, req: &'r Request<'_>) -> Result<Response<'static>, Status> {
-        let request_id = req
-            .headers()
-            .get("x-request-id")
-            .next()
-            .map(ToString::to_string)
-            .unwrap_or_default();
-
-        let status = match self {
-            Self::OtherNightfall(NightfallError::ChunkNotDone) => Status::Processing,
-            Self::NoMediaFileFound(_) => Status::NotFound,
-            _ => Status::InternalServerError,
-        };
-
-        let resp = json!({
-            "error": json!(&self)["error"],
-            "messsage": self.to_string(),
-            "request_id": request_id,
-        });
-
-        Response::build()
-            .status(status)
-            .header(ContentType::JSON)
-            .streamed_body(Cursor::new(serde_json::to_string(&resp).unwrap()))
-            .ok()
-    }
-}
-*/
