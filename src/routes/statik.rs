@@ -19,6 +19,9 @@ pub fn statik_routes(
 mod filters {
     use warp::reject;
     use warp::Filter;
+    use warp::Reply;
+
+    use std::path::PathBuf;
 
     pub fn react_routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
     {
@@ -27,14 +30,36 @@ mod filters {
 
     pub fn get_image() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         let metadata_path = crate::core::METADATA_PATH.get().unwrap();
-        warp::path!("images")
-            .and(warp::get())
+        warp::path("images")
             .and(warp::fs::dir(metadata_path))
     }
 
     pub fn dist_static() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
     {
-        warp::path!("static").and(warp::fs::dir("static"))
+        warp::path("static")
+            .and(warp::path::full())
+            .and_then(|x: warp::path::FullPath| async move {
+                // skip the first char because its always a `/`
+                if let Some(y) = super::Asset::get(&dbg!(format!("./{}", x.as_str()))) {
+                    let path = PathBuf::from(x.as_str());
+                    let mime = match path.extension().and_then(|x| x.to_str()) {
+                        Some("js") => "application/javascript",
+                        Some("css") => "text/css",
+                        Some("woff2") => "font/woff2",
+                        _ => return Err(warp::reject::not_found())
+                    };
+
+                    Ok(
+                        warp::http::response::Response::builder()
+                            .status(200)
+                            .header("Content-Type", mime)
+                            .body(y.into_owned())
+                            .unwrap()
+                    )
+                } else {
+                    Err(warp::reject::not_found())
+                }
+            })
     }
 }
 
@@ -44,7 +69,7 @@ mod filters {
     all(not(feature = "embed_ui"), not(target_os = "windows")),
     folder = "/dev/null"
 )]
-struct Asset;
+pub(self) struct Asset;
 
 pub async fn react_routes() -> Result<impl warp::Reply, warp::Rejection> {
     if let Some(x) = Asset::get("index.html") {
