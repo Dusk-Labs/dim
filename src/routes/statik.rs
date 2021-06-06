@@ -30,36 +30,33 @@ mod filters {
 
     pub fn get_image() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         let metadata_path = crate::core::METADATA_PATH.get().unwrap();
-        warp::path("images")
-            .and(warp::fs::dir(metadata_path))
+        warp::path("images").and(warp::fs::dir(metadata_path))
     }
 
     pub fn dist_static() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
     {
-        warp::path("static")
-            .and(warp::path::full())
-            .and_then(|x: warp::path::FullPath| async move {
+        warp::path("static").and(warp::path::full()).and_then(
+            |x: warp::path::FullPath| async move {
                 // skip the first char because its always a `/`
-                if let Some(y) = super::Asset::get(&dbg!(format!("./{}", x.as_str()))) {
+                if let Some(y) = super::Asset::get(&format!("./{}", x.as_str())) {
                     let path = PathBuf::from(x.as_str());
                     let mime = match path.extension().and_then(|x| x.to_str()) {
                         Some("js") => "application/javascript",
                         Some("css") => "text/css",
                         Some("woff2") => "font/woff2",
-                        _ => return Err(warp::reject::not_found())
+                        _ => return Err(warp::reject::not_found()),
                     };
 
-                    Ok(
-                        warp::http::response::Response::builder()
-                            .status(200)
-                            .header("Content-Type", mime)
-                            .body(y.into_owned())
-                            .unwrap()
-                    )
+                    Ok(warp::http::response::Response::builder()
+                        .status(200)
+                        .header("Content-Type", mime)
+                        .body(y.into_owned())
+                        .unwrap())
                 } else {
                     Err(warp::reject::not_found())
                 }
-            })
+            },
+        )
     }
 }
 
