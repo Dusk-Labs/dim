@@ -213,54 +213,6 @@ pub async fn start_event_server() -> EventTx {
     tx
 }
 
-/*
-pub async fn rocket_pad(
-    logger: slog::Logger,
-    event_tx: EventTx,
-    config: rocket::config::Config,
-    stream_manager: StateManager,
-    handle: tokio::runtime::Handle,
-) -> rocket::Rocket<rocket::Build> {
-    // At the moment we dont really care if cors access is global so we create CORS options to
-    // target every route.
-    let allowed_origins = AllowedOrigins::all();
-    let cors = CorsOptions {
-        allowed_origins,
-        allowed_headers: AllowedHeaders::all(),
-        allow_credentials: true,
-        ..Default::default()
-    }
-    .to_cors()
-    .unwrap();
-
-    let stream_tracking = StreamTracking::default();
-
-    rocket::custom(config)
-        .attach(SpaceHelmet::default())
-        .attach(cors)
-        .attach(RequestLogger::new(logger.clone()))
-        .mount(
-            "/api/v1/stream",
-            routes![
-                routes::stream::return_manifest,
-                routes::stream::get_chunk,
-                routes::stream::get_init,
-                routes::stream::get_subtitle,
-                routes::stream::should_client_hard_seek,
-                routes::stream::session_get_stderr,
-                routes::stream::kill_session,
-                routes::stream::return_virtual_manifest,
-            ],
-        )
-        .manage(logger)
-        .manage(Arc::new(Mutex::new(event_tx)))
-        .manage(database::get_conn().expect("Failed to get db connection"))
-        .manage(stream_tracking)
-        .manage(stream_manager)
-        .manage(handle)
-}
-*/
-
 pub async fn warp_core(
     log: slog::Logger,
     event_tx: EventTx,
