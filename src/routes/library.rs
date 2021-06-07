@@ -13,10 +13,8 @@ use database::mediafile::MediaFile;
 use events::Message;
 use events::PushEventType;
 
-use rocket::{http::Status, State};
-use rocket_contrib::json::{Json, JsonValue};
-
 use std::collections::HashMap;
+use std::convert::Infallible;
 use std::path::Path;
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -27,19 +25,158 @@ use futures::StreamExt;
 use slog::Logger;
 use tokio_diesel::*;
 
+use warp::http::StatusCode;
+use warp::reply;
+use warp::Filter;
+
+use serde_json::Value;
+
+pub fn library_routes(
+    conn: DbConnection,
+    logger: slog::Logger,
+    event_tx: EventTx,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    filters::library_get(conn.clone())
+        .or(filters::library_post(
+            conn.clone(),
+            logger.clone(),
+            event_tx.clone(),
+        ))
+        .or(filters::library_delete(conn.clone(), event_tx.clone()))
+        .or(filters::library_get_self(conn.clone()))
+        .or(filters::get_all_of_library(conn.clone()))
+        .or(filters::get_all_unmatched_media(conn.clone()))
+        .recover(super::global_filters::handle_rejection)
+}
+
+mod filters {
+    use std::sync::Arc;
+    use std::sync::Mutex;
+
+    use warp::reject;
+    use warp::Filter;
+    use warp::Rejection;
+
+    use super::super::global_filters::with_db;
+
+    use auth::Wrapper as Auth;
+
+    use database::DbConnection;
+
+    use super::super::global_filters::with_state;
+    use super::*;
+
+    use crate::core::EventTx;
+
+    pub fn library_get(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "library")
+            .and(warp::get())
+            .and(with_db(conn))
+            .and(auth::with_auth())
+            .and_then(super::library_get)
+    }
+
+    pub fn library_post(
+        conn: DbConnection,
+        logger: slog::Logger,
+        event_tx: EventTx,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "library")
+            .and(warp::post())
+            .and(warp::body::json::<InsertableLibrary>())
+            .and(auth::with_auth())
+            .and(with_state::<EventTx>(event_tx))
+            .and(with_state::<slog::Logger>(logger))
+            .and(with_state::<DbConnection>(conn))
+            .and_then(
+                |new_library: InsertableLibrary,
+                 user: Auth,
+                 event_tx: EventTx,
+                 logger: slog::Logger,
+                 conn: DbConnection| async move {
+                    super::library_post(conn, new_library, logger, event_tx, user)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                },
+            )
+    }
+
+    pub fn library_delete(
+        conn: DbConnection,
+        event_tx: EventTx,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "library" / i32)
+            .and(warp::delete())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and(with_state::<EventTx>(event_tx))
+            .and_then(
+                |id: i32, user: Auth, conn: DbConnection, event_tx: EventTx| async move {
+                    super::library_delete(id, user, conn, event_tx)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                },
+            )
+    }
+
+    pub fn library_get_self(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "library" / i32)
+            .and(warp::get())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and_then(|id: i32, user: Auth, conn: DbConnection| async move {
+                super::get_self(conn, id, user)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn get_all_of_library(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "library" / i32 / "media")
+            .and(warp::get())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and_then(|id: i32, user: Auth, conn: DbConnection| async move {
+                super::get_all_library(conn, id, user)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn get_all_unmatched_media(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "library" / i32 / "unmatched")
+            .and(warp::get())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and_then(|id: i32, user: Auth, conn: DbConnection| async move {
+                super::get_all_unmatched_media(conn, id, user)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+}
+
 /// Method maps to `GET /api/v1/library` and returns a list of all libraries in te database.
 /// This method can only be accessed by authenticated users.
 ///
-/// # Arguments * `conn` - database connection
+/// # Arguments
+/// * `conn` - database connection
 /// * `_log` - logger
 /// * `_user` - Authentication middleware
-#[get("/")]
-pub async fn library_get(conn: State<'_, DbConnection>, _user: Auth) -> Json<Vec<Library>> {
-    Json({
+pub async fn library_get(conn: DbConnection, _user: Auth) -> Result<impl warp::Reply, Infallible> {
+    Ok(reply::json(&{
         let mut x = Library::get_all(&conn).await;
         x.sort_by(|a, b| a.name.cmp(&b.name));
         x
-    })
+    }))
 }
 
 /// Method maps to `POST /api/v1/library`, it adds a new library to the database, starts a new
@@ -51,26 +188,24 @@ pub async fn library_get(conn: State<'_, DbConnection>, _user: Auth) -> Json<Vec
 /// * `new_library` - new library information posted by client
 /// * `log` - logger
 /// * `_user` - Auth middleware
-#[post("/", format = "application/json", data = "<new_library>")]
 pub async fn library_post(
-    conn: State<'_, DbConnection>,
-    new_library: Json<InsertableLibrary>,
-    log: State<'_, Logger>,
-    event_tx: State<'_, Arc<Mutex<EventTx>>>,
+    conn: DbConnection,
+    new_library: InsertableLibrary,
+    log: Logger,
+    event_tx: EventTx,
     _user: Auth,
-) -> Result<Status, errors::DimError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     let id = new_library.insert(&conn).await?;
-    let tx = event_tx.lock().unwrap();
-    let tx_clone = tx.clone();
-    let log_clone = log.inner().clone();
+    let tx_clone = event_tx.clone();
+    let log_clone = log.clone();
 
     tokio::spawn(async move {
         let _ = scanners::start(id, log_clone, tx_clone).await;
     });
 
     let media_type = new_library.media_type;
-    let tx_clone = tx.clone();
-    let log_clone = log.inner().clone();
+    let tx_clone = event_tx.clone();
+    let log_clone = log.clone();
 
     tokio::spawn(async move {
         let watcher = scanners::scanner_daemon::FsWatcher::new(log_clone, id, media_type, tx_clone);
@@ -86,9 +221,9 @@ pub async fn library_post(
         event_type: PushEventType::EventNewLibrary,
     };
 
-    let _ = tx.send(serde_json::to_string(&event).unwrap());
+    let _ = event_tx.send(serde_json::to_string(&event).unwrap());
 
-    Ok(Status::Created)
+    Ok(StatusCode::CREATED)
 }
 
 /// Method mapped to `DELETE /api/v1/library/<id>` is used to delete a library from the database.
@@ -102,13 +237,12 @@ pub async fn library_post(
 /// * `event_tx` - channel over which to dispatch events
 /// * `_user` - Auth middleware
 // NOTE: Should we only allow the owner to add/remove libraries?
-#[delete("/<id>")]
 pub async fn library_delete(
-    conn: State<'_, DbConnection>,
     id: i32,
-    event_tx: State<'_, Arc<Mutex<EventTx>>>,
     _user: Auth,
-) -> Result<Status, errors::DimError> {
+    conn: DbConnection,
+    event_tx: EventTx,
+) -> Result<impl warp::Reply, errors::DimError> {
     cfg_if::cfg_if! {
         if #[cfg(feature = "sqlite")] {
             use database::media::Media;
@@ -128,12 +262,9 @@ pub async fn library_delete(
         event_type: PushEventType::EventRemoveLibrary,
     };
 
-    let _ = event_tx
-        .lock()
-        .unwrap()
-        .send(serde_json::to_string(&event).unwrap());
+    let _ = event_tx.send(serde_json::to_string(&event).unwrap());
 
-    Ok(Status::NoContent)
+    Ok(StatusCode::NO_CONTENT)
 }
 
 /// Method mapped to `GET /api/v1/library/<id>` returns info about the library with the supplied
@@ -143,13 +274,12 @@ pub async fn library_delete(
 /// * `conn` - database connection
 /// * `id` - id of the library we want info of
 /// * `_user` - Auth middleware
-#[get("/<id>")]
 pub async fn get_self(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     id: i32,
     _user: Auth,
-) -> Result<Json<Library>, errors::DimError> {
-    Ok(Json(Library::get_one(&conn, id).await?))
+) -> Result<impl warp::Reply, errors::DimError> {
+    Ok(reply::json(&Library::get_one(&conn, id).await?))
 }
 
 /// Method mapped to `GET /api/v1/library/<id>/media` returns all the movies/tv shows that belong
@@ -159,12 +289,11 @@ pub async fn get_self(
 /// * `conn` - database connection
 /// * `id` - id of the library we want media of
 /// * `_user` - Auth middleware
-#[get("/<id>/media")]
 pub async fn get_all_library(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     id: i32,
     user: Auth,
-) -> Result<Json<HashMap<String, Vec<JsonValue>>>, errors::DimError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     let mut result = HashMap::new();
     let lib = Library::get_one(&conn, id).await?;
     let mut data = Library::get(&conn, id).await?;
@@ -172,12 +301,12 @@ pub async fn get_all_library(
     data.sort_by(|a, b| a.name.cmp(&b.name));
     let out = stream::iter(data)
         .filter_map(|x| async { construct_standard(&conn, &x.into(), &user).await.ok() })
-        .collect::<Vec<JsonValue>>()
+        .collect::<Vec<Value>>()
         .await;
 
     result.insert(lib.name, out);
 
-    Ok(Json(result))
+    Ok(reply::json(&result))
 }
 
 /// Method mapped to `GET` /api/v1/library/<id>/unmatched` returns a list of all unmatched medias
@@ -188,12 +317,11 @@ pub async fn get_all_library(
 /// * `id` - id of the library
 /// * `_user` - auth middleware
 // NOTE: construct_standard on a mediafile will yield buggy deltas
-#[get("/<id>/unmatched")]
 pub async fn get_all_unmatched_media(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     id: i32,
     user: Auth,
-) -> Result<Json<HashMap<String, Vec<JsonValue>>>, errors::DimError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     let mut result = HashMap::new();
     let lib = Library::get_one(&conn, id).await?;
 
@@ -230,5 +358,5 @@ pub async fn get_all_unmatched_media(
         .into_iter()
         .for_each(|(k, v)| result.entry(k).or_insert(vec![]).push(v));
 
-    Ok(Json(result))
+    Ok(reply::json(&result))
 }

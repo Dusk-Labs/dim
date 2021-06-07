@@ -22,11 +22,9 @@ use database::tv::TVShow;
 
 use diesel::prelude::*;
 use diesel::sql_types::Text;
-use tokio_diesel::*;
+use diesel::*;
 
-use rocket::http::RawStr;
-use rocket::State;
-use rocket_contrib::json::{Json, JsonValue};
+use tokio_diesel::*;
 
 use futures::stream;
 use futures::StreamExt;
@@ -34,14 +32,73 @@ use std::fs;
 use std::io;
 use std::path::PathBuf;
 
+use serde_json::json;
+use serde_json::Value;
+
+use warp::reply;
+use warp::Filter;
+
 no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
 
-#[get("/dashboard")]
+pub fn dashboard_router(
+    conn: DbConnection,
+    rt: tokio::runtime::Handle,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    filters::dashboard(conn.clone(), rt.clone())
+        .or(filters::banners(conn.clone()))
+        .recover(super::global_filters::handle_rejection)
+}
+
+mod filters {
+    use database::DbConnection;
+
+    use warp::reject;
+    use warp::Filter;
+
+    use super::super::global_filters::with_state;
+
+    use tokio::runtime::Handle as TokioHandle;
+
+    use auth::Wrapper as Auth;
+
+    pub fn dashboard(
+        conn: DbConnection,
+        rt: tokio::runtime::Handle,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "dashboard")
+            .and(warp::get())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and(with_state::<TokioHandle>(rt))
+            .and_then(
+                |user: Auth, conn: DbConnection, rt: TokioHandle| async move {
+                    super::dashboard(conn, user, rt)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                },
+            )
+    }
+
+    pub fn banners(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "dashboard" / "banner")
+            .and(warp::get())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and_then(|user: Auth, conn: DbConnection| async move {
+                super::banners(conn, user)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+}
+
 pub async fn dashboard(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     user: Auth,
-    rt: State<'_, tokio::runtime::Handle>,
-) -> Result<JsonValue, errors::DimError> {
+    rt: tokio::runtime::Handle,
+) -> Result<impl warp::Reply, errors::DimError> {
     let mut top_rated = media::table
         .filter(media::media_type.ne(MediaType::Episode))
         .group_by((media::id, media::name))
@@ -59,7 +116,7 @@ pub async fn dashboard(
             async move { construct_standard(&conn, &x, &user).await.ok() }
         })
         .take(10)
-        .collect::<Vec<JsonValue>>()
+        .collect::<Vec<Value>>()
         .await;
 
     let recently_added = stream::iter(
@@ -77,23 +134,19 @@ pub async fn dashboard(
         async move { construct_standard(&conn, &x, &user).await.ok() }
     })
     .take(10)
-    .collect::<Vec<JsonValue>>()
+    .collect::<Vec<Value>>()
     .await;
 
-    Ok(json!({
+    Ok(reply::json(&json!({
         "TOP RATED": top_rated,
         "FRESHLY ADDED": recently_added,
-    }))
+    })))
 }
 
 // FIXME: Basically this function purely async just kinda fails to compile because of various
 // lifetime and opaque type issues. The bigger problem is that the `rocket::get` macro hides the
 // error and makes it unreadable and removing the macro gets rid of the issue completely.
-#[get("/dashboard/banner")]
-pub async fn banners(
-    conn: State<'_, DbConnection>,
-    user: Auth,
-) -> Result<Json<Vec<JsonValue>>, errors::DimError> {
+pub async fn banners(conn: DbConnection, user: Auth) -> Result<impl warp::Reply, errors::DimError> {
     // make sure we show medias for which the total amount watched is nil
     /*
        .filter(|x| {
@@ -135,18 +188,18 @@ pub async fn banners(
                 }
             }
         })
-        .take(3: usize)
-        .collect::<Vec<JsonValue>>()
+        .take(3)
+        .collect::<Vec<Value>>()
         .await;
 
-    Ok(Json(banners))
+    Ok(reply::json(&banners))
 }
 
 async fn banner_for_movie(
     conn: &DbConnection,
     user: &Auth,
     media: &Media,
-) -> Result<JsonValue, errors::DimError> {
+) -> Result<Value, errors::DimError> {
     let progress = Progress::get_for_media_user(conn, user.0.claims.get_user(), media.id)
         .await
         .map(|x| x.delta)
@@ -192,7 +245,7 @@ async fn banner_for_show(
     conn: &DbConnection,
     user: &Auth,
     media: &Media,
-) -> Result<JsonValue, errors::DimError> {
+) -> Result<Value, errors::DimError> {
     let show: TVShow = media.clone().into();
     let first_season = Season::get_first(conn, &show).await?;
 
