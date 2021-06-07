@@ -5,26 +5,94 @@ use crate::errors;
 use auth::Wrapper as Auth;
 use database::mediafile::MediaFile;
 
-use rocket::{http::Status, State};
-use rocket_contrib::{json, json::JsonValue};
-use std::sync::{Arc, Mutex};
+use serde_json::json;
+use warp::http::status::StatusCode;
+use warp::reply;
+use warp::Filter;
 
-/// Method mapped to `GET /api/v1/mediafile/<id>/` is used to get information about a mediafile by its id
-#[get("/<id>")]
+pub fn mediafile_router(
+    conn: DbConnection,
+    log: slog::Logger,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    filters::get_mediafile_info(conn.clone())
+        .or(filters::rematch_mediafile(conn.clone(), log.clone()))
+        .recover(super::global_filters::handle_rejection)
+}
+
+mod filters {
+    use warp::reject;
+    use warp::Filter;
+
+    use super::super::global_filters::with_state;
+    use auth::Wrapper as Auth;
+    use database::DbConnection;
+
+    use serde::Deserialize;
+
+    pub fn get_mediafile_info(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "mediafile" / i32)
+            .and(warp::get())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and_then(|id: i32, auth: Auth, conn: DbConnection| async move {
+                super::get_mediafile_info(conn, id, auth)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn rematch_mediafile(
+        conn: DbConnection,
+        log: slog::Logger,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        #[derive(Deserialize)]
+        struct RouteArgs {
+            tmdb_id: i32,
+            media_type: String,
+        }
+
+        warp::path!("api" / "v1" / "mediafile" / i32 / "match")
+            .and(warp::patch())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and(with_state::<slog::Logger>(log))
+            .and(warp::query::query::<RouteArgs>())
+            .and_then(
+                |id: i32,
+                 auth: Auth,
+                 conn: DbConnection,
+                 log: slog::Logger,
+                 RouteArgs {
+                     tmdb_id,
+                     media_type,
+                 }: RouteArgs| async move {
+                    super::rematch_mediafile(conn, log, id, tmdb_id, media_type)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                },
+            )
+    }
+}
+
+/// Method mapped to `GET /api/v1/mediafile/<id>` is used to get information about a mediafile by its id.
+///
+/// # Arguments
+/// * `id` - id of the mediafile we want info about
 pub async fn get_mediafile_info(
-    conn: State<'_, DbConnection>,
-    log: State<'_, slog::Logger>,
+    conn: DbConnection,
     id: i32,
     _user: Auth,
-) -> Result<JsonValue, errors::DimError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     let mediafile = MediaFile::get_one(&conn, id).await?;
 
-    Ok(json!({
+    Ok(reply::json(&json!({
         "id": mediafile.id,
         "media_id": mediafile.media_id,
         "library_id": mediafile.library_id,
         "raw_name": mediafile.raw_name,
-    }))
+    })))
 }
 
 /// Method mapped to `PATCH /api/v1/mediafile/<id>/match` used to match a unmatched(orphan)
@@ -35,17 +103,16 @@ pub async fn get_mediafile_info(
 /// * `log` - logger
 /// * `event_tx` - websocket channel over which we dispatch a event notifying other clients of the
 /// new metadata
+///
 /// * `id` - id of the orphan mediafile we want to rematch
 /// * `tmdb_id` - the tmdb id of the proper metadata we want to fetch for the media
-// Part of /api/v1/mediafile route
-#[patch("/<id>/match?<tmdb_id>&<media_type>")]
 pub async fn rematch_mediafile(
-    conn: State<'_, DbConnection>,
-    log: State<'_, slog::Logger>,
+    conn: DbConnection,
+    log: slog::Logger,
     id: i32,
     tmdb_id: i32,
     media_type: String,
-) -> Result<Status, errors::DimError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     use crate::scanners::tmdb::Tmdb;
     use database::library::MediaType;
 
@@ -73,5 +140,5 @@ pub async fn rematch_mediafile(
         _ => unreachable!(),
     }
 
-    Ok(Status::Ok)
+    Ok(StatusCode::OK)
 }

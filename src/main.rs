@@ -1,9 +1,11 @@
 use clap::App;
 use clap::Arg;
 
+/*
 use rocket::config::Config;
 use rocket::config::LogLevel;
 use rocket::config::TlsConfig;
+*/
 
 use slog::error;
 use slog::info;
@@ -129,26 +131,14 @@ fn main() {
             }
 
             let key = matches.value_of("priv-key").map(ToString::to_string);
-            let tls = matches
-                .value_of("ssl-cert")
-                .map(ToString::to_string)
-                .and_then(|x| Some(TlsConfig::from_paths(x, key?)));
-
-            if tls.is_some() {
-                info!(logger, "Enabled SSL... Standby for launch");
-            } else {
-                info!(logger, "Disabling SSL");
-            }
-
-            let rocket_config = Config {
-                tls,
-                address: [0, 0, 0, 0].into(),
-                port: 8000,
-                log_level: LogLevel::Normal,
-                ..Default::default()
-            };
 
             info!(logger, "Summoning Dim v{}...", clap::crate_version!());
-            core::launch(logger, event_tx, rocket_config, stream_manager, handle).await;
+            core::warp_core(
+                logger,
+                event_tx,
+                stream_manager,
+                tokio::runtime::Handle::current(),
+            )
+            .await;
         });
 }

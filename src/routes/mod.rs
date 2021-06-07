@@ -1,12 +1,15 @@
 use crate::core::DbConnection;
 use crate::errors;
 use cfg_if::cfg_if;
-use database::{
-    episode::Episode, genre::*, library::MediaType, media::Media, mediafile::MediaFile,
-    progress::Progress, schema::season, season::Season,
-};
-use rocket::http::RawStr;
-use rocket_contrib::json::{Json, JsonValue};
+
+use database::episode::Episode;
+use database::genre::*;
+use database::library::MediaType;
+use database::media::Media;
+use database::mediafile::MediaFile;
+use database::progress::Progress;
+use database::schema::season;
+use database::season::Season;
 
 use diesel::prelude::*;
 use diesel::sql_types::Text;
@@ -16,8 +19,13 @@ use std::fs;
 use std::io;
 use std::path::PathBuf;
 
+use serde_json::json;
+use serde_json::Value as JsonValue;
+
+use warp::reply::json;
+use warp::reply::Json;
+
 pub mod auth;
-pub mod catchers;
 pub mod dashboard;
 pub mod general;
 pub mod library;
@@ -26,6 +34,38 @@ pub mod mediafile;
 pub mod statik;
 pub mod stream;
 pub mod tv;
+
+pub mod global_filters {
+    use database::DbConnection;
+
+    use std::convert::Infallible;
+    use warp::Filter;
+    use warp::Reply;
+
+    pub fn with_db(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = (DbConnection,), Error = Infallible> + Clone {
+        warp::any().map(move || conn.clone())
+    }
+
+    pub fn with_state<T: Send + Clone>(
+        state: T,
+    ) -> impl Filter<Extract = (T,), Error = Infallible> + Clone {
+        warp::any().map(move || state.clone())
+    }
+
+    pub async fn handle_rejection(
+        err: warp::reject::Rejection,
+    ) -> Result<impl warp::Reply, warp::reject::Rejection> {
+        if let Some(e) = err.find::<crate::errors::AuthError>() {
+            return Ok(e.clone().into_response());
+        } else if let Some(e) = err.find::<crate::errors::DimError>() {
+            return Ok(e.clone().into_response());
+        }
+
+        Err(err)
+    }
+}
 
 pub async fn get_top_duration(conn: &DbConnection, data: &Media) -> Result<i32, errors::DimError> {
     match MediaFile::get_of_media(conn, data).await {

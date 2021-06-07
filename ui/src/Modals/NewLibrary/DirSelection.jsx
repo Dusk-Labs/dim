@@ -14,19 +14,19 @@ function DirSelection(props) {
   const { current, setCurrent } = props;
 
   const select = useCallback(path => {
-    dispatch(fetchDirectories(path.replace("C:\\", "")));
+    dispatch(fetchDirectories(path));
     setCurrent(path);
   }, [dispatch, setCurrent]);
 
   useEffect(() => {
-    const path = "C:";
+    const path = "/";
 
-    dispatch(fetchDirectories(path.replace("C:\\", "")));
+    dispatch(fetchDirectories(path));
     setCurrent(path);
   }, [dispatch, setCurrent]);
 
   const goBack = useCallback(() => {
-    if (current === "C:") return;
+    if (current === "C:" || current === "/") return;
 
     let slash = "/";
 
