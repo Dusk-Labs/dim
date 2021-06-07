@@ -22,6 +22,8 @@ use database::tv::TVShow;
 
 use diesel::prelude::*;
 use diesel::sql_types::Text;
+use diesel::*;
+
 use tokio_diesel::*;
 
 use futures::stream;

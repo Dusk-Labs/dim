@@ -131,30 +131,6 @@ fn main() {
             }
 
             let key = matches.value_of("priv-key").map(ToString::to_string);
-            /*
-            let tls = matches
-                .value_of("ssl-cert")
-                .map(ToString::to_string)
-                .and_then(|x| Some(TlsConfig::from_paths(x, key?)));
-            */
-
-            /*
-            if tls.is_some() {
-                info!(logger, "Enabled SSL... Standby for launch");
-            } else {
-                info!(logger, "Disabling SSL");
-            }
-            */
-
-            /*
-            let rocket_config = Config {
-                tls,
-                address: [0, 0, 0, 0].into(),
-                port: 8000,
-                log_level: LogLevel::Normal,
-                ..Default::default()
-            };
-            */
 
             info!(logger, "Summoning Dim v{}...", clap::crate_version!());
             core::warp_core(
