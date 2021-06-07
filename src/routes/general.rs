@@ -19,6 +19,8 @@ use database::season::Season;
 
 use diesel::prelude::*;
 use diesel::sql_types::Text;
+use diesel::*;
+
 use futures::stream;
 use futures::StreamExt;
 
