@@ -7,8 +7,8 @@ use std::path::PathBuf;
 
 use rust_embed::RustEmbed;
 
-use warp::Filter;
 use warp::Reply;
+use warp::Filter;
 
 pub fn statik_routes(
 ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
@@ -24,6 +24,8 @@ mod filters {
     use warp::Reply;
 
     use std::path::PathBuf;
+
+    use rust_embed::RustEmbed;
 
     pub fn react_routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
     {
@@ -62,13 +64,29 @@ mod filters {
     }
 }
 
-#[derive(RustEmbed)]
-#[cfg_attr(any(feature = "embed_ui", target_os = "windows"), folder = "ui/build/")]
-#[cfg_attr(
-    all(not(feature = "embed_ui"), not(target_os = "windows")),
-    folder = "/dev/null"
-)]
-pub(self) struct Asset;
+cfg_if::cfg_if! {
+    if #[cfg(feature = "embed_ui")] {
+
+        #[derive(RustEmbed)]
+        #[folder = "ui/build/"]
+        pub(self) struct Asset;
+    } else {
+        use rust_embed::Filenames;
+        use std::borrow::Cow;
+
+        pub(self) struct Asset;
+
+        impl RustEmbed for Asset {
+            fn get(_: &str) -> Option<Cow<'static, [u8]>> {
+                None
+            }
+
+            fn iter() -> Filenames {
+                unimplemented!()
+            }
+        }
+    }
+}
 
 pub async fn react_routes() -> Result<impl warp::Reply, warp::Rejection> {
     if let Some(x) = Asset::get("index.html") {
