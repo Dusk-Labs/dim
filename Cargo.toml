@@ -36,7 +36,6 @@ nightfall = "0.1.7"
 lazy_static = "1.4.0"
 walkdir = "2.3.1"
 rand = "0.7.3"
-clap = "2.33.0"
 
 slog = "2.5.2"
 slog-term = "2.5.0"
@@ -63,6 +62,7 @@ async-recursion = "0.3.2"
 anitomy = "0.1.2"
 warp = { version = "0.3.1", features = ["tls", "tokio-rustls"] }
 http = "^0.2.3"
+structopt = "0.3.21"
 
 [build-dependencies]
 fs_extra = "1.1.0"

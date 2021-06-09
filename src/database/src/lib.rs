@@ -129,8 +129,12 @@ fn run_migrations(conn: &crate::DbConnection) -> Result<(), diesel_migrations::R
 pub fn get_conn() -> Result<crate::DbConnection, r2d2::Error> {
     let conn = __GLOBAL.get_or_try_init(|| -> Result<_, _> { internal_get_conn(None) })?;
 
-    if !MIGRATIONS_FLAG.load(Ordering::SeqCst) && dbg!(run_migrations(conn)).is_ok() {
-        MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
+    if !MIGRATIONS_FLAG.load(Ordering::SeqCst) {
+        if let Err(err) = run_migrations(conn) {
+            dbg!(err);
+        } else {
+            MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
+        }
     }
 
     Ok(conn.clone())
