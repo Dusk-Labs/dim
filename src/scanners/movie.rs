@@ -24,7 +24,7 @@ use slog::Logger;
 use events::Message;
 use events::PushEventType;
 
-use crate::core::EventTx;
+use crate::core::{fetcher::PosterType, EventTx};
 
 use super::tmdb;
 use super::tmdb::Tmdb;
@@ -56,11 +56,11 @@ impl<'a> MovieMatcher<'a> {
         let meta_fetcher = crate::core::METADATA_FETCHER_TX.get().unwrap().get();
 
         if let Some(poster_path) = poster_path.as_ref() {
-            let _ = meta_fetcher.send(poster_path.clone());
+            let _ = meta_fetcher.send(PosterType::Banner(poster_path.clone()));
         }
 
         if let Some(backdrop_path) = backdrop_path.as_ref() {
-            let _ = meta_fetcher.send(backdrop_path.clone());
+            let _ = meta_fetcher.send(PosterType::Banner(backdrop_path.clone()));
         }
 
         let media = InsertableMedia {

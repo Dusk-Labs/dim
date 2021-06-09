@@ -8,7 +8,7 @@
   width: 100%;
   position: relative;
   grid-template-columns: 1fr 1fr;
-  transition: opacity 200ms ease-in-out;
+  transition: opacity 100ms ease-in-out;
   grid-template-areas:
     "name time"
     "seekbar seekbar"

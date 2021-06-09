@@ -32,7 +32,7 @@ use events::PushEventType;
 
 use tmdb::Tmdb;
 
-use crate::core::EventTx;
+use crate::core::{fetcher::PosterType, EventTx};
 
 use super::tmdb;
 
@@ -61,11 +61,11 @@ impl<'a> TvShowMatcher<'a> {
         let meta_fetcher = crate::core::METADATA_FETCHER_TX.get().unwrap().get();
 
         if let Some(poster_path) = poster_path.as_ref() {
-            let _ = meta_fetcher.send(poster_path.clone());
+            let _ = meta_fetcher.send(PosterType::Banner(poster_path.clone()));
         }
 
         if let Some(backdrop_path) = backdrop_path.as_ref() {
-            let _ = meta_fetcher.send(backdrop_path.clone());
+            let _ = meta_fetcher.send(PosterType::Banner(backdrop_path.clone()));
         }
 
         let media = InsertableMedia {
@@ -124,7 +124,7 @@ impl<'a> TvShowMatcher<'a> {
         };
 
         if let Some(x) = season.and_then(|x| x.poster_path.as_ref()) {
-            let _ = meta_fetcher.send(x.clone());
+            let _ = meta_fetcher.send(PosterType::Season(x.clone()));
         }
 
         let insertable_season = InsertableSeason {
@@ -148,7 +148,7 @@ impl<'a> TvShowMatcher<'a> {
         };
 
         if let Some(x) = search_ep.as_ref().and_then(|x| x.still.clone()) {
-            let _ = meta_fetcher.send(x);
+            let _ = meta_fetcher.send(PosterType::Episode(x));
         }
 
         debug!(

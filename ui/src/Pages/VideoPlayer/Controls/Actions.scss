@@ -5,14 +5,9 @@
   justify-self: center;
   grid-area: actions;
 
-  .volumeSlider {
-    display: none;
-    animation: appear 250ms ease-in-out;
-    width: 80px;
-  }
-
   section {
     display: flex;
+    align-items: center;
     width: 100%;
 
     &.middle {
@@ -23,6 +18,52 @@
       justify-content: flex-end;
     }
   }
+
+  .volSliderWrapper {
+    align-items: center;
+    display: none;
+    height: 100%;
+    width: 80px;
+    position: relative;
+
+    &:hover .volSlider {
+      height: 10px;
+
+      &::after {
+        opacity: 1;
+      }
+    }
+
+    .volSlider {
+      animation: appear 250ms ease-in-out;
+      background: #2a2a2a;
+      height: 5px;
+      width: 100%;
+      cursor: pointer;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: height 100ms ease-in-out;
+
+
+      &::after {
+        content: attr(data-currentVolume);
+        position: absolute;
+        left: calc(100% + .5em);
+        top: 50%;
+        opacity: 0;
+        width: 0;
+        transition: opacity 100ms ease-in-out;
+        transform: translateY(-50%);
+      }
+
+      .vol {
+        border-radius: 10px;
+        height: 100%;
+        background: #f7931e;
+      }
+    }
+  }
+
 
   button, .filler {
     display: flex;
@@ -73,8 +114,8 @@
 
 @media only screen and (min-width: 600px) {
   .videoActions {
-    .volumeSlider {
-      display: block;
+    .volSliderWrapper {
+      display: flex;
     }
   }
 }

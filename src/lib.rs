@@ -22,37 +22,20 @@
 //! To test run `make test` in the root, or `cargo test` in the root of each module including the
 //! root dir.
 #![feature(
-    rustc_private,
     proc_macro_hygiene,
     decl_macro,
-    negative_impls,
     result_flattening,
     once_cell,
     type_ascription,
     result_into_ok_or_err,
     stmt_expr_attributes,
-    with_options
+    with_options,
+    map_first_last
 )]
-// #![forbid(missing_docs)]
 #![cfg_attr(debug_assertions, allow(unused_variables, unused_imports, dead_code))]
-
-#[macro_use]
-extern crate diesel;
-#[macro_use]
-extern crate rocket_codegen;
-#[macro_use]
-extern crate rocket_contrib;
-#[macro_use]
-extern crate rust_embed;
 
 use cfg_if::cfg_if;
 use chrono::Utc;
-
-use clap::App;
-use clap::Arg;
-
-use rocket::config::Config;
-use rocket::config::LogLevel;
 
 use slog::error;
 use slog::info;
@@ -87,16 +70,13 @@ pub mod errors;
 /// Contains our custom logger for rocket
 pub mod logger;
 /// Contains all of the routes exposed by the webapi.
-mod routes;
+pub mod routes;
 /// Contains our media scanners and so on.
 pub mod scanners;
 /// Contains the fairing which tracks streams across rest api
 pub mod stream_tracking;
 /// Contains all the logic needed for streaming and on-the-fly transcoding.
 pub mod streaming;
-/// Contains unit tests.
-#[doc(hidden)]
-mod tests;
 /// Websocket related logic.
 pub mod websocket;
 

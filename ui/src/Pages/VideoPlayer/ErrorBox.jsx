@@ -1,12 +1,27 @@
-function ErrorBox(props) {
-  const { error, setError, currentTime } = props;
+import { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { updateVideo } from "../../actions/video";
+
+function ErrorBox() {
+  const dispatch = useDispatch();
+
+  const { video, error } = useSelector(store => ({
+    video: store.video,
+    error: store.video.error
+  }));
+
+  const hide = useCallback(() => {
+    dispatch(updateVideo({
+      error: null
+    }));
+  }, [dispatch]);
 
   const reloadPlayer = () => {
-    sessionStorage.setItem("currentTime", currentTime);
+    sessionStorage.setItem("currentTime", video.currentTime);
     window.location.reload();
   };
 
-  console.log(error);
+  console.log("[VIDEO] error", error);
 
   return (
     <div className="errorBox">
@@ -22,7 +37,7 @@ function ErrorBox(props) {
         </details>
       ))}
       <div className="options">
-        <button onClick={() => setError(false)}>Hide</button>
+        <button onClick={hide}>Hide</button>
         <button onClick={reloadPlayer}>Retry</button>
       </div>
     </div>

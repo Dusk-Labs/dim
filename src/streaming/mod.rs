@@ -34,40 +34,37 @@ use std::process::Command;
 
 /// ffcheck - Check if "ffmpeg" and "ffprobe" are accessable through `std::process::Command`.
 ///
-/// This will run `ffmpeg -version` and `ffprobe -version` and push their stdout's
-/// onto the provided `bucket`.
-///
-/// # Arguments
-/// * `bucket` - a `Vec<Box<str>>` to push the commands stdout's onto
+/// This will run `ffmpeg -version` and `ffprobe -version` and return a vec of the stdout
+/// output if successfull or the binaries name if not.
 ///
 /// # Example
+///
 /// ```
 /// use streamer::ffcheck;
 ///
-/// let mut bucket: Vec<Box<str>> = Vec::new();
-/// if let Err(why) = ffcheck(&mut bucket) {
-///     eprintln!("Could not find: {}", why);
-///     std::process::exit(1);
+/// for result in ffcheck() {
+///     match result {
+///         Ok(stdout) => println!("{:?}", stdout),
+///         Err(program) => eprintln!("Failed to get the `-version` output of {:?}", program),
+///     }
 /// }
-///
-/// for item in bucket.iter() {
-///     println!("\n{}", item);
-/// }    
 /// ```
-pub fn ffcheck<'a>(bucket: &'a mut Vec<Box<str>>) -> Result<(), Box<&str>> {
+pub fn ffcheck() -> Vec<Result<Box<str>, &'static str>> {
+    let mut results = vec![];
+
     for program in ["./utils/ffmpeg", "./utils/ffprobe"].iter() {
         if let Ok(output) = Command::new(program).arg("-version").output() {
             let stdout = String::from_utf8(output.stdout)
                 .expect("Failed to decode subprocess stdout.")
                 .into_boxed_str();
 
-            bucket.push(stdout);
+            results.push(Ok(stdout));
         } else {
-            return Err(Box::new(program));
+            results.push(Err(*program));
         }
     }
 
-    Ok(())
+    results
 }
 
 #[derive(Clone)]

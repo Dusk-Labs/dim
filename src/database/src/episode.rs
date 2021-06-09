@@ -618,7 +618,7 @@ impl InsertableEpisode {
                 cfg_if! {
                     if #[cfg(feature = "postgres")] {
                         Ok(query.returning(episode::id)
-                            .get_result(conn).?)
+                            .get_result(conn)?)
                     } else {
                         query.execute(conn)?;
                         Ok(diesel::select(crate::last_insert_rowid).get_result::<i32>(conn)?)

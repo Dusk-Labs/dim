@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { MediaPlayer } from "dashjs";
 
-import { clearMediaInfo, fetchExtraMediaInfo, fetchMediaInfo } from "../../actions/card";
+import { setTracks, setGID, setManifestState, updateVideo, incIdleCount, clearVideoData } from "../../actions/video";
 import { VideoPlayerContext } from "./Context";
 import VideoEvents from "./Events";
+import VideoMediaData from "./MediaData";
 
 import RingLoad from "../../Components/Load/Ring";
 import Menus from "./Menus";
@@ -15,71 +17,30 @@ import VideoSubtitles from "./Subtitles";
 
 import "./Index.scss";
 
-/*
-  logic for media name and other metadata is in place,
-  awaiting info to be returned by API - hidden until then.
-*/
-
-// TODO: useReducer the shit out of this shit.
-function VideoPlayer(props) {
+function VideoPlayer() {
+  const params = useParams();
   const dispatch = useDispatch();
 
-  const { auth, media_info, extra_media_info } = useSelector(store => ({
+  const { error, manifest, player, audioTracks, videoTracks, video, auth, media_info, extra_media_info } = useSelector(store => ({
     auth: store.auth,
     media_info: store.card.media_info,
-    extra_media_info: store.card.extra_media_info
+    extra_media_info: store.card.extra_media_info,
+    video: store.video,
+    player: store.video.player,
+    manifest: store.video.manifest,
+    videoTracks: store.video.tracks.video,
+    audioTracks: store.video.tracks.audio,
+    error: store.video.error
   }));
 
   const videoPlayer = useRef(null);
   const overlay = useRef(null);
-  const video = useRef(null);
+  const videoRef = useRef(null);
 
-  const [mediaID, setMediaID] = useState();
-  const [player, setPlayer] = useState();
-
-  const [GID, setGID] = useState();
-
-  const [videoTracks, setVideoTracks] = useState([]);
-  // eslint-disable-next-line no-unused-vars
-  const [currentVideoTrack, setCurrentVideoTrack] = useState(0);
-  const [audioTracks, setAudioTracks] = useState([]);
-  // eslint-disable-next-line no-unused-vars
-  const [currentAudioTrack, setCurrentAudioTrack] = useState(0);
-  const [subtitleTracks, setSubtitleTracks] = useState([]);
-  const [currentSubtitleTrack, setCurrentSubtitleTrack] = useState(-1);
-  const [virtualManifestLoaded, setVirtualManifestLoaded] = useState(false);
-
-  const [subReady, setSubReady] = useState(false);
-  const [prevSubs, setPrevSubs] = useState();
-
-  const [manifestLoading, setManifestLoading] = useState(false);
-  const [manifestLoaded, setManifestLoaded] = useState(false);
-  const [canPlay, setCanPlay] = useState(false);
-  const [waiting, setWaiting] = useState(false);
-  const [seeking, setSeeking] = useState(false);
-  const [fullscreen, setFullscreen] = useState(false);
-  const [muted, setMuted] = useState(false);
-  const [error, setError] = useState();
-  const [paused, setPaused] = useState(false);
-  const [textTrackEnabled, setTextTrackEnabled] = useState(false);
-  const [episode, setEpisode] = useState();
-
-  const [buffer, setBuffer] = useState(true);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [currentCue, setCurrentCue] = useState("");
-
-  const [prevSubTrack, setPrevSubTrack] = useState(0);
-  const [showSubSelection, setShowSubSelection] = useState(false);
-
-  const [idleCount, setIdleCount] = useState(0);
-
-  const { match } = props;
-  const { params } = match;
   const { token } = auth;
 
   useEffect(() => {
-    if (GID) return;
+    if (video.gid) return;
 
     const host = (
       `/api/v1/stream/${params.fileID}/manifest`
@@ -95,78 +56,23 @@ function VideoPlayer(props) {
       const res = await fetch(host, config);
       const payload = await res.json();
 
-      setGID(payload.gid);
+      dispatch(setGID(payload.gid));
 
       const tVideos = payload.tracks.filter(track => track.content_type === "video");
       const tAudios = payload.tracks.filter(track => track.content_type === "audio");
       const tSubtitles = payload.tracks.filter(track => track.content_type === "subtitle");
 
-      setVideoTracks(tVideos);
-      setAudioTracks(tAudios);
-      setSubtitleTracks(tSubtitles);
+      dispatch(setTracks({
+        video: tVideos,
+        audio: tAudios,
+        subtitle: tSubtitles
+      }));
 
-      setVirtualManifestLoaded(true);
+      dispatch(setManifestState({
+        virtual: { loaded: true }
+      }));
     })();
-  }, [GID, params.fileID, token]);
-
-  useEffect(() => {
-    (async () => {
-      const config = {
-        headers: {
-          "authorization": token
-        }
-      };
-
-      const res = await fetch(`/api/v1/mediafile/${params.fileID}`, config);
-
-      if (res.status !== 200) {
-        return;
-      }
-
-      const payload = await res.json();
-
-      setMediaID(payload.media_id);
-    })();
-  }, [params.fileID, token]);
-
-  useEffect(() => {
-    if (extra_media_info.info.seasons) {
-      const { seasons } = extra_media_info.info;
-
-      let episode;
-
-      for (const season of seasons) {
-        const found = season.episodes.filter(ep => {
-          return ep.versions.filter(version => version.id === parseInt(params.fileID)).length === 1;
-        });
-
-        if (found.length > 0) {
-          episode = {
-            ...found[0],
-            season: season.season_number
-          };
-
-          break;
-        }
-      }
-
-      if (episode) {
-        setEpisode(episode);
-      }
-    }
-  }, [extra_media_info.info, params.fileID]);
-
-  useEffect(() => {
-    if (!mediaID) return;
-    dispatch(fetchExtraMediaInfo(mediaID));
-    return () => dispatch(clearMediaInfo());
-  }, [dispatch, mediaID]);
-
-  useEffect(() => {
-    if (!mediaID) return;
-    dispatch(fetchMediaInfo(mediaID));
-    return () => dispatch(clearMediaInfo());
-  }, [dispatch, mediaID]);
+  }, [dispatch, params.fileID, token, video.gid]);
 
   useEffect(() => {
     document.title = "Dim - Video Player";
@@ -177,13 +83,15 @@ function VideoPlayer(props) {
   }, [media_info.info.name]);
 
   useEffect(() => {
-    if (!GID || !virtualManifestLoaded) return;
+    if (!video.gid || !manifest.virtual.loaded) return;
 
-    setManifestLoaded(false);
-    setManifestLoading(true);
+    dispatch(setManifestState({
+      loading: true,
+      loaded: false
+    }));
 
-    const includes = `${videoTracks[currentVideoTrack].id},${audioTracks[currentAudioTrack].id}`;
-    const url = `/api/v1/stream/${GID}/manifest.mpd?start_num=0&should_kill=false&includes=${includes}`;
+    const includes = `${videoTracks.list[videoTracks.current].id},${audioTracks.list[audioTracks.current].id}`;
+    const url = `/api/v1/stream/${video.gid}/manifest.mpd?start_num=0&should_kill=false&includes=${includes}`;
     const mediaPlayer = MediaPlayer().create();
 
     // even with these settings, high bitrate movies fail.
@@ -215,112 +123,71 @@ function VideoPlayer(props) {
       };
     });
 
-    mediaPlayer.initialize(video.current, url, true);
+    mediaPlayer.initialize(videoRef.current, url, true);
 
-    setPlayer(mediaPlayer);
+    dispatch(updateVideo({
+      player: mediaPlayer
+    }));
 
     return () => {
+      dispatch(clearVideoData());
       mediaPlayer.destroy();
 
-      if (!GID) return;
+      if (!video.gid) return;
 
       (async () => {
-        await fetch(`/api/v1/stream/${GID}/state/kill`);
+        await fetch(`/api/v1/stream/${video.gid}/state/kill`);
         sessionStorage.clear();
       })();
     };
-  }, [GID, audioTracks, auth.token, currentAudioTrack, currentVideoTrack, videoTracks, virtualManifestLoaded]);
+  }, [audioTracks, auth.token, dispatch, manifest.virtual.loaded, video.gid, videoTracks]);
 
   const seekTo = useCallback(async newTime => {
     const newSegment = Math.floor(newTime / 5);
 
-    setCurrentCue("");
-    setCurrentTime(newTime);
-    setBuffer(0);
+    dispatch(updateVideo({
+      buffer: 0,
+      currentTime: newTime,
+      currentCue: ""
+    }));
 
-    const includes = `${videoTracks[currentVideoTrack].id},${audioTracks[currentAudioTrack].id}`;
-    const url = `/api/v1/stream/${GID}/manifest.mpd?start_num=${newSegment}&should_kill=true&includes=${includes}`;
+    const includes = `${videoTracks.list[videoTracks.current].id},${audioTracks.list[audioTracks.current].id}`;
+    const url = `/api/v1/stream/${video.gid}/manifest.mpd?start_num=${newSegment}&should_kill=true&includes=${includes}`;
 
     player.attachSource(url);
 
-    setSeeking(false);
-  }, [GID, audioTracks, currentAudioTrack, currentVideoTrack, player, videoTracks]);
+    dispatch(updateVideo({
+      seeking: false
+    }));
+  }, [audioTracks, dispatch, player, video.gid, videoTracks]);
 
   useEffect(() => {
-    if (showSubSelection) return;
-    setIdleCount(state => state += 1);
-  }, [currentTime, showSubSelection]);
+    if (video.showSubSwitcher) return;
+    dispatch(incIdleCount());
+  }, [video.currentTime, dispatch, video.showSubSwitcher]);
 
   const initialValue = {
-    player,
-    mediaInfo: media_info.info,
-    mediaID,
-    fileID: params.fileID,
-    video,
+    videoRef,
     videoPlayer,
-    fullscreen,
-    setFullscreen,
-    seeking,
-    muted,
-    setMuted,
-    setSeeking,
-    setCurrentTime,
-    currentTime,
-    duration,
-    setPlayer,
-    setBuffer,
-    buffer,
-    paused,
-    canPlay,
-    textTrackEnabled,
-    setTextTrackEnabled,
     overlay: overlay.current,
-    seekTo,
-    episode,
-    videoTracks,
-    currentVideoTrack,
-    audioTracks,
-    currentAudioTrack,
-    subtitleTracks,
-    currentSubtitleTrack,
-    setCurrentSubtitleTrack,
-    GID,
-    currentCue,
-    setCurrentCue,
-    showSubSelection,
-    setShowSubSelection,
-    prevSubTrack,
-    setPrevSubTrack,
-    subReady,
-    setSubReady,
-    prevSubs,
-    setPrevSubs,
-    idleCount,
-    setIdleCount,
-    setCanPlay,
-    setWaiting,
-    setPaused,
-    setDuration,
-    setManifestLoading,
-    setManifestLoaded
+    seekTo
   };
 
   return (
     <VideoPlayerContext.Provider value={initialValue}>
-      <VideoEvents/>
       <div className="videoPlayer" ref={videoPlayer}>
-        <video ref={video}/>
+        <VideoEvents/>
+        <VideoMediaData/>
+        <video ref={videoRef}/>
         <VideoSubtitles/>
         <div className="overlay" ref={overlay}>
-          {(!error && (manifestLoaded && canPlay && showSubSelection)) && <Menus/>}
-          {(!error && (manifestLoaded && canPlay)) && <VideoControls/>}
-          {(!error & (manifestLoading || !canPlay) || waiting) && <RingLoad/>}
-          {((!error && (manifestLoaded && canPlay)) && extra_media_info.info.progress > 0) && (
+          {(!error && (manifest.loaded && video.canPlay && video.showSubSwitcher)) && <Menus/>}
+          {(!error && (manifest.loaded && video.canPlay)) && <VideoControls/>}
+          {(!error & (manifest.loading || !video.canPlay) || video.waiting) && <RingLoad/>}
+          {((!error && (manifest.loaded && video.canPlay)) && extra_media_info.info.progress > 0) && (
             <ContinueProgress/>
           )}
-          {error && (
-            <ErrorBox error={error} setError={setError} currentTime={currentTime}/>
-          )}
+          {error && <ErrorBox/>}
         </div>
       </div>
     </VideoPlayerContext.Provider>

@@ -15,6 +15,8 @@ use crate::scanners::tv_show::TvShowMatcher;
 use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::FFPROBE_BIN;
 
+use super::ApiMedia;
+
 use torrent_name_parser::Metadata;
 
 use slog::debug;
@@ -35,7 +37,7 @@ use anitomy::Anitomy;
 use anitomy::ElementCategory;
 use anitomy::Elements;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, Serialize, Clone)]
 pub enum ScannerError {
     #[error(display = "Could not get a connection to the db")]
     DatabaseConnectionError,
@@ -46,7 +48,13 @@ pub enum ScannerError {
     #[error(display = "An unknown error has occured")]
     UnknownError,
     #[error(display = "Database error")]
-    DatabaseError(#[source] database::DatabaseError),
+    DatabaseError,
+}
+
+impl From<database::DatabaseError> for ScannerError {
+    fn from(_: database::DatabaseError) -> Self {
+        Self::DatabaseError
+    }
 }
 
 /// `MetadataExtractor` is an actor that processes files on the local filesystem. It parses the
@@ -222,6 +230,15 @@ impl MetadataMatcher {
             }
         };
 
+        self.match_movie_to_result(media, result).await
+    }
+
+    #[handler]
+    pub async fn match_movie_to_result(
+        &mut self,
+        media: MediaFile,
+        result: ApiMedia,
+    ) -> Result<(), ScannerError> {
         let matcher = MovieMatcher {
             conn: &self.conn,
             log: &self.log,
@@ -234,7 +251,6 @@ impl MetadataMatcher {
 
     #[handler]
     pub async fn match_tv(&mut self, media: MediaFile) -> Result<(), ScannerError> {
-        // FIXME: Our handler macro cant handle `mut` keyword yet.
         let mut media = media;
 
         let path = Path::new(&media.target_file);
@@ -256,38 +272,6 @@ impl MetadataMatcher {
             .tv_tmdb
             .search(media.raw_name.clone(), media.raw_year)
             .await;
-
-        if media.episode.is_none() {
-            // NOTE: In some cases our base matcher extracts the correct title from the filename but incorrect episode and season numbers.
-            let anitomy_episode = els
-                .get(ElementCategory::EpisodeNumber)
-                .and_then(|x| x.parse::<i32>().ok())
-                .or(media.episode);
-
-            let updated_mediafile = UpdateMediaFile {
-                episode: anitomy_episode,
-                ..Default::default()
-            };
-
-            let _ = updated_mediafile.update(&self.conn, media.id).await;
-            media.episode = anitomy_episode;
-        }
-
-        if media.season.is_none() {
-            // NOTE: Some releases dont include season number, so we just assume its the first one.
-            let anitomy_season = els
-                .get(ElementCategory::AnimeSeason)
-                .and_then(|x| x.parse::<i32>().ok())
-                .or(Some(1));
-
-            let updated_mediafile = UpdateMediaFile {
-                season: anitomy_season,
-                ..Default::default()
-            };
-
-            let _ = updated_mediafile.update(&self.conn, media.id).await;
-            media.season = anitomy_season;
-        }
 
         if let Some(x) = els.get(ElementCategory::AnimeTitle) {
             if result.is_err() {
@@ -320,18 +304,77 @@ impl MetadataMatcher {
             }
         }
 
-        let mut result = match result {
+        let result = match result {
             Ok(v) => v,
             Err(e) => {
                 error!(
                     self.log,
                     "Could not match tv show to tmdb";
                     "reason" => e.to_string(),
-                    "file" => &media.target_file
                 );
                 return Err(ScannerError::UnknownError);
             }
         };
+
+        self.match_tv_to_result(media, result).await
+    }
+
+    #[handler]
+    pub async fn match_tv_to_result(
+        &mut self,
+        media: MediaFile,
+        result: ApiMedia,
+    ) -> Result<(), ScannerError> {
+        // FIXME: Our handler macro cant handle `mut` keyword yet.
+        let mut media = media;
+        let mut result = result;
+
+        let path = Path::new(&media.target_file);
+        let filename = path
+            .file_name()
+            .and_then(|x| x.to_str())
+            .map(ToString::to_string)
+            .unwrap_or_default();
+
+        let els: Elements = spawn_blocking(move || {
+            let mut anitomy = Anitomy::new();
+            anitomy.parse(filename.as_str())
+        })
+        .await
+        .unwrap()
+        .into_ok_or_err();
+
+        if media.episode.is_none() {
+            // NOTE: In some cases our base matcher extracts the correct title from the filename but incorrect episode and season numbers.
+            let anitomy_episode = els
+                .get(ElementCategory::EpisodeNumber)
+                .and_then(|x| x.parse::<i32>().ok())
+                .or(media.episode);
+
+            let updated_mediafile = UpdateMediaFile {
+                episode: anitomy_episode,
+                ..Default::default()
+            };
+
+            let _ = updated_mediafile.update(&self.conn, media.id).await;
+            media.episode = anitomy_episode;
+        }
+
+        if media.season.is_none() {
+            // NOTE: Some releases dont include season number, so we just assume its the first one.
+            let anitomy_season = els
+                .get(ElementCategory::AnimeSeason)
+                .and_then(|x| x.parse::<i32>().ok())
+                .or(Some(1));
+
+            let updated_mediafile = UpdateMediaFile {
+                season: anitomy_season,
+                ..Default::default()
+            };
+
+            let _ = updated_mediafile.update(&self.conn, media.id).await;
+            media.season = anitomy_season;
+        }
 
         let mut seasons: Vec<super::ApiSeason> = self
             .tv_tmdb
