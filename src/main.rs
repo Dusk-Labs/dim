@@ -1,12 +1,6 @@
 use clap::App;
 use clap::Arg;
 
-/*
-use rocket::config::Config;
-use rocket::config::LogLevel;
-use rocket::config::TlsConfig;
-*/
-
 use slog::error;
 use slog::info;
 
@@ -81,16 +75,22 @@ fn main() {
         .expect("Failed to set METADATA_PATH");
 
     {
-        // We check if ffmpeg and ffprobe binaries exist and exit gracefully if they dont exist.
-        let mut bucket: Vec<Box<str>> = Vec::new();
-        if let Err(why) = streaming::ffcheck(&mut bucket) {
-            eprintln!("Could not find: {}", why);
-            error!(logger, "Could not find: {}", why);
-            process::exit(1);
-        }
+        let failed = streaming::ffcheck()
+            .into_iter()
+            .fold(false, |failed, item| match item {
+                Ok(stdout) => {
+                    info!(logger, "{}", stdout);
+                    failed
+                }
 
-        for item in bucket.iter() {
-            info!(logger, "\n{}", item);
+                Err(program) => {
+                    error!(logger, "Could not find: {}", program);
+                    true
+                }
+            });
+
+        if failed {
+            std::process::exit(1);
         }
     }
 
