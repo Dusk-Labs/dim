@@ -45,7 +45,6 @@ fn main() {
     let logger = build_logger();
 
     // never panics because we set a default value to metadata_dir
-    // let meta_dir = matches.value_of("metadata-dir").unwrap();
     let _ = create_dir_all(args.metadata_dir.clone());
 
     core::METADATA_PATH
