@@ -11,18 +11,17 @@ use diesel::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
 
-use rocket::State;
-use rocket_contrib::json::Json;
-
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
 use std::lazy::SyncOnceCell;
 
+use warp::reply;
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct GlobalSettings {
     pub enable_ssl: bool,
-    pub port: u32,
+    pub port: u16,
     pub priv_key: Option<String>,
     pub ssl_cert: Option<String>,
 
@@ -99,49 +98,59 @@ pub fn set_global_settings(settings: GlobalSettings) -> Result<(), Box<dyn Error
     Ok(())
 }
 
-#[get("/user/settings")]
+mod filters {
+    use database::DbConnection;
+
+    use auth::Wrapper as Auth;
+
+    use warp::reject;
+    use warp::Filter;
+    use warp::Rejection;
+
+    use super::super::global_filters::with_state;
+}
+
+//#[get("/user/settings")]
 pub async fn get_user_settings(
-    db: State<'_, DbConnection>,
+    db: DbConnection,
     user: Auth,
-) -> Result<Json<UserSettings>, errors::DimError> {
-    Ok(Json(
-        User::get_one_unchecked(&*db, user.0.claims.get_user())
+) -> Result<impl warp::Reply, errors::DimError> {
+    Ok(reply::json(
+        &User::get_one_unchecked(&db, user.0.claims.get_user())
             .await?
             .settings,
     ))
 }
 
-#[post("/user/settings", format = "json", data = "<new_settings>")]
+//#[post("/user/settings", format = "json", data = "<new_settings>")]
 pub async fn post_user_settings(
-    db: State<'_, DbConnection>,
+    db: DbConnection,
     user: Auth,
-    new_settings: Json<UserSettings>,
-) -> Result<Json<UserSettings>, errors::DimError> {
+    new_settings: UserSettings,
+) -> Result<impl warp::Reply, errors::DimError> {
     let update_user = UpdateableUser {
         settings: Some(new_settings.clone()),
         ..Default::default()
     };
 
-    update_user.update(&*db, user.0.claims.get_user()).await?;
+    update_user.update(&db, user.0.claims.get_user()).await?;
 
-    Ok(new_settings)
+    Ok(reply::json(&new_settings))
 }
 
-#[get("/host/settings")]
-pub async fn http_get_global_settings(
-    user: Auth,
-) -> Result<Json<&'static GlobalSettings>, errors::DimError> {
-    Ok(Json(get_global_settings()))
+//#[get("/host/settings")]
+pub async fn http_get_global_settings(user: Auth) -> Result<impl warp::Reply, errors::DimError> {
+    Ok(reply::json(get_global_settings()))
 }
 
-#[post("/host/settings", format = "json", data = "<new_settings>")]
+//#[post("/host/settings", format = "json", data = "<new_settings>")]
 pub async fn http_set_global_settings(
     user: Auth,
-    new_settings: Json<GlobalSettings>,
-) -> Result<Json<&'static GlobalSettings>, errors::DimError> {
+    new_settings: GlobalSettings,
+) -> Result<impl warp::Reply, errors::DimError> {
     if user.0.claims.has_role("owner") {
-        let _ = set_global_settings(new_settings.into_inner());
-        return Ok(Json(get_global_settings()));
+        let _ = set_global_settings(new_settings);
+        return Ok(reply::json(get_global_settings()));
     }
 
     Err(errors::DimError::Unauthorized)

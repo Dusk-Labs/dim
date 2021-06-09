@@ -25,20 +25,18 @@ struct Args {
 fn main() {
     let args = Args::from_args();
 
-    let logger = build_logger();
-
-    // never panics because we set a default value to metadata_dir
-    let _ = create_dir_all(args.metadata_dir.clone());
-
-    core::METADATA_PATH
-        .set(args.metadata_dir.to_string_lossy().to_string())
-        .expect("Failed to set METADATA_PATH");
-
     // initialize global settings.
     dim::init_global_settings(Some(args.config.to_string_lossy().to_string()))
         .expect("Failed to initialize global settings.");
 
     let global_settings = dim::get_global_settings();
+
+    // never panics because we set a default value to metadata_dir
+    let _ = create_dir_all(global_settings.metadata_dir.clone());
+
+    core::METADATA_PATH
+        .set(global_settings.metadata_dir.clone())
+        .expect("Failed to set METADATA_PATH");
 
     let logger = build_logger(global_settings.verbose);
 
@@ -46,7 +44,8 @@ fn main() {
     let _ = create_dir_all(&global_settings.metadata_dir);
 
     core::METADATA_PATH
-        .set(global_settings.metadata_dir.clone());
+        .set(global_settings.metadata_dir.clone())
+        .unwrap();
 
     {
         let failed = streaming::ffcheck()
@@ -92,7 +91,6 @@ fn main() {
                 interval.tick().await;
                 let _ = stream_manager_clone.garbage_collect().await.unwrap();
             }
-
         });
 
         if !global_settings.quiet_boot {
@@ -100,18 +98,15 @@ fn main() {
             core::run_scanners(logger.clone(), event_tx.clone()).await;
         }
 
-        info!(logger, "Summoning Dim v{}...", structopt::clap::crate_version!());
+        info!(
+            logger,
+            "Summoning Dim v{}...",
+            structopt::clap::crate_version!()
+        );
 
         let rt = tokio::runtime::Handle::current();
 
-        core::warp_core(
-            logger,
-            event_tx,
-            stream_manager,
-            rt,
-            args.port
-        )
-        .await;
+        core::warp_core(logger, event_tx, stream_manager, rt, global_settings.port).await;
     };
 
     tokio::runtime::Runtime::new()

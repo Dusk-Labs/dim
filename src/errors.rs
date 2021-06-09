@@ -54,7 +54,7 @@ impl warp::Reply for DimError {
             | Self::IOError
             | Self::InternalServerError
             | Self::ScannerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::AuthRequired => StatusCode::UNAUTHORIZED,
+            Self::AuthRequired | Self::Unauthorized => StatusCode::UNAUTHORIZED,
             Self::InvalidMediaType => StatusCode::NOT_ACCEPTABLE,
         };
 
