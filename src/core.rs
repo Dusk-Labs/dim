@@ -152,38 +152,38 @@ pub mod fetcher {
 
             loop {
                 tokio::select! {
-                _ = timer.tick() => {
-                    while let Some(poster) = processing.pop_last() {
-                        let url: String = poster.clone().into();
+                    _ = timer.tick() => {
+                        while let Some(poster) = processing.pop_last() {
+                            let url: String = poster.clone().into();
 
-                        match reqwest::get(url.as_str()).await {
-                            Ok(resp) => {
-                                if let Some(fname) = resp.url().path_segments().and_then(|segs| segs.last()) {
-                                    let meta_path = METADATA_PATH.get().unwrap();
-                                    let mut out_path = PathBuf::from(meta_path);
-                                    out_path.push(fname);
+                            match reqwest::get(url.as_str()).await {
+                                Ok(resp) => {
+                                    if let Some(fname) = resp.url().path_segments().and_then(|segs| segs.last()) {
+                                        let meta_path = METADATA_PATH.get().unwrap();
+                                        let mut out_path = PathBuf::from(meta_path);
+                                        out_path.push(fname);
 
-                                    debug!(log, "Caching {} -> {:?}", url, out_path);
+                                        debug!(log, "Caching {} -> {:?}", url, out_path);
 
-                                    if let Ok(mut file) = File::create(out_path) {
-                                        if let Ok(bytes) = resp.bytes().await {
-                                            let mut content = Cursor::new(bytes);
-                                            if let Err(e) = copy(&mut content, &mut file) {
-                                                error!(log, "Failed to cache {} locally, e={:?}", url, e);
+                                        if let Ok(mut file) = File::create(out_path) {
+                                            if let Ok(bytes) = resp.bytes().await {
+                                                let mut content = Cursor::new(bytes);
+                                                if let Err(e) = copy(&mut content, &mut file) {
+                                                    error!(log, "Failed to cache {} locally, e={:?}", url, e);
+                                                }
                                             }
                                         }
                                     }
                                 }
+                                Err(e) => {
+                                    error!(log, "Failed to cache {} locally, e={:?}", url, e);
+                                    processing.insert(poster);
+                                },
                             }
-                            Err(e) => {
-                                error!(log, "Failed to cache {} locally, e={:?}", url, e);
-                                processing.insert(poster);
-                            },
                         }
                     }
-                }
 
-                Some(poster) = rx.recv() => { processing.insert(poster); }
+                    Some(poster) = rx.recv() => { processing.insert(poster); }
                 }
             }
         };
@@ -214,19 +214,20 @@ pub async fn start_event_server() -> EventTx {
 }
 
 pub async fn warp_core(
-    log: slog::Logger,
+    logger: slog::Logger,
     event_tx: EventTx,
     stream_manager: StateManager,
     rt: tokio::runtime::Handle,
+    port: u16,
 ) {
     let conn = database::get_conn().expect("Failed to grab a handle to the connection pool.");
-    let request_logger = RequestLogger::new(log.clone());
+    let request_logger = RequestLogger::new(logger.clone());
 
     let routes = routes::auth::auth_routes(conn.clone())
         .or(routes::general::general_router(conn.clone()))
         .or(routes::library::library_routes(
             conn.clone(),
-            log.clone(),
+            logger.clone(),
             event_tx.clone(),
         ))
         .or(routes::dashboard::dashboard_router(
@@ -237,7 +238,7 @@ pub async fn warp_core(
         .or(routes::tv::tv_router(conn.clone()))
         .or(routes::mediafile::mediafile_router(
             conn.clone(),
-            log.clone(),
+            logger.clone(),
         ))
         .or(routes::stream::stream_router(conn.clone(), stream_manager, Default::default()))
         .or(routes::statik::statik_routes())
@@ -247,7 +248,7 @@ pub async fn warp_core(
         .with(warp::cors().allow_any_origin());
 
     tokio::select! {
-        _ = warp::serve(routes).run(([127, 0, 0, 1], 8000)) => {},
+        _ = warp::serve(routes).run(([127, 0, 0, 1], port)) => {},
         _ = tokio::signal::ctrl_c() => {
             std::process::exit(0);
         }
