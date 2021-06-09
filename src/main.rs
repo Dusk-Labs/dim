@@ -102,7 +102,7 @@ fn main() {
             core::run_scanners(logger.clone(), event_tx.clone()).await;
         }
 
-        info!(logger, "Summoning Dim v{}...", clap::crate_version!());
+        info!(logger, "Summoning Dim v{}...", structopt::clap::crate_version!());
 
         let rt = tokio::runtime::Handle::current();
 

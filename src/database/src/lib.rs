@@ -94,10 +94,9 @@ cfg_if! {
 }
 
 fn create_database(_conn: &crate::DbConnection) -> Result<(), diesel::result::Error> {
-    use crate::diesel::RunQueryDsl;
-
     cfg_if! {
         if #[cfg(feature = "postgres")] {
+            use crate::diesel::RunQueryDsl;
             let conn = _conn.get().unwrap();
             let _ = diesel::sql_query("CREATE DATABASE dim").execute(&conn)?;
             let _ = diesel::sql_query("CREATE DATABASE dim_devel").execute(&conn)?;

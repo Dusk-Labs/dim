@@ -35,8 +35,6 @@
 use cfg_if::cfg_if;
 use chrono::Utc;
 
-use clap::App;
-use clap::Arg;
 use slog::error;
 use slog::info;
 use slog::o;
