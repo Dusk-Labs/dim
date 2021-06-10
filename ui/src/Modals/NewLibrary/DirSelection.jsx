@@ -19,28 +19,19 @@ function DirSelection(props) {
   }, [dispatch, setCurrent]);
 
   useEffect(() => {
-    const path = "/";
+    const path = "";
 
     dispatch(fetchDirectories(path));
     setCurrent(path);
   }, [dispatch, setCurrent]);
 
   const goBack = useCallback(() => {
-    if (current === "C:" || current === "/") return;
-
-    let slash = "/";
-
-    if (current.includes("\\")) {
-      slash = "\\";
-    }
-
     if (current.length === 0) return;
 
-    const path = current.split(slash);
+    const path = current.split("/");
 
     path.pop();
-
-    select(path.join(slash));
+    select(path.join("/"));
   }, [current, select]);
 
   let dirs;
@@ -69,7 +60,7 @@ function DirSelection(props) {
         return (
           <div key={i} onClick={() => select(dir)} className="dir">
             <FolderIcon/>
-            <p>{dir.replace(props.current, "").replace("C:\\", "").replace("/", "").replace("\\", "")}</p>
+            <p>{dir.replace(props.current, "").replace("/", "")}</p>
           </div>
         );
       });
@@ -85,7 +76,7 @@ function DirSelection(props) {
         </div>
       </div>
       <div className="controls">
-        <button onClick={goBack} className={`disable-${props.current === "C:"}`}>
+        <button onClick={goBack} className={`disable-${props.current === ""}`}>
           <ArrowLeftIcon/>
         </button>
         <h4>Selected: <span>{props.current}</span></h4>

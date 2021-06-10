@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -9,11 +9,30 @@ import UnmatchedCardList from "../../Components/CardList/UnmatchedCardList.jsx";
 const Library = () => {
   const dispatch = useDispatch();
 
-  const unmatched = useSelector(store => (
-    store.library.fetch_library_unmatched
-  ));
+  const { unmatched, ws } = useSelector(store => ({
+    unmatched: store.library.fetch_library_unmatched,
+    ws: store.ws
+  }));
 
   const params = useParams();
+
+  const handleWS = useCallback((e) => {
+    const { type } = JSON.parse(e.data);
+
+    if (type === "EventRemoveCard" || type === "EventNewCard") {
+      dispatch(fetchLibraryUnmatched(params.id));
+    }
+  }, [dispatch, params.id]);
+
+  useEffect(() => {
+    if (!ws.conn) return;
+
+    ws.conn.addEventListener("message", handleWS);
+
+    return () => {
+      ws.conn.removeEventListener("message", handleWS);
+    };
+  }, [handleWS, ws]);
 
   useEffect(() => {
     dispatch(fetchLibraryUnmatched(params.id));
