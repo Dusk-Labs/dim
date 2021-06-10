@@ -70,6 +70,7 @@ static __GLOBAL: SyncOnceCell<crate::DbConnection> = SyncOnceCell::new();
 #[derive(Debug)]
 struct Pragmas;
 
+#[cfg(not(feature = "postgres"))]
 impl<E> diesel::r2d2::CustomizeConnection<diesel::SqliteConnection, E> for Pragmas {
     fn on_acquire(&self, conn: &mut diesel::SqliteConnection) -> Result<(), E> {
         use diesel::connection::Connection;
@@ -95,6 +96,7 @@ cfg_if! {
 fn create_database(_conn: &crate::DbConnection) -> Result<(), diesel::result::Error> {
     cfg_if! {
         if #[cfg(feature = "postgres")] {
+            use crate::diesel::RunQueryDsl;
             let conn = _conn.get().unwrap();
             let _ = diesel::sql_query("CREATE DATABASE dim").execute(&conn)?;
             let _ = diesel::sql_query("CREATE DATABASE dim_devel").execute(&conn)?;
@@ -126,8 +128,12 @@ fn run_migrations(conn: &crate::DbConnection) -> Result<(), diesel_migrations::R
 pub fn get_conn() -> Result<crate::DbConnection, r2d2::Error> {
     let conn = __GLOBAL.get_or_try_init(|| -> Result<_, _> { internal_get_conn(None) })?;
 
-    if !MIGRATIONS_FLAG.load(Ordering::SeqCst) && dbg!(run_migrations(conn)).is_ok() {
-        MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
+    if !MIGRATIONS_FLAG.load(Ordering::SeqCst) {
+        if let Err(err) = run_migrations(conn) {
+            dbg!(err);
+        } else {
+            MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
+        }
     }
 
     Ok(conn.clone())

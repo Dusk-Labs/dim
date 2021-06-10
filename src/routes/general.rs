@@ -5,31 +5,102 @@ use crate::routes::construct_standard_quick;
 
 use auth::Wrapper as Auth;
 use cfg_if::cfg_if;
-use database::{
-    episode::Episode,
-    genre::*,
-    library::MediaType,
-    media::Media,
-    mediafile::MediaFile,
-    progress::Progress,
-    schema::{genre_media, media, season},
-    season::Season,
-};
+
+use database::episode::Episode;
+use database::genre::*;
+use database::library::MediaType;
+use database::media::Media;
+use database::mediafile::MediaFile;
+use database::progress::Progress;
+use database::schema::genre_media;
+use database::schema::media;
+use database::schema::season;
+use database::season::Season;
 
 use diesel::prelude::*;
 use diesel::sql_types::Text;
+use diesel::*;
+
 use futures::stream;
 use futures::StreamExt;
+
 use tokio::task::spawn_blocking;
 use tokio_diesel::*;
-
-use rocket::http::RawStr;
-use rocket::State;
-use rocket_contrib::json::{Json, JsonValue};
 
 use std::fs;
 use std::io;
 use std::path::PathBuf;
+
+use warp::reply;
+use warp::Filter;
+use warp::Rejection;
+
+pub fn general_router(
+    conn: DbConnection,
+) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+    filters::search(conn)
+        .or(filters::get_directory_structure())
+        .recover(super::global_filters::handle_rejection)
+}
+
+mod filters {
+    use database::DbConnection;
+
+    use auth::Wrapper as Auth;
+
+    use warp::reject;
+    use warp::Filter;
+    use warp::Rejection;
+
+    use super::super::global_filters::with_state;
+    use serde::Deserialize;
+
+    pub fn get_directory_structure(
+    ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+        warp::path!("api" / "v1" / "filebrowser" / ..)
+            .and(warp::path::tail())
+            .and(auth::with_auth())
+            .and_then(|tail: warp::path::Tail, user: Auth| async move {
+                super::get_directory_structure(tail.as_str().into(), user)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn search(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+        #[derive(Deserialize)]
+        struct SearchArgs {
+            query: Option<String>,
+            year: Option<i32>,
+            library_id: Option<i32>,
+            genre: Option<String>,
+            quick: Option<bool>,
+        }
+
+        warp::path!("api" / "v1" / "search")
+            .and(warp::get())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and(warp::query::query::<SearchArgs>())
+            .and_then(
+                |auth: Auth, conn: DbConnection, args: SearchArgs| async move {
+                    super::search(
+                        conn,
+                        args.query,
+                        args.year,
+                        args.library_id,
+                        args.genre,
+                        args.quick,
+                        auth,
+                    )
+                    .await
+                    .map_err(|e| reject::custom(e))
+                },
+            )
+    }
+}
 
 // Necessary to emulate ilike.
 sql_function!(fn upper(x: Text) -> Text);
@@ -52,24 +123,10 @@ pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> io::Result<Vec
     Ok(dirs)
 }
 
-#[get("/filebrowser")]
-pub async fn get_root_directory_structure(
+pub async fn get_directory_structure(
+    path: PathBuf,
     _user: Auth,
-) -> Result<Json<Vec<String>>, errors::DimError> {
-    cfg_if::cfg_if! {
-        if #[cfg(target_os = "windows")] {
-            Ok(Json(spawn_blocking(|| enumerate_directory(r"C:\")).await.unwrap()?))
-        } else {
-            Ok(Json(spawn_blocking(|| enumerate_directory("/")).await.unwrap()?))
-        }
-    }
-}
-
-#[get("/filebrowser/<path..>")]
-pub fn get_directory_structure(
-    path: Option<PathBuf>,
-    _user: Auth,
-) -> Result<Json<Vec<String>>, errors::DimError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     cfg_if::cfg_if! {
         if #[cfg(target_os = "windows")] {
             let path_prefix = r"C:\";
@@ -78,32 +135,31 @@ pub fn get_directory_structure(
         }
     }
 
-    let path = if let Some(path) = path {
-        if path.starts_with(path_prefix) {
-            path
-        } else {
-            let mut new_path = PathBuf::new();
-            new_path.push(path_prefix);
-            new_path.push(path);
-            new_path
-        }
+    let path = if path.starts_with(path_prefix) {
+        path
     } else {
-        path_prefix.into()
+        let mut new_path = PathBuf::new();
+        new_path.push(path_prefix);
+        new_path.push(path);
+        new_path
     };
 
-    Ok(Json(enumerate_directory(path)?))
+    Ok(reply::json(
+        &spawn_blocking(|| enumerate_directory(path))
+            .await
+            .unwrap()?,
+    ))
 }
 
-#[get("/search?<query>&<year>&<library_id>&<genre>&<quick>")]
 pub async fn search(
-    conn: State<'_, DbConnection>,
+    conn: DbConnection,
     query: Option<String>,
     year: Option<i32>,
     library_id: Option<i32>,
     genre: Option<String>,
     quick: Option<bool>,
     user: Auth,
-) -> Result<Json<Vec<JsonValue>>, errors::DimError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     /*
      * NOTE: Until tokio-diesel merges support for BoxedDsl we cant stack filters.
     let mut result = media::table.into_boxed();
@@ -204,7 +260,7 @@ pub async fn search(
             }
         }
 
-        return Ok(Json(items));
+        return Ok(reply::json(&items));
     }
 
     if let Some(x) = genre {
@@ -230,7 +286,7 @@ pub async fn search(
             }
         }
 
-        return Ok(Json(items));
+        return Ok(reply::json(&items));
     }
 
     if let Some(x) = year {
@@ -253,7 +309,7 @@ pub async fn search(
             }
         }
 
-        return Ok(Json(items));
+        return Ok(reply::json(&items));
     }
 
     Err(errors::DimError::NotFoundError)
