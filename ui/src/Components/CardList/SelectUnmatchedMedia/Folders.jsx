@@ -19,6 +19,7 @@ const SelectUnmatchedMediaFolders = () => {
 
     return (
       <div
+        title={folder}
         key={i}
         className={`folder selected-${currentFolder === folder}`}
         onClick={() => selectFolder(folder)}
