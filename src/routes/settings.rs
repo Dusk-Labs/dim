@@ -17,6 +17,8 @@ use std::io::Read;
 use std::lazy::SyncOnceCell;
 
 use warp::reply;
+use warp::Filter;
+use warp::Rejection;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct GlobalSettings {
@@ -98,8 +100,16 @@ pub fn set_global_settings(settings: GlobalSettings) -> Result<(), Box<dyn Error
     Ok(())
 }
 
+pub fn settings_router(conn: DbConnection) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+    filters::get_user_settings(conn.clone())
+        .or(filters::get_global_settings())
+        .or(filters::post_user_settings(conn))
+        .or(filters::set_global_settings())
+}
+
 mod filters {
     use database::DbConnection;
+    use database::user::UserSettings;
 
     use auth::Wrapper as Auth;
 
@@ -108,6 +118,54 @@ mod filters {
     use warp::Rejection;
 
     use super::super::global_filters::with_state;
+
+    pub fn get_user_settings(conn: DbConnection) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+        warp::path!("api" / "v1" / "user" / "settings")
+            .and(warp::get())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and_then(|auth: Auth, conn: DbConnection| async move {
+                super::get_user_settings(conn, auth)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn post_user_settings(conn: DbConnection) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+        warp::path!("api" / "v1" / "user" / "settings")
+            .and(warp::post())
+            .and(warp::body::json::<UserSettings>())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and_then(|settings: UserSettings, auth: Auth, conn: DbConnection| async move {
+                super::post_user_settings(conn, auth, settings)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn get_global_settings() -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+        warp::path!("api" / "v1" / "host" / "settings")
+            .and(warp::get())
+            .and(auth::with_auth())
+            .and_then(|auth: Auth| async move {
+                super::http_get_global_settings(auth)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn set_global_settings() -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+        warp::path!("api" / "v1" / "host" / "settings")
+            .and(warp::post())
+            .and(warp::body::json::<super::GlobalSettings>())
+            .and(auth::with_auth())
+            .and_then(|settings: super::GlobalSettings, auth: Auth| async move {
+                super::http_set_global_settings(auth, settings)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
 }
 
 //#[get("/user/settings")]

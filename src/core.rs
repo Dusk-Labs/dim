@@ -240,6 +240,7 @@ pub async fn warp_core(
             conn.clone(),
             logger.clone(),
         ))
+        .or(routes::settings::settings_router(conn.clone()))
         .or(routes::stream::stream_router(
             conn.clone(),
             stream_manager,
