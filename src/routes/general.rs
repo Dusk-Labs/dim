@@ -116,7 +116,7 @@ pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> io::Result<Vec
                 .unwrap_or(false)
                 && !x.path().is_file()
         })
-        .map(|x| x.path().to_string_lossy().to_string())
+        .map(|x| x.path().to_string_lossy().to_string().replace("\\", "/"))
         .collect::<Vec<_>>();
 
     dirs.sort();
@@ -129,7 +129,7 @@ pub async fn get_directory_structure(
 ) -> Result<impl warp::Reply, errors::DimError> {
     cfg_if::cfg_if! {
         if #[cfg(target_os = "windows")] {
-            let path_prefix = r"C:\";
+            let path_prefix = "C:/";
         } else {
             let path_prefix = "/";
         }
