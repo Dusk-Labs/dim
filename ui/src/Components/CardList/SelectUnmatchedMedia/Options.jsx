@@ -43,10 +43,14 @@ const SelectUnmatchedMediaOptions = () => {
     setManuallyMatch(false);
   }, [setManuallyMatch]);
 
+  const totalCount = Object.keys(selectedFiles).length;
+
   return (
     <div className="selectUnmatchedMediaOptions">
       <button onClick={close} className="cancelBtn">Cancel</button>
-      <button onClick={() => match()} className={`disabled-${!mediaType || !tmdbID || Object.keys(selectedFiles).length === 0}`}>Match selected media</button>
+      <button onClick={() => match()} className={`disabled-${!mediaType || !tmdbID || totalCount === 0}`}>
+        Match selected media {totalCount ? `(${totalCount})` : ""}
+      </button>
     </div>
   );
 };
