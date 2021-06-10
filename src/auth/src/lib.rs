@@ -1,21 +1,22 @@
 use jsonwebtoken::decode;
 use jsonwebtoken::encode;
 use jsonwebtoken::Algorithm;
+use jsonwebtoken::DecodingKey;
+use jsonwebtoken::EncodingKey;
 use jsonwebtoken::Header;
 use jsonwebtoken::TokenData;
 use jsonwebtoken::Validation;
-use jsonwebtoken::DecodingKey;
-use jsonwebtoken::EncodingKey;
-
-use rocket::http::Status;
-use rocket::outcome::Outcome;
-use rocket::request;
-use rocket::request::FromRequest;
-use rocket::request::Request;
 
 use serde::Deserialize;
 use serde::Serialize;
 use time::get_time;
+
+use warp::filters::header::headers_cloned;
+use warp::http::header::HeaderMap;
+use warp::http::header::AUTHORIZATION;
+use warp::reject;
+use warp::Filter;
+use warp::Rejection;
 
 #[cfg(all(not(debug_assertions), feature = "null_auth"))]
 std::compile_error!("Cannot disable authentication for non-devel environments.");
@@ -53,6 +54,8 @@ pub enum JWTError {
     InvalidKey,
     BadCount,
 }
+
+impl warp::reject::Reject for JWTError {}
 
 impl UserRolesToken {
     /// Method returns whether the token is expired or not.
@@ -104,7 +107,12 @@ pub fn jwt_generate(user: String, roles: Vec<String>) -> String {
         roles,
     };
 
-    encode(&Header::new(Algorithm::HS512), &payload, &EncodingKey::from_secret(KEY)).unwrap()
+    encode(
+        &Header::new(Algorithm::HS512),
+        &payload,
+        &EncodingKey::from_secret(KEY),
+    )
+    .unwrap()
 }
 
 /// Function checks the token supplied and validates it
@@ -123,7 +131,11 @@ pub fn jwt_generate(user: String, roles: Vec<String>) -> String {
 /// ```
 #[cfg(not(feature = "null_auth"))]
 pub fn jwt_check(token: String) -> Result<TokenData<UserRolesToken>, jsonwebtoken::errors::Error> {
-    decode::<UserRolesToken>(&token, &DecodingKey::from_secret(KEY), &Validation::new(Algorithm::HS512))
+    decode::<UserRolesToken>(
+        &token,
+        &DecodingKey::from_secret(KEY),
+        &Validation::new(Algorithm::HS512),
+    )
 }
 
 #[cfg(all(debug_assertions, feature = "null_auth"))]
@@ -143,20 +155,14 @@ pub fn jwt_check(_: String) -> Result<TokenData<UserRolesToken>, jsonwebtoken::e
     })
 }
 
-#[rocket::async_trait]
-impl<'r> FromRequest<'r> for Wrapper {
-    type Error = JWTError;
-
-    async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
-        if cfg!(all(debug_assertions, feature = "null_auth")) {
-            return Outcome::Success(Wrapper(jwt_check(String::new()).unwrap()));
-        }
-        match request.headers().get("Authorization").next() {
-            Some(k) => match jwt_check(k.into()) {
-                Ok(k) => Outcome::Success(Wrapper(k)),
-                Err(_) => Outcome::Failure((Status::Unauthorized, JWTError::InvalidKey)),
+pub fn with_auth() -> impl Filter<Extract = (Wrapper,), Error = Rejection> + Clone {
+    headers_cloned().and_then(|x: HeaderMap| async move {
+        match x.get(AUTHORIZATION) {
+            Some(k) => match k.to_str().ok().and_then(|x| jwt_check(x.into()).ok()) {
+                Some(k) => Ok(Wrapper(k)),
+                None => Err(reject::custom(JWTError::InvalidKey)),
             },
-            None => Outcome::Failure((Status::Unauthorized, JWTError::Missing)),
+            None => Err(reject::custom(JWTError::Missing)),
         }
-    }
+    })
 }

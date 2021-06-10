@@ -1,6 +1,5 @@
 use crate::core::StateManager;
 use auth::Wrapper as Auth;
-use rocket::State;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -103,7 +102,7 @@ impl StreamTracking {
         lock.entry(id.clone()).or_default().push(manifest);
     }
 
-    pub async fn kill_all(&self, state: &State<'_, StateManager>, id: &Uuid, ignore_gc: bool) {
+    pub async fn kill_all(&self, state: &StateManager, id: &Uuid, ignore_gc: bool) {
         let mut lock = self.streaming_sessions.write().await;
 
         if let Some(v) = lock.get_mut(id) {
@@ -119,13 +118,7 @@ impl StreamTracking {
         }
     }
 
-    pub async fn kill(
-        &self,
-        state: &State<'_, StateManager>,
-        gid: &Uuid,
-        ids: Vec<String>,
-        ignore_gc: bool,
-    ) {
+    pub async fn kill(&self, state: &StateManager, gid: &Uuid, ids: Vec<String>, ignore_gc: bool) {
         let lock = self.streaming_sessions.read().await;
 
         if let Some(v) = lock.get(gid) {

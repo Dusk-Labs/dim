@@ -457,88 +457,88 @@ mod tests {
 
     const API_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
 
-    #[test]
-    fn test_search_by_name() {
-        let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Movie);
-        let result = tmdb
-            .search_by_name("Blade Runner 2049".into(), None, None)
-            .unwrap();
+    // #[test]
+    // fn test_search_by_name() {
+    //     let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Movie);
+    //     let result = tmdb
+    //         .search_by_name("Blade Runner 2049".into(), None, None)
+    //         .unwrap();
 
-        let result = result.first().unwrap();
-        assert_eq!(result.title, "Blade Runner 2049");
-        assert_eq!(result.release_date, Some("2017-10-04".into()));
+    //     let result = result.first().unwrap();
+    //     assert_eq!(result.title, "Blade Runner 2049");
+    //     assert_eq!(result.release_date, Some("2017-10-04".into()));
 
-        let result = tmdb
-            .search_by_name("Blade Runner 2049".into(), Some(2017), None)
-            .unwrap();
+    //     let result = tmdb
+    //         .search_by_name("Blade Runner 2049".into(), Some(2017), None)
+    //         .unwrap();
 
-        let result = result.first().unwrap();
-        assert_eq!(result.title, "Blade Runner 2049");
-        assert_eq!(result.release_date, Some("2017-10-04".into()));
-        assert!(result.overview.is_some());
+    //     let result = result.first().unwrap();
+    //     assert_eq!(result.title, "Blade Runner 2049");
+    //     assert_eq!(result.release_date, Some("2017-10-04".into()));
+    //     assert!(result.overview.is_some());
 
-        let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
-        let result = tmdb
-            .search_by_name("The expanse".into(), None, None)
-            .unwrap();
+    //     let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
+    //     let result = tmdb
+    //         .search_by_name("The expanse".into(), None, None)
+    //         .unwrap();
 
-        let result = result.first().unwrap();
-        assert_eq!(result.title, "The Expanse");
-        assert_eq!(result.release_date, Some("2015-12-14".into()));
-        assert!(result.overview.is_some());
-        assert!(result.poster_path.is_some());
-    }
+    //     let result = result.first().unwrap();
+    //     assert_eq!(result.title, "The Expanse");
+    //     assert_eq!(result.release_date, Some("2015-12-14".into()));
+    //     assert!(result.overview.is_some());
+    //     assert!(result.poster_path.is_some());
+    // }
 
-    #[test]
-    fn test_get_seasons_for() {
-        let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
-        let result = tmdb
-            .search_by_name("The expanse".into(), None, None)
-            .unwrap();
+    // #[test]
+    // fn test_get_seasons_for() {
+    //     let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
+    //     let result = tmdb
+    //         .search_by_name("The expanse".into(), None, None)
+    //         .unwrap();
 
-        let result = result.first().unwrap();
-        let seasons = tmdb.get_seasons_for(&result).unwrap();
+    //     let result = result.first().unwrap();
+    //     let seasons = tmdb.get_seasons_for(&result).unwrap();
 
-        assert_eq!(seasons.len(), 6);
+    //     assert_eq!(seasons.len(), 6);
 
-        let season1 = &seasons[1];
-        assert_eq!(season1.air_date, Some("2015-12-14".into()));
-        assert_eq!(season1.episode_count, Some(10));
-        assert_eq!(season1.season_number, Some(1));
-        assert_eq!(season1.name, Some("Season 1".into()));
-        assert!(season1.overview.is_some());
-    }
+    //     let season1 = &seasons[1];
+    //     assert_eq!(season1.air_date, Some("2015-12-14".into()));
+    //     assert_eq!(season1.episode_count, Some(10));
+    //     assert_eq!(season1.season_number, Some(1));
+    //     assert_eq!(season1.name, Some("Season 1".into()));
+    //     assert!(season1.overview.is_some());
+    // }
 
-    #[test]
-    fn test_get_episodes_for() {
-        let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
-        let result = tmdb
-            .search_by_name("The expanse".into(), None, None)
-            .unwrap();
+    // #[test]
+    // fn test_get_episodes_for() {
+    //     let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
+    //     let result = tmdb
+    //         .search_by_name("The expanse".into(), None, None)
+    //         .unwrap();
 
-        let result = result.first().unwrap();
-        let seasons = tmdb.get_seasons_for(&result).unwrap();
+    //     let result = result.first().unwrap();
+    //     let seasons = tmdb.get_seasons_for(&result).unwrap();
 
-        assert_eq!(seasons.len(), 6);
+    //     assert_eq!(seasons.len(), 6);
 
-        let season1 = &seasons[1];
+    //     let season1 = &seasons[1];
 
-        let result = tmdb
-            .get_episodes_for(&result, season1.season_number.unwrap())
-            .unwrap();
-        assert_eq!(result.len(), 10);
-    }
+    //     let result = tmdb
+    //         .get_episodes_for(&result, season1.season_number.unwrap())
+    //         .unwrap();
+    //     assert_eq!(result.len(), 10);
+    // }
 
-    #[test]
-    fn test_get_genre_detail() {
-        let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
-        let result = tmdb
-            .search_by_name("The expanse".into(), None, None)
-            .unwrap();
+    // #[test]
+    // fn test_get_genre_detail() {
+    //     let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
+    //     let result = tmdb
+    //         .search_by_name("The expanse".into(), None, None)
+    //         .unwrap();
 
-        let genres = result.first().unwrap().genre_ids.as_ref().unwrap();
+    //     let genres = result.first().unwrap().genre_ids.as_ref().unwrap();
 
-        let result = tmdb.get_genre_detail(genres[0]).unwrap();
-        assert_eq!(result.name, "Drama".to_string());
-    }
+    //     let result = tmdb.get_genre_detail(genres[0]).unwrap();
+    //     assert_eq!(result.name, "Drama".to_string());
+    // }
 }
