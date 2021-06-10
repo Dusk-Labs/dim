@@ -116,7 +116,14 @@ pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> io::Result<Vec
                 .unwrap_or(false)
                 && !x.path().is_file()
         })
-        .map(|x| x.path().to_string_lossy().to_string().replace("\\", "/"))
+        .map(|x| {
+            let path = x.path().to_string_lossy().to_string().replace("\\", "/");
+            if cfg!(windows) {
+                path.replace("C:", "")
+            } else {
+                path
+            }
+        })
         .collect::<Vec<_>>();
 
     dirs.sort();
