@@ -93,11 +93,21 @@ function VideoEvents() {
     so using this event from now on to get buffer length
   */
   const ePlayBackTimeUpdated = useCallback(e => {
+    /*
+      on some browsers (*cough*, chrome) current
+      time gets reset back to 0 on seek
+    */
+    let newTime = Math.floor(e.time);
+
+    if (newTime < video.prevSeekTo) {
+      newTime += video.prevSeekTo - newTime;
+    }
+
     dispatch(updateVideo({
-      currentTime: Math.floor(e.time),
+      currentTime: newTime,
       buffer: Math.round(player.getBufferLength())
     }));
-  }, [dispatch, player]);
+  }, [dispatch, player, video.prevSeekTo]);
 
   // other events
   useEffect(() => {

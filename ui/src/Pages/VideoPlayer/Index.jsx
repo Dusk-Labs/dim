@@ -147,6 +147,7 @@ function VideoPlayer() {
 
     dispatch(updateVideo({
       buffer: 0,
+      prevSeekTo: newTime,
       currentTime: newTime,
       currentCue: ""
     }));
