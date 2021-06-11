@@ -51,14 +51,27 @@ use warp::Filter;
 pub fn stream_router(
     conn: DbConnection,
     state: StateManager,
-    stream_tracking: StreamTracking
+    stream_tracking: StreamTracking,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     filters::return_virtual_manifest(conn.clone(), state.clone(), stream_tracking.clone())
-        .or(filters::return_manifest(conn.clone(), state.clone(), stream_tracking.clone()))
+        .or(filters::return_manifest(
+            conn.clone(),
+            state.clone(),
+            stream_tracking.clone(),
+        ))
         .or(filters::get_init(state.clone()))
-        .or(filters::should_client_hard_seek(state.clone(), stream_tracking.clone()))
-        .or(filters::session_get_stderr(state.clone(), stream_tracking.clone()))
-        .or(filters::kill_session(state.clone(), stream_tracking.clone()))
+        .or(filters::should_client_hard_seek(
+            state.clone(),
+            stream_tracking.clone(),
+        ))
+        .or(filters::session_get_stderr(
+            state.clone(),
+            stream_tracking.clone(),
+        ))
+        .or(filters::kill_session(
+            state.clone(),
+            stream_tracking.clone(),
+        ))
         .or(filters::get_subtitle(state.clone()))
         .or(filters::get_chunk(state.clone()))
         .recover(super::global_filters::handle_rejection)
