@@ -7,8 +7,8 @@ use std::path::PathBuf;
 
 use rust_embed::RustEmbed;
 
-use warp::Reply;
 use warp::Filter;
+use warp::Reply;
 
 pub fn statik_routes(
 ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
