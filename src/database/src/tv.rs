@@ -129,6 +129,16 @@ impl TVShow {
             .load_async(conn)
             .await?)
     }
+
+    /// Upgrades a TV Show object into a Media object
+    pub async fn upgrade(self, conn: &crate::DbConnection) -> Result<Media, DatabaseError> {
+        use crate::schema::media;
+
+        Ok(media::dsl::media
+            .filter(media::dsl::id.eq(self.id))
+            .first_async(conn)
+            .await?)
+    }
 }
 
 #[async_trait]

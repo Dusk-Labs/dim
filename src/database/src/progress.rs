@@ -39,7 +39,7 @@ impl Progress {
         // NOTE: We could use `on_conflict` here but the diesel backend for sqlite doesnt support
         // this yet.
 
-        if diesel::update(
+        if dbg!(diesel::update(
             progress::table
                 .filter(progress::media_id.eq(mid))
                 .filter(progress::user_id.eq(uid.clone())),
@@ -49,10 +49,10 @@ impl Progress {
             progress::populated.eq(timestamp as i32),
         ))
         .execute_async(conn)
-        .await?
+        .await?)
             == 0
         {
-            Ok(diesel::insert_into(progress::table)
+            Ok(dbg!(diesel::insert_into(progress::table)
                 .values((
                     progress::delta.eq(delta),
                     progress::media_id.eq(mid),
@@ -60,7 +60,7 @@ impl Progress {
                     progress::populated.eq(timestamp as i32),
                 ))
                 .execute_async(conn)
-                .await?)
+                .await)?)
         } else {
             Ok(1)
         }
