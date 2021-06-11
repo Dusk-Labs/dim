@@ -38,28 +38,29 @@ impl Progress {
             .as_secs();
         // NOTE: We could use `on_conflict` here but the diesel backend for sqlite doesnt support
         // this yet.
-        if diesel::insert_into(progress::table)
-            .values((
-                progress::delta.eq(delta),
-                progress::media_id.eq(mid),
-                progress::user_id.eq(uid.clone()),
-                progress::populated.eq(timestamp as i32),
-            ))
-            .execute_async(conn)
-            .await
-            .is_err()
+
+        if diesel::update(
+            progress::table
+                .filter(progress::media_id.eq(mid))
+                .filter(progress::user_id.eq(uid.clone())),
+        )
+        .set((
+            progress::delta.eq(delta),
+            progress::populated.eq(timestamp as i32),
+        ))
+        .execute_async(conn)
+        .await?
+            == 0
         {
-            Ok(diesel::update(
-                progress::table
-                    .filter(progress::media_id.eq(mid))
-                    .filter(progress::user_id.eq(uid)),
-            )
-            .set((
-                progress::delta.eq(delta),
-                progress::populated.eq(timestamp as i32),
-            ))
-            .execute_async(conn)
-            .await?)
+            Ok(diesel::insert_into(progress::table)
+                .values((
+                    progress::delta.eq(delta),
+                    progress::media_id.eq(mid),
+                    progress::user_id.eq(uid),
+                    progress::populated.eq(timestamp as i32),
+                ))
+                .execute_async(conn)
+                .await?)
         } else {
             Ok(1)
         }
@@ -138,5 +139,41 @@ impl Progress {
             .await
             .iter()
             .sum())
+    }
+
+    pub async fn get_continue_watching(
+        conn: &crate::DbConnection,
+        uid: String,
+        count: usize,
+    ) -> Result<Vec<Media>, DieselError> {
+        use crate::schema::episode;
+        use crate::schema::progress::dsl::*;
+        use crate::schema::season;
+        use crate::schema::streamable_media;
+        use crate::schema::*;
+
+        use super::tv::TVShow;
+
+        let result = progress
+            .filter(populated.ne(0))
+            .filter(user_id.eq(uid))
+            .order(populated.asc())
+            .inner_join(
+                media::dsl::media.inner_join(
+                    streamable_media::dsl::streamable_media.inner_join(
+                        episode::dsl::episode
+                            .inner_join(season::dsl::season.inner_join(tv_show::dsl::tv_show)),
+                    ),
+                ),
+            )
+            .distinct()
+            .select(tv_show::all_columns)
+            .load_async::<TVShow>(conn)
+            .await?;
+
+        Ok(iter(result)
+            .filter_map(|show| async move { show.upgrade(conn).await.ok() })
+            .collect::<Vec<Media>>()
+            .await)
     }
 }
