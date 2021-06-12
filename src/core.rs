@@ -240,7 +240,11 @@ pub async fn warp_core(
             conn.clone(),
             logger.clone(),
         ))
-        .or(routes::stream::stream_router(conn.clone(), stream_manager, Default::default()))
+        .or(routes::stream::stream_router(
+            conn.clone(),
+            stream_manager,
+            Default::default(),
+        ))
         .or(routes::statik::statik_routes())
         .with(warp::filters::log::custom(move |x| {
             request_logger.on_response(x);

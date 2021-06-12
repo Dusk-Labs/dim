@@ -137,7 +137,21 @@ pub async fn dashboard(
     .collect::<Vec<Value>>()
     .await;
 
+    let continue_watching =
+        stream::iter(Progress::get_continue_watching(&conn, user.0.claims.get_user(), 10).await?)
+            .filter_map(|x| {
+                let conn = &conn;
+                let x = x.clone();
+                let user = &user;
+
+                async move { construct_standard(&conn, &x, &user).await.ok() }
+            })
+            .take(10)
+            .collect::<Vec<Value>>()
+            .await;
+
     Ok(reply::json(&json!({
+        "CONTINUE WATCHING": continue_watching,
         "TOP RATED": top_rated,
         "FRESHLY ADDED": recently_added,
     })))
