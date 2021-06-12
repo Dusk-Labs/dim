@@ -87,6 +87,7 @@ impl User {
     /// assert!(user.len() > 0usize);
     ///
     /// let _ = User::delete(&conn, "test_get_all".to_string()).unwrap();
+    /// ```
     pub async fn get_all(conn: &crate::DbConnection) -> Result<Vec<Self>, DatabaseError> {
         use crate::schema::users;
 
