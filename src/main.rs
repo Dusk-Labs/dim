@@ -31,7 +31,12 @@ struct Args {
     metadata_dir: PathBuf,
 
     /// Where the transcoders will cache to.
-    #[structopt(short, long, parse(from_os_str), default_value = "/tmp/streaming_cache")]
+    #[structopt(
+        short,
+        long,
+        parse(from_os_str),
+        default_value = "/tmp/streaming_cache"
+    )]
     cache_dir: PathBuf,
 
     /// Disable the scanners working at boot time.
@@ -102,18 +107,15 @@ fn main() {
             core::run_scanners(logger.clone(), event_tx.clone()).await;
         }
 
-        info!(logger, "Summoning Dim v{}...", structopt::clap::crate_version!());
+        info!(
+            logger,
+            "Summoning Dim v{}...",
+            structopt::clap::crate_version!()
+        );
 
         let rt = tokio::runtime::Handle::current();
 
-        core::warp_core(
-            logger,
-            event_tx,
-            stream_manager,
-            rt,
-            args.port
-        )
-        .await;
+        core::warp_core(logger, event_tx, stream_manager, rt, args.port).await;
     };
 
     tokio::runtime::Runtime::new()

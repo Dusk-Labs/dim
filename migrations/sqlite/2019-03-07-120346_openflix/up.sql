@@ -105,9 +105,9 @@ CREATE TABLE users (
 
 CREATE TABLE progress (
     id INTEGER,
-    user_id TEXT NOT NULL UNIQUE,
+    user_id TEXT NOT NULL,
     delta INTEGER,
-    media_id INTEGER UNIQUE,
+    media_id INTEGER,
     populated INTEGER,
 
     PRIMARY KEY (id),
