@@ -481,10 +481,9 @@ impl InsertableMediaFile {
     pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
         use crate::schema::mediafile::dsl::*;
 
-        let query = diesel::insert_into(mediafile).values(self.clone());
-
         Ok(retry_while!(DatabaseErrorKind::SerializationFailure, {
             conn.transaction::<_, _>(|conn| {
+                let query = diesel::insert_into(mediafile).values(self.clone());
                 cfg_if! {
                     if #[cfg(feature = "postgres")] {
                         let _ = diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
