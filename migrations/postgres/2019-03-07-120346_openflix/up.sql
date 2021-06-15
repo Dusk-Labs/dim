@@ -100,32 +100,30 @@ CREATE TABLE mediafile (
     FOREIGN KEY(library_id) REFERENCES library(id) ON DELETE CASCADE
 );
 
-CREATE TYPE roles AS ENUM ('Owner', 'User');
 CREATE TABLE users (
     username TEXT PRIMARY KEY,
     password TEXT NOT NULL,
-    roles TEXT[] NOT NULL DEFAULT '{"User"}'
+    roles TEXT NOT NULL DEFAULT 'User'
 );
 
 CREATE TABLE progress (
-    id INTEGER,
+    id SERIAL PRIMARY KEY,
     user_id TEXT NOT NULL,
     delta INTEGER,
     media_id INTEGER,
     populated INTEGER,
 
-    PRIMARY KEY (id),
     FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(user_id) REFERENCES users(username) ON DELETE CASCADE
 );
 
 CREATE TABLE genre (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE genre_media (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     genre_id INTEGER NOT NULL,
     media_id INTEGER NOT NULL,
     FOREIGN KEY (media_id) REFERENCES media(id) ON DELETE CASCADE,
@@ -133,19 +131,6 @@ CREATE TABLE genre_media (
 );
 
 CREATE TABLE invites (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     token TEXT NOT NULL UNIQUE
-);
-
-CREATE TABLE genre (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR NOT NULL UNIQUE
-);
-
-CREATE TABLE genre_media (
-    id SERIAL PRIMARY KEY,
-    genre_id INTEGER NOT NULL,
-    media_id INTEGER NOT NULL,
-    CONSTRAINT fk_media FOREIGN KEY (media_id) REFERENCES media(id) ON DELETE CASCADE,
-    CONSTRAINT fk_genre FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE
 );
