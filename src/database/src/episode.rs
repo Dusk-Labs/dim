@@ -6,9 +6,11 @@ use crate::season::Season;
 use crate::streamable_media::StreamableMedia;
 use crate::tv::TVShow;
 use crate::DatabaseError;
+use crate::retry_while;
 
 use cfg_if::cfg_if;
 use diesel::prelude::*;
+use diesel::result::DatabaseErrorKind;
 use tokio_diesel::*;
 
 use futures::stream;
