@@ -73,7 +73,7 @@ nix = "0.20.0"
 zip = "0.5.10"
 
 [profile.dev]
-codegen-units = 8
+codegen-units = 16
 
 [profile.release]
 lto = true
