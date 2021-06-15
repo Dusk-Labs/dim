@@ -154,10 +154,10 @@ impl Progress {
 
         use super::tv::TVShow;
 
+            
         let result = progress
             .filter(populated.ne(0))
             .filter(user_id.eq(uid))
-            .order(populated.desc())
             .inner_join(
                 media::dsl::media.inner_join(
                     streamable_media::dsl::streamable_media.inner_join(
@@ -166,13 +166,24 @@ impl Progress {
                     ),
                 ),
             )
-            .distinct()
-            .select(tv_show::all_columns)
-            .load_async::<TVShow>(conn)
+            .select((tv_show::id, populated));
+
+        cfg_if::cfg_if! {
+            if #[cfg(feature = "postgres")] {
+                let result = result.distinct_on(tv_show::id);
+            } else {
+                let result = result.distinct();
+            }
+        }
+        
+        let mut result = result
+            .load_async::<(i32, i32)>(conn)
             .await?;
 
+        result.sort_by(|a, b| b.1.cmp(&a.1));
+
         Ok(iter(result)
-            .filter_map(|show| async move { show.upgrade(conn).await.ok() })
+            .filter_map(|show| async move { TVShow { id: show.0 }.upgrade(conn).await.ok() })
             .collect::<Vec<Media>>()
             .await)
     }
