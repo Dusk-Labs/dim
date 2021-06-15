@@ -591,8 +591,14 @@ impl InsertableEpisode {
             .get_result_async::<TVShow>(conn)
             .await?;
 
-        Ok(conn
-            .transaction::<_, _>(|conn| {
+        Ok(retry_while!(DatabaseErrorKind::SerializationFailure, {
+            conn.transaction::<_, _>(|conn| {
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        let _ = diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+                            .execute(conn);
+                    }
+                }
                 let season = season::table.find(self.seasonid).first::<Season>(conn)?;
 
                 let episode_id = episode::table
@@ -625,7 +631,8 @@ impl InsertableEpisode {
                     }
                 }
             })
-            .await?)
+            .await
+        })?)
     }
 
     fn into(&self) -> InsertableEpisodeWrapper {

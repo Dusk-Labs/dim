@@ -35,6 +35,7 @@ pub mod season;
 pub mod streamable_media;
 pub mod tv;
 pub mod user;
+pub mod utils;
 
 pub use crate::error::DatabaseError;
 
@@ -206,10 +207,7 @@ fn internal_get_conn(_log: Option<&Logger>) -> Result<DbConnection, r2d2::Error>
 }
 
 #[allow(dead_code)]
-fn internal_get_conn_custom(
-    log: Option<&Logger>,
-    main: &str,
-) -> Result<DbConnection, r2d2::Error> {
+fn internal_get_conn_custom(log: Option<&Logger>, main: &str) -> Result<DbConnection, r2d2::Error> {
     let manager = Manager::new(main);
     let pool = Pool::builder().build_unchecked(manager);
 
