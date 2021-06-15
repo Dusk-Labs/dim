@@ -43,7 +43,7 @@ mod filters {
             |x: warp::path::FullPath| async move {
                 if let Some(y) = super::Asset::get(x.as_str()) {
                     let path = PathBuf::from(x.as_str());
-                    let mime = match dbg!(path.extension().and_then(|x| x.to_str())) {
+                    let mime = match path.extension().and_then(|x| x.to_str()) {
                         Some("js") => "application/javascript",
                         Some("css") => "text/css",
                         Some("woff2") => "font/woff2",
