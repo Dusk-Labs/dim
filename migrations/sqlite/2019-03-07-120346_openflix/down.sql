@@ -11,3 +11,4 @@ DROP TABLE users;
 DROP TABLE progress;
 DROP TABLE genre_media;
 DROP TABLE genre;
+DROP TABLE invites;
