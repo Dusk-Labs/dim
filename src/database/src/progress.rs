@@ -172,7 +172,7 @@ impl Progress {
             if #[cfg(feature = "postgres")] {
                 let result = result.distinct_on(tv_show::id);
             } else {
-                let result = result.distinct();
+                let result = result.group_by(tv_show::id);
             }
         }
         
