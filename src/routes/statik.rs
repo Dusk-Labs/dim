@@ -41,10 +41,9 @@ mod filters {
     {
         warp::path("static").and(warp::path::full()).and_then(
             |x: warp::path::FullPath| async move {
-                // skip the first char because its always a `/`
-                if let Some(y) = super::Asset::get(&format!("./{}", x.as_str())) {
+                if let Some(y) = super::Asset::get(x.as_str()) {
                     let path = PathBuf::from(x.as_str());
-                    let mime = match path.extension().and_then(|x| x.to_str()) {
+                    let mime = match dbg!(path.extension().and_then(|x| x.to_str())) {
                         Some("js") => "application/javascript",
                         Some("css") => "text/css",
                         Some("woff2") => "font/woff2",
@@ -69,6 +68,7 @@ cfg_if::cfg_if! {
 
         #[derive(RustEmbed)]
         #[folder = "ui/build/"]
+        #[prefix = "/"]
         pub(self) struct Asset;
     } else {
         use rust_embed::Filenames;
@@ -89,7 +89,7 @@ cfg_if::cfg_if! {
 }
 
 pub async fn react_routes() -> Result<impl warp::Reply, warp::Rejection> {
-    if let Some(x) = Asset::get("index.html") {
+    if let Some(x) = Asset::get("/index.html") {
         Ok(warp::reply::html(x.into_owned()).into_response())
     } else {
         Err(warp::reject::not_found())
