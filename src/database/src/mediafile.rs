@@ -3,10 +3,12 @@ use crate::media::Media;
 use crate::schema::mediafile;
 use crate::streamable_media::StreamableMedia;
 use crate::DatabaseError;
+use crate::retry_while;
 
 use cfg_if::cfg_if;
 
 use diesel::prelude::*;
+use diesel::result::DatabaseErrorKind;
 use tokio_diesel::*;
 
 /// MediaFile struct which represents a media file on the filesystem. This struct holds some basic
@@ -479,12 +481,14 @@ impl InsertableMediaFile {
     pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
         use crate::schema::mediafile::dsl::*;
 
-        let query = diesel::insert_into(mediafile).values(self.clone());
-
-        Ok(conn
-            .transaction::<_, _>(|conn| {
+        Ok(retry_while!(DatabaseErrorKind::SerializationFailure, {
+            conn.transaction::<_, _>(|conn| {
+                let query = diesel::insert_into(mediafile).values(self.clone());
                 cfg_if! {
                     if #[cfg(feature = "postgres")] {
+                        let _ = diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+                            .execute(conn);
+
                         query.returning(id)
                             .get_result(conn)
                     } else {
@@ -493,7 +497,8 @@ impl InsertableMediaFile {
                     }
                 }
             })
-            .await?)
+            .await
+        })?)
     }
 }
 

@@ -190,6 +190,7 @@ impl StaticTrait for InsertableTVShow {
         cfg_if! {
             if #[cfg(feature = "postgres")] {
                 Ok(query.returning(tv_show::id)
+                    .on_conflict_do_nothing()
                     .get_result_async(conn).await?)
             } else {
                 query.execute_async(conn).await?;

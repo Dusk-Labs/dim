@@ -77,6 +77,8 @@ pub mod stream_tracking;
 pub mod streaming;
 /// Websocket related logic.
 pub mod websocket;
+/// Various utilities
+pub mod utils;
 
 /// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.
 pub fn build_logger() -> slog::Logger {

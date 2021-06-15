@@ -1,5 +1,6 @@
 use crate::library::{Library, MediaType};
 use crate::mediafile::MediaFile;
+use crate::retry_while;
 use crate::schema::media;
 use crate::streamable_media::InsertableStreamableMedia;
 use crate::streamable_media::StreamableTrait;
@@ -8,6 +9,7 @@ use crate::DatabaseError;
 use cfg_if::cfg_if;
 
 use diesel::prelude::*;
+use diesel::result::DatabaseErrorKind;
 use tokio_diesel::*;
 
 /// Marker trait used to mark media types that inherit from Media.
@@ -370,8 +372,15 @@ impl InsertableMedia {
             .await?;
 
         // we need to atomically select or insert.
-        Ok(conn
-            .transaction::<_, _>(|conn| {
+        Ok(retry_while!(DatabaseErrorKind::SerializationFailure, {
+            conn.transaction::<_, _>(|conn| {
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        let _ = diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+                            .execute(conn)?;
+                    }
+                }
+
                 let result = media::table
                     .filter(media::name.eq(self.name.clone()))
                     .select(media::id)
@@ -381,19 +390,20 @@ impl InsertableMedia {
                     return Ok(x);
                 }
 
-                let query = diesel::insert_into(media::table).values(self.clone());
-
                 cfg_if! {
                     if #[cfg(feature = "postgres")] {
-                        Ok(query.returning(media::id)
-                           .get_result(conn)?)
+                        Ok(diesel::insert_into(media::table).values(self.clone())
+                            .returning(media::id)
+                            .get_result(conn)?)
                     } else {
-                        query.execute(conn)?;
+                        diesel::insert_into(media::table).values(self.clone())
+                            .execute(conn)?;
                         Ok(diesel::select(crate::last_insert_rowid).get_result(conn)?)
                     }
                 }
             })
-            .await?)
+            .await
+        })?)
     }
 
     /// Method blindly inserts `self` into the database without checking whether a similar entry exists.
@@ -408,8 +418,15 @@ impl InsertableMedia {
             .await?;
 
         // we need to atomically select or insert.
-        Ok(conn
-            .transaction::<_, _>(|conn| {
+        Ok(retry_while!(DatabaseErrorKind::SerializationFailure, {
+            conn.transaction::<_, _>(|conn| {
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        let _ = diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+                            .execute(conn);
+                    }
+                }
+
                 let query = diesel::insert_into(media::table).values(self.clone());
 
                 cfg_if! {
@@ -422,7 +439,8 @@ impl InsertableMedia {
                     }
                 }
             })
-            .await?)
+            .await
+        })?)
     }
 
     /// Method used as a intermediary to insert media objects into a middle table used as a marker
