@@ -1,9 +1,11 @@
+use crate::retry_while;
 use crate::schema::season;
 use crate::tv::TVShow;
 use crate::DatabaseError;
 
 use cfg_if::cfg_if;
 use diesel::prelude::*;
+use diesel::result::DatabaseErrorKind;
 use tokio_diesel::*;
 
 /// Struct represents a season entry in the database.
@@ -345,8 +347,15 @@ impl InsertableSeason {
             .get_result_async::<TVShow>(conn)
             .await?;
 
-        Ok(conn
-            .transaction::<_, _>(|conn| {
+        Ok(retry_while!(DatabaseErrorKind::SerializationFailure, {
+            conn.transaction::<_, _>(|conn| {
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+                            .execute(conn);
+                    }
+                }
+
                 let result = season::table
                     .filter(season::season_number.eq(self.season_number))
                     .filter(season::tvshowid.eq(id))
@@ -371,7 +380,8 @@ impl InsertableSeason {
                     }
                 }
             })
-            .await?)
+            .await
+        })?)
     }
 }
 

@@ -127,3 +127,8 @@ CREATE TABLE genre_media (
     FOREIGN KEY (media_id) REFERENCES media(id) ON DELETE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE
 );
+
+CREATE TABLE invites (
+    id INTEGER PRIMARY KEY,
+    token TEXT NOT NULL UNIQUE
+);
