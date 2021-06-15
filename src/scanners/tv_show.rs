@@ -106,6 +106,8 @@ impl<'a> TvShowMatcher<'a> {
             .into_static::<InsertableTVShow>(&self.conn, media_id)
             .await;
 
+        self.push_event(media_id).await;
+
         for name in result.genres {
             let genre = InsertableGenre { name };
 
@@ -209,7 +211,20 @@ impl<'a> TvShowMatcher<'a> {
         Ok(())
     }
 
-    fn push_event(&self, id: i32) {
+    async fn push_event(&self, id: i32) {
+        use std::sync::Mutex;
+        use std::lazy::SyncLazy;
+
+        static DUPLICATE_LOG: SyncLazy<Mutex<Vec<i32>>> = SyncLazy::new(|| Default::default());
+
+        {
+            let mut lock = DUPLICATE_LOG.lock().unwrap();
+            if lock.contains(&id) {
+                return;
+            }
+            lock.push(id);
+        }
+
         let event = Message {
             id,
             event_type: PushEventType::EventNewCard,
