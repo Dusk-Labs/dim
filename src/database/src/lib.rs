@@ -20,6 +20,7 @@ use slog::Logger;
 use std::lazy::SyncOnceCell;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
+use std::time::Duration;
 
 pub mod episode;
 pub mod error;
@@ -147,7 +148,6 @@ pub fn get_conn_devel() -> Result<crate::DbConnection, r2d2::Error> {
             let pool = internal_get_conn_custom(
                 None,
                 "postgres://postgres:dimpostgres@127.0.0.1/dim_devel",
-                "postgres://postgres:dimpostgres@postgres/dim_devel",
             )?;
         } else {
             let manager = Manager::new("./dim_dev.db");
@@ -188,8 +188,7 @@ fn internal_get_conn(_log: Option<&Logger>) -> Result<DbConnection, r2d2::Error>
         if #[cfg(feature = "postgres")] {
             internal_get_conn_custom(
                 _log,
-                "postgres://postgres:dimpostgres@127.0.0.1/dim",
-                "postgres://postgres:dimpostgres@postgres/dim",
+                "postgres://postgres:dimpostgres@127.0.0.1/dim"
             )
         } else {
             let manager = Manager::new("./dim.db");
@@ -210,27 +209,24 @@ fn internal_get_conn(_log: Option<&Logger>) -> Result<DbConnection, r2d2::Error>
 fn internal_get_conn_custom(
     log: Option<&Logger>,
     main: &str,
-    _fallback: &str,
 ) -> Result<DbConnection, r2d2::Error> {
     let manager = Manager::new(main);
-    let pool = Pool::builder().build(manager);
+    let pool = Pool::builder().build_unchecked(manager);
 
-    if pool.is_ok() {
-        return Ok(pool?);
+    if pool.get_timeout(Duration::from_millis(2000)).is_ok() {
+        return Ok(pool);
     }
 
-    if pool.is_err() {
-        let manager = Manager::new("postgres://postgres:dimpostgres@127.0.0.1/");
-        let pool = Pool::builder().build(manager);
+    let manager = Manager::new("postgres://postgres:dimpostgres@127.0.0.1/");
+    let pool = Pool::builder().build(manager);
 
-        if let Some(log) = log {
-            slog::warn!(
-                log,
-                "Database dim seems to not exist, creating...standby..."
-            );
-        }
-        let _ = create_database(&pool?);
-    };
+    if let Some(log) = log {
+        slog::warn!(
+            log,
+            "Database dim seems to not exist, creating...standby..."
+        );
+    }
+    let _ = create_database(&pool?);
 
     Ok(internal_get_conn(log)?)
 }
