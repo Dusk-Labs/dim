@@ -1,8 +1,11 @@
+use crate::retry_while;
 use crate::schema::{genre, genre_media};
 use crate::DatabaseError;
+
 use cfg_if::cfg_if;
 
 use diesel::prelude::*;
+use diesel::result::DatabaseErrorKind;
 use tokio_diesel::*;
 
 /// Struct shows a single genre entry
@@ -272,10 +275,14 @@ impl InsertableGenre {
     pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
         use crate::schema::genre::dsl::*;
 
-        Ok(conn
+        Ok(retry_while!(DatabaseErrorKind::SerializationFailure, {
+            conn
             .transaction::<_, _>(|conn| {
                 cfg_if! {
                     if #[cfg(feature = "postgres")] {
+                        let _ = diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+                            .execute(conn);
+
                         let entry = genre.filter(name.ilike(self.name.clone())).first::<Genre>(conn);
                     } else {
                         let entry = genre
@@ -300,7 +307,8 @@ impl InsertableGenre {
                     }
                 }
             })
-            .await?)
+            .await
+        })?)
     }
 }
 /// Struct which is used to pair a genre to a media
@@ -423,8 +431,15 @@ impl InsertableGenreMedia {
     pub async fn insert_pair(_genre_id: i32, _media_id: i32, conn: &crate::DbConnection) {
         use crate::schema::genre_media::dsl::*;
 
-        let _ = conn
-            .transaction::<_, _>(|conn| {
+        let _ = retry_while!(DatabaseErrorKind::SerializationFailure, {
+            conn.transaction::<_, _>(|conn| {
+                cfg_if! {
+                    if #[cfg(feature = "postgres")] {
+                        let _ = diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+                            .execute(conn);
+                    }
+                }
+
                 if genre::table
                     .inner_join(genre_media)
                     .filter(media_id.eq(_media_id))
@@ -445,6 +460,7 @@ impl InsertableGenreMedia {
                     .execute(conn)?;
                 Ok(())
             })
-            .await;
+            .await
+        });
     }
 }
