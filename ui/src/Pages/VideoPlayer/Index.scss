@@ -4,7 +4,7 @@
   width: 100%;
   position: relative;
   overflow: hidden;
-  font-family: "Roboto Medium";
+  font-family: "Roboto Bold", Arial;
   color: #eee;
 
   video {
@@ -109,7 +109,7 @@
       }
 
       code {
-        font-family: "Roboto Regular";
+        font-family: "Roboto Regular", Arial;
         line-height: 1.5em;
       }
 
@@ -131,7 +131,7 @@
       button {
         margin-top: 1em;
         transition: 200ms ease-in-out;
-        font-family: "Roboto Bold";
+        font-family: "Roboto Bold", Arial;
         border-radius: 10px;
         background: transparent;
         cursor: pointer;

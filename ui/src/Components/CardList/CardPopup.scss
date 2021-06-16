@@ -9,7 +9,7 @@
   background: transparent;
   pointer-events: none;
   z-index: 2;
-  font-family: "Roboto Bold";
+  font-family: "Roboto Bold", Arial;
   animation: CardPopupAppear 0.2s ease-in-out;
 
   .clipped {
@@ -58,16 +58,16 @@
 
     h4 {
       margin-bottom: 5px;
-      font-family: "Roboto Bold";
+      font-family: "Roboto Bold", Arial;
     }
 
     p {
-      font-family: "Roboto Regular";
+      font-family: "Roboto Regular", Arial;
     }
   }
 
   .tags {
-    font-family: "Roboto Condensed Regular";
+    font-family: "Roboto Condensed Regular", Arial;
     display: flex;
     align-items: center;
 

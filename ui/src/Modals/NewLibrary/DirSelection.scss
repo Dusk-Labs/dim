@@ -65,7 +65,7 @@
       filter: saturate(0.7);
       transition: 300ms ease-in-out;
       transition-property: filter, opacity;
-      font-family: "Roboto Bold";
+      font-family: "Roboto Bold", Arial;
       padding: 5px 10px;
       border-radius: 10px;
       font-size: 16px;
@@ -87,7 +87,7 @@
     h4 {
       margin-left: .5em;
       span {
-        font-family: "Roboto Condensed Regular";
+        font-family: "Roboto Condensed Regular", Arial;
       }
     }
   }

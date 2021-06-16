@@ -30,7 +30,7 @@
 
   header {
     h1 {
-      font-family: "Roboto Bold";
+      font-family: "Roboto Bold", Arial;
     }
 
     h3 {
@@ -64,11 +64,11 @@
 
       .name > p {
         margin: 0 5px;
-        font-family: "Roboto Condensed Regular";
+        font-family: "Roboto Condensed Regular", Arial;
       }
 
       input {
-        font-family: "Roboto Regular";
+        font-family: "Roboto Regular", Arial;
         transition: background 0.3s ease-in-out;
         margin-top: 10px;
         background: #3a3a3a;
@@ -105,7 +105,7 @@
       margin-bottom: 1em;
       padding: 10px 20px;
       width: 100%;
-      font-family: "Roboto Bold";
+      font-family: "Roboto Bold", Arial;
       font-size: 1.1em;
       background: #f7931e;
       color: #fff;

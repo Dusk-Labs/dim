@@ -95,7 +95,7 @@ body {
   scrollbar-color: #f7931e #333333;
   scrollbar-width: thin;
   scroll-behavior: smooth;
-  font-family: "Roboto Regular";
+  font-family: "Roboto Regular", Arial;
 }
 
 /*
@@ -137,7 +137,7 @@ svg {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 5px;
-  font-family: "Roboto Condensed Regular";
+  font-family: "Roboto Condensed Regular", Arial;
   background: #f7931e;
   border-radius: 10px;
   padding: 3px 5px;
@@ -160,7 +160,7 @@ svg {
   align-items: center;
   animation: appear .4s ease-in-out;
   height: 100%;
-  font-family: "Roboto Condensed Regular";
+  font-family: "Roboto Condensed Regular", Arial;
   text-align: center;
 
   svg {
@@ -184,7 +184,7 @@ button {
 }
 
 input {
-  font-family: "Roboto Regular";
+  font-family: "Roboto Regular", Arial;
 }
 
 .separator {
