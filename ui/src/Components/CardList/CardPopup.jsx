@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import TruncText from "../../Helpers/TruncText.jsx";
-import IMDbLogo from "../../assets/imdb.png";
+import IMDbLogo from "../../assets/IMDB";
 import PlayButton from "../PlayButton.jsx";
 import CircleIcon from "../../assets/Icons/Circle";
 
@@ -99,7 +99,7 @@ function CardPopup(props) {
           {(rating || rating === 0) && (
             <div className="rating">
               <p>{rating}</p>
-              <img alt="imdb" src={IMDbLogo}/>
+              <IMDbLogo/>
             </div>
           )}
         </section>
