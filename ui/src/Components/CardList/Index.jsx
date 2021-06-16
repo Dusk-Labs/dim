@@ -12,7 +12,11 @@ import "./Index.scss";
 function CardList(props) {
   const location = useLocation();
   const dispatch = useDispatch();
-  const cards = useSelector(store => store.card.cards);
+
+  const { ws, cards } = useSelector(store => ({
+    cards: store.card.cards,
+    ws: store.ws
+  }));
 
   const cardList = useRef(null);
 
@@ -21,20 +25,19 @@ function CardList(props) {
   const handleWS = useCallback((e) => {
     const { type } = JSON.parse(e.data);
 
+    console.log("type", type);
+
     if (type === "EventNewCard") {
       dispatch(fetchCards(path, false));
     }
   }, [dispatch, path]);
 
   useEffect(() => {
-    const library_ws = new WebSocket(`ws://${window.location.hostname}:3012/`);
-    library_ws.addEventListener("message", handleWS);
+    if (!ws.conn) return;
 
-    return () => {
-      library_ws.removeEventListener("message", handleWS);
-      library_ws.close();
-    };
-  }, [handleWS]);
+    ws.conn.addEventListener("message", handleWS);
+    return () => ws.conn.removeEventListener("message", handleWS);
+  }, [handleWS, ws.conn]);
 
   useEffect(() => {
     dispatch(fetchCards(path));
