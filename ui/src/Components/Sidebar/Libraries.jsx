@@ -11,11 +11,12 @@ import Library from "./Library";
 function Libraries() {
   const dispatch = useDispatch();
 
-  const libraries = useSelector(store => (
-    store.library.fetch_libraries
-  ));
+  const { ws, libraries } = useSelector(store => ({
+    libraries: store.library.fetch_libraries,
+    ws: store.ws
+  }));
 
-  const handle_ws_msg = useCallback(async ({data}) => {
+  const handleWS = useCallback(async ({data}) => {
     const payload = JSON.parse(data);
 
     if (payload.type === "EventStartedScanning") {
@@ -36,19 +37,15 @@ function Libraries() {
   }, [dispatch]);
 
   useEffect(() => {
-    const library_ws = new WebSocket(`ws://${window.location.hostname}:3012/`);
+    if (!ws.conn) return;
 
-    if (window.location.protocol !== "https:") {
-      library_ws.addEventListener("message", handle_ws_msg);
-    }
+    ws.conn.addEventListener("message", handleWS);
+    return () => ws.conn.removeEventListener("message", handleWS);
+  }, [handleWS, ws.conn]);
 
+  useEffect(() => {
     dispatch(fetchLibraries());
-
-    return () => {
-      library_ws.removeEventListener("message", handle_ws_msg);
-      library_ws.close();
-    };
-  }, [dispatch, handle_ws_msg]);
+  }, [dispatch]);
 
   let libs;
 
