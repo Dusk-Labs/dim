@@ -1,5 +1,3 @@
-@import "../../mixins.scss";
-
 .authForm {
   display: grid;
   gap: 3em;
@@ -49,8 +47,8 @@
 
     label {
       .name {
-        @include display(flex);
-        @include align-items(center);
+        display: flex;
+        align-items: center;
       }
 
       .horizontal-err {
@@ -71,8 +69,8 @@
 
       input {
         font-family: "Roboto Regular";
-        @include transition(background 0.3s ease-in-out);
-        @include box-sizing(border-box);
+        transition: background 0.3s ease-in-out;
+        box-sizing: border-box;
         margin-top: 10px;
         background: #3a3a3a;
         outline: none;

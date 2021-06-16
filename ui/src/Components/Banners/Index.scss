@@ -1,5 +1,3 @@
-@import "../../mixins.scss";
-
 .banner-wrapper {
   position: relative;
   z-index: 0;
@@ -11,7 +9,7 @@
     * == KEYFRAMES ==
 */
 
-@include keyframes(bannerAppear) {
+@keyframes bannerAppear {
   0% {
     opacity: 0;
   }
@@ -20,29 +18,29 @@
   }
 }
 
-@include keyframes(onActiveBannerImage) {
+@keyframes onActiveBannerImage {
   0% {
     opacity: 0;
-    @include transform(scale(1.1));
+    transform: scale(1.1);
   }
   100% {
     opacity: 1;
-    @include transform(scale(1));
+    transform: scale(1);
   }
 }
 
-@include keyframes(onHideBannerImage) {
+@keyframes onHideBannerImage {
   0% {
     opacity: 1;
-    @include transform(scale(1));
+    transform: scale(1);
   }
   100% {
     opacity: 0;
-    @include transform(scale(1.05));
+    transform: scale(1.05);
   }
 }
 
-@include keyframes(onHideBanner) {
+@keyframes onHideBanner {
   0% {
     opacity: 1;
   }
@@ -51,7 +49,7 @@
   }
 }
 
-@include keyframes(onActiveBanner) {
+@keyframes onActiveBanner {
   0% {
     opacity: 0;
   }
