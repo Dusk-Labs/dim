@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
+import defaultPFP from "../../../assets/defaultPFP";
+
 import "./Image.scss";
 
 function ProfileImage(props) {
@@ -41,12 +43,6 @@ function ProfileImage(props) {
     }
   }, [currentSrc, props.src]);
 
-  if (error) {
-    return (
-      <div className="placeholder-icon"/>
-    );
-  }
-
   return (
     <div
       className={`profileImage show-${show && loaded}`}
@@ -57,6 +53,14 @@ function ProfileImage(props) {
           src={currentSrc}
           key={currentSrc}
           alt="Profile"
+        />
+      )}
+      {(error && loaded) && (
+        <img
+          src={defaultPFP}
+          key={currentSrc}
+          alt="Profile"
+          title="Nope, not a bug (◔◡◔)"
         />
       )}
     </div>
