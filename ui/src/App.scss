@@ -1,16 +1,17 @@
 @font-face {
   font-family: "Roboto Regular";
-  src: url("./assets/fonts/roboto_regular.woff2");
+  src: url("./assets/fonts/roboto_regular.woff2") format("woff2");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "Roboto Bold";
-  src: url("./assets/fonts/roboto_bold.woff2");
+  src: url("./assets/fonts/roboto_bold.woff2") format("woff2");
 }
 
 @font-face {
   font-family: "Roboto Condensed Regular";
-  src: url("./assets/fonts/roboto_condensed_regular.woff2");
+  src: url("./assets/fonts/roboto_condensed_regular.woff2") format("woff2");
 }
 
 ::-webkit-scrollbar {
