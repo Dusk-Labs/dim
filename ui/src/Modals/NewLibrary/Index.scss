@@ -15,7 +15,7 @@
 
   .heading {
     grid-area: heading;
-    font-family: "Roboto Bold";
+    font-family: "Roboto Bold", Arial;
 
     h2 {
       margin-bottom: .5em;
@@ -65,7 +65,7 @@
     button {
       filter: saturate(0.7);
       transition: filter 0.3s ease-in-out;
-      font-family: "Roboto Bold";
+      font-family: "Roboto Bold", Arial;
       padding: .5em;
       border-radius: 10px;
       outline: none;

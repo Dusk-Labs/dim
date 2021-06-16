@@ -16,7 +16,7 @@
       section {
         & > p {
           margin: 0 0 10px 10px;
-          font-family: "Roboto Bold";
+          font-family: "Roboto Bold", Arial;
         }
 
         .field {
@@ -83,14 +83,14 @@
           filter: saturate(0.7);
           margin-bottom: 1rem;
           display: inline-block;
-          font-family: "Roboto Bold";
+          font-family: "Roboto Bold", Arial;
           padding: 7px 30px;
           border-radius: 5px;
           background: #f7931e;
           text-shadow: none;
           outline: none;
           color: #fff;
-          font-family: "Roboto Regular";
+          font-family: "Roboto Regular", Arial;
           cursor: pointer;
 
           &:focus,

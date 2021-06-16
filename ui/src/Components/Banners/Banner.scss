@@ -30,7 +30,7 @@
     border-bottom: 4px solid #3a3a3a;
 
     h2 {
-      font-family: "Roboto Bold";
+      font-family: "Roboto Bold", Arial;
       animation: appear 500ms ease-in-out;
     }
 
@@ -45,7 +45,7 @@
       font-size: 16px;
       transition: filter .2s ease-in-out;
       filter: saturate(0.7);
-      font-family: "Roboto Bold";
+      font-family: "Roboto Bold", Arial;
       border-radius: 10px;
       background: #f7931e;
       color: #2a2a2a;
@@ -132,7 +132,7 @@
     h1 {
       font-size: 2em;
       line-height: 1.3em;
-      font-family: "Roboto Bold";
+      font-family: "Roboto Bold", Arial;
     }
 
     .description {
