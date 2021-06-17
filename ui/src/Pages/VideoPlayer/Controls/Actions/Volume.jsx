@@ -17,7 +17,7 @@ function VideoActionVolume() {
   const volSliderRef = useRef(null);
   const volRef = useRef(null);
 
-  const [currentVolume, setCurrentVolume] = useState(0);
+  const [currentVolume, setCurrentVolume] = useState(100);
   const [dragging, setDragging] = useState(false);
   const [showVolCount, setShowVolCount] = useState(false);
 
@@ -67,7 +67,6 @@ function VideoActionVolume() {
 
     setCurrentVolume(percent);
     setShowVolCount(true);
-    localStorage.setItem("videoVolume", percent);
   }, []);
 
   const handleMouseDown = useCallback(() => {
@@ -76,8 +75,7 @@ function VideoActionVolume() {
 
   const handleMouseUp = useCallback(() => {
     setDragging(false);
-    localStorage.setItem("videoVolume", currentVolume);
-  }, [currentVolume]);
+  }, []);
 
   const handleMouseMove = useCallback((e) => {
     if (dragging) {
@@ -102,6 +100,10 @@ function VideoActionVolume() {
   }, [dragging]);
 
   useEffect(() => {
+    localStorage.setItem("videoVolume", currentVolume);
+  }, [currentVolume]);
+
+  useEffect(() => {
     if (!player) return;
 
     const newVolume = currentVolume / 100;
@@ -119,6 +121,11 @@ function VideoActionVolume() {
 
     if (prefVideoVolume) {
       setCurrentVolume(prefVideoVolume);
+      player.setVolume(prefVideoVolume / 100);
+    }
+
+    if (!prefVideoVolume) {
+      setCurrentVolume(100);
       player.setVolume(prefVideoVolume / 100);
     }
   }, [player]);
