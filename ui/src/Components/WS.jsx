@@ -13,21 +13,50 @@ function WS(props) {
   const dispatch = useDispatch();
   const ws = useSelector(state => state.ws);
 
-  const [msg, setMsg] = useState("Connection Failed");
+  const [tryingAgainIn, setTryingAgainIn] = useState(10);
+  const [intervalID, setIntervalID] = useState();
+  const [msg, setMsg] = useState("Connection failed");
   const [tries, setTries] = useState(0);
 
   const retry = useCallback(() => {
     dispatch(wsConnect());
-    setMsg("Connection Failed");
+    setMsg("Connection failed");
     setTries(count => count + 1);
   }, [dispatch]);
 
   const handleClose = useCallback((e) => {
     if (e.wasClean) return;
-    setMsg("Connection Lost");
+
+    setMsg("Connection lost");
     setTries(0);
     dispatch(wsConnect());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (ws.error && !intervalID) {
+      const id = setInterval(() => {
+        setTryingAgainIn(state => state - 1);
+      }, 1000);
+
+      setIntervalID(id);
+    }
+
+    return () => {
+      if (!intervalID) return;
+      clearInterval(intervalID);
+    };
+  }, [intervalID, ws.error]);
+
+  useEffect(() => {
+    console.log(tryingAgainIn);
+
+    if (tryingAgainIn <= 0) {
+      retry();
+      setTryingAgainIn(10);
+      clearInterval(intervalID);
+      setIntervalID();
+    }
+  }, [intervalID, retry, tryingAgainIn]);
 
   useEffect(() => {
     dispatch(wsConnect());
@@ -49,7 +78,7 @@ function WS(props) {
             <div className="error">
               <h2>{msg}</h2>
               {tries > 0 && <p>Seems like maybe the server is offline</p>}
-              <button onClick={retry}>Try reconnect</button>
+              <button onClick={retry}>Try reconnect ({tryingAgainIn})</button>
             </div>
           )}
           {!ws.error && (
