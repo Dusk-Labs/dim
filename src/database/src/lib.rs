@@ -10,10 +10,12 @@ use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
 pub mod error;
+pub mod library;
+#[cfg(test)]
+pub mod tests;
 /*
 pub mod episode;
 pub mod genre;
-pub mod library;
 pub mod media;
 pub mod mediafile;
 pub mod movie;
@@ -50,7 +52,7 @@ cfg_if! {
     if #[cfg(feature = "postgres")] {
         const MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("../../migrations/postgres");
     } else {
-        const MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("../../migrations/sqlite");
+        const MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("./migrations/");
     }
 }
 
@@ -83,6 +85,13 @@ pub async fn get_conn() -> sqlx::Result<crate::DbConnection> {
     }
 
     Ok(conn.clone())
+}
+
+#[cfg(all(feature = "sqlite", test))]
+pub async fn get_conn_memory() -> sqlx::Result<crate::DbConnection> {
+    let pool = sqlx::Pool::connect(":memory:").await?;
+    let _ = dbg!(run_migrations(&pool).await);
+    Ok(pool)
 }
 
 /// Function returns a connection to the development table of dim. This is mainly used for unit
