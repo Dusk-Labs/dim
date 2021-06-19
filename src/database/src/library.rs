@@ -1,17 +1,14 @@
-use crate::media::*;
-use crate::schema::library;
 use crate::DatabaseError;
-use cfg_if::cfg_if;
-
-use diesel::prelude::*;
-use tokio_diesel::*;
-
+use serde::Serialize;
+use serde::Deserialize;
 use std::fmt;
+use cfg_if::cfg_if;
 
 /// Enum represents a media type and can be used on a library or on a media.
 /// When returned in a http response, the fields are lowercase.
-#[derive(Copy, Serialize, Debug, Clone, DbEnum, Eq, PartialEq, Deserialize, Hash)]
+#[derive(Copy, Serialize, Debug, Clone, Eq, PartialEq, Deserialize, Hash, sqlx::Type)]
 #[serde(rename_all = "lowercase")]
+#[sqlx(rename_all = "lowercase")]
 pub enum MediaType {
     Movie,
     Tv,
@@ -39,11 +36,10 @@ impl Default for MediaType {
 }
 
 /// Library struct which we can use to deserialize database queries into.
-#[derive(Queryable, Serialize, Deserialize, Identifiable, Clone)]
-#[table_name = "library"]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Library {
     /// unique id provided by postgres
-    pub id: i32,
+    pub id: i64,
     /// unique name of the library
     pub name: String,
 
@@ -61,115 +57,37 @@ pub struct Library {
 impl Library {
     /// Method returns all libraries that exist in the database in the form of a Vec.
     /// If no libraries are found the the Vec will just be empty.
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let new_id = new_library.insert(&conn).unwrap();
-    /// let mut libraries = Library::get_all(&conn);
-    ///
-    /// assert!(libraries.len() > 0);
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, new_id).unwrap();
-    /// ```
     pub async fn get_all(conn: &crate::DbConnection) -> Vec<Self> {
-        use crate::schema::library::dsl::*;
-
-        // TODO: Dont panic on error event tho this technically never panics and just returns a
-        // null vec
-        library
-            .load_async::<Self>(conn)
-            .await
-            .expect("Error querying all libraries")
+        sqlx::query_as!(
+            Library,
+            r#"SELECT id, name, location, media_type as "media_type: _" FROM library"#
+        ).fetch_all(conn).await.unwrap_or_default()
     }
 
-    /// Method filters the database for a library with the id supplied and returns in as a Result.
+    /// Method filters the database for a library with the id supplied and returns it.
     ///
     /// # Arguments
     /// * `conn` - [diesel connection](crate::DbConnection)
     /// * `lib_id` - a integer that is the id of the library we are trying to query
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let new_id = new_library.insert(&conn).unwrap();
-    /// let library = Library::get_one(&conn, new_id).unwrap();
-    ///
-    /// assert_eq!(library.id, new_id);
-    /// assert_eq!(library.name, new_library.name);
-    /// assert_eq!(library.location, new_library.location);
-    /// assert_eq!(library.media_type, new_library.media_type);
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, new_id).unwrap();
-    /// ```
     pub async fn get_one(
         conn: &crate::DbConnection,
         lib_id: i32,
     ) -> Result<Library, DatabaseError> {
-        use crate::schema::library::dsl::*;
 
-        Ok(library
-            .filter(id.eq(lib_id))
-            .first_async::<Self>(conn)
-            .await?)
+        Ok(sqlx::query_as!(
+            Library,
+            r#"SELECT id, name, location, media_type as "media_type: _" FROM library WHERE id = ?"#,
+            lib_id
+        ).fetch_one(conn).await?)
     }
 
+    /*
     /// Method filters the database for a library with the id supplied and all Media objects
     /// associated with the library then returns all those as a Vec.
     ///
     /// # Arguments
     /// * `conn` - [diesel connection](crate::DbConnection)
     /// * `lib_id` - a integer that is the id of the library we are trying to query
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    /// use database::media::{InsertableMedia};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    ///
-    /// let new_media = InsertableMedia {
-    ///     library_id,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let new_media_id = new_media.insert(&conn).unwrap();
-    /// let media = Library::get(&conn, library_id).unwrap().pop().unwrap();
-    ///
-    /// assert_eq!(media.library_id, library_id);
-    /// assert_eq!(media.id, new_media_id);
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// ```
     pub async fn get(conn: &crate::DbConnection, lib_id: i32) -> Result<Vec<Media>, DatabaseError> {
         use crate::schema::library::dsl::*;
         let result = library
@@ -179,46 +97,27 @@ impl Library {
 
         Media::get_all(conn, result).await
     }
+    */
 
     /// Method filters the database for a library with the id supplied and deletes it.
     ///
     /// # Arguments
     /// * `conn` - [diesel connection](crate::DbConnection)
     /// * `lib_id` - a integer that is the id of the library we are trying to query
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    /// let rows = Library::delete(&conn, library_id).unwrap();
-    /// assert_eq!(rows, 1usize);
-    /// ```
     pub async fn delete(
         conn: &crate::DbConnection,
         id_to_del: i32,
     ) -> Result<usize, DatabaseError> {
-        use crate::schema::library::dsl::*;
 
-        let result = diesel::delete(library.filter(id.eq(id_to_del)))
-            .execute_async(conn)
-            .await?;
-
-        Ok(result)
+        Ok(sqlx::query!("DELETE FROM library WHERE id = ?", id_to_del)
+            .execute(conn)
+            .await?
+            .rows_affected() as usize)
     }
 }
 
 /// InsertableLibrary struct, same as [`Library`](Library) but without the id field.
-#[derive(Clone, Insertable, Serialize, Deserialize)]
-#[table_name = "library"]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct InsertableLibrary {
     pub name: String,
     pub location: String,
@@ -230,40 +129,28 @@ impl InsertableLibrary {
     ///
     /// # Arguments
     /// * `conn` - [diesel connection](crate::DbConnection)
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let new_id = new_library.insert(&conn).unwrap();
-    /// let library = Library::get_one(&conn, new_id).unwrap();
-    ///
-    /// assert_eq!(library.id, new_id);
-    /// assert_eq!(library.name, new_library.name);
-    /// assert_eq!(library.location, new_library.location);
-    /// assert_eq!(library.media_type, new_library.media_type);
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, new_id);
-    /// ```
     pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
-        let query = diesel::insert_into(library::table).values(self.clone());
-
         cfg_if! {
             if #[cfg(feature = "postgres")] {
-                Ok(query.returning(library::id)
-                    .get_result_async(conn).await?)
+                Ok(sqlx::query!(
+                        r#"INSERT INTO library (name, location, media_type)
+                           VALUES ($1, $2, $3)
+                           RETURNING id"#,
+                        self.name,
+                        self.location,
+                        self.media_type)
+                    .fetch_one(conn)
+                    .await?)
+
             } else {
-                query.execute_async(conn).await?;
-                Ok(diesel::select(crate::last_insert_rowid).get_result_async(conn).await?)
+                Ok(sqlx::query!(
+                        r#"INSERT INTO library (name, location, media_type) VALUES ($1, $2, $3)"#,
+                        self.name,
+                        self.location,
+                        self.media_type)
+                    .execute(conn)
+                    .await?
+                    .last_insert_rowid() as i32)
             }
         }
     }

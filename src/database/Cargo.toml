@@ -24,3 +24,6 @@ async-trait = "0.1.50"
 futures = "0.3.14"
 sqlx = { version = "^0.5.5", features = ["runtime-tokio-rustls"] }
 async-recursion = { version = "0.3.2", optional = true }
+
+[dev-dependencies]
+tokio = { version = "1.6.1", default-features = false, features = ["rt", "macros"] }
