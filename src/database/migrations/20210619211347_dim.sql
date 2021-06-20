@@ -71,7 +71,8 @@ CREATE TABLE episode (
 );
 
 CREATE TABLE mediafile (
-    id INTEGER,
+    -- FIXME: Have to specify NOT NULL explictly otherwise sqlx thinks this field is nullable
+    id INTEGER NOT NULL,
     media_id INTEGER, -- Optional, populated on metadata search
     library_id INTEGER NOT NULL,
     target_file TEXT NOT NULL UNIQUE,

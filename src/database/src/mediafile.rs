@@ -1,29 +1,20 @@
 use crate::library::Library;
-use crate::media::Media;
-use crate::schema::mediafile;
-use crate::streamable_media::StreamableMedia;
 use crate::DatabaseError;
-use crate::retry_while;
 
 use cfg_if::cfg_if;
-
-use diesel::prelude::*;
-use diesel::result::DatabaseErrorKind;
-use tokio_diesel::*;
+use serde::Serialize;
+use serde::Deserialize;
 
 /// MediaFile struct which represents a media file on the filesystem. This struct holds some basic
 /// information which the video player on the front end might require.
-#[derive(Identifiable, Queryable, Serialize, PartialEq, Debug, Associations, Clone)]
-#[belongs_to(Library, foreign_key = "library_id")]
-#[belongs_to(StreamableMedia, foreign_key = "media_id")]
-#[table_name = "mediafile"]
+#[derive(Serialize, PartialEq, Debug, Clone)]
 pub struct MediaFile {
     /// Unique identifier provided by postgres
-    pub id: i32,
+    pub id: i64,
     /// Foreign key linking this entry to the media table or [`Media`](Media) struct
-    pub media_id: Option<i32>,
+    pub media_id: Option<i64>,
     /// Library foreign key linking this entry to the library table or [`Library`](Library) struct
-    pub library_id: i32,
+    pub library_id: i64,
     /// String representing the file path of the file we target. This should be a real path on the
     /// filesystem.
     pub target_file: String,
@@ -32,7 +23,7 @@ pub struct MediaFile {
     pub raw_name: String,
     /// Raw year we might be able to extract from the filename using regex and the
     /// parse-torrent-name library
-    pub raw_year: Option<i32>,
+    pub raw_year: Option<i64>,
 
     /// Quality string that we might get from ffprobe when running it against our file
     pub quality: Option<String>,
@@ -45,14 +36,14 @@ pub struct MediaFile {
     /// Video resolution that we can obtain from ffprobe
     pub original_resolution: Option<String>,
     /// Duration of the video file that we obtain from ffprobe
-    pub duration: Option<i32>,
+    pub duration: Option<i64>,
 
     /// Episode number that we might get from using regex and the parse-torrent-name crate. This is
     /// specific to tv shows only.
-    pub episode: Option<i32>,
+    pub episode: Option<i64>,
     /// Season number that we might get from using regexa and the parse-torrent-name crate. This is
     /// specific to tv shows only.
-    pub season: Option<i32>,
+    pub season: Option<i64>,
 
     /// Flag which tells us if the file is corrupted or not. ie if ffprobe cant open the file and
     /// reports no metadata this flag will be set.
@@ -65,47 +56,17 @@ impl MediaFile {
     /// # Arguments
     /// * `conn` - postgres connection
     /// * `lib` - reference to a Library object that we will match against
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::mediafile::{InsertableMediaFile, MediaFile};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    /// let library = Library::get_one(&conn, library_id).unwrap();
-    ///
-    /// let new_mediafile = InsertableMediaFile {
-    ///     library_id,
-    ///     target_file: format!("/dev/null/{}", library_id).to_string(),
-    ///     raw_name: "nullfile".to_string(),
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let mediafile_id = new_mediafile.insert(&conn).unwrap();
-    /// let media = MediaFile::get_by_lib(&conn, &library).unwrap().pop().unwrap();
-    ///
-    /// assert_eq!(media.library_id, library_id);
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// let _ = MediaFile::delete(&conn, media.id);
-    /// ```
     pub async fn get_by_lib(
         conn: &crate::DbConnection,
-        lib: &Library,
+        library_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
-        Ok(mediafile::dsl::mediafile
-            .filter(mediafile::library_id.eq(lib.id))
-            .load_async::<Self>(conn)
-            .await?)
+        Ok(sqlx::query_as!(
+            MediaFile,
+            "SELECT * FROM mediafile WHERE library_id = ?",
+            library_id
+        )
+        .fetch_all(conn)
+        .await?)
     }
 
     /// Method returns all mediafiles associated with a library and filters for those not
@@ -114,99 +75,25 @@ impl MediaFile {
     /// # Arguments
     /// * `conn` - postgres connection
     /// * `lib` - reference to a Library object that we will match against
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::mediafile::{InsertableMediaFile, MediaFile};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    /// let library = Library::get_one(&conn, library_id).unwrap();
-    ///
-    /// let new_mediafile = InsertableMediaFile {
-    ///     library_id,
-    ///     target_file: format!("/dev/null/{}", library_id).to_string(),
-    ///     raw_name: "nullfile".to_string(),
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let mediafile_id = new_mediafile.insert(&conn).unwrap();
-    /// let media = MediaFile::get_by_lib_null_media(&conn, &library).unwrap().pop().unwrap();
-    ///
-    /// assert_eq!(media.library_id, library_id);
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// let _ = MediaFile::delete(&conn, media.id);
-    /// ```
     pub async fn get_by_lib_null_media(
         conn: &crate::DbConnection,
-        lib: &Library,
+        library_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
-        Ok(mediafile::dsl::mediafile
-            .filter(mediafile::library_id.eq(lib.id))
-            .filter(mediafile::media_id.is_null())
-            .load_async::<Self>(conn)
-            .await?)
+        Ok(sqlx::query_as!(
+            MediaFile,
+            "SELECT * FROM mediafile WHERE library_id = ? AND media_id IS NULL",
+            library_id
+        )
+        .fetch_all(conn)
+        .await?)
     }
+
+    /*
     /// Method returns all mediafiles associated with a Media object.
     ///
     /// # Arguments
     /// * `conn` - postgres connection
     /// * `lib` - reference to a Library object that we will match against
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::mediafile::{InsertableMediaFile, MediaFile};
-    /// use database::media::{InsertableMedia, Media};
-    /// use database::movie::{InsertableMovie, Movie};
-    /// use database::streamablemedia::StreamableTrait;
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    ///
-    /// let new_media = InsertableMedia {
-    ///     library_id,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let new_media_id = new_media.into_streamable::<InsertableMovie>(&conn, None).unwrap();
-    /// let media = Media::get(&conn, new_media_id).unwrap();
-    ///
-    /// let new_mediafile = InsertableMediaFile {
-    ///     library_id,
-    ///     media_id: Some(new_media_id),
-    ///     target_file: format!("/dev/null/{}", new_media_id).to_string(),
-    ///     raw_name: "nullfile".to_string(),
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let mediafile_id = new_mediafile.insert(&conn).unwrap();
-    /// let mediafile = MediaFile::get_of_media(&conn, &media).unwrap().pop().unwrap();
-    ///
-    /// assert_eq!(mediafile.library_id, library_id);
-    /// assert_eq!(mediafile.media_id.unwrap(), new_media_id);
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// let _ = MediaFile::delete(&conn, media.id);
-    /// ```
     pub async fn get_of_media(
         conn: &crate::DbConnection,
         media: &Media,
@@ -225,57 +112,19 @@ impl MediaFile {
             .load_async::<Self>(conn)
             .await?)
     }
+    */
 
     /// Method returns all metadata of a mediafile based on the id supplied.
     ///
     /// # Arguments
     /// * `conn` - postgres connection
     /// * `_id` - id of the mediafile object we are targetting
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::mediafile::{InsertableMediaFile, MediaFile};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    ///
-    /// let new_mediafile = InsertableMediaFile {
-    ///     library_id,
-    ///     target_file: format!("/dev/null/{}", library_id).to_string(),
-    ///     raw_name: "nullfile".to_string(),
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let mediafile_id = new_mediafile.insert(&conn).unwrap();
-    /// let mediafile = MediaFile::get_one(&conn, mediafile_id).unwrap();
-    ///
-    /// assert_eq!(mediafile.library_id, library_id);
-    /// assert_eq!(mediafile.id, mediafile_id);
-    /// assert_eq!(mediafile.raw_name, "nullfile".to_string());
-    ///
-    /// let non_existent_mediafile = MediaFile::get_one(&conn, 1123123123);
-    ///
-    /// assert!(non_existent_mediafile.is_err());
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// let _ = MediaFile::delete(&conn, mediafile.id);
-    /// ```
-    pub async fn get_one(conn: &crate::DbConnection, _id: i32) -> Result<Self, DatabaseError> {
-        use crate::schema::mediafile::dsl::*;
-
-        Ok(mediafile
-            .filter(id.eq(_id))
-            .first_async::<Self>(conn)
-            .await?)
+    pub async fn get_one(conn: &crate::DbConnection, id: i64) -> Result<Self, DatabaseError> {
+        Ok(
+            sqlx::query_as!(MediaFile, "SELECT * FROM mediafile WHERE id = ?", id)
+                .fetch_one(conn)
+                .await?,
+        )
     }
 
     /// Method checks whether a mediafile entry with the filepath supplied exists or not, returning
@@ -284,65 +133,24 @@ impl MediaFile {
     /// # Arguments
     /// * `conn` - postgres connection
     /// * `file` - string slice containing our filepath
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::mediafile::{InsertableMediaFile, MediaFile};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    ///
-    /// let new_mediafile = InsertableMediaFile {
-    ///     library_id,
-    ///     target_file: format!("/dev/null/{}", library_id).to_string(),
-    ///     raw_name: "nullfile".to_string(),
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let mediafile_id = new_mediafile.insert(&conn).unwrap();
-    /// let exists = MediaFile::exists_by_file(&conn, format!("/dev/null/{}", library_id).as_str());
-    ///
-    /// assert!(exists);
-    ///
-    /// let doesnt_exist = MediaFile::exists_by_file(&conn, "/dev/null/doesntexist");
-    ///
-    /// assert!(!doesnt_exist);
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// let _ = MediaFile::delete(&conn, mediafile_id);
-    /// ```
     pub async fn exists_by_file(conn: &crate::DbConnection, file: &str) -> bool {
-        use crate::schema::mediafile::dsl::*;
-        use diesel::dsl::exists;
-        use diesel::dsl::select;
-
-        let file = file.to_string();
-
-        select(exists(mediafile.filter(target_file.eq(file))))
-            .get_result_async(conn)
+        sqlx::query!("SELECT id FROM mediafile WHERE target_file = ?", file)
+            .fetch_one(conn)
             .await
-            .unwrap()
+            .is_ok()
     }
 
     pub async fn get_by_file(
         conn: &crate::DbConnection,
         file: &str,
     ) -> Result<Self, DatabaseError> {
-        use crate::schema::mediafile::dsl::*;
-
-        Ok(mediafile
-            .filter(target_file.eq(file.to_string()))
-            .first_async::<Self>(conn)
-            .await?)
+        Ok(sqlx::query_as!(
+            MediaFile,
+            r#"SELECT * FROM mediafile WHERE target_file = ?"#,
+            file
+        )
+        .fetch_one(conn)
+        .await?)
     }
 
     /// Method deletes mediafile matching the id supplied
@@ -350,83 +158,42 @@ impl MediaFile {
     /// # Arguments
     /// * `conn` - postgres connection
     /// * `_id` - id of the mediafile entry we want to delete
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::mediafile::{InsertableMediaFile, MediaFile};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    ///
-    /// let new_mediafile = InsertableMediaFile {
-    ///     library_id,
-    ///     target_file: format!("/dev/null/{}", library_id).to_string(),
-    ///     raw_name: "nullfile".to_string(),
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let mediafile_id = new_mediafile.insert(&conn).unwrap();
-    /// let mediafile = MediaFile::get_one(&conn, mediafile_id).unwrap();
-    ///
-    /// assert_eq!(mediafile.library_id, library_id);
-    /// assert_eq!(mediafile.id, mediafile_id);
-    ///
-    /// let rows = MediaFile::delete(&conn, mediafile_id).unwrap();
-    /// assert!(rows == 1);
-    ///
-    /// let mediafile = MediaFile::get_one(&conn, mediafile_id);
-    /// assert!(mediafile.is_err());
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// ```
-    pub async fn delete(conn: &crate::DbConnection, _id: i32) -> Result<usize, DatabaseError> {
-        use crate::schema::mediafile::dsl::*;
-
-        Ok(diesel::delete(mediafile.filter(id.eq(_id)))
-            .execute_async(conn)
-            .await?)
+    pub async fn delete(conn: &crate::DbConnection, id: i64) -> Result<usize, DatabaseError> {
+        Ok(sqlx::query!("DELETE FROM mediafile WHERE id = ?", id)
+            .execute(conn)
+            .await?
+            .rows_affected() as usize)
     }
 
     /// Function deletes all mediafiles with `library_id` of lib_id. This function is used when
     /// deleting a library with a sqlite backend.
     pub async fn delete_by_lib_id(
         conn: &crate::DbConnection,
-        lib_id: i32,
+        lib_id: i64,
     ) -> Result<usize, DatabaseError> {
-        use crate::schema::mediafile::dsl::*;
-
-        Ok(diesel::delete(mediafile.filter(library_id.eq(lib_id)))
-            .execute_async(conn)
-            .await?)
+        Ok(sqlx::query!("DELETE FROM mediafile WHERE library_id = ?", lib_id)
+            .execute(conn)
+            .await?
+            .rows_affected() as usize)
     }
 }
 
 /// Same as [`MediaFile`](MediaFile) except its missing the id field.
-#[derive(Clone, Insertable, Serialize, Debug, Default)]
-#[table_name = "mediafile"]
+#[derive(Clone, Serialize, Debug, Default)]
 pub struct InsertableMediaFile {
-    pub media_id: Option<i32>,
-    pub library_id: i32,
+    pub media_id: Option<i64>,
+    pub library_id: i64,
     pub target_file: String,
 
     pub raw_name: String,
-    pub raw_year: Option<i32>,
+    pub raw_year: Option<i64>,
 
     pub quality: Option<String>,
     pub codec: Option<String>,
     pub container: Option<String>,
     pub audio: Option<String>,
     pub original_resolution: Option<String>,
-    pub duration: Option<i32>,
+    pub duration: Option<i64>,
 
     /***
      * Options specific to tv show scanner hence Option<T>
@@ -442,70 +209,43 @@ impl InsertableMediaFile {
     ///
     /// # Arguments
     /// * `conn` - postgres connection
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::mediafile::{InsertableMediaFile, MediaFile};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    ///
-    /// let new_mediafile = InsertableMediaFile {
-    ///     library_id,
-    ///     target_file: format!("/dev/null/{}", library_id).to_string(),
-    ///     raw_name: "nullfile".to_string(),
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let mediafile_id = new_mediafile.insert(&conn).unwrap();
-    /// let mediafile = MediaFile::get_one(&conn, mediafile_id).unwrap();
-    ///
-    /// assert_eq!(mediafile.library_id, library_id);
-    /// assert_eq!(mediafile.id, mediafile_id);
-    ///
-    /// let mediafile = MediaFile::get_one(&conn, 123123123);
-    /// assert!(mediafile.is_err());
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// let _ = MediaFile::delete(&conn, mediafile_id);
-    /// ```
-    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
-        use crate::schema::mediafile::dsl::*;
+    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
+        let tx = conn.begin().await?;
 
-        Ok(retry_while!(DatabaseErrorKind::SerializationFailure, {
-            conn.transaction::<_, _>(|conn| {
-                let query = diesel::insert_into(mediafile).values(self.clone());
-                cfg_if! {
-                    if #[cfg(feature = "postgres")] {
-                        let _ = diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
-                            .execute(conn);
+        let id = sqlx::query!(
+            r#"
+            INSERT INTO mediafile (media_id, library_id, target_file, raw_name, raw_year, quality,
+            codec, container, audio, original_resolution, duration, episode, season, corrupt)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+        "#,
+            self.media_id,
+            self.library_id,
+            self.target_file,
+            self.raw_name,
+            self.raw_year,
+            self.quality,
+            self.codec,
+            self.container,
+            self.audio,
+            self.original_resolution,
+            self.duration,
+            self.episode,
+            self.season,
+            self.corrupt
+        )
+        .execute(conn)
+        .await?
+        .last_insert_rowid();
 
-                        query.returning(id)
-                            .get_result(conn)
-                    } else {
-                        query.execute(conn)?;
-                        diesel::select(crate::last_insert_rowid).get_result(conn)
-                    }
-                }
-            })
-            .await
-        })?)
+        tx.commit().await?;
+
+        Ok(id)
     }
 }
 
 /// Same as [`MediaFile`](MediaFile) except its missing the id and library_id fields. Everything is
 /// optional too.
-#[derive(Clone, Default, AsChangeset, Deserialize, PartialEq, Debug)]
-#[table_name = "mediafile"]
+#[derive(Clone, Default, Deserialize, PartialEq, Debug)]
 pub struct UpdateMediaFile {
     pub media_id: Option<i32>,
     pub target_file: Option<String>,
@@ -534,77 +274,35 @@ impl UpdateMediaFile {
     /// # Arguments
     /// * `conn` - postgres connection
     /// * `_id` - id of the mediafile row we are targetting
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::mediafile::{InsertableMediaFile, MediaFile, UpdateMediaFile};
-    /// use database::media::{InsertableMedia, Media};
-    /// use database::movie::{InsertableMovie, Movie};
-    /// use database::streamablemedia::StreamableTrait;
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    ///
-    /// let new_media = InsertableMedia {
-    ///     library_id,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let new_media_id = new_media.into_streamable::<InsertableMovie>(&conn, None).unwrap();
-    /// let media = Media::get(&conn, new_media_id).unwrap();
-    ///
-    /// let new_mediafile = InsertableMediaFile {
-    ///     library_id,
-    ///     target_file: format!("/dev/null/{}", library_id).to_string(),
-    ///     raw_name: "nullfile".to_string(),
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let mediafile_id = new_mediafile.insert(&conn).unwrap();
-    /// let mediafile = MediaFile::get_one(&conn, mediafile_id).unwrap();
-    ///
-    /// assert_eq!(mediafile.library_id, library_id);
-    /// assert_eq!(mediafile.media_id, None);
-    ///
-    /// let update_mediafile = UpdateMediaFile {
-    ///     media_id: Some(new_media_id),
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let rows = update_mediafile.update(&conn, mediafile_id).unwrap();
-    /// assert!(rows == 1);
-    ///
-    /// let mediafile = MediaFile::get_one(&conn, mediafile_id).unwrap();
-    /// assert_eq!(mediafile.library_id, library_id);
-    /// assert_eq!(mediafile.media_id, Some(new_media_id));
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// let _ = MediaFile::delete(&conn, mediafile_id);
-    /// ```
     pub async fn update(
         &self,
         conn: &crate::DbConnection,
-        _id: i32,
+        id: i64,
     ) -> Result<usize, DatabaseError> {
-        use crate::schema::mediafile::dsl::*;
+        let tx = conn.begin().await?;
 
-        let entry = mediafile.filter(id.eq(_id));
-        Ok(diesel::update(entry)
-            .set(self.clone())
-            .execute_async(conn)
-            .await?)
+        crate::opt_update!(conn, tx,
+            "UPDATE mediafile SET media_id = ? WHERE id = ?" => (self.media_id, id),
+            "UPDATE mediafile SET target_file = ? WHERE id = ?" => (self.target_file, id),
+            "UPDATE mediafile SET raw_name = ? WHERE id = ?" => (self.raw_name, id),
+            "UPDATE mediafile SET raw_year = ? WHERE id = ?" => (self.raw_year, id),
+            "UPDATE mediafile SET quality = ? WHERE id = ?" => (self.quality, id), 
+            "UPDATE mediafile SET codec = ? WHERE id = ?" => (self.codec, id),
+            "UPDATE mediafile SET container = ? WHERE id = ?" => (self.container, id),
+            "UPDATE mediafile SET audio = ? WHERE id = ?" => (self.audio, id),
+            "UPDATE mediafile SET original_resolution = ? WHERE id = ?" => (self.original_resolution, id),
+            "UPDATE mediafile SET duration = ? WHERE id = ?" => (self.duration, id),
+            "UPDATE mediafile SET episode = ? WHERE id = ?" => (self.episode, id),
+            "UPDATE mediafile SET season = ? WHERE id = ?" => (self.season, id),
+            "UPDATE mediafile SET corrupt = ? WHERE id = ?" => (self.corrupt, id)
+        );
+
+        tx.commit().await?;
+        Ok(1)
     }
 }
 
+/*
 impl Into<Media> for MediaFile {
     fn into(self) -> Media {
         Media {
@@ -615,3 +313,4 @@ impl Into<Media> for MediaFile {
         }
     }
 }
+*/

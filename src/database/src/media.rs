@@ -63,40 +63,6 @@ impl Media {
     /// # Arguments
     /// * `conn` - postgres connection instance
     /// * `library` - a [`Library`](Library) instance
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    /// let library = Library::get_one(&conn, library_id).unwrap();
-    ///
-    /// let new_media = InsertableMedia {
-    ///     library_id,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let new_media_id = new_media.insert(&conn).unwrap();
-    /// let media = Media::get_all(&conn, library).unwrap().pop().unwrap();
-    ///
-    /// assert_eq!(media.library_id, library_id);
-    ///
-    /// let media_from_library = Library::get(&conn, library_id).unwrap().pop().unwrap();
-    ///
-    /// assert_eq!(media, media_from_library);
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// ```
     pub async fn get_all(
         conn: &crate::DbConnection,
         library: Library,
@@ -113,37 +79,6 @@ impl Media {
     /// # Arguments
     /// * `conn` - postgres connection
     /// * `req_id` - id of a media that we'd like to match against.
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    ///
-    /// let new_media = InsertableMedia {
-    ///     library_id,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let new_media_id = new_media.insert(&conn).unwrap();
-    ///
-    /// let media = Media::get(&conn, new_media_id).unwrap();
-    ///
-    /// assert_eq!(media.id, new_media_id);
-    /// assert_eq!(media.library_id, library_id);
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// ```
     pub async fn get(conn: &crate::DbConnection, req_id: i32) -> Result<Self, DatabaseError> {
         use crate::schema::media::dsl::*;
 
@@ -161,43 +96,6 @@ impl Media {
     /// * `conn` - postgres connection
     /// * `library` - reference to a library object
     /// * `name` - string slice reference containing the name we would like to filter by.
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    /// let library = Library::get_one(&conn, library_id).unwrap();
-    ///
-    /// let new_media = InsertableMedia {
-    ///     name: "test".to_string(),
-    ///     library_id,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let new_media_id = new_media.insert(&conn).unwrap();
-    ///
-    /// let media = Media::get_by_name_and_lib(&conn, &library, "test").unwrap();
-    ///
-    /// assert_eq!(media.id, new_media_id);
-    /// assert_eq!(media.library_id, library_id);
-    /// assert_eq!(media.name, new_media.name);
-    ///
-    /// let not_media = Media::get_by_name_and_lib(&conn, &library, "doesntexist");
-    /// assert!(not_media.is_err());
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// ```
     pub async fn get_by_name_and_lib(
         conn: &crate::DbConnection,
         library: &Library,
@@ -241,39 +139,6 @@ impl Media {
     /// # Arguments
     /// * `conn` - postgres connection
     /// * `id_to_del` - id of a media object we want to delete
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    ///
-    /// let new_media = InsertableMedia {
-    ///     name: "test".to_string(),
-    ///     library_id,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let new_media_id = new_media.insert(&conn).unwrap();
-    /// let rows = Media::delete(&conn, new_media_id).unwrap();
-    ///
-    /// assert!(rows == 1);
-    ///
-    /// let not_media = Media::get(&conn, new_media_id);
-    /// assert!(not_media.is_err());
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// ```
     pub async fn delete(
         conn: &crate::DbConnection,
         id_to_del: i32,
@@ -328,41 +193,6 @@ impl InsertableMedia {
     ///
     /// # Arguments
     /// * `conn` - postgres connection
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    ///
-    /// let new_media = InsertableMedia {
-    ///     name: "test".to_string(),
-    ///     library_id,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let new_media_id = new_media.insert(&conn).unwrap();
-    ///
-    /// let invalid_lib = InsertableMedia {
-    ///     name: "test".to_string(),
-    ///     library_id: 123123123,
-    ///     ..Default::default()
-    /// };
-    /// let fail = invalid_lib.insert(&conn);
-    /// assert!(fail.is_err());
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// ```
     pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
         use crate::schema::library::dsl::*;
 
@@ -451,36 +281,6 @@ impl InsertableMedia {
     /// * `conn` - postgres connection
     /// * `manual_insert` - flag to denote whether we want to insert the object into its table
     /// automatically
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    /// use database::movie::{InsertableMovie, Movie};
-    /// use database::streamablemedia::StreamableTrait;
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    ///
-    /// let new_media = InsertableMedia {
-    ///     name: "test".to_string(),
-    ///     library_id,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let new_media_id = new_media.into_streamable::<InsertableMovie>(&conn, None).unwrap();
-    /// let new_media_id = new_media.into_streamable::<InsertableMovie>(&conn, Some(())).unwrap();
-    /// let _ = InsertableMovie::new(new_media_id).insert(&conn).unwrap();
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
     pub async fn into_streamable<T: StreamableTrait>(
         &self,
         conn: &crate::DbConnection,
@@ -502,37 +302,6 @@ impl InsertableMedia {
     /// # Arguments
     /// * `conn` - postgres connection
     /// automatically
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    /// use database::tv::{InsertableTVShow, TVShow};
-    /// use database::tv::StaticTrait;
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Tv,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    ///
-    /// let new_media = InsertableMedia {
-    ///     name: "test".to_string(),
-    ///     library_id,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let new_media_id = new_media.into_static::<InsertableTVShow>(&conn).unwrap();
-    /// let show = TVShow::get(&conn, new_media_id).unwrap();
-    ///
-    /// assert_eq!(show.id, new_media_id);
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
     pub async fn into_static<T: StaticTrait>(
         &self,
         conn: &crate::DbConnection,
@@ -565,47 +334,6 @@ impl UpdateMedia {
     /// # Arguments
     /// * `conn` - diesel connection
     /// * `_id` - id of the media object we want to update
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{InsertableLibrary, Library, MediaType};
-    /// use database::media::{InsertableMedia, Media, UpdateMedia};
-    ///
-    /// let new_library = InsertableLibrary {
-    ///     name: "test".to_string(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie,
-    /// };
-    ///
-    /// let conn = get_conn().unwrap();
-    /// let library_id = new_library.insert(&conn).unwrap();
-    ///
-    /// let new_media = InsertableMedia {
-    ///     name: "test".to_string(),
-    ///     library_id,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let new_media_id = new_media.insert(&conn).unwrap();
-    ///
-    /// let media = Media::get(&conn, new_media_id).unwrap();
-    /// assert_eq!(media.name, new_media.name);
-    ///
-    /// let update_media = UpdateMedia {
-    ///     name: Some("new_test".to_string()),
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let rows = update_media.update(&conn, new_media_id).unwrap();
-    /// assert!(rows == 1);
-    ///
-    /// let media = Media::get(&conn, new_media_id).unwrap();
-    /// assert_eq!(media.name, update_media.name.unwrap());
-    ///
-    /// // clean up the test
-    /// let _ = Library::delete(&conn, library_id);
-    /// ```
     pub async fn update(
         &self,
         conn: &crate::DbConnection,

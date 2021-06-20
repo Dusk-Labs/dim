@@ -1,8 +1,8 @@
 use crate::DatabaseError;
-use serde::Serialize;
-use serde::Deserialize;
-use std::fmt;
 use cfg_if::cfg_if;
+use serde::Deserialize;
+use serde::Serialize;
+use std::fmt;
 
 /// Enum represents a media type and can be used on a library or on a media.
 /// When returned in a http response, the fields are lowercase.
@@ -61,7 +61,10 @@ impl Library {
         sqlx::query_as!(
             Library,
             r#"SELECT id, name, location, media_type as "media_type: _" FROM library"#
-        ).fetch_all(conn).await.unwrap_or_default()
+        )
+        .fetch_all(conn)
+        .await
+        .unwrap_or_default()
     }
 
     /// Method filters the database for a library with the id supplied and returns it.
@@ -71,14 +74,15 @@ impl Library {
     /// * `lib_id` - a integer that is the id of the library we are trying to query
     pub async fn get_one(
         conn: &crate::DbConnection,
-        lib_id: i32,
+        lib_id: i64,
     ) -> Result<Library, DatabaseError> {
-
         Ok(sqlx::query_as!(
             Library,
             r#"SELECT id, name, location, media_type as "media_type: _" FROM library WHERE id = ?"#,
             lib_id
-        ).fetch_one(conn).await?)
+        )
+        .fetch_one(conn)
+        .await?)
     }
 
     /*
@@ -106,9 +110,8 @@ impl Library {
     /// * `lib_id` - a integer that is the id of the library we are trying to query
     pub async fn delete(
         conn: &crate::DbConnection,
-        id_to_del: i32,
+        id_to_del: i64,
     ) -> Result<usize, DatabaseError> {
-
         Ok(sqlx::query!("DELETE FROM library WHERE id = ?", id_to_del)
             .execute(conn)
             .await?
@@ -129,7 +132,7 @@ impl InsertableLibrary {
     ///
     /// # Arguments
     /// * `conn` - [diesel connection](crate::DbConnection)
-    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
+    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
         cfg_if! {
             if #[cfg(feature = "postgres")] {
                 Ok(sqlx::query!(
@@ -150,7 +153,7 @@ impl InsertableLibrary {
                         self.media_type)
                     .execute(conn)
                     .await?
-                    .last_insert_rowid() as i32)
+                    .last_insert_rowid())
             }
         }
     }

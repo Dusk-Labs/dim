@@ -1,7 +1,7 @@
 use crate::get_conn_memory;
 use crate::library;
 
-async fn create_test_library(conn: &crate::DbConnection) -> i32 {
+pub async fn create_test_library(conn: &crate::DbConnection) -> i64 {
     let lib = library::InsertableLibrary {
         name: "test".into(),
         location: "/dev/null".into(),

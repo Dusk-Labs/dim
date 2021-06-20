@@ -1,18 +1,24 @@
 #[macro_export]
-macro_rules! retry_while {
-    ($err:pat, $tx:block) => {{
-        loop {
-            let _result = $tx;
+macro_rules! opt_update {
+    ($conn:ident, $tx:ident, $query:expr => ($self:expr, $constraint:expr)) => {
+        {
+            if let Some(x) = $self.as_ref() {
+                let result = ::sqlx::query!($query, x, $constraint)
+                    .execute($conn)
+                    .await;
 
-            match _result {
-                Err(::tokio_diesel::AsyncError::Error(::diesel::result::Error::DatabaseError(
-                    $err,
-                    _,
-                ))) => {
-                    continue;
+
+                if result.is_err() {
+                        $tx.rollback().await?;
+                        return Err(crate::DatabaseError::DatabaseError(result.unwrap_err()));
                 }
-                _ => break _result,
             }
         }
-    }};
+    };
+    ($conn:ident, $tx:ident, $query:expr => ($self:expr, $constraint:expr), $($tail:tt)+) => {
+        {
+            crate::opt_update!($conn, $tx, $query => ($self, $constraint));
+            crate::opt_update!($conn, $tx, $($tail)*);
+        }
+    }
 }
