@@ -11,13 +11,14 @@ use std::sync::atomic::Ordering;
 
 pub mod error;
 pub mod library;
+pub mod mediafile;
+pub mod utils;
 #[cfg(test)]
 pub mod tests;
 /*
 pub mod episode;
 pub mod genre;
 pub mod media;
-pub mod mediafile;
 pub mod movie;
 pub mod progress;
 pub mod schema;
@@ -25,7 +26,6 @@ pub mod season;
 pub mod streamable_media;
 pub mod tv;
 pub mod user;
-pub mod utils;
 */
 
 pub use crate::error::DatabaseError;
@@ -55,7 +55,6 @@ cfg_if! {
         const MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("./migrations/");
     }
 }
-
 
 /// Function runs all migrations embedded to make sure the database works as expected.
 ///
@@ -155,7 +154,10 @@ async fn internal_get_conn(_log: Option<&Logger>) -> sqlx::Result<DbConnection> 
 
 #[cfg(feature = "postgres")]
 #[async_recursion::async_recursion]
-async fn internal_get_conn_custom(log: Option<&'async_recursion Logger>, main: &str) -> sqlx::Result<DbConnection> {
+async fn internal_get_conn_custom(
+    log: Option<&'async_recursion Logger>,
+    main: &str,
+) -> sqlx::Result<DbConnection> {
     let pool = sqlx::Pool::connect(main).await;
 
     if pool.is_ok() {
@@ -177,9 +179,15 @@ async fn internal_get_conn_custom(log: Option<&'async_recursion Logger>, main: &
 
 #[cfg(feature = "postgres")]
 async fn create_database(conn: &crate::DbConnection) -> sqlx::Result<()> {
-    sqlx::query_unchecked!("CREATE DATABASE dim").execute(conn).await?;
-    sqlx::query_unchecked!("CREATE DATABASE dim_devel").execute(conn).await?;
-    sqlx::query_unchecked!("CREATE DATABASE pg_trgm").execute(conn).await?;
+    sqlx::query_unchecked!("CREATE DATABASE dim")
+        .execute(conn)
+        .await?;
+    sqlx::query_unchecked!("CREATE DATABASE dim_devel")
+        .execute(conn)
+        .await?;
+    sqlx::query_unchecked!("CREATE DATABASE pg_trgm")
+        .execute(conn)
+        .await?;
 
     Ok(())
 }
