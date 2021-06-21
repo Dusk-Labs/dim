@@ -64,7 +64,6 @@ impl User {
     /// # Arguments
     ///
     /// * `conn` - postgres connection
-    ///
     pub async fn get_all(conn: &crate::DbConnection) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query!("SELECT username, roles FROM users")
             .fetch_all(conn)
@@ -83,7 +82,6 @@ impl User {
     /// * `conn` - postgres connection
     /// * `uname` - username we wish to target and delete
     /// * `pw_hash` - hash of the password for the user we are trying to access
-    ///
     pub async fn get_one(
         conn: &crate::DbConnection,
         uname: String,
@@ -110,7 +108,6 @@ impl User {
     /// # Arguments
     /// * `conn` - postgres connection
     /// * `uname` - username we wish to target and delete
-    ///
     pub async fn delete(conn: &crate::DbConnection, uname: String) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM users WHERE username = ?", uname)
             .execute(conn)
@@ -126,7 +123,6 @@ impl InsertableUser {
     /// # Arguments
     /// * `self` - instance of InsertableUser which gets consumed
     /// * `conn` - postgres connection
-    ///
     pub async fn insert(self, conn: &crate::DbConnection) -> Result<String, DatabaseError> {
         let Self {
             username,

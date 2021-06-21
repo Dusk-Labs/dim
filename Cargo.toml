@@ -1,2 +1,9 @@
 [workspace]
 members = ["dim", "database", "auth", "events"]
+
+[profile.dev]
+codegen-units = 16
+
+[profile.release]
+lto = true
+opt-level = 'z'

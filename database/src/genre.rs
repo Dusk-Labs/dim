@@ -6,7 +6,7 @@ use serde::Serialize;
 /// Struct shows a single genre entry
 #[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
 pub struct Genre {
-    pub id: i32,
+    pub id: i64,
     /// Genre name, ie "Action"
     pub name: String,
 }
@@ -14,13 +14,12 @@ pub struct Genre {
 /// Intermediary table showing the relationship between a media and a genre
 #[derive(Clone, Debug, PartialEq)]
 pub struct GenreMedia {
-    pub id: i32,
-    pub genre_id: i32,
-    pub media_id: i32,
+    pub id: i64,
+    pub genre_id: i64,
+    pub media_id: i64,
 }
 
 impl Genre {
-    /*
     /// Method returns the entry of a genre if exists based on its name.
     ///
     /// # Arguments
@@ -30,15 +29,14 @@ impl Genre {
         conn: &crate::DbConnection,
         query: String,
     ) -> Result<Self, DatabaseError> {
-        use crate::schema::genre::dsl::*;
-
-        cfg_if! {
-            if #[cfg(feature = "postgres")] {
-                Ok(genre.filter(name.ilike(query)).first_async::<Self>(conn).await?)
-            } else {
-                Ok(genre.filter(crate::upper(name).like(query.to_uppercase())).first_async::<Self>(conn).await?)
-            }
-        }
+        let query = query.to_uppercase();
+        Ok(sqlx::query_as!(
+            Genre,
+            "SELECT * FROM genre WHERE UPPER(genre.name) LIKE ?",
+            query
+        )
+        .fetch_one(conn)
+        .await?)
     }
 
     /// Method returns all of the episodes belonging to a tv show.
@@ -48,14 +46,17 @@ impl Genre {
     /// * `media` - reference to a media object which should be a tv show.
     pub async fn get_by_media(
         conn: &crate::DbConnection,
-        query: i32,
+        media_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
-        Ok(genre::table
-            .inner_join(genre_media::table)
-            .filter(genre_media::media_id.eq(query))
-            .select((genre::dsl::id, genre::dsl::name))
-            .load_async::<Self>(conn)
-            .await?)
+        Ok(sqlx::query_as!(
+            Genre,
+            "SELECT genre.* FROM genre
+                INNER JOIN genre_media
+                WHERE genre_media.media_id = ?",
+            media_id
+        )
+        .fetch_all(conn)
+        .await?)
     }
 
     /// Method returns a genre based on genre_id and media_id
@@ -64,18 +65,18 @@ impl Genre {
     /// * `conn` - diesel connection reference to postgres
     /// * `genre_id` - id of a genre
     /// * `media_id` - id of a media object
-    pub async fn get_by_media_and_genre(
+    pub async fn get_by_id(
         conn: &crate::DbConnection,
-        genre_id: i32,
-        media_id: i32,
+        genre_id: i64,
     ) -> Result<Self, DatabaseError> {
-        Ok(genre::table
-            .inner_join(genre_media::table)
-            .filter(genre_media::media_id.eq(media_id))
-            .filter(genre_media::genre_id.eq(genre_id))
-            .select((genre::dsl::id, genre::dsl::name))
-            .first_async::<Self>(conn)
-            .await?)
+        Ok(sqlx::query_as!(
+            Genre,
+            "SELECT * FROM genre
+            WHERE id = ?",
+            genre_id
+        )
+        .fetch_one(conn)
+        .await?)
     }
 
     /// Method removes a genre from the genre table based on its id
@@ -83,14 +84,12 @@ impl Genre {
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
     /// * `id` - genre id
-    pub async fn delete(conn: &crate::DbConnection, genre_id: i32) -> Result<usize, DatabaseError> {
-        use crate::schema::genre::dsl::*;
-
-        Ok(diesel::delete(genre.filter(id.eq(genre_id)))
-            .execute_async(conn)
-            .await?)
+    pub async fn delete(conn: &crate::DbConnection, id: i64) -> Result<usize, DatabaseError> {
+        Ok(sqlx::query!("DELETE FROM genre WHERE id = ?", id)
+            .execute(conn)
+            .await?
+            .rows_affected() as usize)
     }
-    */
 }
 
 /// Genre entry that can be inserted into the db.
@@ -105,56 +104,38 @@ impl InsertableGenre {
     ///
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
-    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
+    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
         let tx = conn.begin().await.unwrap();
-        todo!()
-        /*
-        use crate::schema::genre::dsl::*;
 
-        Ok(retry_while!(DatabaseErrorKind::SerializationFailure, {
-            conn
-            .transaction::<_, _>(|conn| {
-                cfg_if! {
-                    if #[cfg(feature = "postgres")] {
-                        let _ = diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
-                            .execute(conn);
+        let name = self.name.clone().to_uppercase();
 
-                        let entry = genre.filter(name.ilike(self.name.clone())).first::<Genre>(conn);
-                    } else {
-                        let entry = genre
-                            .filter(crate::upper(name).like(self.name.clone().to_uppercase()))
-                            .first::<Genre>(conn);
-                    }
-                }
+        if let Some(record) = sqlx::query!(
+            "SELECT id FROM genre
+            WHERE UPPER(genre.name) LIKE ?",
+            name
+        )
+        .fetch_optional(conn)
+        .await?
+        {
+            return Ok(record.id);
+        }
 
-                if let Ok(x) = entry {
-                    return Ok(x.id);
-                }
+        let id = sqlx::query!(r#"INSERT INTO genre (name) VALUES ($1)"#, self.name)
+            .execute(conn)
+            .await?
+            .last_insert_rowid();
 
-                let query = diesel::insert_into(genre).values(self.clone());
+        tx.commit().await?;
 
-                cfg_if! {
-                    if #[cfg(feature = "postgres")] {
-                        Ok(query.returning(id)
-                            .get_result(conn)?)
-                    } else {
-                        query.execute(conn)?;
-                        Ok(diesel::select(crate::last_insert_rowid).get_result(conn)?)
-                    }
-                }
-            })
-            .await
-        })?)
-        */
+        Ok(id)
     }
 }
 
-/*
 /// Struct which is used to pair a genre to a media
 #[derive(Clone)]
 pub struct InsertableGenreMedia {
-    pub genre_id: i32,
-    pub media_id: i32,
+    pub genre_id: i64,
+    pub media_id: i64,
 }
 
 impl InsertableGenreMedia {
@@ -163,11 +144,13 @@ impl InsertableGenreMedia {
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
     pub async fn insert(&self, conn: &crate::DbConnection) {
-        use crate::schema::genre_media::dsl::*;
-        let _ = diesel::insert_into(genre_media)
-            .values(self.clone())
-            .execute_async(conn)
-            .await;
+        let _ = sqlx::query!(
+            "INSERT INTO genre_media (genre_id, media_id) VALUES ($1, $2)",
+            self.genre_id,
+            self.media_id
+        )
+        .execute(conn)
+        .await;
     }
 
     /// Method inserts a pair into the genre media table based on a genre_id and media_id.
@@ -176,40 +159,39 @@ impl InsertableGenreMedia {
     /// * `genre_id` - id of the genre we are trying to link to a media object.
     /// * `media_id` - id of the media object we are trying to link to a media.
     /// * `conn` - diesel connection reference to postgres
-    pub async fn insert_pair(_genre_id: i32, _media_id: i32, conn: &crate::DbConnection) {
-        use crate::schema::genre_media::dsl::*;
+    pub async fn insert_pair(
+        genre_id: i64,
+        media_id: i64,
+        conn: &crate::DbConnection,
+    ) -> Result<i64, DatabaseError> {
+        let tx = conn.begin().await?;
 
-        let _ = retry_while!(DatabaseErrorKind::SerializationFailure, {
-            conn.transaction::<_, _>(|conn| {
-                cfg_if! {
-                    if #[cfg(feature = "postgres")] {
-                        let _ = diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
-                            .execute(conn);
-                    }
-                }
+        if let Some(r) = sqlx::query!(
+            "SELECT genre.id FROM genre
+            JOIN genre_media
+            WHERE genre_media.media_id = ?
+            AND genre_media.genre_id = ?",
+            media_id,
+            genre_id
+        )
+        .fetch_optional(conn)
+        .await?
+        {
+            return Ok(r.id);
+        }
 
-                if genre::table
-                    .inner_join(genre_media)
-                    .filter(media_id.eq(_media_id))
-                    .filter(genre_id.eq(_genre_id))
-                    .select(genre::dsl::id)
-                    .first::<i32>(conn)
-                    .is_ok()
-                {
-                    return Ok(());
-                }
+        let id = sqlx::query!(
+            "INSERT INTO genre_media (genre_id, media_id)
+            VALUES ($1, $2)",
+            genre_id,
+            media_id
+        )
+        .execute(conn)
+        .await?
+        .last_insert_rowid();
 
-                let pair = Self {
-                    genre_id: _genre_id,
-                    media_id: _media_id,
-                };
-                diesel::insert_into(genre_media)
-                    .values(pair)
-                    .execute(conn)?;
-                Ok(())
-            })
-            .await
-        });
+        tx.commit().await?;
+
+        Ok(id)
     }
 }
-*/

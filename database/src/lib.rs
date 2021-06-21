@@ -10,13 +10,13 @@ use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
 pub mod error;
+pub mod genre;
 pub mod library;
 pub mod media;
-pub mod genre;
 pub mod mediafile;
-pub mod user;
 #[cfg(test)]
 pub mod tests;
+pub mod user;
 pub mod utils;
 /*
 pub mod episode;

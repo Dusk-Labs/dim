@@ -64,10 +64,3 @@ nix = "0.20.0"
 
 [target.'cfg(windows)'.dependencies]
 zip = "0.5.10"
-
-[profile.dev]
-codegen-units = 16
-
-[profile.release]
-lto = true
-opt-level = 'z'
