@@ -8,9 +8,9 @@ macro_rules! opt_update {
                     .await;
 
 
-                if result.is_err() {
+                if let ::std::result::Result::Err(e) = result {
                         $tx.rollback().await?;
-                        return Err(crate::DatabaseError::DatabaseError(result.unwrap_err()));
+                        return Err(crate::DatabaseError::DatabaseError(e));
                 }
             }
         }
