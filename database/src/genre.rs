@@ -107,6 +107,7 @@ impl InsertableGenre {
     /// * `conn` - diesel connection reference to postgres
     pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
         let tx = conn.begin().await.unwrap();
+        todo!()
         /*
         use crate::schema::genre::dsl::*;
 
