@@ -1,7 +1,7 @@
 use std::path::Path;
 
 fn main() {
-    if Path::new("ui/build").exists() {
+    if Path::new("../ui/build").exists() {
         println!("cargo:rustc-cfg=feature=\"embed_ui\"");
     } else {
         println!("cargo:warning=`ui/build` does not exist.");
