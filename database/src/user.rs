@@ -1,6 +1,3 @@
-use diesel::prelude::*;
-use tokio_diesel::*;
-
 use crate::DatabaseError;
 use std::num::NonZeroU32;
 
@@ -17,13 +14,13 @@ const HASH_ROUNDS: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(10_000) };
 pub type Credential = [u8; CREDENTIAL_LEN];
 
 // NOTE: Figure out the bug with this not being a valid postgres type
-#[derive(Serialize, Deserialize, Debug, DbEnum, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
 pub enum Role {
     Owner,
     User,
 }
 
-#[derive(Queryable, Debug)]
+#[derive(Debug)]
 pub struct User {
     pub username: String,
     pub roles: Vec<String>,
@@ -65,41 +62,17 @@ impl User {
     /// Method gets all entries from the table users.
     ///
     /// # Arguments
+    ///
     /// * `conn` - postgres connection
     ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::user::{User, InsertableUser};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// let new_user = InsertableUser {
-    ///     username: "test_get_all".to_string(),
-    ///     password: "test_get_all".to_string(),
-    ///     roles: vec!["user".to_string()],
-    /// };
-    ///
-    /// let res = new_user.insert(&conn).unwrap();
-    /// assert_eq!(res, "test_get_all".to_string());
-    ///
-    /// let user = User::get_all(&conn).unwrap();
-    /// assert!(user.len() > 0usize);
-    ///
-    /// let _ = User::delete(&conn, "test_get_all".to_string()).unwrap();
-    /// ```
     pub async fn get_all(conn: &crate::DbConnection) -> Result<Vec<Self>, DatabaseError> {
-        use crate::schema::users;
-
-        Ok(users::table
-            .select((users::dsl::username, users::dsl::roles))
-            .load_async::<(String, String)>(conn)
+        Ok(sqlx::query!("SELECT username, roles FROM users")
+            .fetch_all(conn)
             .await?
-            .iter()
-            .cloned()
-            .map(|(username, roles)| Self {
-                username,
-                roles: roles.split(",").map(|x| x.to_string()).collect(),
+            .into_iter()
+            .map(|user| Self {
+                username: user.username.unwrap(),
+                roles: user.roles.split(',').map(ToString::to_string).collect(),
             })
             .collect())
     }
@@ -111,53 +84,24 @@ impl User {
     /// * `uname` - username we wish to target and delete
     /// * `pw_hash` - hash of the password for the user we are trying to access
     ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::user::{User, hash, InsertableUser};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// let new_user = InsertableUser {
-    ///     username: "test_get_one".to_string(),
-    ///     password: "test_get_one".to_string(),
-    ///     roles: vec!["user".to_string()],
-    /// };
-    ///
-    /// let res = new_user.insert(&conn).unwrap();
-    /// assert_eq!(res, "test_get_one".to_string());
-    ///
-    /// let user = User::get_one(
-    ///     &conn,
-    ///     "test_get_one".to_string(),
-    ///     "test_get_one".to_string()
-    /// ).unwrap();
-    /// assert_eq!(user.username, "test_get_one".to_string());
-    /// assert_eq!(user.roles, vec!["user".to_string()]);
-    ///
-    /// let err_rows = User::get_one(&conn, "random".to_string(), "random".to_string());
-    /// assert!(err_rows.is_err());
-    ///
-    /// let _ = User::delete(&conn, "test_get_one".to_string()).unwrap();
     pub async fn get_one(
         conn: &crate::DbConnection,
         uname: String,
         pw: String,
     ) -> Result<Self, DatabaseError> {
-        use crate::schema::users;
-        Ok(users::table
-            .filter(
-                users::dsl::username
-                    .eq(uname.clone())
-                    .and(users::dsl::password.eq(hash(uname, pw))),
-            )
-            .select((users::dsl::username, users::dsl::roles))
-            .first_async::<(String, String)>(conn)
-            .await
-            .map(|(username, roles)| Self {
-                username,
-                roles: roles.split(",").map(|x| x.to_string()).collect(),
-            })?)
+        let hash = hash(uname.clone(), pw);
+        let user = sqlx::query!(
+            "SELECT username, roles FROM users WHERE username = ? AND password = ?",
+            uname,
+            hash,
+        )
+        .fetch_one(conn)
+        .await?;
+
+        Ok(Self {
+            username: user.username.unwrap(),
+            roles: user.roles.split(',').map(ToString::to_string).collect(),
+        })
     }
 
     /// Method deletes a entry from the table users and returns the number of rows deleted.
@@ -167,34 +111,11 @@ impl User {
     /// * `conn` - postgres connection
     /// * `uname` - username we wish to target and delete
     ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::user::{User, InsertableUser};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// let new_user = InsertableUser {
-    ///     username: "test_del".to_string(),
-    ///     password: "test_del".to_string(),
-    ///     roles: vec!["user".to_string()],
-    /// };
-    ///
-    /// let res = new_user.insert(&conn).unwrap();
-    /// assert_eq!(res, "test_del".to_string());
-    ///
-    /// let rows = User::delete(&conn, "test_del".to_string()).unwrap();
-    /// assert_eq!(rows, 1usize);
-    ///
-    /// let err_rows = User::delete(&conn, "random".to_string()).unwrap();
-    /// assert_eq!(err_rows, 0usize);
     pub async fn delete(conn: &crate::DbConnection, uname: String) -> Result<usize, DatabaseError> {
-        use crate::schema::users;
-        Ok(
-            diesel::delete(users::table.filter(users::dsl::username.eq(uname)))
-                .execute_async(conn)
-                .await?,
-        )
+        Ok(sqlx::query!("DELETE FROM users WHERE username = ?", uname)
+            .execute(conn)
+            .await?
+            .rows_affected() as usize)
     }
 }
 
@@ -206,41 +127,26 @@ impl InsertableUser {
     /// * `self` - instance of InsertableUser which gets consumed
     /// * `conn` - postgres connection
     ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::user::{User, InsertableUser, Role};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// let new_user = InsertableUser {
-    ///     username: "test_insert".to_string(),
-    ///     password: "test_insert".to_string(),
-    ///     roles: vec!["user".to_string()],
-    /// };
-    ///
-    /// let res = new_user.insert(&conn).unwrap();
-    /// assert_eq!(res, "test_insert".to_string());
-    ///
-    /// let user = User::get_one(&conn, "test_insert".to_string(), "test_insert".to_string()).unwrap();
-    /// assert_eq!(user.username, "test_insert".to_string());
-    /// assert_eq!(user.roles, vec!["user".to_string()]);
-    ///
-    /// let _ = User::delete(&conn, "test_insert".to_string()).unwrap();
-    /// ```
     pub async fn insert(self, conn: &crate::DbConnection) -> Result<String, DatabaseError> {
-        use crate::schema::users;
+        let Self {
+            username,
+            password,
+            roles,
+        } = self;
 
-        diesel::insert_into(users::table)
-            .values((
-                users::dsl::username.eq(self.username.clone()),
-                users::dsl::password.eq(hash(self.username.clone(), self.password)),
-                users::dsl::roles.eq(self.roles.join(",")),
-            ))
-            .execute_async(conn)
-            .await?;
+        let password = hash(username.clone(), password);
+        let roles = roles.join(",");
 
-        Ok(self.username)
+        sqlx::query!(
+            "INSERT INTO users (username, password, roles) VALUES ($1, $2, $3)",
+            username,
+            password,
+            roles
+        )
+        .execute(conn)
+        .await?;
+
+        Ok(username)
     }
 }
 
@@ -256,52 +162,48 @@ impl Login {
         &self,
         conn: &crate::DbConnection,
     ) -> Result<bool, DatabaseError> {
-        use crate::schema::invites;
+        let tok = match &self.invite_token {
+            None => return Ok(false),
+            Some(t) => t,
+        };
 
-        if let Some(x) = self.invite_token.clone() {
-            return Ok(diesel::select(diesel::dsl::exists(
-                invites::table.filter(invites::token.eq(x)),
-            ))
-            .get_result_async(conn)
-            .await?);
-        }
-        Ok(false)
+        Ok(
+            sqlx::query!("SELECT token FROM invites WHERE token = ?", tok)
+                .fetch_optional(conn)
+                .await?
+                .is_some(),
+        )
     }
 
     pub async fn invalidate_token(
         &self,
         conn: &crate::DbConnection,
     ) -> Result<usize, DatabaseError> {
-        use crate::schema::invites;
-
-        if let Some(x) = self.invite_token.clone() {
-            return Ok(diesel::delete(invites::table.filter(invites::token.eq(x)))
-                .execute_async(conn)
-                .await?);
+        if let Some(tok) = &self.invite_token {
+            Ok(sqlx::query!("DELETE FROM invites WHERE token = ?", tok)
+                .execute(conn)
+                .await?
+                .rows_affected() as usize)
+        } else {
+            Ok(0)
         }
-
-        Ok(0usize)
     }
 
     pub async fn new_invite(conn: &crate::DbConnection) -> Result<String, DatabaseError> {
-        use crate::schema::invites;
-
         let token = uuid::Uuid::new_v4().to_hyphenated().to_string();
-
-        diesel::insert_into(invites::table)
-            .values(invites::token.eq(token.clone()))
-            .execute_async(conn)
+        let _ = sqlx::query!("INSERT INTO invites (token) VALUES ($1)", token)
+            .execute(conn)
             .await?;
 
         Ok(token)
     }
 
     pub async fn get_all_invites(conn: &crate::DbConnection) -> Result<Vec<String>, DatabaseError> {
-        use crate::schema::invites;
-
-        Ok(invites::table
-            .select(invites::dsl::token)
-            .load_async::<String>(conn)
-            .await?)
+        Ok(sqlx::query!("SELECT token from invites")
+            .fetch_all(conn)
+            .await?
+            .into_iter()
+            .map(|t| t.token)
+            .collect())
     }
 }
