@@ -12,17 +12,10 @@ null_auth = ["auth/null_auth"]
 # the build script usually will enable this if `yarn` is installed.
 # If enabled explicitly, the build script will panic if something went wrong.
 embed_ui = []
-postgres = ["database/postgres", "diesel/postgres"]
-sqlite = ["database/sqlite", "diesel/sqlite"]
+postgres = ["database/postgres"]
+sqlite = ["database/sqlite"]
 
 [dependencies]
-# Currently pointing to master of rocket so we can get async/await
-# point to fork of tokio-diesel and rocket_cors which point to git for rocket.
-tokio-diesel = { git = "https://github.com/vgarleanu/tokio-diesel" }
-
-# needs upsert support for sqlite which isnt released yet.
-diesel = { version = "1.4.6", default-features = false, optional = true }
-
 serde = { version = "^1.0.125", default-features = false, features = ["derive", "std"] }
 serde_derive = "^1.0.125"
 serde_json = "^1.0.64"
