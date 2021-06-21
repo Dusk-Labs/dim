@@ -14,6 +14,7 @@ pub mod library;
 pub mod media;
 pub mod genre;
 pub mod mediafile;
+pub mod user;
 #[cfg(test)]
 pub mod tests;
 pub mod utils;
@@ -24,7 +25,6 @@ pub mod progress;
 pub mod schema;
 pub mod season;
 pub mod tv;
-pub mod user;
 */
 
 pub use crate::error::DatabaseError;
@@ -49,7 +49,7 @@ static __GLOBAL: SyncOnceCell<crate::DbConnection> = SyncOnceCell::new();
 
 cfg_if! {
     if #[cfg(feature = "postgres")] {
-        const MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("../../migrations/postgres");
+        const MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("../migrations/postgres");
     } else {
         const MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("./migrations/");
     }
