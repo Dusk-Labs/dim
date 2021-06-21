@@ -1,16 +1,10 @@
-use crate::retry_while;
-use crate::schema::{genre, genre_media};
 use crate::DatabaseError;
 
-use cfg_if::cfg_if;
-
-use diesel::prelude::*;
-use diesel::result::DatabaseErrorKind;
-use tokio_diesel::*;
+use serde::Deserialize;
+use serde::Serialize;
 
 /// Struct shows a single genre entry
-#[derive(Clone, Identifiable, Queryable, Serialize, Deserialize, PartialEq, Debug)]
-#[table_name = "genre"]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
 pub struct Genre {
     pub id: i32,
     /// Genre name, ie "Action"
@@ -18,8 +12,7 @@ pub struct Genre {
 }
 
 /// Intermediary table showing the relationship between a media and a genre
-#[derive(Clone, Identifiable, Queryable, Debug, PartialEq)]
-#[table_name = "genre_media"]
+#[derive(Clone, Debug, PartialEq)]
 pub struct GenreMedia {
     pub id: i32,
     pub genre_id: i32,
@@ -27,31 +20,12 @@ pub struct GenreMedia {
 }
 
 impl Genre {
+    /*
     /// Method returns the entry of a genre if exists based on its name.
     ///
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
     /// * `query` - genre name
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::genre::{InsertableGenre, Genre};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// assert!(Genre::get_by_name(&conn, "test2".into()).is_err());
-    ///
-    /// let new_genre = InsertableGenre {
-    ///     name: "test2".into(),
-    /// };
-    ///
-    /// let id = new_genre.insert(&conn).unwrap();
-    /// let genre = Genre::get_by_name(&conn, "test2".into()).unwrap();
-    ///
-    /// assert_eq!(genre.name, "test2".to_string());
-    ///
-    /// Genre::delete(&conn, id);
     pub async fn get_by_name(
         conn: &crate::DbConnection,
         query: String,
@@ -72,54 +46,6 @@ impl Genre {
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
     /// * `media` - reference to a media object which should be a tv show.
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    /// use database::genre::{InsertableGenre, Genre, InsertableGenreMedia};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// let library = InsertableLibrary {
-    ///     name: "test".into(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Tv,
-    /// };
-    ///
-    /// let library_id = library.insert(&conn).unwrap();
-    ///
-    /// let new_show = InsertableMedia {
-    ///     library_id: library_id,
-    ///     name: "test".into(),
-    ///     added: "test".into(),
-    ///     media_type: MediaType::Tv,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let show_id = new_show.insert(&conn).unwrap();
-    ///
-    /// let new_genre = InsertableGenre {
-    ///     name: "test".into(),
-    /// };
-    ///
-    /// let genre_id = new_genre.insert(&conn).unwrap();
-    ///
-    /// let pair = InsertableGenreMedia {
-    ///     genre_id: genre_id,
-    ///     media_id: show_id,
-    /// };
-    ///
-    /// pair.insert(&conn);
-    ///
-    /// let genres = Genre::get_by_media(&conn, show_id).unwrap();
-    ///
-    /// assert!(genres.len() == 1);
-    /// assert_eq!(genres[0].name, "test".to_string());
-    ///
-    /// Library::delete(&conn, library_id).unwrap();
-    /// Genre::delete(&conn, genre_id);
     pub async fn get_by_media(
         conn: &crate::DbConnection,
         query: i32,
@@ -138,53 +64,6 @@ impl Genre {
     /// * `conn` - diesel connection reference to postgres
     /// * `genre_id` - id of a genre
     /// * `media_id` - id of a media object
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    /// use database::genre::{InsertableGenre, Genre, InsertableGenreMedia};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// let library = InsertableLibrary {
-    ///     name: "test".into(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Tv,
-    /// };
-    ///
-    /// let library_id = library.insert(&conn).unwrap();
-    ///
-    /// let new_show = InsertableMedia {
-    ///     library_id: library_id,
-    ///     name: "test".into(),
-    ///     added: "test".into(),
-    ///     media_type: MediaType::Tv,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let show_id = new_show.insert(&conn).unwrap();
-    ///
-    /// let new_genre = InsertableGenre {
-    ///     name: "test_genre_media".into(),
-    /// };
-    ///
-    /// let genre_id = new_genre.insert(&conn).unwrap();
-    ///
-    /// let pair = InsertableGenreMedia {
-    ///     genre_id: genre_id,
-    ///     media_id: show_id,
-    /// };
-    ///
-    /// pair.insert(&conn);
-    ///
-    /// let genres = Genre::get_by_media_and_genre(&conn, genre_id, show_id).unwrap();
-    ///
-    /// assert_eq!(genres.name, "test_genre_media".to_string());
-    ///
-    /// Library::delete(&conn, library_id).unwrap();
-    /// Genre::delete(&conn, genre_id);
     pub async fn get_by_media_and_genre(
         conn: &crate::DbConnection,
         genre_id: i32,
@@ -204,28 +83,6 @@ impl Genre {
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
     /// * `id` - genre id
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::genre::{InsertableGenre, Genre};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// assert!(Genre::get_by_name(&conn, "test".into()).is_err());
-    ///
-    /// let new_genre = InsertableGenre {
-    ///     name: "test".into(),
-    /// };
-    ///
-    /// let id = new_genre.insert(&conn).unwrap();
-    /// let genre = Genre::get_by_name(&conn, "test".into()).unwrap();
-    ///
-    /// assert_eq!(genre.name, "test".to_string());
-    ///
-    /// Genre::delete(&conn, id);
-    ///
-    /// assert!(Genre::get_by_name(&conn, "test".into()).is_err());
     pub async fn delete(conn: &crate::DbConnection, genre_id: i32) -> Result<usize, DatabaseError> {
         use crate::schema::genre::dsl::*;
 
@@ -233,11 +90,11 @@ impl Genre {
             .execute_async(conn)
             .await?)
     }
+    */
 }
 
 /// Genre entry that can be inserted into the db.
-#[derive(Clone, Insertable)]
-#[table_name = "genre"]
+#[derive(Clone)]
 pub struct InsertableGenre {
     /// Genre name
     pub name: String,
@@ -248,31 +105,9 @@ impl InsertableGenre {
     ///
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::genre::{InsertableGenre, Genre};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// assert!(Genre::get_by_name(&conn, "test_genre1".into()).is_err());
-    ///
-    /// let new_genre = InsertableGenre {
-    ///     name: "test_genre1".into(),
-    /// };
-    ///
-    /// let id = new_genre.insert(&conn).unwrap();
-    /// let genre = Genre::get_by_name(&conn, "test_genre1".into()).unwrap();
-    ///
-    /// assert_eq!(genre.name, "test_genre1".to_string());
-    /// let id2 = new_genre.insert(&conn).unwrap();
-    ///
-    /// assert_eq!(id, id2);
-    ///
-    /// Genre::delete(&conn, id);
-    /// ```
     pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
+        let tx = conn.begin().await.unwrap();
+        /*
         use crate::schema::genre::dsl::*;
 
         Ok(retry_while!(DatabaseErrorKind::SerializationFailure, {
@@ -309,11 +144,13 @@ impl InsertableGenre {
             })
             .await
         })?)
+        */
     }
 }
+
+/*
 /// Struct which is used to pair a genre to a media
-#[derive(Clone, Insertable)]
-#[table_name = "genre_media"]
+#[derive(Clone)]
 pub struct InsertableGenreMedia {
     pub genre_id: i32,
     pub media_id: i32,
@@ -324,53 +161,6 @@ impl InsertableGenreMedia {
     ///
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    /// use database::genre::{InsertableGenre, Genre, InsertableGenreMedia};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// let library = InsertableLibrary {
-    ///     name: "test".into(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Tv,
-    /// };
-    ///
-    /// let library_id = library.insert(&conn).unwrap();
-    ///
-    /// let new_show = InsertableMedia {
-    ///     library_id: library_id,
-    ///     name: "test".into(),
-    ///     added: "test".into(),
-    ///     media_type: MediaType::Tv,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let show_id = new_show.insert(&conn).unwrap();
-    ///
-    /// let new_genre = InsertableGenre {
-    ///     name: "test_genre".into(),
-    /// };
-    ///
-    /// let genre_id = new_genre.insert(&conn).unwrap();
-    ///
-    /// let pair = InsertableGenreMedia {
-    ///     genre_id: genre_id,
-    ///     media_id: show_id,
-    /// };
-    ///
-    /// pair.insert(&conn);
-    ///
-    /// let genres = Genre::get_by_media_and_genre(&conn, genre_id, show_id).unwrap();
-    ///
-    /// assert_eq!(genres.name, "test_genre".to_string());
-    ///
-    /// Library::delete(&conn, library_id).unwrap();
-    /// Genre::delete(&conn, genre_id);
     pub async fn insert(&self, conn: &crate::DbConnection) {
         use crate::schema::genre_media::dsl::*;
         let _ = diesel::insert_into(genre_media)
@@ -385,49 +175,6 @@ impl InsertableGenreMedia {
     /// * `genre_id` - id of the genre we are trying to link to a media object.
     /// * `media_id` - id of the media object we are trying to link to a media.
     /// * `conn` - diesel connection reference to postgres
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    /// use database::genre::{InsertableGenre, Genre, InsertableGenreMedia};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// let library = InsertableLibrary {
-    ///     name: "test".into(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Movie
-    /// };
-    ///
-    /// let library_id = library.insert(&conn).unwrap();
-    ///
-    /// let new_show = InsertableMedia {
-    ///     library_id: library_id,
-    ///     name: "test".into(),
-    ///     added: "test".into(),
-    ///     media_type: MediaType::Movie,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let show_id = new_show.insert(&conn).unwrap();
-    ///
-    /// let new_genre = InsertableGenre {
-    ///     name: "test".into(),
-    /// };
-    ///
-    /// let genre_id = new_genre.insert(&conn).unwrap();
-    ///
-    /// InsertableGenreMedia::insert_pair(genre_id, show_id, &conn);
-    ///
-    /// let genres = Genre::get_by_media(&conn, show_id).unwrap();
-    ///
-    /// assert_eq!(genres.len(), 1);
-    /// assert_eq!(genres[0].name, "test".to_string());
-    ///
-    /// Library::delete(&conn, library_id).unwrap();
-    /// Genre::delete(&conn, genre_id);
     pub async fn insert_pair(_genre_id: i32, _media_id: i32, conn: &crate::DbConnection) {
         use crate::schema::genre_media::dsl::*;
 
@@ -464,3 +211,4 @@ impl InsertableGenreMedia {
         });
     }
 }
+*/
