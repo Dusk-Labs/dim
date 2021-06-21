@@ -1,16 +1,11 @@
-use crate::library::{Library, MediaType};
+use crate::library::Library;
+use crate::library::MediaType;
 use crate::mediafile::MediaFile;
-use crate::retry_while;
-use crate::schema::media;
-use crate::streamable_media::InsertableStreamableMedia;
-use crate::streamable_media::StreamableTrait;
-use crate::tv::StaticTrait;
 use crate::DatabaseError;
-use cfg_if::cfg_if;
 
-use diesel::prelude::*;
-use diesel::result::DatabaseErrorKind;
-use tokio_diesel::*;
+use cfg_if::cfg_if;
+use serde::Deserialize;
+use serde::Serialize;
 
 /// Marker trait used to mark media types that inherit from Media.
 /// Used internally by InsertableTVShow.
@@ -18,22 +13,20 @@ pub trait MediaTrait {}
 
 /// Media struct that represents a media object, usually a movie, tv show or a episode of a tv
 /// show. This struct is returned by several methods and can be serialized to json.
-#[derive(Clone, Identifiable, Queryable, Serialize, Deserialize, Debug, Associations, Default)]
-#[belongs_to(Library, foreign_key = "library_id")]
-#[table_name = "media"]
+#[derive(Clone, Serialize, Deserialize, Debug, Default)]
 pub struct Media {
     /// unique id automatically assigned by postgres.
-    pub id: i32,
+    pub id: i64,
     /// id of the library that this media objects belongs to.
-    pub library_id: i32,
+    pub library_id: i64,
     /// name of this media object. Usually the title of a movie, episode or tv show.
     pub name: String,
     /// description of this media object. Usually overview of a movie etc.
     pub description: Option<String>,
     /// rating provided by any API that is encoded as a signed integer. Usually TMDB rating.
-    pub rating: Option<i32>,
+    pub rating: Option<i64>,
     /// Year in which this movie/tv show/episode was released/aired.
-    pub year: Option<i32>,
+    pub year: Option<i64>,
     /// Date when this media object was created and inserted into the database. Used by several
     /// routes to return sorted lists of medias, based on when they were scanned and inserted into
     /// the db.
@@ -43,9 +36,8 @@ pub struct Media {
     /// Path to the backdrop for this media object.
     pub backdrop_path: Option<String>,
     /// Media type encoded as a string. Either movie/tv/episode or none.
-    // TODO: Use a enum instead of a string
     #[serde(flatten)]
-    pub media_type: Option<MediaType>,
+    pub media_type: MediaType,
 }
 
 impl PartialEq for Media {
@@ -65,12 +57,14 @@ impl Media {
     /// * `library` - a [`Library`](Library) instance
     pub async fn get_all(
         conn: &crate::DbConnection,
-        library: Library,
+        library_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
-        Ok(media::dsl::media
-            .filter(media::library_id.eq(library.id))
-            .filter(media::media_type.ne(MediaType::Episode))
-            .load_async::<Self>(conn)
+        Ok(sqlx::query_as!(
+                Media,
+                r#"SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE library_id = ?"#,
+                library_id
+            )
+            .fetch_all(conn)
             .await?)
     }
 
@@ -79,15 +73,14 @@ impl Media {
     /// # Arguments
     /// * `conn` - postgres connection
     /// * `req_id` - id of a media that we'd like to match against.
-    pub async fn get(conn: &crate::DbConnection, req_id: i32) -> Result<Self, DatabaseError> {
-        use crate::schema::media::dsl::*;
-
-        let result = media
-            .filter(id.eq(req_id))
-            .first_async::<Self>(conn)
-            .await?;
-
-        Ok(result)
+    pub async fn get(conn: &crate::DbConnection, id: i64) -> Result<Self, DatabaseError> {
+        Ok(sqlx::query_as!(
+                Media,
+                r#"SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE id = ?"#,
+                id
+            )
+            .fetch_one(conn)
+            .await?)
     }
 
     /// Method to get a entry in a library based on name and library
@@ -98,84 +91,72 @@ impl Media {
     /// * `name` - string slice reference containing the name we would like to filter by.
     pub async fn get_by_name_and_lib(
         conn: &crate::DbConnection,
-        library: &Library,
+        library_id: i64,
         name: &str,
     ) -> Result<Self, DatabaseError> {
-        Ok(media::dsl::media
-            .filter(media::library_id.eq(library.id))
-            .filter(media::name.eq(name.to_string()))
-            .first_async::<Self>(conn)
-            .await?)
-    }
-
-    pub async fn get_by_name_and_lib_id(
-        conn: &crate::DbConnection,
-        library: i32,
-        name: &str,
-    ) -> Result<Self, DatabaseError> {
-        Ok(media::dsl::media
-            .filter(media::library_id.eq(library))
-            .filter(media::name.eq(name.to_string()))
-            .first_async::<Self>(conn)
+        Ok(sqlx::query_as!(
+                Media,
+                r#"SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE library_id = ? AND name = ?"#,
+                library_id,
+                name,
+            )
+            .fetch_one(conn)
             .await?)
     }
 
     pub async fn get_of_mediafile(
         conn: &crate::DbConnection,
-        mediafile: &MediaFile,
+        mediafile_id: i64,
     ) -> Result<Self, DatabaseError> {
-        use crate::schema::mediafile;
-
-        Ok(mediafile::table
-            .inner_join(media::table)
-            .filter(mediafile::id.eq(mediafile.id))
-            .select(media::all_columns)
-            .first_async::<Self>(conn)
-            .await?)
+        Ok(sqlx::query_as!(
+                Media,
+                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                FROM media
+                INNER JOIN mediafile ON mediafile.media_id = media.id
+                WHERE mediafile.id = ?"#,
+                mediafile_id
+            ).fetch_one(conn).await?)
     }
 
     /// Method deletes a media object based on its id.
     ///
     /// # Arguments
     /// * `conn` - postgres connection
-    /// * `id_to_del` - id of a media object we want to delete
-    pub async fn delete(
-        conn: &crate::DbConnection,
-        id_to_del: i32,
-    ) -> Result<usize, DatabaseError> {
-        use crate::schema::media::dsl::*;
-
-        let result = diesel::delete(media.filter(id.eq(id_to_del)))
-            .execute_async(conn)
-            .await?;
-        Ok(result)
+    /// * `id` - id of a media object we want to delete
+    pub async fn delete(conn: &crate::DbConnection, id: i64) -> Result<usize, DatabaseError> {
+        Ok(sqlx::query!("DELETE FROM media WHERE id = ?", id)
+            .execute(conn)
+            .await?
+            .rows_affected() as usize)
     }
 
     /// This function exists because for some reason `CASCADE DELETE` doesnt work with a sqlite
     /// backend. Thus we must manually delete entries when deleting a library.
     pub async fn delete_by_lib_id(
         conn: &crate::DbConnection,
-        lib_id: i32,
+        library_id: i64,
     ) -> Result<usize, DatabaseError> {
-        use crate::schema::media::dsl::*;
-
-        Ok(diesel::delete(media.filter(library_id.eq(lib_id)))
-            .execute_async(conn)
-            .await?)
+        Ok(
+            sqlx::query!("DELETE FROM media WHERE library_id = ?", library_id)
+                .execute(conn)
+                .await?
+                .rows_affected() as usize,
+        )
     }
 }
 
+/*
 impl Into<super::tv::TVShow> for Media {
     fn into(self) -> super::tv::TVShow {
         super::tv::TVShow { id: self.id }
     }
 }
 
+*/
 /// Struct which represents a insertable media object. It is usually used only by the scanners to
 /// insert new media objects. It is the same as [`Media`](Media) except it doesnt have the
 /// [`id`](Media::id) field.
-#[derive(Clone, Default, Insertable, Debug)]
-#[table_name = "media"]
+#[derive(Clone, Default, Debug)]
 pub struct InsertableMedia {
     pub library_id: i32,
     pub name: String,
@@ -193,129 +174,63 @@ impl InsertableMedia {
     ///
     /// # Arguments
     /// * `conn` - postgres connection
-    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
-        use crate::schema::library::dsl::*;
+    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
+        let tx = conn.begin().await?;
 
-        library
-            .filter(id.eq(self.library_id))
-            .first_async::<Library>(conn)
-            .await?;
+        if let Some(record) = sqlx::query!(r#"SELECT id FROM media where name = ?"#, self.name)
+            .fetch_optional(conn)
+            .await?
+        {
+            return Ok(record.id);
+        }
 
-        // we need to atomically select or insert.
-        Ok(retry_while!(DatabaseErrorKind::SerializationFailure, {
-            conn.transaction::<_, _>(|conn| {
-                cfg_if! {
-                    if #[cfg(feature = "postgres")] {
-                        let _ = diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
-                            .execute(conn)?;
-                    }
-                }
+        let id = sqlx::query!(
+            r#"INSERT INTO media (library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type)
+            VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)"#,
+            self.library_id,
+            self.name,
+            self.description,
+            self.rating,
+            self.year,
+            self.added,
+            self.poster_path,
+            self.backdrop_path,
+            self.media_type
+        ).execute(conn).await?.last_insert_rowid();
 
-                let result = media::table
-                    .filter(media::name.eq(self.name.clone()))
-                    .select(media::id)
-                    .get_result::<i32>(conn);
-
-                if let Ok(x) = result {
-                    return Ok(x);
-                }
-
-                cfg_if! {
-                    if #[cfg(feature = "postgres")] {
-                        Ok(diesel::insert_into(media::table).values(self.clone())
-                            .returning(media::id)
-                            .get_result(conn)?)
-                    } else {
-                        diesel::insert_into(media::table).values(self.clone())
-                            .execute(conn)?;
-                        Ok(diesel::select(crate::last_insert_rowid).get_result(conn)?)
-                    }
-                }
-            })
-            .await
-        })?)
+        tx.commit().await?;
+        Ok(id)
     }
 
     /// Method blindly inserts `self` into the database without checking whether a similar entry exists.
     /// This is especially useful for tv shows as they usually have similar metadata with key differences
     /// which are not indexed in the database.
-    pub async fn insert_blind(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
-        use crate::schema::library::dsl::*;
+    pub async fn insert_blind(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
+        let tx = conn.begin().await?;
 
-        library
-            .filter(id.eq(self.library_id))
-            .first_async::<Library>(conn)
-            .await?;
+        let id = sqlx::query!(
+            r#"INSERT INTO media (library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type)
+            VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)"#,
+            self.library_id,
+            self.name,
+            self.description,
+            self.rating,
+            self.year,
+            self.added,
+            self.poster_path,
+            self.backdrop_path,
+            self.media_type
+        ).execute(conn).await?.last_insert_rowid();
 
-        // we need to atomically select or insert.
-        Ok(retry_while!(DatabaseErrorKind::SerializationFailure, {
-            conn.transaction::<_, _>(|conn| {
-                cfg_if! {
-                    if #[cfg(feature = "postgres")] {
-                        let _ = diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
-                            .execute(conn);
-                    }
-                }
-
-                let query = diesel::insert_into(media::table).values(self.clone());
-
-                cfg_if! {
-                    if #[cfg(feature = "postgres")] {
-                        Ok(query.returning(media::id)
-                           .get_result(conn)?)
-                    } else {
-                        query.execute(conn)?;
-                        Ok(diesel::select(crate::last_insert_rowid).get_result(conn)?)
-                    }
-                }
-            })
-            .await
-        })?)
-    }
-
-    /// Method used as a intermediary to insert media objects into a middle table used as a marker
-    /// for anything that can be streamed. For example movies and episodes would be using this
-    /// method on insertion, while tv shows dont as they cant be streamed.
-    ///
-    /// # Arguments
-    /// * `conn` - postgres connection
-    /// * `manual_insert` - flag to denote whether we want to insert the object into its table
-    /// automatically
-    pub async fn into_streamable<T: StreamableTrait>(
-        &self,
-        conn: &crate::DbConnection,
-        id: i32,
-        manual_insert: Option<()>,
-    ) -> Result<i32, DatabaseError> {
-        let _ = InsertableStreamableMedia::insert(id, conn).await?;
-
-        match manual_insert {
-            Some(_) => Ok(id),
-            None => T::new(id).insert(conn).await,
-        }
-    }
-
-    /// Method used as a intermediary to insert media objects into a middle table used as a marker
-    /// for anything that cannot be streamed. For example tv shows would be using this
-    /// method on insertion, while movies and episodes dont as they cant be streamed.
-    ///
-    /// # Arguments
-    /// * `conn` - postgres connection
-    /// automatically
-    pub async fn into_static<T: StaticTrait>(
-        &self,
-        conn: &crate::DbConnection,
-        id: i32,
-    ) -> Result<i32, DatabaseError> {
-        T::new(id).insert(conn).await
+        tx.commit().await?;
+        Ok(id)
     }
 }
 
 /// Struct which is used when we need to update information about a media object. Same as
 /// [`InsertableMedia`](InsertableMedia) except `library_id` cannot be changed and everything field
 /// is a `Option<T>`.
-#[derive(Clone, Default, AsChangeset, Deserialize, Debug)]
-#[table_name = "media"]
+#[derive(Clone, Default, Deserialize, Debug)]
 pub struct UpdateMedia {
     pub name: Option<String>,
     pub description: Option<String>,
@@ -337,15 +252,22 @@ impl UpdateMedia {
     pub async fn update(
         &self,
         conn: &crate::DbConnection,
-        _id: i32,
+        id: i64,
     ) -> Result<usize, DatabaseError> {
-        use crate::schema::media::dsl::*;
+        let tx = conn.begin().await?;
 
-        let entry = media.filter(id.eq(_id));
+        crate::opt_update!(conn, tx,
+            "UPDATE media SET name = ? WHERE id = ?" => (self.name, id),
+            "UPDATE media SET description = ? WHERE id = ?" => (self.description, id),
+            "UPDATE media SET rating = ? WHERE id = ?" => (self.rating, id),
+            "UPDATE media SET year = ? WHERE id = ?" => (self.year, id),
+            "UPDATE media SET added = ? WHERE id = ?" => (self.added, id),
+            "UPDATE media SET poster_path = ? WHERE id = ?" => (self.poster_path, id),
+            "UPDATE media SET backdrop_path = ? WHERE id = ?" => (self.backdrop_path, id),
+            "UPDATE media SET media_type = ? WHERE id = ?" => (self.media_type, id)
+        );
 
-        Ok(diesel::update(entry)
-            .set(self.clone())
-            .execute_async(conn)
-            .await?)
+        tx.commit().await?;
+        Ok(1)
     }
 }

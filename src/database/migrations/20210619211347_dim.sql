@@ -23,26 +23,15 @@ CREATE TABLE media (
     added TEXT,
     poster_path TEXT,
     backdrop_path TEXT,
-    media_type media_type,
+    media_type media_type NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE
-);
-
--- Streamble Media Table
--- This table contains the template for
--- Media that has a file attached to it
--- ie it can be streamed.
--- Currently only movies and episodes inherit from this
-CREATE TABLE streamable_media (
-    id INTEGER,
-    PRIMARY KEY (id),
-    FOREIGN KEY(id) REFERENCES media (id) ON DELETE CASCADE
 );
 
 CREATE TABLE movie (
     id INTEGER,
     PRIMARY KEY (id),
-    FOREIGN KEY(id) REFERENCES streamable_media (id) ON DELETE CASCADE
+    FOREIGN KEY(id) REFERENCES media (id) ON DELETE CASCADE
 );
 
 CREATE TABLE tv_show (
@@ -66,7 +55,7 @@ CREATE TABLE episode (
     seasonid INTEGER NOT NULL,
     episode_ INTEGER NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY(id) REFERENCES streamable_media (id) ON DELETE CASCADE,
+    FOREIGN KEY(id) REFERENCES media (id) ON DELETE CASCADE,
     FOREIGN KEY(seasonid) REFERENCES season (id) ON DELETE CASCADE
 );
 
@@ -92,9 +81,8 @@ CREATE TABLE mediafile (
 
     corrupt BOOLEAN,
     PRIMARY KEY (id),
---  For now we directly link to media instead of a intermediary, NOTE: FIXME
-    FOREIGN KEY(media_id) REFERENCES streamable_media (id) ON DELETE CASCADE ON UPDATE CASCADE,
---    FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(library_id) REFERENCES library(id) ON DELETE CASCADE
 );
 

@@ -85,24 +85,6 @@ impl Library {
         .await?)
     }
 
-    /*
-    /// Method filters the database for a library with the id supplied and all Media objects
-    /// associated with the library then returns all those as a Vec.
-    ///
-    /// # Arguments
-    /// * `conn` - [diesel connection](crate::DbConnection)
-    /// * `lib_id` - a integer that is the id of the library we are trying to query
-    pub async fn get(conn: &crate::DbConnection, lib_id: i32) -> Result<Vec<Media>, DatabaseError> {
-        use crate::schema::library::dsl::*;
-        let result = library
-            .filter(id.eq(lib_id))
-            .first_async::<Self>(conn)
-            .await?;
-
-        Media::get_all(conn, result).await
-    }
-    */
-
     /// Method filters the database for a library with the id supplied and deletes it.
     ///
     /// # Arguments
