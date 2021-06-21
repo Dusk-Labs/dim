@@ -12,18 +12,17 @@ use std::sync::atomic::Ordering;
 pub mod error;
 pub mod library;
 pub mod media;
+pub mod genre;
 pub mod mediafile;
 #[cfg(test)]
 pub mod tests;
 pub mod utils;
 /*
 pub mod episode;
-pub mod genre;
 pub mod movie;
 pub mod progress;
 pub mod schema;
 pub mod season;
-pub mod streamable_media;
 pub mod tv;
 pub mod user;
 */
