@@ -14,9 +14,10 @@ pub mod genre;
 pub mod library;
 pub mod media;
 pub mod mediafile;
+pub mod user;
+pub mod tv;
 #[cfg(test)]
 pub mod tests;
-pub mod user;
 pub mod utils;
 /*
 pub mod episode;
@@ -24,7 +25,6 @@ pub mod movie;
 pub mod progress;
 pub mod schema;
 pub mod season;
-pub mod tv;
 */
 
 pub use crate::error::DatabaseError;
