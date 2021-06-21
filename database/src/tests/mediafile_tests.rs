@@ -153,7 +153,9 @@ async fn test_get_of_media() {
     let media_id = super::media_tests::insert_media(&conn).await;
     let mfile = insert_mediafile_with_mediaid(&conn, media_id).await;
 
-    let result = mediafile::MediaFile::get_of_media(&conn, media_id).await.unwrap();
+    let result = mediafile::MediaFile::get_of_media(&conn, media_id)
+        .await
+        .unwrap();
     assert_eq!(result.len(), 1);
     assert_eq!(result[0].media_id, Some(media_id));
     assert_eq!(result[0].id, mfile);

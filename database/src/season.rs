@@ -403,63 +403,6 @@ impl UpdateSeason {
     /// * `conn` - diesel connection reference to postgres
     /// * `id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - Season number we'd like to update.
-    ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    /// use database::tv::InsertableTVShow;
-    /// use database::season::{Season, UpdateSeason, InsertableSeason};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// let library = InsertableLibrary {
-    ///     name: "test".into(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Tv,
-    /// };
-    ///
-    /// let library_id = library.insert(&conn).unwrap();
-    ///
-    /// let new_show = InsertableMedia {
-    ///     library_id: library_id,
-    ///     name: "test".into(),
-    ///     added: "test".into(),
-    ///     media_type: MediaType::Tv,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let show_id = new_show.into_static::<InsertableTVShow>(&conn).unwrap();
-    ///
-    /// let new_season = InsertableSeason {
-    ///     season_number: 1,
-    ///     added: "test".into(),
-    ///     poster: "test".into(),
-    /// };
-    ///
-    /// let season_id = new_season.insert(&conn, show_id).unwrap();
-    ///
-    /// let season = Season::get(&conn, show_id, new_season.season_number).unwrap();
-    ///
-    /// assert_eq!(season.id, season_id);
-    /// assert_eq!(season.season_number, 1);
-    /// assert_eq!(season.added, Some("test".to_string()));
-    /// assert_eq!(season.poster, Some("test".to_string()));
-    ///
-    /// let update_season = UpdateSeason {
-    ///     season_number: None,
-    ///     added: Some("test2".into()),
-    ///     poster: None,
-    ///     tvshowid: None,
-    /// };
-    ///
-    /// let _ = update_season.update(&conn, show_id, 1);
-    /// let season2 = Season::get(&conn, show_id, new_season.season_number).unwrap();
-    ///
-    /// assert_ne!(season.added, season2.added);
-    ///
-    /// Library::delete(&conn, library_id).unwrap();
     pub async fn update(
         self,
         conn: &crate::DbConnection,

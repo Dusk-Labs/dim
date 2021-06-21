@@ -118,7 +118,9 @@ async fn test_delete_by_lib() {
     let result = media::Media::get_all(conn, library_id).await.unwrap();
     assert_eq!(result.len(), 10);
 
-    let result = media::Media::delete_by_lib_id(conn, library_id).await.unwrap();
+    let result = media::Media::delete_by_lib_id(conn, library_id)
+        .await
+        .unwrap();
     assert_eq!(result, 10);
 
     let result = media::Media::get_all(conn, library_id).await.unwrap();
@@ -144,7 +146,7 @@ async fn test_blind_insert() {
 
     let result = media.clone().insert_blind(conn).await.unwrap();
     assert_eq!(result, 1);
-    
+
     let result = media.insert_blind(conn).await.unwrap();
     assert_eq!(result, 2);
 }

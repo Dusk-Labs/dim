@@ -1,5 +1,5 @@
-use crate::DatabaseError;
 use crate::media::Media;
+use crate::DatabaseError;
 
 use serde::Deserialize;
 use serde::Serialize;
@@ -97,12 +97,14 @@ impl MediaFile {
         media_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
-                MediaFile,
-                "SELECT mediafile.* FROM mediafile
+            MediaFile,
+            "SELECT mediafile.* FROM mediafile
                 INNER JOIN media ON media.id = mediafile.media_id
                 WHERE media.id = ?",
-                media_id
-            ).fetch_all(conn).await?)
+            media_id
+        )
+        .fetch_all(conn)
+        .await?)
     }
 
     /// Method returns all metadata of a mediafile based on the id supplied.
