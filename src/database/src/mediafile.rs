@@ -1,9 +1,8 @@
-use crate::library::Library;
 use crate::DatabaseError;
+use crate::media::Media;
 
-use cfg_if::cfg_if;
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 
 /// MediaFile struct which represents a media file on the filesystem. This struct holds some basic
 /// information which the video player on the front end might require.
@@ -88,7 +87,6 @@ impl MediaFile {
         .await?)
     }
 
-    /*
     /// Method returns all mediafiles associated with a Media object.
     ///
     /// # Arguments
@@ -96,23 +94,16 @@ impl MediaFile {
     /// * `lib` - reference to a Library object that we will match against
     pub async fn get_of_media(
         conn: &crate::DbConnection,
-        media: &Media,
+        media_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
-        use crate::schema::streamable_media;
-
-        let streamable_media = streamable_media::dsl::streamable_media
-            .filter(streamable_media::id.eq(media.id))
-            .first_async::<StreamableMedia>(conn)
-            .await?;
-
-        // TODO: Figure out why the fuck .filter against mediafile::corrupted doesnt fucking work.
-        // Fuck you.
-        Ok(mediafile::dsl::mediafile
-            .filter(mediafile::media_id.eq(streamable_media.id))
-            .load_async::<Self>(conn)
-            .await?)
+        Ok(sqlx::query_as!(
+                MediaFile,
+                "SELECT mediafile.* FROM mediafile
+                INNER JOIN media ON media.id = mediafile.media_id
+                WHERE media.id = ?",
+                media_id
+            ).fetch_all(conn).await?)
     }
-    */
 
     /// Method returns all metadata of a mediafile based on the id supplied.
     ///
@@ -171,10 +162,12 @@ impl MediaFile {
         conn: &crate::DbConnection,
         lib_id: i64,
     ) -> Result<usize, DatabaseError> {
-        Ok(sqlx::query!("DELETE FROM mediafile WHERE library_id = ?", lib_id)
-            .execute(conn)
-            .await?
-            .rows_affected() as usize)
+        Ok(
+            sqlx::query!("DELETE FROM mediafile WHERE library_id = ?", lib_id)
+                .execute(conn)
+                .await?
+                .rows_affected() as usize,
+        )
     }
 }
 
@@ -286,7 +279,7 @@ impl UpdateMediaFile {
             "UPDATE mediafile SET target_file = ? WHERE id = ?" => (self.target_file, id),
             "UPDATE mediafile SET raw_name = ? WHERE id = ?" => (self.raw_name, id),
             "UPDATE mediafile SET raw_year = ? WHERE id = ?" => (self.raw_year, id),
-            "UPDATE mediafile SET quality = ? WHERE id = ?" => (self.quality, id), 
+            "UPDATE mediafile SET quality = ? WHERE id = ?" => (self.quality, id),
             "UPDATE mediafile SET codec = ? WHERE id = ?" => (self.codec, id),
             "UPDATE mediafile SET container = ? WHERE id = ?" => (self.container, id),
             "UPDATE mediafile SET audio = ? WHERE id = ?" => (self.audio, id),
@@ -302,7 +295,6 @@ impl UpdateMediaFile {
     }
 }
 
-/*
 impl Into<Media> for MediaFile {
     fn into(self) -> Media {
         Media {
@@ -313,4 +305,3 @@ impl Into<Media> for MediaFile {
         }
     }
 }
-*/

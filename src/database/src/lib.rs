@@ -11,14 +11,14 @@ use std::sync::atomic::Ordering;
 
 pub mod error;
 pub mod library;
+pub mod media;
 pub mod mediafile;
-pub mod utils;
 #[cfg(test)]
 pub mod tests;
+pub mod utils;
 /*
 pub mod episode;
 pub mod genre;
-pub mod media;
 pub mod movie;
 pub mod progress;
 pub mod schema;
