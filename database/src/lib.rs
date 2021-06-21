@@ -1,4 +1,4 @@
-#![feature(rustc_private, once_cell, async_closure, box_syntax)]
+#![feature(once_cell, box_syntax)]
 #![feature(proc_macro_hygiene, decl_macro, option_result_unwrap_unchecked)]
 
 use cfg_if::cfg_if;
@@ -17,11 +17,11 @@ pub mod mediafile;
 pub mod user;
 pub mod tv;
 pub mod season;
+pub mod episode;
 #[cfg(test)]
 pub mod tests;
 pub mod utils;
 /*
-pub mod episode;
 pub mod movie;
 pub mod progress;
 pub mod schema;

@@ -9,11 +9,11 @@ use serde::{Deserialize, Serialize};
 /// Struct represents a season entry in the database.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct Season {
-    pub id: i32,
+    pub id: i64,
     /// Season number
-    pub season_number: i32,
+    pub season_number: i64,
     /// Foreign key to the tv show we'd like to link against
-    pub tvshowid: i32,
+    pub tvshowid: i64,
     /// String holding the date when the season was added to the database.
     pub added: Option<String>,
     /// URL to the location of the poster for this season.
@@ -29,12 +29,12 @@ impl Season {
     ///
     pub async fn get_all(
         conn: &crate::DbConnection,
-        tv_id: i32,
+        tv_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id as "id: _", season_number as "season_number: _",
-                    tvshowid as "tvshowid: _", added, poster FROM season WHERE id = ?"#,
+            r#"SELECT id , season_number ,
+                    tvshowid , added, poster FROM season WHERE id = ?"#,
             tv_id
         )
         .fetch_all(conn)
@@ -50,13 +50,13 @@ impl Season {
     ///
     pub async fn get(
         conn: &crate::DbConnection,
-        tv_id: i32,
-        season_num: i32,
+        tv_id: i64,
+        season_num: i64,
     ) -> Result<Season, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id as "id: _", season_number as "season_number: _",
-                    tvshowid as "tvshowid: _", added, poster FROM season WHERE id = ? AND season_number = ?"#,
+            r#"SELECT id , season_number ,
+                    tvshowid , added, poster FROM season WHERE id = ? AND season_number = ?"#,
             tv_id,
             season_num
         )
@@ -73,8 +73,8 @@ impl Season {
     ///
     pub async fn delete(
         conn: &crate::DbConnection,
-        tv_id: i32,
-        season_num: i32,
+        tv_id: i64,
+        season_num: i64,
     ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!(
             "DELETE FROM season where tvshowid = ? AND season_number = ?",
@@ -92,8 +92,8 @@ impl Season {
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id as "id: _", season_number as "season_number: _",
-                    tvshowid as "tvshowid: _", added, poster FROM season WHERE id = ?
+            r#"SELECT id , season_number ,
+                    tvshowid , added, poster FROM season WHERE id = ?
                     ORDER BY season_number ASC"#,
             media.id,
         )
@@ -103,12 +103,12 @@ impl Season {
 
     pub async fn get_by_id(
         conn: &crate::DbConnection,
-        season_id: i32,
+        season_id: i64,
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id as "id: _", season_number as "season_number: _",
-                    tvshowid as "tvshowid: _", added, poster FROM season WHERE season_number = ?
+            r#"SELECT id , season_number ,
+                    tvshowid , added, poster FROM season WHERE season_number = ?
                     ORDER BY season_number ASC"#,
             season_id,
         )
@@ -122,7 +122,7 @@ impl Season {
 /// field.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct InsertableSeason {
-    pub season_number: i32,
+    pub season_number: i64,
     pub added: String,
     pub poster: String,
 }
@@ -134,7 +134,7 @@ impl InsertableSeason {
     /// * `conn` - diesel connection reference to postgres
     /// * `id` - id of the tv show we'd like to discriminate against.
     ///
-    pub async fn insert(&self, conn: &crate::DbConnection, id: i32) -> Result<i64, DatabaseError> {
+    pub async fn insert(&self, conn: &crate::DbConnection, id: i64) -> Result<i64, DatabaseError> {
         sqlx::query!("SELECT * FROM tv_show WHERE id = ?", id).fetch_one(conn).await?;
 
         Ok({
@@ -159,8 +159,8 @@ impl InsertableSeason {
 /// All fields are updateable and optional except the primary key id
 #[derive(Clone, Deserialize, PartialEq, Debug)]
 pub struct UpdateSeason {
-    pub season_number: Option<i32>,
-    pub tvshowid: Option<i32>,
+    pub season_number: Option<i64>,
+    pub tvshowid: Option<i64>,
     pub added: Option<String>,
     pub poster: Option<String>,
 }
@@ -176,8 +176,8 @@ impl UpdateSeason {
     pub async fn update(
         self,
         conn: &crate::DbConnection,
-        tv_id: i32,
-        season_num: i32,
+        tv_id: i64,
+        season_num: i64,
     ) -> Result<usize, DatabaseError> {
         let tx = conn.begin().await?;
 
