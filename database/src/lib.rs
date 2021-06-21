@@ -14,16 +14,15 @@ pub mod genre;
 pub mod library;
 pub mod media;
 pub mod mediafile;
-pub mod user;
-pub mod tv;
+pub mod movie;
+pub mod progress;
 #[cfg(test)]
 pub mod tests;
+pub mod tv;
+pub mod user;
 pub mod utils;
 /*
 pub mod episode;
-pub mod movie;
-pub mod progress;
-pub mod schema;
 pub mod season;
 */
 
