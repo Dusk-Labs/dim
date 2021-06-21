@@ -1,11 +1,93 @@
 {
   "db": "SQLite",
+  "00117b3ea22613a289d3190ec7dccf738fe53234fb84b51377a1e45156c9aa47": {
+    "query": "SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as \"media_type: _\"\n                FROM media\n                INNER JOIN mediafile ON mediafile.media_id = media.id\n                WHERE mediafile.id = ?",
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "library_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "rating",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "year",
+          "ordinal": 5,
+          "type_info": "Int64"
+        },
+        {
+          "name": "added",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "poster_path",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "backdrop_path",
+          "ordinal": 8,
+          "type_info": "Text"
+        },
+        {
+          "name": "media_type: _",
+          "ordinal": 9,
+          "type_info": "Null"
+        }
+      ],
+      "parameters": {
+        "Right": 1
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ]
+    }
+  },
   "20d94cf1cf2bc3b643b27a75a58f0517156d112ccfba01d5f6a5785175e6a878": {
     "query": "DELETE FROM library WHERE id = ?",
     "describe": {
       "columns": [],
       "parameters": {
         "Right": 1
+      },
+      "nullable": []
+    }
+  },
+  "2351c0b6b32ea13b84deb1818ac8bfde1121e73edb61fcc8b9ec2120000055a5": {
+    "query": "UPDATE media SET backdrop_path = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
       },
       "nullable": []
     }
@@ -130,12 +212,174 @@
       ]
     }
   },
+  "332aa2ee03325cdd15d7980898c8c1612d4cf7696129dce78e6efc5edd6e204c": {
+    "query": "UPDATE media SET added = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "3535d7b48ae9befe8361e717cdcb69700e4ef74f7df316f0352459d494a41c1d": {
+    "query": "UPDATE mediafile SET container = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
   "36f61d7feedd5b53a44f9ad7db6fe1b19a63f0eb23da53db85971eaaa8e717da": {
     "query": "INSERT INTO library (name, location, media_type) VALUES ($1, $2, $3)",
     "describe": {
       "columns": [],
       "parameters": {
         "Right": 3
+      },
+      "nullable": []
+    }
+  },
+  "394059592b2004fdd0b85cb06d2cb61eaace89518af7e4b4e3345fd14a1db7b1": {
+    "query": "DELETE FROM mediafile WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 1
+      },
+      "nullable": []
+    }
+  },
+  "3a5ef865bb0661e877f166d4140ee55bbdcf3704ea1a6c76587b39c698b176ac": {
+    "query": "UPDATE media SET description = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "3cd474ed5001edc9d429293272502343649f3abd28626d2364c74e92aa39fc36": {
+    "query": "UPDATE media SET rating = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "4a242f43d202a72ff4086f1f1cab64fabb5c0844c4342258d664a300cbb3efa3": {
+    "query": "UPDATE mediafile SET raw_year = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "4fd51407e7e5993f6ef4dc8cf473cdf0fea8f816896788bfbcf11944bfe51b02": {
+    "query": "UPDATE mediafile SET original_resolution = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "508cfd920d2d2274cb02494c2b3344b5a848c174d8fc886aa75e2f4f953f3957": {
+    "query": "SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as \"media_type: _\" FROM media WHERE library_id = ?",
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "library_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "rating",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "year",
+          "ordinal": 5,
+          "type_info": "Int64"
+        },
+        {
+          "name": "added",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "poster_path",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "backdrop_path",
+          "ordinal": 8,
+          "type_info": "Text"
+        },
+        {
+          "name": "media_type: _",
+          "ordinal": 9,
+          "type_info": "Null"
+        }
+      ],
+      "parameters": {
+        "Right": 1
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ]
+    }
+  },
+  "5510b663caa80dd0d25a7f44502a87407de59c36ab45d970cc138d81ca0e36fb": {
+    "query": "UPDATE mediafile SET duration = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "578e8329c180b1646d3f5e0cc2697682a3c3f440d60af9a3a94ca6232c349633": {
+    "query": "UPDATE mediafile SET raw_name = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
       },
       "nullable": []
     }
@@ -242,12 +486,134 @@
       ]
     }
   },
+  "6b906e3c3af5b33bdf4e75fc3123558b0058846a30bd541b89973970a151b0b9": {
+    "query": "DELETE FROM media WHERE library_id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 1
+      },
+      "nullable": []
+    }
+  },
+  "6cd7ff8b2a7eb6622d2c217bad95e67b50d95ab3c4f213b76c21219093b191eb": {
+    "query": "UPDATE mediafile SET season = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "6ed8cac658f8654e1c569f3a7f14c13cd469a7e6feb84fdd724c174d4f5bf26a": {
+    "query": "UPDATE mediafile SET target_file = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "7b7fab830cbe4560225882e9af8ef6a0723c132e4c01e03c250bbe53d6c68904": {
+    "query": "SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as \"media_type: _\" FROM media WHERE id = ?",
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "library_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "rating",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "year",
+          "ordinal": 5,
+          "type_info": "Int64"
+        },
+        {
+          "name": "added",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "poster_path",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "backdrop_path",
+          "ordinal": 8,
+          "type_info": "Text"
+        },
+        {
+          "name": "media_type: _",
+          "ordinal": 9,
+          "type_info": "Null"
+        }
+      ],
+      "parameters": {
+        "Right": 1
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ]
+    }
+  },
+  "8adea8b2f796e2e731731447114388b5e87bdc46ddbfc14a34fe6e33c2758358": {
+    "query": "UPDATE media SET poster_path = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
   "8c3f234ec9e2162731c5fff8a7f7333a0305db2f1f808d2867477e1b88078bc2": {
     "query": "\n            INSERT INTO mediafile (media_id, library_id, target_file, raw_name, raw_year, quality,\n            codec, container, audio, original_resolution, duration, episode, season, corrupt)\n            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)\n        ",
     "describe": {
       "columns": [],
       "parameters": {
         "Right": 14
+      },
+      "nullable": []
+    }
+  },
+  "8e7cae523d740f91566e210e3c38a5c459f40d7b09dd4bab9d8aa1724c57ef40": {
+    "query": "UPDATE mediafile SET media_id = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
       },
       "nullable": []
     }
@@ -322,6 +688,176 @@
         false,
         false
       ]
+    }
+  },
+  "a4564fb2785447a653dc5b74b7bf5beb3f0c7c07b84a4821775434fedff8b235": {
+    "query": "SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as \"media_type: _\" FROM media WHERE library_id = ? AND name = ?",
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "library_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "rating",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "year",
+          "ordinal": 5,
+          "type_info": "Int64"
+        },
+        {
+          "name": "added",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "poster_path",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "backdrop_path",
+          "ordinal": 8,
+          "type_info": "Text"
+        },
+        {
+          "name": "media_type: _",
+          "ordinal": 9,
+          "type_info": "Null"
+        }
+      ],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ]
+    }
+  },
+  "a95ac963ba03f9b327acda58ecd0ea5815cd5377548bb4cbc93aefb96b619b45": {
+    "query": "UPDATE mediafile SET audio = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "b02a13f513e0ff9506fd884b535a45d9c5d06d5094ddd7676418256487576479": {
+    "query": "UPDATE mediafile SET episode = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "b276f04b47f3642836d2a234e443fd6c0472d95259b8f532ef8654cf6880f0ee": {
+    "query": "INSERT INTO media (library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type)\n            VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 9
+      },
+      "nullable": []
+    }
+  },
+  "b52389118f0e2f2e2793e15f43418aee21c0950489f0faf45f0272c67c9752ee": {
+    "query": "UPDATE media SET year = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "b9e95a1c961f5bc66771779db8b0a06f5cabe9702b5bd315d891fccfe7497c1c": {
+    "query": "UPDATE mediafile SET corrupt = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "bc7e181f5ca64d27875bc4657e46e101c27f34bbaa8fe341940e47b9d5fce97d": {
+    "query": "DELETE FROM mediafile WHERE library_id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 1
+      },
+      "nullable": []
+    }
+  },
+  "c5d11af10ac885e25ce4395061e5857d7d1a06e3c92f1df46558b1df0a3e1d96": {
+    "query": "UPDATE media SET media_type = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "ceb058b5924aecc7a53d0344fd7d37d714a58ac9ffd3487a0b430aa12cd2af6d": {
+    "query": "SELECT id FROM media where name = ?",
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        }
+      ],
+      "parameters": {
+        "Right": 1
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "d90ac15077bb9bb6ceec572c2376b806d7438847295a1d7e0ba8527be59a3edb": {
+    "query": "UPDATE mediafile SET quality = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
     }
   },
   "df3791c5f0e203e5bf59bd05ca33e5b394d86ffca086236d252966421d2b91c5": {
@@ -426,6 +962,26 @@
       ]
     }
   },
+  "e48b4921a1e126b81490a41690b920ec46dc23f63173c1ae942677a8c09f2908": {
+    "query": "UPDATE media SET name = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
+    }
+  },
+  "ee525a0b768dd7b0ee7d674cca2ad631ad962123053f5cee6aabdcc186cc00cf": {
+    "query": "DELETE FROM media WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 1
+      },
+      "nullable": []
+    }
+  },
   "eec0328ecee6f4f0bbcc04e6958ed02e8e6ea365f5cd8137c42503043418d936": {
     "query": "SELECT * FROM mediafile WHERE id = ?",
     "describe": {
@@ -526,6 +1082,118 @@
         true,
         true
       ]
+    }
+  },
+  "f39d7477ab30b84d54ac2e210832a4e0df6304e4005c27278de5ab324d6b6663": {
+    "query": "SELECT mediafile.* FROM mediafile\n                INNER JOIN media ON media.id = mediafile.media_id\n                WHERE media.id = ?",
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "media_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "library_id",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "target_file",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "raw_name",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "raw_year",
+          "ordinal": 5,
+          "type_info": "Int64"
+        },
+        {
+          "name": "quality",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "codec",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "container",
+          "ordinal": 8,
+          "type_info": "Text"
+        },
+        {
+          "name": "audio",
+          "ordinal": 9,
+          "type_info": "Text"
+        },
+        {
+          "name": "original_resolution",
+          "ordinal": 10,
+          "type_info": "Text"
+        },
+        {
+          "name": "duration",
+          "ordinal": 11,
+          "type_info": "Int64"
+        },
+        {
+          "name": "episode",
+          "ordinal": 12,
+          "type_info": "Int64"
+        },
+        {
+          "name": "season",
+          "ordinal": 13,
+          "type_info": "Int64"
+        },
+        {
+          "name": "corrupt",
+          "ordinal": 14,
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Right": 1
+      },
+      "nullable": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    }
+  },
+  "fe53b3b60d15d58e734950b04ee4f5083fa6e23a09d49aab1a03f9750b83043a": {
+    "query": "UPDATE mediafile SET codec = ? WHERE id = ?",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Right": 2
+      },
+      "nullable": []
     }
   }
 }
