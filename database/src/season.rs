@@ -1,25 +1,19 @@
-use crate::retry_while;
-use crate::schema::season;
+use std::convert::{TryFrom, TryInto};
+
+use crate::opt_update;
 use crate::tv::TVShow;
 use crate::DatabaseError;
 
-use cfg_if::cfg_if;
-use diesel::prelude::*;
-use diesel::result::DatabaseErrorKind;
-use tokio_diesel::*;
+use serde::{Deserialize, Serialize};
 
 /// Struct represents a season entry in the database.
-#[derive(
-    Identifiable, Associations, Queryable, Serialize, Deserialize, PartialEq, Debug, Clone,
-)]
-#[belongs_to(TVShow, foreign_key = "tvshowid")]
-#[table_name = "season"]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct Season {
-    pub id: i32,
+    pub id: i64,
     /// Season number
-    pub season_number: i32,
+    pub season_number: i64,
     /// Foreign key to the tv show we'd like to link against
-    pub tvshowid: i32,
+    pub tvshowid: i64,
     /// String holding the date when the season was added to the database.
     pub added: Option<String>,
     /// URL to the location of the poster for this season.
@@ -33,70 +27,18 @@ impl Season {
     /// * `conn` - diesel connection reference to postgres
     /// * `tv_id` - id of the tv show we'd like to discriminate against.
     ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    /// use database::tv::InsertableTVShow;
-    /// use database::season::{Season, InsertableSeason};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// let library = InsertableLibrary {
-    ///     name: "test".into(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Tv,
-    /// };
-    ///
-    /// let library_id = library.insert(&conn).unwrap();
-    ///
-    /// let new_show = InsertableMedia {
-    ///     library_id: library_id,
-    ///     name: "test".into(),
-    ///     added: "test".into(),
-    ///     media_type: MediaType::Tv,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let show_id = new_show.into_static::<InsertableTVShow>(&conn).unwrap();
-    ///
-    /// let new_season = InsertableSeason {
-    ///     season_number: 1,
-    ///     added: "test".into(),
-    ///     poster: "test".into(),
-    /// };
-    ///
-    /// let season_id = new_season.insert(&conn, show_id).unwrap();
-    ///
-    /// let all_seasons = Season::get_all(&conn, show_id).unwrap();
-    ///
-    /// assert!(all_seasons.len() == 1);
-    ///
-    /// let season = &all_seasons[0];
-    /// assert_eq!(season.id, season_id);
-    /// assert_eq!(season.season_number, 1);
-    /// assert_eq!(season.added, Some("test".to_string()));
-    /// assert_eq!(season.poster, Some("test".to_string()));
-    ///
-    /// Library::delete(&conn, library_id).unwrap();
     pub async fn get_all(
         conn: &crate::DbConnection,
-        tv_id: i32,
+        tv_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
-        use crate::schema::tv_show;
-
-        let tv_show = tv_show::dsl::tv_show
-            .find(tv_id)
-            .get_result_async::<TVShow>(conn)
-            .await?;
-
-        let result = season::dsl::season
-            .filter(season::tvshowid.eq(tv_show.id))
-            .load_async::<Self>(conn)
-            .await?;
-
-        Ok(result)
+        Ok(sqlx::query_as!(
+            Self,
+            r#"SELECT id , season_number ,
+                    tvshowid , added, poster FROM season WHERE id = ?"#,
+            tv_id
+        )
+        .fetch_all(conn)
+        .await?)
     }
 
     /// Method returns the season based on the season number belonging to a tv show.
@@ -106,68 +48,20 @@ impl Season {
     /// * `tv_id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - season number we'd like to fetch.
     ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    /// use database::tv::InsertableTVShow;
-    /// use database::season::{Season, InsertableSeason};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// let library = InsertableLibrary {
-    ///     name: "test".into(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Tv,
-    /// };
-    ///
-    /// let library_id = library.insert(&conn).unwrap();
-    ///
-    /// let new_show = InsertableMedia {
-    ///     library_id: library_id,
-    ///     name: "test".into(),
-    ///     added: "test".into(),
-    ///     media_type: MediaType::Tv,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let show_id = new_show.into_static::<InsertableTVShow>(&conn).unwrap();
-    ///
-    /// let new_season = InsertableSeason {
-    ///     season_number: 1,
-    ///     added: "test".into(),
-    ///     poster: "test".into(),
-    /// };
-    ///
-    /// let season_id = new_season.insert(&conn, show_id).unwrap();
-    ///
-    /// let season = Season::get(&conn, show_id, new_season.season_number).unwrap();
-    ///
-    /// assert_eq!(season.id, season_id);
-    /// assert_eq!(season.season_number, 1);
-    /// assert_eq!(season.added, Some("test".to_string()));
-    /// assert_eq!(season.poster, Some("test".to_string()));
-    ///
-    /// Library::delete(&conn, library_id).unwrap();
     pub async fn get(
         conn: &crate::DbConnection,
-        tv_id: i32,
-        season_num: i32,
+        tv_id: i64,
+        season_num: i64,
     ) -> Result<Season, DatabaseError> {
-        use crate::schema::season::dsl::*;
-        use crate::schema::tv_show;
-
-        let tv_show = tv_show::dsl::tv_show
-            .find(tv_id)
-            .get_result_async::<TVShow>(conn)
-            .await?;
-
-        Ok(season
-            .filter(tvshowid.eq(tv_show.id))
-            .filter(season_number.eq(season_num))
-            .first_async::<Self>(conn)
-            .await?)
+        Ok(sqlx::query_as!(
+            Self,
+            r#"SELECT id , season_number ,
+                    tvshowid , added, poster FROM season WHERE id = ? AND season_number = ?"#,
+            tv_id,
+            season_num
+        )
+        .fetch_one(conn)
+        .await?)
     }
 
     /// Method deletes a season entry that belongs to a tv show.
@@ -177,110 +71,58 @@ impl Season {
     /// * `tv_id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - season number we'd like to fetch.
     ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    /// use database::tv::InsertableTVShow;
-    /// use database::season::{Season, InsertableSeason};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// let library = InsertableLibrary {
-    ///     name: "test".into(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Tv,
-    /// };
-    ///
-    /// let library_id = library.insert(&conn).unwrap();
-    ///
-    /// let new_show = InsertableMedia {
-    ///     library_id: library_id,
-    ///     name: "test".into(),
-    ///     added: "test".into(),
-    ///     media_type: MediaType::Tv,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let show_id = new_show.into_static::<InsertableTVShow>(&conn).unwrap();
-    ///
-    /// let new_season = InsertableSeason {
-    ///     season_number: 1,
-    ///     added: "test".into(),
-    ///     poster: "test".into(),
-    /// };
-    ///
-    /// let season_id = new_season.insert(&conn, show_id).unwrap();
-    ///
-    /// let season = Season::get(&conn, show_id, new_season.season_number).unwrap();
-    ///
-    /// assert_eq!(season.id, season_id);
-    /// assert_eq!(season.season_number, 1);
-    /// assert_eq!(season.added, Some("test".to_string()));
-    /// assert_eq!(season.poster, Some("test".to_string()));
-    ///
-    /// let deleted = Season::delete(&conn, show_id, new_season.season_number).unwrap();
-    /// assert_eq!(deleted, 1usize);
-    ///
-    /// let season = Season::get(&conn, show_id, new_season.season_number);
-    /// assert!(season.is_err());
-    ///
-    /// Library::delete(&conn, library_id).unwrap();
     pub async fn delete(
         conn: &crate::DbConnection,
-        tv_id: i32,
-        season_num: i32,
+        tv_id: i64,
+        season_num: i64,
     ) -> Result<usize, DatabaseError> {
-        use crate::schema::season::dsl::*;
-        use crate::schema::tv_show;
-
-        let tv_show = tv_show::dsl::tv_show
-            .find(tv_id)
-            .get_result_async::<TVShow>(conn)
-            .await?;
-
-        let entry = season
-            .filter(tvshowid.eq(tv_show.id))
-            .filter(season_number.eq(season_num));
-
-        let result = diesel::delete(entry).execute_async(conn).await?;
-        Ok(result)
+        Ok(sqlx::query!(
+            "DELETE FROM season where tvshowid = ? AND season_number = ?",
+            tv_id,
+            season_num
+        )
+        .execute(conn)
+        .await?
+        .last_insert_rowid() as usize)
     }
 
     pub async fn get_first(
         conn: &crate::DbConnection,
         media: &TVShow,
     ) -> Result<Self, DatabaseError> {
-        use crate::schema::season::dsl::*;
-
-        Ok(season
-            .filter(tvshowid.eq(media.id))
-            .order(season_number.asc())
-            .first_async::<Self>(conn)
-            .await?)
+        Ok(sqlx::query_as!(
+            Self,
+            r#"SELECT id , season_number ,
+                    tvshowid , added, poster FROM season WHERE id = ?
+                    ORDER BY season_number ASC"#,
+            media.id,
+        )
+        .fetch_one(conn)
+        .await?)
     }
 
     pub async fn get_by_id(
         conn: &crate::DbConnection,
-        season_id: i32,
+        season_id: i64,
     ) -> Result<Self, DatabaseError> {
-        use crate::schema::season::dsl::*;
-
-        Ok(season
-            .filter(id.eq(season_id))
-            .first_async::<Self>(conn)
-            .await?)
+        Ok(sqlx::query_as!(
+            Self,
+            r#"SELECT id , season_number ,
+                    tvshowid , added, poster FROM season WHERE season_number = ?
+                    ORDER BY season_number ASC"#,
+            season_id,
+        )
+        .fetch_one(conn)
+        .await?)
     }
 }
 
 /// Struct representing a insertable season
 /// Its exactly the same as [`Season`](Season) except it misses the tvshowid field and the id
 /// field.
-#[derive(Clone, Insertable, Serialize, Deserialize)]
-#[table_name = "season"]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct InsertableSeason {
-    pub season_number: i32,
+    pub season_number: i64,
     pub added: String,
     pub poster: String,
 }
@@ -292,106 +134,33 @@ impl InsertableSeason {
     /// * `conn` - diesel connection reference to postgres
     /// * `id` - id of the tv show we'd like to discriminate against.
     ///
-    /// # Example
-    /// ```
-    /// use database::get_conn_devel as get_conn;
-    /// use database::library::{Library, InsertableLibrary, MediaType};
-    /// use database::media::{InsertableMedia, Media};
-    /// use database::tv::InsertableTVShow;
-    /// use database::season::{Season, InsertableSeason};
-    ///
-    /// let conn = get_conn().unwrap();
-    ///
-    /// let library = InsertableLibrary {
-    ///     name: "test".into(),
-    ///     location: "/dev/null".to_string(),
-    ///     media_type: MediaType::Tv,
-    /// };
-    ///
-    /// let library_id = library.insert(&conn).unwrap();
-    ///
-    /// let new_show = InsertableMedia {
-    ///     library_id: library_id,
-    ///     name: "test".into(),
-    ///     added: "test".into(),
-    ///     media_type: MediaType::Tv,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// let show_id = new_show.into_static::<InsertableTVShow>(&conn).unwrap();
-    ///
-    /// let new_season = InsertableSeason {
-    ///     season_number: 1,
-    ///     added: "test".into(),
-    ///     poster: "test".into(),
-    /// };
-    ///
-    /// let season_id = new_season.insert(&conn, show_id).unwrap();
-    ///
-    /// let season = Season::get(&conn, show_id, new_season.season_number).unwrap();
-    ///
-    /// assert_eq!(season.id, season_id);
-    /// assert_eq!(season.season_number, 1);
-    /// assert_eq!(season.added, Some("test".to_string()));
-    /// assert_eq!(season.poster, Some("test".to_string()));
-    ///
-    /// Library::delete(&conn, library_id).unwrap();
-    pub async fn insert(&self, conn: &crate::DbConnection, id: i32) -> Result<i32, DatabaseError> {
-        use crate::schema::tv_show;
+    pub async fn insert(&self, conn: &crate::DbConnection, id: i64) -> Result<i64, DatabaseError> {
+        sqlx::query!("SELECT * FROM tv_show WHERE id = ?", id).fetch_one(conn).await?;
 
-        // We check if the tv show exists
-        // if it doesnt exist the ? operator would automatically
-        // return Err(diesel::result::Error)
-        let _ = tv_show::dsl::tv_show
-            .find(id)
-            .get_result_async::<TVShow>(conn)
+        Ok({
+            let result = sqlx::query!(
+                "SELECT id FROM season WHERE season_number = ? AND tvshowid = ?",
+                id,
+                self.season_number
+            )
+            .fetch_optional(conn)
             .await?;
 
-        Ok(retry_while!(DatabaseErrorKind::SerializationFailure, {
-            conn.transaction::<_, _>(|conn| {
-                cfg_if! {
-                    if #[cfg(feature = "postgres")] {
-                        diesel::sql_query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
-                            .execute(conn);
-                    }
-                }
+            if let Some(season) = result {
+                return Ok(season.id.try_into().unwrap());
+            }
 
-                let result = season::table
-                    .filter(season::season_number.eq(self.season_number))
-                    .filter(season::tvshowid.eq(id))
-                    .select(season::id)
-                    .get_result::<i32>(conn);
-
-                if let Ok(x) = result {
-                    return Ok(x);
-                }
-
-                // We insert the tvshowid separately
-                let query = diesel::insert_into(season::table)
-                    .values((self.clone(), season::dsl::tvshowid.eq(id)));
-
-                cfg_if! {
-                    if #[cfg(feature = "postgres")] {
-                        Ok(query.returning(season::id)
-                            .get_result(conn)?)
-                    } else {
-                        query.execute(conn)?;
-                        Ok(diesel::select(crate::last_insert_rowid).get_result(conn)?)
-                    }
-                }
-            })
-            .await
-        })?)
+            sqlx::query!("INSERT INTO season (season_number, added, poster, tvshowid) VALUES ($1, $2, $3, $4)", self.season_number, self.added, self.poster, id).execute(conn).await?.last_insert_rowid()
+        })
     }
 }
 
 /// Struct used to update information about a season in the database.
 /// All fields are updateable and optional except the primary key id
-#[derive(Clone, AsChangeset, Deserialize, PartialEq, Debug)]
-#[table_name = "season"]
+#[derive(Clone, Deserialize, PartialEq, Debug)]
 pub struct UpdateSeason {
-    pub season_number: Option<i32>,
-    pub tvshowid: Option<i32>,
+    pub season_number: Option<i64>,
+    pub tvshowid: Option<i64>,
     pub added: Option<String>,
     pub poster: Option<String>,
 }
@@ -406,21 +175,30 @@ impl UpdateSeason {
     pub async fn update(
         self,
         conn: &crate::DbConnection,
-        _id: i32,
-        season_num: i32,
+        tv_id: i64,
+        season_num: i64,
     ) -> Result<usize, DatabaseError> {
-        use crate::schema::season::dsl::*;
-        use crate::schema::tv_show;
+        let tx = conn.begin().await?;
 
-        let _ = tv_show::dsl::tv_show
-            .filter(id.eq(_id))
-            .execute_async(conn)
-            .await?;
+        let rows = sqlx::query!(
+            "SELECT season.* FROM season 
+            INNER JOIN tv_show WHERE tv_show.id = ? 
+            AND season.season_number = ?",
+            tv_id,
+            season_num
+        )
+        .fetch_all(conn)
+        .await?;
 
-        let entry = season
-            .filter(tvshowid.eq(_id))
-            .filter(season_number.eq(season_num));
+        for row in rows {
+            opt_update!(conn, tx,
+                "UPDATE season SET season_number = ? WHERE id = ?" => (self.season_number, row.id),
+                "UPDATE season SET tvshowid = ? WHERE id = ?" => (self.tvshowid, row.id),
+                "UPDATE season SET added = ? WHERE id = ?" => (self.added, row.id),
+                "UPDATE season SET poster = ? WHERE id = ?" => (self.poster, row.id)
+            );
+        }
 
-        Ok(diesel::update(entry).set(self).execute_async(conn).await?)
+        Ok(std::usize::MAX)
     }
 }
