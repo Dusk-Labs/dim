@@ -1,6 +1,6 @@
 -- Library table
 CREATE TABLE library (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     location TEXT NOT NULL,
     media_type TEXT NOT NULL
@@ -13,7 +13,7 @@ CREATE TABLE library (
 -- tv shows generally arent
 -- The Episodes table will also inherit from here
 CREATE TABLE media (
-    id INTEGER,
+    id INTEGER NOT NULL,
     library_id INTEGER NOT NULL,
 
     name TEXT NOT NULL,
@@ -93,16 +93,18 @@ CREATE TABLE users (
 );
 
 CREATE TABLE progress (
-    id INTEGER,
+    id INTEGER NOT NULL,
     user_id TEXT NOT NULL,
-    delta INTEGER,
-    media_id INTEGER,
-    populated INTEGER,
+    delta INTEGER NOT NULL,
+    media_id INTEGER NOT NULL,
+    populated INTEGER NOT NULL,
 
     PRIMARY KEY (id),
     FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(user_id) REFERENCES users(username) ON DELETE CASCADE
 );
+
+CREATE UNIQUE INDEX progress_idx ON progress(user_id, media_id);
 
 CREATE TABLE genre (
     id INTEGER PRIMARY KEY,
