@@ -72,7 +72,7 @@ impl Episode {
                 INNER JOIN tv_show ON tv_show.id = season.tvshowid
                 WHERE tv_show.id = ?
                 ORDER BY season.season_number, episode.episode_",
-                tv_show_id
+            tv_show_id
         )
         .fetch_all(conn)
         .await?;
@@ -99,7 +99,7 @@ impl Episode {
         let wrappers = sqlx::query_as!(
             EpisodeWrapper,
             r#"SELECT id , episode_ , seasonid FROM episode WHERE seasonid = ?"#,
-            season_id 
+            season_id
         )
         .fetch_all(conn)
         .await?;
@@ -196,15 +196,23 @@ impl InsertableEpisode {
             "SELECT id FROM episode WHERE episode.seasonid = ? AND episode.episode_ = ?",
             self.seasonid,
             self.episode
-        ).fetch_optional(conn).await? {
+        )
+        .fetch_optional(conn)
+        .await?
+        {
             return Ok(r.id);
         }
-        
+
         let result = sqlx::query!(
             "INSERT INTO episode (id, episode_, seasonid)
             VALUES ($1, $2, $3)",
-            media_id, self.episode, self.seasonid
-        ).execute(conn).await?.last_insert_rowid();
+            media_id,
+            self.episode,
+            self.seasonid
+        )
+        .execute(conn)
+        .await?
+        .last_insert_rowid();
 
         tx.commit().await?;
 
@@ -237,7 +245,7 @@ impl UpdateEpisode {
     ///
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
-    /// * `id` - id of the episode we wish to update. 
+    /// * `id` - id of the episode we wish to update.
     pub async fn update(
         &self,
         conn: &crate::DbConnection,

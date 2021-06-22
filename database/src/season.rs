@@ -135,7 +135,9 @@ impl InsertableSeason {
     /// * `id` - id of the tv show we'd like to discriminate against.
     ///
     pub async fn insert(&self, conn: &crate::DbConnection, id: i64) -> Result<i64, DatabaseError> {
-        sqlx::query!("SELECT * FROM tv_show WHERE id = ?", id).fetch_one(conn).await?;
+        sqlx::query!("SELECT * FROM tv_show WHERE id = ?", id)
+            .fetch_one(conn)
+            .await?;
 
         Ok({
             let result = sqlx::query!(
@@ -189,7 +191,6 @@ impl UpdateSeason {
         )
         .fetch_one(conn)
         .await?;
-
 
         opt_update!(conn, tx,
             "UPDATE season SET season_number = ? WHERE id = ?" => (self.season_number, row.id),
