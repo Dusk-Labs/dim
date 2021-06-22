@@ -1,4 +1,4 @@
-#![feature(rustc_private, once_cell, async_closure, box_syntax)]
+#![feature(once_cell, box_syntax)]
 #![feature(proc_macro_hygiene, decl_macro, option_result_unwrap_unchecked)]
 
 use cfg_if::cfg_if;
@@ -16,15 +16,13 @@ pub mod media;
 pub mod mediafile;
 pub mod movie;
 pub mod progress;
+pub mod season;
+pub mod episode;
 #[cfg(test)]
 pub mod tests;
 pub mod tv;
 pub mod user;
 pub mod utils;
-/*
-pub mod episode;
-pub mod season;
-*/
 
 pub use crate::error::DatabaseError;
 
