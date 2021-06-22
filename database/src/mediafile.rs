@@ -191,8 +191,8 @@ pub struct InsertableMediaFile {
     /***
      * Options specific to tv show scanner hence Option<T>
      ***/
-    pub episode: Option<i32>,
-    pub season: Option<i32>,
+    pub episode: Option<i64>,
+    pub season: Option<i64>,
     /*** ***/
     pub corrupt: Option<bool>,
 }
@@ -240,22 +240,22 @@ impl InsertableMediaFile {
 /// optional too.
 #[derive(Clone, Default, Deserialize, PartialEq, Debug)]
 pub struct UpdateMediaFile {
-    pub media_id: Option<i32>,
+    pub media_id: Option<i64>,
     pub target_file: Option<String>,
     pub raw_name: Option<String>,
-    pub raw_year: Option<i32>,
+    pub raw_year: Option<i64>,
     pub quality: Option<String>,
     pub codec: Option<String>,
     pub container: Option<String>,
     pub audio: Option<String>,
     pub original_resolution: Option<String>,
-    pub duration: Option<i32>,
+    pub duration: Option<i64>,
 
     /***
      * Options specific to tv show scanner hence Option<T>
      ***/
-    pub episode: Option<i32>,
-    pub season: Option<i32>,
+    pub episode: Option<i64>,
+    pub season: Option<i64>,
     /*** ***/
     pub corrupt: Option<bool>,
 }

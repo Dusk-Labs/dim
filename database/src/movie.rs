@@ -12,7 +12,7 @@ use tokio_diesel::*;
 #[table_name = "movie"]
 pub struct Movie {
     /// id of the movie that is also a foreign key to a media entry.
-    id: i32,
+    id: i64,
 }
 
 /// Struct reperesents a insertable movie entry
@@ -20,7 +20,7 @@ pub struct Movie {
 #[table_name = "movie"]
 pub struct InsertableMovie {
     /// id of a media entry that should be used as a foreign key.
-    id: i32,
+    id: i64,
 }
 
 #[async_trait]
@@ -31,7 +31,7 @@ impl StreamableTrait for InsertableMovie {
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
     /// * `id` - id of the movie we are inserting, this id should already exist in the media table.
-    fn new(id: i32) -> Self {
+    fn new(id: i64) -> Self {
         Self { id }
     }
 
@@ -40,7 +40,7 @@ impl StreamableTrait for InsertableMovie {
     ///
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
-    async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
+    async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
         diesel::insert_into(movie::table)
             .values(self.clone())
             .execute_async(conn)

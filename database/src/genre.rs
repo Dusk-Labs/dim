@@ -6,7 +6,7 @@ use serde::Serialize;
 /// Struct shows a single genre entry
 #[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
 pub struct Genre {
-    pub id: i32,
+    pub id: i64,
     /// Genre name, ie "Action"
     pub name: String,
 }
@@ -14,9 +14,9 @@ pub struct Genre {
 /// Intermediary table showing the relationship between a media and a genre
 #[derive(Clone, Debug, PartialEq)]
 pub struct GenreMedia {
-    pub id: i32,
-    pub genre_id: i32,
-    pub media_id: i32,
+    pub id: i64,
+    pub genre_id: i64,
+    pub media_id: i64,
 }
 
 impl Genre {
@@ -48,7 +48,7 @@ impl Genre {
     /// * `media` - reference to a media object which should be a tv show.
     pub async fn get_by_media(
         conn: &crate::DbConnection,
-        query: i32,
+        query: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(genre::table
             .inner_join(genre_media::table)
@@ -66,8 +66,8 @@ impl Genre {
     /// * `media_id` - id of a media object
     pub async fn get_by_media_and_genre(
         conn: &crate::DbConnection,
-        genre_id: i32,
-        media_id: i32,
+        genre_id: i64,
+        media_id: i64,
     ) -> Result<Self, DatabaseError> {
         Ok(genre::table
             .inner_join(genre_media::table)
@@ -83,7 +83,7 @@ impl Genre {
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
     /// * `id` - genre id
-    pub async fn delete(conn: &crate::DbConnection, genre_id: i32) -> Result<usize, DatabaseError> {
+    pub async fn delete(conn: &crate::DbConnection, genre_id: i64) -> Result<usize, DatabaseError> {
         use crate::schema::genre::dsl::*;
 
         Ok(diesel::delete(genre.filter(id.eq(genre_id)))
@@ -105,7 +105,7 @@ impl InsertableGenre {
     ///
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
-    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i32, DatabaseError> {
+    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
         let tx = conn.begin().await.unwrap();
         todo!()
         /*
@@ -153,8 +153,8 @@ impl InsertableGenre {
 /// Struct which is used to pair a genre to a media
 #[derive(Clone)]
 pub struct InsertableGenreMedia {
-    pub genre_id: i32,
-    pub media_id: i32,
+    pub genre_id: i64,
+    pub media_id: i64,
 }
 
 impl InsertableGenreMedia {
@@ -176,7 +176,7 @@ impl InsertableGenreMedia {
     /// * `genre_id` - id of the genre we are trying to link to a media object.
     /// * `media_id` - id of the media object we are trying to link to a media.
     /// * `conn` - diesel connection reference to postgres
-    pub async fn insert_pair(_genre_id: i32, _media_id: i32, conn: &crate::DbConnection) {
+    pub async fn insert_pair(_genre_id: i64, _media_id: i64, conn: &crate::DbConnection) {
         use crate::schema::genre_media::dsl::*;
 
         let _ = retry_while!(DatabaseErrorKind::SerializationFailure, {
@@ -193,7 +193,7 @@ impl InsertableGenreMedia {
                     .filter(media_id.eq(_media_id))
                     .filter(genre_id.eq(_genre_id))
                     .select(genre::dsl::id)
-                    .first::<i32>(conn)
+                    .first::<i64>(conn)
                     .is_ok()
                 {
                     return Ok(());

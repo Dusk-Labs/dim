@@ -18,19 +18,19 @@ use std::time::SystemTime;
 #[belongs_to(Media, foreign_key = "media_id")]
 #[table_name = "progress"]
 pub struct Progress {
-    pub id: i32,
-    pub delta: i32,
-    pub media_id: i32,
+    pub id: i64,
+    pub delta: i64,
+    pub media_id: i64,
     pub user_id: String,
-    pub populated: i32,
+    pub populated: i64,
 }
 
 impl Progress {
     pub async fn set(
         conn: &crate::DbConnection,
-        delta: i32,
+        delta: i64,
         uid: String,
-        mid: i32,
+        mid: i64,
     ) -> Result<usize, DieselError> {
         let timestamp = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
@@ -46,7 +46,7 @@ impl Progress {
         )
         .set((
             progress::delta.eq(delta),
-            progress::populated.eq(timestamp as i32),
+            progress::populated.eq(timestamp as i64),
         ))
         .execute_async(conn)
         .await?
@@ -57,7 +57,7 @@ impl Progress {
                     progress::delta.eq(delta),
                     progress::media_id.eq(mid),
                     progress::user_id.eq(uid),
-                    progress::populated.eq(timestamp as i32),
+                    progress::populated.eq(timestamp as i64),
                 ))
                 .execute_async(conn)
                 .await?)
@@ -69,7 +69,7 @@ impl Progress {
     pub async fn get_for_media_user(
         conn: &crate::DbConnection,
         uid: String,
-        mid: i32,
+        mid: i64,
     ) -> Result<Self, DieselError> {
         use crate::schema::progress::dsl::*;
 
@@ -94,13 +94,13 @@ impl Progress {
     pub async fn get_total_time_spent_watching(
         conn: &crate::DbConnection,
         uid: String,
-    ) -> Result<i32, DieselError> {
+    ) -> Result<i64, DieselError> {
         use crate::schema::progress::dsl::*;
 
         Ok(progress
             .filter(user_id.eq(uid))
             .select(delta)
-            .load_async::<i32>(conn)
+            .load_async::<i64>(conn)
             .await?
             .iter()
             .sum())
@@ -110,7 +110,7 @@ impl Progress {
         conn: &crate::DbConnection,
         media: &Media,
         uid: String,
-    ) -> Result<i32, DieselError> {
+    ) -> Result<i64, DieselError> {
         match media.media_type {
             Some(MediaType::Tv) => Ok(Self::get_total_for_tv(conn, uid, media).await?),
             _ => Ok(Self::get_for_media_user(conn, uid, media.id)
@@ -123,7 +123,7 @@ impl Progress {
         conn: &crate::DbConnection,
         uid: String,
         media: &Media,
-    ) -> Result<i32, DieselError> {
+    ) -> Result<i64, DieselError> {
         let episodes = Episode::get_all_of_tv(conn, media)
             .await?
             .iter()
@@ -177,7 +177,7 @@ impl Progress {
         }
         
         let mut result = result
-            .load_async::<(i32, i32)>(conn)
+            .load_async::<(i64, i64)>(conn)
             .await?;
 
         result.sort_by(|a, b| b.1.cmp(&a.1));

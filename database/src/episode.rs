@@ -4,13 +4,9 @@ use crate::media::InsertableMedia;
 use crate::media::Media;
 use crate::media::UpdateMedia;
 use crate::season::Season;
-use crate::tv::TVShow;
 use crate::DatabaseError;
 
 use serde::{Deserialize, Serialize};
-
-use futures::stream;
-use futures::StreamExt;
 
 /// Episode struct encapsulates a media entry representing a episode
 #[derive(Clone, Serialize, Debug)]
@@ -218,30 +214,55 @@ impl InsertableEpisode {
         tv_id: i64,
         media_id: i64,
     ) -> Result<i64, DatabaseError> {
-        let _ = sqlx::query!("SELECT * FROM tv_show WHERE id = ?", tv_id)
-            .fetch_one(conn)
-            .await?;
-        let _ = Season::get(conn, tv_id, self.seasonid).await?;
+        let tx = conn.begin().await?;
 
-        if let Some(res) = sqlx::query!(
+        if let Err(e) = sqlx::query!("SELECT * FROM tv_show WHERE id = ?", tv_id)
+            .fetch_one(conn)
+            .await
+        {
+            tx.rollback().await?;
+            return Err(crate::DatabaseError::DatabaseError(e));
+        }
+
+        if let Err(e) = Season::get(conn, tv_id, self.seasonid).await {
+            tx.rollback().await?;
+            return Err(e);
+        }
+
+        let res = match sqlx::query!(
             "SELECT id FROM episode WHERE seasonid = ? AND episode_ = ?",
             self.seasonid,
             self.episode
         )
         .fetch_optional(conn)
-        .await?
+        .await
         {
+            Ok(res) => res,
+            Err(err) => {
+                tx.rollback().await?;
+                return Err(err.into());
+            }
+        };
+
+        if let Some(res) = res {
             return Ok(res.id);
         }
 
-        let res = sqlx::query!(
+        let res = match sqlx::query!(
             "INSERT INTO episode (id, seasonid, episode_) VALUES($1, $2, $3)",
             media_id,
             self.seasonid,
             self.episode
         )
         .execute(conn)
-        .await?;
+        .await
+        {
+            Ok(res) => res,
+            Err(err) => {
+                tx.rollback().await?;
+                return Err(err.into());
+            }
+        };
 
         Ok(res.last_insert_rowid())
     }
