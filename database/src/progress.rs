@@ -1,118 +1,83 @@
-use crate::episode::Episode;
 use crate::library::MediaType;
 use crate::media::Media;
-use crate::schema::progress;
 use crate::user::User;
 use crate::DatabaseError as DieselError;
-
-use diesel::prelude::*;
-use futures::stream::iter;
-use futures::StreamExt;
-use tokio_diesel::*;
 
 use serde::Serialize;
 use std::time::SystemTime;
 
-#[derive(Queryable, Debug, Identifiable, Associations, Serialize)]
-#[belongs_to(User, foreign_key = "user_id")]
-#[belongs_to(Media, foreign_key = "media_id")]
-#[table_name = "progress"]
+#[derive(Debug, Clone, Serialize, Default)]
 pub struct Progress {
-    pub id: i32,
-    pub delta: i32,
-    pub media_id: i32,
+    pub id: i64,
+    pub delta: i64,
+    pub media_id: i64,
     pub user_id: String,
-    pub populated: i32,
+    pub populated: i64,
 }
 
 impl Progress {
     pub async fn set(
         conn: &crate::DbConnection,
-        delta: i32,
+        delta: i64,
         uid: String,
-        mid: i32,
+        mid: i64,
     ) -> Result<usize, DieselError> {
         let timestamp = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap()
-            .as_secs();
-        // NOTE: We could use `on_conflict` here but the diesel backend for sqlite doesnt support
-        // this yet.
+            .as_secs() as i64;
 
-        if diesel::update(
-            progress::table
-                .filter(progress::media_id.eq(mid))
-                .filter(progress::user_id.eq(uid.clone())),
-        )
-        .set((
-            progress::delta.eq(delta),
-            progress::populated.eq(timestamp as i32),
-        ))
-        .execute_async(conn)
-        .await?
-            == 0
-        {
-            Ok(diesel::insert_into(progress::table)
-                .values((
-                    progress::delta.eq(delta),
-                    progress::media_id.eq(mid),
-                    progress::user_id.eq(uid),
-                    progress::populated.eq(timestamp as i32),
-                ))
-                .execute_async(conn)
-                .await?)
-        } else {
-            Ok(1)
-        }
+        Ok(sqlx::query!(
+            "INSERT OR REPLACE INTO progress (delta, media_id, user_id, populated)
+            VALUES ($1, $2, $3, $4)",
+            delta, mid, uid, timestamp
+        ).execute(conn).await?.rows_affected() as usize)
     }
 
     pub async fn get_for_media_user(
         conn: &crate::DbConnection,
         uid: String,
-        mid: i32,
+        mid: i64,
     ) -> Result<Self, DieselError> {
-        use crate::schema::progress::dsl::*;
-
-        match progress
-            .filter(media_id.eq(mid))
-            .filter(user_id.eq(uid.clone()))
-            .first_async::<Self>(conn)
-            .await
-        {
-            Ok(x) => Ok(x),
-            Err(tokio_diesel::AsyncError::Error(diesel::result::Error::NotFound)) => Ok(Self {
-                id: 0,
-                delta: 0,
-                media_id: mid,
-                user_id: uid,
-                populated: 0,
-            }),
-            Err(e) => Err(DieselError::AsyncError(e)),
-        }
+        Ok(sqlx::query_as!(
+            Progress,
+            "SELECT progress.* FROM progress
+            WHERE user_id = ?
+            AND media_id = ?",
+            uid,
+            mid
+        )
+        .fetch_optional(conn)
+        .await?
+        .unwrap_or(Self {
+            media_id: mid,
+            user_id: uid,
+            ..Default::default()
+        }))
     }
 
     pub async fn get_total_time_spent_watching(
         conn: &crate::DbConnection,
         uid: String,
     ) -> Result<i32, DieselError> {
-        use crate::schema::progress::dsl::*;
-
-        Ok(progress
-            .filter(user_id.eq(uid))
-            .select(delta)
-            .load_async::<i32>(conn)
-            .await?
-            .iter()
-            .sum())
+        Ok(sqlx::query!(
+            "SELECT COALESCE(SUM(progress.delta), 0) as total FROM progress
+                WHERE progress.user_id = ?",
+            uid
+        )
+        .fetch_one(conn)
+        .await?
+        .total
+        .unwrap_or_default())
     }
 
     pub async fn get_total_for_media(
         conn: &crate::DbConnection,
         media: &Media,
         uid: String,
-    ) -> Result<i32, DieselError> {
+    ) -> Result<i64, DieselError> {
         match media.media_type {
-            Some(MediaType::Tv) => Ok(Self::get_total_for_tv(conn, uid, media).await?),
+            MediaType::Tv => Ok(Self::get_total_for_tv(conn, uid, media.id).await? as i64),
             _ => Ok(Self::get_for_media_user(conn, uid, media.id)
                 .await
                 .map(|x| x.delta)?),
@@ -122,69 +87,52 @@ impl Progress {
     pub async fn get_total_for_tv(
         conn: &crate::DbConnection,
         uid: String,
-        media: &Media,
+        tv_id: i64,
     ) -> Result<i32, DieselError> {
-        let episodes = Episode::get_all_of_tv(conn, media)
-            .await?
-            .iter()
-            .map(|x| (uid.clone(), x.clone()))
-            .collect::<Vec<_>>();
-
-        Ok(iter(episodes)
-            .filter_map(|(uid, x)| async move {
-                Self::get_for_media_user(conn, uid, x.media.id).await.ok()
-            })
-            .map(|x| x.delta)
-            .collect::<Vec<_>>()
-            .await
-            .iter()
-            .sum())
+        Ok(sqlx::query!(
+            "SELECT COALESCE(SUM(progress.delta), 0) as total FROM media
+            JOIN progress ON progress.media_id = media.id
+            JOIN episode ON episode.id = media.id
+            JOIN season on season.id = episode.seasonid
+            JOIN tv_show ON tv_show.id = season.tvshowid
+            
+            WHERE tv_show.id = ?
+            AND progress.user_id = ?",
+            tv_id,
+            uid
+        )
+        .fetch_one(conn)
+        .await?
+        .total)
     }
 
     pub async fn get_continue_watching(
         conn: &crate::DbConnection,
         uid: String,
-        count: usize,
+        count: i64,
     ) -> Result<Vec<Media>, DieselError> {
-        use crate::schema::episode;
-        use crate::schema::progress::dsl::*;
-        use crate::schema::season;
-        use crate::schema::streamable_media;
-        use crate::schema::*;
+        Ok(sqlx::query_as!(
+            Media,
+            r#"SELECT media.id, media.library_id, media.name, media.description,
+                    media.rating, media.year, media.added,
+                    media.poster_path, media.backdrop_path,
+                    media.media_type as "media_type: MediaType" FROM media
 
-        use super::tv::TVShow;
+            JOIN tv_show on tv_show.id = media.id
+            JOIN season on season.tvshowid = tv_show.id
+            JOIN episode on episode.seasonid = season.id
+            JOIN progress on progress.media_id = episode.id
 
-            
-        let result = progress
-            .filter(populated.ne(0))
-            .filter(user_id.eq(uid))
-            .inner_join(
-                media::dsl::media.inner_join(
-                    streamable_media::dsl::streamable_media.inner_join(
-                        episode::dsl::episode
-                            .inner_join(season::dsl::season.inner_join(tv_show::dsl::tv_show)),
-                    ),
-                ),
-            )
-            .select((tv_show::id, populated));
+            WHERE NOT progress.populated = 0
+            AND progress.user_id = ?
 
-        cfg_if::cfg_if! {
-            if #[cfg(feature = "postgres")] {
-                let result = result.distinct_on(tv_show::id);
-            } else {
-                let result = result.group_by(tv_show::id);
-            }
-        }
-        
-        let mut result = result
-            .load_async::<(i32, i32)>(conn)
-            .await?;
-
-        result.sort_by(|a, b| b.1.cmp(&a.1));
-
-        Ok(iter(result)
-            .filter_map(|show| async move { TVShow { id: show.0 }.upgrade(conn).await.ok() })
-            .collect::<Vec<Media>>()
-            .await)
+            GROUP BY media.id
+            ORDER BY progress.populated ASC
+            LIMIT ?"#,
+            uid,
+            count
+        )
+        .fetch_all(conn)
+        .await?)
     }
 }
