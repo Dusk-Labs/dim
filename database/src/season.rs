@@ -88,14 +88,14 @@ impl Season {
 
     pub async fn get_first(
         conn: &crate::DbConnection,
-        media: &TVShow,
+        media_id: i64,
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
             r#"SELECT id , season_number ,
                     tvshowid , added, poster FROM season WHERE id = ?
                     ORDER BY season_number ASC"#,
-            media.id,
+            media_id,
         )
         .fetch_one(conn)
         .await?)
@@ -180,25 +180,24 @@ impl UpdateSeason {
     ) -> Result<usize, DatabaseError> {
         let tx = conn.begin().await?;
 
-        let rows = sqlx::query!(
-            "SELECT season.* FROM season 
+        let row = sqlx::query!(
+            "SELECT season.id FROM season 
             INNER JOIN tv_show WHERE tv_show.id = ? 
             AND season.season_number = ?",
             tv_id,
             season_num
         )
-        .fetch_all(conn)
+        .fetch_one(conn)
         .await?;
 
-        for row in rows {
-            opt_update!(conn, tx,
-                "UPDATE season SET season_number = ? WHERE id = ?" => (self.season_number, row.id),
-                "UPDATE season SET tvshowid = ? WHERE id = ?" => (self.tvshowid, row.id),
-                "UPDATE season SET added = ? WHERE id = ?" => (self.added, row.id),
-                "UPDATE season SET poster = ? WHERE id = ?" => (self.poster, row.id)
-            );
-        }
 
-        Ok(std::usize::MAX)
+        opt_update!(conn, tx,
+            "UPDATE season SET season_number = ? WHERE id = ?" => (self.season_number, row.id),
+            "UPDATE season SET tvshowid = ? WHERE id = ?" => (self.tvshowid, row.id),
+            "UPDATE season SET added = ? WHERE id = ?" => (self.added, row.id),
+            "UPDATE season SET poster = ? WHERE id = ?" => (self.poster, row.id)
+        );
+
+        Ok(1)
     }
 }

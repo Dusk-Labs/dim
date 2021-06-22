@@ -155,11 +155,11 @@ impl Into<super::tv::TVShow> for Media {
 /// [`id`](Media::id) field.
 #[derive(Clone, Default, Debug)]
 pub struct InsertableMedia {
-    pub library_id: i32,
+    pub library_id: i64,
     pub name: String,
     pub description: Option<String>,
-    pub rating: Option<i32>,
-    pub year: Option<i32>,
+    pub rating: Option<i64>,
+    pub year: Option<i64>,
     pub added: String,
     pub poster_path: Option<String>,
     pub backdrop_path: Option<String>,
@@ -231,8 +231,8 @@ impl InsertableMedia {
 pub struct UpdateMedia {
     pub name: Option<String>,
     pub description: Option<String>,
-    pub rating: Option<i32>,
-    pub year: Option<i32>,
+    pub rating: Option<i64>,
+    pub year: Option<i64>,
     pub added: Option<String>,
     pub poster_path: Option<String>,
     pub backdrop_path: Option<String>,
