@@ -84,7 +84,9 @@ impl StaticTrait for InsertableTVShow {
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
     async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
-        let res = sqlx::query!("INSERT INTO tv_show (id) VALUES ($1)", self.id).execute(conn).await?;
+        let res = sqlx::query!("INSERT INTO tv_show (id) VALUES ($1)", self.id)
+            .execute(conn)
+            .await?;
 
         cfg_if! {
             if #[cfg(feature = "postgres")] {

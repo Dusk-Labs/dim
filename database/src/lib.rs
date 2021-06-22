@@ -9,6 +9,7 @@ use std::lazy::SyncOnceCell;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
+pub mod episode;
 pub mod error;
 pub mod genre;
 pub mod library;
@@ -17,7 +18,6 @@ pub mod mediafile;
 pub mod movie;
 pub mod progress;
 pub mod season;
-pub mod episode;
 #[cfg(test)]
 pub mod tests;
 pub mod tv;

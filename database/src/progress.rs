@@ -30,8 +30,14 @@ impl Progress {
         Ok(sqlx::query!(
             "INSERT OR REPLACE INTO progress (delta, media_id, user_id, populated)
             VALUES ($1, $2, $3, $4)",
-            delta, mid, uid, timestamp
-        ).execute(conn).await?.rows_affected() as usize)
+            delta,
+            mid,
+            uid,
+            timestamp
+        )
+        .execute(conn)
+        .await?
+        .rows_affected() as usize)
     }
 
     pub async fn get_for_media_user(
