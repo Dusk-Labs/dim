@@ -11,10 +11,10 @@ postgres = ["sqlx/postgres"]
 sqlite = ["sqlx/sqlite"]
 
 [dependencies]
-serde = { version = "^1.0.105", features = ["derive"] }
-serde_derive = "^1.0.105"
-lazy_static = "^1.4.0"
-slog = "^2.5.2"
+serde = { version = "^1", features = ["derive"] }
+serde_derive = "^1"
+lazy_static = "^1"
+slog = "^2"
 ring = "^0.16.11"
 base64 = "0.13.0"
 uuid = { version = "0.8.1", features = ["v4"] }
@@ -23,4 +23,4 @@ err-derive = "0.3.0"
 sqlx = { version = "^0.5.5", features = ["runtime-tokio-rustls", "offline"] }
 
 [dev-dependencies]
-tokio = { version = "1.6.1", default-features = false, features = ["rt", "macros"] }
+tokio = { version = "1", default-features = false, features = ["rt", "macros"] }
