@@ -50,6 +50,8 @@ CREATE TABLE season (
     FOREIGN KEY(tvshowid) REFERENCES tv_show (id) ON DELETE CASCADE
 );
 
+CREATE UNIQUE INDEX season_idx ON season(season_number, tvshowid);
+
 CREATE TABLE episode (
     id INTEGER,
     seasonid INTEGER NOT NULL,
@@ -58,6 +60,8 @@ CREATE TABLE episode (
     FOREIGN KEY(id) REFERENCES media (id) ON DELETE CASCADE,
     FOREIGN KEY(seasonid) REFERENCES season (id) ON DELETE CASCADE
 );
+
+CREATE UNIQUE INDEX episode_idx ON episode(seasonid, episode_);
 
 CREATE TABLE mediafile (
     -- FIXME: Have to specify NOT NULL explictly otherwise sqlx thinks this field is nullable
@@ -118,6 +122,8 @@ CREATE TABLE genre_media (
     FOREIGN KEY (media_id) REFERENCES media(id) ON DELETE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE
 );
+
+CREATE UNIQUE INDEX genre_media_idx ON genre_media(genre_id, media_id);
 
 CREATE TABLE invites (
     id INTEGER PRIMARY KEY,
