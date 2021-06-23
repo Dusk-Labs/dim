@@ -111,7 +111,6 @@ impl Progress {
         .total)
     }
 
-    // TODO: Add tests for method `get_continue_watching`.
     pub async fn get_continue_watching(
         conn: &crate::DbConnection,
         uid: String,
@@ -133,7 +132,7 @@ impl Progress {
             AND progress.user_id = ?
 
             GROUP BY media.id
-            ORDER BY progress.populated ASC
+            ORDER BY progress.populated DESC
             LIMIT ?"#,
             uid,
             count
