@@ -40,7 +40,9 @@ impl TVShow {
                 media.id, media.library_id, media.name, media.description,
                 media.rating, media.year, media.added, media.poster_path, 
                 media.backdrop_path, media.media_type as "media_type: _"
-                FROM media WHERE media.id = ?"#,
+                FROM media 
+                INNER JOIN tv_show ON tv_show.id = media.id
+                WHERE tv_show.id = ?"#,
             self.id
         )
         .fetch_one(conn)

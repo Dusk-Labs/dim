@@ -3,5 +3,7 @@ pub mod library_tests;
 pub mod media_tests;
 pub mod mediafile_tests;
 pub mod movie_tests;
-pub mod user_tests;
 pub mod progress_tests;
+pub mod season_tests;
+pub mod tv_tests;
+pub mod user_tests;

@@ -139,21 +139,28 @@ impl InsertableSeason {
             .fetch_one(conn)
             .await?;
 
-        Ok({
-            let result = sqlx::query!(
-                "SELECT id FROM season WHERE season_number = ? AND tvshowid = ?",
-                id,
-                self.season_number
-            )
-            .fetch_optional(conn)
-            .await?;
+        let result = sqlx::query!(
+            "SELECT id FROM season WHERE season_number = ? AND tvshowid = ?",
+            id,
+            self.season_number
+        )
+        .fetch_optional(conn)
+        .await?;
 
-            if let Some(season) = result {
-                return Ok(season.id.try_into().unwrap());
-            }
+        if let Some(season) = result {
+            return Ok(season.id.try_into().unwrap());
+        }
 
-            sqlx::query!("INSERT INTO season (season_number, added, poster, tvshowid) VALUES ($1, $2, $3, $4)", self.season_number, self.added, self.poster, id).execute(conn).await?.last_insert_rowid()
-        })
+        Ok(sqlx::query!(
+            "INSERT INTO season (season_number, added, poster, tvshowid) VALUES ($1, $2, $3, $4)",
+            self.season_number,
+            self.added,
+            self.poster,
+            id
+        )
+        .execute(conn)
+        .await?
+        .last_insert_rowid())
     }
 }
 
