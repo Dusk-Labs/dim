@@ -1,6 +1,5 @@
 use crate::library::MediaType;
 use crate::media::Media;
-use crate::user::User;
 use crate::DatabaseError as DieselError;
 
 use serde::Serialize;
