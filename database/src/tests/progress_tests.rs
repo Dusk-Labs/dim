@@ -14,7 +14,9 @@ async fn test_set_and_get_for_media_user() {
     let user = insert_user(conn).await;
     let media = insert_media(conn).await;
 
-    let result = progress::Progress::get_for_media_user(conn, user.clone(), media).await.unwrap();
+    let result = progress::Progress::get_for_media_user(conn, user.clone(), media)
+        .await
+        .unwrap();
     assert_eq!(result.delta, 0);
     assert_eq!(result.populated, 0);
 
@@ -23,10 +25,14 @@ async fn test_set_and_get_for_media_user() {
         .unwrap()
         .as_secs() as i64;
 
-    let rows = progress::Progress::set(conn, 100, user.clone(), media).await.unwrap();
+    let rows = progress::Progress::set(conn, 100, user.clone(), media)
+        .await
+        .unwrap();
     assert_eq!(rows, 1);
 
-    let result = progress::Progress::get_for_media_user(conn, user.clone(), media).await.unwrap();
+    let result = progress::Progress::get_for_media_user(conn, user.clone(), media)
+        .await
+        .unwrap();
     assert_eq!(result.delta, 100);
     assert!(result.populated <= ts);
 }
@@ -37,16 +43,22 @@ async fn test_get_total_time_spent_watching() {
     let library = create_test_library(conn).await;
     let user = insert_user(conn).await;
 
-    let result = progress::Progress::get_total_time_spent_watching(conn, user.clone()).await.unwrap();
+    let result = progress::Progress::get_total_time_spent_watching(conn, user.clone())
+        .await
+        .unwrap();
     assert_eq!(result, 0);
 
     super::media_tests::insert_many(conn, 10).await;
 
     for i in 1..=5 {
-        let rows = progress::Progress::set(conn, 100, user.clone(), i).await.unwrap();
+        let rows = progress::Progress::set(conn, 100, user.clone(), i)
+            .await
+            .unwrap();
         assert_eq!(rows, 1);
     }
 
-    let result = progress::Progress::get_total_time_spent_watching(conn, user.clone()).await.unwrap();
+    let result = progress::Progress::get_total_time_spent_watching(conn, user.clone())
+        .await
+        .unwrap();
     assert_eq!(result, 500);
 }
