@@ -1,5 +1,3 @@
-use std::convert::TryInto;
-
 use crate::media::InsertableMedia;
 use crate::media::Media;
 use crate::media::UpdateMedia;
@@ -38,12 +36,15 @@ pub struct EpisodeWrapper {
 impl Episode {
     pub async fn get_first_for_season(
         conn: &crate::DbConnection,
-        season: &Season,
+        season_id: i64,
     ) -> Result<Self, DatabaseError> {
         let wrapper = sqlx::query_as!(
             EpisodeWrapper,
-            r#"SELECT id , seasonid , episode_  FROM episode WHERE seasonid = ? ORDER BY episode_ ASC"#,
-            season.id
+            r#"SELECT id, seasonid, episode_
+            FROM episode
+            WHERE seasonid = ?
+            ORDER BY episode_ ASC"#,
+            season_id
         )
         .fetch_one(conn)
         .await?;
@@ -58,7 +59,6 @@ impl Episode {
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
     /// * `media` - reference to a media object which should be a tv show.
-    ///
     pub async fn get_all_of_tv(
         conn: &crate::DbConnection,
         tv_show_id: i64,
@@ -91,7 +91,6 @@ impl Episode {
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
     /// * `media` - reference to a season object/entry.
-    ///
     pub async fn get_all_of_season(
         conn: &crate::DbConnection,
         season_id: i64,
@@ -122,7 +121,6 @@ impl Episode {
     /// * `id` - The id of a tv show we target
     /// * `season_num` - The season we are targetting
     /// * `ep_num` - Episode we are targetting
-    ///
     pub async fn get(
         conn: &crate::DbConnection,
         tv_id: i64,
@@ -157,18 +155,11 @@ impl Episode {
     /// * `ep_num` - Episode we are targetting
     pub async fn delete(
         conn: &crate::DbConnection,
-        tv_id: i64,
-        season_num: i64,
-        ep_num: i64,
+        episode_id: i64,
     ) -> Result<usize, DatabaseError> {
-        let episode = Self::get(conn, tv_id, season_num, ep_num).await?;
-
-        Media::delete(conn, episode.id.try_into().unwrap()).await?;
-
-        Ok(sqlx::query!("DELETE FROM episode WHERE id = ?", episode.id)
-            .execute(conn)
-            .await?
-            .rows_affected() as usize)
+        // NOTE: no need to manually delete the episode entry from `episode` because of the
+        // cascade delete.
+        Ok(Media::delete(conn, episode_id).await?)
     }
 }
 
@@ -184,11 +175,9 @@ impl InsertableEpisode {
     ///
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
-    /// * `show_id` - the id of the tv show we are trying to asociate this episode with
     pub async fn insert(
         &self,
         conn: &crate::DbConnection,
-        media_id: i64,
     ) -> Result<i64, DatabaseError> {
         let tx = conn.begin().await?;
 
@@ -203,6 +192,8 @@ impl InsertableEpisode {
             return Ok(r.id);
         }
 
+        // NOTE: use insert blind here just in case we have conflicts between episode names.
+        let media_id = self.media.insert_blind(conn).await?;
         let result = sqlx::query!(
             "INSERT INTO episode (id, episode_, seasonid)
             VALUES ($1, $2, $3)",
@@ -231,7 +222,7 @@ impl EpisodeWrapper {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Default, Debug)]
 pub struct UpdateEpisode {
     pub seasonid: Option<i64>,
     pub episode: Option<i64>,
