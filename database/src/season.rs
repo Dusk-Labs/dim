@@ -26,15 +26,14 @@ impl Season {
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
     /// * `tv_id` - id of the tv show we'd like to discriminate against.
-    ///
     pub async fn get_all(
         conn: &crate::DbConnection,
         tv_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id , season_number ,
-                    tvshowid , added, poster FROM season WHERE id = ?"#,
+            r#"SELECT id, season_number, tvshowid, added, poster
+            FROM season WHERE tvshowid = ?"#,
             tv_id
         )
         .fetch_all(conn)
@@ -47,7 +46,6 @@ impl Season {
     /// * `conn` - diesel connection reference to postgres
     /// * `tv_id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - season number we'd like to fetch.
-    ///
     pub async fn get(
         conn: &crate::DbConnection,
         tv_id: i64,
@@ -70,7 +68,6 @@ impl Season {
     /// * `conn` - diesel connection reference to postgres
     /// * `tv_id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - season number we'd like to fetch.
-    ///
     pub async fn delete(
         conn: &crate::DbConnection,
         tv_id: i64,
@@ -86,16 +83,22 @@ impl Season {
         .last_insert_rowid() as usize)
     }
 
+    /// Method will return the oldest season for a tv show that is available.
+    /// 
+    /// # Arguments
+    /// * `conn` - diesel connection reference
+    /// * `tv_id` - id of the tv show.
     pub async fn get_first(
         conn: &crate::DbConnection,
-        media_id: i64,
+        tv_id: i64,
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id , season_number ,
-                    tvshowid , added, poster FROM season WHERE id = ?
-                    ORDER BY season_number ASC"#,
-            media_id,
+            r#"SELECT id, season_number, tvshowid, added, poster
+            FROM season
+            WHERE tvshowid = ?
+            ORDER BY season_number ASC"#,
+            tv_id,
         )
         .fetch_one(conn)
         .await?)
@@ -107,9 +110,8 @@ impl Season {
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id , season_number ,
-                    tvshowid , added, poster FROM season WHERE season_number = ?
-                    ORDER BY season_number ASC"#,
+            r#"SELECT id, season_number, tvshowid, added, poster
+            FROM season WHERE id = ?"#,
             season_id,
         )
         .fetch_one(conn)
@@ -120,7 +122,7 @@ impl Season {
 /// Struct representing a insertable season
 /// Its exactly the same as [`Season`](Season) except it misses the tvshowid field and the id
 /// field.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Default)]
 pub struct InsertableSeason {
     pub season_number: i64,
     pub added: String,
@@ -132,26 +134,23 @@ impl InsertableSeason {
     ///
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
-    /// * `id` - id of the tv show we'd like to discriminate against.
-    ///
+    /// * `id` - id of the tv show we'd like to link this season to
     pub async fn insert(&self, conn: &crate::DbConnection, id: i64) -> Result<i64, DatabaseError> {
-        sqlx::query!("SELECT * FROM tv_show WHERE id = ?", id)
-            .fetch_one(conn)
-            .await?;
+        let tx = conn.begin().await?;
 
         let result = sqlx::query!(
             "SELECT id FROM season WHERE season_number = ? AND tvshowid = ?",
-            id,
-            self.season_number
+            self.season_number,
+            id
         )
         .fetch_optional(conn)
         .await?;
 
         if let Some(season) = result {
-            return Ok(season.id.try_into().unwrap());
+            return Ok(season.id);
         }
 
-        Ok(sqlx::query!(
+        let id = sqlx::query!(
             "INSERT INTO season (season_number, added, poster, tvshowid) VALUES ($1, $2, $3, $4)",
             self.season_number,
             self.added,
@@ -160,13 +159,17 @@ impl InsertableSeason {
         )
         .execute(conn)
         .await?
-        .last_insert_rowid())
+        .last_insert_rowid();
+
+        tx.commit().await?;
+
+        Ok(id)
     }
 }
 
 /// Struct used to update information about a season in the database.
 /// All fields are updateable and optional except the primary key id
-#[derive(Clone, Deserialize, PartialEq, Debug)]
+#[derive(Clone, Default, Deserialize, PartialEq, Debug)]
 pub struct UpdateSeason {
     pub season_number: Option<i64>,
     pub tvshowid: Option<i64>,
