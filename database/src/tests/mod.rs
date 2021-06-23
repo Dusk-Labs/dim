@@ -7,3 +7,4 @@ pub mod progress_tests;
 pub mod season_tests;
 pub mod tv_tests;
 pub mod user_tests;
+pub mod episode_tests;
