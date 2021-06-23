@@ -112,6 +112,7 @@ impl Progress {
         .total)
     }
 
+    // TODO: Add tests for method `get_continue_watching`.
     pub async fn get_continue_watching(
         conn: &crate::DbConnection,
         uid: String,
