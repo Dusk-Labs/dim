@@ -9,29 +9,9 @@ use ring::pbkdf2;
 
 static PBKDF2_ALG: pbkdf2::Algorithm = pbkdf2::PBKDF2_HMAC_SHA256;
 const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
-const HASH_ROUNDS: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(10_000) };
+const HASH_ROUNDS: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(1_000) };
 
 pub type Credential = [u8; CREDENTIAL_LEN];
-
-// NOTE: Figure out the bug with this not being a valid postgres type
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
-pub enum Role {
-    Owner,
-    User,
-}
-
-#[derive(Debug)]
-pub struct User {
-    pub username: String,
-    pub roles: Vec<String>,
-}
-
-#[derive(Deserialize)]
-pub struct InsertableUser {
-    pub username: String,
-    pub password: String,
-    pub roles: Vec<String>,
-}
 
 pub fn hash(salt: String, s: String) -> String {
     let mut to_store: Credential = [0u8; CREDENTIAL_LEN];
@@ -56,6 +36,19 @@ pub fn verify(salt: String, password: String, attempted_password: String) -> boo
         real_pwd.as_slice(),
     )
     .is_ok()
+}
+
+// NOTE: Figure out the bug with this not being a valid postgres type
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+pub enum Role {
+    Owner,
+    User,
+}
+
+#[derive(Debug)]
+pub struct User {
+    pub username: String,
+    pub roles: Vec<String>,
 }
 
 impl User {
@@ -116,6 +109,13 @@ impl User {
     }
 }
 
+#[derive(Deserialize)]
+pub struct InsertableUser {
+    pub username: String,
+    pub password: String,
+    pub roles: Vec<String>,
+}
+
 impl InsertableUser {
     /// Method consumes a InsertableUser object and inserts the values under it into postgres users
     /// table as a new user
@@ -146,7 +146,7 @@ impl InsertableUser {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Default)]
 pub struct Login {
     pub username: String,
     pub password: String,
