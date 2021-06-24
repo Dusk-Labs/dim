@@ -15,14 +15,17 @@ async fn test_insert_and_get_methods() {
 
     let tv = insert_media(conn).await;
     tv::TVShow::insert(conn, tv).await.unwrap();
-    
+
     let result = season::Season::get(conn, 1, 1).await;
     assert!(result.is_err());
 
     let _season = dbg!(season::InsertableSeason {
         season_number: 2,
         ..Default::default()
-    }.insert(conn, tv).await.unwrap());
+    }
+    .insert(conn, tv)
+    .await
+    .unwrap());
 
     let result = season::Season::get(conn, 1, 2).await.unwrap();
     assert_eq!(result.season_number, 2);
@@ -36,7 +39,10 @@ async fn test_insert_and_get_methods() {
     let _season = dbg!(season::InsertableSeason {
         season_number: 1,
         ..Default::default()
-    }.insert(conn, tv).await.unwrap());
+    }
+    .insert(conn, tv)
+    .await
+    .unwrap());
 
     let result = dbg!(season::Season::get_all(conn, 1).await.unwrap());
     let result = season::Season::get_first(conn, 1).await.unwrap();
@@ -62,12 +68,18 @@ async fn test_update() {
     let _season = dbg!(season::InsertableSeason {
         season_number: 2,
         ..Default::default()
-    }.insert(conn, tv).await.unwrap());
+    }
+    .insert(conn, tv)
+    .await
+    .unwrap());
 
     let rows = season::UpdateSeason {
         season_number: Some(1),
         ..Default::default()
-    }.update(conn, tv, 2).await.unwrap();
+    }
+    .update(conn, tv, 2)
+    .await
+    .unwrap();
     assert_eq!(rows, 1);
 
     let result = season::Season::get_by_id(conn, _season).await.unwrap();

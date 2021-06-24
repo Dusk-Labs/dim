@@ -81,14 +81,11 @@ impl Season {
     }
 
     /// Method will return the oldest season for a tv show that is available.
-    /// 
+    ///
     /// # Arguments
     /// * `conn` - diesel connection reference
     /// * `tv_id` - id of the tv show.
-    pub async fn get_first(
-        conn: &crate::DbConnection,
-        tv_id: i64,
-    ) -> Result<Self, DatabaseError> {
+    pub async fn get_first(conn: &crate::DbConnection, tv_id: i64) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
             r#"SELECT id, season_number, tvshowid, added, poster

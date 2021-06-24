@@ -26,7 +26,7 @@
 //     list, remove them and move the first item on the right side of
 //     the first semicolon (`head`) to the left side of the first semicolon.
 //   - Finally, when there are one or zero items left in the counter,
-//     move one last item to the left, make the call this macro on both the 
+//     move one last item to the left, make the call this macro on both the
 //     left and right sides, and `or` the two sides together.
 //
 // For example, balanced_or_tree!(a, b, c, d, e) would take the following steps:

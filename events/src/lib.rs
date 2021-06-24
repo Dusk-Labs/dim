@@ -8,7 +8,7 @@ pub struct Message {
     /// Field id, can hold anything and the client usually discriminates its meaning based on the
     /// event_type. For example within dim, sometimes it can be the library_id or media_id or
     /// sometimes its just -1 meaning ignore
-    pub id: i32,
+    pub id: i64,
     /// Field holds the event type that gets relayed to the clients.
     #[serde(flatten)]
     pub event_type: PushEventType,

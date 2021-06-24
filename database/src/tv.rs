@@ -51,6 +51,41 @@ impl TVShow {
         Ok(media)
     }
 
+    /// Returns total duration of the files on disk for a tv show.
+    pub async fn get_total_duration(
+        conn: &crate::DbConnection,
+        id: i64,
+    ) -> Result<i64, DatabaseError> {
+        Ok(sqlx::query!(
+            r#"SELECT COALESCE(SUM(mediafile.duration), 0) as "total: i64"
+            FROM tv_show
+            INNER JOIN season on season.tvshowid = tv_show.id
+            INNER JOIN episode on episode.seasonid = season.id
+            INNER JOIN mediafile on mediafile.media_id = episode.id
+            WHERE tv_show.id = ?
+            GROUP BY episode.id
+            "#,
+            id
+        )
+        .fetch_one(conn)
+        .await?
+        .total.unwrap_or(0))
+    }
+
+    /// Returns total number of episodes for a tv show.
+    pub async fn get_total_episodes(
+        conn: &crate::DbConnection,
+        id: i64
+    ) -> Result<i64, DatabaseError> {
+        Ok(sqlx::query!(
+            r#"SELECT COALESCE(COUNT(episode.id), 0) as "total: i64" FROM tv_show
+            INNER JOIN season on season.tvshowid = tv_show.id
+            INNER JOIN episode on episode.seasonid = season.id
+            WHERE tv_show.id = ?"#,
+            id
+            ).fetch_one(conn).await?.total)
+    }
+
     /// Method inserts a new tv show in the database.
     ///
     /// # Arguments

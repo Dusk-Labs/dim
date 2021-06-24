@@ -115,6 +115,88 @@ impl Media {
             ).fetch_one(conn).await?)
     }
 
+    /// Method returns the top rated medias
+    pub async fn get_top_rated(conn: &crate::DbConnection, limit: i64) -> Result<Vec<Self>, DatabaseError> {
+        Ok(sqlx::query_as!(
+                Media,
+                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                FROM media
+                WHERE NOT media_type = "episode"
+                GROUP BY id, name
+                ORDER BY rating DESC
+                LIMIT ?"#,
+                limit
+            ).fetch_all(conn).await?)
+    }
+
+    /// Method returns the recently added medias
+    pub async fn get_recently_added(conn: &crate::DbConnection, limit: i64) -> Result<Vec<Self>, DatabaseError> {
+        Ok(sqlx::query_as!(
+                Media,
+                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                FROM media
+                WHERE NOT media_type = "episode"
+                GROUP BY id, name
+                ORDER BY added DESC
+                LIMIT ?"#,
+                limit
+            ).fetch_all(conn).await?)
+    }
+
+    pub async fn get_random_with(conn: &crate::DbConnection, limit: i64) -> Result<Vec<Self>, DatabaseError> {
+        Ok(sqlx::query_as!(
+                Media,
+                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                FROM media
+                WHERE NOT media_type = "episode"
+                GROUP BY id
+                ORDER BY RANDOM()
+                LIMIT ?
+                "#,
+                limit
+        ).fetch_all(conn).await?)
+    }
+
+    pub async fn get_search(conn: &crate::DbConnection, query: &str, limit: i64) -> Result<Vec<Self>, DatabaseError> {
+        let query = format!("%{}%", query);
+        Ok(sqlx::query_as!(
+                Media,
+                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                FROM media
+                WHERE NOT media_type = "episode"
+                AND UPPER(name) LIKE ?
+                LIMIT ?
+                "#,
+                query,
+                limit
+        ).fetch_all(conn).await?)
+    }
+
+    pub async fn get_of_genre(conn: &crate::DbConnection, genre_id: i64) -> Result<Vec<Self>, DatabaseError> {
+        Ok(sqlx::query_as!(
+                Media,
+                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                FROM media
+                INNER JOIN genre_media ON genre_media.media_id = media.id
+                WHERE NOT media_type = "episode"
+                AND genre_media.genre_id = ?
+                "#,
+                genre_id,
+        ).fetch_all(conn).await?)
+    }
+
+    pub async fn get_of_year(conn: &crate::DbConnection, year: i64) -> Result<Vec<Self>, DatabaseError> {
+        Ok(sqlx::query_as!(
+                Media,
+                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                FROM media
+                WHERE NOT media_type = "episode"
+                AND year = ?
+                "#,
+                year,
+        ).fetch_all(conn).await?)
+    }
+
     /// Method deletes a media object based on its id.
     ///
     /// # Arguments

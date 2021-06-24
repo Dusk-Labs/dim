@@ -8,12 +8,7 @@ use database::library::MediaType;
 use database::media::Media;
 use database::mediafile::MediaFile;
 use database::progress::Progress;
-use database::schema::season;
 use database::season::Season;
-
-use diesel::prelude::*;
-use diesel::sql_types::Text;
-use tokio_diesel::*;
 
 use std::fs;
 use std::io;
@@ -67,8 +62,8 @@ pub mod global_filters {
     }
 }
 
-pub async fn get_top_duration(conn: &DbConnection, data: &Media) -> Result<i32, errors::DimError> {
-    match MediaFile::get_of_media(conn, data).await {
+pub async fn get_top_duration(conn: &DbConnection, data: &Media) -> Result<i64, errors::DimError> {
+    match MediaFile::get_of_media(conn, data.id).await {
         Ok(files) => {
             let last = files
                 .iter()
@@ -85,20 +80,11 @@ pub async fn get_top_duration(conn: &DbConnection, data: &Media) -> Result<i32, 
 }
 
 pub async fn get_season(conn: &DbConnection, data: &Media) -> Result<Season, errors::DimError> {
-    let season = season::table
-        .filter(season::tvshowid.eq(data.id))
-        .order(season::season_number.asc())
-        .first_async::<Season>(&conn)
-        .await?;
-
-    Ok(season)
+    Ok(Season::get_first(conn, data.id).await?)
 }
 
 pub async fn get_episode(conn: &DbConnection, data: &Season) -> Result<Episode, errors::DimError> {
-    let mut episodes = Episode::get_all_of_season(conn, data).await?;
-    episodes.sort_by(|b, a| a.episode.cmp(&b.episode));
-
-    episodes.pop().ok_or(errors::DimError::NoneError)
+    Ok(Episode::get_first_for_season(conn, data.id).await?)
 }
 
 pub async fn construct_standard_quick(data: &Media) -> Result<JsonValue, errors::DimError> {

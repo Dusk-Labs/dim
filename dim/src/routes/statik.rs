@@ -67,7 +67,7 @@ cfg_if::cfg_if! {
     if #[cfg(feature = "embed_ui")] {
 
         #[derive(RustEmbed)]
-        #[folder = "ui/build/"]
+        #[folder = "../ui/build/"]
         #[prefix = "/"]
         pub(self) struct Asset;
     } else {

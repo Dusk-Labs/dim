@@ -15,7 +15,7 @@ use database::mediafile::UpdateMediaFile;
 use database::movie::InsertableMovie;
 use database::season::InsertableSeason;
 use database::season::Season;
-use database::tv::InsertableTVShow;
+use database::tv::TVShow;
 
 use chrono::prelude::Utc;
 use chrono::Datelike;
@@ -46,13 +46,13 @@ impl<'a> TvShowMatcher<'a> {
     pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
         let name = result.title.clone();
 
-        let year: Option<i32> = result
+        let year: Option<i64> = result
             .release_date
             .clone()
             .map(|x| NaiveDate::parse_from_str(x.as_str(), "%Y-%m-%d"))
             .map(Result::ok)
             .unwrap_or(None)
-            .map(|s| s.year() as i32);
+            .map(|s| s.year() as i64);
 
         let poster_path = result.poster_path.clone();
 
@@ -73,7 +73,7 @@ impl<'a> TvShowMatcher<'a> {
             year,
             library_id: orphan.library_id,
             description: result.overview.clone(),
-            rating: result.rating,
+            rating: result.rating.map(|x| x as i64),
             added: Utc::now().to_string(),
             poster_path: result.poster_file.clone().map(|x| format!("images/{}", x)),
             backdrop_path: result
@@ -102,9 +102,7 @@ impl<'a> TvShowMatcher<'a> {
         let meta_fetcher = crate::core::METADATA_FETCHER_TX.get().unwrap().get();
 
         let media_id = media.insert(&self.conn).await?;
-        let _ = media
-            .into_static::<InsertableTVShow>(&self.conn, media_id)
-            .await;
+        let _ = TVShow::insert(&self.conn, media_id).await;
 
         self.push_event(media_id).await;
 
@@ -185,11 +183,7 @@ impl<'a> TvShowMatcher<'a> {
 
         // manually insert the underlying `media` into the table and convert it into a streamable movie/ep
         let raw_ep_id = episode.media.insert_blind(&self.conn).await?;
-        if let Err(e) = episode
-            .media
-            .into_streamable::<InsertableMovie>(&self.conn, raw_ep_id, Some(()))
-            .await
-        {
+        if let Err(e) = InsertableMovie::insert(&self.conn, raw_ep_id).await {
             error!(
                 self.log,
                 "Failed to turn episode into a streamable movie";
@@ -199,7 +193,7 @@ impl<'a> TvShowMatcher<'a> {
             );
         }
 
-        let episode_id = episode.insert(&self.conn, media_id, raw_ep_id).await?;
+        let episode_id = episode.insert(&self.conn).await?;
 
         let updated_mediafile = UpdateMediaFile {
             media_id: Some(episode_id),
@@ -211,11 +205,11 @@ impl<'a> TvShowMatcher<'a> {
         Ok(())
     }
 
-    async fn push_event(&self, id: i32) {
-        use std::sync::Mutex;
+    async fn push_event(&self, id: i64) {
         use std::lazy::SyncLazy;
+        use std::sync::Mutex;
 
-        static DUPLICATE_LOG: SyncLazy<Mutex<Vec<i32>>> = SyncLazy::new(|| Default::default());
+        static DUPLICATE_LOG: SyncLazy<Mutex<Vec<i64>>> = SyncLazy::new(|| Default::default());
 
         {
             let mut lock = DUPLICATE_LOG.lock().unwrap();

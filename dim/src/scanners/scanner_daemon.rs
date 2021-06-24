@@ -35,20 +35,27 @@ pub enum FsWatcherError {
 
 pub struct FsWatcher {
     media_type: MediaType,
-    library_id: i32,
+    library_id: i64,
     tx: EventTx,
     logger: slog::Logger,
     conn: DbConnection,
 }
 
 impl FsWatcher {
-    pub fn new(logger: slog::Logger, library_id: i32, media_type: MediaType, tx: EventTx) -> Self {
+    pub async fn new(
+        logger: slog::Logger,
+        library_id: i64,
+        media_type: MediaType,
+        tx: EventTx,
+    ) -> Self {
         Self {
             library_id,
             media_type,
             tx,
             logger,
-            conn: get_conn().expect("Failed to grab the connection pool."),
+            conn: get_conn()
+                .await
+                .expect("Failed to grab the connection pool."),
         }
     }
 
@@ -134,7 +141,7 @@ impl FsWatcher {
         };
 
         if let Some(media_file) = MediaFile::get_by_file(&self.conn, path).await.ok() {
-            let media = Media::get_of_mediafile(&self.conn, &media_file).await;
+            let media = Media::get_of_mediafile(&self.conn, media_file.id).await;
 
             if let Err(e) = MediaFile::delete(&self.conn, media_file.id).await {
                 error!(self.logger, "Failed to remove mediafile"; "reason" => format!("{:?}", e));
@@ -144,7 +151,7 @@ impl FsWatcher {
             // if we have a media with no mediafiles we want to purge it as it is a ghost media
             // entry.
             if let Ok(media) = media {
-                if let Ok(media_files) = MediaFile::get_of_media(&self.conn, &media).await {
+                if let Ok(media_files) = MediaFile::get_of_media(&self.conn, media.id).await {
                     if media_files.is_empty() {
                         if let Err(e) = Media::delete(&self.conn, media.id).await {
                             error!(self.logger, "Failed to delete ghost media {:?}", e);

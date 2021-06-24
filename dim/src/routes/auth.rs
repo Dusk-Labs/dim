@@ -8,9 +8,6 @@ use database::user::InsertableUser;
 use database::user::Login;
 use database::user::User;
 
-use diesel::prelude::*;
-use tokio_diesel::*;
-
 use serde_json::json;
 
 use warp::reject;
@@ -129,13 +126,10 @@ pub async fn login(
     new_login: Login,
     conn: DbConnection,
 ) -> Result<impl warp::Reply, errors::AuthError> {
-    use database::schema::users::dsl::*;
-    let uname = new_login.username.clone();
-    let user: (String, String, String) =
-        users.filter(username.eq(uname)).first_async(&conn).await?;
+    let user = User::get(&conn, &new_login.username).await?;
 
-    if verify(user.0.clone(), user.1.clone(), new_login.password.clone()) {
-        let token = jwt_generate(user.0, user.2.split(",").map(|x| x.to_string()).collect());
+    if verify(user.username.clone(), user.password.clone(), new_login.password.clone()) {
+        let token = jwt_generate(user.username, user.roles.clone());
 
         return Ok(reply::json(&json!({
             "token": token,

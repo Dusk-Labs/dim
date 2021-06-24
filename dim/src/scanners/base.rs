@@ -73,7 +73,7 @@ pub struct MetadataExtractor {
 impl MetadataExtractor {
     pub fn new(logger: slog::Logger) -> Self {
         Self {
-            conn: database::get_conn().unwrap(),
+            conn: database::try_get_conn().unwrap().clone(),
             logger: logger.new(o!("actor" => "MetadataExtractor")),
         }
     }
@@ -82,7 +82,7 @@ impl MetadataExtractor {
     pub async fn mount_file(
         &mut self,
         file: PathBuf,
-        library_id: i32,
+        library_id: i64,
         media_type: MediaType,
     ) -> Result<MediaFile, ScannerError> {
         let target_file = file.to_str().unwrap().to_owned();
@@ -150,16 +150,16 @@ impl MetadataExtractor {
             target_file: target_file.to_string(),
 
             raw_name: metadata.title().to_owned(),
-            raw_year: metadata.year(),
-            season: metadata.season(),
-            episode: metadata.episode(),
+            raw_year: metadata.year().map(|x| x as i64),
+            season: metadata.season().map(|x| x as i64),
+            episode: metadata.episode().map(|x| x as i64),
 
             quality: ffprobe_data.get_quality(),
             codec: ffprobe_data.get_codec(),
             container: ffprobe_data.get_container(),
             audio: ffprobe_data.get_audio_type(),
             original_resolution: ffprobe_data.get_res(),
-            duration: ffprobe_data.get_duration(),
+            duration: ffprobe_data.get_duration().map(|x| x as i64),
             corrupt: ffprobe_data.is_corrupt(),
         };
 
@@ -209,7 +209,7 @@ impl MetadataMatcher {
     pub async fn match_movie(&mut self, media: MediaFile) -> Result<(), ScannerError> {
         let result = match self
             .movie_tmdb
-            .search(media.raw_name.clone(), media.raw_year)
+            .search(media.raw_name.clone(), media.raw_year.map(|x| x as i32))
             .await
         {
             Ok(v) => v,
@@ -263,7 +263,7 @@ impl MetadataMatcher {
 
         let mut result = self
             .tv_tmdb
-            .search(media.raw_name.clone(), media.raw_year)
+            .search(media.raw_name.clone(), media.raw_year.map(|x| x as i32))
             .await;
 
         if let Some(x) = els.get(ElementCategory::AnimeTitle) {
@@ -275,25 +275,25 @@ impl MetadataMatcher {
                 // NOTE: Some releases dont include season number, so we just assume its the first one.
                 let anitomy_episode = els
                     .get(ElementCategory::EpisodeNumber)
-                    .and_then(|x| x.parse::<i32>().ok())
+                    .and_then(|x| x.parse::<i64>().ok())
                     .or(media.episode);
 
                 let anitomy_season = els
                     .get(ElementCategory::AnimeSeason)
-                    .and_then(|x| x.parse::<i32>().ok())
+                    .and_then(|x| x.parse::<i64>().ok())
                     .or(Some(1));
 
                 let update_mediafile = UpdateMediaFile {
-                    episode: anitomy_episode,
-                    season: anitomy_season,
+                    episode: anitomy_episode.map(|x| x as i64),
+                    season: anitomy_season.map(|x| x as i64),
                     raw_name: Some(x.to_string()),
                     ..Default::default()
                 };
 
                 let _ = update_mediafile.update(&self.conn, media.id).await;
 
-                media.episode = anitomy_episode;
-                media.season = anitomy_season;
+                media.episode = anitomy_episode.map(|x| x as i64);
+                media.season = anitomy_season.map(|x| x as i64);
             }
         }
 
@@ -341,16 +341,16 @@ impl MetadataMatcher {
             // NOTE: In some cases our base matcher extracts the correct title from the filename but incorrect episode and season numbers.
             let anitomy_episode = els
                 .get(ElementCategory::EpisodeNumber)
-                .and_then(|x| x.parse::<i32>().ok())
+                .and_then(|x| x.parse::<i64>().ok())
                 .or(media.episode);
 
             let updated_mediafile = UpdateMediaFile {
-                episode: anitomy_episode,
+                episode: anitomy_episode.map(|x| x as i64),
                 ..Default::default()
             };
 
             let _ = updated_mediafile.update(&self.conn, media.id).await;
-            media.episode = anitomy_episode;
+            media.episode = anitomy_episode.map(|x| x as i64);
         }
 
         if media.season.is_none() {
@@ -361,12 +361,12 @@ impl MetadataMatcher {
                 .or(Some(1));
 
             let updated_mediafile = UpdateMediaFile {
-                season: anitomy_season,
+                season: anitomy_season.map(|x| x as i64),
                 ..Default::default()
             };
 
             let _ = updated_mediafile.update(&self.conn, media.id).await;
-            media.season = anitomy_season;
+            media.season = anitomy_season.map(|x| x as i64);
         }
 
         let mut seasons: Vec<super::ApiSeason> = self
