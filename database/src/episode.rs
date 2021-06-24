@@ -1,7 +1,6 @@
 use crate::media::InsertableMedia;
 use crate::media::Media;
 use crate::media::UpdateMedia;
-use crate::season::Season;
 use crate::DatabaseError;
 
 use serde::{Deserialize, Serialize};
@@ -146,6 +145,25 @@ impl Episode {
         Ok(wrapper.into_episode(ep))
     }
 
+    pub async fn get_by_id(
+        conn: &crate::DbConnection,
+        episode_id: i64
+    ) -> Result<Episode, DatabaseError> {
+        let wrapper = sqlx::query_as!(
+            EpisodeWrapper,
+            r#"SELECT episode.*  FROM episode
+            WHERE episode.id = ?"#,
+            episode_id
+        )
+        .fetch_one(conn)
+        .await?;
+
+        let ep = Media::get(conn, wrapper.id as i64).await?;
+
+        Ok(wrapper.into_episode(ep))
+
+    }
+
     /// Method deletes a episode based on the tv show id, season number, and episode number
     ///
     /// # Arguments
@@ -175,10 +193,7 @@ impl InsertableEpisode {
     ///
     /// # Arguments
     /// * `conn` - diesel connection reference to postgres
-    pub async fn insert(
-        &self,
-        conn: &crate::DbConnection,
-    ) -> Result<i64, DatabaseError> {
+    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
         let tx = conn.begin().await?;
 
         if let Some(r) = sqlx::query!(

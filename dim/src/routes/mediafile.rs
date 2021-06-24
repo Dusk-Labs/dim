@@ -32,11 +32,11 @@ mod filters {
     pub fn get_mediafile_info(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "mediafile" / i32)
+        warp::path!("api" / "v1" / "mediafile" / i64)
             .and(warp::get())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i32, auth: Auth, conn: DbConnection| async move {
+            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
                 super::get_mediafile_info(conn, id, auth)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -53,14 +53,14 @@ mod filters {
             media_type: String,
         }
 
-        warp::path!("api" / "v1" / "mediafile" / i32 / "match")
+        warp::path!("api" / "v1" / "mediafile" / i64 / "match")
             .and(warp::patch())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
             .and(with_state::<slog::Logger>(log))
             .and(warp::query::query::<RouteArgs>())
             .and_then(
-                |id: i32,
+                |id: i64,
                  auth: Auth,
                  conn: DbConnection,
                  log: slog::Logger,
@@ -82,7 +82,7 @@ mod filters {
 /// * `id` - id of the mediafile we want info about
 pub async fn get_mediafile_info(
     conn: DbConnection,
-    id: i32,
+    id: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mediafile = MediaFile::get_one(&conn, id).await?;
@@ -109,7 +109,7 @@ pub async fn get_mediafile_info(
 pub async fn rematch_mediafile(
     conn: DbConnection,
     log: slog::Logger,
-    id: i32,
+    id: i64,
     tmdb_id: i32,
     media_type: String,
 ) -> Result<impl warp::Reply, errors::DimError> {

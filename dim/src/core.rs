@@ -4,7 +4,6 @@ use crate::scanners;
 use crate::stream_tracking::StreamTracking;
 
 use cfg_if::cfg_if;
-use diesel::prelude::*;
 use lazy_static::lazy_static;
 use once_cell::sync::OnceCell;
 
@@ -71,7 +70,7 @@ pub static METADATA_FETCHER_TX: OnceCell<CloneOnDeref<UnboundedSender<PosterType
 /// * `tx` - this is the websocket channel to which we can send websocket events to which get
 /// dispatched to clients.
 pub async fn run_scanners(log: Logger, tx: EventTx) {
-    if let Ok(conn) = database::get_conn_logged(&log) {
+    if let Ok(conn) = database::get_conn_logged(&log).await {
         for lib in database::library::Library::get_all(&conn).await {
             slog::info!(log, "Starting scanner for {} with id: {}", lib.name, lib.id);
             let log_clone = log.clone();
@@ -88,7 +87,7 @@ pub async fn run_scanners(log: Logger, tx: EventTx) {
             tokio::spawn(async move {
                 let watcher = scanners::scanner_daemon::FsWatcher::new(
                     log_clone, library_id, media_type, tx_clone,
-                );
+                ).await;
 
                 watcher
                     .start_daemon()
@@ -220,7 +219,9 @@ pub async fn warp_core(
     rt: tokio::runtime::Handle,
     port: u16,
 ) {
-    let conn = database::get_conn().expect("Failed to grab a handle to the connection pool.");
+    let conn = database::get_conn()
+        .await
+        .expect("Failed to grab a handle to the connection pool.");
     let request_logger = RequestLogger::new(logger.clone());
 
     let routes = routes::auth::auth_routes(conn.clone())

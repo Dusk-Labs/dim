@@ -80,10 +80,8 @@ pub fn get_extractor(log: &slog::Logger, tx: &EventTx) -> &'static base::Metadat
 
     let workers = if cfg!(feature = "postgres") { 8 } else { 2 };
 
-    METADATA_EXTRACTOR.get_or_init(|| {
-        let conn = get_conn().expect("Failed to grab the conn pool");
-        base::MetadataExtractor::cluster(&mut handle, workers, log.clone()).1
-    })
+    METADATA_EXTRACTOR
+        .get_or_init(|| base::MetadataExtractor::cluster(&mut handle, workers, log.clone()).1)
 }
 
 pub fn get_matcher(log: &slog::Logger, tx: &EventTx) -> &'static base::MetadataMatcher {
@@ -92,8 +90,9 @@ pub fn get_matcher(log: &slog::Logger, tx: &EventTx) -> &'static base::MetadataM
     let workers = 8;
 
     METADATA_MATCHER.get_or_init(|| {
-        let conn = get_conn().expect("Failed to grab the conn pool");
-        base::MetadataMatcher::cluster(&mut handle, workers, log.clone(), conn, tx.clone()).1
+        let conn = database::try_get_conn().expect("Failed to grab a connection");
+        base::MetadataMatcher::cluster(&mut handle, workers, log.clone(), conn.clone(), tx.clone())
+            .1
     })
 }
 
@@ -102,7 +101,7 @@ pub fn get_matcher_unchecked() -> &'static base::MetadataMatcher {
 }
 
 pub async fn start_custom<T: AsRef<Path>>(
-    library_id: i32,
+    library_id: i64,
     log: slog::Logger,
     tx: EventTx,
     path: T,
@@ -118,7 +117,7 @@ pub async fn start_custom<T: AsRef<Path>>(
     )
     .unwrap();
 
-    let conn = get_conn().expect("Failed to grab the conn pool");
+    let conn = get_conn().await.expect("Failed to grab the conn pool");
 
     let extractor = get_extractor(&log, &tx);
     let matcher = get_matcher(&log, &tx);
@@ -194,11 +193,11 @@ pub async fn start_custom<T: AsRef<Path>>(
 }
 
 pub async fn start(
-    library_id: i32,
+    library_id: i64,
     log: slog::Logger,
     tx: EventTx,
 ) -> Result<(), self::base::ScannerError> {
-    let conn = get_conn().expect("Failed to grab the conn pool");
+    let conn = get_conn().await.expect("Failed to grab the conn pool");
     let lib = Library::get_one(&conn, library_id).await?;
     let path = lib.location.as_str();
     start_custom(library_id, log, tx, path, lib.media_type).await

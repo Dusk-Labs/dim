@@ -82,6 +82,10 @@ pub async fn get_conn() -> sqlx::Result<crate::DbConnection> {
     Ok(conn.clone())
 }
 
+pub fn try_get_conn() -> Option<&'static crate::DbConnection> {
+    __GLOBAL.get()
+}
+
 #[cfg(all(feature = "sqlite", test))]
 pub async fn get_conn_memory() -> sqlx::Result<crate::DbConnection> {
     let pool = sqlx::Pool::connect(":memory:").await?;

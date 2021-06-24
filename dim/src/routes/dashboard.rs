@@ -14,17 +14,8 @@ use database::library::MediaType;
 use database::media::Media;
 use database::mediafile::MediaFile;
 use database::progress::Progress;
-use database::schema::genre_media;
-use database::schema::media;
-use database::schema::season;
 use database::season::Season;
 use database::tv::TVShow;
-
-use diesel::prelude::*;
-use diesel::sql_types::Text;
-use diesel::*;
-
-use tokio_diesel::*;
 
 use futures::stream;
 use futures::StreamExt;
@@ -37,8 +28,6 @@ use serde_json::Value;
 
 use warp::reply;
 use warp::Filter;
-
-no_arg_sql_function!(RANDOM, (), "Represents the sql RANDOM() function");
 
 pub fn dashboard_router(
     conn: DbConnection,
@@ -99,56 +88,20 @@ pub async fn dashboard(
     user: Auth,
     rt: tokio::runtime::Handle,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut top_rated = media::table
-        .filter(media::media_type.ne(MediaType::Episode))
-        .group_by((media::id, media::name))
-        .order(media::rating.desc())
-        .load_async::<Media>(&conn)
-        .await?;
+    let mut top_rated = Vec::new();
+    for media in Media::get_top_rated(&conn, 10).await? {
+        top_rated.push(construct_standard(&conn, &media, &user).await?);
+    }
 
-    top_rated.dedup_by(|a, b| a.name.eq(&b.name));
+    let mut recently_added = Vec::new();
+    for media in Media::get_recently_added(&conn, 10).await? {
+        recently_added.push(construct_standard(&conn, &media, &user).await?);
+    }
 
-    let top_rated = stream::iter(top_rated)
-        .filter_map(|x| {
-            let x = x.clone();
-            let conn = &conn;
-            let user = &user;
-            async move { construct_standard(&conn, &x, &user).await.ok() }
-        })
-        .take(10)
-        .collect::<Vec<Value>>()
-        .await;
-
-    let recently_added = stream::iter(
-        media::table
-            .filter(media::media_type.ne(MediaType::Episode))
-            .group_by((media::id, media::name))
-            .order(media::added.desc())
-            .load_async::<Media>(&conn)
-            .await?,
-    )
-    .filter_map(|x| {
-        let conn = &conn;
-        let x = x.clone();
-        let user = &user;
-        async move { construct_standard(&conn, &x, &user).await.ok() }
-    })
-    .take(10)
-    .collect::<Vec<Value>>()
-    .await;
-
-    let continue_watching =
-        stream::iter(Progress::get_continue_watching(&conn, user.0.claims.get_user(), 10).await?)
-            .filter_map(|x| {
-                let conn = &conn;
-                let x = x.clone();
-                let user = &user;
-
-                async move { construct_standard(&conn, &x, &user).await.ok() }
-            })
-            .take(10)
-            .collect::<Vec<Value>>()
-            .await;
+    let mut continue_watching = Vec::new();
+    for media in Progress::get_continue_watching(&conn, user.0.claims.get_user(), 10).await? {
+        continue_watching.push(construct_standard(&conn, &media, &user).await?);
+    }
 
     Ok(reply::json(&json!({
         "CONTINUE WATCHING": continue_watching,
@@ -157,56 +110,21 @@ pub async fn dashboard(
     })))
 }
 
-// FIXME: Basically this function purely async just kinda fails to compile because of various
-// lifetime and opaque type issues. The bigger problem is that the `rocket::get` macro hides the
-// error and makes it unreadable and removing the macro gets rid of the issue completely.
 pub async fn banners(conn: DbConnection, user: Auth) -> Result<impl warp::Reply, errors::DimError> {
-    // make sure we show medias for which the total amount watched is nil
-    /*
-       .filter(|x| {
-           matches!(
-               Progress::get_total_for_media(&conn, x, user.0.claims.get_user()),
-               Err(_) | Ok(0)
-           )
-       })
-    */
-
-    let results = stream::iter(
-        media::table
-            .filter(media::media_type.ne(MediaType::Episode))
-            .group_by(media::id)
-            .order(RANDOM)
-            .limit(10)
-            .load_async::<Media>(&conn)
-            .await?,
-    )
-    .filter(|x| {
-        let x = x.clone();
-        async {
-            let x = x;
-            get_top_duration(&conn, &x).await.is_ok()
+    // NOTE (val): previous diesel implementation also checked whether `get_top_duration` return `Ok(_)`
+    // and filtered out entries that didnt. Im not sure why i did that
+    let mut banners = Vec::new();
+    for media in Media::get_random_with(&conn, 10).await? {
+        if let Ok(x) = match media.media_type {
+            MediaType::Tv => banner_for_show(&conn, &user, &media).await,
+            MediaType::Movie => banner_for_movie(&conn, &user, &media).await,
+            _ => unreachable!(),
+        } {
+            banners.push(x);
         }
-    })
-    .collect::<Vec<Media>>()
-    .await;
+    }
 
-    let banners = stream::iter(results)
-        .filter_map(|x| {
-            let x = x.clone();
-            async {
-                let x = x;
-                match x.media_type {
-                    Some(MediaType::Tv) => banner_for_show(&conn, &user, &x).await.ok(),
-                    Some(MediaType::Movie) => banner_for_movie(&conn, &user, &x).await.ok(),
-                    _ => unreachable!(),
-                }
-            }
-        })
-        .take(3)
-        .collect::<Vec<Value>>()
-        .await;
-
-    Ok(reply::json(&banners))
+    Ok(reply::json(&banners.iter().take(3).collect::<Vec<_>>()))
 }
 
 async fn banner_for_movie(
@@ -219,7 +137,7 @@ async fn banner_for_movie(
         .map(|x| x.delta)
         .unwrap_or(0);
 
-    let mediafiles = MediaFile::get_of_media(conn, media).await?;
+    let mediafiles = MediaFile::get_of_media(conn, media.id).await?;
     let media_duration = get_top_duration(conn, media).await?;
 
     let genres = Genre::get_by_media(conn, media.id)
@@ -261,9 +179,9 @@ async fn banner_for_show(
     media: &Media,
 ) -> Result<Value, errors::DimError> {
     let show: TVShow = media.clone().into();
-    let first_season = Season::get_first(conn, &show).await?;
+    let first_season = Season::get_first(conn, show.id).await?;
 
-    let episodes = Episode::get_all_of_tv(conn, media).await?;
+    let episodes = Episode::get_all_of_tv(conn, media.id).await?;
 
     let delta_sorted = stream::iter(episodes)
         .filter_map(|x| {
@@ -290,22 +208,24 @@ async fn banner_for_show(
     let episode = if let Some(x) = delta_sorted.first() {
         x.0.clone()
     } else {
-        Episode::get_first_for_season(conn, &first_season).await?
+        Episode::get_first_for_season(conn, first_season.id).await?
     };
 
     let season = Season::get_by_id(conn, episode.seasonid).await?;
 
-    let genres = Genre::get_by_media(conn, media.id).await.map_or_else(
-        |_| vec![],
-        |y| y.into_iter().map(|x| x.name).collect::<Vec<_>>(),
-    );
+    let genres = Genre::get_by_media(conn, media.id)
+        .await
+        .unwrap_or_default()
+        .into_iter()
+        .map(|x| x.name)
+        .collect::<Vec<_>>();
 
     let progress = Progress::get_for_media_user(conn, user.0.claims.get_user(), episode.id)
         .await
         .map(|x| x.delta)
         .unwrap_or(0);
     let duration = get_top_duration(conn, &episode.media).await?;
-    let mediafiles = MediaFile::get_of_media(conn, &episode.media).await?;
+    let mediafiles = MediaFile::get_of_media(conn, episode.id).await?;
 
     let caption = if progress > 0 {
         "CONTINUE WATCHING"

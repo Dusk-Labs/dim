@@ -75,10 +75,10 @@ pub mod scanners;
 pub mod stream_tracking;
 /// Contains all the logic needed for streaming and on-the-fly transcoding.
 pub mod streaming;
-/// Websocket related logic.
-pub mod websocket;
 /// Various utilities
 pub mod utils;
+/// Websocket related logic.
+pub mod websocket;
 
 /// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.
 pub fn build_logger() -> slog::Logger {

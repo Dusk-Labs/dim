@@ -16,6 +16,7 @@ use database::media::UpdateMedia;
 use database::mediafile::MediaFile;
 use database::progress::Progress;
 use database::season::Season;
+use database::tv::TVShow;
 
 use futures::stream;
 use futures::StreamExt;
@@ -54,11 +55,11 @@ mod filters {
     pub fn get_media_by_id(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "media" / i32)
+        warp::path!("api" / "v1" / "media" / i64)
             .and(warp::get())
             .and(with_state::<DbConnection>(conn))
             .and(auth::with_auth())
-            .and_then(|id: i32, conn: DbConnection, user: Auth| async move {
+            .and_then(|id: i64, conn: DbConnection, user: Auth| async move {
                 super::get_media_by_id(conn, id, user)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -68,11 +69,11 @@ mod filters {
     pub fn get_extra_info_by_id(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "media" / i32 / "info")
+        warp::path!("api" / "v1" / "media" / i64 / "info")
             .and(warp::get())
             .and(with_state::<DbConnection>(conn))
             .and(auth::with_auth())
-            .and_then(|id: i32, conn: DbConnection, user: Auth| async move {
+            .and_then(|id: i64, conn: DbConnection, user: Auth| async move {
                 super::get_extra_info_by_id(conn, id, user)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -82,7 +83,7 @@ mod filters {
     pub fn update_media_by_id(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "media" / i32)
+        warp::path!("api" / "v1" / "media" / i64)
             .and(warp::patch())
             .and(warp::body::json::<UpdateMedia>())
             .and(auth::with_auth())
@@ -93,11 +94,11 @@ mod filters {
     pub fn delete_media_by_id(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "media" / i32)
+        warp::path!("api" / "v1" / "media" / i64)
             .and(warp::delete())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i32, auth: Auth, conn: DbConnection| async move {
+            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
                 super::delete_media_by_id(conn, id, auth)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -136,15 +137,15 @@ mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         #[derive(Deserialize)]
         struct RouteArgs {
-            offset: i32,
+            offset: i64,
         }
 
-        warp::path!("api" / "v1" / "media" / i32 / "progress")
+        warp::path!("api" / "v1" / "media" / i64 / "progress")
             .and(warp::post())
             .and(warp::query::query::<RouteArgs>())
             .and(with_state::<DbConnection>(conn))
             .and(auth::with_auth())
-            .and_then(|id: i32, RouteArgs { offset }: RouteArgs, conn: DbConnection, auth: Auth| async move {
+            .and_then(|id: i64, RouteArgs { offset }: RouteArgs, conn: DbConnection, auth: Auth| async move {
                 super::map_progress(conn, id, offset, auth)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -183,12 +184,12 @@ mod filters {
 /// [`MediaType`](`database::library::MediaType`)
 pub async fn get_media_by_id(
     conn: DbConnection,
-    id: i32,
+    id: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let data = Media::get(&conn, id).await?;
+    let media = Media::get(&conn, id).await?;
 
-    let duration = match MediaFile::get_of_media(&conn, &data).await {
+    let duration = match MediaFile::get_of_media(&conn, id).await {
         Ok(mut x) => x
             .pop()
             .and_then(|x| x.duration)
@@ -196,49 +197,35 @@ pub async fn get_media_by_id(
         Err(_) => 0,
     };
 
-    let genres = Genre::get_by_media(&conn, data.id)
+    let genres = Genre::get_by_media(&conn, id)
         .await?
         .into_iter()
         .map(|x| x.name)
         .collect::<Vec<String>>();
 
-    let duration_pretty = match data.media_type {
-        Some(MediaType::Movie) | Some(MediaType::Episode) | None => {
+    let duration_pretty = match media.media_type {
+        MediaType::Movie | MediaType::Episode => {
             format!("{} min", duration / 60)
         }
-        Some(MediaType::Tv) => {
-            let all_eps = Episode::get_all_of_tv(&conn, &data).await?;
-            let total_eps = all_eps.len();
-            let total_len: i32 = stream::iter(all_eps)
-                .filter_map(|x| {
-                    let x = x.clone();
-                    async {
-                        let x = x;
-                        MediaFile::get_of_media(&conn, &x.media).await.ok()
-                    }
-                })
-                .collect::<Vec<_>>()
-                .await
-                .iter()
-                .filter(|x| !x.is_empty())
-                .filter_map(|x| x.last().and_then(|x| x.duration))
-                .sum();
+        MediaType::Tv => {
+            let total_eps = TVShow::get_total_episodes(&conn, id).await?;
+            let total_len = TVShow::get_total_duration(&conn, id).await?;
             format!("{} episodes | {} hr", total_eps, total_len / 3600)
         }
     };
 
     // FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
     Ok(reply::json(&json!({
-        "id": data.id,
-        "library_id": data.library_id,
-        "name": data.name,
-        "description": data.description,
-        "rating": data.rating,
-        "year": data.year,
-        "added": data.added,
-        "poster_path": data.poster_path,
-        "backdrop_path": data.backdrop_path,
-        "media_type": data.media_type,
+        "id": media.id,
+        "library_id": media.library_id,
+        "name": media.name,
+        "description": media.description,
+        "rating": media.rating,
+        "year": media.year,
+        "added": media.added,
+        "poster_path": media.poster_path,
+        "backdrop_path": media.backdrop_path,
+        "media_type": media.media_type,
         "genres": genres,
         "duration": duration,
         "duration_pretty": duration_pretty,
@@ -255,32 +242,28 @@ pub async fn get_media_by_id(
 /// * `_user` - Auth middleware
 pub async fn get_extra_info_by_id(
     conn: DbConnection,
-    id: i32,
+    id: i64,
     user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let media = Media::get(&conn, id).await?;
 
     match media.media_type {
-        Some(MediaType::Movie) | Some(MediaType::Episode) | None => {
-            get_for_streamable(conn, media, user)
-                .await
-                .map(|x| reply::json(&x))
-        }
-        Some(MediaType::Tv) => get_for_show(conn, media, user)
+        MediaType::Movie | MediaType::Episode => get_for_streamable(conn, id, user)
             .await
             .map(|x| reply::json(&x)),
+        MediaType::Tv => get_for_show(conn, id, user).await.map(|x| reply::json(&x)),
     }
 }
 
 async fn get_for_streamable(
     conn: DbConnection,
-    media: Media,
+    media_id: i64,
     user: Auth,
 ) -> Result<Value, errors::DimError> {
-    let media_files = MediaFile::get_of_media(&conn, &media).await?;
+    let media_files = MediaFile::get_of_media(&conn, media_id).await?;
 
     Ok(json!({
-        "progress": Progress::get_for_media_user(&conn, user.0.claims.get_user(), media.id).await
+        "progress": Progress::get_for_media_user(&conn, user.0.claims.get_user(), media_id).await
             .map(|x| x.delta)
             .unwrap_or(0),
         "versions": media_files.iter().map(|x| json!({
@@ -300,7 +283,7 @@ async fn get_for_episode(
     media: Episode,
     user: &Auth,
 ) -> Result<Value, errors::DimError> {
-    let media_files = MediaFile::get_of_media(&conn, &media.media).await?;
+    let media_files = MediaFile::get_of_media(&conn, media.id).await?;
 
     Ok(json!({
         "id": media.id,
@@ -326,44 +309,36 @@ async fn get_for_episode(
 
 async fn get_for_show(
     conn: DbConnection,
-    media: Media,
+    media_id: i64,
     user: Auth,
 ) -> Result<Value, errors::DimError> {
-    let seasons = Season::get_all(&conn, media.id).await?;
+    let seasons = Season::get_all(&conn, media_id).await?;
 
-    let seasons: Vec<Value> = stream::iter(seasons)
-        .filter_map(|x| {
-            let x = x.clone();
-            async {
-                let x = x;
-                if let Ok(eps) = Episode::get_all_of_season(&conn, &x).await {
-                    let mut episodes = vec![];
-                    for i in eps {
-                        if let Ok(y) = get_for_episode(&conn, i, &user).await {
-                            episodes.push(y);
-                        }
-                    }
-                    return Some((x, episodes));
+    let mut result: Vec<Value> = Vec::new();
+
+    for season in seasons.iter() {
+        if let Ok(eps) = Episode::get_all_of_season(&conn, season.id).await {
+            let mut episodes = vec![];
+            for i in eps {
+                if let Ok(y) = get_for_episode(&conn, i, &user).await {
+                    episodes.push(y);
                 }
-                None
             }
-        })
-        .map(|(s, e)| {
-            json!({
-                "id": s.id,
-                "season_number": s.season_number,
-                "name": if s.season_number == 0 {
+
+            result.push(json!({
+                "id": season.id,
+                "season_number": season.season_number,
+                "name": if season.season_number == 0 {
                     "Extras".to_string()
                 } else {
-                    format!("Season {}", s.season_number)
+                    format!("Season {}", season.season_number)
                 },
-                "added": s.added,
-                "poster": s.poster,
-                "episodes": e
-            })
-        })
-        .collect::<Vec<_>>()
-        .await;
+                "added": season.added,
+                "poster": season.poster,
+                "episodes": episodes
+            }));
+        }
+    }
 
     Ok(json!({
         "seasons": seasons,
@@ -379,7 +354,7 @@ async fn get_for_show(
 /// * `data` - the info that we changed about the media entry
 /// * `_user` - Auth middleware
 pub async fn update_media_by_id(
-    id: i32,
+    id: i64,
     data: UpdateMedia,
     _user: Auth,
     conn: DbConnection,
@@ -402,7 +377,7 @@ pub async fn update_media_by_id(
 /// * `_user` - auth middleware
 pub async fn delete_media_by_id(
     conn: DbConnection,
-    id: i32,
+    id: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
     Media::delete(&conn, id).await?;
@@ -454,8 +429,8 @@ pub async fn tmdb_search(
 /// * `offset` - offset in seconds
 pub async fn map_progress(
     conn: DbConnection,
-    id: i32,
-    offset: i32,
+    id: i64,
+    offset: i64,
     user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
     Progress::set(&conn, offset, user.0.claims.get_user(), id).await?;

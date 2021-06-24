@@ -1,5 +1,3 @@
-use diesel::result::DatabaseErrorKind;
-use diesel::result::Error as DieselError;
 use err_derive::Error;
 
 use serde::Serialize;
@@ -8,9 +6,8 @@ use serde_json::json;
 use std::convert::Infallible;
 use std::io::Cursor;
 
-use nightfall::error::NightfallError;
-
 use crate::scanners::base::ScannerError;
+use nightfall::error::NightfallError;
 
 use http::Response;
 use http::StatusCode;
@@ -163,29 +160,11 @@ impl From<std::io::Error> for StreamingErrors {
     }
 }
 
-impl From<DieselError> for DimError {
-    fn from(e: DieselError) -> Self {
-        match e {
-            DieselError::NotFound => Self::NotFoundError,
-            _ => Self::DatabaseError,
-        }
-    }
-}
-
 use database::DatabaseError;
 impl From<DatabaseError> for DimError {
     fn from(e: DatabaseError) -> Self {
-        let DatabaseError::AsyncError(e) = e;
-        Self::from(e)
-    }
-}
-
-impl From<tokio_diesel::AsyncError> for DimError {
-    fn from(e: tokio_diesel::AsyncError) -> Self {
-        match e {
-            tokio_diesel::AsyncError::Error(e) => Self::from(e),
-            _ => Self::UnknownError,
-        }
+        let DatabaseError::DatabaseError(e) = e;
+        Self::DatabaseError
     }
 }
 
@@ -201,30 +180,9 @@ impl From<std::io::Error> for DimError {
     }
 }
 
-impl From<DieselError> for AuthError {
-    fn from(e: DieselError) -> Self {
-        match e {
-            DieselError::NotFound => Self::FailedAuth,
-            DieselError::DatabaseError(DatabaseErrorKind::UniqueViolation, _) => {
-                Self::UsernameTaken
-            }
-            _ => Self::DatabaseError,
-        }
-    }
-}
-
 impl From<DatabaseError> for AuthError {
     fn from(e: DatabaseError) -> Self {
-        let DatabaseError::AsyncError(e) = e;
-        Self::from(e)
-    }
-}
-
-impl From<tokio_diesel::AsyncError> for AuthError {
-    fn from(e: tokio_diesel::AsyncError) -> Self {
-        match e {
-            tokio_diesel::AsyncError::Error(e) => Self::from(e),
-            _ => Self::DatabaseError,
-        }
+        let DatabaseError::DatabaseError(e) = e;
+        Self::DatabaseError
     }
 }

@@ -49,6 +49,7 @@ pub enum Role {
 pub struct User {
     pub username: String,
     pub roles: Vec<String>,
+    pub password: String,
 }
 
 impl User {
@@ -58,15 +59,28 @@ impl User {
     ///
     /// * `conn` - postgres connection
     pub async fn get_all(conn: &crate::DbConnection) -> Result<Vec<Self>, DatabaseError> {
-        Ok(sqlx::query!("SELECT username, roles FROM users")
+        Ok(sqlx::query!("SELECT * FROM users")
             .fetch_all(conn)
             .await?
             .into_iter()
             .map(|user| Self {
                 username: user.username.unwrap(),
                 roles: user.roles.split(',').map(ToString::to_string).collect(),
+                password: user.password
             })
             .collect())
+    }
+
+    pub async fn get(conn: &crate::DbConnection, username: &str) -> Result<Self, DatabaseError> {
+        Ok(sqlx::query!(
+                "SELECT * from users
+                WHERE username = ?",
+                username
+        ).fetch_one(conn).await.map(|u| Self {
+            username: u.username.unwrap(),
+            roles: u.roles.split(',').map(ToString::to_string).collect(),
+            password: u.password
+        })?)
     }
 
     /// Method gets one entry from the table users based on the username supplied and password.
@@ -82,7 +96,7 @@ impl User {
     ) -> Result<Self, DatabaseError> {
         let hash = hash(uname.clone(), pw);
         let user = sqlx::query!(
-            "SELECT username, roles FROM users WHERE username = ? AND password = ?",
+            "SELECT * FROM users WHERE username = ? AND password = ?",
             uname,
             hash,
         )
@@ -92,6 +106,7 @@ impl User {
         Ok(Self {
             username: user.username.unwrap(),
             roles: user.roles.split(',').map(ToString::to_string).collect(),
+            password: user.password
         })
     }
 

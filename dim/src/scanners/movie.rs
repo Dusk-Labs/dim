@@ -39,7 +39,7 @@ impl<'a> MovieMatcher<'a> {
     pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
         let name = result.title.clone();
 
-        let year: Option<i32> = result
+        let year: Option<i64> = result
             .release_date
             .as_ref()
             .clone()
@@ -47,7 +47,7 @@ impl<'a> MovieMatcher<'a> {
             .map(|x| NaiveDate::parse_from_str(x.as_str(), "%Y-%m-%d"))
             .map(Result::ok)
             .unwrap_or(None)
-            .map(|s| s.year() as i32);
+            .map(|s| s.year() as i64);
 
         let poster_path = result.poster_path.clone();
 
@@ -67,7 +67,7 @@ impl<'a> MovieMatcher<'a> {
             library_id: orphan.library_id,
             name,
             description: result.overview.clone(),
-            rating: result.rating,
+            rating: result.rating.map(|x| x as i64),
             year,
             added: Utc::now().to_string(),
 
@@ -98,9 +98,7 @@ impl<'a> MovieMatcher<'a> {
     ) -> Result<(), super::base::ScannerError> {
         let media_id = media.insert(&self.conn).await?;
         // the reason we ignore the result here is that in some cases this can fail. Specifically when there are multiple mediafiles for a movie.
-        let _ = media
-            .into_streamable::<InsertableMovie>(&self.conn, media_id, None)
-            .await;
+        let _ = InsertableMovie::insert(&self.conn, media_id).await;
 
         for name in result.genres {
             let genre = InsertableGenre { name };
@@ -122,7 +120,7 @@ impl<'a> MovieMatcher<'a> {
         Ok(())
     }
 
-    async fn push_event(&self, id: i32) {
+    async fn push_event(&self, id: i64) {
         let event = Message {
             id,
             event_type: PushEventType::EventNewCard,

@@ -102,7 +102,7 @@ mod filters {
             gid: Option<String>,
         }
 
-        warp::path!("api" / "v1" / "stream" / i32 / "manifest")
+        warp::path!("api" / "v1" / "stream" / i64 / "manifest")
             .and(warp::get())
             .and(warp::query::query::<QueryArgs>())
             .and(auth::with_auth())
@@ -110,7 +110,7 @@ mod filters {
             .and(with_state::<StateManager>(state))
             .and(with_state::<StreamTracking>(stream_tracking))
             .and_then(
-                |id: i32,
+                |id: i64,
                  QueryArgs { gid }: QueryArgs,
                  auth: Auth,
                  conn: DbConnection,
@@ -301,7 +301,7 @@ pub async fn return_virtual_manifest(
     stream_tracking: StreamTracking,
     auth: Auth,
     conn: DbConnection,
-    id: i32,
+    id: i64,
     gid: Option<Uuid>,
 ) -> Result<impl warp::Reply, errors::StreamingErrors> {
     if let Some(gid) = gid {

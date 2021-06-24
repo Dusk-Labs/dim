@@ -12,20 +12,12 @@ use database::library::MediaType;
 use database::media::Media;
 use database::mediafile::MediaFile;
 use database::progress::Progress;
-use database::schema::genre_media;
-use database::schema::media;
-use database::schema::season;
 use database::season::Season;
-
-use diesel::prelude::*;
-use diesel::sql_types::Text;
-use diesel::*;
 
 use futures::stream;
 use futures::StreamExt;
 
 use tokio::task::spawn_blocking;
-use tokio_diesel::*;
 
 use std::fs;
 use std::io;
@@ -102,9 +94,6 @@ mod filters {
     }
 }
 
-// Necessary to emulate ilike.
-sql_function!(fn upper(x: Text) -> Text);
-
 pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> io::Result<Vec<String>> {
     let mut dirs: Vec<String> = fs::read_dir(path)?
         .into_iter()
@@ -167,74 +156,6 @@ pub async fn search(
     quick: Option<bool>,
     user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    /*
-     * NOTE: Until tokio-diesel merges support for BoxedDsl we cant stack filters.
-    let mut result = media::table.into_boxed();
-
-    result = result.filter(media::media_type.ne(MediaType::Episode));
-
-    if let Some(query_string) = query {
-        let query_string = query_string
-            .split(' ')
-            .collect::<Vec<&str>>()
-            .as_slice()
-            .join("% %");
-
-        cfg_if! {
-            if #[cfg(feature = "postgres")] {
-                result = result.filter(media::name.ilike(format!("%{}%", query_string)));
-            } else {
-                result = result.filter(upper(media::name).like(format!("%{}%", query_string)));
-            }
-        }
-    }
-
-    if let Some(x) = year {
-        result = result.filter(media::year.eq(x));
-    }
-
-    if let Some(x) = library_id {
-        result = result.filter(media::library_id.eq(x));
-    }
-
-    if let Some(x) = genre {
-        let genre_row = Genre::get_by_name(&conn, x).await?.id;
-
-        let new_result = result
-            .inner_join(genre_media::table)
-            .filter(genre_media::genre_id.eq(genre_row));
-
-        let new_result = new_result.load_async::<Media>(&conn).await?;
-
-        return Ok(Json(
-            stream::iter(new_result)
-                .filter_map(|x| async move {
-                    if quick {
-                        construct_standard_quick(&x).await.ok()
-                    } else {
-                        construct_standard(&conn, &x, &user).await.ok()
-                    }
-                })
-                .collect::<Vec<JsonValue>>()
-                .await,
-        ));
-    }
-
-    // to avoid weird issue with boxed dsl not being send
-    let result = result.load_async::<Media>(&conn).await.unwrap_or_default();
-    Ok(Json(
-        stream::iter(result)
-            .filter_map(|x| async {
-                if quick {
-                    construct_standard_quick(&x).await.ok()
-                } else {
-                    construct_standard(&conn, &x, &user).await.ok()
-                }
-            })
-            .collect::<Vec<JsonValue>>()
-            .await,
-    ))
-    */
     let quick = quick.unwrap_or(false);
 
     if let Some(query_string) = query {
@@ -244,18 +165,8 @@ pub async fn search(
             .as_slice()
             .join("% %");
 
-        cfg_if! {
-            if #[cfg(feature = "postgres")] {
-                let result = media::table.filter(media::name.ilike(format!("%{}%", query_string)));
-            } else {
-                let result = media::table.filter(upper(media::name).like(format!("%{}%", query_string)));
-            }
-        }
-
-        let result = result.load_async::<Media>(&conn).await.unwrap_or_default();
         let mut items = Vec::new();
-
-        for x in result {
+        for x in Media::get_search(&conn, &query_string, 15).await? {
             if quick {
                 if let Ok(x) = construct_standard_quick(&x).await {
                     items.push(x);
@@ -272,16 +183,9 @@ pub async fn search(
 
     if let Some(x) = genre {
         let genre_row = Genre::get_by_name(&conn, x).await?.id;
-
-        let new_result = media::table
-            .inner_join(genre_media::table)
-            .filter(genre_media::genre_id.eq(genre_row))
-            .select(media::all_columns);
-
-        let new_result = new_result.load_async::<Media>(&conn).await?;
         let mut items = Vec::new();
 
-        for x in new_result {
+        for x in Media::get_of_genre(&conn, genre_row).await? {
             if quick {
                 if let Ok(x) = construct_standard_quick(&x).await {
                     items.push(x);
@@ -297,14 +201,9 @@ pub async fn search(
     }
 
     if let Some(x) = year {
-        let result = media::table
-            .filter(media::year.eq(year))
-            .load_async::<Media>(&conn)
-            .await?;
-
         let mut items = Vec::new();
 
-        for x in result {
+        for x in Media::get_of_year(&conn, x as i64).await? {
             if quick {
                 if let Ok(x) = construct_standard_quick(&x).await {
                     items.push(x);
