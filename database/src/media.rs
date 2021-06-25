@@ -58,7 +58,7 @@ impl Media {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE library_id = ?"#,
+                r#"SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE library_id = ? AND NOT media_type = "episode""#,
                 library_id
             )
             .fetch_all(conn)
@@ -93,7 +93,7 @@ impl Media {
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE library_id = ? AND name = ?"#,
+                r#"SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE library_id = ? AND name = ? AND NOT media_type = "episode""#,
                 library_id,
                 name,
             )
