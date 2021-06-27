@@ -66,20 +66,23 @@ impl User {
             .map(|user| Self {
                 username: user.username.unwrap(),
                 roles: user.roles.split(',').map(ToString::to_string).collect(),
-                password: user.password
+                password: user.password,
             })
             .collect())
     }
 
     pub async fn get(conn: &crate::DbConnection, username: &str) -> Result<Self, DatabaseError> {
         Ok(sqlx::query!(
-                "SELECT * from users
+            "SELECT * from users
                 WHERE username = ?",
-                username
-        ).fetch_one(conn).await.map(|u| Self {
+            username
+        )
+        .fetch_one(conn)
+        .await
+        .map(|u| Self {
             username: u.username.unwrap(),
             roles: u.roles.split(',').map(ToString::to_string).collect(),
-            password: u.password
+            password: u.password,
         })?)
     }
 
@@ -106,7 +109,7 @@ impl User {
         Ok(Self {
             username: user.username.unwrap(),
             roles: user.roles.split(',').map(ToString::to_string).collect(),
-            password: user.password
+            password: user.password,
         })
     }
 

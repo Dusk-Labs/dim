@@ -53,6 +53,28 @@ impl Episode {
         Ok(wrapper.into_episode(ep))
     }
 
+    pub async fn get_first_for_show(
+        conn: &crate::DbConnection,
+        tv_id: i64,
+    ) -> Result<Self, DatabaseError> {
+        let wrapper = sqlx::query_as!(
+            EpisodeWrapper,
+            r#"SELECT episode.id, seasonid, episode_
+            FROM episode
+            INNER JOIN season on season.id = episode.seasonid
+            WHERE season.tvshowid = ?
+            ORDER BY episode_ ASC, season.season_number ASC
+            LIMIT 1"#,
+            tv_id
+        )
+        .fetch_one(conn)
+        .await?;
+
+        let ep = Media::get(conn, wrapper.id).await?;
+
+        Ok(wrapper.into_episode(ep))
+    }
+
     /// Method returns all of the episodes belonging to a tv show.
     ///
     /// # Arguments
@@ -85,6 +107,7 @@ impl Episode {
         Ok(episodes)
     }
 
+    // FIXME: This function might be especially heavy on the DB.
     /// Method returns all of the episodes belonging to a season.
     ///
     /// # Arguments
@@ -147,7 +170,7 @@ impl Episode {
 
     pub async fn get_by_id(
         conn: &crate::DbConnection,
-        episode_id: i64
+        episode_id: i64,
     ) -> Result<Episode, DatabaseError> {
         let wrapper = sqlx::query_as!(
             EpisodeWrapper,
@@ -161,7 +184,6 @@ impl Episode {
         let ep = Media::get(conn, wrapper.id as i64).await?;
 
         Ok(wrapper.into_episode(ep))
-
     }
 
     /// Method deletes a episode based on the tv show id, season number, and episode number

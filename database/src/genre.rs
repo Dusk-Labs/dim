@@ -50,9 +50,9 @@ impl Genre {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
             Genre,
-            "SELECT genre.* FROM genre
-                INNER JOIN genre_media
-                WHERE genre_media.media_id = ?",
+            r#"SELECT genre.id as "id!", genre.name FROM genre
+                INNER JOIN genre_media ON genre_media.genre_id = genre.id
+                WHERE genre_media.media_id = ?"#,
             media_id
         )
         .fetch_all(conn)
