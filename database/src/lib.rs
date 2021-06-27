@@ -5,9 +5,14 @@ use cfg_if::cfg_if;
 
 use slog::Logger;
 
+use std::fs::File;
 use std::lazy::SyncOnceCell;
+use std::path::Path;
+use std::str::FromStr;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
+
+use sqlx::ConnectOptions;
 
 pub mod episode;
 pub mod error;
@@ -146,8 +151,11 @@ async fn internal_get_conn(_log: Option<&Logger>) -> sqlx::Result<DbConnection> 
                 "postgres://postgres:dimpostgres@127.0.0.1/dim"
             ).await
         } else {
-            // This yields database errors at runtime.
-            sqlx::Pool::connect("./dim.db").await
+                sqlx::Pool::connect_with(
+                    sqlx::sqlite::SqliteConnectOptions::from_str("sqlite://dim.db")?
+                    .create_if_missing(true)
+                    .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
+                ).await
         }
     }
 }

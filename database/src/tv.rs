@@ -69,13 +69,14 @@ impl TVShow {
         )
         .fetch_one(conn)
         .await?
-        .total.unwrap_or(0))
+        .total
+        .unwrap_or(0))
     }
 
     /// Returns total number of episodes for a tv show.
     pub async fn get_total_episodes(
         conn: &crate::DbConnection,
-        id: i64
+        id: i64,
     ) -> Result<i64, DatabaseError> {
         Ok(sqlx::query!(
             r#"SELECT COALESCE(COUNT(episode.id), 0) as "total: i64" FROM tv_show
@@ -83,7 +84,10 @@ impl TVShow {
             INNER JOIN episode on episode.seasonid = season.id
             WHERE tv_show.id = ?"#,
             id
-            ).fetch_one(conn).await?.total)
+        )
+        .fetch_one(conn)
+        .await?
+        .total)
     }
 
     /// Method inserts a new tv show in the database.

@@ -116,7 +116,10 @@ impl Media {
     }
 
     /// Method returns the top rated medias
-    pub async fn get_top_rated(conn: &crate::DbConnection, limit: i64) -> Result<Vec<Self>, DatabaseError> {
+    pub async fn get_top_rated(
+        conn: &crate::DbConnection,
+        limit: i64,
+    ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
                 r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
@@ -130,7 +133,10 @@ impl Media {
     }
 
     /// Method returns the recently added medias
-    pub async fn get_recently_added(conn: &crate::DbConnection, limit: i64) -> Result<Vec<Self>, DatabaseError> {
+    pub async fn get_recently_added(
+        conn: &crate::DbConnection,
+        limit: i64,
+    ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
                 r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
@@ -143,7 +149,10 @@ impl Media {
             ).fetch_all(conn).await?)
     }
 
-    pub async fn get_random_with(conn: &crate::DbConnection, limit: i64) -> Result<Vec<Self>, DatabaseError> {
+    pub async fn get_random_with(
+        conn: &crate::DbConnection,
+        limit: i64,
+    ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
                 r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
@@ -157,7 +166,11 @@ impl Media {
         ).fetch_all(conn).await?)
     }
 
-    pub async fn get_search(conn: &crate::DbConnection, query: &str, limit: i64) -> Result<Vec<Self>, DatabaseError> {
+    pub async fn get_search(
+        conn: &crate::DbConnection,
+        query: &str,
+        limit: i64,
+    ) -> Result<Vec<Self>, DatabaseError> {
         let query = format!("%{}%", query);
         Ok(sqlx::query_as!(
                 Media,
@@ -172,7 +185,10 @@ impl Media {
         ).fetch_all(conn).await?)
     }
 
-    pub async fn get_of_genre(conn: &crate::DbConnection, genre_id: i64) -> Result<Vec<Self>, DatabaseError> {
+    pub async fn get_of_genre(
+        conn: &crate::DbConnection,
+        genre_id: i64,
+    ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
                 r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
@@ -185,7 +201,10 @@ impl Media {
         ).fetch_all(conn).await?)
     }
 
-    pub async fn get_of_year(conn: &crate::DbConnection, year: i64) -> Result<Vec<Self>, DatabaseError> {
+    pub async fn get_of_year(
+        conn: &crate::DbConnection,
+        year: i64,
+    ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
                 r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
@@ -263,7 +282,11 @@ impl InsertableMedia {
 
         let id = sqlx::query!(
             r#"INSERT INTO media (library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type)
-            VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)"#,
+            VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)
+            ON CONFLICT DO UPDATE
+            SET name = $2
+            RETURNING media.id as "id!: i64"
+            "#,
             self.library_id,
             self.name,
             self.description,
@@ -273,7 +296,7 @@ impl InsertableMedia {
             self.poster_path,
             self.backdrop_path,
             self.media_type
-        ).execute(conn).await?.last_insert_rowid();
+        ).fetch_one(conn).await?.id;
 
         tx.commit().await?;
         Ok(id)
@@ -283,9 +306,7 @@ impl InsertableMedia {
     /// This is especially useful for tv shows as they usually have similar metadata with key differences
     /// which are not indexed in the database.
     pub async fn insert_blind(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
-        let tx = conn.begin().await?;
-
-        let id = sqlx::query!(
+        Ok(sqlx::query!(
             r#"INSERT INTO media (library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type)
             VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)"#,
             self.library_id,
@@ -297,10 +318,7 @@ impl InsertableMedia {
             self.poster_path,
             self.backdrop_path,
             self.media_type
-        ).execute(conn).await?.last_insert_rowid();
-
-        tx.commit().await?;
-        Ok(id)
+        ).execute(conn).await?.last_insert_rowid())
     }
 }
 

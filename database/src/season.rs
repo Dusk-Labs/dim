@@ -145,15 +145,19 @@ impl InsertableSeason {
         }
 
         let id = sqlx::query!(
-            "INSERT INTO season (season_number, added, poster, tvshowid) VALUES ($1, $2, $3, $4)",
+            r#"INSERT INTO season (season_number, added, poster, tvshowid)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT DO UPDATE
+            SET poster = $3
+            RETURNING id as "id!: i64""#,
             self.season_number,
             self.added,
             self.poster,
             id
         )
-        .execute(conn)
+        .fetch_one(conn)
         .await?
-        .last_insert_rowid();
+        .id;
 
         tx.commit().await?;
 
