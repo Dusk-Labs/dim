@@ -87,7 +87,8 @@ pub async fn run_scanners(log: Logger, tx: EventTx) {
             tokio::spawn(async move {
                 let watcher = scanners::scanner_daemon::FsWatcher::new(
                     log_clone, library_id, media_type, tx_clone,
-                ).await;
+                )
+                .await;
 
                 watcher
                     .start_daemon()

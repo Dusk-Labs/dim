@@ -87,7 +87,7 @@ pub fn get_extractor(log: &slog::Logger, tx: &EventTx) -> &'static base::Metadat
 pub fn get_matcher(log: &slog::Logger, tx: &EventTx) -> &'static base::MetadataMatcher {
     let mut handle = xtra::spawn::Tokio::Global;
 
-    let workers = 8;
+    let workers = 4;
 
     METADATA_MATCHER.get_or_init(|| {
         let conn = database::try_get_conn().expect("Failed to grab a connection");

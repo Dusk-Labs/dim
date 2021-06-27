@@ -119,13 +119,11 @@ mod filters {
             .and(warp::get())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
-            .and_then(
-                |id: i64, auth: Auth, conn: DbConnection| async move {
-                    super::get_episode_by_id(conn, id, auth)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
+            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
+                super::get_episode_by_id(conn, id, auth)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
     }
 
     pub fn patch_episode_by_num(
@@ -137,10 +135,7 @@ mod filters {
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
             .and_then(
-                |id: i64,
-                 data: UpdateEpisode,
-                 auth: Auth,
-                 conn: DbConnection| async move {
+                |id: i64, data: UpdateEpisode, auth: Auth, conn: DbConnection| async move {
                     super::patch_episode_by_id(conn, id, data, auth)
                         .await
                         .map_err(|e| reject::custom(e))
@@ -155,13 +150,11 @@ mod filters {
             .and(warp::delete())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
-            .and_then(
-                |id: i64, auth: Auth, conn: DbConnection| async move {
-                    super::delete_episode_by_id(conn, id, auth)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
+            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
+                super::delete_episode_by_id(conn, id, auth)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
     }
 }
 
@@ -253,9 +246,7 @@ pub async fn get_episode_by_id(
     id: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    Ok(reply::json(
-        &Episode::get_by_id(&conn, id).await?,
-    ))
+    Ok(reply::json(&Episode::get_by_id(&conn, id).await?))
 }
 
 /// TODO: Move all of these into a unified update interface for media items

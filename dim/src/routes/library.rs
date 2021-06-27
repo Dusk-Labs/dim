@@ -8,8 +8,8 @@ use auth::Wrapper as Auth;
 
 use database::library::InsertableLibrary;
 use database::library::Library;
-use database::mediafile::MediaFile;
 use database::media::Media;
+use database::mediafile::MediaFile;
 
 use events::Message;
 use events::PushEventType;
@@ -208,7 +208,8 @@ pub async fn library_post(
     let log_clone = log.clone();
 
     tokio::spawn(async move {
-        let watcher = scanners::scanner_daemon::FsWatcher::new(log_clone, id, media_type, tx_clone).await;
+        let watcher =
+            scanners::scanner_daemon::FsWatcher::new(log_clone, id, media_type, tx_clone).await;
 
         watcher
             .start_daemon()

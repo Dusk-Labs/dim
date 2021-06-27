@@ -47,13 +47,15 @@ pub enum ScannerError {
     FFProbeError,
     #[error(display = "An unknown error has occured")]
     UnknownError,
-    #[error(display = "Database error")]
-    DatabaseError,
+    #[error(display = "Database error why={}", _0)]
+    DatabaseError(String),
 }
 
 impl From<database::DatabaseError> for ScannerError {
-    fn from(_: database::DatabaseError) -> Self {
-        Self::DatabaseError
+    fn from(e: database::DatabaseError) -> Self {
+        match e {
+            database::DatabaseError::DatabaseError(e) => Self::DatabaseError(e.to_string()),
+        }
     }
 }
 

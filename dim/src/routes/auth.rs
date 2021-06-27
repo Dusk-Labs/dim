@@ -128,7 +128,11 @@ pub async fn login(
 ) -> Result<impl warp::Reply, errors::AuthError> {
     let user = User::get(&conn, &new_login.username).await?;
 
-    if verify(user.username.clone(), user.password.clone(), new_login.password.clone()) {
+    if verify(
+        user.username.clone(),
+        user.password.clone(),
+        new_login.password.clone(),
+    ) {
         let token = jwt_generate(user.username, user.roles.clone());
 
         return Ok(reply::json(&json!({
