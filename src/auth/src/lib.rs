@@ -162,7 +162,13 @@ pub fn with_auth() -> impl Filter<Extract = (Wrapper,), Error = Rejection> + Clo
                 Some(k) => Ok(Wrapper(k)),
                 None => Err(reject::custom(JWTError::InvalidKey)),
             },
-            None => Err(reject::custom(JWTError::Missing)),
+            None => {
+                if cfg!(not(feature = "null_auth")) {
+                    Err(reject::custom(JWTError::Missing))
+                } else {
+                    Ok(Wrapper(jwt_check(String::new()).unwrap()))
+                }
+            },
         }
     })
 }
