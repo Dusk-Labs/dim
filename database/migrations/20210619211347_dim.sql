@@ -28,6 +28,8 @@ CREATE TABLE media (
     FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE
 );
 
+CREATE UNIQUE INDEX media_idx ON media(library_id, name, media_type) WHERE NOT media.media_type = "episode";
+
 CREATE TABLE movie (
     id INTEGER,
     PRIMARY KEY (id),
