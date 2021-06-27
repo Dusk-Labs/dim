@@ -88,7 +88,7 @@ impl<'a> TvShowMatcher<'a> {
                 self.log,
                 "Failed to insert new media";
                 "id" => orphan.id,
-                "reason" => format!("{:?}", e),
+                "reason" => e.to_string(),
             );
         }
     }
@@ -110,7 +110,7 @@ impl<'a> TvShowMatcher<'a> {
             let genre = InsertableGenre { name };
 
             if let Ok(x) = genre.insert(&self.conn).await {
-                InsertableGenreMedia::insert_pair(x, media_id, &self.conn).await;
+                let _ = InsertableGenreMedia::insert_pair(x, media_id, &self.conn).await;
             }
         }
 

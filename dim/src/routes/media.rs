@@ -189,7 +189,12 @@ pub async fn get_media_by_id(
 ) -> Result<impl warp::Reply, errors::DimError> {
     let media = Media::get(&conn, id).await?;
 
-    let duration = match MediaFile::get_of_media(&conn, id).await {
+    let media_id = match media.media_type {
+        MediaType::Movie | MediaType::Episode => id,
+        MediaType::Tv => Episode::get_first_for_show(&conn, id).await?.id,
+    };
+
+    let duration = match MediaFile::get_of_media(&conn, media_id).await {
         Ok(mut x) => x
             .pop()
             .and_then(|x| x.duration)
@@ -248,10 +253,14 @@ pub async fn get_extra_info_by_id(
     let media = Media::get(&conn, id).await?;
 
     match media.media_type {
-        MediaType::Movie | MediaType::Episode => get_for_streamable(conn, id, user)
-            .await
-            .map(|x| reply::json(&x)),
-        MediaType::Tv => get_for_show(conn, id, user).await.map(|x| reply::json(&x)),
+        MediaType::Movie | MediaType::Episode => {
+            get_for_streamable(conn, id, user).await.map(|x| {
+                reply::json(&x)
+            })
+        }
+        MediaType::Tv => get_for_show(conn, id, user).await.map(|x| {
+            reply::json(&x)
+        }),
     }
 }
 
@@ -341,7 +350,7 @@ async fn get_for_show(
     }
 
     Ok(json!({
-        "seasons": seasons,
+        "seasons": result,
     }))
 }
 
