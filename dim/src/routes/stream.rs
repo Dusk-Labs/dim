@@ -619,6 +619,9 @@ pub async fn get_chunk(
     )
     .await?;
 
+    let path_clone = path.clone();
+    tokio::task::spawn_blocking(move || patch_segment(path_clone, chunk_num).unwrap()).await.unwrap();
+
     Ok(reply_with_file(path, ("Content-Type", "video/mp4")).await)
 }
 
@@ -714,4 +717,79 @@ async fn reply_with_file(file: String, header: (&str, &str)) -> Response<Body> {
             .body(Body::empty())
             .unwrap()
     }
+}
+
+fn patch_segment<T: AsRef<Path>>(file: T, seq: u32) -> mp4::Result<()> {
+    use std::io::prelude::*;
+    use std::io;
+    use std::io::BufReader;
+    use std::env;
+    use std::path::Path;
+    use std::fs::File;
+    use std::io::SeekFrom;
+
+    use mp4::Result;
+    use mp4::mp4box::*;
+
+    let f = File::open(&file)?;
+    let size = f.metadata()?.len();
+    let mut reader = BufReader::new(f);
+
+    let start = reader.seek(SeekFrom::Current(0))?;
+
+    let mut styp = None;
+    let mut sidx = None;
+    let mut moof = None;
+    let mut mdat = None;
+
+    let mut current = start;
+    while current < size {
+        let header = BoxHeader::read(&mut reader)?;
+        let BoxHeader { name, size: s } = header;
+
+        match name {
+            BoxType::SidxBox => {
+                println!(" sidx in len {}", s);
+                sidx = Some(SidxBox::read_box(&mut reader, s)?);
+            }
+            BoxType::MoofBox => {
+                println!(" moof in len {}", s);
+                moof = Some(MoofBox::read_box(&mut reader, s)?);
+            }
+            BoxType::MdatBox => {
+                println!(" mdat in len {}", s);
+                let mut vec_mdat = vec![0; (s - 8) as usize];
+                reader.read_exact(&mut vec_mdat)?;
+                mdat = Some(vec_mdat);
+            }
+            BoxType::StypBox => {
+                println!(" styp in len {}", s);
+                styp = Some(FtypBox::read_box(&mut reader, s)?);
+            }
+            b => {
+                println!("WARN: got unexpected box {:?}", b);
+                skip_box(&mut reader, s)?;
+            }
+        }
+
+        current = reader.seek(SeekFrom::Current(0))?;
+    }
+
+    let styp = styp.unwrap();
+    let sidx = sidx.unwrap();
+    let mut moof = moof.unwrap();
+    moof.mfhd.sequence_number = seq;
+    let tfdt = moof.trafs[0].tfdt.as_mut().unwrap();
+    tfdt.base_media_decode_time = sidx.earliest_presentation_time + 5;
+    let mdat = mdat.unwrap();
+
+    let mut vec = File::create(&file)?;
+    let t = styp.write_box(&mut vec)?;
+    let t = sidx.write_box(&mut vec)?;
+    let t = moof.write_box(&mut vec)?;
+    let mdat_hdr = BoxHeader::new(BoxType::MdatBox, mdat.len() as u64 + 8);
+    let t = mdat_hdr.write(&mut vec)?;
+    let t = t + vec.write(&mdat)? as u64;
+
+    Ok(())
 }
