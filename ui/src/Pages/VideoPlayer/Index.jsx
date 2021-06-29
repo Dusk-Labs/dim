@@ -143,9 +143,10 @@ function VideoPlayer() {
   }, [audioTracks, auth.token, dispatch, manifest.virtual.loaded, video.gid, videoTracks]);
 
   const seekTo = useCallback(async newTime => {
-    console.log("seeking");
-    console.log(player);
     player.seek(newTime);
+    dispatch(updateVideo({
+      seeking: false
+    }));
   }, [audioTracks, dispatch, player, video.gid, videoTracks]);
 
   useEffect(() => {

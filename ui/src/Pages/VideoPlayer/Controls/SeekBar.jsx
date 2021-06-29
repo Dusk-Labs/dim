@@ -54,7 +54,7 @@ function VideoSeekBar(props) {
   }, [video.currentTime, video.duration, video.buffer]);
 
   const onSeek = useCallback(async (e) => {
-    if (video.seeking) return;
+    if(video.seeking) return;
 
     dispatch(updateVideo({
       seeking: true
