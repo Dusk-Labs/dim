@@ -254,7 +254,7 @@ pub async fn warp_core(
         .with(warp::cors().allow_any_origin());
 
     tokio::select! {
-        _ = warp::serve(routes).run(([127, 0, 0, 1], port)) => {},
+        _ = warp::serve(routes).run(([0, 0, 0, 0], port)) => {},
         _ = tokio::signal::ctrl_c() => {
             std::process::exit(0);
         }
