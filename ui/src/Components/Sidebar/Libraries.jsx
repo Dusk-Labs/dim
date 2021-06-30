@@ -62,7 +62,7 @@ function Libraries() {
     <section className="libraries">
       <header>
         <h4>Libraries</h4>
-        <NewLibraryModal>
+        <NewLibraryModal libCount = {items.length}>
           <button className="openNewLibrary">
             +
           </button>

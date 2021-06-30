@@ -17,8 +17,9 @@ function NewLibraryModal(props) {
   const nameInput = useRef(null);
 
   const [current, setCurrent] = useState("");
-  const [name, setName] = useState("");
+  const [name, setName] = useState("Vol. " + "ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(props.libCount % 26));
   const [mediaType, setMediaType] = useState("movie");
+  const [libCount, setLibcount] = useState(props.libCount || 0);
 
   useEffect(() => {
     if (nameInput.current) {
@@ -62,12 +63,13 @@ function NewLibraryModal(props) {
 
       await dispatch(newLibrary(data));
 
-      setName("");
+      setName("Vol. " + "ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(libCount + 1 % 26));
       setCurrent("");
       setMediaType("movie");
+      setLibcount(libCount + 1);
       closeModal();
     }
-  }, [current, dispatch, mediaType, name]);
+  }, [current, dispatch, mediaType, name, libCount]);
 
   return (
     <ModalBox id="modalNewLibrary" activatingComponent={props.children}>

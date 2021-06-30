@@ -34,7 +34,7 @@ function Banner(props) {
               You will be able to see all the media from your
               libraries here, organized for quick and easy access.
             </p>
-            <NewLibraryModal>
+            <NewLibraryModal libCount = {0}>
               <button>Add library</button>
             </NewLibraryModal>
           </div>
