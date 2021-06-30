@@ -104,7 +104,7 @@ impl<'a> MovieMatcher<'a> {
             let genre = InsertableGenre { name };
 
             if let Ok(x) = genre.insert(&self.conn).await {
-                InsertableGenreMedia::insert_pair(x, media_id, &self.conn).await;
+                InsertableGenreMedia::insert_pair(x, media_id, &self.conn).await?;
             }
         }
 

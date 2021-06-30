@@ -19,6 +19,36 @@
     justify-content: space-between;
     align-items: center;
 
+    .actions {
+      margin-bottom: 1em;
+      display: flex;
+      gap: 0.3em;
+      justify-content: space-between;
+      align-items: center;  
+
+      .fancyButton {
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        transition: background 200ms ease-in-out;
+        background: #2a2a2a;
+        padding: .5em;
+        border-radius: 10px;
+        cursor: pointer;
+        color: rgb(255, 255, 255);
+        width: 30px;
+        height: 25px;
+
+        &:hover, &:focus {
+          background: #5a5a5a;
+        }
+
+        &:focus {
+          opacity: 1;
+        }
+      }
+    }
+
     h1::first-letter {
       text-transform: uppercase;
     }

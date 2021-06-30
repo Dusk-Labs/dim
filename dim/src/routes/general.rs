@@ -1,4 +1,5 @@
 use crate::core::DbConnection;
+use crate::core::EventTx;
 use crate::errors;
 use crate::routes::construct_standard;
 use crate::routes::construct_standard_quick;
@@ -29,8 +30,11 @@ use warp::Rejection;
 
 pub fn general_router(
     conn: DbConnection,
+    logger: slog::Logger,
+    event_tx: EventTx,
 ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
-    filters::search(conn)
+    filters::search(conn.clone())
+        .or(filters::magnet(conn, logger, event_tx))
         .or(filters::get_directory_structure())
         .recover(super::global_filters::handle_rejection)
 }
@@ -40,9 +44,14 @@ mod filters {
 
     use auth::Wrapper as Auth;
 
+    use database::library::Library;
     use warp::reject;
     use warp::Filter;
     use warp::Rejection;
+    use warp::Reply;
+
+    use crate::core::EventTx;
+    use crate::errors::DimError;
 
     use super::super::global_filters::with_state;
     use serde::Deserialize;
@@ -57,6 +66,52 @@ mod filters {
                     .await
                     .map_err(|e| reject::custom(e))
             })
+    }
+
+    pub fn magnet(
+        conn: DbConnection,
+        logger: slog::Logger,
+        event_tx: EventTx,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+        #[derive(Deserialize)]
+        struct MagnetMedia {
+            link: String,
+            lib: i64,
+        }
+
+        warp::path!("api" / "v1" / "magnet")
+            .and(warp::post())
+            .and(auth::with_auth())
+            .and(warp::body::json::<MagnetMedia>())
+            .and(with_state::<EventTx>(event_tx))
+            .and(with_state::<slog::Logger>(logger))
+            .and(with_state::<DbConnection>(conn))
+            .and_then(
+                |user: Auth,
+                 magnet: MagnetMedia,
+                 event_tx: EventTx,
+                 logger: slog::Logger,
+                 conn: DbConnection| async move {
+                    let library = Library::get_one(&conn, magnet.lib).await.map_err(|err| {
+                        slog::error!(logger, "Database Error: {:?}", err);
+                        reject::custom(DimError::DatabaseError)
+                    })?;
+
+                    tokio::process::Command::new("deluge-console")
+                        .args(&[
+                            "-L",
+                            "debug",
+                            "add",
+                            "--path",
+                            library.location.as_str(),
+                            magnet.link.as_str(),
+                        ])
+                        .spawn()
+                        .map_err(|_| reject::custom(DimError::IOError))?;
+
+                    Ok::<_, Rejection>(warp::reply())
+                },
+            )
     }
 
     pub fn search(

@@ -226,7 +226,11 @@ pub async fn warp_core(
     let request_logger = RequestLogger::new(logger.clone());
 
     let routes = routes::auth::auth_routes(conn.clone())
-        .or(routes::general::general_router(conn.clone()))
+        .or(routes::general::general_router(
+            conn.clone(),
+            logger.clone(),
+            event_tx.clone(),
+        ))
         .or(routes::library::library_routes(
             conn.clone(),
             logger.clone(),

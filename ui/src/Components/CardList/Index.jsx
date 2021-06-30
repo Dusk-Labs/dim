@@ -2,10 +2,12 @@ import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
+import NewMedia from "../../Modals/NewMedia/Index";
 import { fetchCards } from "../../actions/card.js";
 import Card from "./Card.jsx";
 import GhostCards from "./Ghost.jsx";
 import Dropdown from "./Dropdown.jsx";
+import MagnetIcon from "../../assets/Icons/Magnet";
 
 import "./Index.scss";
 
@@ -47,12 +49,12 @@ function CardList(props) {
 
   // FETCH_CARDS_START
   if (cards.fetching) {
-    card_list = <GhostCards/>;
+    card_list = <GhostCards />;
   }
 
   // FETCH_CARDS_ERR
   if (cards.fetched && cards.error) {
-    card_list = <GhostCards/>;
+    card_list = <GhostCards />;
   }
 
   // FETCH_CARDS_OK
@@ -61,7 +63,7 @@ function CardList(props) {
     const emptyDashboard = sectionsEmpty && location.pathname === "/";
 
     if (emptyDashboard) {
-      card_list = <GhostCards/>;
+      card_list = <GhostCards />;
     }
 
     const items = Object.keys(cards.items);
@@ -72,7 +74,7 @@ function CardList(props) {
       for (const section of items) {
         sections[section] = (
           cards.items[section].map((card, i) => (
-            <Card key={i} data={card}/>
+            <Card key={i} data={card} />
           ))
         );
       }
@@ -83,7 +85,12 @@ function CardList(props) {
             <h1>{section}</h1>
             {props.actions && (
               <div className="actions">
-                <Dropdown/>
+                <NewMedia libId={props.libId}>
+                  <button className="fancyButton">
+                    <MagnetIcon />
+                  </button>
+                </NewMedia>
+                <Dropdown />
               </div>
             )}
           </div>

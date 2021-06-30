@@ -88,6 +88,25 @@ export const fetchLibraryUnmatched = (id) => async (dispatch, getState) => {
   }
 };
 
+export const newMediaFromMagnet = (data) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
+  console.log(data);
+
+  const options = {
+    method: "POST",
+    headers: {
+      "Authorization": token,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  };
+
+  try {
+    await fetch("/api/v1/magnet", options);
+  } catch(err) {}
+};
+
 export const newLibrary = (data) => async (dispatch, getState) => {
   const token = getState().auth.token;
 
