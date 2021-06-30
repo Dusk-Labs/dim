@@ -60,7 +60,7 @@ impl Library {
     pub async fn get_all(conn: &crate::DbConnection) -> Vec<Self> {
         sqlx::query_as!(
             Library,
-            r#"SELECT id, name, location, media_type as "media_type: _" FROM library"#
+            r#"SELECT id as "id!", name, location, media_type as "media_type: _" FROM library"#
         )
         .fetch_all(conn)
         .await
@@ -78,7 +78,7 @@ impl Library {
     ) -> Result<Library, DatabaseError> {
         Ok(sqlx::query_as!(
             Library,
-            r#"SELECT id, name, location, media_type as "media_type: _" FROM library WHERE id = ?"#,
+            r#"SELECT id as "id!", name, location, media_type as "media_type: _" FROM library WHERE id = ?"#,
             lib_id
         )
         .fetch_one(conn)

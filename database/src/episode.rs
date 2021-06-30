@@ -32,6 +32,23 @@ pub struct EpisodeWrapper {
     pub episode_: i64,
 }
 
+#[derive(PartialEq, Debug, Copy, Clone)]
+pub struct EpisodeWrapperHack {
+    pub id: Option<i64>,
+    pub seasonid: i64,
+    pub episode_: i64,
+}
+
+impl From<EpisodeWrapperHack> for EpisodeWrapper {
+    fn from(hack: EpisodeWrapperHack) -> Self {
+        Self {
+            id: hack.id.unwrap(),
+            seasonid: hack.seasonid,
+            episode_: hack.episode_,
+        }
+    }
+}
+
 impl Episode {
     pub async fn get_first_for_season(
         conn: &crate::DbConnection,
@@ -39,7 +56,7 @@ impl Episode {
     ) -> Result<Self, DatabaseError> {
         let wrapper = sqlx::query_as!(
             EpisodeWrapper,
-            r#"SELECT id, seasonid, episode_
+            r#"SELECT id as "id!", seasonid, episode_
             FROM episode
             WHERE seasonid = ?
             ORDER BY episode_ ASC"#,
@@ -57,8 +74,8 @@ impl Episode {
         conn: &crate::DbConnection,
         tv_id: i64,
     ) -> Result<Self, DatabaseError> {
-        let wrapper = sqlx::query_as!(
-            EpisodeWrapper,
+        let wrapper: EpisodeWrapper = sqlx::query_as!(
+            EpisodeWrapperHack,
             r#"SELECT episode.id, seasonid, episode_
             FROM episode
             INNER JOIN season on season.id = episode.seasonid
@@ -68,7 +85,8 @@ impl Episode {
             tv_id
         )
         .fetch_one(conn)
-        .await?;
+        .await?
+        .into();
 
         let ep = Media::get(conn, wrapper.id).await?;
 
@@ -87,18 +105,20 @@ impl Episode {
         let mut episodes = vec![];
 
         let wrappers = sqlx::query_as!(
-            EpisodeWrapper,
-            "SELECT episode.* FROM episode
+            EpisodeWrapperHack,
+            r#"SELECT episode.* FROM episode
                 INNER JOIN season ON season.id = episode.seasonid
                 INNER JOIN tv_show ON tv_show.id = season.tvshowid
                 WHERE tv_show.id = ?
-                ORDER BY season.season_number, episode.episode_",
+                ORDER BY season.season_number, episode.episode_"#,
             tv_show_id
         )
         .fetch_all(conn)
         .await?;
 
         for wrapper in wrappers {
+            let wrapper: EpisodeWrapper = wrapper.into();
+
             if let Ok(episode) = Media::get(conn, wrapper.id as i64).await {
                 episodes.push(wrapper.into_episode(episode))
             }
@@ -119,7 +139,7 @@ impl Episode {
     ) -> Result<Vec<Episode>, DatabaseError> {
         let wrappers = sqlx::query_as!(
             EpisodeWrapper,
-            r#"SELECT id , episode_ , seasonid FROM episode WHERE seasonid = ?"#,
+            r#"SELECT id  "id!", episode_ , seasonid FROM episode WHERE seasonid = ?"#,
             season_id
         )
         .fetch_all(conn)
@@ -149,8 +169,8 @@ impl Episode {
         season_num: i64,
         ep_num: i64,
     ) -> Result<Episode, DatabaseError> {
-        let wrapper = sqlx::query_as!(
-            EpisodeWrapper,
+        let wrapper: EpisodeWrapper = sqlx::query_as!(
+            EpisodeWrapperHack,
             r#"SELECT episode.*  FROM episode
             INNER JOIN season ON season.id = episode.seasonid
             WHERE season.tvshowid = ?
@@ -161,7 +181,8 @@ impl Episode {
             ep_num
         )
         .fetch_one(conn)
-        .await?;
+        .await?
+        .into();
 
         let ep = Media::get(conn, wrapper.id as i64).await?;
 
@@ -219,7 +240,7 @@ impl InsertableEpisode {
         let tx = conn.begin().await?;
 
         if let Some(r) = sqlx::query!(
-            "SELECT id FROM episode WHERE episode.seasonid = ? AND episode.episode_ = ?",
+            r#"SELECT id as "id!" FROM episode WHERE episode.seasonid = ? AND episode.episode_ = ?"#,
             self.seasonid,
             self.episode
         )
