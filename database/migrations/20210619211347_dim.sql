@@ -29,6 +29,7 @@ CREATE TABLE media (
 );
 
 CREATE UNIQUE INDEX media_idx ON media(library_id, name, media_type) WHERE NOT media.media_type = "episode";
+CREATE INDEX media_excl_ep_idx ON media(name) WHERE NOT media.media_type = "episode";
 
 CREATE TABLE movie (
     id INTEGER,
