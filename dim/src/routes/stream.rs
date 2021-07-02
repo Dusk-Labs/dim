@@ -22,8 +22,7 @@ use slog::info;
 use slog::Logger;
 
 use nightfall::error::NightfallError;
-use nightfall::profile::StreamType;
-use nightfall::profile::*;
+use nightfall::profiles::*;
 
 use std::collections::HashMap;
 use std::future::Future;
@@ -346,19 +345,21 @@ pub async fn return_virtual_manifest(
         .cloned()
         .ok_or(errors::StreamingErrors::FileIsCorrupt)?;
 
-    let profile = if video_stream.codec_name == "hevc".to_string() {
-        VideoProfile::Native
-    } else {
-        VideoProfile::Direct
+    let base_ctx = ProfileContext {
+        start_num: 0,
+        file: media.target_file.clone(),
+        ..Default::default()
     };
+
+    let profile = get_profile_for(StreamType::Video, &video_stream.codec_name, "h264").pop().expect("Failed to find a supported transcoding profile.");
 
     let video = state
         .create(
-            StreamType::Video {
-                map: video_stream.index as usize,
-                profile,
+            profile,
+            ProfileContext {
+                stream: video_stream.index as usize,
+                ..base_ctx.clone()
             },
-            media.target_file.clone().into(),
         )
         .await?;
 
@@ -401,13 +402,14 @@ pub async fn return_virtual_manifest(
     let audio_streams = info.find_by_codec("audio");
 
     for stream in audio_streams {
+        let profile = get_profile_for(StreamType::Audio, &stream.codec_name, "aac").pop().expect("Failed to find a supported transcoding profile.");
         let audio = state
             .create(
-                StreamType::Audio {
-                    map: stream.index as usize,
-                    profile: AudioProfile::Low,
-                },
-                media.target_file.clone().into(),
+                profile,
+                ProfileContext {
+                    stream: stream.index as usize,
+                    ..base_ctx.clone()
+                }
             )
             .await?;
 
@@ -433,43 +435,49 @@ pub async fn return_virtual_manifest(
     let subtitles = info.find_by_codec("subtitle");
 
     for stream in subtitles {
-        let subtitle = state
-            .create(
-                StreamType::Subtitle {
-                    map: stream.index as usize,
-                    profile: SubtitleProfile::Webvtt,
-                },
-                media.target_file.clone().into(),
-            )
-            .await?;
+        match get_profile_for(StreamType::Subtitle, &stream.codec_name, "webvtt").pop() {
+            Some(profile) => {
+                let subtitle = state
+                .create(
+                    profile,
+                    ProfileContext {
+                        stream: stream.index as usize,
+                        outdir: "-".into(),
+                        ..base_ctx.clone()
+                    }
+                )
+                .await?;
 
-        stream_tracking
-            .insert(
-                &gid,
-                VirtualManifest {
-                    id: subtitle.clone(),
-                    is_direct: false,
-                    content_type: ContentType::Subtitle,
-                    mime: "text/vtt".into(),
-                    codecs: "vtt".into(), //ignored
-                    bandwidth: 0,         // ignored
-                    duration: None,
-                    chunk_path: format!("{}/data/stream.vtt", subtitle.clone()),
-                    init_seg: None,
-                    args: {
-                        let mut x = HashMap::new();
-                        if let Some(y) = stream
-                            .tags
-                            .as_ref()
-                            .and_then(|x| x.title.clone().or(x.language.clone()))
-                        {
-                            x.insert("title".to_string(), y);
-                        }
-                        x
+                stream_tracking
+                .insert(
+                    &gid,
+                    VirtualManifest {
+                        id: subtitle.clone(),
+                        is_direct: false,
+                        content_type: ContentType::Subtitle,
+                        mime: "text/vtt".into(),
+                        codecs: "vtt".into(), //ignored
+                        bandwidth: 0,         // ignored
+                        duration: None,
+                        chunk_path: format!("{}/data/stream.vtt", subtitle.clone()),
+                        init_seg: None,
+                        args: {
+                            let mut x = HashMap::new();
+                            if let Some(y) = stream
+                                .tags
+                                    .as_ref()
+                                    .and_then(|x| x.title.clone().or(x.language.clone()))
+                            {
+                                x.insert("title".to_string(), y);
+                            }
+                            x
+                        },
                     },
-                },
-            )
-            .await;
+                    )
+                        .await;
+            },
+            None => {}
+        }
     }
 
     Ok(reply::json(&json!({

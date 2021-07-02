@@ -168,7 +168,7 @@ pub fn with_auth() -> impl Filter<Extract = (Wrapper,), Error = Rejection> + Clo
                 } else {
                     Ok(Wrapper(jwt_check(String::new()).unwrap()))
                 }
-            },
+            }
         }
     })
 }
