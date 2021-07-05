@@ -107,9 +107,9 @@ CREATE TABLE users (
 
 CREATE TABLE progress (
     id INTEGER,
-    user_id TEXT NOT NULL UNIQUE,
+    user_id TEXT NOT NULL,
     delta INTEGER,
-    media_id INTEGER UNIQUE,
+    media_id INTEGER,
     populated INTEGER,
 
     PRIMARY KEY (id),
@@ -128,4 +128,9 @@ CREATE TABLE genre_media (
     media_id INTEGER NOT NULL,
     FOREIGN KEY (media_id) REFERENCES media(id) ON DELETE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE
+);
+
+CREATE TABLE invites (
+    id INTEGER PRIMARY KEY,
+    token TEXT NOT NULL UNIQUE
 );

@@ -1,0 +1,56 @@
+.selectUnmatchedMediaFileControls {
+  margin-bottom: .5em;
+
+  .selectAll {
+    display: flex;
+    padding: 5px 10px;
+    border-radius: 5px;
+
+    &:hover {
+      background: #2a2a2a;
+    }
+
+    &.active-true {
+      .selectBox {
+        background: #f7931e;
+
+        svg {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .selectBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 20px;
+    width: 20px;
+    border-radius: 5px;
+    border: solid 2px #f7931e;
+    transition: background 150ms ease-in-out;
+    margin-right: .5em;
+
+    svg {
+      font-size: .6em;
+      overflow: unset;
+      opacity: 0;
+      transition: opacity 150ms ease-in-out;
+    }
+  }
+
+  button {
+    font-family: "Roboto Regular", Arial;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+    color: #eee;
+    font-size: 1em;
+
+    &:focus,
+    &:hover {
+      filter: saturate(1);
+    }
+  }
+}

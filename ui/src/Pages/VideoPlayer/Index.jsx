@@ -143,19 +143,7 @@ function VideoPlayer() {
   }, [audioTracks, auth.token, dispatch, manifest.virtual.loaded, video.gid, videoTracks]);
 
   const seekTo = useCallback(async newTime => {
-    const newSegment = Math.floor(newTime / 5);
-
-    dispatch(updateVideo({
-      buffer: 0,
-      currentTime: newTime,
-      currentCue: ""
-    }));
-
-    const includes = `${videoTracks.list[videoTracks.current].id},${audioTracks.list[audioTracks.current].id}`;
-    const url = `/api/v1/stream/${video.gid}/manifest.mpd?start_num=${newSegment}&should_kill=true&includes=${includes}`;
-
-    player.attachSource(url);
-
+    player.seek(newTime);
     dispatch(updateVideo({
       seeking: false
     }));

@@ -60,6 +60,7 @@ const initialState = {
   prevSubs: null,
   episode: null,
   buffer: 0,
+  prevSeekTo: 0,
   currentTime: 0,
   duration: 0,
   currentCue: "",

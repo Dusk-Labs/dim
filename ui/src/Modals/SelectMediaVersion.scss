@@ -9,7 +9,7 @@
   }
 
   h3 {
-    font-family: "Roboto Condensed Regular";
+    font-family: "Roboto Condensed Regular", Arial;
   }
 
   .fileVersionsWrapper {
@@ -68,7 +68,7 @@
       font-size: 16px;
       filter: saturate(0.7);
       transition: filter 0.3s ease-in-out;
-      font-family: "Roboto Bold";
+      font-family: "Roboto Bold", Arial;
       padding: .5em;
       border-radius: 10px;
       outline: none;

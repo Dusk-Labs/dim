@@ -9,9 +9,11 @@ import "./Index.scss";
 
 function Banners() {
   const dispatch = useDispatch();
-  const banners = useSelector(store => store.banner);
 
-  const [WS, setWS] = useState();
+  const { ws, banners } = useSelector(store => ({
+    banners: store.banner,
+    ws: store.ws
+  }));
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [currentTimeoutID, setCurrentTimeoutID] = useState();
@@ -59,17 +61,11 @@ function Banners() {
   }, [dispatch]);
 
   useEffect(() => {
-    const library_ws = new WebSocket(`ws://${window.location.hostname}:3012/events/library`);
-    setWS(library_ws);
-    return () => library_ws.close();
-  }, []);
+    if (!ws.conn) return;
 
-  useEffect(() => {
-    if (!WS) return;
-
-    WS.addEventListener("message", handleWS);
-    return () => WS.removeEventListener("message", handleWS);
-  }, [WS, handleWS]);
+    ws.conn.addEventListener("message", handleWS);
+    return () => ws.conn.removeEventListener("message", handleWS);
+  }, [handleWS, ws.conn]);
 
   return (
     <div className="banner-wrapper">

@@ -1,18 +1,17 @@
-@import "./mixins.scss";
-
 @font-face {
   font-family: "Roboto Regular";
-  src: url("./assets/fonts/roboto_regular.woff2");
+  src: url("./assets/fonts/roboto_regular.woff2") format("woff2");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "Roboto Bold";
-  src: url("./assets/fonts/roboto_bold.woff2");
+  src: url("./assets/fonts/roboto_bold.woff2") format("woff2");
 }
 
 @font-face {
   font-family: "Roboto Condensed Regular";
-  src: url("./assets/fonts/roboto_condensed_regular.woff2");
+  src: url("./assets/fonts/roboto_condensed_regular.woff2") format("woff2");
 }
 
 ::-webkit-scrollbar {
@@ -97,7 +96,7 @@ body {
   scrollbar-color: #f7931e #333333;
   scrollbar-width: thin;
   scroll-behavior: smooth;
-  font-family: "Roboto Regular";
+  font-family: "Roboto Regular", Arial;
 }
 
 /*
@@ -121,6 +120,7 @@ img {
 svg {
   width: 1em;
   fill: #eee;
+  overflow: unset;
 }
 
 /*
@@ -139,7 +139,7 @@ svg {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 5px;
-  font-family: "Roboto Condensed Regular";
+  font-family: "Roboto Condensed Regular", Arial;
   background: #f7931e;
   border-radius: 10px;
   padding: 3px 5px;
@@ -162,7 +162,7 @@ svg {
   align-items: center;
   animation: appear .4s ease-in-out;
   height: 100%;
-  font-family: "Roboto Condensed Regular";
+  font-family: "Roboto Condensed Regular", Arial;
   text-align: center;
 
   svg {
@@ -186,7 +186,7 @@ button {
 }
 
 input {
-  font-family: "Roboto Regular";
+  font-family: "Roboto Regular", Arial;
 }
 
 .separator {
@@ -287,7 +287,7 @@ main {
   }
 }
 
-@include keyframes(shake) {
+@keyframes shake {
   0% {
     transform: translateX(0);
   }
