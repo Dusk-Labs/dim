@@ -78,20 +78,16 @@ pub(super) static SUPPORTED_EXTS: &[&str] = &["mp4", "mkv", "avi", "webm"];
 pub fn get_extractor(log: &slog::Logger, tx: &EventTx) -> &'static base::MetadataExtractor {
     let mut handle = xtra::spawn::Tokio::Global;
 
-    let workers = if cfg!(feature = "postgres") { 8 } else { 2 };
-
     METADATA_EXTRACTOR
-        .get_or_init(|| base::MetadataExtractor::cluster(&mut handle, workers, log.clone()).1)
+        .get_or_init(|| base::MetadataExtractor::cluster(&mut handle, 4, log.clone()).1)
 }
 
 pub fn get_matcher(log: &slog::Logger, tx: &EventTx) -> &'static base::MetadataMatcher {
     let mut handle = xtra::spawn::Tokio::Global;
 
-    let workers = 4;
-
     METADATA_MATCHER.get_or_init(|| {
         let conn = database::try_get_conn().expect("Failed to grab a connection");
-        base::MetadataMatcher::cluster(&mut handle, workers, log.clone(), conn.clone(), tx.clone())
+        base::MetadataMatcher::cluster(&mut handle, 6, log.clone(), conn.clone(), tx.clone())
             .1
     })
 }
