@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 function AccountSection(props) {
   return (
     <div className="accountSectionParent">
@@ -10,13 +12,12 @@ function AccountSection(props) {
 }
 
 function MyAccount() {
+  const [password, setPassword] = useState(null);
+  const [confirmPassword, setConfirmPassword] = useState(null);
+
   return (
     <>
       <section className="accountSection">
-        <AccountSection heading="My Account">
-          <label>Username</label>
-          <input className="inputField" placeholder="Enter username..."/>
-        </AccountSection>
         <AccountSection heading="Password and Authentication">
           <label>Password</label>
           <input type="password" className="inputField" placeholder="Enter password..."/>
