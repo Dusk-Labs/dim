@@ -351,7 +351,9 @@ pub async fn return_virtual_manifest(
         ..Default::default()
     };
 
-    let profile = get_profile_for(StreamType::Video, &video_stream.codec_name, "h264").pop().expect("Failed to find a supported transcoding profile.");
+    let profile = get_profile_for(StreamType::Video, &video_stream.codec_name, "h264")
+        .pop()
+        .expect("Failed to find a supported transcoding profile.");
 
     let video = state
         .create(
@@ -402,14 +404,16 @@ pub async fn return_virtual_manifest(
     let audio_streams = info.find_by_codec("audio");
 
     for stream in audio_streams {
-        let profile = get_profile_for(StreamType::Audio, &stream.codec_name, "aac").pop().expect("Failed to find a supported transcoding profile.");
+        let profile = get_profile_for(StreamType::Audio, &stream.codec_name, "aac")
+            .pop()
+            .expect("Failed to find a supported transcoding profile.");
         let audio = state
             .create(
                 profile,
                 ProfileContext {
                     stream: stream.index as usize,
                     ..base_ctx.clone()
-                }
+                },
             )
             .await?;
 
@@ -438,44 +442,44 @@ pub async fn return_virtual_manifest(
         match get_profile_for(StreamType::Subtitle, &stream.codec_name, "webvtt").pop() {
             Some(profile) => {
                 let subtitle = state
-                .create(
-                    profile,
-                    ProfileContext {
-                        stream: stream.index as usize,
-                        outdir: "-".into(),
-                        ..base_ctx.clone()
-                    }
-                )
-                .await?;
+                    .create(
+                        profile,
+                        ProfileContext {
+                            stream: stream.index as usize,
+                            outdir: "-".into(),
+                            ..base_ctx.clone()
+                        },
+                    )
+                    .await?;
 
                 stream_tracking
-                .insert(
-                    &gid,
-                    VirtualManifest {
-                        id: subtitle.clone(),
-                        is_direct: false,
-                        content_type: ContentType::Subtitle,
-                        mime: "text/vtt".into(),
-                        codecs: "vtt".into(), //ignored
-                        bandwidth: 0,         // ignored
-                        duration: None,
-                        chunk_path: format!("{}/data/stream.vtt", subtitle.clone()),
-                        init_seg: None,
-                        args: {
-                            let mut x = HashMap::new();
-                            if let Some(y) = stream
-                                .tags
+                    .insert(
+                        &gid,
+                        VirtualManifest {
+                            id: subtitle.clone(),
+                            is_direct: false,
+                            content_type: ContentType::Subtitle,
+                            mime: "text/vtt".into(),
+                            codecs: "vtt".into(), //ignored
+                            bandwidth: 0,         // ignored
+                            duration: None,
+                            chunk_path: format!("{}/data/stream.vtt", subtitle.clone()),
+                            init_seg: None,
+                            args: {
+                                let mut x = HashMap::new();
+                                if let Some(y) = stream
+                                    .tags
                                     .as_ref()
                                     .and_then(|x| x.title.clone().or(x.language.clone()))
-                            {
-                                x.insert("title".to_string(), y);
-                            }
-                            x
+                                {
+                                    x.insert("title".to_string(), y);
+                                }
+                                x
+                            },
                         },
-                    },
                     )
-                        .await;
-            },
+                    .await;
+            }
             None => {}
         }
     }

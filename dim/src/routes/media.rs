@@ -253,14 +253,10 @@ pub async fn get_extra_info_by_id(
     let media = Media::get(&conn, id).await?;
 
     match media.media_type {
-        MediaType::Movie | MediaType::Episode => {
-            get_for_streamable(conn, id, user).await.map(|x| {
-                reply::json(&x)
-            })
-        }
-        MediaType::Tv => get_for_show(conn, id, user).await.map(|x| {
-            reply::json(&x)
-        }),
+        MediaType::Movie | MediaType::Episode => get_for_streamable(conn, id, user)
+            .await
+            .map(|x| reply::json(&x)),
+        MediaType::Tv => get_for_show(conn, id, user).await.map(|x| reply::json(&x)),
     }
 }
 

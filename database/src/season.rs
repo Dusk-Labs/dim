@@ -88,7 +88,7 @@ impl Season {
     pub async fn get_first(conn: &crate::DbConnection, tv_id: i64) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id, season_number, tvshowid, added, poster
+            r#"SELECT id as "id!", season_number, tvshowid, added, poster
             FROM season
             WHERE tvshowid = ?
             ORDER BY season_number ASC"#,
@@ -133,7 +133,7 @@ impl InsertableSeason {
         let tx = conn.begin().await?;
 
         let result = sqlx::query!(
-            "SELECT id FROM season WHERE season_number = ? AND tvshowid = ?",
+            r#"SELECT id as "id!" FROM season WHERE season_number = ? AND tvshowid = ?"#,
             self.season_number,
             id
         )

@@ -7,7 +7,6 @@ use database::user::User;
 use database::user::UserSettings;
 
 use auth::Wrapper as Auth;
-use diesel::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -100,7 +99,9 @@ pub fn set_global_settings(settings: GlobalSettings) -> Result<(), Box<dyn Error
     Ok(())
 }
 
-pub fn settings_router(conn: DbConnection) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+pub fn settings_router(
+    conn: DbConnection,
+) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
     filters::get_user_settings(conn.clone())
         .or(filters::get_global_settings())
         .or(filters::post_user_settings(conn))
@@ -108,8 +109,8 @@ pub fn settings_router(conn: DbConnection) -> impl Filter<Extract = impl warp::R
 }
 
 mod filters {
-    use database::DbConnection;
     use database::user::UserSettings;
+    use database::DbConnection;
 
     use auth::Wrapper as Auth;
 
@@ -119,7 +120,9 @@ mod filters {
 
     use super::super::global_filters::with_state;
 
-    pub fn get_user_settings(conn: DbConnection) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+    pub fn get_user_settings(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "user" / "settings")
             .and(warp::get())
             .and(auth::with_auth())
@@ -131,20 +134,25 @@ mod filters {
             })
     }
 
-    pub fn post_user_settings(conn: DbConnection) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+    pub fn post_user_settings(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "user" / "settings")
             .and(warp::post())
             .and(warp::body::json::<UserSettings>())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
-            .and_then(|settings: UserSettings, auth: Auth, conn: DbConnection| async move {
-                super::post_user_settings(conn, auth, settings)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
+            .and_then(
+                |settings: UserSettings, auth: Auth, conn: DbConnection| async move {
+                    super::post_user_settings(conn, auth, settings)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                },
+            )
     }
 
-    pub fn get_global_settings() -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+    pub fn get_global_settings(
+    ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "host" / "settings")
             .and(warp::get())
             .and(auth::with_auth())
@@ -155,7 +163,8 @@ mod filters {
             })
     }
 
-    pub fn set_global_settings() -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+    pub fn set_global_settings(
+    ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "host" / "settings")
             .and(warp::post())
             .and(warp::body::json::<super::GlobalSettings>())
@@ -168,40 +177,33 @@ mod filters {
     }
 }
 
-//#[get("/user/settings")]
 pub async fn get_user_settings(
     db: DbConnection,
     user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
     Ok(reply::json(
-        &User::get_one_unchecked(&db, user.0.claims.get_user())
-            .await?
-            .settings,
+        &User::get(&db, &user.0.claims.get_user()).await?.prefs,
     ))
 }
 
-//#[post("/user/settings", format = "json", data = "<new_settings>")]
 pub async fn post_user_settings(
     db: DbConnection,
     user: Auth,
     new_settings: UserSettings,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let update_user = UpdateableUser {
-        settings: Some(new_settings.clone()),
-        ..Default::default()
+        prefs: Some(new_settings.clone()),
     };
 
-    update_user.update(&db, user.0.claims.get_user()).await?;
+    update_user.update(&db, &user.0.claims.get_user()).await?;
 
     Ok(reply::json(&new_settings))
 }
 
-//#[get("/host/settings")]
 pub async fn http_get_global_settings(user: Auth) -> Result<impl warp::Reply, errors::DimError> {
     Ok(reply::json(get_global_settings()))
 }
 
-//#[post("/host/settings", format = "json", data = "<new_settings>")]
 pub async fn http_set_global_settings(
     user: Auth,
     new_settings: GlobalSettings,

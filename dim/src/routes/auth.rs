@@ -176,17 +176,23 @@ pub async fn register(
         vec!["owner".to_string()]
     };
 
+    let claimed_invite = if users_empty {
+        Login::new_invite(&conn).await?
+    } else {
+        new_user
+            .invite_token
+            .ok_or(errors::AuthError::NoTokenError)?
+    };
+
     let res = InsertableUser {
         username: new_user.username.clone(),
         password: new_user.password.clone(),
         roles,
+        claimed_invite: claimed_invite,
+        prefs: Default::default(),
     }
     .insert(&conn)
     .await?;
-
-    if users_empty {
-        new_user.invalidate_token(&conn).await?;
-    }
 
     Ok(reply::json(&json!({ "username": res })))
 }
@@ -196,9 +202,38 @@ pub async fn get_all_invites(
     user: Auth,
 ) -> Result<impl warp::Reply, errors::AuthError> {
     if user.0.claims.has_role("owner") {
-        return Ok(reply::json(&json!({
-            "invites": Login::get_all_invites(&conn).await?
-        })));
+        #[derive(serde::Serialize)]
+        struct Row {
+            id: String,
+            created: i64,
+            claimed_by: Option<String>,
+        }
+
+        // FIXME: LEFT JOINs cause sqlx::query! to panic, thus we must get tokens in two queries.
+        let mut row = sqlx::query_as!(
+            Row,
+            r#"SELECT invites.id, invites.date_added as created, NULL as "claimed_by: _"
+                FROM invites
+                WHERE invites.id NOT IN (SELECT users.claimed_invite FROM users)
+                ORDER BY created ASC"#
+        )
+        .fetch_all(&conn)
+        .await
+        .unwrap_or_default();
+
+        row.append(
+            &mut sqlx::query_as!(
+                Row,
+                r#"SELECT invites.id, invites.date_added as created, users.username as claimed_by
+            FROM  invites
+            INNER JOIN users ON users.claimed_invite = invites.id"#
+            )
+            .fetch_all(&conn)
+            .await
+            .unwrap_or_default(),
+        );
+
+        return Ok(reply::json(&row));
     }
 
     Err(errors::AuthError::Unauthorized)

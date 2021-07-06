@@ -6,6 +6,7 @@ pub async fn insert_user(conn: &crate::DbConnection) -> String {
         username: "test".into(),
         password: "test".into(),
         roles: vec!["User".into()],
+        prefs: Default::default(),
     };
 
     user.insert(conn).await.unwrap()
@@ -17,6 +18,7 @@ pub async fn insert_many(conn: &crate::DbConnection, n: usize) {
             username: format!("test{}", i),
             password: "test".into(),
             roles: vec!["User".into()],
+            prefs: Default::default(),
         };
 
         user.insert(conn).await.unwrap();
