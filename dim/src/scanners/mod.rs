@@ -87,8 +87,7 @@ pub fn get_matcher(log: &slog::Logger, tx: &EventTx) -> &'static base::MetadataM
 
     METADATA_MATCHER.get_or_init(|| {
         let conn = database::try_get_conn().expect("Failed to grab a connection");
-        base::MetadataMatcher::cluster(&mut handle, 6, log.clone(), conn.clone(), tx.clone())
-            .1
+        base::MetadataMatcher::cluster(&mut handle, 6, log.clone(), conn.clone(), tx.clone()).1
     })
 }
 

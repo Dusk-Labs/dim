@@ -13,6 +13,7 @@ sqlite = ["sqlx/sqlite"]
 [dependencies]
 serde = { version = "^1", features = ["derive"] }
 serde_derive = "^1"
+serde_json = "^1"
 lazy_static = "^1"
 slog = "^2"
 ring = "^0.16.11"

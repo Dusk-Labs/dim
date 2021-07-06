@@ -33,12 +33,7 @@ struct Args {
     metadata_dir: PathBuf,
 
     /// Where the transcoders will cache to.
-    #[structopt(
-        short,
-        long,
-        parse(from_os_str),
-        default_value = "/tmp/streaming_cache"
-    )]
+    #[structopt(long, parse(from_os_str), default_value = "/tmp/streaming_cache")]
     cache_dir: PathBuf,
 
     /// Disable the scanners working at boot time.
@@ -64,13 +59,6 @@ fn main() {
 
     let logger = build_logger(global_settings.verbose);
 
-    // never panics because we set a default value to metadata_dir
-    let _ = create_dir_all(&global_settings.metadata_dir);
-
-    core::METADATA_PATH
-        .set(global_settings.metadata_dir.clone())
-        .unwrap();
-
     {
         let failed = streaming::ffcheck()
             .into_iter()
@@ -91,7 +79,10 @@ fn main() {
         }
     }
 
-    nightfall::profiles::profiles_init(logger.clone(), crate::streaming::FFMPEG_BIN.clone().into_string());
+    nightfall::profiles::profiles_init(
+        logger.clone(),
+        crate::streaming::FFMPEG_BIN.clone().into_string(),
+    );
 
     let async_main = async move {
         core::fetcher::tmdb_poster_fetcher(logger.clone()).await;

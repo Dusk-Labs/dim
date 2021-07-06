@@ -97,14 +97,11 @@ pub fn build_logger(debug: bool) -> slog::Logger {
         .build()
         .fuse();
 
-    let drain = slog::Filter::new(
-        Async::new(drain)
-            .chan_size(2048)
-            .overflow_strategy(slog_async::OverflowStrategy::Block)
-            .build()
-            .fuse(),
-        move |r| debug || !matches!(r.level(), slog::Level::Trace | slog::Level::Debug),
-    );
+    let drain = Async::new(drain)
+        .chan_size(2048)
+        .overflow_strategy(slog_async::OverflowStrategy::Block)
+        .build()
+        .fuse();
 
     let _ = create_dir_all("logs");
 

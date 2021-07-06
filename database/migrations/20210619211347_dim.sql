@@ -96,7 +96,11 @@ CREATE TABLE mediafile (
 CREATE TABLE users (
     username TEXT PRIMARY KEY,
     password TEXT NOT NULL,
-    roles TEXT[] NOT NULL DEFAULT 'User'
+    prefs BLOB NOT NULL DEFAULT '{}',
+    claimed_invite TEXT NOT NULL UNIQUE,
+    roles TEXT[] NOT NULL DEFAULT 'User',
+
+    FOREIGN KEY(claimed_invite) REFERENCES invites(id)
 );
 
 CREATE TABLE progress (
@@ -129,6 +133,6 @@ CREATE TABLE genre_media (
 CREATE UNIQUE INDEX genre_media_idx ON genre_media(genre_id, media_id);
 
 CREATE TABLE invites (
-    id INTEGER PRIMARY KEY,
-    token TEXT NOT NULL UNIQUE
+    id TEXT PRIMARY KEY NOT NULL UNIQUE,
+    date_added INTEGER NOT NULL
 );
