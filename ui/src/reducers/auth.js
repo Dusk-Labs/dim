@@ -183,7 +183,7 @@ export default function authReducer(state = initialState, action) {
         ...state,
         invites: {
           ...state.invites,
-          items: action.payload.invites,
+          items: action.payload,
           fetching: false,
           fetched: true
         }

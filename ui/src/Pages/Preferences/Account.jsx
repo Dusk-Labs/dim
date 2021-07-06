@@ -1,4 +1,5 @@
 import UserCard from "../../Components/CardList/UserCard";
+import Invites from "./Invites";
 
 function AccountSection(props) {
   return (
@@ -44,34 +45,7 @@ function Account() {
           <UserCard user={{"name": "placeholder2", "image": "https://i.redd.it/3n1if40vxxv31.png"}}/>
         </div>
       </section>
-      <section className="tokenSection">
-        <div className="sectionHeading">
-          <span>Tokens</span>
-          <button className="editBtn">
-            new
-          </button>
-        </div>
-        <div className="tableSection">
-          <table className="tokenTable">
-            <thead>
-              <tr>
-                <th style={{width: "65%"}}>Token</th>
-                <th>Created</th>
-                <th>Claimed by</th>
-                <th className="removeHeader">Remove</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>9ebe4e49d6244e12ba7c2e1e5a15aa59</td>
-                <td>2</td>
-                <td>Liam</td>
-                <td>1</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <Invites/>
     </>
   );
 }

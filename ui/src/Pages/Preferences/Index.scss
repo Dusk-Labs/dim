@@ -1,6 +1,4 @@
-@import "../../mixins.scss";
-
-@include keyframes(preferenceAppear) {
+@keyframes preferenceAppear {
   0% {
     opacity: 0;
   }

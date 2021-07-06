@@ -18,33 +18,50 @@ function Invites() {
   let invitesList = <p>You do not have permission to manage invites.</p>;
 
   if (auth.admin_exists) {
-    const { invites, createNewInvite } = auth;
+    const { invites } = auth;
 
-    const invs = [
-      ...invites.items,
-      createNewInvite.code
-    ];
+    const invs = invites.items;
 
-    // FETCH_INVITES_OK
-    // if (!fetchInvites.fetching && fetchInvites.fetched && !fetchInvites.error) {
-    if (true) {
-      const invitesElement = invs.map((invite, i) => <p key={i}>{invite}</p>);
+    if (!invites.fetching && invites.fetched && !invites.error) {
+      console.log(invs);
+      const invitesElement = invs.map((invite, i) => {
+        return (
+          <tr>
+            <td>{invite.id}</td>
+            <td>{invite.created}</td>
+            <td>{invite.claimed_by}</td>
+          </tr>
+        );
+      });
 
       invitesList = (
         invs.length === 0
           ? <p>You don't have any invite codes.</p>
-          : <div className="invitesList">{invitesElement}</div>
+          : <tbody>{invitesElement}</tbody>
       );
     }
   }
 
   return (
-    <section className="invites">
-      <p>Invite Codes</p>
-      {auth.admin_exists &&
-        <button onClick={() => dispatch(createNewInvite())}>Create new invite code</button>
-      }
-      {invitesList}
+    <section className="tokenSection">
+      <div className="sectionHeading">
+        <span>Tokens</span>
+        <button className="editBtn" onClick={() => dispatch(createNewInvite())}>
+          new
+        </button>
+      </div>
+      <div className="tableSection">
+        <table className="tokenTable">
+          <thead>
+            <tr>
+              <th style={{width: "65%"}}>Token</th>
+              <th>Created</th>
+              <th>Claimed by</th>
+            </tr>
+          </thead>
+          {invitesList}
+        </table>
+      </div>
     </section>
   );
 }
