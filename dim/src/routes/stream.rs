@@ -51,8 +51,9 @@ pub fn stream_router(
     conn: DbConnection,
     state: StateManager,
     stream_tracking: StreamTracking,
+    log: slog::Logger,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    filters::return_virtual_manifest(conn.clone(), state.clone(), stream_tracking.clone())
+    filters::return_virtual_manifest(conn.clone(), state.clone(), stream_tracking.clone(), log)
         .or(filters::return_manifest(
             conn.clone(),
             state.clone(),
@@ -95,6 +96,7 @@ mod filters {
         conn: DbConnection,
         state: StateManager,
         stream_tracking: StreamTracking,
+        log: slog::Logger,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         #[derive(Deserialize)]
         struct QueryArgs {
@@ -108,15 +110,17 @@ mod filters {
             .and(with_state::<DbConnection>(conn))
             .and(with_state::<StateManager>(state))
             .and(with_state::<StreamTracking>(stream_tracking))
+            .and(with_state::<slog::Logger>(log))
             .and_then(
                 |id: i64,
                  QueryArgs { gid }: QueryArgs,
                  auth: Auth,
                  conn: DbConnection,
                  state: StateManager,
-                 stream_tracking: StreamTracking| async move {
+                 stream_tracking: StreamTracking,
+                 log: slog::Logger| async move {
                     let gid = gid.and_then(|x| Uuid::parse_str(x.as_str()).ok());
-                    super::return_virtual_manifest(state, stream_tracking, auth, conn, id, gid)
+                    super::return_virtual_manifest(state, stream_tracking, auth, conn, log, id, gid)
                         .await
                         .map_err(|e| reject::custom(e))
                 },
@@ -214,7 +218,7 @@ mod filters {
     pub fn get_subtitle(
         state: StateManager,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "stream" / String / "data" / "stream.vtt")
+        warp::path!("api" / "v1" / "stream" / String / "data" / "stream")
             .and(warp::get())
             .and(with_state::<StateManager>(state))
             .and_then(|id: String, state: StateManager| async move {
@@ -300,6 +304,7 @@ pub async fn return_virtual_manifest(
     stream_tracking: StreamTracking,
     auth: Auth,
     conn: DbConnection,
+    log: slog::Logger,
     id: i64,
     gid: Option<Uuid>,
 ) -> Result<impl warp::Reply, errors::StreamingErrors> {
@@ -345,21 +350,24 @@ pub async fn return_virtual_manifest(
         .cloned()
         .ok_or(errors::StreamingErrors::FileIsCorrupt)?;
 
-    let base_ctx = ProfileContext {
-        start_num: 0,
+
+    let ctx = ProfileContext {
         file: media.target_file.clone(),
+        input_ctx: video_stream.clone().into(),
+        output_ctx: OutputCtx {
+            codec: "h264".into(),
+            start_num: 0,
+            ..Default::default()
+        },
         ..Default::default()
     };
 
-    let profile = get_profile_for(StreamType::Video, &video_stream.codec_name, "h264").pop().expect("Failed to find a supported transcoding profile.");
+    let profile = get_profile_for(&log, StreamType::Video, &ctx).pop().expect("Failed to find a supported transcoding profile.");
 
     let video = state
         .create(
             profile,
-            ProfileContext {
-                stream: video_stream.index as usize,
-                ..base_ctx.clone()
-            },
+            ctx
         )
         .await?;
 
@@ -402,14 +410,22 @@ pub async fn return_virtual_manifest(
     let audio_streams = info.find_by_codec("audio");
 
     for stream in audio_streams {
-        let profile = get_profile_for(StreamType::Audio, &stream.codec_name, "aac").pop().expect("Failed to find a supported transcoding profile.");
+        let ctx = ProfileContext {
+            file: media.target_file.clone(),
+            input_ctx: stream.clone().into(),
+            output_ctx: OutputCtx {
+                codec: "aac".into(),
+                start_num: 0,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let profile = get_profile_for(&log, StreamType::Audio, &ctx).pop().expect("Failed to find a supported transcoding profile.");
         let audio = state
             .create(
                 profile,
-                ProfileContext {
-                    stream: stream.index as usize,
-                    ..base_ctx.clone()
-                }
+                ctx
             )
             .await?;
 
@@ -435,16 +451,41 @@ pub async fn return_virtual_manifest(
     let subtitles = info.find_by_codec("subtitle");
 
     for stream in subtitles {
-        match get_profile_for(StreamType::Subtitle, &stream.codec_name, "webvtt").pop() {
+        let output_codec = if &stream.codec_name == "ass" {
+            "ass"
+        } else {
+            "webvtt"
+        };
+
+        let ctx = ProfileContext {
+            file: media.target_file.clone(),
+            input_ctx: stream.clone().into(),
+            output_ctx: OutputCtx {
+                codec: output_codec.into(),
+                outdir: "-".into(),
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let mime = if &stream.codec_name == "ass" {
+            "text/ass"
+        } else {
+            "text/vtt"
+        };
+
+        let codec = if &stream.codec_name == "ass" {
+            "ass"
+        } else {
+            "vtt"
+        };
+
+        match get_profile_for(&log, StreamType::Subtitle, &ctx).pop() {
             Some(profile) => {
                 let subtitle = state
                 .create(
                     profile,
-                    ProfileContext {
-                        stream: stream.index as usize,
-                        outdir: "-".into(),
-                        ..base_ctx.clone()
-                    }
+                    ctx
                 )
                 .await?;
 
@@ -455,11 +496,11 @@ pub async fn return_virtual_manifest(
                         id: subtitle.clone(),
                         is_direct: false,
                         content_type: ContentType::Subtitle,
-                        mime: "text/vtt".into(),
-                        codecs: "vtt".into(), //ignored
+                        mime: mime.into(),
+                        codecs: codec.into(), //ignored
                         bandwidth: 0,         // ignored
                         duration: None,
-                        chunk_path: format!("{}/data/stream.vtt", subtitle.clone()),
+                        chunk_path: format!("{}/data/stream", subtitle.clone()),
                         init_seg: None,
                         args: {
                             let mut x = HashMap::new();
