@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { notificationsAdd } from "../actions/notifications";
 
-import { wsConnect } from "../actions/ws";
+import { wsConnect, wsShowReconnect } from "../actions/ws";
 import DimLogo from "../assets/DimLogo";
 import Bar from "../Components/Load/Bar";
 
@@ -11,9 +12,11 @@ import "./WS.scss";
 // initialize websocket connection for entire app
 function WS(props) {
   const dispatch = useDispatch();
+
   const ws = useSelector(state => state.ws);
 
-  const [tryingAgainIn, setTryingAgainIn] = useState(10);
+  const [tryingAgainIn, setTryingAgainIn] = useState(5);
+  const [silentConnect, setSilentConnect] = useState(false);
   const [intervalID, setIntervalID] = useState();
   const [msg, setMsg] = useState("Connection failed");
   const [tries, setTries] = useState(0);
@@ -22,15 +25,32 @@ function WS(props) {
     dispatch(wsConnect());
     setMsg("Connection failed");
     setTries(count => count + 1);
-  }, [dispatch]);
+    setTryingAgainIn(5);
+    clearInterval(intervalID);
+    setIntervalID();
+  }, [dispatch, intervalID]);
 
   const handleClose = useCallback((e) => {
     if (e.wasClean) return;
 
-    setMsg("Connection lost");
+    dispatch(notificationsAdd({
+      msg: "Connection to server lost, some actions might not work."
+    }));
+
+    dispatch(wsShowReconnect());
+
     setTries(0);
+    setSilentConnect(true);
     dispatch(wsConnect());
   }, [dispatch]);
+
+  const handleOpen = useCallback((e) => {
+    console.log("CONN OPENED", e);
+
+    if (!silentConnect) return;
+
+    setSilentConnect(false);
+  }, [silentConnect]);
 
   useEffect(() => {
     if (ws.error && !intervalID) {
@@ -52,9 +72,6 @@ function WS(props) {
 
     if (tryingAgainIn <= 0) {
       retry();
-      setTryingAgainIn(10);
-      clearInterval(intervalID);
-      setIntervalID();
     }
   }, [intervalID, retry, tryingAgainIn]);
 
@@ -65,13 +82,18 @@ function WS(props) {
   useEffect(() => {
     if (!ws.conn) return;
 
+    ws.conn.addEventListener("open", handleOpen);
     ws.conn.addEventListener("close", handleClose);
-    return () => ws.conn.removeEventListener("close", handleClose);
-  }, [handleClose, ws.conn]);
+
+    return () => {
+      ws.conn.removeEventListener("open", handleOpen);
+      ws.conn.removeEventListener("close", handleClose);
+    };
+  }, [handleClose, handleOpen, ws.conn]);
 
   return (
     <>
-      {(ws.connecting || ws.error) && (
+      {(!silentConnect && (ws.connecting || ws.error)) && (
         <div className="appLoad showAfter100ms">
           <DimLogo load/>
           {ws.error && (
@@ -86,7 +108,7 @@ function WS(props) {
           )}
         </div>
       )}
-      {(ws.connected && !ws.error) && (
+      {((ws.connected && !ws.error) || silentConnect) && (
         props.children
       )}
     </>
