@@ -14,31 +14,31 @@ const DimLogo = () => (
         <g>
           <use href="#d1pwhf9wy2" opacity="1" fill="#f6c700" fillOpacity="1"/>
           <g>
-            <use href="#d1pwhf9wy2" opacity="1" fillOpacity="0" stroke="#000000" strokeWidth="1" stroke-opacity="0"/>
+            <use href="#d1pwhf9wy2" opacity="1" fillOpacity="0" stroke="#000000" strokeWidth="1" strokeOpacity="0"/>
           </g>
         </g>
         <g>
           <use href="#g5jjnq26yS" opacity="1" fill="#000000" fillOpacity="1"/>
           <g>
-            <use href="#g5jjnq26yS" opacity="1" fillOpacity="0" stroke="#000000" strokeWidth="1" stroke-opacity="0"/>
+            <use href="#g5jjnq26yS" opacity="1" fillOpacity="0" stroke="#000000" strokeWidth="1" strokeOpacity="0"/>
           </g>
         </g>
         <g>
           <use href="#i3Prh1JpXt" opacity="1" fill="#000000" fillOpacity="1"/>
           <g>
-            <use href="#i3Prh1JpXt" opacity="1" fillOpacity="0" stroke="#000000" strokeWidth="1" stroke-opacity="0"/>
+            <use href="#i3Prh1JpXt" opacity="1" fillOpacity="0" stroke="#000000" strokeWidth="1" strokeOpacity="0"/>
           </g>
         </g>
         <g>
           <use href="#a4ov9rRGQm" opacity="1" fill="#000000" fillOpacity="1"/>
           <g>
-            <use href="#a4ov9rRGQm" opacity="1" fillOpacity="0" stroke="#000000" strokeWidth="1" stroke-opacity="0"/>
+            <use href="#a4ov9rRGQm" opacity="1" fillOpacity="0" stroke="#000000" strokeWidth="1" strokeOpacity="0"/>
           </g>
         </g>
         <g>
           <use href="#fk968BpsX" opacity="1" fill="#000000" fillOpacity="1"/>
           <g>
-            <use href="#fk968BpsX" opacity="1" fillOpacity="0" stroke="#000000" strokeWidth="1" stroke-opacity="0"/>
+            <use href="#fk968BpsX" opacity="1" fillOpacity="0" stroke="#000000" strokeWidth="1" strokeOpacity="0"/>
           </g>
         </g>
       </g>
