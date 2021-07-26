@@ -5,6 +5,7 @@ import WS from "./Components/WS";
 import NotAuthedOnlyRoute from "./Routes/NotAuthedOnly";
 import PrivateRoute from "./Routes/Private";
 import MainLayout from "./Layouts/MainLayout";
+import Notifications from "./Components/Notifications";
 
 import Dashboard from "./Pages/Dashboard";
 import Library from "./Pages/Library/Index";
@@ -93,6 +94,7 @@ function App() {
       <BrowserRouter>
         {routes}
       </BrowserRouter>
+      <Notifications/>
     </WS>
   );
 }

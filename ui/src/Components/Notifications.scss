@@ -1,0 +1,15 @@
+.notifications {
+  display: flex;
+  margin: 1em .5em;
+  padding: 0 .5em;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 1em;
+  z-index: 2;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  max-height: 25vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
