@@ -144,10 +144,11 @@ function VideoPlayer() {
 
   const seekTo = useCallback(async newTime => {
     player.seek(newTime);
+
     dispatch(updateVideo({
       seeking: false
     }));
-  }, [audioTracks, dispatch, player, video.gid, videoTracks]);
+  }, [dispatch, player]);
 
   useEffect(() => {
     if (video.showSubSwitcher) return;
