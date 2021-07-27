@@ -1,10 +1,12 @@
 import {
   WS_CONNECT_START,
   WS_CONNECTED,
-  WS_CONNECT_ERR
+  WS_CONNECT_ERR,
+  WS_SHOW_RECONNECT,
+  NOTIFICATIONS_ADD
 } from "./types.js";
 
-export const wsConnect = () => async (dispatch) => {
+export const wsConnect = () => async (dispatch, getState) => {
   dispatch({ type: WS_CONNECT_START });
 
   const host = `ws://${window.location.hostname}:3012/`;
@@ -17,6 +19,17 @@ export const wsConnect = () => async (dispatch) => {
       socket.onerror = (e) => reject(e);
     });
 
+    const { showReconnect } = getState().ws;
+
+    if (showReconnect) {
+      dispatch({
+        type: NOTIFICATIONS_ADD,
+        payload: {
+          msg: "Connection to the server has been restored."
+        }
+      });
+    }
+
     dispatch({
       type: WS_CONNECTED,
       conn: ws
@@ -27,4 +40,10 @@ export const wsConnect = () => async (dispatch) => {
       payload: err
     });
   }
+};
+
+export const wsShowReconnect = () => async (dispatch) => {
+  dispatch({
+    type: WS_SHOW_RECONNECT
+  });
 };
