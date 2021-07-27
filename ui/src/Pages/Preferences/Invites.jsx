@@ -1,68 +1,60 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { formatHHMMSSDate } from "../../Helpers/utils";
+
 import { fetchInvites, createNewInvite } from "../../actions/auth.js";
+
+import "./Invites.scss";
 
 function Invites() {
   const dispatch = useDispatch();
 
-  const { auth } = useSelector(store => ({
-    auth: store.auth
-  }));
+  const auth = useSelector(store => store.auth);
 
   useEffect(() => {
-    if (!auth.admin_exists) return;
+    console.log(auth);
+  }, [auth]);
+
+  useEffect(() => {
     dispatch(fetchInvites());
   }, [auth.admin_exists, dispatch]);
 
-  let invitesList = <p>You do not have permission to manage invites.</p>;
-
-  if (auth.admin_exists) {
-    const { invites } = auth;
-
-    const invs = invites.items;
-
-    if (!invites.fetching && invites.fetched && !invites.error) {
-      console.log(invs);
-      const invitesElement = invs.map((invite, i) => {
-        return (
-          <tr>
-            <td>{invite.id}</td>
-            <td>{invite.created}</td>
-            <td>{invite.claimed_by}</td>
-          </tr>
-        );
-      });
-
-      invitesList = (
-        invs.length === 0
-          ? <p>You don't have any invite codes.</p>
-          : <tbody>{invitesElement}</tbody>
-      );
-    }
-  }
-
   return (
-    <section className="tokenSection">
-      <div className="sectionHeading">
-        <span>Tokens</span>
-        <button className="editBtn" onClick={() => dispatch(createNewInvite())}>
-          new
+    <div className="preferencesInvites">
+      <section>
+        <h2>Manage invites</h2>
+        <p className="desc">Create a token to invite someone and allow them access to your added media libraries securely.</p>
+        <h3>Tokens</h3>
+        <div className="tokensContainer">
+          <div className="heading">
+            <p>ID</p>
+            <p>Created at</p>
+            <p>Status</p>
+          </div>
+          <div className="separator"/>
+          <div className="tokens">
+            {auth.invites.items.map((token, i) => {
+              const {hours, mins, secs, date, month, year} = formatHHMMSSDate(token.created);
+
+              return (
+                <div className="token" key={i}>
+                  <p>{token.id}</p>
+                  <p>{hours}:{mins}:{secs} on the {date}/{month}/{year}</p>
+                  {token.claimed_by
+                    ? <p>Claimed by {token.claimed_by}</p>
+                    : <p>Available</p>
+                  }
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <button>
+          Generate a new token
         </button>
-      </div>
-      <div className="tableSection">
-        <table className="tokenTable">
-          <thead>
-            <tr>
-              <th style={{width: "65%"}}>Token</th>
-              <th>Created</th>
-              <th>Claimed by</th>
-            </tr>
-          </thead>
-          {invitesList}
-        </table>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }
 
