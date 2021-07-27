@@ -1,0 +1,37 @@
+.preferencesAppearance {
+  .themes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1em;
+    margin-top: 1em;
+  }
+
+  .themeContainer {
+    .theme {
+      border-radius: 10px;
+      overflow: hidden;
+      border: solid 3px transparent;
+      transition: border 200ms ease-in-out;
+
+      &:not(.active) {
+        cursor: pointer;
+      }
+
+      &.active {
+        border: solid 3px #fff;
+        opacity: 1;
+      }
+
+      svg {
+        display: block;
+        width: 100%;
+        fill: #000;
+        height: 100%;
+      }
+    }
+
+    p {
+      margin-top: .5em;
+    }
+  }
+}
