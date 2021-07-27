@@ -170,6 +170,10 @@ impl User {
     /// * `password` - new password.
     pub async fn set_password(&self, conn: &crate::DbConnection, password: String) -> Result<usize, DatabaseError> {
         let hash = hash(self.username.clone(), password);
+        let query = sqlx::query!(
+            "UPDATE users SET password = $1 WHERE username = ?",
+            hash, self.username);
+
         Ok(sqlx::query!(
                 "UPDATE users SET password = $1 WHERE username = ?",
                 hash, self.username

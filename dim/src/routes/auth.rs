@@ -282,7 +282,7 @@ pub async fn user_change_password(
     old_password: String,
     new_password: String
 ) -> Result<impl warp::Reply, errors::AuthError> {
-    let user = User::get_one(&conn, user.0.claims.get_user(), old_password).await?;
+    let user = User::get_one(&conn, user.0.claims.get_user(), old_password).await.map_err(|_| errors::AuthError::WrongPassword)?;
     user.set_password(&conn, new_password).await?;
 
     Ok(StatusCode::OK)
