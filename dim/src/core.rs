@@ -247,6 +247,7 @@ pub async fn warp_core(
             conn.clone(),
             stream_manager,
             Default::default(),
+            logger.clone()
         ))
         .or(routes::statik::statik_routes())
         .with(warp::filters::log::custom(move |x| {

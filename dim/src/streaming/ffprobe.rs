@@ -26,6 +26,8 @@ pub struct Stream {
     coded_height: Option<i64>,
     display_aspect_ratio: Option<String>,
     is_avc: Option<String>,
+    pub has_b_frames: Option<u64>,
+    pub pix_fmt: Option<String>,
     pub level: Option<i64>,
     pub tags: Option<Tags>,
     sample_rate: Option<String>,
@@ -36,6 +38,23 @@ pub struct Stream {
     duration: Option<String>,
     color_range: Option<String>,
     color_space: Option<String>,
+}
+
+impl Into<nightfall::profiles::InputCtx> for Stream {
+    fn into(self) -> nightfall::profiles::InputCtx {
+        nightfall::profiles::InputCtx {
+            stream: self.index as usize,
+            codec: self.codec_name,
+            pix_fmt: self.pix_fmt.unwrap_or_default(),
+            profile: self.profile.unwrap_or_default(),
+            bitrate: self.tags
+                .and_then(|x| x.bps_eng.clone())
+                .and_then(|x| x.parse::<u64>().ok())
+                .unwrap_or_default(),
+            bframes: self.has_b_frames,
+            ..Default::default()
+        }
+    }
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
