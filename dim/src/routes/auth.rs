@@ -15,6 +15,8 @@ use warp::reply;
 use warp::reply::Json;
 use warp::Filter;
 
+use http::StatusCode;
+
 use std::convert::Infallible;
 
 pub fn auth_routes(
@@ -26,6 +28,7 @@ pub fn auth_routes(
         .or(filters::register(conn.clone()))
         .or(filters::get_all_invites(conn.clone()))
         .or(filters::generate_invite(conn.clone()))
+        .or(filters::user_change_password(conn.clone()))
         .recover(super::global_filters::handle_rejection)
 }
 
@@ -116,6 +119,27 @@ mod filters {
             .and(with_db(conn))
             .and_then(|user: auth::Wrapper, conn: DbConnection| async move {
                 super::generate_invite(conn, user)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn user_change_password(
+        conn: DbConnection
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        #[derive(Deserialize)]
+        pub struct Params {
+            old_password: String,
+            new_password: String,
+        }
+
+        warp::path!("api" / "v1" / "auth" / "password")
+            .and(warp::patch())
+            .and(auth::with_auth())
+            .and(warp::body::json::<Params>())
+            .and(with_db(conn))
+            .and_then(|user: auth::Wrapper, Params { old_password, new_password }: Params, conn: DbConnection| async move {
+                super::user_change_password(conn, user, old_password, new_password)
                     .await
                     .map_err(|e| reject::custom(e))
             })
@@ -250,4 +274,16 @@ pub async fn generate_invite(
     Ok(reply::json(&json!({
         "token": Login::new_invite(&conn).await?
     })))
+}
+
+pub async fn user_change_password(
+    conn: DbConnection,
+    user: Auth,
+    old_password: String,
+    new_password: String
+) -> Result<impl warp::Reply, errors::AuthError> {
+    let user = User::get_one(&conn, user.0.claims.get_user(), old_password).await?;
+    user.set_password(&conn, new_password).await?;
+
+    Ok(StatusCode::OK)
 }

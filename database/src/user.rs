@@ -162,6 +162,19 @@ impl User {
             .await?
             .rows_affected() as usize)
     }
+
+    /// Method resets the password for a user to a new password.
+    ///
+    /// # Arguments
+    /// * `conn` - db connection
+    /// * `password` - new password.
+    pub async fn set_password(&self, conn: &crate::DbConnection, password: String) -> Result<usize, DatabaseError> {
+        let hash = hash(self.username.clone(), password);
+        Ok(sqlx::query!(
+                "UPDATE users SET password = $1 WHERE username = ?",
+                hash, self.username
+        ).execute(conn).await?.rows_affected() as usize)
+    }
 }
 
 #[derive(Deserialize)]
