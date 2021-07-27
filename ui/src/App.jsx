@@ -5,6 +5,7 @@ import WS from "./Components/WS";
 import NotAuthedOnlyRoute from "./Routes/NotAuthedOnly";
 import PrivateRoute from "./Routes/Private";
 import MainLayout from "./Layouts/MainLayout";
+import Notifications from "./Components/Notifications";
 
 import Dashboard from "./Pages/Dashboard";
 import Library from "./Pages/Library/Index";
@@ -66,16 +67,17 @@ function App() {
     const textFavicon = document.getElementById("textFavicon");
 
     if (color) {
-      favicon.href = "/logoWhite128.png";
-      textFavicon.href = "/textLogoWhite128.png";
+      favicon.href = "/static/logoWhite128.png";
+      textFavicon.href = "/static/textLogoWhite128.png";
     } else {
-      favicon.href = "/logoBlack128.png";
-      textFavicon.href = "/textLogoBlack128.png";
+      favicon.href = "/static/logoBlack128.png";
+      textFavicon.href = "/static/textLogoBlack128.png";
     }
   };
 
   useEffect(() => {
     const mql = matchMedia("(prefers-color-scheme: dark)");
+
     updateLogo(mql.matches);
 
     mql.addEventListener("change", (e) => updateLogo(e.matches));
@@ -90,6 +92,7 @@ function App() {
       <BrowserRouter>
         {routes}
       </BrowserRouter>
+      <Notifications/>
     </WS>
   );
 }

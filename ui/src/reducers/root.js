@@ -10,6 +10,7 @@ import card from "./card.js";
 import banner from "./banner.js";
 import settings from "./settings.js";
 import video from "./video/index";
+import notifications from "./notifications.js";
 
 export default combineReducers({
   auth,
@@ -20,6 +21,7 @@ export default combineReducers({
   search,
   card,
   banner,
+  video,
   settings,
-  video
+  notifications
 });

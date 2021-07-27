@@ -1,0 +1,68 @@
+.preferencesInvites {
+  display: grid;
+  gap: 1em;
+
+  .tokensContainer {
+    margin: 1em 0;
+    background: #3a3a3a;
+    border-radius: 10px;
+    padding: 1em;
+  }
+
+  .heading {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    font-family: "Roboto Bold";
+  }
+
+  .separator {
+    margin: .5em 0;
+  }
+
+  .tokens {
+    .token {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+
+      .createdAt {
+        display: flex;
+        gap: 1em;
+      }
+    }
+  }
+
+  h3 {
+    margin-top: 1em;
+  }
+
+  button {
+    padding: .5em;
+    font-size: 1em;
+    border-radius: 10px;
+    transition: filter 0.3s ease-in-out;
+    background: #f7931e;
+    filter: saturate(0.7);
+    font-family: "Roboto Bold";
+    outline: none;
+
+    &:focus,
+    &:hover {
+      filter: saturate(1);
+    }
+
+    &.disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    &.critical {
+      background: #ff6961;
+    }
+
+    &.important {
+      background: transparent;
+      color: #fff;
+      outline: solid 2px #ff6961;
+    }
+  }
+}

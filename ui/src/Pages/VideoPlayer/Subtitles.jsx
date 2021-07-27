@@ -96,14 +96,6 @@ function VideoSubtitles() {
     const intervalID = setInterval(async () => {
       const videoSubTrack = videoRef.current.textTracks[0];
 
-      if(tracks[current].codecs === "ass") {
-        // let libass-wasm handle it.
-        const options = {
-          video: videoRef,
-          subUrl: `/api/v1/stream/${tracks[current].chunk_path}`
-        };
-      }
-
       const req = await fetch(`/api/v1/stream/${tracks[current].chunk_path}`);
       const text = await req.text();
 

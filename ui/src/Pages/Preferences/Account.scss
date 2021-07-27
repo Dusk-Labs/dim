@@ -1,0 +1,106 @@
+.preferencesAccount {
+  display: grid;
+  gap: 1em;
+
+  h3 {
+    margin-bottom: 1em;
+  }
+
+  button {
+    padding: .5em;
+    font-size: 1em;
+    border-radius: 10px;
+    transition: filter 0.3s ease-in-out;
+    background: #f7931e;
+    filter: saturate(0.7);
+    font-family: "Roboto Bold";
+    outline: none;
+    margin-top: 1em;
+
+    &:focus,
+    &:hover {
+      filter: saturate(1);
+    }
+
+    &.disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    &.critical {
+      background: #ff6961;
+    }
+
+    &.important {
+      background: transparent;
+      color: #fff;
+      outline: solid 2px #ff6961;
+    }
+  }
+
+  .desc {
+    color: #bbb;
+  }
+
+  .options {
+    display: flex;
+    gap: 1em;
+  }
+
+  section {
+    background: #2a2a2a;
+    padding: 1em;
+    border-radius: 10px;
+  }
+
+  .fields {
+    display: grid;
+    gap: 2em;
+    border-radius: 10px;
+    width: 100%;
+
+    label {
+      .name {
+        display: flex;
+        align-items: center;
+      }
+
+      .horizontal-err {
+        padding: 2px 5px;
+        font-size: .8em;
+        margin-left: 5px;
+        background: #ee4740;
+      }
+
+      svg {
+        font-size: 0.8em;
+      }
+
+      .name > p {
+        margin: 0 5px;
+        font-family: "Roboto Condensed Regular", Arial;
+      }
+
+      input {
+        font-family: "Roboto Regular", Arial;
+        transition: background 0.3s ease-in-out;
+        margin-top: 10px;
+        background: #3a3a3a;
+        outline: none;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        color: #ffffff;
+        width: 100%;
+        height: 40px;
+        overflow: hidden;
+        white-space: nowrap;
+
+        &:focus,
+        &:hover {
+          background: #4a4a4a;
+        }
+      }
+    }
+  }
+}

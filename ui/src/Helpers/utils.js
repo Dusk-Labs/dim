@@ -3,6 +3,20 @@ export const formatHHMMSS = (secs) => (
   new Date(secs * 1000).toISOString().substr(11, 8)
 );
 
+// converts to HH:MM:SS + Date format
+export const formatHHMMSSDate = (timestamp) => {
+  const ts = new Date(timestamp * 1000);
+
+  return {
+    hours: ("0" + ts.getHours()).slice(-2),
+    mins: ("0" + ts.getMinutes()).slice(-2),
+    secs: ("0" + ts.getSeconds()).slice(-2),
+    date: ("0" + ts.getDate()).slice(-2),
+    month: ("0" + ts.getMonth()).slice(-2),
+    year: ts.getFullYear()
+  };
+};
+
 /*
   maintains the ratio when finding
   new width/height of an element
