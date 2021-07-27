@@ -29,7 +29,7 @@ impl Season {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id, season_number, tvshowid, added, poster
+            r#"SELECT id as "id!", season_number, tvshowid, added, poster
             FROM season WHERE tvshowid = ?"#,
             tv_id
         )
@@ -50,7 +50,7 @@ impl Season {
     ) -> Result<Season, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id , season_number ,
+            r#"SELECT id as "id!", season_number ,
                     tvshowid , added, poster FROM season WHERE id = ? AND season_number = ?"#,
             tv_id,
             season_num
