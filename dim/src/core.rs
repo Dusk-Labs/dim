@@ -18,6 +18,7 @@ use tokio::sync::mpsc::UnboundedSender;
 
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::copy;
 use std::io::Cursor;
@@ -110,7 +111,7 @@ pub mod fetcher {
 
     use super::*;
 
-    #[derive(Debug, Clone, PartialEq, PartialOrd, Eq)]
+    #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Hash)]
     pub enum PosterType {
         Banner(String),
         Season(String),
@@ -146,6 +147,9 @@ pub mod fetcher {
             unbounded_channel();
 
         let fut = async move {
+            // we need to cache which posters we've already fetched as the scanners arent generally
+            // aware of which assets are available or not.
+            let mut poster_cache = HashSet::<PosterType>::new();
             let mut processing = BTreeSet::<PosterType>::new();
 
             let mut timer = tokio::time::interval(Duration::from_millis(5));
@@ -183,7 +187,12 @@ pub mod fetcher {
                         }
                     }
 
-                    Some(poster) = rx.recv() => { processing.insert(poster); }
+                    Some(poster) = rx.recv() => { 
+                        if !poster_cache.contains(&poster) {
+                            processing.insert(poster.clone());
+                            poster_cache.insert(poster);
+                        }
+                    }
                 }
             }
         };
