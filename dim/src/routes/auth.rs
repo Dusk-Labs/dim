@@ -29,6 +29,8 @@ pub fn auth_routes(
         .or(filters::get_all_invites(conn.clone()))
         .or(filters::generate_invite(conn.clone()))
         .or(filters::user_change_password(conn.clone()))
+        .or(filters::admin_delete_token(conn.clone()))
+        .or(filters::user_delete_self(conn.clone()))
         .recover(super::global_filters::handle_rejection)
 }
 
@@ -140,6 +142,40 @@ mod filters {
             .and(with_db(conn))
             .and_then(|user: auth::Wrapper, Params { old_password, new_password }: Params, conn: DbConnection| async move {
                 super::user_change_password(conn, user, old_password, new_password)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn admin_delete_token(
+        conn: DbConnection
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "auth" / "token" / String)
+            .and(warp::delete())
+            .and(auth::with_auth())
+            .and(with_db(conn))
+            .and_then(|token: String, auth: auth::Wrapper, conn: DbConnection| async move {
+                super::delete_invite(conn, auth, token)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn user_delete_self(
+        conn: DbConnection
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        #[derive(Deserialize)]
+        pub struct Params {
+            password: String
+        }
+
+        warp::path!("api" / "v1" / "user" / "delete" )
+            .and(warp::delete())
+            .and(auth::with_auth())
+            .and(warp::body::json::<Params>())
+            .and(with_db(conn))
+            .and_then(|auth: auth::Wrapper, Params { password }: Params, conn: DbConnection| async move {
+                super::user_delete_self(conn, auth, password)
                     .await
                     .map_err(|e| reject::custom(e))
             })
@@ -276,6 +312,20 @@ pub async fn generate_invite(
     })))
 }
 
+pub async fn delete_invite(
+    conn: DbConnection,
+    user: Auth,
+    token: String
+) -> Result<impl warp::Reply, errors::AuthError> {
+    if !user.0.claims.has_role("owner") {
+        return Err(errors::AuthError::Unauthorized);
+    }
+
+    Login::delete_token(&conn, token).await?;
+
+    Ok(StatusCode::OK)
+}
+
 pub async fn user_change_password(
     conn: DbConnection,
     user: Auth,
@@ -284,6 +334,20 @@ pub async fn user_change_password(
 ) -> Result<impl warp::Reply, errors::AuthError> {
     let user = User::get_one(&conn, user.0.claims.get_user(), old_password).await.map_err(|_| errors::AuthError::WrongPassword)?;
     user.set_password(&conn, new_password).await?;
+
+    Ok(StatusCode::OK)
+}
+
+pub async fn user_delete_self(
+    conn: DbConnection,
+    user: Auth,
+    password: String
+) -> Result<impl warp::Reply, errors::AuthError> {
+    let _ = User::get_one(&conn, user.0.claims.get_user(), password)
+        .await
+        .map_err(|_| errors::AuthError::WrongPassword)?;
+
+    User::delete(&conn, user.0.claims.get_user()).await?;
 
     Ok(StatusCode::OK)
 }

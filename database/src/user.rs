@@ -309,6 +309,10 @@ impl Login {
             .map(|t| t.id)
             .collect())
     }
+
+    pub async fn delete_token(conn: &crate::DbConnection, token: String) -> Result<usize, DatabaseError> {
+        Ok(sqlx::query!("DELETE FROM invites WHERE id = ?", token).execute(conn).await?.rows_affected() as usize)
+    }
 }
 
 pub fn hash(salt: String, s: String) -> String {
