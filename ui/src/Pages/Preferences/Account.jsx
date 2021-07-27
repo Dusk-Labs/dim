@@ -1,28 +1,57 @@
-import UserCard from "../../Components/CardList/UserCard";
-import Invites from "./Invites";
-import MyAccount from "./MyAccount";
+import { useCallback, useEffect, useState } from "react";
+import Field from "../Auth/Field";
 
-function Account() {
-  /*
-      <section className="usersSection">
-        <div className="sectionHeading">
-          <span>Users</span>
-          <button className="editBtn">
-            edit
-          </button>
+import "./Account.scss";
+
+function MyAccount() {
+  const [oldPass, setOldPass] = useState("");
+  const [oldPassErr, setOldPassErr] = useState("");
+  const [newPass, setNewPass] = useState("");
+  const [newPassErr, setNewPassErr] = useState("");
+
+  const [valid, setValid] = useState(false);
+
+  const changePass = useCallback(() => {
+    if (!valid) return;
+  }, [valid]);
+
+  useEffect(() => {
+    setValid(oldPass.length > 4 && newPass.length > 4);
+  }, [newPass.length, oldPass.length]);
+
+  return (
+    <div className="preferencesAccount">
+      <section>
+        <h2>Manage password</h2>
+        <div className="fields">
+          <Field
+            name="Current password"
+            icon="key"
+            data={[oldPass, setOldPass]}
+            error={[oldPassErr, setOldPassErr]}
+            type="password"
+          />
+          <Field
+            name="New password"
+            icon="key"
+            data={[newPass, setNewPass]}
+            error={[newPassErr, setNewPassErr]}
+            type="password"
+          />
         </div>
-        <div className="userListContainer">
-          <UserCard user={{"name": "placeholder", "image": "https://i.redd.it/3n1if40vxxv31.png"}}/>
-          <UserCard user={{"name": "placeholder2", "image": "https://i.redd.it/3n1if40vxxv31.png"}}/>
+        <button className={`${!valid && "disabled"}`} onClick={changePass}>
+          Change password
+        </button>
+      </section>
+      <section>
+        <h2>Manage account</h2>
+        <p className="desc">Your actual media on the system does not get deleted.</p>
+        <div className="options">
+          <button className="critical">Delete account</button>
         </div>
       </section>
-  */
-  return (
-    <>
-      <MyAccount/>
-      <Invites/>
-    </>
+    </div>
   );
 }
 
-export default Account;
+export default MyAccount;
