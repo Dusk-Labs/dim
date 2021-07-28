@@ -4,7 +4,6 @@ import { useDispatch } from "react-redux";
 
 import ConfirmationBox from "../../Modals/ConfirmationBox.jsx";
 import { logout } from "../../actions/auth.js";
-import LogoutIcon from "../../assets/Icons/Logout";
 
 function LogoutBtn() {
   const dispatch = useDispatch();
@@ -24,7 +23,6 @@ function LogoutBtn() {
       msg="Are you sure you want to logout?"
     >
       <button className="item logout">
-        <LogoutIcon/>
         <p className="logout">Logout</p>
       </button>
     </ConfirmationBox>
