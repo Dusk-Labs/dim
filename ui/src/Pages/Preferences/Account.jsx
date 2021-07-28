@@ -1,9 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+
+import { changePassword } from "../../actions/auth";
 import Field from "../Auth/Field";
+import DelAccountBtn from "./DelAccountBtn";
 
 import "./Account.scss";
 
 function MyAccount() {
+  const dispatch = useDispatch();
+
   const [oldPass, setOldPass] = useState("");
   const [oldPassErr, setOldPassErr] = useState("");
   const [newPass, setNewPass] = useState("");
@@ -11,9 +17,19 @@ function MyAccount() {
 
   const [valid, setValid] = useState(false);
 
-  const changePass = useCallback(() => {
+  const changePass = useCallback(async () => {
     if (!valid) return;
-  }, [valid]);
+
+    if (oldPass === newPass) {
+      setNewPassErr("Your new password is the same as your current password.");
+      return;
+    }
+
+    await dispatch(changePassword(oldPass, newPass));
+
+    setOldPass("");
+    setNewPass("");
+  }, [dispatch, newPass, oldPass, valid]);
 
   useEffect(() => {
     setValid(oldPass.length > 4 && newPass.length > 4);
@@ -47,7 +63,7 @@ function MyAccount() {
         <h2>Manage account</h2>
         <p className="desc">Your actual media on the system does not get deleted.</p>
         <div className="options">
-          <button className="critical">Delete account</button>
+          <DelAccountBtn/>
         </div>
       </section>
     </div>
