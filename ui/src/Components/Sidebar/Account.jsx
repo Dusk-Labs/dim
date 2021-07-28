@@ -1,7 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-import LogoutBtn from "./LogoutBtn.jsx";
 import WrenchIcon from "../../assets/Icons/Wrench";
 
 const Account = () => (
@@ -14,7 +13,6 @@ const Account = () => (
         <WrenchIcon/>
         <p>Preferences</p>
       </NavLink>
-      <LogoutBtn/>
     </div>
   </section>
 );
