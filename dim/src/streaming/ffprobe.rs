@@ -47,7 +47,8 @@ impl Into<nightfall::profiles::InputCtx> for Stream {
             codec: self.codec_name,
             pix_fmt: self.pix_fmt.unwrap_or_default(),
             profile: self.profile.unwrap_or_default(),
-            bitrate: self.tags
+            bitrate: self
+                .tags
                 .and_then(|x| x.bps_eng.clone())
                 .and_then(|x| x.parse::<u64>().ok())
                 .unwrap_or_default(),

@@ -1,6 +1,6 @@
 use crate::DatabaseError;
-use std::num::NonZeroU32;
 use std::collections::HashMap;
+use std::num::NonZeroU32;
 use std::time::SystemTime;
 
 use serde::Deserialize;
@@ -101,7 +101,7 @@ impl User {
                 username: user.username.unwrap(),
                 roles: user.roles.split(',').map(ToString::to_string).collect(),
                 password: user.password,
-                prefs: serde_json::from_slice(&user.prefs).unwrap_or_default()
+                prefs: serde_json::from_slice(&user.prefs).unwrap_or_default(),
             })
             .collect())
     }
@@ -118,7 +118,7 @@ impl User {
             username: u.username.unwrap(),
             roles: u.roles.split(',').map(ToString::to_string).collect(),
             password: u.password,
-            prefs: serde_json::from_slice(&u.prefs).unwrap_or_default()
+            prefs: serde_json::from_slice(&u.prefs).unwrap_or_default(),
         })?)
     }
 
@@ -146,7 +146,7 @@ impl User {
             username: user.username.unwrap(),
             roles: user.roles.split(',').map(ToString::to_string).collect(),
             password: user.password,
-            prefs: serde_json::from_slice(&user.prefs).unwrap_or_default()
+            prefs: serde_json::from_slice(&user.prefs).unwrap_or_default(),
         })
     }
 
@@ -168,16 +168,26 @@ impl User {
     /// # Arguments
     /// * `conn` - db connection
     /// * `password` - new password.
-    pub async fn set_password(&self, conn: &crate::DbConnection, password: String) -> Result<usize, DatabaseError> {
+    pub async fn set_password(
+        &self,
+        conn: &crate::DbConnection,
+        password: String,
+    ) -> Result<usize, DatabaseError> {
         let hash = hash(self.username.clone(), password);
         let query = sqlx::query!(
             "UPDATE users SET password = $1 WHERE username = ?",
-            hash, self.username);
+            hash,
+            self.username
+        );
 
         Ok(sqlx::query!(
-                "UPDATE users SET password = $1 WHERE username = ?",
-                hash, self.username
-        ).execute(conn).await?.rows_affected() as usize)
+            "UPDATE users SET password = $1 WHERE username = ?",
+            hash,
+            self.username
+        )
+        .execute(conn)
+        .await?
+        .rows_affected() as usize)
     }
 }
 
@@ -203,7 +213,7 @@ impl InsertableUser {
             password,
             roles,
             prefs,
-            claimed_invite
+            claimed_invite,
         } = self;
 
         let password = hash(username.clone(), password);
@@ -227,17 +237,25 @@ impl InsertableUser {
 
 #[derive(Deserialize)]
 pub struct UpdateableUser {
-    pub prefs: Option<UserSettings>
+    pub prefs: Option<UserSettings>,
 }
 
 impl UpdateableUser {
-    pub async fn update(&self, conn: &crate::DbConnection, user: &str) -> Result<usize, DatabaseError> {
+    pub async fn update(
+        &self,
+        conn: &crate::DbConnection,
+        user: &str,
+    ) -> Result<usize, DatabaseError> {
         if let Some(prefs) = &self.prefs {
             let prefs = serde_json::to_vec(&prefs).unwrap_or_default();
             return Ok(sqlx::query!(
                 "UPDATE users SET prefs = $1 WHERE users.username = ?",
-                prefs, user
-            ).execute(conn).await?.rows_affected() as usize);
+                prefs,
+                user
+            )
+            .execute(conn)
+            .await?
+            .rows_affected() as usize);
         }
 
         Ok(0)
@@ -262,16 +280,17 @@ impl Login {
             Some(t) => t,
         };
 
-        Ok(
-            sqlx::query!("SELECT id FROM invites
+        Ok(sqlx::query!(
+            "SELECT id FROM invites
                           WHERE id NOT IN (
                               SELECT claimed_invite FROM users
                           )
-                          AND id = ?", tok)
-                .fetch_optional(conn)
-                .await?
-                .is_some(),
+                          AND id = ?",
+            tok
         )
+        .fetch_optional(conn)
+        .await?
+        .is_some())
     }
 
     pub async fn invalidate_token(
@@ -294,9 +313,13 @@ impl Login {
             .unwrap()
             .as_secs() as i64;
         let token = uuid::Uuid::new_v4().to_hyphenated().to_string();
-        let _ = sqlx::query!("INSERT INTO invites (id, date_added) VALUES ($1, $2)", token, ts)
-            .execute(conn)
-            .await?;
+        let _ = sqlx::query!(
+            "INSERT INTO invites (id, date_added) VALUES ($1, $2)",
+            token,
+            ts
+        )
+        .execute(conn)
+        .await?;
 
         Ok(token)
     }
@@ -310,18 +333,20 @@ impl Login {
             .collect())
     }
 
-    pub async fn delete_token(conn: &crate::DbConnection, token: String) -> Result<usize, DatabaseError> {
+    pub async fn delete_token(
+        conn: &crate::DbConnection,
+        token: String,
+    ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!(
-                "DELETE FROM invites
+            "DELETE FROM invites
                 WHERE id NOT IN (
                     SELECT claimed_invite FROM users
                 ) AND id = ?",
-                token
-            )
-            .execute(conn)
-            .await?
-            .rows_affected() as usize
+            token
         )
+        .execute(conn)
+        .await?
+        .rows_affected() as usize)
     }
 }
 
@@ -349,4 +374,3 @@ pub fn verify(salt: String, password: String, attempted_password: String) -> boo
     )
     .is_ok()
 }
-

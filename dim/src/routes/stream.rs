@@ -11,6 +11,7 @@ use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::get_avc1_tag;
 use crate::streaming::level_to_tag;
 use crate::streaming::Avc1Level;
+use crate::warp_try;
 
 use chrono::prelude::*;
 use chrono::NaiveDateTime;
@@ -44,6 +45,7 @@ use serde_json::json;
 
 use uuid::Uuid;
 use warp::http::status::StatusCode;
+use warp::reject;
 use warp::reply;
 use warp::Filter;
 
@@ -74,23 +76,30 @@ pub fn stream_router(
         ))
         .or(filters::get_subtitle(state.clone()))
         .or(filters::get_chunk(state.clone()))
+        .or(warp::path!("api" / "stream" / ..)
+            .and(warp::any())
+            .map(|| StatusCode::NOT_FOUND))
         .recover(super::global_filters::handle_rejection)
 }
 
 mod filters {
     use warp::reject;
+    use warp::reply;
+    use warp::reply::Reply;
     use warp::Filter;
 
     use crate::core::DbConnection;
     use crate::core::StateManager;
     use crate::errors::StreamingErrors;
     use crate::stream_tracking::StreamTracking;
+    use crate::warp_unwrap;
 
     use auth::Wrapper as Auth;
     use uuid::Uuid;
 
     use super::super::global_filters::with_state;
     use serde::Deserialize;
+    use std::convert::Infallible;
 
     pub fn return_virtual_manifest(
         conn: DbConnection,
@@ -120,9 +129,19 @@ mod filters {
                  stream_tracking: StreamTracking,
                  log: slog::Logger| async move {
                     let gid = gid.and_then(|x| Uuid::parse_str(x.as_str()).ok());
-                    super::return_virtual_manifest(state, stream_tracking, auth, conn, log, id, gid)
+
+                    warp_unwrap!(
+                        super::return_virtual_manifest(
+                            state,
+                            stream_tracking,
+                            auth,
+                            conn,
+                            log,
+                            id,
+                            gid
+                        )
                         .await
-                        .map_err(|e| reject::custom(e))
+                    )
                 },
             )
     }
@@ -173,7 +192,7 @@ mod filters {
                         includes,
                     )
                     .await
-                    .map_err(|e| reject::custom(e))
+                    .map_or_else(|x| Ok(x.into_response()), |e| Ok(e.into_response()))
                 },
             )
     }
@@ -350,7 +369,6 @@ pub async fn return_virtual_manifest(
         .cloned()
         .ok_or(errors::StreamingErrors::FileIsCorrupt)?;
 
-
     let ctx = ProfileContext {
         file: media.target_file.clone(),
         input_ctx: video_stream.clone().into(),
@@ -362,14 +380,11 @@ pub async fn return_virtual_manifest(
         ..Default::default()
     };
 
-    let profile = get_profile_for(&log, StreamType::Video, &ctx).pop().expect("Failed to find a supported transcoding profile.");
+    let profile = get_profile_for(&log, StreamType::Video, &ctx)
+        .pop()
+        .expect("Failed to find a supported transcoding profile.");
 
-    let video = state
-        .create(
-            profile,
-            ctx
-        )
-        .await?;
+    let video = state.create(profile, ctx).await?;
 
     // FIXME: Stop hardcoding a fps of 24
     let video_avc = video_stream
@@ -421,13 +436,10 @@ pub async fn return_virtual_manifest(
             ..Default::default()
         };
 
-        let profile = get_profile_for(&log, StreamType::Audio, &ctx).pop().expect("Failed to find a supported transcoding profile.");
-        let audio = state
-            .create(
-                profile,
-                ctx
-            )
-            .await?;
+        let profile = get_profile_for(&log, StreamType::Audio, &ctx)
+            .pop()
+            .expect("Failed to find a supported transcoding profile.");
+        let audio = state.create(profile, ctx).await?;
 
         stream_tracking
             .insert(
@@ -482,30 +494,25 @@ pub async fn return_virtual_manifest(
 
         match get_profile_for(&log, StreamType::Subtitle, &ctx).pop() {
             Some(profile) => {
-                let subtitle = state
-                .create(
-                    profile,
-                    ctx
-                )
-                .await?;
+                let subtitle = state.create(profile, ctx).await?;
 
                 stream_tracking
-                .insert(
-                    &gid,
-                    VirtualManifest {
-                        id: subtitle.clone(),
-                        is_direct: false,
-                        content_type: ContentType::Subtitle,
-                        mime: mime.into(),
-                        codecs: codec.into(), //ignored
-                        bandwidth: 0,         // ignored
-                        duration: None,
-                        chunk_path: format!("{}/data/stream", subtitle.clone()),
-                        init_seg: None,
-                        args: {
-                            let mut x = HashMap::new();
-                            if let Some(y) = stream
-                                .tags
+                    .insert(
+                        &gid,
+                        VirtualManifest {
+                            id: subtitle.clone(),
+                            is_direct: false,
+                            content_type: ContentType::Subtitle,
+                            mime: mime.into(),
+                            codecs: codec.into(), //ignored
+                            bandwidth: 0,         // ignored
+                            duration: None,
+                            chunk_path: format!("{}/data/stream", subtitle.clone()),
+                            init_seg: None,
+                            args: {
+                                let mut x = HashMap::new();
+                                if let Some(y) = stream
+                                    .tags
                                     .as_ref()
                                     .and_then(|x| x.title.clone().or(x.language.clone()))
                                 {

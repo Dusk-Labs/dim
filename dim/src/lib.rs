@@ -30,7 +30,8 @@
     result_into_ok_or_err,
     stmt_expr_attributes,
     with_options,
-    map_first_last
+    map_first_last,
+    never_type
 )]
 #![cfg_attr(debug_assertions, allow(unused_variables, unused_imports, dead_code))]
 

@@ -187,7 +187,7 @@ pub mod fetcher {
                         }
                     }
 
-                    Some(poster) = rx.recv() => { 
+                    Some(poster) = rx.recv() => {
                         if !poster_cache.contains(&poster) {
                             processing.insert(poster.clone());
                             poster_cache.insert(poster);
@@ -256,7 +256,7 @@ pub async fn warp_core(
             conn.clone(),
             stream_manager,
             Default::default(),
-            logger.clone()
+            logger.clone(),
         ))
         .or(routes::statik::statik_routes())
         .with(warp::filters::log::custom(move |x| {

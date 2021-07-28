@@ -57,6 +57,8 @@ pub mod global_filters {
             return Ok(e.clone().into_response());
         } else if let Some(e) = err.find::<crate::errors::DimError>() {
             return Ok(e.clone().into_response());
+        } else if let Some(e) = err.find::<auth::JWTError>() {
+            return Ok(crate::errors::DimError::AuthRequired.into_response());
         }
 
         Err(err)

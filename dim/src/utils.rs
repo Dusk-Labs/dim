@@ -54,3 +54,27 @@ macro_rules! balanced_or_tree {
         balanced_or_tree!(@internal $($left,)* $head; $($tail),+; $($more),+)
     };
 }
+
+#[macro_export]
+macro_rules! warp_try {
+    ($x:expr) => {
+        match $x {
+            Ok(x) => x,
+            Err(e) => return Ok(::warp::reply::Reply::into_response(e)),
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! warp_unwrap {
+    ($x:expr) => {
+        match $x {
+            Ok(x) => {
+                Result::<_, ::core::convert::Infallible>::Ok(::warp::reply::Reply::into_response(x))
+            }
+            Err(e) => {
+                Result::<_, ::core::convert::Infallible>::Ok(::warp::reply::Reply::into_response(e))
+            }
+        }
+    };
+}
