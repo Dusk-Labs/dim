@@ -311,7 +311,17 @@ impl Login {
     }
 
     pub async fn delete_token(conn: &crate::DbConnection, token: String) -> Result<usize, DatabaseError> {
-        Ok(sqlx::query!("DELETE FROM invites WHERE id = ?", token).execute(conn).await?.rows_affected() as usize)
+        Ok(sqlx::query!(
+                "DELETE FROM invites
+                WHERE id NOT IN (
+                    SELECT claimed_invite FROM users
+                ) AND id = ?",
+                token
+            )
+            .execute(conn)
+            .await?
+            .rows_affected() as usize
+        )
     }
 }
 
