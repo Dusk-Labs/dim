@@ -6,12 +6,13 @@
     margin: 1em 0;
     background: #3a3a3a;
     border-radius: 10px;
-    padding: 1em;
+    padding: .5em;
   }
 
   .heading {
+    padding: .5em .5em 0 .5em;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1em;
     font-family: "Roboto Bold";
   }
 
@@ -21,8 +22,37 @@
 
   .tokens {
     .token {
+      padding: .3em .5em;
+      border-radius: 10px;
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1em;
+      color: #eee;
+      align-items: center;
+      grid-template-columns: 1fr 1fr 1fr 1em;
+      word-break: break-all;
+
+      &:hover {
+        background: #2a2a2a;
+
+        svg {
+          opacity: 1;
+        }
+      }
+
+      svg {
+        cursor: pointer;
+        opacity: 0;
+        fill: #ccc;
+
+        &:hover {
+          fill: #fff;
+        }
+      }
+
+      button {
+        font-size: 1em;
+        background: transparent;
+      }
 
       .createdAt {
         display: flex;
@@ -35,7 +65,7 @@
     margin-top: 1em;
   }
 
-  button {
+  .genTokenBtn {
     padding: .5em;
     font-size: 1em;
     border-radius: 10px;

@@ -1,18 +1,33 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { formatHHMMSSDate } from "../../Helpers/utils";
-import { fetchInvites, createNewInvite } from "../../actions/auth.js";
+import { fetchInvites, createNewInvite, delInvite } from "../../actions/auth.js";
+import TrashIcon from "../../assets/Icons/Trash";
 
 import "./Invites.scss";
 
 function Invites() {
   const dispatch = useDispatch();
-  const auth = useSelector(store => store.auth);
+
+  const { user, auth } = useSelector(store => ({
+    user: store.user,
+    auth: store.auth
+  }));
 
   useEffect(() => {
     dispatch(fetchInvites());
   }, [auth.admin_exists, dispatch]);
+
+  const genNewToken = useCallback(async () => {
+    await dispatch(createNewInvite());
+    dispatch(fetchInvites());
+  }, [dispatch]);
+
+  const delInviteToken = useCallback(async (token) => {
+    await dispatch(delInvite(token));
+    dispatch(fetchInvites());
+  }, [dispatch]);
 
   const tokens = auth.invites.items.map((token, i) => {
     const {hours, mins, secs, date, month, year} = formatHHMMSSDate(token.created);
@@ -22,9 +37,14 @@ function Invites() {
         <p>{token.id}</p>
         <p>{hours}:{mins}:{secs} on the {date}/{month}/{year}</p>
         {token.claimed_by
-          ? <p>Claimed by {token.claimed_by}</p>
+          ? <p>{token.claimed_by}</p>
           : <p>Available</p>
         }
+        {user.info.username !== token.claimed_by && (
+          <button onClick={() => delInviteToken(token.id)}>
+            <TrashIcon/>
+          </button>
+        )}
       </div>
     );
   });
@@ -46,7 +66,7 @@ function Invites() {
             {tokens}
           </div>
         </div>
-        <button onClick={createNewInvite}>
+        <button className="genTokenBtn" onClick={genNewToken}>
           Generate a new token
         </button>
       </section>
