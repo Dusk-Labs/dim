@@ -32,6 +32,7 @@ pub fn auth_routes(
         .or(filters::admin_delete_token(conn.clone()))
         .or(filters::user_delete_self(conn.clone()))
         .recover(super::global_filters::handle_rejection)
+        .boxed()
 }
 
 mod filters {
