@@ -5,9 +5,11 @@ import { checkAdminExists } from "../../actions/auth.js";
 import { fetchGlobalSettings } from "../../actions/settings.js";
 
 import Account from "./Account";
+import Profile from "./Profile.jsx";
 import Invites from "./Invites";
 import Appearance from "./Appearance";
 import Advanced from "./Advanced";
+import LogoutBtn from "./LogoutBtn.jsx";
 
 import "./Index.scss";
 
@@ -40,13 +42,15 @@ function Preferences() {
         <h3 className={`${active === 3 && "active"}`} onClick={() => setActive(3)}>
           Appearance
         </h3>
-        <h3 className={`${active === 4 && "active"}`} onClick={() => setActive(4)}>
+        <h3 className={`${active === 5 && "active"}`} onClick={() => setActive(5)}>
           Advanced
         </h3>
-        <h3>Logout</h3>
+        <div className="separator"/>
+        <LogoutBtn/>
       </aside>
       <div className="content">
         {active === 0 && <Account/>}
+        {active === 1 && <Profile/>}
         {active === 2 && <Invites/>}
         {active === 3 && <Appearance/>}
         {active === 4 && <Advanced/>}
