@@ -16,6 +16,7 @@ logs/
 transcoding
 benches/bench_1.mkv
 benches/bench_1.txt
+.env
 
 # UI
 node_modules

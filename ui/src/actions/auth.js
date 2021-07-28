@@ -14,7 +14,8 @@ import {
   CREATE_NEW_INVITE_ERR,
   FETCH_INVITES_START,
   FETCH_INVITES_OK,
-  FETCH_INVITES_ERR
+  FETCH_INVITES_ERR,
+  NOTIFICATIONS_ADD
 } from "./types";
 
 export const authenticate = (username, password) => async (dispatch) => {
@@ -181,6 +182,51 @@ export const createNewInvite = () => async (dispatch, getState) => {
     dispatch({
       type: CREATE_NEW_INVITE_OK,
       payload
+    });
+
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: `Successfuly created a new invite token: ${payload.token}.`
+      }
+    });
+  } catch(err) {
+    dispatch({
+      type: CREATE_NEW_INVITE_ERR,
+      payload: err
+    });
+  }
+};
+
+export const delInvite = (inviteToken) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
+  const config = {
+    method: "DELETE",
+    headers: {
+      "authorization": token
+    }
+  };
+
+  try {
+    const res = await fetch(`/api/v1/auth/token/${inviteToken}`, config);
+
+    if (res.status !== 200) {
+      dispatch({
+        type: NOTIFICATIONS_ADD,
+        payload: {
+          msg: `Could not delete invite token: ${inviteToken}`
+        }
+      });
+
+      return;
+    }
+
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: `Successfuly deleted invite token: ${inviteToken}`
+      }
     });
   } catch(err) {
     dispatch({

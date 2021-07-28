@@ -5,7 +5,7 @@ const LightsOffTheme = () => (
         <rect width="1920" height="1080"/>
       </clipPath>
     </defs>
-    <g id="lights_off" data-name="lights off" clip-path="url(#clip-lights_off)">
+    <g id="lights_off" data-name="lights off" clipPath="url(#clip-lights_off)">
       <rect width="1920" height="1080"/>
       <rect id="Rectangle_7" data-name="Rectangle 7" width="300" height="1080"/>
       <rect id="Rectangle_8" data-name="Rectangle 8" width="1620" height="500" transform="translate(300)"/>

@@ -1,7 +1,13 @@
+main {
+  height: 100%;
+}
+
 .preferencesPage {
+  height: 100%;
   display: grid;
-  grid-template-areas: "nav content";
-  grid-template-columns: auto 1fr;
+  grid-template-areas: "nav" "content";
+  align-content: flex-start;
+  transition: padding 200ms ease-in-out;
   gap: 30px;
   padding: 30px;
 
@@ -9,9 +15,11 @@
     display: flex;
     flex-direction: column;
     gap: 1em;
+    height: 100%;
     grid-area: nav;
 
     h3 {
+      font-size: 1.2em;
       color: #aaa;
       cursor: default;
 
@@ -25,6 +33,17 @@
 
       &.active {
         color: white;
+      }
+    }
+
+    button {
+      font-size: 1.2em;
+      color: #aaa;
+      background: transparent;
+      font-family: "Roboto Regular";
+
+      &:hover {
+        color: #ed4245;
       }
     }
   }
@@ -49,5 +68,7 @@
   .preferencesPage {
     padding: 60px 90px;
     gap: 90px;
+    grid-template-areas: "nav content";
+    grid-template-columns: auto 1fr;
   }
 }

@@ -28,13 +28,8 @@
     }
 
     &.critical {
-      background: #ff6961;
-    }
-
-    &.important {
-      background: transparent;
-      color: #fff;
-      outline: solid 2px #ff6961;
+      background: #e91619;
+      color: #eee;
     }
   }
 

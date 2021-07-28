@@ -1,7 +1,6 @@
 .preferencesAppearance {
   .themes {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1em;
     margin-top: 1em;
   }
@@ -33,5 +32,11 @@
     p {
       margin-top: .5em;
     }
+  }
+}
+
+@media only screen and (min-width: 480px) {
+  .preferencesAppearance .themes {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   }
 }

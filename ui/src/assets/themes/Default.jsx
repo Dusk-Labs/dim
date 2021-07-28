@@ -5,7 +5,7 @@ const DarkTheme = () => (
         <rect width="1920" height="1080"/>
       </clipPath>
     </defs>
-    <g id="dark" clip-path="url(#clip-dark)">
+    <g id="dark" clipPath="url(#clip-dark)">
       <rect width="1920" height="1080" fill="#1a1a1a"/>
       <rect id="Rectangle_7" data-name="Rectangle 7" width="300" height="1080" fill="#3a3a3a"/>
       <rect id="Rectangle_8" data-name="Rectangle 8" width="1620" height="500" transform="translate(300)" fill="#2a2a2a"/>

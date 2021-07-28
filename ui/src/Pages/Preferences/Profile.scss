@@ -1,0 +1,92 @@
+.preferencesProfile {
+  display: grid;
+  gap: 1em;
+
+  button {
+    padding: .5em;
+    font-size: 1em;
+    border-radius: 10px;
+    transition: filter 0.3s ease-in-out;
+    background: #f7931e;
+    filter: saturate(0.7);
+    font-family: "Roboto Bold";
+    outline: none;
+
+    &:focus,
+    &:hover {
+      filter: saturate(1);
+    }
+
+    &.disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    &.critical {
+      background: #e91619;
+      color: #eee;
+    }
+  }
+
+  label {
+    .name {
+      display: flex;
+      align-items: center;
+    }
+
+    .horizontal-err {
+      padding: 2px 5px;
+      font-size: .8em;
+      margin-left: 5px;
+      background: #ee4740;
+    }
+
+    svg {
+      font-size: 0.8em;
+    }
+
+    .name > p {
+      margin: 0 5px;
+      font-family: "Roboto Condensed Regular", Arial;
+    }
+
+    input {
+      font-family: "Roboto Regular", Arial;
+      transition: background 0.3s ease-in-out;
+      margin-top: 10px;
+      background: #3a3a3a;
+      outline: none;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      color: #ffffff;
+      width: 100%;
+      height: 40px;
+      overflow: hidden;
+      white-space: nowrap;
+
+      &:focus,
+      &:hover {
+        background: #4a4a4a;
+      }
+    }
+  }
+
+  .usernameSection button {
+    margin-top: 1em;
+  }
+
+  .options {
+    display: flex;
+    gap: 1em;
+  }
+
+  button.secondary {
+    color: #fff;
+    background: transparent;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
