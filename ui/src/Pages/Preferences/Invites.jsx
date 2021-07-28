@@ -2,23 +2,32 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { formatHHMMSSDate } from "../../Helpers/utils";
-
 import { fetchInvites, createNewInvite } from "../../actions/auth.js";
 
 import "./Invites.scss";
 
 function Invites() {
   const dispatch = useDispatch();
-
   const auth = useSelector(store => store.auth);
-
-  useEffect(() => {
-    console.log(auth);
-  }, [auth]);
 
   useEffect(() => {
     dispatch(fetchInvites());
   }, [auth.admin_exists, dispatch]);
+
+  const tokens = auth.invites.items.map((token, i) => {
+    const {hours, mins, secs, date, month, year} = formatHHMMSSDate(token.created);
+
+    return (
+      <div className="token" key={i}>
+        <p>{token.id}</p>
+        <p>{hours}:{mins}:{secs} on the {date}/{month}/{year}</p>
+        {token.claimed_by
+          ? <p>Claimed by {token.claimed_by}</p>
+          : <p>Available</p>
+        }
+      </div>
+    );
+  });
 
   return (
     <div className="preferencesInvites">
@@ -34,23 +43,10 @@ function Invites() {
           </div>
           <div className="separator"/>
           <div className="tokens">
-            {auth.invites.items.map((token, i) => {
-              const {hours, mins, secs, date, month, year} = formatHHMMSSDate(token.created);
-
-              return (
-                <div className="token" key={i}>
-                  <p>{token.id}</p>
-                  <p>{hours}:{mins}:{secs} on the {date}/{month}/{year}</p>
-                  {token.claimed_by
-                    ? <p>Claimed by {token.claimed_by}</p>
-                    : <p>Available</p>
-                  }
-                </div>
-              );
-            })}
+            {tokens}
           </div>
         </div>
-        <button>
+        <button onClick={createNewInvite}>
           Generate a new token
         </button>
       </section>
