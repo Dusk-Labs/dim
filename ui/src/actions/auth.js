@@ -130,6 +130,93 @@ export const register = (username, password, invite) => async (dispatch) => {
   }
 };
 
+export const changePassword = (oldPassword, newPassword) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
+  const config = {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "authorization": token
+    },
+    body: JSON.stringify({
+      "old_password": oldPassword,
+      "new_password": newPassword
+    })
+  };
+
+  try {
+    const res = await fetch("/api/v1/auth/password", config);
+
+    if (res.status !== 200) {
+      dispatch({
+        type: NOTIFICATIONS_ADD,
+        payload: {
+          msg: "Failed to change password."
+        }
+      });
+
+      return;
+    }
+
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: "Your password has now been updated."
+      }
+    });
+  } catch(err) {
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: "Failed to change password."
+      }
+    });
+  }
+};
+
+export const delAccount = (password) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
+  const config = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "authorization": token
+    },
+    body: JSON.stringify({
+      "password": password
+    })
+  };
+
+  try {
+    const res = await fetch("/api/v1/user/delete", config);
+
+    if (res.status !== 200) {
+      dispatch({
+        type: NOTIFICATIONS_ADD,
+        payload: {
+          msg: "Failed to delete account."
+        }
+      });
+
+      return;
+    }
+
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: "Your account has been deleted, you have been logged out."
+      }
+    });
+  } catch(err) {
+    dispatch({
+      type: AUTH_REGISTER_ERR,
+      payload: err
+    });
+  }
+};
+
 export const checkAdminExists = () => async (dispatch) => {
   try {
     const res = await fetch("/api/v1/auth/admin_exists");
