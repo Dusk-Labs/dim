@@ -183,6 +183,13 @@ export const createNewInvite = () => async (dispatch, getState) => {
       type: CREATE_NEW_INVITE_OK,
       payload
     });
+
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: `Successfuly created a new invite token: ${payload.token}.`
+      }
+    });
   } catch(err) {
     dispatch({
       type: CREATE_NEW_INVITE_ERR,
