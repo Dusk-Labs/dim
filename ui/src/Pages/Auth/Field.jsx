@@ -5,7 +5,7 @@ import UserIcon from "../../assets/Icons/User";
 import KeyIcon from "../../assets/Icons/Key";
 
 function Field(
-  { name, icon, data, error, type = "text" }
+  { name, icon, data, error, type = "text", placeholder = "" }
 ) {
   const [value, setValue] = data;
   const [err, setErr] = error;
@@ -26,6 +26,7 @@ function Field(
         )}
       </div>
       <input
+        placeholder={placeholder}
         onChange={e => setValue(e.target.value)}
         value={value}
         spellCheck="false"
