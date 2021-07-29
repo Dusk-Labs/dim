@@ -85,7 +85,9 @@ pub async fn get_mediafile_info(
     id: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mediafile = MediaFile::get_one(&conn, id).await?;
+    let mediafile = MediaFile::get_one(&conn, id)
+        .await
+        .map_err(|_| errors::DimError::NotFoundError)?;
 
     Ok(reply::json(&json!({
         "id": mediafile.id,

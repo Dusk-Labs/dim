@@ -63,6 +63,12 @@ pub mod global_filters {
 
         Err(err)
     }
+
+    pub fn api_not_found() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / ..)
+            .and(warp::any())
+            .map(|| crate::errors::DimError::NotFoundError)
+    }
 }
 
 pub async fn get_top_duration(conn: &DbConnection, data: &Media) -> Result<i64, errors::DimError> {

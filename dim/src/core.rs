@@ -2,6 +2,7 @@ use crate::logger::RequestLogger;
 use crate::routes;
 use crate::scanners;
 use crate::stream_tracking::StreamTracking;
+use crate::websocket;
 
 use cfg_if::cfg_if;
 use lazy_static::lazy_static;
@@ -205,33 +206,19 @@ pub mod fetcher {
     }
 }
 
-/// Function spins up a new Websocket server which we use to dispatch events over to clients
-/// discriminated by a URI
-// TODO: Handle launch failures and fallback to a new port.
-// TODO: Store the port of the server in a dynamic config which can be queried by clients in case
-// the port changes as we dont want this hardcoded in.
-pub async fn start_event_server() -> EventTx {
-    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-
-    tokio::spawn(crate::websocket::serve(
-        "0.0.0.0:3012",
-        tokio::runtime::Handle::current(),
-        rx,
-    ));
-
-    tx
-}
-
 pub async fn warp_core(
     logger: slog::Logger,
     event_tx: EventTx,
     stream_manager: StateManager,
     rt: tokio::runtime::Handle,
     port: u16,
+    event_rx: UnboundedReceiver<String>,
 ) {
     let conn = database::get_conn()
         .await
         .expect("Failed to grab a handle to the connection pool.");
+
+
     let request_logger = RequestLogger::new(logger.clone());
 
     let routes = routes::auth::auth_routes(conn.clone())
@@ -258,6 +245,8 @@ pub async fn warp_core(
             Default::default(),
             logger.clone(),
         ))
+        .or(routes::global_filters::api_not_found())
+        .or(websocket::event_socket(tokio::runtime::Handle::current(), event_rx).recover(routes::global_filters::handle_rejection))
         .or(routes::statik::statik_routes())
         .with(warp::filters::log::custom(move |x| {
             request_logger.on_response(x);

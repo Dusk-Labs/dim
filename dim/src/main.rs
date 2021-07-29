@@ -87,8 +87,7 @@ fn main() {
     let async_main = async move {
         core::fetcher::tmdb_poster_fetcher(logger.clone()).await;
 
-        info!(logger, "Starting the WS service on port 3012");
-        let event_tx = core::start_event_server().await;
+        let (event_tx, event_rx) = tokio::sync::mpsc::unbounded_channel();
 
         let stream_manager = nightfall::StateManager::new(
             &mut Tokio::Global,
@@ -123,7 +122,7 @@ fn main() {
 
         let rt = tokio::runtime::Handle::current();
 
-        core::warp_core(logger, event_tx, stream_manager, rt, global_settings.port).await;
+        core::warp_core(logger, event_tx, stream_manager, rt, global_settings.port, event_rx).await;
     };
 
     tokio::runtime::Runtime::new()
