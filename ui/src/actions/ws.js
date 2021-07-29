@@ -9,7 +9,9 @@ import {
 export const wsConnect = () => async (dispatch, getState) => {
   dispatch({ type: WS_CONNECT_START });
 
-  const host = `ws://${window.location.hostname}:3012/`;
+  // NOTE(val): this is needed because webpack fails to proxy websocket traffic through.
+  const base = process.env.NODE_ENV === "development" ? `${window.location.hostname}:8000` : window.location.host;
+  const host = window.location.protocol === "https:" ? `wss://${base}/ws` : `ws://${base}/ws`;
 
   try {
     const ws = await new Promise((resolve, reject) => {

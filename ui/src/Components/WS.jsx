@@ -14,6 +14,7 @@ function WS(props) {
   const dispatch = useDispatch();
 
   const ws = useSelector(state => state.ws);
+  const auth = useSelector(state => state.auth);
 
   const [tryingAgainIn, setTryingAgainIn] = useState(5);
   const [silentConnect, setSilentConnect] = useState(false);
@@ -90,6 +91,17 @@ function WS(props) {
       ws.conn.removeEventListener("close", handleClose);
     };
   }, [handleClose, handleOpen, ws.conn]);
+
+  useEffect(() => {
+    if (!auth.token) return;
+
+    console.log("authing with ws");
+    ws.conn.send(JSON.stringify({
+      "type": "authenticate",
+      "token": auth.token
+    }));
+
+  }, [auth.token, ws.conn]);
 
   return (
     <>
