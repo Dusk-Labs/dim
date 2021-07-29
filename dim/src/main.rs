@@ -122,7 +122,15 @@ fn main() {
 
         let rt = tokio::runtime::Handle::current();
 
-        core::warp_core(logger, event_tx, stream_manager, rt, global_settings.port, event_rx).await;
+        core::warp_core(
+            logger,
+            event_tx,
+            stream_manager,
+            rt,
+            global_settings.port,
+            event_rx,
+        )
+        .await;
     };
 
     tokio::runtime::Runtime::new()

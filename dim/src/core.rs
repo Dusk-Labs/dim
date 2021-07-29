@@ -157,6 +157,13 @@ pub mod fetcher {
 
             loop {
                 tokio::select! {
+                    Some(poster) = rx.recv() => {
+                        if !poster_cache.contains(&poster) {
+                            processing.insert(poster.clone());
+                            poster_cache.insert(poster);
+                        }
+                    }
+
                     _ = timer.tick() => {
                         while let Some(poster) = processing.pop_last() {
                             let url: String = poster.clone().into();
@@ -187,14 +194,11 @@ pub mod fetcher {
                             }
                         }
                     }
-
-                    Some(poster) = rx.recv() => {
-                        if !poster_cache.contains(&poster) {
-                            processing.insert(poster.clone());
-                            poster_cache.insert(poster);
-                        }
-                    }
                 }
+
+                // NOTE(val): turns out that sometimes looping too fast can result in data
+                // magically disappearing.
+                tokio::time::sleep(Duration::from_millis(1)).await;
             }
         };
 
@@ -217,7 +221,6 @@ pub async fn warp_core(
     let conn = database::get_conn()
         .await
         .expect("Failed to grab a handle to the connection pool.");
-
 
     let request_logger = RequestLogger::new(logger.clone());
 
@@ -246,7 +249,10 @@ pub async fn warp_core(
             logger.clone(),
         ))
         .or(routes::global_filters::api_not_found())
-        .or(websocket::event_socket(tokio::runtime::Handle::current(), event_rx).recover(routes::global_filters::handle_rejection))
+        .or(
+            websocket::event_socket(tokio::runtime::Handle::current(), event_rx)
+                .recover(routes::global_filters::handle_rejection),
+        )
         .or(routes::statik::statik_routes())
         .with(warp::filters::log::custom(move |x| {
             request_logger.on_response(x);

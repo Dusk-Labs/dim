@@ -12,8 +12,8 @@ use tokio::{
     sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender},
 };
 
-use warp::filters::ws::WebSocket;
 use warp::filters::ws::Message;
+use warp::filters::ws::WebSocket;
 use warp::Filter;
 
 use futures::prelude::*;
@@ -115,14 +115,12 @@ where
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "type")]
 pub enum ClientActions {
-    Authenticate {
-        token: String,
-    }
+    Authenticate { token: String },
 }
 
 pub fn event_socket(
     rt_handle: Handle,
-    mut event_rx: UnboundedReceiver<String>
+    mut event_rx: UnboundedReceiver<String>,
 ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     let (i_tx, i_rx) = unbounded_channel::<CtrlEvent<SocketAddr, String>>();
 
@@ -140,86 +138,92 @@ pub fn event_socket(
 
     let forwarder = rt_handle.spawn(forwarder_fut);
 
-
     warp::path("ws")
         .and(warp::filters::addr::remote())
         .and(routes::global_filters::with_state(i_tx))
         .and(routes::global_filters::with_state(rt_handle))
         .and(warp::ws())
-        .map(|addr: Option<SocketAddr>, i_tx: UnboundedSender<CtrlEvent<SocketAddr, String>>, rt_handle: Handle, ws: warp::ws::Ws| {
-            ws.on_upgrade(move |websocket| async move {
-                let addr = match addr {
-                    Some(addr) => addr,
-                    None => return,
-                };
+        .map(
+            |addr: Option<SocketAddr>,
+             i_tx: UnboundedSender<CtrlEvent<SocketAddr, String>>,
+             rt_handle: Handle,
+             ws: warp::ws::Ws| {
+                ws.on_upgrade(move |websocket| async move {
+                    let addr = match addr {
+                        Some(addr) => addr,
+                        None => return,
+                    };
 
-                let (m_tx, mut m_rx) = unbounded_channel::<(SocketAddr, Message)>();
-                let (ws_tx, mut ws_rx) = websocket.split();
+                    let (m_tx, mut m_rx) = unbounded_channel::<(SocketAddr, Message)>();
+                    let (ws_tx, mut ws_rx) = websocket.split();
 
-                'auth_loop: while let Some(Ok(x)) = ws_rx.next().await {
-                    if x.is_text() {
-                        match serde_json::from_slice(x.as_bytes()) {
-                            Ok(ClientActions::Authenticate { token }) => {
-                                if let Ok(token_data) = auth::jwt_check(token) {
-                                    let _ = i_tx.send(CtrlEvent::Track {
-                                        addr: addr.clone(),
-                                        sink: ws_tx,
-                                        auth: auth::Wrapper(token_data),
-                                    });
+                    'auth_loop: while let Some(Ok(x)) = ws_rx.next().await {
+                        if x.is_text() {
+                            match serde_json::from_slice(x.as_bytes()) {
+                                Ok(ClientActions::Authenticate { token }) => {
+                                    if let Ok(token_data) = auth::jwt_check(token) {
+                                        let _ = i_tx.send(CtrlEvent::Track {
+                                            addr: addr.clone(),
+                                            sink: ws_tx,
+                                            auth: auth::Wrapper(token_data),
+                                        });
 
-                                    let _ = i_tx.send(CtrlEvent::SendTo { 
-                                        addr: addr.clone(),
-                                        message: events::Message {
-                                            id: -1,
-                                            event_type: events::PushEventType::EventAuthOk,
-                                        }.to_string()
-                                    });
+                                        let _ = i_tx.send(CtrlEvent::SendTo {
+                                            addr: addr.clone(),
+                                            message: events::Message {
+                                                id: -1,
+                                                event_type: events::PushEventType::EventAuthOk,
+                                            }
+                                            .to_string(),
+                                        });
 
-                                    break 'auth_loop
+                                        break 'auth_loop;
+                                    }
                                 }
+                                _ => {}
                             }
-                            _ => {}
-                        }
 
-                        let _ = i_tx.send(CtrlEvent::SendTo {
-                            addr: addr.clone(),
-                            message: events::Message {
-                                id: -1,
-                                event_type: events::PushEventType::EventAuthErr,
-                            }.to_string()
-                        });
-                    }
-                }
-
-                let m_tx = m_tx.clone();
-
-                rt_handle.spawn(async move {
-                    while let Some(Ok(message)) = ws_rx.next().await {
-                        if let Err(_) = m_tx.send((addr, message)) {
-                            break;
+                            let _ = i_tx.send(CtrlEvent::SendTo {
+                                addr: addr.clone(),
+                                message: events::Message {
+                                    id: -1,
+                                    event_type: events::PushEventType::EventAuthErr,
+                                }
+                                .to_string(),
+                            });
                         }
                     }
 
-                    i_tx.send(CtrlEvent::Forget { addr })
-                });
+                    let m_tx = m_tx.clone();
 
-                'outer: loop {
-                    tokio::select! {
-                        biased;
-                        _ = tokio::signal::ctrl_c() => {
-                            break 'outer;
+                    rt_handle.spawn(async move {
+                        while let Some(Ok(message)) = ws_rx.next().await {
+                            if let Err(_) = m_tx.send((addr, message)) {
+                                break;
+                            }
                         }
 
-                        message = m_rx.recv() => {
-                            let (addr, message) = match message {
-                                Some(p) => p,
-                                None => break 'outer,
-                            };
-                        }
+                        i_tx.send(CtrlEvent::Forget { addr })
+                    });
 
-                        else => break 'outer,
+                    'outer: loop {
+                        tokio::select! {
+                            biased;
+                            _ = tokio::signal::ctrl_c() => {
+                                break 'outer;
+                            }
+
+                            message = m_rx.recv() => {
+                                let (addr, message) = match message {
+                                    Some(p) => p,
+                                    None => break 'outer,
+                                };
+                            }
+
+                            else => break 'outer,
+                        }
                     }
-                }
-            })
-        })
+                })
+            },
+        )
 }
