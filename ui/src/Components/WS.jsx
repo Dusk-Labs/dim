@@ -94,8 +94,8 @@ function WS(props) {
 
   useEffect(() => {
     if (!auth.token) return;
+    if (!ws.conn) return;
 
-    console.log("authing with ws");
     ws.conn.send(JSON.stringify({
       "type": "authenticate",
       "token": auth.token

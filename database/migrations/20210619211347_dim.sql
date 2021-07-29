@@ -6,6 +6,8 @@ CREATE TABLE library (
     media_type TEXT NOT NULL
 );
 
+CREATE UNIQUE INDEX library_idx ON library(name, location, media_type);
+
 -- Media table
 -- This table contains the template for
 -- the movie and tv shows tables minus containing
