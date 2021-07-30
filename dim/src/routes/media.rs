@@ -194,11 +194,15 @@ pub async fn get_media_by_id(
         MediaType::Tv => Episode::get_first_for_show(&conn, id).await?.id,
     };
 
+    // TODO: at some point we want to issue a warning to the UI that none of the mediafiles with
+    // this media have a duration (maybe because of corruption).
     let duration = match MediaFile::get_of_media(&conn, media_id).await {
         Ok(mut x) => x
+            .iter()
+            .filter_map(|x| x.duration)
+            .collect::<Vec<_>>()
             .pop()
-            .and_then(|x| x.duration)
-            .ok_or(errors::DimError::NoneError)?,
+            .unwrap_or(0),
         Err(_) => 0,
     };
 
