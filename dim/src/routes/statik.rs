@@ -47,6 +47,7 @@ mod filters {
                         Some("js") => "application/javascript",
                         Some("css") => "text/css",
                         Some("woff2") => "font/woff2",
+                        Some("png") => "image/png",
                         _ => return Err(warp::reject::not_found()),
                     };
 
