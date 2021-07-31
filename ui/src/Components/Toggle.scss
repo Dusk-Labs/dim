@@ -1,0 +1,47 @@
+.toggleContainer {
+  &:not(.disabled-true):hover .toggle {
+    background: #4a4a4a;
+  }
+
+  &.disabled-true {
+    opacity: .5;
+
+    .toggle {
+      cursor: not-allowed;
+    }
+  }
+
+  .desc {
+    color: #aaa;
+    font-style: italic;
+  }
+
+  p {
+    margin-bottom: .5em;
+    color: #ccc;
+  }
+
+  .toggle {
+    position: relative;
+    cursor: pointer;
+    height: 1em;
+    width: 2em;
+    background: #3a3a3a;
+    border-radius: 5px;
+    transition: background 100ms ease-in-out;
+
+    &.active-true .ball {
+      transform: translateX(100%);
+    }
+
+    .ball {
+      display: inline-block;
+      height: 1em;
+      width: 1em;
+      background: #f7931e;
+      border-radius: 5px;
+      transform: translateX(0);
+      transition: transform 100ms ease-in-out;
+    }
+  }
+}
