@@ -14,6 +14,7 @@ use std::sync::atomic::Ordering;
 
 use sqlx::ConnectOptions;
 
+pub mod asset;
 pub mod episode;
 pub mod error;
 pub mod genre;

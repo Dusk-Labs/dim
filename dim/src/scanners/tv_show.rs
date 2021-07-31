@@ -1,6 +1,7 @@
 use database::genre::InsertableGenre;
 use database::genre::InsertableGenreMedia;
 use database::DbConnection;
+use database::asset::InsertableAsset;
 
 use database::library;
 use database::library::Library;
@@ -68,6 +69,26 @@ impl<'a> TvShowMatcher<'a> {
             let _ = meta_fetcher.send(PosterType::Banner(backdrop_path.clone()));
         }
 
+        let poster = match poster_path {
+            Some(path) => InsertableAsset {
+                remote_url: Some(path),
+                local_path: result.poster_file.clone().map(|x| format!("images/{}", x)).unwrap_or_default(),
+                file_ext: "jpg".into(),
+                ..Default::default()
+            }.insert(self.conn).await.ok().map(|x| x.id),
+            None => None
+        };
+
+        let backdrop = match backdrop_path {
+            Some(path) => InsertableAsset {
+                remote_url: Some(path),
+                local_path: result.backdrop_file.clone().map(|x| format!("images/{}", x)).unwrap_or_default(),
+                file_ext: "jpg".into(),
+                ..Default::default()
+            }.insert(self.conn).await.ok().map(|x| x.id),
+            None => None
+        };
+
         let media = InsertableMedia {
             name,
             year,
@@ -75,11 +96,8 @@ impl<'a> TvShowMatcher<'a> {
             description: result.overview.clone(),
             rating: result.rating.map(|x| x as i64),
             added: Utc::now().to_string(),
-            poster_path: result.poster_file.clone().map(|x| format!("images/{}", x)),
-            backdrop_path: result
-                .backdrop_file
-                .clone()
-                .map(|x| format!("images/{}", x)),
+            poster,
+            backdrop,
             media_type: MediaType::Tv,
         };
 
@@ -147,9 +165,25 @@ impl<'a> TvShowMatcher<'a> {
             })
         };
 
-        if let Some(x) = search_ep.as_ref().and_then(|x| x.still.clone()) {
-            let _ = meta_fetcher.send(PosterType::Episode(x));
+        let still = search_ep.as_ref().and_then(|x| x.still.clone());
+
+        if let Some(x) = still.as_ref() {
+            let _ = meta_fetcher.send(PosterType::Episode(x.clone()));
         }
+
+        let backdrop = match still {
+            Some(path) => InsertableAsset {
+                remote_url: Some(path),
+                local_path: search_ep
+                    .and_then(|x| x.still_file.clone())
+                    .clone()
+                    .map(|x| format!("images/{}", x))
+                    .unwrap_or_default(),
+                file_ext: "jpg".into(),
+                ..Default::default()
+            }.insert(self.conn).await.ok().map(|x| x.id),
+            None => None
+        };
 
         debug!(
             self.log,
@@ -174,9 +208,7 @@ impl<'a> TvShowMatcher<'a> {
                     .as_ref()
                     .map(|x| x.overview.clone())
                     .unwrap_or_default(),
-                backdrop_path: search_ep
-                    .and_then(|x| x.still_file.clone())
-                    .map(|s| format!("images/{}", s)),
+                backdrop,
                 ..Default::default()
             },
         };

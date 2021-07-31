@@ -95,9 +95,9 @@ impl Progress {
         tv_id: i64,
     ) -> Result<i32, DieselError> {
         Ok(sqlx::query!(
-            "SELECT COALESCE(SUM(progress.delta), 0) as total FROM media
-            JOIN progress ON progress.media_id = media.id
-            JOIN episode ON episode.id = media.id
+            "SELECT COALESCE(SUM(progress.delta), 0) as total FROM _tblmedia
+            JOIN progress ON progress.media_id = _tblmedia.id
+            JOIN episode ON episode.id = _tblmedia.id
             JOIN season on season.id = episode.seasonid
             JOIN tv_show ON tv_show.id = season.tvshowid
             
@@ -120,7 +120,7 @@ impl Progress {
             Media,
             r#"SELECT media.id, media.library_id, media.name, media.description,
                     media.rating, media.year, media.added,
-                    media.poster_path, media.backdrop_path,
+                    media.poster_path as "poster_path?", media.backdrop_path as "backdrop_path?",
                     media.media_type as "media_type: MediaType" FROM media
 
             JOIN tv_show on tv_show.id = media.id

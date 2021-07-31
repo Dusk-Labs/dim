@@ -2,6 +2,7 @@ use database::genre::InsertableGenre;
 use database::genre::InsertableGenreMedia;
 use database::movie::InsertableMovie;
 use database::DbConnection;
+use database::asset::InsertableAsset;
 
 use database::library;
 use database::library::Library;
@@ -63,6 +64,26 @@ impl<'a> MovieMatcher<'a> {
             let _ = meta_fetcher.send(PosterType::Banner(backdrop_path.clone()));
         }
 
+        let poster = match poster_path {
+            Some(path) => InsertableAsset {
+                remote_url: Some(path),
+                local_path: result.poster_file.clone().map(|x| format!("images/{}", x)).unwrap_or_default(),
+                file_ext: "jpg".into(),
+                ..Default::default()
+            }.insert(self.conn).await.ok().map(|x| x.id),
+            None => None
+        };
+
+        let backdrop = match backdrop_path {
+            Some(path) => InsertableAsset {
+                remote_url: Some(path),
+                local_path: result.backdrop_file.clone().map(|x| format!("images/{}", x)).unwrap_or_default(),
+                file_ext: "jpg".into(),
+                ..Default::default()
+            }.insert(self.conn).await.ok().map(|x| x.id),
+            None => None
+        };
+
         let media = InsertableMedia {
             library_id: orphan.library_id,
             name,
@@ -71,12 +92,8 @@ impl<'a> MovieMatcher<'a> {
             year,
             added: Utc::now().to_string(),
 
-            poster_path: result.poster_file.clone().map(|x| format!("images/{}", x)),
-            backdrop_path: result
-                .backdrop_file
-                .clone()
-                .map(|x| format!("images/{}", x)),
-
+            poster,
+            backdrop,
             media_type: MediaType::Movie,
         };
 
