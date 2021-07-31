@@ -3,29 +3,13 @@
   gap: 1em;
 
   button {
-    padding: .5em;
-    font-size: 1em;
+    animation: appear 150ms ease-in-out;
+  }
+
+  img {
+    margin-bottom: 1em;
     border-radius: 10px;
-    transition: filter 0.3s ease-in-out;
-    background: #f7931e;
-    filter: saturate(0.7);
-    font-family: "Roboto Bold";
-    outline: none;
-
-    &:focus,
-    &:hover {
-      filter: saturate(1);
-    }
-
-    &.disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
-    &.critical {
-      background: #e91619;
-      color: #eee;
-    }
+    width: 200px;
   }
 
   label {
@@ -79,14 +63,5 @@
   .options {
     display: flex;
     gap: 1em;
-  }
-
-  button.secondary {
-    color: #fff;
-    background: transparent;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 }
