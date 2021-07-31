@@ -1,21 +1,15 @@
+use database::asset::InsertableAsset;
 use database::genre::InsertableGenre;
 use database::genre::InsertableGenreMedia;
 use database::DbConnection;
-use database::asset::InsertableAsset;
 
-use database::library;
-use database::library::Library;
-use database::library::MediaType;
-
-use database::episode::Episode;
 use database::episode::InsertableEpisode;
+use database::library::MediaType;
 use database::media::InsertableMedia;
-use database::media::Media;
 use database::mediafile::MediaFile;
 use database::mediafile::UpdateMediaFile;
 use database::movie::InsertableMovie;
 use database::season::InsertableSeason;
-use database::season::Season;
 use database::tv::TVShow;
 
 use chrono::prelude::Utc;
@@ -24,18 +18,13 @@ use chrono::NaiveDate;
 
 use slog::debug;
 use slog::error;
-use slog::info;
 use slog::warn;
 use slog::Logger;
 
 use events::Message;
 use events::PushEventType;
 
-use tmdb::Tmdb;
-
 use crate::core::{fetcher::PosterType, EventTx};
-
-use super::tmdb;
 
 pub struct TvShowMatcher<'a> {
     pub conn: &'a DbConnection,
@@ -72,21 +61,37 @@ impl<'a> TvShowMatcher<'a> {
         let poster = match poster_path {
             Some(path) => InsertableAsset {
                 remote_url: Some(path),
-                local_path: result.poster_file.clone().map(|x| format!("images/{}", x)).unwrap_or_default(),
+                local_path: result
+                    .poster_file
+                    .clone()
+                    .map(|x| format!("images/{}", x))
+                    .unwrap_or_default(),
                 file_ext: "jpg".into(),
                 ..Default::default()
-            }.insert(self.conn).await.ok().map(|x| x.id),
-            None => None
+            }
+            .insert(self.conn)
+            .await
+            .ok()
+            .map(|x| x.id),
+            None => None,
         };
 
         let backdrop = match backdrop_path {
             Some(path) => InsertableAsset {
                 remote_url: Some(path),
-                local_path: result.backdrop_file.clone().map(|x| format!("images/{}", x)).unwrap_or_default(),
+                local_path: result
+                    .backdrop_file
+                    .clone()
+                    .map(|x| format!("images/{}", x))
+                    .unwrap_or_default(),
                 file_ext: "jpg".into(),
                 ..Default::default()
-            }.insert(self.conn).await.ok().map(|x| x.id),
-            None => None
+            }
+            .insert(self.conn)
+            .await
+            .ok()
+            .map(|x| x.id),
+            None => None,
         };
 
         let media = InsertableMedia {
@@ -181,8 +186,12 @@ impl<'a> TvShowMatcher<'a> {
                     .unwrap_or_default(),
                 file_ext: "jpg".into(),
                 ..Default::default()
-            }.insert(self.conn).await.ok().map(|x| x.id),
-            None => None
+            }
+            .insert(self.conn)
+            .await
+            .ok()
+            .map(|x| x.id),
+            None => None,
         };
 
         debug!(

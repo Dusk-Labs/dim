@@ -9,20 +9,36 @@ pub struct Asset {
 }
 
 impl Asset {
-    pub async fn into_media_poster(&self, conn: &crate::DbConnection, media_id: i64) -> Result<i64, DatabaseError> {
+    pub async fn into_media_poster(
+        &self,
+        conn: &crate::DbConnection,
+        media_id: i64,
+    ) -> Result<i64, DatabaseError> {
         Ok(sqlx::query!(
-                r#"INSERT INTO media_posters (media_id, asset_id)
+            r#"INSERT INTO media_posters (media_id, asset_id)
                 VALUES ($1, $2) RETURNING id as "id!: i64""#,
-                media_id, self.id
-        ).fetch_one(conn).await?.id)
+            media_id,
+            self.id
+        )
+        .fetch_one(conn)
+        .await?
+        .id)
     }
 
-    pub async fn into_media_backdrop(&self, conn: &crate::DbConnection, media_id: i64) -> Result<i64, DatabaseError> {
+    pub async fn into_media_backdrop(
+        &self,
+        conn: &crate::DbConnection,
+        media_id: i64,
+    ) -> Result<i64, DatabaseError> {
         Ok(sqlx::query!(
-                r#"INSERT INTO media_backdrops (media_id, asset_id)
+            r#"INSERT INTO media_backdrops (media_id, asset_id)
                 VALUES ($1, $2) RETURNING id as "id!: i64""#,
-                media_id, self.id
-        ).fetch_one(conn).await?.id)
+            media_id,
+            self.id
+        )
+        .fetch_one(conn)
+        .await?
+        .id)
     }
 }
 
@@ -35,11 +51,16 @@ pub struct InsertableAsset {
 
 impl InsertableAsset {
     pub async fn insert(self, conn: &crate::DbConnection) -> Result<Asset, DatabaseError> {
-        Ok(sqlx::query_as_unchecked!(Asset,
-                "INSERT INTO assets (remote_url, local_path, file_ext)
+        Ok(sqlx::query_as_unchecked!(
+            Asset,
+            "INSERT INTO assets (remote_url, local_path, file_ext)
                 VALUES ($1, $2, $3)
                 RETURNING id, remote_url, local_path, file_ext",
-                self.remote_url, self.local_path, self.file_ext
-        ).fetch_one(conn).await?)
+            self.remote_url,
+            self.local_path,
+            self.file_ext
+        )
+        .fetch_one(conn)
+        .await?)
     }
 }

@@ -1,24 +1,15 @@
 use crate::core::DbConnection;
 use crate::errors;
-use cfg_if::cfg_if;
 
 use database::episode::Episode;
 use database::genre::*;
-use database::library::MediaType;
 use database::media::Media;
 use database::mediafile::MediaFile;
 use database::progress::Progress;
 use database::season::Season;
 
-use std::fs;
-use std::io;
-use std::path::PathBuf;
-
 use serde_json::json;
 use serde_json::Value as JsonValue;
-
-use warp::reply::json;
-use warp::reply::Json;
 
 pub mod auth;
 pub mod dashboard;
@@ -57,7 +48,7 @@ pub mod global_filters {
             return Ok(e.clone().into_response());
         } else if let Some(e) = err.find::<crate::errors::DimError>() {
             return Ok(e.clone().into_response());
-        } else if let Some(e) = err.find::<auth::JWTError>() {
+        } else if let Some(_) = err.find::<auth::JWTError>() {
             return Ok(crate::errors::DimError::AuthRequired.into_response());
         }
 

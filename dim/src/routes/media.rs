@@ -1,12 +1,8 @@
 use crate::core::DbConnection;
-use crate::core::EventTx;
 use crate::errors;
 
 use auth::Wrapper as Auth;
-
 use std::convert::Infallible;
-use std::sync::Arc;
-use std::sync::Mutex;
 
 use database::episode::Episode;
 use database::genre::Genre;
@@ -17,9 +13,6 @@ use database::mediafile::MediaFile;
 use database::progress::Progress;
 use database::season::Season;
 use database::tv::TVShow;
-
-use futures::stream;
-use futures::StreamExt;
 
 use serde_json::json;
 use serde_json::Value;
@@ -43,7 +36,6 @@ pub fn media_router(
 mod filters {
     use warp::reject;
     use warp::Filter;
-    use warp::Rejection;
 
     use super::super::global_filters::with_state;
     use auth::Wrapper as Auth;
@@ -197,7 +189,7 @@ pub async fn get_media_by_id(
     // TODO: at some point we want to issue a warning to the UI that none of the mediafiles with
     // this media have a duration (maybe because of corruption).
     let duration = match MediaFile::get_of_media(&conn, media_id).await {
-        Ok(mut x) => x
+        Ok(x) => x
             .iter()
             .filter_map(|x| x.duration)
             .collect::<Vec<_>>()
@@ -407,7 +399,6 @@ pub async fn tmdb_search(
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
     use crate::scanners::tmdb::Tmdb;
-    use database::library::MediaType;
 
     let media_type = match media_type.as_ref() {
         "movie" => MediaType::Movie,

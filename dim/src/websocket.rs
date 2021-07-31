@@ -1,25 +1,16 @@
 use std::collections::HashMap;
-use std::convert::TryFrom;
-use std::fmt;
 use std::hash::Hash;
-use std::io;
-use std::{fmt::Debug, net::SocketAddr, sync::Arc};
+use std::net::SocketAddr;
 
-use tokio::net::ToSocketAddrs;
-use tokio::{net::TcpListener, runtime::Handle};
-use tokio::{
-    net::TcpStream,
-    sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender},
-};
+use tokio::runtime::Handle;
+use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
 use warp::filters::ws::Message;
 use warp::filters::ws::WebSocket;
 use warp::Filter;
 
 use futures::prelude::*;
-use futures::stream::{SplitSink, SplitStream};
-use xtra::Actor;
-use xtra::Address;
+use futures::stream::SplitSink;
 
 use crate::routes;
 
@@ -124,7 +115,7 @@ pub fn event_socket(
 ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     let (i_tx, i_rx) = unbounded_channel::<CtrlEvent<SocketAddr, String>>();
 
-    let ev = rt_handle.spawn(CtrlEvent::recv_from_rx(i_rx));
+    let _ev = rt_handle.spawn(CtrlEvent::recv_from_rx(i_rx));
 
     let forwarder_fut = {
         let i_tx = i_tx.clone();
@@ -136,7 +127,7 @@ pub fn event_socket(
         }
     };
 
-    let forwarder = rt_handle.spawn(forwarder_fut);
+    let _forwarder = rt_handle.spawn(forwarder_fut);
 
     warp::path("ws")
         .and(warp::filters::addr::remote())
@@ -214,7 +205,7 @@ pub fn event_socket(
                             }
 
                             message = m_rx.recv() => {
-                                let (addr, message) = match message {
+                                let (_addr, _message) = match message {
                                     Some(p) => p,
                                     None => break 'outer,
                                 };

@@ -1,33 +1,23 @@
 use crate::logger::RequestLogger;
 use crate::routes;
 use crate::scanners;
-use crate::stream_tracking::StreamTracking;
 use crate::websocket;
 
-use cfg_if::cfg_if;
-use lazy_static::lazy_static;
 use once_cell::sync::OnceCell;
 
 use slog::debug;
 use slog::error;
-use slog::info;
 use slog::Logger;
 
 use tokio::sync::mpsc::unbounded_channel;
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::sync::mpsc::UnboundedSender;
 
-use std::borrow::Cow;
-use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::copy;
 use std::io::Cursor;
-use std::io::Read;
 use std::path::PathBuf;
-use std::sync::Arc;
-use std::sync::Mutex;
-use std::thread;
 
 use self::fetcher::PosterType;
 
@@ -78,7 +68,6 @@ pub async fn run_scanners(log: Logger, tx: EventTx) {
             let log_clone = log.clone();
             let library_id = lib.id;
             let tx_clone = tx.clone();
-            let media_type = lib.media_type;
 
             tokio::spawn(scanners::start(library_id, log_clone.clone(), tx_clone));
 
@@ -102,13 +91,9 @@ pub async fn run_scanners(log: Logger, tx: EventTx) {
 }
 
 pub mod fetcher {
-    use std::{
-        cmp::Ordering,
-        collections::{BTreeMap, BTreeSet},
-        time::Duration,
-    };
-
-    use tokio::{select, time::Interval};
+    use std::cmp::Ordering;
+    use std::collections::BTreeSet;
+    use std::time::Duration;
 
     use super::*;
 

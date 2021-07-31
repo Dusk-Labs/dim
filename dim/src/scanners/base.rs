@@ -85,11 +85,11 @@ impl MetadataExtractor {
         &mut self,
         file: PathBuf,
         library_id: i64,
-        media_type: MediaType,
+        _media_type: MediaType,
     ) -> Result<MediaFile, ScannerError> {
         let target_file = file.to_str().unwrap().to_owned();
 
-        let file_name = if let Some(file_name) = file.file_name().and_then(|x| x.to_str()) {
+        let _file_name = if let Some(file_name) = file.file_name().and_then(|x| x.to_str()) {
             file_name
         } else {
             warn!(
@@ -103,7 +103,7 @@ impl MetadataExtractor {
         let target_file_clone = target_file.clone();
         let res = MediaFile::get_by_file(&self.conn, &target_file_clone).await;
 
-        if let Ok(media_file) = res {
+        if let Ok(_media_file) = res {
             debug!(
                 self.logger,
                 "File already exists in the db";
@@ -407,11 +407,6 @@ impl MetadataMatcher {
         };
 
         matcher.match_to_result(result, &media).await;
-        Ok(())
-    }
-
-    #[handler]
-    pub async fn match_anime(&mut self, media: MediaFile) -> Result<(), ScannerError> {
         Ok(())
     }
 }

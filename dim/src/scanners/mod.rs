@@ -5,32 +5,18 @@ pub mod tmdb;
 pub mod tv_show;
 
 use database::get_conn;
-use database::library;
 use database::library::Library;
 use database::library::MediaType;
-use database::mediafile::InsertableMediaFile;
-use database::mediafile::MediaFile;
 
-use crate::streaming::FFPROBE_BIN;
-use crate::{core::EventTx, streaming::ffprobe::FFProbeCtx};
+use crate::core::EventTx;
 
-use torrent_name_parser::Metadata;
-
-use slog::debug;
-use slog::error;
 use slog::info;
-use slog::warn;
-use slog::Logger;
 
 use walkdir::WalkDir;
 
-use std::fmt;
 use std::lazy::SyncOnceCell;
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::mpsc;
-use std::thread;
-use std::time::Duration;
 use std::time::Instant;
 
 use serde::Deserialize;
@@ -75,7 +61,7 @@ pub(super) static METADATA_EXTRACTOR: SyncOnceCell<base::MetadataExtractor> = Sy
 pub(super) static METADATA_MATCHER: SyncOnceCell<base::MetadataMatcher> = SyncOnceCell::new();
 pub(super) static SUPPORTED_EXTS: &[&str] = &["mp4", "mkv", "avi", "webm"];
 
-pub fn get_extractor(log: &slog::Logger, tx: &EventTx) -> &'static base::MetadataExtractor {
+pub fn get_extractor(log: &slog::Logger, _tx: &EventTx) -> &'static base::MetadataExtractor {
     let mut handle = xtra::spawn::Tokio::Global;
 
     METADATA_EXTRACTOR
@@ -112,7 +98,7 @@ pub async fn start_custom<T: AsRef<Path>>(
     )
     .unwrap();
 
-    let conn = get_conn().await.expect("Failed to grab the conn pool");
+    let _conn = get_conn().await.expect("Failed to grab the conn pool");
 
     let extractor = get_extractor(&log, &tx);
     let matcher = get_matcher(&log, &tx);

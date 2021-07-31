@@ -3,13 +3,9 @@ use err_derive::Error;
 use serde::Serialize;
 use serde_json::json;
 
-use std::convert::Infallible;
-use std::io::Cursor;
-
 use crate::scanners::base::ScannerError;
 use nightfall::error::NightfallError;
 
-use http::Response;
 use http::StatusCode;
 
 #[derive(Clone, Debug, Error, Serialize)]
@@ -164,8 +160,7 @@ impl From<std::io::Error> for StreamingErrors {
 
 use database::DatabaseError;
 impl From<DatabaseError> for DimError {
-    fn from(e: DatabaseError) -> Self {
-        let DatabaseError::DatabaseError(e) = e;
+    fn from(_: DatabaseError) -> Self {
         Self::DatabaseError
     }
 }
@@ -183,8 +178,7 @@ impl From<std::io::Error> for DimError {
 }
 
 impl From<DatabaseError> for AuthError {
-    fn from(e: DatabaseError) -> Self {
-        let DatabaseError::DatabaseError(e) = e;
+    fn from(_: DatabaseError) -> Self {
         Self::DatabaseError
     }
 }

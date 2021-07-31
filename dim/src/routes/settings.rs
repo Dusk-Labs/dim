@@ -1,7 +1,6 @@
 use crate::core::DbConnection;
 use crate::errors;
 
-use database::user::InsertableUser;
 use database::user::UpdateableUser;
 use database::user::User;
 use database::user::UserSettings;
@@ -82,7 +81,7 @@ pub fn init_global_settings(path: Option<String>) -> Result<(), Box<dyn Error>> 
         .read_to_string(&mut content)?;
 
     let _ = GLOBAL_SETTINGS.set(serde_json::from_str(&content).unwrap_or_default());
-    set_global_settings(get_global_settings().clone());
+    let _ = set_global_settings(get_global_settings().clone());
 
     Ok(())
 }
@@ -200,7 +199,7 @@ pub async fn post_user_settings(
     Ok(reply::json(&new_settings))
 }
 
-pub async fn http_get_global_settings(user: Auth) -> Result<impl warp::Reply, errors::DimError> {
+pub async fn http_get_global_settings(_user: Auth) -> Result<impl warp::Reply, errors::DimError> {
     Ok(reply::json(get_global_settings()))
 }
 

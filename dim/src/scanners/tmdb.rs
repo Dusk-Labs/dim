@@ -2,12 +2,9 @@ pub(crate) use database::library::MediaType;
 use serde::Deserialize;
 use serde::Serialize;
 
-use std::collections::VecDeque;
-use std::fmt;
+use std::collections::HashMap;
 use std::sync::Arc;
-use std::thread;
 use std::time::Duration;
-use std::{collections::HashMap, unimplemented};
 
 use reqwest::Client;
 use reqwest::ClientBuilder;

@@ -1,13 +1,9 @@
-use crate::core::StateManager;
-use auth::Wrapper as Auth;
-
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use uuid::Uuid;
-
-use tokio::runtime::Handle;
+use crate::core::StateManager;
 use tokio::sync::RwLock;
+use uuid::Uuid;
 
 use serde::Serialize;
 

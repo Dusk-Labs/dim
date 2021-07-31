@@ -15,7 +15,6 @@ use database::DbConnection;
 use slog::debug;
 use slog::error;
 use slog::warn;
-use slog::Logger;
 
 use notify::DebouncedEvent;
 use notify::RecommendedWatcher;
@@ -193,7 +192,7 @@ impl FsWatcher {
                 ..Default::default()
             };
 
-            if let Err(e) = update_query.update(&self.conn, media_file.id).await {
+            if let Err(_e) = update_query.update(&self.conn, media_file.id).await {
                 error!(
                     self.logger,
                     "Failed to update target file";

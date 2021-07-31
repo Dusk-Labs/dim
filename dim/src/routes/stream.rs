@@ -1,5 +1,4 @@
 use auth::Wrapper as Auth;
-use errors::StreamingErrors;
 
 use crate::core::DbConnection;
 use crate::core::StateManager;
@@ -10,29 +9,15 @@ use crate::stream_tracking::VirtualManifest;
 use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::get_avc1_tag;
 use crate::streaming::level_to_tag;
-use crate::streaming::Avc1Level;
-use crate::warp_try;
-
-use chrono::prelude::*;
-use chrono::NaiveDateTime;
-use chrono::Utc;
 
 use database::mediafile::MediaFile;
-
-use slog::info;
-use slog::Logger;
 
 use nightfall::error::NightfallError;
 use nightfall::profiles::*;
 
 use std::collections::HashMap;
 use std::future::Future;
-use std::io::Cursor;
-use std::path::Path;
 use std::path::PathBuf;
-use std::sync::Arc;
-use std::sync::RwLock;
-use std::thread;
 use std::time::Duration;
 
 use futures::stream;
@@ -45,7 +30,6 @@ use serde_json::json;
 
 use uuid::Uuid;
 use warp::http::status::StatusCode;
-use warp::reject;
 use warp::reply;
 use warp::Filter;
 
@@ -84,7 +68,6 @@ pub fn stream_router(
 
 mod filters {
     use warp::reject;
-    use warp::reply;
     use warp::reply::Reply;
     use warp::Filter;
 
@@ -99,7 +82,6 @@ mod filters {
 
     use super::super::global_filters::with_state;
     use serde::Deserialize;
-    use std::convert::Infallible;
 
     pub fn return_virtual_manifest(
         conn: DbConnection,
@@ -321,7 +303,7 @@ mod filters {
 pub async fn return_virtual_manifest(
     state: StateManager,
     stream_tracking: StreamTracking,
-    auth: Auth,
+    _auth: Auth,
     conn: DbConnection,
     log: slog::Logger,
     id: i64,
@@ -340,8 +322,6 @@ pub async fn return_virtual_manifest(
         .await
         .map_err(|e| errors::StreamingErrors::NoMediaFileFound(e.to_string()))?;
 
-    let user_id = auth.0.claims.id;
-
     let target_file = media.target_file.clone();
     let info = spawn_blocking(move || {
         FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
@@ -357,11 +337,6 @@ pub async fn return_virtual_manifest(
         .to_string();
 
     ms.truncate(4);
-
-    let duration = chrono::DateTime::<Utc>::from_utc(
-        NaiveDateTime::from_timestamp(info.get_duration().unwrap() as i64, 0),
-        Utc,
-    );
 
     let video_stream = info
         .find_by_codec("video")
@@ -545,8 +520,8 @@ pub async fn return_virtual_manifest(
 pub async fn return_manifest(
     state: StateManager,
     stream_tracking: StreamTracking,
-    auth: Auth,
-    conn: DbConnection,
+    _auth: Auth,
+    _conn: DbConnection,
     gid: Uuid,
     start_num: Option<u64>,
     should_kill: Option<bool>,
@@ -757,7 +732,7 @@ async fn reply_with_file(file: String, header: (&str, &str)) -> Response<Body> {
     if let Ok(mut file) = File::open(file).await {
         // FIXME: Super ugly temporary solution (might be slow)
         let mut buf = Vec::new();
-        file.read_to_end(&mut buf).await;
+        let _ = file.read_to_end(&mut buf).await;
 
         Response::builder()
             .header(header.0, header.1)

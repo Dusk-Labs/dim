@@ -10,9 +10,7 @@ use database::user::User;
 
 use serde_json::json;
 
-use warp::reject;
 use warp::reply;
-use warp::reply::Json;
 use warp::Filter;
 
 use http::StatusCode;
@@ -43,8 +41,6 @@ mod filters {
     use warp::Filter;
 
     use database::user::Login;
-
-    use std::convert::Infallible;
 
     use super::super::global_filters::with_db;
 

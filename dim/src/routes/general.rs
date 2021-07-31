@@ -4,18 +4,9 @@ use crate::routes::construct_standard;
 use crate::routes::construct_standard_quick;
 
 use auth::Wrapper as Auth;
-use cfg_if::cfg_if;
 
-use database::episode::Episode;
 use database::genre::*;
-use database::library::MediaType;
 use database::media::Media;
-use database::mediafile::MediaFile;
-use database::progress::Progress;
-use database::season::Season;
-
-use futures::stream;
-use futures::StreamExt;
 
 use tokio::task::spawn_blocking;
 
@@ -151,7 +142,7 @@ pub async fn search(
     conn: DbConnection,
     query: Option<String>,
     year: Option<i32>,
-    library_id: Option<i32>,
+    _library_id: Option<i32>,
     genre: Option<String>,
     quick: Option<bool>,
     user: Auth,
