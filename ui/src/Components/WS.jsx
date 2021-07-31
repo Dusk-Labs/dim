@@ -66,8 +66,6 @@ function WS(props) {
   }, [intervalID, ws.error]);
 
   useEffect(() => {
-    console.log(tryingAgainIn);
-
     if (tryingAgainIn <= 0) {
       retry();
     }
