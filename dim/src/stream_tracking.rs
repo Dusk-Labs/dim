@@ -95,7 +95,7 @@ pub struct StreamTracking {
 impl StreamTracking {
     pub async fn insert(&self, id: &Uuid, manifest: VirtualManifest) {
         let mut lock = self.streaming_sessions.write().await;
-        lock.entry(id.clone()).or_default().push(manifest);
+        lock.entry(*id).or_default().push(manifest);
     }
 
     pub async fn kill_all(&self, state: &StateManager, id: &Uuid, ignore_gc: bool) {

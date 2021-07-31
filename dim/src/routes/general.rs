@@ -181,10 +181,8 @@ pub async fn search(
                 if let Ok(x) = construct_standard_quick(&x).await {
                     items.push(x);
                 }
-            } else {
-                if let Ok(x) = construct_standard(&conn, &x, &user).await {
-                    items.push(x);
-                }
+            } else if let Ok(x) = construct_standard(&conn, &x, &user).await {
+                items.push(x);
             }
         }
 
@@ -199,10 +197,8 @@ pub async fn search(
                 if let Ok(x) = construct_standard_quick(&x).await {
                     items.push(x);
                 }
-            } else {
-                if let Ok(x) = construct_standard(&conn, &x, &user).await {
-                    items.push(x);
-                }
+            } else if let Ok(x) = construct_standard(&conn, &x, &user).await {
+                items.push(x);
             }
         }
 

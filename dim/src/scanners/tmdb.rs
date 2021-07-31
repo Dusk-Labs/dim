@@ -148,7 +148,7 @@ impl Tmdb {
 
         let max_tries = max_tries.unwrap_or(10);
 
-        if max_tries <= 0 {
+        if max_tries == 0 {
             return Err(TmdbError::ReachedMaxTries);
         }
 
@@ -366,25 +366,25 @@ pub struct Media {
     pub genres: Vec<String>,
 }
 
-impl Into<super::ApiMedia> for Media {
-    fn into(self) -> super::ApiMedia {
-        super::ApiMedia {
-            id: self.id,
-            title: self.title,
-            release_date: self.release_date,
-            overview: self.overview,
-            poster_path: self
+impl From<Media> for super::ApiMedia {
+    fn from(this: Media) -> Self {
+        Self {
+            id: this.id,
+            title: this.title,
+            release_date: this.release_date,
+            overview: this.overview,
+            poster_path: this
                 .poster_path
                 .clone()
                 .map(|s| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s)),
-            poster_file: self.poster_path,
-            backdrop_path: self
+            poster_file: this.poster_path,
+            backdrop_path: this
                 .backdrop_path
                 .clone()
                 .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s)),
-            backdrop_file: self.backdrop_path,
-            genres: self.genres,
-            rating: self.vote_average.map(|x| x as i32),
+            backdrop_file: this.backdrop_path,
+            genres: this.genres,
+            rating: this.vote_average.map(|x| x as i32),
             seasons: Vec::new(),
         }
     }
@@ -407,17 +407,17 @@ pub struct Season {
     pub season_number: Option<u64>,
 }
 
-impl Into<super::ApiSeason> for Season {
-    fn into(self) -> super::ApiSeason {
-        super::ApiSeason {
-            id: self.id,
-            name: self.name,
-            poster_path: self
+impl From<Season> for super::ApiSeason {
+    fn from(this: Season) -> Self {
+        Self {
+            id: this.id,
+            name: this.name,
+            poster_path: this
                 .poster_path
                 .clone()
                 .map(|s| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s)),
-            poster_file: self.poster_path.clone(),
-            season_number: self.season_number.unwrap_or(1),
+            poster_file: this.poster_path.clone(),
+            season_number: this.season_number.unwrap_or(1),
             episodes: Vec::new(),
         }
     }
@@ -432,18 +432,18 @@ pub struct Episode {
     pub still_path: Option<String>,
 }
 
-impl Into<super::ApiEpisode> for Episode {
-    fn into(self) -> super::ApiEpisode {
-        super::ApiEpisode {
-            id: self.id,
-            name: self.name,
-            overview: self.overview,
-            episode: self.episode_number,
-            still: self
+impl From<Episode> for super::ApiEpisode {
+    fn from(other: Episode) -> Self {
+        Self {
+            id: other.id,
+            name: other.name,
+            overview: other.overview,
+            episode: other.episode_number,
+            still: other
                 .still_path
                 .clone()
                 .map(|s| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s)),
-            still_file: self.still_path,
+            still_file: other.still_path,
         }
     }
 }

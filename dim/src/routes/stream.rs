@@ -339,8 +339,7 @@ pub async fn return_virtual_manifest(
     ms.truncate(4);
 
     let video_stream = info
-        .find_by_codec("video")
-        .first()
+        .get_primary("video")
         .cloned()
         .ok_or(errors::StreamingErrors::FileIsCorrupt)?;
 
@@ -368,7 +367,7 @@ pub async fn return_virtual_manifest(
         .unwrap_or(get_avc1_tag(
             video_stream.width.clone().unwrap_or(1920) as u64,
             video_stream.height.clone().unwrap_or(1080) as u64,
-            info.get_bitrate().parse().unwrap(),
+            video_stream.get_bitrate().or(info.get_container_bitrate()).expect("Failed to pick bitrate for video stream"),
             24,
         ));
 
@@ -384,7 +383,10 @@ pub async fn return_virtual_manifest(
                 chunk_path: format!("{}/data/$Number$.m4s", video.clone()),
                 init_seg: Some(format!("{}/data/init.mp4", video.clone())),
                 codecs: video_avc.to_string(),
-                bandwidth: info.get_bitrate().parse::<u64>().unwrap(),
+                bandwidth: video_stream
+                    .get_bitrate()
+                    .or(info.get_container_bitrate())
+                    .unwrap_or(10_000_000), // lol rip
                 args: {
                     let mut x = HashMap::new();
                     x.insert(
@@ -397,7 +399,7 @@ pub async fn return_virtual_manifest(
         )
         .await;
 
-    let audio_streams = info.find_by_codec("audio");
+    let audio_streams = info.find_by_type("audio");
 
     for stream in audio_streams {
         let ctx = ProfileContext {
@@ -435,7 +437,7 @@ pub async fn return_virtual_manifest(
             .await;
     }
 
-    let subtitles = info.find_by_codec("subtitle");
+    let subtitles = info.find_by_type("subtitle");
 
     for stream in subtitles {
         let output_codec = if &stream.codec_name == "ass" {

@@ -150,32 +150,29 @@ pub fn event_socket(
 
                     'auth_loop: while let Some(Ok(x)) = ws_rx.next().await {
                         if x.is_text() {
-                            match serde_json::from_slice(x.as_bytes()) {
-                                Ok(ClientActions::Authenticate { token }) => {
-                                    if let Ok(token_data) = auth::jwt_check(token) {
-                                        let _ = i_tx.send(CtrlEvent::Track {
-                                            addr: addr.clone(),
-                                            sink: ws_tx,
-                                            auth: auth::Wrapper(token_data),
-                                        });
+                            if let Ok(ClientActions::Authenticate { token }) = serde_json::from_slice(x.as_bytes()) {
+                                if let Ok(token_data) = auth::jwt_check(token) {
+                                    let _ = i_tx.send(CtrlEvent::Track {
+                                        addr,
+                                        sink: ws_tx,
+                                        auth: auth::Wrapper(token_data),
+                                    });
 
-                                        let _ = i_tx.send(CtrlEvent::SendTo {
-                                            addr: addr.clone(),
-                                            message: events::Message {
-                                                id: -1,
-                                                event_type: events::PushEventType::EventAuthOk,
-                                            }
-                                            .to_string(),
-                                        });
+                                    let _ = i_tx.send(CtrlEvent::SendTo {
+                                        addr,
+                                        message: events::Message {
+                                            id: -1,
+                                            event_type: events::PushEventType::EventAuthOk,
+                                        }
+                                        .to_string(),
+                                    });
 
-                                        break 'auth_loop;
-                                    }
+                                    break 'auth_loop;
                                 }
-                                _ => {}
                             }
 
                             let _ = i_tx.send(CtrlEvent::SendTo {
-                                addr: addr.clone(),
+                                addr,
                                 message: events::Message {
                                     id: -1,
                                     event_type: events::PushEventType::EventAuthErr,
@@ -189,7 +186,7 @@ pub fn event_socket(
 
                     rt_handle.spawn(async move {
                         while let Some(Ok(message)) = ws_rx.next().await {
-                            if let Err(_) = m_tx.send((addr, message)) {
+                            if m_tx.send((addr, message)).is_err() {
                                 break;
                             }
                         }

@@ -67,7 +67,6 @@ impl<'a> TvShowMatcher<'a> {
                     .map(|x| format!("images/{}", x))
                     .unwrap_or_default(),
                 file_ext: "jpg".into(),
-                ..Default::default()
             }
             .insert(self.conn)
             .await
@@ -85,7 +84,6 @@ impl<'a> TvShowMatcher<'a> {
                     .map(|x| format!("images/{}", x))
                     .unwrap_or_default(),
                 file_ext: "jpg".into(),
-                ..Default::default()
             }
             .insert(self.conn)
             .await
@@ -185,7 +183,6 @@ impl<'a> TvShowMatcher<'a> {
                     .map(|x| format!("images/{}", x))
                     .unwrap_or_default(),
                 file_ext: "jpg".into(),
-                ..Default::default()
             }
             .insert(self.conn)
             .await
@@ -250,7 +247,7 @@ impl<'a> TvShowMatcher<'a> {
         use std::lazy::SyncLazy;
         use std::sync::Mutex;
 
-        static DUPLICATE_LOG: SyncLazy<Mutex<Vec<i64>>> = SyncLazy::new(|| Default::default());
+        static DUPLICATE_LOG: SyncLazy<Mutex<Vec<i64>>> = SyncLazy::new(Default::default);
 
         {
             let mut lock = DUPLICATE_LOG.lock().unwrap();
