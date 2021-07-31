@@ -1,18 +1,27 @@
 import {
-  FETCH_USER_SETTINGS,
   FETCH_USER_SETTINGS_START,
+  FETCH_USER_SETTINGS_OK,
   FETCH_USER_SETTINGS_ERR,
   FETCH_GLOBAL_SETTINGS_START,
-  FETCH_GLOBAL_SETTINGS,
+  FETCH_GLOBAL_SETTINGS_OK,
   FETCH_GLOBAL_SETTINGS_ERR
 } from "../actions/types.js";
 
-const initialState = {
-  globalSettings: {},
-  userSettings: {},
+const globalSettings = {
   fetching: false,
   fetched: false,
   error: null
+};
+
+const userSettings = {
+  fetching: false,
+  fetched: false,
+  error: null
+};
+
+const initialState = {
+  globalSettings,
+  userSettings
 };
 
 export default function settingsReducer(state = initialState, action) {
@@ -20,45 +29,58 @@ export default function settingsReducer(state = initialState, action) {
     case FETCH_USER_SETTINGS_START:
       return {
         ...state,
-        fetching: true,
-        fetched: false,
-        error: null
+        userSettings: {
+          fetching: true,
+          fetched: false,
+          error: null
+        }
+      };
+    case FETCH_USER_SETTINGS_OK:
+      return {
+        ...state,
+        userSettings: {
+          ...state.userSettings,
+          fetching: false,
+          fetched: true,
+          data: action.payload
+        }
       };
     case FETCH_USER_SETTINGS_ERR:
       return {
         ...state,
-        fetching: false,
-        fetched: true,
-        error: action.payload
-      };
-    case FETCH_USER_SETTINGS:
-      return {
-        ...state,
-        fetching: false,
-        fetched: true,
-        error: null,
-        userSettings: action.payload
+        userSettings: {
+          ...state.userSettings,
+          fetching: false,
+          fetched: true,
+          error: action.payload
+        }
       };
     case FETCH_GLOBAL_SETTINGS_START:
       return {
         ...state,
-        fetching: true,
-        fetched: false,
-        error: null
+        globalSettings: {
+          fetching: true,
+          fetched: false,
+          error: null
+        }
+      };
+    case FETCH_GLOBAL_SETTINGS_OK:
+      return {
+        ...state,
+        globalSettings: {
+          fetching: false,
+          fetched: true,
+          data: action.payload
+        }
       };
     case FETCH_GLOBAL_SETTINGS_ERR:
       return {
         ...state,
-        fetching: false,
-        fetched: true,
-        error: action.payload
-      };
-    case FETCH_GLOBAL_SETTINGS:
-      return {
-        ...state,
-        fetching: false,
-        fetched: true,
-        globalSettings: action.payload
+        globalSettings: {
+          fetching: false,
+          fetched: true,
+          error: action.payload
+        }
       };
     default:
       return state;
