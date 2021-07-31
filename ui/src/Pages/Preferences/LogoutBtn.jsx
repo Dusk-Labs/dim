@@ -22,7 +22,7 @@ function LogoutBtn() {
       action={confirmLogout}
       msg="Are you sure you want to logout?"
     >
-      <button className="item logout">
+      <button className="logout">
         <p className="logout">Logout</p>
       </button>
     </ConfirmationBox>
