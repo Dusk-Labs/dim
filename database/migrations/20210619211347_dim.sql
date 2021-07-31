@@ -117,8 +117,10 @@ CREATE TABLE users (
     prefs BLOB NOT NULL DEFAULT '{}',
     claimed_invite TEXT NOT NULL UNIQUE,
     roles TEXT[] NOT NULL DEFAULT 'User',
+    picture INTEGER UNIQUE,
 
-    FOREIGN KEY(claimed_invite) REFERENCES invites(id)
+    FOREIGN KEY(claimed_invite) REFERENCES invites(id),
+    FOREIGN KEY(picture) REFERENCES assets(id)
 );
 
 CREATE TABLE progress (

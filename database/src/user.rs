@@ -84,6 +84,7 @@ pub struct User {
     pub roles: Vec<String>,
     pub password: String,
     pub prefs: UserSettings,
+    pub picture: Option<i64>
 }
 
 impl User {
@@ -102,6 +103,7 @@ impl User {
                 roles: user.roles.split(',').map(ToString::to_string).collect(),
                 password: user.password,
                 prefs: serde_json::from_slice(&user.prefs).unwrap_or_default(),
+                picture: user.picture
             })
             .collect())
     }
@@ -119,6 +121,7 @@ impl User {
             roles: u.roles.split(',').map(ToString::to_string).collect(),
             password: u.password,
             prefs: serde_json::from_slice(&u.prefs).unwrap_or_default(),
+            picture: u.picture
         })?)
     }
 
@@ -147,6 +150,7 @@ impl User {
             roles: user.roles.split(',').map(ToString::to_string).collect(),
             password: user.password,
             prefs: serde_json::from_slice(&user.prefs).unwrap_or_default(),
+            picture: user.picture
         })
     }
 

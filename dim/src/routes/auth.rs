@@ -2,6 +2,7 @@ use crate::core::DbConnection;
 use crate::errors;
 use auth::{jwt_generate, Wrapper as Auth};
 
+use database::asset::Asset;
 use database::progress::Progress;
 use database::user::verify;
 use database::user::InsertableUser;
@@ -236,10 +237,14 @@ pub async fn login(
 }
 
 pub async fn whoami(user: Auth, conn: DbConnection) -> Result<impl warp::Reply, Infallible> {
+    let username = user.0.claims.get_user();
+
     Ok(reply::json(&json!({
-        "username": user.0.claims.get_user(),
-        "picture": "https://i.redd.it/3n1if40vxxv31.png",
-        "spentWatching": Progress::get_total_time_spent_watching(&conn, user.0.claims.get_user()).await.unwrap_or(0) / 3600
+        "picture": Asset::get_of_user(&conn, &username).await.ok().map(|x| x.local_path),
+        "spentWatching": Progress::get_total_time_spent_watching(&conn, username.clone())
+            .await
+            .unwrap_or(0) / 3600,
+        "username": username,
     })))
 }
 

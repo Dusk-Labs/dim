@@ -9,6 +9,20 @@ pub struct Asset {
 }
 
 impl Asset {
+    pub async fn get_by_id(conn: &crate::DbConnection, id: i64) -> Result<Self, DatabaseError> {
+        Ok(sqlx::query_as!(Asset,
+                "SELECT * FROM assets WHERE id = ?",
+                id).fetch_one(conn).await?)
+    }
+
+    pub async fn get_of_user(conn: &crate::DbConnection, username: &str) -> Result<Self, DatabaseError> {
+        Ok(sqlx::query_as!(Asset,
+                r#"SELECT assets.* FROM assets
+                INNER JOIN users ON users.picture = assets.id
+                WHERE users.username = ?"#,
+                username).fetch_one(conn).await?)
+    }
+
     pub async fn into_media_poster(
         &self,
         conn: &crate::DbConnection,
