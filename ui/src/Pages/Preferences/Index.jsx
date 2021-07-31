@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { checkAdminExists } from "../../actions/auth.js";
-import { fetchGlobalSettings } from "../../actions/settings.js";
+import { fetchGlobalSettings, fetchUserSettings } from "../../actions/settings.js";
 
 import Account from "./Account";
 import Profile from "./Profile.jsx";
 import Invites from "./Invites";
 import Appearance from "./Appearance";
-import Advanced from "./Advanced";
+import Player from "./Player.jsx";
+import Advanced from "./Advanced/Index";
 import LogoutBtn from "./LogoutBtn.jsx";
 
 import "./Index.scss";
@@ -22,6 +23,7 @@ function Preferences() {
 
   useEffect(() => {
     dispatch(checkAdminExists());
+    dispatch(fetchUserSettings());
     dispatch(fetchGlobalSettings());
   }, [dispatch]);
 
@@ -42,6 +44,9 @@ function Preferences() {
         <h3 className={`${active === 3 && "active"}`} onClick={() => setActive(3)}>
           Appearance
         </h3>
+        <h3 className={`${active === 4 && "active"}`} onClick={() => setActive(4)}>
+          Player
+        </h3>
         <h3 className={`${active === 5 && "active"}`} onClick={() => setActive(5)}>
           Advanced
         </h3>
@@ -53,7 +58,8 @@ function Preferences() {
         {active === 1 && <Profile/>}
         {active === 2 && <Invites/>}
         {active === 3 && <Appearance/>}
-        {active === 4 && <Advanced/>}
+        {active === 4 && <Player/>}
+        {active === 5 && <Advanced/>}
       </div>
     </div>
   );
