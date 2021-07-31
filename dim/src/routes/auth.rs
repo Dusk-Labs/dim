@@ -29,6 +29,7 @@ pub fn auth_routes(
         .or(filters::user_change_password(conn.clone()))
         .or(filters::admin_delete_token(conn.clone()))
         .or(filters::user_delete_self(conn.clone()))
+        .or(filters::user_change_username(conn.clone()))
         .recover(super::global_filters::handle_rejection)
         .boxed()
 }
@@ -187,6 +188,29 @@ mod filters {
                         .map_err(|e| reject::custom(e))
                 },
             )
+    }
+
+    pub fn user_change_username(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        #[derive(Deserialize)]
+        pub struct Params {
+            new_username: String
+        }
+        warp::path!("api" / "v1" / "auth" / "username")
+            .and(warp::patch())
+            .and(auth::with_auth())
+            .and(warp::body::json::<Params>())
+            .and(with_db(conn))
+            .and_then(|user: auth::Wrapper,
+                Params {
+                    new_username,
+                }: Params,
+                conn: DbConnection| async move {
+                    super::user_change_username(conn, user, new_username)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                })
     }
 }
 
@@ -358,6 +382,20 @@ pub async fn user_delete_self(
         .map_err(|_| errors::AuthError::WrongPassword)?;
 
     User::delete(&conn, user.0.claims.get_user()).await?;
+
+    Ok(StatusCode::OK)
+}
+
+pub async fn user_change_username(
+    conn: DbConnection,
+    user: Auth,
+    new_username: String
+) -> Result<impl warp::Reply, errors::AuthError> {
+    if User::get(&conn, &new_username).await.is_ok() {
+        return Err(errors::AuthError::UsernameTaken);
+    }
+
+    User::set_username(&conn, user.0.claims.get_user(), new_username).await?;
 
     Ok(StatusCode::OK)
 }

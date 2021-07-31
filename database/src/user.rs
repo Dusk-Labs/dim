@@ -184,6 +184,21 @@ impl User {
         .await?
         .rows_affected() as usize)
     }
+
+    pub async fn set_username(
+        conn: &crate::DbConnection,
+        old_username: String,
+        new_username: String,
+    ) -> Result<usize, DatabaseError> {
+        Ok(sqlx::query!(
+            "UPDATE users SET username = $1 WHERE username = ?",
+            new_username,
+            old_username
+        )
+        .execute(conn)
+        .await?
+        .rows_affected() as usize)
+    }
 }
 
 #[derive(Deserialize)]
