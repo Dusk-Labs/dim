@@ -1,0 +1,36 @@
+.btn {
+  padding: .5em;
+  font-size: 1em;
+  transition: filter 0.3s ease-in-out;
+  font-family: "Roboto Bold";
+  outline: none;
+
+  &.primary {
+    border-radius: 10px;
+    background: #f7931e;
+    filter: saturate(0.7);
+
+    &:hover {
+      filter: saturate(1);
+    }
+  }
+
+  &.secondary {
+    background: transparent;
+    color: #fff;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &.disabled {
+    opacity: .5;
+    cursor: not-allowed;
+  }
+
+  // &.critical {
+  //   background: #e91619;
+  //   color: #eee;
+  // }
+}
