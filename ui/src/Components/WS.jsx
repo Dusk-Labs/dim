@@ -46,10 +46,7 @@ function WS(props) {
   }, [dispatch]);
 
   const handleOpen = useCallback((e) => {
-    console.log("CONN OPENED", e);
-
     if (!silentConnect) return;
-
     setSilentConnect(false);
   }, [silentConnect]);
 
@@ -93,37 +90,43 @@ function WS(props) {
   }, [handleClose, handleOpen, ws.conn]);
 
   useEffect(() => {
-    if (!auth.token) return;
-    if (!ws.conn) return;
+    if (!auth.token || !ws.conn) return;
 
-    ws.conn.send(JSON.stringify({
+    const payload = {
       "type": "authenticate",
       "token": auth.token
-    }));
+    };
 
+    ws.conn.send(JSON.stringify(payload));
   }, [auth.token, ws.conn]);
 
+  if (!silentConnect && (ws.connecting || ws.error)) {
+    return (
+      <div className="appLoad showAfter100ms">
+        <DimLogo load/>
+        {ws.error && (
+          <div className="error">
+            <h2>{msg}</h2>
+            {tries > 0 && <p>Seems like maybe the server is offline</p>}
+            <button onClick={retry}>Try reconnect ({tryingAgainIn})</button>
+          </div>
+        )}
+        {!ws.error && (
+          <Bar/>
+        )}
+      </div>
+    );
+  }
+
+  if ((ws.connected && !ws.error) || silentConnect) {
+    return props.children;
+  }
+
   return (
-    <>
-      {(!silentConnect && (ws.connecting || ws.error)) && (
-        <div className="appLoad showAfter100ms">
-          <DimLogo load/>
-          {ws.error && (
-            <div className="error">
-              <h2>{msg}</h2>
-              {tries > 0 && <p>Seems like maybe the server is offline</p>}
-              <button onClick={retry}>Try reconnect ({tryingAgainIn})</button>
-            </div>
-          )}
-          {!ws.error && (
-            <Bar/>
-          )}
-        </div>
-      )}
-      {((ws.connected && !ws.error) || silentConnect) && (
-        props.children
-      )}
-    </>
+    <div className="appLoad showAfter100ms">
+      <DimLogo load/>
+      <Bar/>
+    </div>
   );
 }
 
