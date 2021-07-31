@@ -97,11 +97,17 @@ pub mod fetcher {
 
     use super::*;
 
-    #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Hash)]
+    #[derive(Debug, Clone, PartialEq, Eq, Hash)]
     pub enum PosterType {
         Banner(String),
         Season(String),
         Episode(String),
+    }
+
+    impl PartialOrd for PosterType {
+        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+            Some(self.cmp(other))
+        }
     }
 
     impl Ord for PosterType {
