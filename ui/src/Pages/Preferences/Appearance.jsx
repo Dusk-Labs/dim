@@ -1,6 +1,7 @@
 import DefaultTheme from "../../assets/themes/Default";
 import Blind from "../../assets/themes/Blind";
 import LightsOff from "../../assets/themes/LightsOff";
+import Toggle from "../../Components/Toggle";
 
 import "./Appearance.scss";
 
@@ -30,6 +31,19 @@ function Appearance() {
             <p>Lights Off</p>
           </div>
         </div>
+      </section>
+      <section>
+        <h2>Cards</h2>
+        <Toggle
+          state={true}
+          name="Show media name under cards across the dashboard and libraries"
+        />
+      </section>
+      <section>
+        <h2>Sidebar</h2>
+        <Toggle
+          name="Keep the sidebar always in compact mode"
+        />
       </section>
     </div>
   );
