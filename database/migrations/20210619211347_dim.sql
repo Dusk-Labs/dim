@@ -25,7 +25,7 @@ CREATE TABLE _tblmedia (
     added TEXT,
     poster INTEGER,
     backdrop INTEGER,
-    media_type media_type NOT NULL,
+    media_type TEXT NOT NULL,
     PRIMARY KEY (id),
 
     FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE,
@@ -61,17 +61,32 @@ CREATE TABLE tv_show (
     FOREIGN KEY(id) REFERENCES _tblmedia (id) ON DELETE CASCADE
 );
 
-CREATE TABLE season (
+CREATE TABLE _tblseason (
     id INTEGER,
     season_number INTEGER NOT NULL,
     tvshowid INTEGER NOT NULL,
     added TEXT,
-    poster TEXT,
+    poster INTEGER,
     PRIMARY KEY (id),
+    
+    FOREIGN KEY(poster) REFERENCES assets(id),
     FOREIGN KEY(tvshowid) REFERENCES tv_show (id) ON DELETE CASCADE
 );
 
-CREATE UNIQUE INDEX season_idx ON season(season_number, tvshowid);
+CREATE UNIQUE INDEX season_idx ON _tblseason(season_number, tvshowid);
+
+-- Nicer view of _tblseason, ie we dont have to manually query some data.
+CREATE VIEW season AS
+SELECT _tblseason.id, _tblseason.season_number,
+    _tblseason.tvshowid, _tblseason.added, assets.local_path as poster
+FROM _tblseason
+JOIN assets ON _tblseason.poster = assets.id;
+
+CREATE TRIGGER season_delete
+INSTEAD OF DELETE ON season
+BEGIN
+    DELETE FROM _tblseason WHERE _tblseason.id = old.id;
+END;
 
 CREATE TABLE episode (
     id INTEGER,
@@ -79,7 +94,7 @@ CREATE TABLE episode (
     episode_ INTEGER NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY(id) REFERENCES _tblmedia (id) ON DELETE CASCADE,
-    FOREIGN KEY(seasonid) REFERENCES season (id) ON DELETE CASCADE
+    FOREIGN KEY(seasonid) REFERENCES _tblseason (id) ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX episode_idx ON episode(seasonid, episode_);

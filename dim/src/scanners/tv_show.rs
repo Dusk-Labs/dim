@@ -144,17 +144,32 @@ impl<'a> TvShowMatcher<'a> {
                 .find(|s| s.season_number == orphan_season)
         };
 
-        if let Some(x) = season.and_then(|x| x.poster_path.as_ref()) {
+        let poster_file = season.and_then(|x| x.poster_path.clone());
+
+        if let Some(x) = poster_file.as_ref() {
             let _ = meta_fetcher.send(PosterType::Season(x.clone()));
         }
+
+        let season_poster = match poster_file {
+            Some(path) => InsertableAsset {
+                remote_url: Some(path),
+                local_path: season
+                    .and_then(|x| x.poster_file.clone())
+                    .map(|x| format!("images/{}", x))
+                    .unwrap_or_default(),
+                file_ext: "jpg".into(),
+            }
+            .insert(self.conn)
+            .await
+            .ok()
+            .map(|x| x.id),
+            None => None,
+        };
 
         let insertable_season = InsertableSeason {
             season_number: orphan.season.unwrap_or(0),
             added: Utc::now().to_string(),
-            poster: season
-                .and_then(|x| x.poster_file.clone())
-                .map(|s| format!("images/{}", s))
-                .unwrap_or_default(),
+            poster: season_poster
         };
 
         let seasonid = insertable_season.insert(&self.conn, media_id).await?;
