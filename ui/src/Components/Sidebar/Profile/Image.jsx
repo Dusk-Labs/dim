@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 
-import defaultPFP from "../../../assets/defaultPFP";
-
 import "./Image.scss";
 
 function ProfileImage(props) {
@@ -56,12 +54,7 @@ function ProfileImage(props) {
         />
       )}
       {(error && loaded) && (
-        <img
-          src={defaultPFP}
-          key={currentSrc}
-          alt="Profile"
-          title="Nope, not a bug (◔◡◔)"
-        />
+        <div className="placeholder"/>
       )}
     </div>
   );
