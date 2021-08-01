@@ -15,7 +15,8 @@ import {
   FETCH_INVITES_START,
   FETCH_INVITES_OK,
   FETCH_INVITES_ERR,
-  NOTIFICATIONS_ADD
+  NOTIFICATIONS_ADD,
+  DEL_ACCOUNT_START
 } from "./types";
 
 export const authenticate = (username, password) => async (dispatch) => {
@@ -176,13 +177,15 @@ export const changePassword = (oldPassword, newPassword) => async (dispatch, get
 };
 
 export const delAccount = (password) => async (dispatch, getState) => {
+  dispatch({ type: DEL_ACCOUNT_START });
+
   const token = getState().auth.token;
 
   const config = {
-    method: "POST",
+    method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      "authorization": token
+      "Authorization": token
     },
     body: JSON.stringify({
       "password": password
@@ -191,6 +194,8 @@ export const delAccount = (password) => async (dispatch, getState) => {
 
   try {
     const res = await fetch("/api/v1/user/delete", config);
+
+    console.log(res);
 
     if (res.status !== 200) {
       dispatch({
@@ -210,6 +215,8 @@ export const delAccount = (password) => async (dispatch, getState) => {
       }
     });
   } catch(err) {
+    console.log(err);
+
     dispatch({
       type: AUTH_REGISTER_ERR,
       payload: err
