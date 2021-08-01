@@ -8,6 +8,9 @@
 
   &.primary {
     background: #f7931e;
+  }
+
+  &.primary, &.critical {
     filter: saturate(0.7);
 
     &:hover {
