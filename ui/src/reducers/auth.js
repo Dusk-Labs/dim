@@ -13,7 +13,10 @@ import {
   CREATE_NEW_INVITE_ERR,
   FETCH_INVITES_START,
   FETCH_INVITES_OK,
-  FETCH_INVITES_ERR
+  FETCH_INVITES_ERR,
+  DEL_ACCOUNT_START,
+  DEL_ACCOUNT__OK,
+  DEL_ACCOUNT__ERR
 } from "../actions/types.js";
 
 const login = {
@@ -42,13 +45,20 @@ const invites = {
   error: null
 };
 
+const deleteAccount = {
+  deleted: false,
+  deleting: false,
+  error: null
+};
+
 const initialState = {
   token: null,
   admin_exists: false,
   login,
   register,
   createNewInvite,
-  invites
+  invites,
+  deleteAccount
 };
 
 export default function authReducer(state = initialState, action) {
@@ -186,6 +196,34 @@ export default function authReducer(state = initialState, action) {
           items: action.payload,
           fetching: false,
           fetched: true
+        }
+      };
+    case DEL_ACCOUNT_START:
+      return {
+        ...state,
+        deleteAccount: {
+          ...state.delAccount,
+          deleting: true,
+          deleted: false,
+          error: null
+        }
+      };
+    case DEL_ACCOUNT__OK:
+      return {
+        ...state,
+        deleteAccount: {
+          ...state.delAccount,
+          deleting: false,
+          deleted: true
+        }
+      };
+    case DEL_ACCOUNT__ERR:
+      return {
+        ...state,
+        deleteAccount: {
+          ...state.delAccount,
+          deleting: false,
+          error: action.payload
         }
       };
     default:
