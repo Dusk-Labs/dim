@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { changeUsername } from "../../../actions/user";
 import Button from "../../../Components/Misc/Button";
 import Field from "../../Auth/Field";
 
 function Username() {
+  const dispatch = useDispatch();
   const user = useSelector(store => store.user);
 
   const [newUsername, setNewUsername] = useState("");
@@ -15,14 +17,19 @@ function Username() {
     }
   }, [user.info.username]);
 
-  const changeUsername = useCallback(() => {
+  const updateUsername = useCallback(() => {
     if (newUsername.length === 0) {
       setNewUsernameErr("Your new name has to be at least 1 character long.");
+      return;
     }
+
     if (newUsername === user.info.username) {
       setNewUsernameErr("That is your current username already.");
+      return;
     }
-  }, [newUsername, user.info.username]);
+
+    dispatch(changeUsername(newUsername));
+  }, [dispatch, newUsername, user.info.username]);
 
   const undoChangeUsername = useCallback(() => {
     setNewUsername(user.info.username);
@@ -40,7 +47,7 @@ function Username() {
       />
       {user.info.username !== newUsername && (
         <div className="options">
-          <Button onClick={changeUsername}>
+          <Button onClick={updateUsername}>
             Update
           </Button>
           <Button type="secondary" onClick={undoChangeUsername}>

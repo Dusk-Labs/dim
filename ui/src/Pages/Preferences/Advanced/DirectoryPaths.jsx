@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { updateGlobalSettings } from "../../../actions/settings";
 import Button from "../../../Components/Misc/Button";
 
 import Field from "../../Auth/Field";
 
 function DirectoryPaths() {
   const dispatch = useDispatch();
-
   const settings = useSelector(store => store.settings);
 
   const [cache, setCache] = useState("");
@@ -16,14 +16,30 @@ function DirectoryPaths() {
   const [metadataErr, setMetadataErr] = useState("");
 
   const updateCache = useCallback(() => {
-  }, []);
+    if (cache.length <= 1) {
+      setCacheErr("Invalid path");
+      return;
+    }
+
+    dispatch(updateGlobalSettings({
+      cache_dir: cache
+    }));
+  }, [cache, dispatch]);
 
   const cancelUpdateCache = useCallback(() => {
     setCache(settings.globalSettings.data.cache_dir);
   }, [settings.globalSettings.data.cache_dir]);
 
   const updateMetaData = useCallback(() => {
-  }, []);
+    if (metadata.length <= 1) {
+      setMetadataErr("Invalid path");
+      return;
+    }
+
+    dispatch(updateGlobalSettings({
+      metadata_dir: metadata
+    }));
+  }, [dispatch, metadata]);
 
   const cancelUpdateMetaData = useCallback(() => {
     setMetadata(settings.globalSettings.data.metadata_dir);

@@ -27,7 +27,15 @@ function General() {
   }, [dispatch]);
 
   const updatePort = useCallback(() => {
-  }, []);
+    if (port.length === 0) {
+      setPortErr("Invalid port");
+      return;
+    }
+
+    dispatch(updateGlobalSettings({
+      port: parseInt(port)
+    }));
+  }, [dispatch, port]);
 
   const undoUpdatePort = useCallback(() => {
     setPort(settings.globalSettings.data.port);
@@ -49,7 +57,7 @@ function General() {
           error={[portErr, setPortErr]}
         />
       </div>
-      {port !== settings.globalSettings.data.port && (
+      {parseInt(port) !== settings.globalSettings.data.port && (
         <div className="options">
           <Button onClick={updatePort}>
             Update
