@@ -63,7 +63,7 @@ function Preferences() {
       <aside>
         <Context.Provider value={{active, setActive}}>
           {sections.map((section, i) => (
-            <Section i={i}>{section.name}</Section>
+            <Section i={i} key={i}>{section.name}</Section>
           ))}
         </Context.Provider>
         <div className="separator"/>
