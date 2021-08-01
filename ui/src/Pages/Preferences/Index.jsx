@@ -7,7 +7,6 @@ import Account from "./Account/Index";
 import Profile from "./Profile/Index";
 import Invites from "./Invites/Index";
 import Appearance from "./Appearance/Index";
-import Player from "./Player/Index";
 import Advanced from "./Advanced/Index";
 import LogoutBtn from "./LogoutBtn";
 
@@ -43,7 +42,6 @@ function Preferences() {
       { name: "Profile" },
       { name: "Invites", show: user.info.roles.includes("owner") },
       { name: "Appearance" },
-      { name: "Player" },
       { name: "Advanced" }
     ];
 
@@ -73,8 +71,7 @@ function Preferences() {
         {active === 1 && <Profile/>}
         {active === 2 && <Invites/>}
         {active === 3 && <Appearance/>}
-        {active === 4 && <Player/>}
-        {active === 5 && <Advanced/>}
+        {active === 4 && <Advanced/>}
       </div>
     </div>
   );
