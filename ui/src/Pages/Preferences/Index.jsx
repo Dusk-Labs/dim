@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { checkAdminExists } from "../../actions/auth.js";
@@ -14,12 +14,43 @@ import LogoutBtn from "./LogoutBtn.jsx";
 
 import "./Index.scss";
 
+const Context = createContext(null);
+
+function Section(props) {
+  const {active, setActive} = useContext(Context);
+
+  return (
+    <h3
+      className={`${active === props.i && "active"}`}
+      onClick={() => setActive(props.i)}
+    >
+      {props.children}
+    </h3>
+  );
+}
+
 function Preferences() {
   const dispatch = useDispatch();
-
   const auth = useSelector(store => store.auth);
 
+  const [sections, setSections] = useState([]);
   const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    const pages = [
+      { name: "Account" },
+      { name: "Profile" },
+      { name: "Invites", show: auth.admin_exists },
+      { name: "Appearance" },
+      { name: "Player" },
+      { name: "Advanced" }
+    ];
+
+    setSections(pages.filter(section => {
+      if (section.show === undefined) return true;
+      return section.show;
+    }));
+  }, [auth.admin_exists]);
 
   useEffect(() => {
     dispatch(checkAdminExists());
@@ -30,26 +61,11 @@ function Preferences() {
   return (
     <div className="preferencesPage">
       <aside>
-        <h3 className={`${active === 0 && "active"}`} onClick={() => setActive(0)}>
-          Account
-        </h3>
-        <h3 className={`${active === 1 && "active"}`} onClick={() => setActive(1)}>
-          Profile
-        </h3>
-        {auth.admin_exists && (
-          <h3 className={`${active === 2 && "active"}`} onClick={() => setActive(2)}>
-            Invites
-          </h3>
-        )}
-        <h3 className={`${active === 3 && "active"}`} onClick={() => setActive(3)}>
-          Appearance
-        </h3>
-        <h3 className={`${active === 4 && "active"}`} onClick={() => setActive(4)}>
-          Player
-        </h3>
-        <h3 className={`${active === 5 && "active"}`} onClick={() => setActive(5)}>
-          Advanced
-        </h3>
+        <Context.Provider value={{active, setActive}}>
+          {sections.map((section, i) => (
+            <Section i={i}>{section.name}</Section>
+          ))}
+        </Context.Provider>
         <div className="separator"/>
         <LogoutBtn/>
       </aside>
