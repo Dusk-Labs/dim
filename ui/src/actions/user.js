@@ -133,3 +133,41 @@ export const changeAvatar = (file) => async (dispatch, getState) => {
     });
   }
 };
+
+export const delAvatar = () => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
+  const config = {
+    method: "DELETE",
+    headers: {
+      "Authorization": token
+    }
+  };
+
+  try {
+    const res = await fetch("/api/v1/user/avatar", config);
+
+    if (res.status !== 200) {
+      dispatch({
+        type: NOTIFICATIONS_ADD,
+        payload: {
+          msg: "Failed to remove your current avatar."
+        }
+      });
+
+      return;
+    }
+
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: "Successfuly removed your current avatar."
+      }
+    });
+  } catch(err) {
+    dispatch({
+      type: CHANGE_AVATAR_ERR,
+      payload: err
+    });
+  }
+};
