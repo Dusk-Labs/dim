@@ -148,8 +148,8 @@ export const FETCH_INVITES_OK = "FETCH_INVITES_OK";
 export const FETCH_INVITES_ERR = "FETCH_INVITES_ERR";
 
 export const DEL_ACCOUNT_START = "DEL_ACCOUNT_START";
-export const DEL_ACCOUNT__OK = "DEL_ACCOUNT_OK";
-export const DEL_ACCOUNT__ERR = "DEL_ACCOUNT__ERR";
+export const DEL_ACCOUNT_OK = "DEL_ACCOUNT_OK";
+export const DEL_ACCOUNT_ERR = "DEL_ACCOUNT_ERR";
 
 /*
     * WS ACTIONS
