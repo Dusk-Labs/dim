@@ -36,9 +36,7 @@ pub enum DimError {
     #[error(display = "Upload failed.")]
     UploadFailed,
     #[error(display = "Failed to deserialize request body ({:?})", description)]
-    MissingFieldInBody {
-        description: String
-    },
+    MissingFieldInBody { description: String },
 }
 
 impl warp::reject::Reject for DimError {}

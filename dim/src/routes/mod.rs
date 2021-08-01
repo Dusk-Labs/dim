@@ -23,8 +23,8 @@ pub mod stream;
 pub mod tv;
 
 pub mod global_filters {
-    use database::DbConnection;
     use crate::errors;
+    use database::DbConnection;
 
     use std::convert::Infallible;
     use std::error::Error;
@@ -54,7 +54,10 @@ pub mod global_filters {
         } else if let Some(_) = err.find::<auth::JWTError>() {
             return Ok(errors::DimError::AuthRequired.into_response());
         } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
-            return Ok(errors::DimError::MissingFieldInBody { description: e.source().unwrap().to_string() }.into_response());
+            return Ok(errors::DimError::MissingFieldInBody {
+                description: e.source().unwrap().to_string(),
+            }
+            .into_response());
         }
 
         Err(err)
