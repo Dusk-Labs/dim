@@ -6,7 +6,6 @@ use auth::Wrapper as Auth;
 use database::episode::{Episode, UpdateEpisode};
 use database::media::Media;
 use database::season::{Season, UpdateSeason};
-use database::tv::TVShow;
 
 use warp::http::status::StatusCode;
 use warp::reply;

@@ -1,5 +1,5 @@
 use serde_derive::{Deserialize, Serialize};
-use std::{path::PathBuf, process::Command, str};
+use std::{path::Path, process::Command, str};
 
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct FFPWrapper {
@@ -17,41 +17,52 @@ struct FFPStream {
 pub struct Stream {
     pub index: i64,
     pub codec_name: String,
-    profile: Option<String>,
-    codec_type: String,
-    codec_time_base: Option<String>,
+    pub profile: Option<String>,
+    pub codec_type: String,
+    pub codec_time_base: Option<String>,
     pub width: Option<i64>,
     pub height: Option<i64>,
-    coded_width: Option<i64>,
-    coded_height: Option<i64>,
-    display_aspect_ratio: Option<String>,
-    is_avc: Option<String>,
+    pub coded_width: Option<i64>,
+    pub coded_height: Option<i64>,
+    pub display_aspect_ratio: Option<String>,
+    pub is_avc: Option<String>,
     pub has_b_frames: Option<u64>,
     pub pix_fmt: Option<String>,
     pub level: Option<i64>,
     pub tags: Option<Tags>,
-    sample_rate: Option<String>,
-    channels: Option<i64>,
-    channel_layout: Option<String>,
+    pub sample_rate: Option<String>,
+    pub channels: Option<i64>,
+    pub channel_layout: Option<String>,
     pub bit_rate: Option<String>,
-    duration_ts: Option<i64>,
-    duration: Option<String>,
-    color_range: Option<String>,
-    color_space: Option<String>,
+    pub duration_ts: Option<i64>,
+    pub duration: Option<String>,
+    pub color_range: Option<String>,
+    pub color_space: Option<String>,
+    pub disposition: Option<Disposition>,
 }
 
-impl Into<nightfall::profiles::InputCtx> for Stream {
-    fn into(self) -> nightfall::profiles::InputCtx {
+impl Stream {
+    pub fn get_bitrate(&self) -> Option<u64> {
+        self.tags.as_ref()?.bps_eng.as_ref()?.parse::<u64>().ok()
+    }
+
+    pub fn get_codec(&self) -> &str {
+        &self.codec_name
+    }
+}
+
+impl From<Stream> for nightfall::profiles::InputCtx {
+    fn from(stream: Stream) -> nightfall::profiles::InputCtx {
         nightfall::profiles::InputCtx {
-            stream: self.index as usize,
-            codec: self.codec_name,
-            pix_fmt: self.pix_fmt.unwrap_or_default(),
-            profile: self.profile.unwrap_or_default(),
-            bitrate: self.tags
-                .and_then(|x| x.bps_eng.clone())
-                .and_then(|x| x.parse::<u64>().ok())
+            stream: stream.index as usize,
+            codec: stream.codec_name,
+            pix_fmt: stream.pix_fmt.unwrap_or_default(),
+            profile: stream.profile.unwrap_or_default(),
+            bitrate: stream
+                .tags
+                .and_then(|x| x.bps_eng?.parse::<u64>().ok())
                 .unwrap_or_default(),
-            bframes: self.has_b_frames,
+            bframes: stream.has_b_frames,
             ..Default::default()
         }
     }
@@ -62,7 +73,7 @@ pub struct Tags {
     pub language: Option<String>,
     pub title: Option<String>,
     #[serde(rename = "BPS-eng")]
-    bps_eng: Option<String>,
+    pub bps_eng: Option<String>,
     #[serde(rename = "DURATION-eng")]
     duration_eng: Option<String>,
     #[serde(rename = "NUMBER_OF_FRAMES-eng")]
@@ -79,15 +90,15 @@ pub struct Tags {
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct Format {
-    filename: String,
-    nb_streams: i64,
-    nb_programs: i64,
-    format_name: String,
-    format_long_name: String,
-    start_time: String,
-    duration: String,
-    size: String,
-    bit_rate: String,
+    pub filename: String,
+    pub nb_streams: i64,
+    pub nb_programs: i64,
+    pub format_name: String,
+    pub format_long_name: String,
+    pub start_time: String,
+    pub duration: String,
+    pub size: String,
+    pub bit_rate: String,
 }
 
 pub struct FFProbeCtx {
@@ -101,7 +112,7 @@ impl FFProbeCtx {
         }
     }
 
-    pub fn get_meta(&self, file: &PathBuf) -> Result<FFPWrapper, std::io::Error> {
+    pub fn get_meta(&self, file: &Path) -> Result<FFPWrapper, std::io::Error> {
         let probe = Command::new(self.ffprobe_bin.clone())
             .arg(file.to_str().unwrap())
             .arg("-v")
@@ -130,32 +141,6 @@ impl FFProbeCtx {
 }
 
 impl FFPWrapper {
-    pub fn get_bitrate(&self) -> String {
-        if let Some(ctx) = self.ffpstream.clone() {
-            return ctx.format.bit_rate;
-        }
-        "0".into()
-    }
-
-    pub fn get_quality(&self) -> Option<String> {
-        if let Some(ctx) = self.ffpstream.clone() {
-            match ctx.streams[0].height {
-                Some(x) => Some(x.to_string()),
-                None => None,
-            }
-        } else {
-            None
-        }
-    }
-
-    pub fn get_codec(&self) -> Option<String> {
-        if let Some(ctx) = self.ffpstream.clone() {
-            Some(ctx.streams[0].codec_name.clone())
-        } else {
-            None
-        }
-    }
-
     pub fn get_container(&self) -> Option<String> {
         if let Some(ctx) = self.ffpstream.clone() {
             Some(ctx.format.format_name)
@@ -164,58 +149,98 @@ impl FFPWrapper {
         }
     }
 
-    pub fn get_audio_type(&self) -> Option<String> {
-        if let Some(ctx) = self.ffpstream.clone() {
-            ctx.streams.get(1).map(|x| x.codec_name.clone())
-        } else {
-            None
-        }
+    pub fn get_container_bitrate(&self) -> Option<u64> {
+        self.ffpstream.as_ref()?.format.bit_rate.parse::<u64>().ok()
     }
 
-    pub fn get_res(&self) -> Option<String> {
-        if let Some(ctx) = self.ffpstream.clone() {
-            Some(format!(
-                "{}x{}",
-                ctx.streams[0].width.unwrap_or(1920),
-                ctx.streams[0].height.unwrap_or(1080)
-            ))
-        } else {
-            None
+    pub fn get_video_codec(&self) -> Option<String> {
+        Some(self.find_by_type("video").first()?.codec_name.clone())
+    }
+
+    pub fn get_height(&self) -> Option<i64> {
+        self.find_by_type("video").first()?.height
+    }
+
+    pub fn get_width(&self) -> Option<i64> {
+        self.find_by_type("video").first()?.width
+    }
+
+    pub fn get_primary(&self, codec_type: &str) -> Option<&Stream> {
+        let mut streams = self.find_by_type(codec_type);
+
+        if streams.is_empty() {
+            return None;
         }
+
+        if streams.len() == 1 {
+            return streams.pop();
+        }
+
+        let primary_stream = streams.iter().find_map(|x| {
+            if x.disposition.as_ref()?.default == 1 {
+                Some(*x)
+            } else {
+                None
+            }
+        });
+
+        primary_stream.or_else(|| streams.pop())
+    }
+
+    pub fn get_primary_codec(&self, codec_type: &str) -> Option<&str> {
+        Some(&self.get_primary(codec_type)?.codec_name)
     }
 
     pub fn get_duration(&self) -> Option<i32> {
-        if let Some(ctx) = self.ffpstream.clone() {
-            Some(ctx.format.duration.parse::<f64>().unwrap() as i32)
-        } else {
-            None
-        }
+        Some(
+            self.ffpstream
+                .as_ref()?
+                .format
+                .duration
+                .parse::<f64>()
+                .ok()? as i32,
+        )
     }
 
     pub fn get_ms(&self) -> Option<u128> {
-        if let Some(ctx) = self.ffpstream.clone() {
-            Some((ctx.format.duration.parse::<f64>().unwrap().trunc() * 1_000_000.0) as u128)
-        } else {
-            None
-        }
+        self.ffpstream
+            .as_ref()?
+            .format
+            .duration
+            .parse::<f64>()
+            .map(|x| (x.trunc() * 1_000_000.0) as u128)
+            .ok()
     }
 
     pub fn is_corrupt(&self) -> Option<bool> {
         Some(self.corrupt.unwrap_or(false))
     }
 
-    pub fn is_codec(&self, codec: &str) -> Option<bool> {
-        Some(!self.find_by_codec(codec).is_empty())
+    pub fn is_codec_type(&self, codec_type: &str) -> Option<bool> {
+        Some(!self.find_by_type(codec_type).is_empty())
     }
 
-    pub fn find_by_codec(&self, codec: &str) -> Vec<&Stream> {
+    pub fn find_by_type(&self, codec_type: &str) -> Vec<&Stream> {
         if let Some(x) = self.ffpstream.as_ref() {
             x.streams
                 .iter()
-                .filter(|x| x.codec_type == codec.to_string())
+                .filter(|x| x.codec_type == *codec_type)
                 .collect()
         } else {
             Vec::new()
         }
     }
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq, Serialize)]
+pub struct Disposition {
+    pub default: i64,
+    pub dub: i64,
+    pub original: i64,
+    pub comment: i64,
+    pub lyrics: i64,
+    pub karaoke: i64,
+    pub forced: i64,
+    pub hearing_impaired: i64,
+    pub visual_impaired: i64,
 }

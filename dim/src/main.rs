@@ -18,6 +18,8 @@ use structopt::StructOpt;
 #[structopt(version = env!("CARGO_PKG_VERSION"), author = env!("CARGO_PKG_AUTHORS"))]
 #[structopt(rename_all = "kebab")]
 struct Args {
+    #[structopt(short, long, parse(from_os_str), default_value = "config.json")]
+    config: PathBuf,
     /// Enables debug mode, which enables debug logs.
     #[structopt(short, long)]
     debug: bool,
@@ -31,12 +33,7 @@ struct Args {
     metadata_dir: PathBuf,
 
     /// Where the transcoders will cache to.
-    #[structopt(
-        short,
-        long,
-        parse(from_os_str),
-        default_value = "/tmp/streaming_cache"
-    )]
+    #[structopt(long, parse(from_os_str), default_value = "/tmp/streaming_cache")]
     cache_dir: PathBuf,
 
     /// Disable the scanners working at boot time.
@@ -47,14 +44,20 @@ struct Args {
 fn main() {
     let args = Args::from_args();
 
-    let logger = build_logger();
+    // initialize global settings.
+    dim::init_global_settings(Some(args.config.to_string_lossy().to_string()))
+        .expect("Failed to initialize global settings.");
+
+    let global_settings = dim::get_global_settings();
 
     // never panics because we set a default value to metadata_dir
-    let _ = create_dir_all(args.metadata_dir.clone());
+    let _ = create_dir_all(global_settings.metadata_dir.clone());
 
     core::METADATA_PATH
-        .set(args.metadata_dir.to_string_lossy().to_string())
+        .set(global_settings.metadata_dir.clone())
         .expect("Failed to set METADATA_PATH");
+
+    let logger = build_logger(global_settings.verbose);
 
     {
         let failed = streaming::ffcheck()
@@ -76,17 +79,19 @@ fn main() {
         }
     }
 
-    nightfall::profiles::profiles_init(logger.clone(), crate::streaming::FFMPEG_BIN.clone().into_string());
+    nightfall::profiles::profiles_init(
+        logger.clone(),
+        crate::streaming::FFMPEG_BIN.clone().into_string(),
+    );
 
     let async_main = async move {
         core::fetcher::tmdb_poster_fetcher(logger.clone()).await;
 
-        info!(logger, "Starting the WS service on port 3012");
-        let event_tx = core::start_event_server().await;
+        let (event_tx, event_rx) = tokio::sync::mpsc::unbounded_channel();
 
         let stream_manager = nightfall::StateManager::new(
             &mut Tokio::Global,
-            args.cache_dir.to_string_lossy().to_string(),
+            global_settings.cache_dir.clone(),
             crate::streaming::FFMPEG_BIN.to_string(),
             logger.clone(),
         );
@@ -104,7 +109,7 @@ fn main() {
             }
         });
 
-        if !args.no_scanners {
+        if !global_settings.quiet_boot {
             info!(logger, "Transposing scanners from the netherworld...");
             core::run_scanners(logger.clone(), event_tx.clone()).await;
         }
@@ -117,7 +122,15 @@ fn main() {
 
         let rt = tokio::runtime::Handle::current();
 
-        core::warp_core(logger, event_tx, stream_manager, rt, args.port).await;
+        core::warp_core(
+            logger,
+            event_tx,
+            stream_manager,
+            rt,
+            global_settings.port,
+            event_rx,
+        )
+        .await;
     };
 
     tokio::runtime::Runtime::new()

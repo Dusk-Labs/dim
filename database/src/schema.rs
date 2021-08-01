@@ -112,6 +112,8 @@ table! {
         // which we split later. This is a compromise as to not complicate the db crate any
         // further.
         roles -> Text,
+        profile_picture -> Text,
+        settings -> Text,
     }
 }
 

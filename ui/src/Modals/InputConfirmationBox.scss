@@ -1,0 +1,106 @@
+.modalConfirmation {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  color: #ffffff;
+  padding: 20px;
+
+  .separator {
+    margin-top: .5em;
+  }
+
+  h3 {
+    font-family: "Roboto Condensed Regular", Arial;
+  }
+
+  .desc {
+    color: #ccc;
+  }
+
+  p {
+    margin: 1em 0;
+  }
+
+  .options {
+    display: grid;
+    justify-content: flex-end;
+    grid-template-columns: auto auto;
+    gap: .5em;
+
+    button {
+      font-size: 16px;
+      filter: saturate(0.7);
+      transition: filter 0.3s ease-in-out;
+      font-family: "Roboto Bold", Arial;
+      padding: .5em;
+      border-radius: 10px;
+      outline: none;
+      background: #f7931e;
+      color: #ffffff;
+
+      &:focus,
+      &:hover {
+        filter: saturate(1);
+      }
+    }
+
+    .cancelBtn {
+      transition: color 0.3s ease-in-out;
+      background: transparent;
+
+      &:focus,
+      &:hover {
+        color: #ff6961;
+      }
+    }
+  }
+
+  label {
+    margin-bottom: 1em;
+
+    .name {
+      display: flex;
+      align-items: center;
+    }
+
+    .horizontal-err {
+      padding: 2px 5px;
+      font-size: .8em;
+      margin-left: 5px;
+      background: #ee4740;
+
+      p {
+        margin: .1em;
+      }
+    }
+
+    svg {
+      font-size: 0.8em;
+    }
+
+    .name > p {
+      margin: 0 5px;
+      font-family: "Roboto Condensed Regular", Arial;
+    }
+
+    input {
+      font-family: "Roboto Regular", Arial;
+      transition: background 0.3s ease-in-out;
+      margin-top: 10px;
+      background: #3a3a3a;
+      outline: none;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      color: #ffffff;
+      width: 100%;
+      height: 40px;
+      overflow: hidden;
+      white-space: nowrap;
+
+      &:focus,
+      &:hover {
+        background: #4a4a4a;
+      }
+    }
+  }
+}

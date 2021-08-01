@@ -28,21 +28,17 @@
     once_cell,
     type_ascription,
     result_into_ok_or_err,
-    map_first_last
+    stmt_expr_attributes,
+    with_options,
+    map_first_last,
+    never_type
 )]
-#![cfg_attr(debug_assertions, allow(unused_variables, unused_imports, dead_code))]
 
-use cfg_if::cfg_if;
 use chrono::Utc;
 
-use slog::error;
-use slog::info;
 use slog::o;
-use slog::warn;
-
 use slog::Drain;
 use slog::Duplicate;
-use slog::Fuse;
 use slog::Logger;
 
 use slog_async::Async;
@@ -50,16 +46,8 @@ use slog_json::Json as slog_json_default;
 use slog_term::FullFormat;
 use slog_term::TermDecorator;
 
-use std::collections::HashMap;
 use std::fs::create_dir_all;
 use std::fs::File;
-use std::process;
-use std::sync::Mutex;
-use std::thread;
-use std::time::Duration;
-
-use xtra::spawn::Tokio;
-use xtra::Actor;
 
 /// Module contains our core initialization logic.
 pub mod core;
@@ -80,8 +68,13 @@ pub mod utils;
 /// Websocket related logic.
 pub mod websocket;
 
+pub use routes::settings::get_global_settings;
+pub use routes::settings::init_global_settings;
+pub use routes::settings::set_global_settings;
+pub use routes::settings::GlobalSettings;
+
 /// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.
-pub fn build_logger() -> slog::Logger {
+pub fn build_logger(_debug: bool) -> slog::Logger {
     let date_now = Utc::now();
 
     let decorator = TermDecorator::new().build();
@@ -109,6 +102,8 @@ pub fn build_logger() -> slog::Logger {
     }
 
     let json_drain = Async::new(slog_json_default::default(file).fuse())
+        .chan_size(2048)
+        .overflow_strategy(slog_async::OverflowStrategy::Block)
         .build()
         .fuse();
 

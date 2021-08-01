@@ -85,11 +85,11 @@ impl MetadataExtractor {
         &mut self,
         file: PathBuf,
         library_id: i64,
-        media_type: MediaType,
+        _media_type: MediaType,
     ) -> Result<MediaFile, ScannerError> {
         let target_file = file.to_str().unwrap().to_owned();
 
-        let file_name = if let Some(file_name) = file.file_name().and_then(|x| x.to_str()) {
+        let _file_name = if let Some(file_name) = file.file_name().and_then(|x| x.to_str()) {
             file_name
         } else {
             warn!(
@@ -103,7 +103,7 @@ impl MetadataExtractor {
         let target_file_clone = target_file.clone();
         let res = MediaFile::get_by_file(&self.conn, &target_file_clone).await;
 
-        if let Ok(media_file) = res {
+        if let Ok(_media_file) = res {
             debug!(
                 self.logger,
                 "File already exists in the db";
@@ -133,7 +133,14 @@ impl MetadataExtractor {
         // `Metadata::from` directly.
         let meta_from_string =
             move || Metadata::from(&clone).map_err(|_| ScannerError::FilenameParserError);
-        let metadata = spawn_blocking(meta_from_string).await.unwrap()?;
+
+        let metadata = match spawn_blocking(meta_from_string).await {
+            Ok(x) => x?,
+            Err(e) => {
+                error!(self.logger, "Metadata::from possibly panic'd"; "e" => e.to_string());
+                return Err(ScannerError::UnknownError);
+            }
+        };
 
         let ffprobe_data = if let Ok(data) = ctx.get_meta(&file) {
             data
@@ -156,11 +163,13 @@ impl MetadataExtractor {
             season: metadata.season().map(|x| x as i64),
             episode: metadata.episode().map(|x| x as i64),
 
-            quality: ffprobe_data.get_quality(),
-            codec: ffprobe_data.get_codec(),
+            quality: ffprobe_data.get_height().map(|x| x.to_string()),
+            codec: ffprobe_data.get_video_codec(),
             container: ffprobe_data.get_container(),
-            audio: ffprobe_data.get_audio_type(),
-            original_resolution: ffprobe_data.get_res(),
+            audio: ffprobe_data
+                .get_primary_codec("audio")
+                .map(ToOwned::to_owned),
+            original_resolution: Default::default(),
             duration: ffprobe_data.get_duration().map(|x| x as i64),
             corrupt: ffprobe_data.is_corrupt(),
         };
@@ -400,11 +409,6 @@ impl MetadataMatcher {
         };
 
         matcher.match_to_result(result, &media).await;
-        Ok(())
-    }
-
-    #[handler]
-    pub async fn match_anime(&mut self, media: MediaFile) -> Result<(), ScannerError> {
         Ok(())
     }
 }

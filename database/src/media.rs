@@ -122,7 +122,7 @@ impl Media {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path as "poster_path?", backdrop_path as "backdrop_path?", media_type as "media_type: _"
                 FROM media
                 WHERE NOT media_type = "episode"
                 GROUP BY id, name
@@ -139,7 +139,7 @@ impl Media {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path as "poster_path?", backdrop_path as "backdrop_path?", media_type as "media_type: _"
                 FROM media
                 WHERE NOT media_type = "episode"
                 GROUP BY id, name
@@ -155,7 +155,7 @@ impl Media {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path as "poster_path?", backdrop_path as "backdrop_path?", media_type as "media_type: _"
                 FROM media
                 WHERE NOT media_type = "episode"
                 GROUP BY id
@@ -260,8 +260,8 @@ pub struct InsertableMedia {
     pub rating: Option<i64>,
     pub year: Option<i64>,
     pub added: String,
-    pub poster_path: Option<String>,
-    pub backdrop_path: Option<String>,
+    pub poster: Option<i64>,
+    pub backdrop: Option<i64>,
     pub media_type: MediaType,
 }
 
@@ -281,11 +281,11 @@ impl InsertableMedia {
         }
 
         let id = sqlx::query!(
-            r#"INSERT INTO media (library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type)
+            r#"INSERT INTO _tblmedia (library_id, name, description, rating, year, added, poster, backdrop, media_type)
             VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)
             ON CONFLICT DO UPDATE
             SET name = $2
-            RETURNING media.id as "id!: i64"
+            RETURNING _tblmedia.id as "id!: i64"
             "#,
             self.library_id,
             self.name,
@@ -293,8 +293,8 @@ impl InsertableMedia {
             self.rating,
             self.year,
             self.added,
-            self.poster_path,
-            self.backdrop_path,
+            self.poster,
+            self.backdrop,
             self.media_type
         ).fetch_one(conn).await?.id;
 
@@ -307,7 +307,7 @@ impl InsertableMedia {
     /// which are not indexed in the database.
     pub async fn insert_blind(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
         Ok(sqlx::query!(
-            r#"INSERT INTO media (library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type)
+            r#"INSERT INTO _tblmedia (library_id, name, description, rating, year, added, poster, backdrop, media_type)
             VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)"#,
             self.library_id,
             self.name,
@@ -315,8 +315,8 @@ impl InsertableMedia {
             self.rating,
             self.year,
             self.added,
-            self.poster_path,
-            self.backdrop_path,
+            self.poster,
+            self.backdrop,
             self.media_type
         ).execute(conn).await?.last_insert_rowid())
     }
@@ -332,8 +332,8 @@ pub struct UpdateMedia {
     pub rating: Option<i64>,
     pub year: Option<i64>,
     pub added: Option<String>,
-    pub poster_path: Option<String>,
-    pub backdrop_path: Option<String>,
+    pub poster: Option<i64>,
+    pub backdrop: Option<i64>,
     pub media_type: Option<MediaType>,
 }
 
@@ -352,14 +352,14 @@ impl UpdateMedia {
         let tx = conn.begin().await?;
 
         crate::opt_update!(conn, tx,
-            "UPDATE media SET name = ? WHERE id = ?" => (self.name, id),
-            "UPDATE media SET description = ? WHERE id = ?" => (self.description, id),
-            "UPDATE media SET rating = ? WHERE id = ?" => (self.rating, id),
-            "UPDATE media SET year = ? WHERE id = ?" => (self.year, id),
-            "UPDATE media SET added = ? WHERE id = ?" => (self.added, id),
-            "UPDATE media SET poster_path = ? WHERE id = ?" => (self.poster_path, id),
-            "UPDATE media SET backdrop_path = ? WHERE id = ?" => (self.backdrop_path, id),
-            "UPDATE media SET media_type = ? WHERE id = ?" => (self.media_type, id)
+            "UPDATE _tblmedia SET name = ? WHERE id = ?" => (self.name, id),
+            "UPDATE _tblmedia SET description = ? WHERE id = ?" => (self.description, id),
+            "UPDATE _tblmedia SET rating = ? WHERE id = ?" => (self.rating, id),
+            "UPDATE _tblmedia SET year = ? WHERE id = ?" => (self.year, id),
+            "UPDATE _tblmedia SET added = ? WHERE id = ?" => (self.added, id),
+            "UPDATE _tblmedia SET poster = ? WHERE id = ?" => (self.poster, id),
+            "UPDATE _tblmedia SET backdrop = ? WHERE id = ?" => (self.backdrop, id),
+            "UPDATE _tblmedia SET media_type = ? WHERE id = ?" => (self.media_type, id)
         );
 
         tx.commit().await?;

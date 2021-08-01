@@ -13,7 +13,7 @@ pub struct Season {
     pub tvshowid: i64,
     /// String holding the date when the season was added to the database.
     pub added: Option<String>,
-    /// URL to the location of the poster for this season.
+    /// Id of the asset pointing to the poster.
     pub poster: Option<String>,
 }
 
@@ -29,7 +29,7 @@ impl Season {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id as "id!", season_number, tvshowid, added, poster
+            r#"SELECT id as "id!", season_number, tvshowid, added, poster as "poster?"
             FROM season WHERE tvshowid = ?"#,
             tv_id
         )
@@ -51,7 +51,8 @@ impl Season {
         Ok(sqlx::query_as!(
             Self,
             r#"SELECT id as "id!", season_number ,
-                    tvshowid , added, poster FROM season WHERE id = ? AND season_number = ?"#,
+                    tvshowid , added, poster as "poster?"
+               FROM season WHERE id = ? AND season_number = ?"#,
             tv_id,
             season_num
         )
@@ -88,7 +89,7 @@ impl Season {
     pub async fn get_first(conn: &crate::DbConnection, tv_id: i64) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id as "id!", season_number, tvshowid, added, poster
+            r#"SELECT id as "id!", season_number, tvshowid, added, poster as "poster?"
             FROM season
             WHERE tvshowid = ?
             ORDER BY season_number ASC"#,
@@ -104,7 +105,7 @@ impl Season {
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id, season_number, tvshowid, added, poster
+            r#"SELECT id, season_number, tvshowid, added, poster as "poster?"
             FROM season WHERE id = ?"#,
             season_id,
         )
@@ -120,7 +121,7 @@ impl Season {
 pub struct InsertableSeason {
     pub season_number: i64,
     pub added: String,
-    pub poster: String,
+    pub poster: Option<i64>,
 }
 
 impl InsertableSeason {
@@ -145,7 +146,7 @@ impl InsertableSeason {
         }
 
         let id = sqlx::query!(
-            r#"INSERT INTO season (season_number, added, poster, tvshowid)
+            r#"INSERT INTO _tblseason (season_number, added, poster, tvshowid)
             VALUES ($1, $2, $3, $4)
             ON CONFLICT DO UPDATE
             SET poster = $3
@@ -172,7 +173,7 @@ pub struct UpdateSeason {
     pub season_number: Option<i64>,
     pub tvshowid: Option<i64>,
     pub added: Option<String>,
-    pub poster: Option<String>,
+    pub poster: Option<i64>,
 }
 
 impl UpdateSeason {
@@ -201,10 +202,10 @@ impl UpdateSeason {
         .await?;
 
         opt_update!(conn, tx,
-            "UPDATE season SET season_number = ? WHERE id = ?" => (self.season_number, row.id),
-            "UPDATE season SET tvshowid = ? WHERE id = ?" => (self.tvshowid, row.id),
-            "UPDATE season SET added = ? WHERE id = ?" => (self.added, row.id),
-            "UPDATE season SET poster = ? WHERE id = ?" => (self.poster, row.id)
+            "UPDATE _tblseason SET season_number = ? WHERE id = ?" => (self.season_number, row.id),
+            "UPDATE _tblseason SET tvshowid = ? WHERE id = ?" => (self.tvshowid, row.id),
+            "UPDATE _tblseason SET added = ? WHERE id = ?" => (self.added, row.id),
+            "UPDATE _tblseason SET poster = ? WHERE id = ?" => (self.poster, row.id)
         );
 
         Ok(1)

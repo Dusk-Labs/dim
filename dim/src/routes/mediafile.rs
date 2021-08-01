@@ -1,5 +1,4 @@
 use crate::core::DbConnection;
-use crate::core::EventTx;
 use crate::errors;
 
 use auth::Wrapper as Auth;
@@ -61,7 +60,7 @@ mod filters {
             .and(warp::query::query::<RouteArgs>())
             .and_then(
                 |id: i64,
-                 auth: Auth,
+                 _auth: Auth,
                  conn: DbConnection,
                  log: slog::Logger,
                  RouteArgs {
@@ -85,7 +84,9 @@ pub async fn get_mediafile_info(
     id: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mediafile = MediaFile::get_one(&conn, id).await?;
+    let mediafile = MediaFile::get_one(&conn, id)
+        .await
+        .map_err(|_| errors::DimError::NotFoundError)?;
 
     Ok(reply::json(&json!({
         "id": mediafile.id,
@@ -108,7 +109,7 @@ pub async fn get_mediafile_info(
 /// * `tmdb_id` - the tmdb id of the proper metadata we want to fetch for the media
 pub async fn rematch_mediafile(
     conn: DbConnection,
-    log: slog::Logger,
+    _log: slog::Logger,
     id: i64,
     tmdb_id: i32,
     media_type: String,

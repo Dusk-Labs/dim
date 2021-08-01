@@ -17,8 +17,6 @@ use events::PushEventType;
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::path::Path;
-use std::sync::Arc;
-use std::sync::Mutex;
 
 use futures::stream;
 use futures::StreamExt;
@@ -50,12 +48,8 @@ pub fn library_routes(
 }
 
 mod filters {
-    use std::sync::Arc;
-    use std::sync::Mutex;
-
     use warp::reject;
     use warp::Filter;
-    use warp::Rejection;
 
     use super::super::global_filters::with_db;
 

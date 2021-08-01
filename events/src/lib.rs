@@ -40,4 +40,8 @@ pub enum PushEventType {
     EventStartedScanning,
     /// A library has finished scanning.
     EventStoppedScanning,
+    /// Tell client auth is ok
+    EventAuthOk,
+    /// Tell client their token is wrong or missing
+    EventAuthErr,
 }

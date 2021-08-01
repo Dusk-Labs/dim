@@ -1,0 +1,77 @@
+main {
+  height: 100%;
+}
+
+.preferencesPage {
+  height: 100%;
+  display: grid;
+  grid-template-areas: "nav" "content";
+  align-content: flex-start;
+  transition: padding 200ms ease-in-out;
+  gap: 30px;
+  padding: 30px;
+
+  aside {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    height: 100%;
+    grid-area: nav;
+
+    h3 {
+      font-size: 1.2em;
+      color: #aaa;
+      cursor: default;
+
+      &:not(.active) {
+        cursor: pointer;
+
+        &:hover {
+          color: #bbb;
+        }
+      }
+
+      &.active {
+        color: white;
+      }
+    }
+
+    button {
+      font-size: 1.2em;
+      color: #aaa;
+      background: transparent;
+      font-family: "Roboto Regular";
+
+      &:hover {
+        color: #ed4245;
+      }
+    }
+  }
+
+  .desc {
+    color: #bbb;
+  }
+
+  section {
+    display: grid;
+    gap: 1em;
+    background: #2a2a2a;
+    padding: 1em;
+    border-radius: 10px;
+    animation: appear 200ms ease-in-out;
+  }
+
+  button {
+    justify-self: flex-start;
+    animation: appear 200ms ease-in-out;
+  }
+}
+
+@media only screen and (min-width: 1080px) {
+  .preferencesPage {
+    padding: 60px 90px;
+    gap: 90px;
+    grid-template-areas: "nav content";
+    grid-template-columns: auto 1fr;
+  }
+}
