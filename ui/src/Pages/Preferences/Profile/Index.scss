@@ -2,10 +2,6 @@
   display: grid;
   gap: 1em;
 
-  button {
-    animation: appear 150ms ease-in-out;
-  }
-
   img {
     margin-bottom: 1em;
     border-radius: 10px;
@@ -16,6 +12,7 @@
     .name {
       display: flex;
       align-items: center;
+      color: #ccc;
     }
 
     .horizontal-err {
@@ -27,6 +24,7 @@
 
     svg {
       font-size: 0.8em;
+      fill: #ccc;
     }
 
     .name > p {
@@ -56,12 +54,8 @@
     }
   }
 
-  .usernameSection button {
-    margin-top: 1em;
-  }
-
   .options {
     display: flex;
-    gap: 1em;
+    gap: .5em;
   }
 }

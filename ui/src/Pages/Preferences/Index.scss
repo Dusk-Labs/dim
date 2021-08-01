@@ -48,18 +48,21 @@ main {
     }
   }
 
-  h2 {
-    margin-bottom: .5em;
-  }
-
   .desc {
     color: #bbb;
   }
 
   section {
+    display: grid;
+    gap: 1em;
     background: #2a2a2a;
     padding: 1em;
     border-radius: 10px;
+    animation: appear 200ms ease-in-out;
+  }
+
+  button {
+    justify-self: flex-start;
     animation: appear 200ms ease-in-out;
   }
 }
