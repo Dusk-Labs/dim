@@ -68,7 +68,7 @@ function Profile() {
           )}
           {!newAvatar && (
             <Button onClick={uploadNewPic}>
-              Upload new picture
+              Upload {user.info.picture ? "new" : ""} picture
             </Button>
           )}
           {newAvatar && (
@@ -76,7 +76,7 @@ function Profile() {
               Clear upload
             </Button>
           )}
-          {!newAvatar && (
+          {(!newAvatar && user.info.picture) && (
             <Button type="secondary">
               Remove current avatar
             </Button>
