@@ -10,11 +10,20 @@ function ProfileImage(props) {
   const [error, setErr] = useState(false);
 
   useEffect(() => {
+    // If the server returned no profile pic we want to just show a default fill without making a null request.
+    if (!props.src) {
+      setShow(true);
+      setLoaded(true);
+      setErr(true);
+      return;
+    }
+
     if (props.src !== currentSrc) {
       setShow(false);
       setLoaded(false);
       setErr(false);
     }
+
   }, [currentSrc, props.src]);
 
   const swapSrc = useCallback((e) => {
@@ -22,7 +31,7 @@ function ProfileImage(props) {
 
     setErr(false);
 
-    if (props.src !== currentSrc) {
+    if (props.src && props.src !== currentSrc) {
       const img = new Image();
 
       img.onload = async () => {
