@@ -74,7 +74,18 @@ pub struct InsertableAsset {
 
 impl InsertableAsset {
     pub async fn insert(self, conn: &crate::DbConnection) -> Result<Asset, DatabaseError> {
-        Ok(sqlx::query_as_unchecked!(
+        let tx = conn.begin().await?;
+        let local_path = self.local_path.clone();
+
+        if let Ok(x) = sqlx::query_as_unchecked!(
+            Asset,
+            "SELECT * FROM assets WHERE local_path = ?",
+            local_path
+        ).fetch_one(conn).await {
+            return Ok(x);
+        }
+
+        let result = sqlx::query_as_unchecked!(
             Asset,
             "INSERT INTO assets (remote_url, local_path, file_ext)
                 VALUES ($1, $2, $3)
@@ -84,6 +95,10 @@ impl InsertableAsset {
             self.file_ext
         )
         .fetch_one(conn)
-        .await?)
+        .await?;
+
+        tx.commit().await?;
+
+        Ok(result)
     }
 }
