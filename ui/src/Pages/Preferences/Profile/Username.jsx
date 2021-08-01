@@ -44,7 +44,7 @@ function Username() {
             Update
           </Button>
           <Button type="secondary" onClick={undoChangeUsername}>
-            Undo
+            Cancel
           </Button>
         </div>
       )}
