@@ -1,16 +1,15 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { checkAdminExists } from "../../actions/auth.js";
 import { fetchGlobalSettings, fetchUserSettings } from "../../actions/settings.js";
 
 import Account from "./Account/Index";
-import Profile from "./Profile/Index.jsx";
+import Profile from "./Profile/Index";
 import Invites from "./Invites/Index";
 import Appearance from "./Appearance/Index";
-import Player from "./Player/Index.jsx";
+import Player from "./Player/Index";
 import Advanced from "./Advanced/Index";
-import LogoutBtn from "./LogoutBtn.jsx";
+import LogoutBtn from "./LogoutBtn";
 
 import "./Index.scss";
 
@@ -31,29 +30,27 @@ function Section(props) {
 
 function Preferences() {
   const dispatch = useDispatch();
-  const auth = useSelector(store => store.auth);
+  const user = useSelector(store => store.user);
 
   const [sections, setSections] = useState([]);
   const [active, setActive] = useState(0);
 
   useEffect(() => {
+    if (!user.fetched && !user.error) return;
+
     const pages = [
       { name: "Account" },
       { name: "Profile" },
-      { name: "Invites", show: auth.admin_exists },
+      { name: "Invites", show: user.info.roles.includes("owner") },
       { name: "Appearance" },
       { name: "Player" },
       { name: "Advanced" }
     ];
 
-    setSections(pages.filter(section => {
-      if (section.show === undefined) return true;
-      return section.show;
-    }));
-  }, [auth.admin_exists]);
+    setSections(pages);
+  }, [user.error, user.fetched, user.info.roles]);
 
   useEffect(() => {
-    dispatch(checkAdminExists());
     dispatch(fetchUserSettings());
     dispatch(fetchGlobalSettings());
   }, [dispatch]);
@@ -63,7 +60,9 @@ function Preferences() {
       <aside>
         <Context.Provider value={{active, setActive}}>
           {sections.map((section, i) => (
-            <Section i={i} key={i}>{section.name}</Section>
+            (section.show === true || section.show === undefined)
+              ? <Section i={i} key={i}>{section.name}</Section>
+              : <></>
           ))}
         </Context.Provider>
         <div className="separator"/>

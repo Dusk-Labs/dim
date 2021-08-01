@@ -82,14 +82,21 @@ export const fetchGlobalSettings = () => async (dispatch, getState) => {
 };
 
 export const updateUserSettings = (data) => async (dispatch, getState) => {
-  const token = getState().auth.token;
+  const state = getState();
+
+  const userSettings = state.settings.userSettings;
+  const token = state.auth.token;
 
   const config = {
     method: "POST",
     headers: {
-      "Authorization" : token
+      "Authorization" : token,
+      "Content-Type": "application/json"
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify({
+      ...userSettings.data,
+      ...data
+    })
   };
 
   try {
@@ -123,15 +130,21 @@ export const updateUserSettings = (data) => async (dispatch, getState) => {
 };
 
 export const updateGlobalSettings = (data) => async (dispatch, getState) => {
-  const token = getState().auth.token;
+  const state = getState();
+
+  const globalSettings = state.settings.globalSettings;
+  const token = state.auth.token;
 
   const config = {
-    method: "PATCH",
+    method: "POST",
     headers: {
       "Authorization" : token,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify({
+      ...globalSettings.data,
+      ...data
+    })
   };
 
   try {
