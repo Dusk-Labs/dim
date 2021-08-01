@@ -32,16 +32,18 @@
 
     &.active-true .ball {
       transform: translateX(100%);
+      background: #f7931e;
     }
 
     .ball {
       display: inline-block;
       height: 1em;
       width: 1em;
-      background: #f7931e;
+      background: #6a6a6a;
       border-radius: 5px;
       transform: translateX(0);
-      transition: transform 100ms ease-in-out;
+      transition: 100ms ease-in-out;
+      transition-property: transform, background;
     }
   }
 }
