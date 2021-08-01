@@ -264,6 +264,7 @@ pub async fn whoami(user: Auth, conn: DbConnection) -> Result<impl warp::Reply, 
             .await
             .unwrap_or(0) / 3600,
         "username": username,
+        "roles": user.0.claims.clone_roles()
     })))
 }
 

@@ -83,6 +83,11 @@ impl UserRolesToken {
     pub fn get_id(&self) -> u128 {
         self.id
     }
+
+    /// Method returns a clone of all roles.
+    pub fn clone_roles(&self) -> Vec<String> {
+        self.roles.iter().map(|x| x.to_ascii_lowercase()).collect::<Vec<_>>()
+    }
 }
 
 /// Function generates a new JWT token and signs it with our KEY
