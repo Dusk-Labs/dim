@@ -1,30 +1,35 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import InputConfirmationBox from "../../../Modals/InputConfirmationBox.jsx";
-import { delAccount, logout } from "../../../actions/auth.js";
+import { delAccount } from "../../../actions/auth.js";
 import { useState } from "react";
+import Button from "../../../Components/Misc/Button.jsx";
 
 function DelAccountBtn() {
+  const deleteAccount = useSelector(store => store.auth.delAccount);
+
   const [pass, setPass] = useState("");
   const [passErr, setPassErr] = useState("");
 
   const dispatch = useDispatch();
   const history = useHistory();
 
-  // TODO: prevent logout if deleting account fails.
+  useEffect(() => {
+    console.log(deleteAccount);
+  }, [deleteAccount]);
+
   const confirmDel = useCallback(async () => {
     if (pass.length === 0) {
       setPassErr("Enter your password to continue");
       return false;
     }
 
-    await dispatch(delAccount(pass));
-    await dispatch(logout());
+    await dispatch(delAccount());
 
-    history.push("/login");
-  }, [dispatch, history, pass]);
+    // history.push("/login");
+  }, [dispatch, pass]);
 
   return (
     <InputConfirmationBox
@@ -41,9 +46,9 @@ function DelAccountBtn() {
       type="password"
       icon="key"
     >
-      <button className="critical">
+      <Button type="critical">
         <p className="logout">Delete account</p>
-      </button>
+      </Button>
     </InputConfirmationBox>
   );
 }
