@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import Button from "../../../Components/Misc/Button";
 
 import Field from "../../Auth/Field";
 
@@ -13,6 +14,20 @@ function DirectoryPaths() {
 
   const [metadata, setMetadata] = useState("");
   const [metadataErr, setMetadataErr] = useState("");
+
+  const updateCache = useCallback(() => {
+  }, []);
+
+  const cancelUpdateCache = useCallback(() => {
+    setCache(settings.globalSettings.data.cache_dir);
+  }, [settings.globalSettings.data.cache_dir]);
+
+  const updateMetaData = useCallback(() => {
+  }, []);
+
+  const cancelUpdateMetaData = useCallback(() => {
+    setMetadata(settings.globalSettings.data.metadata_dir);
+  }, [settings.globalSettings.data.metadata_dir]);
 
   useEffect(() => {
     const { data } = settings.globalSettings;
@@ -29,13 +44,23 @@ function DirectoryPaths() {
         data={[cache, setCache]}
         error={[cacheErr, setCacheErr]}
       />
-      <div className="fields">
-        <Field
-          name="Metadata"
-          data={[metadata, setMetadata]}
-          error={[metadataErr, setMetadataErr]}
-        />
-      </div>
+      {cache !== settings.globalSettings.data.cache_dir && (
+        <div className="options">
+          <Button onClick={updateCache}>Update</Button>
+          <Button onClick={cancelUpdateCache} type="secondary">Cancel</Button>
+        </div>
+      )}
+      <Field
+        name="Metadata"
+        data={[metadata, setMetadata]}
+        error={[metadataErr, setMetadataErr]}
+      />
+      {metadata !== settings.globalSettings.data.metadata_dir && (
+        <div className="options">
+          <Button onClick={updateMetaData}>Update</Button>
+          <Button onClick={cancelUpdateMetaData} type="secondary">Cancel</Button>
+        </div>
+      )}
     </section>
   );
 }
