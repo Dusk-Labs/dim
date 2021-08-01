@@ -1,11 +1,11 @@
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { formatHHMMSSDate } from "../../Helpers/utils";
-import { fetchInvites, createNewInvite, delInvite } from "../../actions/auth.js";
-import TrashIcon from "../../assets/Icons/Trash";
+import { formatHHMMSSDate } from "../../../Helpers/utils";
+import { fetchInvites, createNewInvite, delInvite } from "../../../actions/auth.js";
+import TrashIcon from "../../../assets/Icons/Trash";
 
-import "./Invites.scss";
+import "./Index.scss";
 
 function Invites() {
   const dispatch = useDispatch();

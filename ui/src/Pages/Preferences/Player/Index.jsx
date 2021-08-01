@@ -1,7 +1,7 @@
 import { useCallback } from "react";
-import Toggle from "../../Components/Toggle";
+import Toggle from "../../../Components/Toggle";
 
-import "./Player.scss";
+import "./Index.scss";
 
 function VideoPlayer() {
   const toggleShowSubsDefault = useCallback((state) => {

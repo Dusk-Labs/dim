@@ -1,9 +1,9 @@
-import DefaultTheme from "../../assets/themes/Default";
-import Blind from "../../assets/themes/Blind";
-import LightsOff from "../../assets/themes/LightsOff";
-import Toggle from "../../Components/Toggle";
+import DefaultTheme from "../../../assets/themes/Default";
+import Blind from "../../../assets/themes/Blind";
+import LightsOff from "../../../assets/themes/LightsOff";
+import Toggle from "../../../Components/Toggle";
 
-import "./Appearance.scss";
+import "./Index.scss";
 
 function Appearance() {
   return (

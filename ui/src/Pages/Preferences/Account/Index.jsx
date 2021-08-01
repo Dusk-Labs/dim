@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
-import { changePassword } from "../../actions/auth";
-import Field from "../Auth/Field";
+import { changePassword } from "../../../actions/auth";
+import Field from "../../Auth/Field";
 import DelAccountBtn from "./DelAccountBtn";
 
-import "./Account.scss";
+import "./Index.scss";
 
-function MyAccount() {
+function Account() {
   const dispatch = useDispatch();
 
   const [oldPass, setOldPass] = useState("");
@@ -70,4 +70,4 @@ function MyAccount() {
   );
 }
 
-export default MyAccount;
+export default Account;

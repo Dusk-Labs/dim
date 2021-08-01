@@ -4,11 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { checkAdminExists } from "../../actions/auth.js";
 import { fetchGlobalSettings, fetchUserSettings } from "../../actions/settings.js";
 
-import Account from "./Account";
-import Profile from "./Profile.jsx";
-import Invites from "./Invites";
-import Appearance from "./Appearance";
-import Player from "./Player.jsx";
+import Account from "./Account/Index";
+import Profile from "./Profile/Index.jsx";
+import Invites from "./Invites/Index";
+import Appearance from "./Appearance/Index";
+import Player from "./Player/Index.jsx";
 import Advanced from "./Advanced/Index";
 import LogoutBtn from "./LogoutBtn.jsx";
 

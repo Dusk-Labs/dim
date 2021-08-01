@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import Button from "../../Components/Misc/Button";
-import Field from "../Auth/Field";
+import Button from "../../../Components/Misc/Button";
+import Field from "../../Auth/Field";
 
-import "./Profile.scss";
+import "./Index.scss";
 
 function Profile() {
   const user = useSelector(store => store.user);
