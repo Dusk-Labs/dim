@@ -3,12 +3,12 @@ import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import InputConfirmationBox from "../../../Modals/InputConfirmationBox.jsx";
-import { delAccount } from "../../../actions/auth.js";
+import { delAccount, logout } from "../../../actions/auth.js";
 import { useState } from "react";
 import Button from "../../../Components/Misc/Button.jsx";
 
 function DelAccountBtn() {
-  const deleteAccount = useSelector(store => store.auth.delAccount);
+  const deleteAccount = useSelector(store => store.auth.deleteAccount);
 
   const [pass, setPass] = useState("");
   const [passErr, setPassErr] = useState("");
@@ -17,8 +17,19 @@ function DelAccountBtn() {
   const history = useHistory();
 
   useEffect(() => {
-    console.log(deleteAccount);
-  }, [deleteAccount]);
+    if (deleteAccount.error) {
+      setPassErr(deleteAccount.error);
+    }
+  }, [deleteAccount.error]);
+
+  useEffect(() => {
+    (async () => {
+      if (deleteAccount.deleted && !deleteAccount.error) {
+        await dispatch(logout());
+        history.push("/login");
+      }
+    })();
+  }, [deleteAccount, dispatch, history]);
 
   const confirmDel = useCallback(async () => {
     if (pass.length === 0) {
@@ -26,9 +37,7 @@ function DelAccountBtn() {
       return false;
     }
 
-    await dispatch(delAccount());
-
-    // history.push("/login");
+    await dispatch(delAccount(pass));
   }, [dispatch, pass]);
 
   return (
