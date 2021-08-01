@@ -10,13 +10,15 @@ import {
 const globalSettings = {
   fetching: false,
   fetched: false,
-  error: null
+  error: null,
+  data: {}
 };
 
 const userSettings = {
   fetching: false,
   fetched: false,
-  error: null
+  error: null,
+  data: {}
 };
 
 const initialState = {
@@ -32,7 +34,8 @@ export default function settingsReducer(state = initialState, action) {
         userSettings: {
           fetching: true,
           fetched: false,
-          error: null
+          error: null,
+          data: {}
         }
       };
     case FETCH_USER_SETTINGS_OK:
@@ -61,13 +64,15 @@ export default function settingsReducer(state = initialState, action) {
         globalSettings: {
           fetching: true,
           fetched: false,
-          error: null
+          error: null,
+          data: {}
         }
       };
     case FETCH_GLOBAL_SETTINGS_OK:
       return {
         ...state,
         globalSettings: {
+          ...state.globalSettings,
           fetching: false,
           fetched: true,
           data: action.payload
@@ -77,6 +82,7 @@ export default function settingsReducer(state = initialState, action) {
       return {
         ...state,
         globalSettings: {
+          ...state.globalSettings,
           fetching: false,
           fetched: true,
           error: action.payload
