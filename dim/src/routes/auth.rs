@@ -16,7 +16,9 @@ use warp::Filter;
 
 use http::StatusCode;
 
+use futures::TryStreamExt;
 use std::convert::Infallible;
+use uuid::Uuid;
 
 pub fn auth_routes(
     conn: DbConnection,
@@ -196,7 +198,7 @@ mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         #[derive(Deserialize)]
         pub struct Params {
-            new_username: String
+            new_username: String,
         }
         warp::path!("api" / "v1" / "auth" / "username")
             .and(warp::patch())
@@ -213,13 +215,30 @@ mod filters {
                         .map_err(|e| reject::custom(e))
                 })
     }
+
+    pub fn user_upload_avatar(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "user" / "avatar")
+            .and(warp::post())
+            .and(auth::with_auth())
+            .and(warp::multipart::form().max_length(5_000_000))
+            .and(with_db(conn))
+            .and_then(|user, form, conn| async move {
+                super::user_upload_avatar(conn, user, form)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
 }
 
 pub async fn login(
     new_login: Login,
     conn: DbConnection,
 ) -> Result<impl warp::Reply, errors::AuthError> {
-    let user = User::get(&conn, &new_login.username).await?;
+    let user = User::get(&conn, &new_login.username)
+        .await
+        .map_err(|_| errors::AuthError::UserDoesntExist)?;
 
     if verify(
         user.username.clone(),
@@ -394,7 +413,7 @@ pub async fn user_delete_self(
 pub async fn user_change_username(
     conn: DbConnection,
     user: Auth,
-    new_username: String
+    new_username: String,
 ) -> Result<impl warp::Reply, errors::AuthError> {
     if User::get(&conn, &new_username).await.is_ok() {
         return Err(errors::AuthError::UsernameTaken);
@@ -403,4 +422,25 @@ pub async fn user_change_username(
     User::set_username(&conn, user.0.claims.get_user(), new_username).await?;
 
     Ok(StatusCode::OK)
+}
+
+pub async fn user_upload_avatar(
+    conn: DbConnection,
+    user: Auth,
+    form: warp::multipart::FormData,
+) -> Result<impl warp::Reply, errors::DimError> {
+    let parts: Vec<warp::multipart::Part> = form
+        .try_collect()
+        .await
+        .map_err(|_e| errors::DimError::UploadFailed)?;
+
+    for p in parts.into_iter().filter(|x| x.name() == "file") {
+        process_part(p).await?;
+    }
+
+    Ok(String::new())
+}
+
+pub async fn process_part(p: warp::multipart::Part) -> Result<Asset, errors::DimError> {
+    Err(errors::DimError::UploadFailed)
 }

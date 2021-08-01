@@ -43,16 +43,8 @@ pub struct Stream {
 
 impl Stream {
     pub fn get_bitrate(&self) -> Option<u64> {
-        self.tags
-            .as_ref()?
-            .bps_eng
-            .as_ref()?
-            .parse::<u64>()
-            .ok()
+        self.tags.as_ref()?.bps_eng.as_ref()?.parse::<u64>().ok()
     }
-
-
-
 
     pub fn get_codec(&self) -> &str {
         &self.codec_name
@@ -158,32 +150,19 @@ impl FFPWrapper {
     }
 
     pub fn get_container_bitrate(&self) -> Option<u64> {
-        self.ffpstream
-            .as_ref()?
-            .format
-            .bit_rate
-            .parse::<u64>()
-            .ok()
+        self.ffpstream.as_ref()?.format.bit_rate.parse::<u64>().ok()
     }
 
     pub fn get_video_codec(&self) -> Option<String> {
-        Some(self.find_by_type("video")
-            .first()?
-            .codec_name
-            .clone())
-
+        Some(self.find_by_type("video").first()?.codec_name.clone())
     }
 
     pub fn get_height(&self) -> Option<i64> {
-        self.find_by_type("video")
-            .first()?
-            .height
+        self.find_by_type("video").first()?.height
     }
 
     pub fn get_width(&self) -> Option<i64> {
-        self.find_by_type("video")
-            .first()?
-            .width
+        self.find_by_type("video").first()?.width
     }
 
     pub fn get_primary(&self, codec_type: &str) -> Option<&Stream> {
@@ -197,25 +176,30 @@ impl FFPWrapper {
             return streams.pop();
         }
 
-        let primary_stream = streams
-            .iter()
-            .find_map(|x| if x.disposition.as_ref()?.default == 1 { Some(*x) } else { None });
+        let primary_stream = streams.iter().find_map(|x| {
+            if x.disposition.as_ref()?.default == 1 {
+                Some(*x)
+            } else {
+                None
+            }
+        });
 
         primary_stream.or_else(|| streams.pop())
     }
 
     pub fn get_primary_codec(&self, codec_type: &str) -> Option<&str> {
-        Some(&self.get_primary(codec_type)?
-            .codec_name)
+        Some(&self.get_primary(codec_type)?.codec_name)
     }
 
     pub fn get_duration(&self) -> Option<i32> {
-        Some(self.ffpstream
-            .as_ref()?
-            .format
-            .duration
-            .parse::<f64>()
-            .ok()? as i32)
+        Some(
+            self.ffpstream
+                .as_ref()?
+                .format
+                .duration
+                .parse::<f64>()
+                .ok()? as i32,
+        )
     }
 
     pub fn get_ms(&self) -> Option<u128> {

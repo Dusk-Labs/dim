@@ -24,8 +24,10 @@ pub mod tv;
 
 pub mod global_filters {
     use database::DbConnection;
+    use crate::errors;
 
     use std::convert::Infallible;
+    use std::error::Error;
     use warp::Filter;
     use warp::Reply;
 
@@ -44,12 +46,15 @@ pub mod global_filters {
     pub async fn handle_rejection(
         err: warp::reject::Rejection,
     ) -> Result<impl warp::Reply, warp::reject::Rejection> {
-        if let Some(e) = err.find::<crate::errors::AuthError>() {
+        println!("{:?}", err);
+        if let Some(e) = err.find::<errors::AuthError>() {
             return Ok(e.clone().into_response());
-        } else if let Some(e) = err.find::<crate::errors::DimError>() {
+        } else if let Some(e) = err.find::<errors::DimError>() {
             return Ok(e.clone().into_response());
         } else if let Some(_) = err.find::<auth::JWTError>() {
-            return Ok(crate::errors::DimError::AuthRequired.into_response());
+            return Ok(errors::DimError::AuthRequired.into_response());
+        } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
+            return Ok(errors::DimError::MissingFieldInBody { description: e.source().unwrap().to_string() }.into_response());
         }
 
         Err(err)

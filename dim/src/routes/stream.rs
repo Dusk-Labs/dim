@@ -367,7 +367,10 @@ pub async fn return_virtual_manifest(
         .unwrap_or(get_avc1_tag(
             video_stream.width.clone().unwrap_or(1920) as u64,
             video_stream.height.clone().unwrap_or(1080) as u64,
-            video_stream.get_bitrate().or(info.get_container_bitrate()).expect("Failed to pick bitrate for video stream"),
+            video_stream
+                .get_bitrate()
+                .or(info.get_container_bitrate())
+                .expect("Failed to pick bitrate for video stream"),
             24,
         ));
 

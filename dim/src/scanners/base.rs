@@ -166,7 +166,9 @@ impl MetadataExtractor {
             quality: ffprobe_data.get_height().map(|x| x.to_string()),
             codec: ffprobe_data.get_video_codec(),
             container: ffprobe_data.get_container(),
-            audio: ffprobe_data.get_primary_codec("audio").map(ToOwned::to_owned),
+            audio: ffprobe_data
+                .get_primary_codec("audio")
+                .map(ToOwned::to_owned),
             original_resolution: Default::default(),
             duration: ffprobe_data.get_duration().map(|x| x as i64),
             corrupt: ffprobe_data.is_corrupt(),

@@ -150,7 +150,9 @@ pub fn event_socket(
 
                     'auth_loop: while let Some(Ok(x)) = ws_rx.next().await {
                         if x.is_text() {
-                            if let Ok(ClientActions::Authenticate { token }) = serde_json::from_slice(x.as_bytes()) {
+                            if let Ok(ClientActions::Authenticate { token }) =
+                                serde_json::from_slice(x.as_bytes())
+                            {
                                 if let Ok(token_data) = auth::jwt_check(token) {
                                     let _ = i_tx.send(CtrlEvent::Track {
                                         addr,

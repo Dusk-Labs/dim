@@ -33,6 +33,12 @@ pub enum DimError {
     Unauthorized,
     #[error(display = "A error has occured when matching.")]
     ScannerError(#[error(source)] ScannerError),
+    #[error(display = "Upload failed.")]
+    UploadFailed,
+    #[error(display = "Failed to deserialize request body ({:?})", description)]
+    MissingFieldInBody {
+        description: String
+    },
 }
 
 impl warp::reject::Reject for DimError {}
@@ -46,9 +52,10 @@ impl warp::Reply for DimError {
             | Self::UnknownError
             | Self::IOError
             | Self::InternalServerError
-            | Self::ScannerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            | Self::ScannerError(_)
+            | Self::UploadFailed => StatusCode::INTERNAL_SERVER_ERROR,
             Self::AuthRequired | Self::Unauthorized => StatusCode::UNAUTHORIZED,
-            Self::InvalidMediaType => StatusCode::NOT_ACCEPTABLE,
+            Self::InvalidMediaType | Self::MissingFieldInBody { .. } => StatusCode::NOT_ACCEPTABLE,
         };
 
         let resp = json!({
@@ -79,6 +86,8 @@ pub enum AuthError {
     WrongPassword,
     #[error(display = "Username Taken")]
     UsernameTaken,
+    #[error(display = "Requested user doesnt exist.")]
+    UserDoesntExist,
 }
 
 impl warp::reject::Reject for AuthError {}
@@ -88,7 +97,7 @@ impl warp::Reply for AuthError {
         let status = match self {
             Self::NoTokenError | Self::UsernameTaken => StatusCode::OK,
             Self::DatabaseError => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::Unauthorized => StatusCode::UNAUTHORIZED,
+            Self::Unauthorized | Self::UserDoesntExist => StatusCode::UNAUTHORIZED,
             Self::WrongPassword | Self::FailedAuth => StatusCode::FORBIDDEN,
         };
 
