@@ -5,7 +5,10 @@ import {
   NOTIFICATIONS_ADD,
   CHANGE_USERNAME_START,
   CHANGE_USERNAME_ERR,
-  CHANGE_USERNAME_OK
+  CHANGE_USERNAME_OK,
+  CHANGE_AVATAR_START,
+  CHANGE_AVATAR_ERR,
+  CHANGE_AVATAR_OK
 } from "./types.js";
 
 export const fetchUser = () => async (dispatch, getState) => {
@@ -62,8 +65,6 @@ export const changeUsername = (newUsername) => async (dispatch, getState) => {
   try {
     const res = await fetch("/api/v1/auth/username", config);
 
-    console.log(res);
-
     if (res.status !== 200) {
       dispatch({
         type: CHANGE_USERNAME_ERR,
@@ -84,6 +85,48 @@ export const changeUsername = (newUsername) => async (dispatch, getState) => {
   } catch(err) {
     dispatch({
       type: CHANGE_USERNAME_ERR,
+      payload: err
+    });
+  }
+};
+
+export const changeAvatar = (file) => async (dispatch, getState) => {
+  dispatch({ type: CHANGE_AVATAR_START });
+
+  const token = getState().auth.token;
+
+  const config = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "authorization": token
+    },
+    body: JSON.stringify(file)
+  };
+
+  try {
+    const res = await fetch("/api/v1/user/avatar", config);
+
+    if (res.status !== 200) {
+      dispatch({
+        type: CHANGE_AVATAR_ERR,
+        payload: res.statusText
+      });
+
+      return;
+    }
+
+    dispatch({ type: CHANGE_AVATAR_OK });
+
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: "Your new picture has now been set as your avatar."
+      }
+    });
+  } catch(err) {
+    dispatch({
+      type: CHANGE_AVATAR_ERR,
       payload: err
     });
   }

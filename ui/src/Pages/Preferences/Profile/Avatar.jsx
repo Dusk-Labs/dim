@@ -1,11 +1,20 @@
 import { useCallback, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { changeAvatar } from "../../../actions/user";
 import Button from "../../../Components/Misc/Button";
 
 function Avatar() {
+  const dispatch = useDispatch();
   const user = useSelector(store => store.user);
 
   const [newAvatar, setNewAvatar] = useState("");
+  const [newAvatarObj, setNewAvatarObj] = useState();
+
+  const updateAvatar = useCallback(() => {
+    if (!newAvatarObj) return;
+
+    dispatch(changeAvatar(newAvatarObj));
+  }, [dispatch, newAvatarObj]);
 
   const clearNewAvatarUpload = useCallback(() => {
     setNewAvatar("");
@@ -19,8 +28,10 @@ function Avatar() {
     input.type = "file";
     input.accept = "image/png, image/jpeg";
 
-    input.addEventListener("change", (e) => {
+    input.addEventListener("change", () => {
       if (!input.files[0]) return;
+
+      setNewAvatarObj(input.files[0]);
 
       setNewAvatar(
         URL.createObjectURL(input.files[0])
@@ -36,7 +47,7 @@ function Avatar() {
       {newAvatar && <img src={newAvatar} alt="New avatar"/>}
       <div className="options">
         {newAvatar && (
-          <Button>
+          <Button onClick={updateAvatar}>
             Save as new avatar
           </Button>
         )}
