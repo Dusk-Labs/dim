@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { changePassword } from "../../../actions/auth";
+import Button from "../../../Components/Misc/Button";
 import Field from "../../Auth/Field";
 
 function ManagePassword() {
@@ -28,6 +29,11 @@ function ManagePassword() {
     setNewPass("");
   }, [dispatch, newPass, oldPass, valid]);
 
+  const cancelChangePass = useCallback(async () => {
+    setOldPass("");
+    setNewPass("");
+  }, []);
+
   useEffect(() => {
     setValid(oldPass.length > 4 && newPass.length > 4);
   }, [newPass.length, oldPass.length]);
@@ -51,9 +57,16 @@ function ManagePassword() {
           type="password"
         />
       </div>
-      <button className={`${!valid && "disabled"}`} onClick={changePass}>
-        Change password
-      </button>
+      {valid && (
+        <div className="options">
+          <Button disabled={!valid} onClick={changePass}>
+            Change password
+          </Button>
+          <Button type="secondary" onClick={cancelChangePass}>
+            Cancel
+          </Button>
+        </div>
+      )}
     </section>
   );
 }
