@@ -1,6 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { changeAvatar } from "../../../actions/user";
+
+import { changeAvatar, delAvatar, fetchUser } from "../../../actions/user";
 import Button from "../../../Components/Misc/Button";
 
 function Avatar() {
@@ -10,11 +11,23 @@ function Avatar() {
   const [newAvatar, setNewAvatar] = useState("");
   const [newAvatarObj, setNewAvatarObj] = useState();
 
+  useEffect(() => {
+    if (user.changeAvatar.changed && !user.changeAvatar.error) {
+      dispatch(fetchUser());
+      setNewAvatar("");
+      setNewAvatarObj();
+    }
+  }, [dispatch, user, user.changeAvatar.changed, user.changeAvatar.error]);
+
   const updateAvatar = useCallback(() => {
     if (!newAvatarObj) return;
 
     dispatch(changeAvatar(newAvatarObj));
   }, [dispatch, newAvatarObj]);
+
+  const removeAvatar = useCallback(() => {
+    dispatch(delAvatar());
+  }, [dispatch]);
 
   const clearNewAvatarUpload = useCallback(() => {
     setNewAvatar("");
@@ -62,7 +75,7 @@ function Avatar() {
           </Button>
         )}
         {(!newAvatar && user.info.picture) && (
-          <Button type="secondary">
+          <Button type="secondary" onClick={removeAvatar}>
             Remove current avatar
           </Button>
         )}
