@@ -1,12 +1,9 @@
 use crate::core::DbConnection;
 use crate::errors;
 use crate::routes::construct_standard;
-use crate::routes::get_episode;
-use crate::routes::get_season;
 use crate::routes::get_top_duration;
 
 use auth::Wrapper as Auth;
-use cfg_if::cfg_if;
 
 use database::episode::Episode;
 use database::genre::*;
@@ -19,9 +16,6 @@ use database::tv::TVShow;
 
 use futures::stream;
 use futures::StreamExt;
-use std::fs;
-use std::io;
-use std::path::PathBuf;
 
 use serde_json::json;
 use serde_json::Value;
@@ -86,7 +80,7 @@ mod filters {
 pub async fn dashboard(
     conn: DbConnection,
     user: Auth,
-    rt: tokio::runtime::Handle,
+    _rt: tokio::runtime::Handle,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut top_rated = Vec::new();
     for media in Media::get_top_rated(&conn, 10).await? {

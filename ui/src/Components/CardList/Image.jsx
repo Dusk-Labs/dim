@@ -8,6 +8,8 @@ function CardImage(props) {
   const [imageSrc, setImageSrc] = useState();
 
   useEffect(() => {
+    if(!props.src) return;
+
     const img = new Image();
 
     img.onload = () => {

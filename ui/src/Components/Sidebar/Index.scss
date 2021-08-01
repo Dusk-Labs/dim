@@ -110,15 +110,6 @@
         background: #2a2a2a;
       }
 
-      &.logout {
-        cursor: pointer;
-
-        &:focus,
-        &:hover {
-          background: #ff6961;
-        }
-      }
-
       &.active {
         cursor: default;
         background: #5a5a5a;

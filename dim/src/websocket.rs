@@ -1,23 +1,18 @@
 use std::collections::HashMap;
-use std::convert::TryFrom;
-use std::fmt;
 use std::hash::Hash;
-use std::io;
-use std::{fmt::Debug, net::SocketAddr, sync::Arc};
+use std::net::SocketAddr;
 
-use tokio::net::ToSocketAddrs;
-use tokio::{net::TcpListener, runtime::Handle};
-use tokio::{
-    net::TcpStream,
-    sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender},
-};
+use tokio::runtime::Handle;
+use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
-use tokio_tungstenite::{tungstenite::Message, WebSocketStream};
+use warp::filters::ws::Message;
+use warp::filters::ws::WebSocket;
+use warp::Filter;
 
 use futures::prelude::*;
-use futures::stream::{SplitSink, SplitStream};
-use xtra::Actor;
-use xtra::Address;
+use futures::stream::SplitSink;
+
+use crate::routes;
 
 pub enum CtrlEvent<A, M>
 where
@@ -25,7 +20,8 @@ where
 {
     Track {
         addr: A,
-        sink: SplitSink<WebSocketStream<TcpStream>, Message>,
+        sink: SplitSink<WebSocket, Message>,
+        auth: auth::Wrapper,
     },
 
     Forget {
@@ -40,7 +36,7 @@ where
     SendAll(M),
 }
 
-pub trait IntoCtrlEvent<A, M>: Into<Message> + Sync + Send + Clone + 'static
+pub trait IntoCtrlEvent<A, M>: Sync + Send + Clone + 'static
 where
     A: Hash + Eq,
 {
@@ -56,9 +52,8 @@ where
     }
 }
 
-impl<A, T> CtrlEvent<A, T>
+impl<A> CtrlEvent<A, String>
 where
-    T: Into<Message> + Clone,
     A: Hash + Eq + Clone,
 {
     async fn recv_from_rx(mut rx: UnboundedReceiver<Self>) {
@@ -73,8 +68,8 @@ where
             discard.clear();
 
             match ev {
-                CtrlEvent::Track { addr, sink } => {
-                    peers.insert(addr, sink);
+                CtrlEvent::Track { addr, sink, auth } => {
+                    peers.insert(addr, (sink, auth));
                 }
 
                 CtrlEvent::Forget { ref addr } => {
@@ -82,8 +77,8 @@ where
                 }
 
                 CtrlEvent::SendAll(body) => {
-                    for (addr, sink) in peers.iter_mut() {
-                        let result = sink.send(body.clone().into()).await;
+                    for (addr, (sink, _)) in peers.iter_mut() {
+                        let result = sink.send(Message::text(body.clone())).await;
 
                         if result.is_err() {
                             let _ = sink.close().await;
@@ -93,8 +88,8 @@ where
                 }
 
                 CtrlEvent::SendTo { addr, message } => {
-                    if let Some(sink) = peers.get_mut(&addr) {
-                        let result = sink.send(message.clone().into()).await;
+                    if let Some((sink, _)) = peers.get_mut(&addr) {
+                        let result = sink.send(Message::text(message.clone())).await;
 
                         if result.is_err() {
                             let _ = sink.close().await;
@@ -107,136 +102,118 @@ where
     }
 }
 
-#[async_trait::async_trait]
-pub(crate) trait WebsocketServer {
-    async fn bind<S>(&mut self, address: S) -> io::Result<TcpListener>
-    where
-        S: ToSocketAddrs + Send;
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[serde(tag = "type")]
+pub enum ClientActions {
+    Authenticate { token: String },
+}
 
-    async fn on_message(&mut self, addr: SocketAddr, message: Message) {}
+pub fn event_socket(
+    rt_handle: Handle,
+    mut event_rx: UnboundedReceiver<String>,
+) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    let (i_tx, i_rx) = unbounded_channel::<CtrlEvent<SocketAddr, String>>();
 
-    async fn on_connect(
-        &mut self,
-        addr: SocketAddr,
-        stream: WebSocketStream<TcpStream>,
-    ) -> Result<WebSocketStream<TcpStream>, ()> {
-        Ok(stream)
-    }
+    let _ev = rt_handle.spawn(CtrlEvent::recv_from_rx(i_rx));
 
-    async fn serve<S, M>(
-        &mut self,
-        address: S,
-        rt_handle: Handle,
-        mut event_rx: UnboundedReceiver<M>,
-    ) -> io::Result<()>
-    where
-        M: IntoCtrlEvent<SocketAddr, String>,
-        S: ToSocketAddrs + Send,
-    {
-        let listener = self.bind(address).await?;
+    let forwarder_fut = {
+        let i_tx = i_tx.clone();
 
-        let (i_tx, i_rx) = unbounded_channel::<CtrlEvent<SocketAddr, String>>();
-
-        let ev = rt_handle.spawn(CtrlEvent::recv_from_rx(i_rx));
-
-        let forwarder_fut = {
-            let i_tx = i_tx.clone();
-
-            async move {
-                while let Some(st) = event_rx.recv().await {
-                    let _ = i_tx.send(st.into_ctrl_event());
-                }
+        async move {
+            while let Some(st) = event_rx.recv().await {
+                let _ = i_tx.send(st.into_ctrl_event());
             }
-        };
+        }
+    };
 
-        let forwarder = rt_handle.spawn(forwarder_fut);
+    let _forwarder = rt_handle.spawn(forwarder_fut);
 
-        let (m_tx, mut m_rx) = unbounded_channel::<(SocketAddr, Message)>();
-
-        'outer: loop {
-            tokio::select! {
-                biased;
-
-                _ = tokio::signal::ctrl_c() => {
-                    break 'outer;
-                }
-
-                incoming = listener.accept() => {
-                    let (stream, addr) = match incoming {
-                        Ok(sa) => sa,
-                        Err(_) => break 'outer,
+    warp::path("ws")
+        .and(warp::filters::addr::remote())
+        .and(routes::global_filters::with_state(i_tx))
+        .and(routes::global_filters::with_state(rt_handle))
+        .and(warp::ws())
+        .map(
+            |addr: Option<SocketAddr>,
+             i_tx: UnboundedSender<CtrlEvent<SocketAddr, String>>,
+             rt_handle: Handle,
+             ws: warp::ws::Ws| {
+                ws.on_upgrade(move |websocket| async move {
+                    let addr = match addr {
+                        Some(addr) => addr,
+                        None => return,
                     };
 
-                    let (stream, i_tx) = match tokio_tungstenite::accept_async(stream).await {
-                        Ok(stream) => (stream, i_tx.clone()),
-                        Err(error) => {
-                            // TODO: log WS errors.
-                            continue 'outer;
+                    let (m_tx, mut m_rx) = unbounded_channel::<(SocketAddr, Message)>();
+                    let (ws_tx, mut ws_rx) = websocket.split();
+
+                    'auth_loop: while let Some(Ok(x)) = ws_rx.next().await {
+                        if x.is_text() {
+                            if let Ok(ClientActions::Authenticate { token }) =
+                                serde_json::from_slice(x.as_bytes())
+                            {
+                                if let Ok(token_data) = auth::jwt_check(token) {
+                                    let _ = i_tx.send(CtrlEvent::Track {
+                                        addr,
+                                        sink: ws_tx,
+                                        auth: auth::Wrapper(token_data),
+                                    });
+
+                                    let _ = i_tx.send(CtrlEvent::SendTo {
+                                        addr,
+                                        message: events::Message {
+                                            id: -1,
+                                            event_type: events::PushEventType::EventAuthOk,
+                                        }
+                                        .to_string(),
+                                    });
+
+                                    break 'auth_loop;
+                                }
+                            }
+
+                            let _ = i_tx.send(CtrlEvent::SendTo {
+                                addr,
+                                message: events::Message {
+                                    id: -1,
+                                    event_type: events::PushEventType::EventAuthErr,
+                                }
+                                .to_string(),
+                            });
                         }
-                    };
-
-                    let (out, mut inc) = match self.on_connect(addr.clone(), stream).await {
-                        Ok(stream) => stream.split(),
-                        Err(_) => continue 'outer,
-                    };
-
-                    let _ = i_tx.send(CtrlEvent::Track {
-                        addr: addr.clone(),
-                        sink: out,
-                    });
+                    }
 
                     let m_tx = m_tx.clone();
 
                     rt_handle.spawn(async move {
-                        while let Some(Ok(message)) = inc.next().await {
-                            if let Err(_) = m_tx.send((addr, message)) {
+                        while let Some(Ok(message)) = ws_rx.next().await {
+                            if m_tx.send((addr, message)).is_err() {
                                 break;
                             }
                         }
 
                         i_tx.send(CtrlEvent::Forget { addr })
                     });
-                }
 
-                message = m_rx.recv() => {
-                    let (addr, message) = match message {
-                        Some(p) => p,
-                        None => break 'outer,
-                    };
+                    'outer: loop {
+                        tokio::select! {
+                            biased;
+                            _ = tokio::signal::ctrl_c() => {
+                                break 'outer;
+                            }
 
-                    self.on_message(addr, message).await;
-                }
+                            message = m_rx.recv() => {
+                                let (_addr, _message) = match message {
+                                    Some(p) => p,
+                                    None => break 'outer,
+                                };
+                            }
 
-                else => break 'outer,
-            }
-        }
-
-        Ok(())
-    }
-}
-
-#[async_trait::async_trait]
-impl WebsocketServer for Option<std::net::TcpListener> {
-    async fn bind<S>(&mut self, address: S) -> io::Result<TcpListener>
-    where
-        S: ToSocketAddrs + Send,
-    {
-        TcpListener::try_from(self.take().unwrap())
-    }
-}
-
-pub async fn serve<S, M>(
-    address: S,
-    rt_handle: Handle,
-    event_rx: UnboundedReceiver<M>,
-) -> std::io::Result<()>
-where
-    M: IntoCtrlEvent<SocketAddr, String>,
-    S: std::net::ToSocketAddrs,
-{
-    let listener = std::net::TcpListener::bind(address)?;
-
-    Some(listener)
-        .serve("<already bound>", rt_handle, event_rx)
-        .await
+                            else => break 'outer,
+                        }
+                    }
+                })
+            },
+        )
 }

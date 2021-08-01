@@ -1,12 +1,4 @@
-use std::ffi::OsStr;
-use std::fs::File;
-use std::io::Cursor;
-use std::io::Read;
-use std::path::Path;
-use std::path::PathBuf;
-
 use rust_embed::RustEmbed;
-
 use warp::Filter;
 use warp::Reply;
 
@@ -19,13 +11,8 @@ pub fn statik_routes(
 }
 
 mod filters {
-    use warp::reject;
-    use warp::Filter;
-    use warp::Reply;
-
     use std::path::PathBuf;
-
-    use rust_embed::RustEmbed;
+    use warp::Filter;
 
     pub fn react_routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
     {
@@ -47,6 +34,7 @@ mod filters {
                         Some("js") => "application/javascript",
                         Some("css") => "text/css",
                         Some("woff2") => "font/woff2",
+                        Some("png") => "image/png",
                         _ => return Err(warp::reject::not_found()),
                     };
 

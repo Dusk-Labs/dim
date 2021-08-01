@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 
 import { fetchUser } from "../../actions/user.js";
+import { fetchUserSettings } from "../../actions/settings.js";
 
 import Profile from "./Profile/Index";
 import Search from "./Search";
@@ -17,6 +18,7 @@ function Sidebar() {
 
   useEffect(() => {
     dispatch(fetchUser());
+    dispatch(fetchUserSettings());
   }, [dispatch]);
 
   return (

@@ -1,12 +1,7 @@
-use slog::error;
 use slog::info;
 use slog::o;
 
-use std::convert::Infallible;
-use std::time::Instant;
-
 use warp::filters::log::Info;
-use warp::Filter;
 
 #[derive(Clone)]
 pub struct RequestLogger {
@@ -16,7 +11,7 @@ pub struct RequestLogger {
 impl RequestLogger {
     pub fn new(logger: slog::Logger) -> Self {
         Self {
-            logger: logger.new(o!("mod" => "rocket")),
+            logger: logger.new(o!("mod" => "warp")),
         }
     }
 }

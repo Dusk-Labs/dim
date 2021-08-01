@@ -14,7 +14,11 @@ import {
   CREATE_NEW_INVITE_ERR,
   FETCH_INVITES_START,
   FETCH_INVITES_OK,
-  FETCH_INVITES_ERR
+  FETCH_INVITES_ERR,
+  NOTIFICATIONS_ADD,
+  DEL_ACCOUNT_START,
+  DEL_ACCOUNT_ERR,
+  DEL_ACCOUNT_OK
 } from "./types";
 
 export const authenticate = (username, password) => async (dispatch) => {
@@ -129,6 +133,95 @@ export const register = (username, password, invite) => async (dispatch) => {
   }
 };
 
+export const changePassword = (oldPassword, newPassword) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
+  const config = {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "authorization": token
+    },
+    body: JSON.stringify({
+      "old_password": oldPassword,
+      "new_password": newPassword
+    })
+  };
+
+  try {
+    const res = await fetch("/api/v1/auth/password", config);
+
+    if (res.status !== 200) {
+      dispatch({
+        type: NOTIFICATIONS_ADD,
+        payload: {
+          msg: "Failed to change password."
+        }
+      });
+
+      return;
+    }
+
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: "Your password has now been updated."
+      }
+    });
+  } catch(err) {
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: "Failed to change password."
+      }
+    });
+  }
+};
+
+export const delAccount = (password) => async (dispatch, getState) => {
+  dispatch({ type: DEL_ACCOUNT_START });
+
+  const token = getState().auth.token;
+
+  const config = {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": token
+    },
+    body: JSON.stringify({
+      "password": password
+    })
+  };
+
+  try {
+    const res = await fetch("/api/v1/user/delete", config);
+
+    if (res.status !== 200) {
+      dispatch({
+        type: DEL_ACCOUNT_ERR,
+        payload: res.statusText
+      });
+
+      return;
+    }
+
+    dispatch({ type: DEL_ACCOUNT_OK });
+
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: "Your account has been deleted, you have been logged out."
+      }
+    });
+  } catch(err) {
+    dispatch({
+      type: DEL_ACCOUNT_ERR,
+      payload: err
+    });
+  }
+};
+
 export const checkAdminExists = () => async (dispatch) => {
   try {
     const res = await fetch("/api/v1/auth/admin_exists");
@@ -181,6 +274,51 @@ export const createNewInvite = () => async (dispatch, getState) => {
     dispatch({
       type: CREATE_NEW_INVITE_OK,
       payload
+    });
+
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: `Successfuly created a new invite token: ${payload.token}.`
+      }
+    });
+  } catch(err) {
+    dispatch({
+      type: CREATE_NEW_INVITE_ERR,
+      payload: err
+    });
+  }
+};
+
+export const delInvite = (inviteToken) => async (dispatch, getState) => {
+  const token = getState().auth.token;
+
+  const config = {
+    method: "DELETE",
+    headers: {
+      "authorization": token
+    }
+  };
+
+  try {
+    const res = await fetch(`/api/v1/auth/token/${inviteToken}`, config);
+
+    if (res.status !== 200) {
+      dispatch({
+        type: NOTIFICATIONS_ADD,
+        payload: {
+          msg: `Could not delete invite token: ${inviteToken}`
+        }
+      });
+
+      return;
+    }
+
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: `Successfuly deleted invite token: ${inviteToken}`
+      }
     });
   } catch(err) {
     dispatch({

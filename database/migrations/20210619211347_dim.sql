@@ -6,13 +6,15 @@ CREATE TABLE library (
     media_type TEXT NOT NULL
 );
 
+CREATE UNIQUE INDEX library_idx ON library(name, location, media_type);
+
 -- Media table
 -- This table contains the template for
 -- the movie and tv shows tables minus containing
 -- the paths because movies are streamable while
 -- tv shows generally arent
 -- The Episodes table will also inherit from here
-CREATE TABLE media (
+CREATE TABLE _tblmedia (
     id INTEGER NOT NULL,
     library_id INTEGER NOT NULL,
 
@@ -21,47 +23,78 @@ CREATE TABLE media (
     rating INTEGER,
     year INTEGER,
     added TEXT,
-    poster_path TEXT,
-    backdrop_path TEXT,
-    media_type media_type NOT NULL,
+    poster INTEGER,
+    backdrop INTEGER,
+    media_type TEXT NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE
+
+    FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE,
+    FOREIGN KEY (poster) REFERENCES assets(id),
+    FOREIGN KEY (backdrop) REFERENCES assets(id)
 );
 
-CREATE UNIQUE INDEX media_idx ON media(library_id, name, media_type) WHERE NOT media.media_type = "episode";
-CREATE INDEX media_excl_ep_idx ON media(name) WHERE NOT media.media_type = "episode";
+-- Nicer view of media, ie we dont have to manually query some data.
+CREATE VIEW media AS
+SELECT _tblmedia.*, pp.local_path as poster_path, bp.local_path as backdrop_path
+FROM _tblmedia
+LEFT JOIN assets pp ON _tblmedia.poster = pp.id
+LEFT JOIN assets bp ON _tblmedia.backdrop = bp.id;
+
+CREATE TRIGGER media_delete
+INSTEAD OF DELETE ON media
+BEGIN
+    DELETE FROM _tblmedia WHERE _tblmedia.id = old.id;
+END;
+
+CREATE UNIQUE INDEX media_idx ON _tblmedia(library_id, name, media_type) WHERE NOT _tblmedia.media_type = "episode";
+CREATE INDEX media_excl_ep_idx ON _tblmedia(name) WHERE NOT _tblmedia.media_type = "episode";
 
 CREATE TABLE movie (
     id INTEGER,
     PRIMARY KEY (id),
-    FOREIGN KEY(id) REFERENCES media (id) ON DELETE CASCADE
+    FOREIGN KEY(id) REFERENCES _tblmedia (id) ON DELETE CASCADE
 );
 
 CREATE TABLE tv_show (
     id INTEGER,
     PRIMARY KEY (id),
-    FOREIGN KEY(id) REFERENCES media (id) ON DELETE CASCADE
+    FOREIGN KEY(id) REFERENCES _tblmedia (id) ON DELETE CASCADE
 );
 
-CREATE TABLE season (
+CREATE TABLE _tblseason (
     id INTEGER,
     season_number INTEGER NOT NULL,
     tvshowid INTEGER NOT NULL,
     added TEXT,
-    poster TEXT,
+    poster INTEGER,
     PRIMARY KEY (id),
+    
+    FOREIGN KEY(poster) REFERENCES assets(id),
     FOREIGN KEY(tvshowid) REFERENCES tv_show (id) ON DELETE CASCADE
 );
 
-CREATE UNIQUE INDEX season_idx ON season(season_number, tvshowid);
+CREATE UNIQUE INDEX season_idx ON _tblseason(season_number, tvshowid);
+
+-- Nicer view of _tblseason, ie we dont have to manually query some data.
+CREATE VIEW season AS
+SELECT _tblseason.id, _tblseason.season_number,
+    _tblseason.tvshowid, _tblseason.added, assets.local_path as poster
+FROM _tblseason
+JOIN assets ON _tblseason.poster = assets.id;
+
+CREATE TRIGGER season_delete
+INSTEAD OF DELETE ON season
+BEGIN
+    DELETE FROM _tblseason WHERE _tblseason.id = old.id;
+END;
 
 CREATE TABLE episode (
     id INTEGER,
     seasonid INTEGER NOT NULL,
     episode_ INTEGER NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY(id) REFERENCES media (id) ON DELETE CASCADE,
-    FOREIGN KEY(seasonid) REFERENCES season (id) ON DELETE CASCADE
+    FOREIGN KEY(id) REFERENCES _tblmedia (id) ON DELETE CASCADE,
+    FOREIGN KEY(seasonid) REFERENCES _tblseason (id) ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX episode_idx ON episode(seasonid, episode_);
@@ -89,14 +122,20 @@ CREATE TABLE mediafile (
     corrupt BOOLEAN,
     PRIMARY KEY (id),
 
-    FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(media_id) REFERENCES _tblmedia (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(library_id) REFERENCES library(id) ON DELETE CASCADE
 );
 
 CREATE TABLE users (
     username TEXT PRIMARY KEY,
     password TEXT NOT NULL,
-    roles TEXT[] NOT NULL DEFAULT 'User'
+    prefs BLOB NOT NULL DEFAULT '{}',
+    claimed_invite TEXT NOT NULL UNIQUE,
+    roles TEXT[] NOT NULL DEFAULT 'User',
+    picture INTEGER UNIQUE,
+
+    FOREIGN KEY(claimed_invite) REFERENCES invites(id),
+    FOREIGN KEY(picture) REFERENCES assets(id)
 );
 
 CREATE TABLE progress (
@@ -107,7 +146,7 @@ CREATE TABLE progress (
     populated INTEGER NOT NULL,
 
     PRIMARY KEY (id),
-    FOREIGN KEY(media_id) REFERENCES media (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(media_id) REFERENCES _tblmedia (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(user_id) REFERENCES users(username) ON DELETE CASCADE
 );
 
@@ -122,13 +161,43 @@ CREATE TABLE genre_media (
     id INTEGER PRIMARY KEY,
     genre_id INTEGER NOT NULL,
     media_id INTEGER NOT NULL,
-    FOREIGN KEY (media_id) REFERENCES media(id) ON DELETE CASCADE,
+    FOREIGN KEY (media_id) REFERENCES _tblmedia(id) ON DELETE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX genre_media_idx ON genre_media(genre_id, media_id);
 
 CREATE TABLE invites (
-    id INTEGER PRIMARY KEY,
-    token TEXT NOT NULL UNIQUE
+    id TEXT PRIMARY KEY NOT NULL UNIQUE,
+    date_added INTEGER NOT NULL
 );
+
+CREATE TABLE assets (
+    id INTEGER PRIMARY KEY,
+    remote_url TEXT UNIQUE,
+    local_path TEXT NOT NULL UNIQUE,
+    file_ext TEXT NOT NULL
+);
+
+CREATE TABLE media_posters (
+    id INTEGER PRIMARY KEY,
+    media_id INTEGER NOT NULL,
+    asset_id INTEGER NOT NULL,
+
+    FOREIGN KEY (media_id) REFERENCES _tblmedia(id) ON DELETE CASCADE,
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX media_posters_idx ON media_posters(media_id, asset_id);
+
+CREATE TABLE media_backdrops (
+    id INTEGER PRIMARY KEY,
+    media_id INTEGER NOT NULL,
+    asset_id INTEGER NOT NULL,
+
+    FOREIGN KEY (media_id) REFERENCES _tblmedia(id) ON DELETE CASCADE,
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX media_backdrops_idx ON media_backdrops(media_id, asset_id);
+

@@ -1,24 +1,15 @@
 use crate::core::DbConnection;
 use crate::errors;
-use cfg_if::cfg_if;
 
 use database::episode::Episode;
 use database::genre::*;
-use database::library::MediaType;
 use database::media::Media;
 use database::mediafile::MediaFile;
 use database::progress::Progress;
 use database::season::Season;
 
-use std::fs;
-use std::io;
-use std::path::PathBuf;
-
 use serde_json::json;
 use serde_json::Value as JsonValue;
-
-use warp::reply::json;
-use warp::reply::Json;
 
 pub mod auth;
 pub mod dashboard;
@@ -26,14 +17,17 @@ pub mod general;
 pub mod library;
 pub mod media;
 pub mod mediafile;
+pub mod settings;
 pub mod statik;
 pub mod stream;
 pub mod tv;
 
 pub mod global_filters {
+    use crate::errors;
     use database::DbConnection;
 
     use std::convert::Infallible;
+    use std::error::Error;
     use warp::Filter;
     use warp::Reply;
 
@@ -52,13 +46,28 @@ pub mod global_filters {
     pub async fn handle_rejection(
         err: warp::reject::Rejection,
     ) -> Result<impl warp::Reply, warp::reject::Rejection> {
-        if let Some(e) = err.find::<crate::errors::AuthError>() {
+        println!("{:?}", err);
+        if let Some(e) = err.find::<errors::AuthError>() {
             return Ok(e.clone().into_response());
-        } else if let Some(e) = err.find::<crate::errors::DimError>() {
+        } else if let Some(e) = err.find::<errors::DimError>() {
             return Ok(e.clone().into_response());
+        } else if let Some(_) = err.find::<auth::JWTError>() {
+            return Ok(errors::DimError::AuthRequired.into_response());
+        } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
+            return Ok(errors::DimError::MissingFieldInBody {
+                description: e.source().unwrap().to_string(),
+            }
+            .into_response());
         }
 
         Err(err)
+    }
+
+    pub fn api_not_found(
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / ..)
+            .and(warp::any())
+            .map(|| crate::errors::DimError::NotFoundError)
     }
 }
 

@@ -1,0 +1,59 @@
+.preferencesAdvanced {
+  display: grid;
+  gap: 1em;
+
+  .options {
+    display: flex;
+    gap: .5em;
+  }
+
+  .fields, .toggles {
+    display: grid;
+    gap: 1em;
+  }
+
+  label {
+    .name {
+      display: flex;
+      align-items: center;
+      color: #ccc;
+    }
+
+    .horizontal-err {
+      padding: 2px 5px;
+      font-size: .8em;
+      margin-left: 5px;
+      background: #ee4740;
+    }
+
+    svg {
+      font-size: 0.8em;
+    }
+
+    .name > p {
+      margin-right: 5px;
+      font-family: "Roboto Condensed Regular", Arial;
+    }
+
+    input {
+      font-family: "Roboto Regular", Arial;
+      transition: background 0.3s ease-in-out;
+      margin-top: .5em;
+      background: #3a3a3a;
+      outline: none;
+      border: none;
+      border-radius: 5px;
+      padding: 1em;
+      color: #ffffff;
+      width: 100%;
+      height: 40px;
+      overflow: hidden;
+      white-space: nowrap;
+
+      &:focus,
+      &:hover {
+        background: #4a4a4a;
+      }
+    }
+  }
+}

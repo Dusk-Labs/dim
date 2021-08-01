@@ -1,31 +1,23 @@
 use crate::logger::RequestLogger;
 use crate::routes;
 use crate::scanners;
-use crate::stream_tracking::StreamTracking;
+use crate::websocket;
 
-use cfg_if::cfg_if;
-use lazy_static::lazy_static;
 use once_cell::sync::OnceCell;
 
 use slog::debug;
 use slog::error;
-use slog::info;
 use slog::Logger;
 
 use tokio::sync::mpsc::unbounded_channel;
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::sync::mpsc::UnboundedSender;
 
-use std::borrow::Cow;
-use std::collections::HashMap;
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::copy;
 use std::io::Cursor;
-use std::io::Read;
 use std::path::PathBuf;
-use std::sync::Arc;
-use std::sync::Mutex;
-use std::thread;
 
 use self::fetcher::PosterType;
 
@@ -76,7 +68,6 @@ pub async fn run_scanners(log: Logger, tx: EventTx) {
             let log_clone = log.clone();
             let library_id = lib.id;
             let tx_clone = tx.clone();
-            let media_type = lib.media_type;
 
             tokio::spawn(scanners::start(library_id, log_clone.clone(), tx_clone));
 
@@ -100,21 +91,23 @@ pub async fn run_scanners(log: Logger, tx: EventTx) {
 }
 
 pub mod fetcher {
-    use std::{
-        cmp::Ordering,
-        collections::{BTreeMap, BTreeSet},
-        time::Duration,
-    };
-
-    use tokio::{select, time::Interval};
+    use std::cmp::Ordering;
+    use std::collections::BTreeSet;
+    use std::time::Duration;
 
     use super::*;
 
-    #[derive(Debug, Clone, PartialEq, PartialOrd, Eq)]
+    #[derive(Debug, Clone, PartialEq, Eq, Hash)]
     pub enum PosterType {
         Banner(String),
         Season(String),
         Episode(String),
+    }
+
+    impl PartialOrd for PosterType {
+        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+            Some(self.cmp(other))
+        }
     }
 
     impl Ord for PosterType {
@@ -146,12 +139,22 @@ pub mod fetcher {
             unbounded_channel();
 
         let fut = async move {
+            // we need to cache which posters we've already fetched as the scanners arent generally
+            // aware of which assets are available or not.
+            let mut poster_cache = HashSet::<PosterType>::new();
             let mut processing = BTreeSet::<PosterType>::new();
 
             let mut timer = tokio::time::interval(Duration::from_millis(5));
 
             loop {
                 tokio::select! {
+                    Some(poster) = rx.recv() => {
+                        if !poster_cache.contains(&poster) {
+                            processing.insert(poster.clone());
+                            poster_cache.insert(poster);
+                        }
+                    }
+
                     _ = timer.tick() => {
                         while let Some(poster) = processing.pop_last() {
                             let url: String = poster.clone().into();
@@ -182,9 +185,11 @@ pub mod fetcher {
                             }
                         }
                     }
-
-                    Some(poster) = rx.recv() => { processing.insert(poster); }
                 }
+
+                // NOTE(val): turns out that sometimes looping too fast can result in data
+                // magically disappearing.
+                tokio::time::sleep(Duration::from_millis(1)).await;
             }
         };
 
@@ -196,33 +201,18 @@ pub mod fetcher {
     }
 }
 
-/// Function spins up a new Websocket server which we use to dispatch events over to clients
-/// discriminated by a URI
-// TODO: Handle launch failures and fallback to a new port.
-// TODO: Store the port of the server in a dynamic config which can be queried by clients in case
-// the port changes as we dont want this hardcoded in.
-pub async fn start_event_server() -> EventTx {
-    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-
-    tokio::spawn(crate::websocket::serve(
-        "0.0.0.0:3012",
-        tokio::runtime::Handle::current(),
-        rx,
-    ));
-
-    tx
-}
-
 pub async fn warp_core(
     logger: slog::Logger,
     event_tx: EventTx,
     stream_manager: StateManager,
     rt: tokio::runtime::Handle,
     port: u16,
+    event_rx: UnboundedReceiver<String>,
 ) {
     let conn = database::get_conn()
         .await
         .expect("Failed to grab a handle to the connection pool.");
+
     let request_logger = RequestLogger::new(logger.clone());
 
     let routes = routes::auth::auth_routes(conn.clone())
@@ -242,12 +232,18 @@ pub async fn warp_core(
             conn.clone(),
             logger.clone(),
         ))
+        .or(routes::settings::settings_router(conn.clone()))
         .or(routes::stream::stream_router(
             conn.clone(),
             stream_manager,
             Default::default(),
-            logger.clone()
+            logger.clone(),
         ))
+        .or(routes::global_filters::api_not_found())
+        .or(
+            websocket::event_socket(tokio::runtime::Handle::current(), event_rx)
+                .recover(routes::global_filters::handle_rejection),
+        )
         .or(routes::statik::statik_routes())
         .with(warp::filters::log::custom(move |x| {
             request_logger.on_response(x);

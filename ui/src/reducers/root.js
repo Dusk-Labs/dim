@@ -8,6 +8,7 @@ import fileBrowser from "./fileBrowser.js";
 import search from "./search.js";
 import card from "./card.js";
 import banner from "./banner.js";
+import settings from "./settings.js";
 import video from "./video/index";
 import notifications from "./notifications.js";
 
@@ -21,5 +22,6 @@ export default combineReducers({
   card,
   banner,
   video,
+  settings,
   notifications
 });

@@ -13,7 +13,10 @@ import {
   CREATE_NEW_INVITE_ERR,
   FETCH_INVITES_START,
   FETCH_INVITES_OK,
-  FETCH_INVITES_ERR
+  FETCH_INVITES_ERR,
+  DEL_ACCOUNT_START,
+  DEL_ACCOUNT_OK,
+  DEL_ACCOUNT_ERR
 } from "../actions/types.js";
 
 const login = {
@@ -35,10 +38,16 @@ const createNewInvite = {
   error: null
 };
 
-const fetchInvites = {
+const invites = {
   items: [],
   fetching: false,
   fetched: false,
+  error: null
+};
+
+const deleteAccount = {
+  deleted: false,
+  deleting: false,
   error: null
 };
 
@@ -48,7 +57,8 @@ const initialState = {
   login,
   register,
   createNewInvite,
-  fetchInvites
+  invites,
+  deleteAccount
 };
 
 export default function authReducer(state = initialState, action) {
@@ -155,8 +165,8 @@ export default function authReducer(state = initialState, action) {
     case FETCH_INVITES_START:
       return {
         ...state,
-        fetchInvites: {
-          ...state.fetchInvites,
+        invites: {
+          ...state.invites,
           fetching: true,
           fetched: false,
           error: null
@@ -171,8 +181,8 @@ export default function authReducer(state = initialState, action) {
     case FETCH_INVITES_ERR:
       return {
         ...state,
-        fetchInvites: {
-          ...state.fetchInvites,
+        invites: {
+          ...state.invites,
           fetching: false,
           fetched: false,
           error: action.payload
@@ -181,11 +191,39 @@ export default function authReducer(state = initialState, action) {
     case FETCH_INVITES_OK:
       return {
         ...state,
-        fetchInvites: {
-          ...state.fetchInvites,
-          items: action.payload.invites,
+        invites: {
+          ...state.invites,
+          items: action.payload,
           fetching: false,
           fetched: true
+        }
+      };
+    case DEL_ACCOUNT_START:
+      return {
+        ...state,
+        deleteAccount: {
+          ...state.deleteAccount,
+          deleting: true,
+          deleted: false,
+          error: null
+        }
+      };
+    case DEL_ACCOUNT_OK:
+      return {
+        ...state,
+        deleteAccount: {
+          ...state.deleteAccount,
+          deleting: false,
+          deleted: true
+        }
+      };
+    case DEL_ACCOUNT_ERR:
+      return {
+        ...state,
+        deleteAccount: {
+          ...state.deleteAccount,
+          deleting: false,
+          error: action.payload
         }
       };
     default:

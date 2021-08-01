@@ -1,0 +1,22 @@
+.picture {
+    border: 2px solid white;
+    border-radius: 50%;
+    width: 10rem;
+    height: 6rem;
+    overflow: hidden;
+    width: 6rem;
+
+    img {
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+    }
+}
+
+.parent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.3rem;
+}

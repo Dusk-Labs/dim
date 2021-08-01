@@ -119,7 +119,7 @@ impl Episode {
     ) -> Result<Vec<Episode>, DatabaseError> {
         let wrappers = sqlx::query_as!(
             EpisodeWrapper,
-            r#"SELECT id as "id!", episode_ , seasonid FROM episode WHERE seasonid = ?"#,
+            r#"SELECT id as "id!", episode_, seasonid FROM episode WHERE seasonid = ?"#,
             season_id
         )
         .fetch_all(conn)

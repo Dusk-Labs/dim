@@ -3,13 +3,9 @@ use err_derive::Error;
 use serde::Serialize;
 use serde_json::json;
 
-use std::convert::Infallible;
-use std::io::Cursor;
-
 use crate::scanners::base::ScannerError;
 use nightfall::error::NightfallError;
 
-use http::Response;
 use http::StatusCode;
 
 #[derive(Clone, Debug, Error, Serialize)]
@@ -33,8 +29,16 @@ pub enum DimError {
     InvalidMediaType,
     #[error(display = "A error in the streaming library has occured")]
     StreamingError(#[error(source)] StreamingErrors),
+    #[error(display = "You do not have permission to access this route")]
+    Unauthorized,
     #[error(display = "A error has occured when matching.")]
     ScannerError(#[error(source)] ScannerError),
+    #[error(display = "Upload failed.")]
+    UploadFailed,
+    #[error(display = "Failed to deserialize request body ({:?})", description)]
+    MissingFieldInBody { description: String },
+    #[error(display = "Unsupported file type.")]
+    UnsupportedFile,
 }
 
 impl warp::reject::Reject for DimError {}
@@ -48,9 +52,12 @@ impl warp::Reply for DimError {
             | Self::UnknownError
             | Self::IOError
             | Self::InternalServerError
-            | Self::ScannerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::AuthRequired => StatusCode::UNAUTHORIZED,
-            Self::InvalidMediaType => StatusCode::NOT_ACCEPTABLE,
+            | Self::ScannerError(_)
+            | Self::UploadFailed => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::AuthRequired | Self::Unauthorized => StatusCode::UNAUTHORIZED,
+            Self::UnsupportedFile
+            | Self::InvalidMediaType 
+            | Self::MissingFieldInBody { .. } => StatusCode::NOT_ACCEPTABLE,
         };
 
         let resp = json!({
@@ -81,6 +88,8 @@ pub enum AuthError {
     WrongPassword,
     #[error(display = "Username Taken")]
     UsernameTaken,
+    #[error(display = "Requested user doesnt exist.")]
+    UserDoesntExist,
 }
 
 impl warp::reject::Reject for AuthError {}
@@ -90,7 +99,7 @@ impl warp::Reply for AuthError {
         let status = match self {
             Self::NoTokenError | Self::UsernameTaken => StatusCode::OK,
             Self::DatabaseError => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::Unauthorized => StatusCode::UNAUTHORIZED,
+            Self::Unauthorized | Self::UserDoesntExist => StatusCode::UNAUTHORIZED,
             Self::WrongPassword | Self::FailedAuth => StatusCode::FORBIDDEN,
         };
 
@@ -162,8 +171,7 @@ impl From<std::io::Error> for StreamingErrors {
 
 use database::DatabaseError;
 impl From<DatabaseError> for DimError {
-    fn from(e: DatabaseError) -> Self {
-        let DatabaseError::DatabaseError(e) = e;
+    fn from(_: DatabaseError) -> Self {
         Self::DatabaseError
     }
 }
@@ -181,8 +189,7 @@ impl From<std::io::Error> for DimError {
 }
 
 impl From<DatabaseError> for AuthError {
-    fn from(e: DatabaseError) -> Self {
-        let DatabaseError::DatabaseError(e) = e;
+    fn from(_: DatabaseError) -> Self {
         Self::DatabaseError
     }
 }

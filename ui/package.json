@@ -1,11 +1,11 @@
 {
   "name": "dim",
-  "proxy": "http://localhost:8000",
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "dashjs": "^3.2.2",
+    "libass-wasm": "^4.0.0",
     "node-sass": "^5.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.1",
@@ -18,7 +18,8 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
-    "web-vitals": "^1.0.1"
+    "web-vitals": "^1.0.1",
+    "http-proxy-middleware": "^2.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
