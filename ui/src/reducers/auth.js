@@ -15,8 +15,8 @@ import {
   FETCH_INVITES_OK,
   FETCH_INVITES_ERR,
   DEL_ACCOUNT_START,
-  DEL_ACCOUNT__OK,
-  DEL_ACCOUNT__ERR
+  DEL_ACCOUNT_OK,
+  DEL_ACCOUNT_ERR
 } from "../actions/types.js";
 
 const login = {
@@ -202,26 +202,26 @@ export default function authReducer(state = initialState, action) {
       return {
         ...state,
         deleteAccount: {
-          ...state.delAccount,
+          ...state.deleteAccount,
           deleting: true,
           deleted: false,
           error: null
         }
       };
-    case DEL_ACCOUNT__OK:
+    case DEL_ACCOUNT_OK:
       return {
         ...state,
         deleteAccount: {
-          ...state.delAccount,
+          ...state.deleteAccount,
           deleting: false,
           deleted: true
         }
       };
-    case DEL_ACCOUNT__ERR:
+    case DEL_ACCOUNT_ERR:
       return {
         ...state,
         deleteAccount: {
-          ...state.delAccount,
+          ...state.deleteAccount,
           deleting: false,
           error: action.payload
         }
