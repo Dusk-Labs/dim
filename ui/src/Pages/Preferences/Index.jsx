@@ -40,7 +40,7 @@ function Preferences() {
     const pages = [
       { name: "Account" },
       { name: "Profile" },
-      { name: "Invites", show: user.info.roles.includes("owner") },
+      { name: "Invites", show: user.info.roles?.includes("owner") || false },
       { name: "Appearance" },
       { name: "Advanced" }
     ];

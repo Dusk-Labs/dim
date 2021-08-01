@@ -12,7 +12,8 @@ expanded.rs
 build
 Cargo.lock
 logs/
-*.jpg
+metadata/
+streaming_cache/
 transcoding
 benches/bench_1.mkv
 benches/bench_1.txt
