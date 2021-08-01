@@ -16,7 +16,9 @@ import {
   FETCH_INVITES_OK,
   FETCH_INVITES_ERR,
   NOTIFICATIONS_ADD,
-  DEL_ACCOUNT_START
+  DEL_ACCOUNT_START,
+  DEL_ACCOUNT_ERR,
+  DEL_ACCOUNT_OK
 } from "./types";
 
 export const authenticate = (username, password) => async (dispatch) => {
@@ -195,18 +197,16 @@ export const delAccount = (password) => async (dispatch, getState) => {
   try {
     const res = await fetch("/api/v1/user/delete", config);
 
-    console.log(res);
-
     if (res.status !== 200) {
       dispatch({
-        type: NOTIFICATIONS_ADD,
-        payload: {
-          msg: "Failed to delete account."
-        }
+        type: DEL_ACCOUNT_ERR,
+        payload: res.statusText
       });
 
       return;
     }
+
+    dispatch({ type: DEL_ACCOUNT_OK });
 
     dispatch({
       type: NOTIFICATIONS_ADD,
@@ -215,10 +215,8 @@ export const delAccount = (password) => async (dispatch, getState) => {
       }
     });
   } catch(err) {
-    console.log(err);
-
     dispatch({
-      type: AUTH_REGISTER_ERR,
+      type: DEL_ACCOUNT_ERR,
       payload: err
     });
   }
