@@ -180,7 +180,7 @@ impl User {
         let hash = hash(self.username.clone(), password);
 
         Ok(sqlx::query!(
-            "UPDATE users SET password = $1 WHERE username = ?",
+            "UPDATE users SET password = $1 WHERE username = ?2",
             hash,
             self.username
         )
@@ -195,7 +195,7 @@ impl User {
         new_username: String,
     ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!(
-            "UPDATE users SET username = $1 WHERE username = ?",
+            "UPDATE users SET username = $1 WHERE users.username = ?2",
             new_username,
             old_username
         )
@@ -263,7 +263,7 @@ impl UpdateableUser {
         if let Some(prefs) = &self.prefs {
             let prefs = serde_json::to_vec(&prefs).unwrap_or_default();
             return Ok(sqlx::query!(
-                "UPDATE users SET prefs = $1 WHERE users.username = ?",
+                "UPDATE users SET prefs = $1 WHERE users.username = ?2",
                 prefs,
                 user
             )

@@ -305,7 +305,7 @@ pub async fn register(
         username: new_user.username.clone(),
         password: new_user.password.clone(),
         roles,
-        claimed_invite: claimed_invite,
+        claimed_invite,
         prefs: Default::default(),
     }
     .insert(&conn)
