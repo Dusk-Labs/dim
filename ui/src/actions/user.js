@@ -95,13 +95,15 @@ export const changeAvatar = (file) => async (dispatch, getState) => {
 
   const token = getState().auth.token;
 
+  const data = new FormData();
+  data.append("file", file);
+
   const config = {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "authorization": token
+      "Authorization": token
     },
-    body: JSON.stringify(file)
+    body: data
   };
 
   try {

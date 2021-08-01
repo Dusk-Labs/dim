@@ -37,6 +37,8 @@ pub enum DimError {
     UploadFailed,
     #[error(display = "Failed to deserialize request body ({:?})", description)]
     MissingFieldInBody { description: String },
+    #[error(display = "Unsupported file type.")]
+    UnsupportedFile,
 }
 
 impl warp::reject::Reject for DimError {}
@@ -53,7 +55,9 @@ impl warp::Reply for DimError {
             | Self::ScannerError(_)
             | Self::UploadFailed => StatusCode::INTERNAL_SERVER_ERROR,
             Self::AuthRequired | Self::Unauthorized => StatusCode::UNAUTHORIZED,
-            Self::InvalidMediaType | Self::MissingFieldInBody { .. } => StatusCode::NOT_ACCEPTABLE,
+            Self::UnsupportedFile
+            | Self::InvalidMediaType 
+            | Self::MissingFieldInBody { .. } => StatusCode::NOT_ACCEPTABLE,
         };
 
         let resp = json!({

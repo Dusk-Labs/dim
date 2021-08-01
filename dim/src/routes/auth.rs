@@ -1,8 +1,10 @@
+use bytes::BufMut;
 use crate::core::DbConnection;
 use crate::errors;
 use auth::{jwt_generate, Wrapper as Auth};
 
 use database::asset::Asset;
+use database::asset::InsertableAsset;
 use database::progress::Progress;
 use database::user::verify;
 use database::user::InsertableUser;
@@ -33,6 +35,7 @@ pub fn auth_routes(
         .or(filters::admin_delete_token(conn.clone()))
         .or(filters::user_delete_self(conn.clone()))
         .or(filters::user_change_username(conn.clone()))
+        .or(filters::user_upload_avatar(conn.clone()))
         .recover(super::global_filters::handle_rejection)
         .boxed()
 }
@@ -259,7 +262,7 @@ pub async fn whoami(user: Auth, conn: DbConnection) -> Result<impl warp::Reply, 
     let username = user.0.claims.get_user();
 
     Ok(reply::json(&json!({
-        "picture": Asset::get_of_user(&conn, &username).await.ok().map(|x| x.local_path),
+        "picture": Asset::get_of_user(&conn, &username).await.ok().map(|x| format!("/images/{}", x.local_path)),
         "spentWatching": Progress::get_total_time_spent_watching(&conn, username.clone())
             .await
             .unwrap_or(0) / 3600,
@@ -435,13 +438,45 @@ pub async fn user_upload_avatar(
         .await
         .map_err(|_e| errors::DimError::UploadFailed)?;
 
-    for p in parts.into_iter().filter(|x| x.name() == "file") {
-        process_part(p).await?;
-    }
+    let asset = if let Some(p) = parts.into_iter().filter(|x| x.name() == "file").next() {
+        process_part(&conn, p).await
+    } else {
+        Err(errors::DimError::UploadFailed)
+    };
 
-    Ok(String::new())
+    User::set_picture(&conn, user.0.claims.get_user(), asset?.id).await?;
+
+    Ok(StatusCode::OK)
 }
 
-pub async fn process_part(p: warp::multipart::Part) -> Result<Asset, errors::DimError> {
-    Err(errors::DimError::UploadFailed)
+pub async fn process_part(conn: &DbConnection, p: warp::multipart::Part) -> Result<Asset, errors::DimError> {
+    if p.name() != "file" {
+        return Err(errors::DimError::UploadFailed);
+    }
+
+    let file_ext = match dbg!(p.content_type()) {
+        Some("image/jpeg" | "image/jpg") => "jpg",
+        Some("image/png") => "png",
+        _ => return Err(errors::DimError::UnsupportedFile)
+    };
+
+    let contents = p
+        .stream()
+        .try_fold(Vec::new(), |mut vec, data| {
+            vec.put(data);
+            async move { Ok(vec) }
+        })
+        .await
+        .map_err(|_| errors::DimError::UploadFailed)?;
+
+    let local_file = format!("{}.{}", Uuid::new_v4().to_string(), file_ext);
+    let local_path = format!("{}/{}", crate::core::METADATA_PATH.get().unwrap(), &local_file);
+
+    tokio::fs::write(&local_path, contents).await.map_err(|_| errors::DimError::UploadFailed)?;
+
+    Ok(InsertableAsset {
+        local_path: local_file,
+        file_ext: file_ext.into(),
+        ..Default::default()
+    }.insert(&conn).await?)
 }
