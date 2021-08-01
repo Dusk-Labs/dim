@@ -6,40 +6,13 @@
     margin-bottom: 1em;
   }
 
-  button {
-    padding: .5em;
-    font-size: 1em;
-    border-radius: 10px;
-    transition: filter 0.3s ease-in-out;
-    background: #f7931e;
-    filter: saturate(0.7);
-    font-family: "Roboto Bold";
-    outline: none;
-    margin-top: 1em;
-
-    &:focus,
-    &:hover {
-      filter: saturate(1);
-    }
-
-    &.disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
-    &.critical {
-      background: #e91619;
-      color: #eee;
-    }
-  }
-
   .desc {
     color: #bbb;
   }
 
   .options {
     display: flex;
-    gap: 1em;
+    gap: .5em;
   }
 
   section {
@@ -50,7 +23,7 @@
 
   .fields {
     display: grid;
-    gap: 2em;
+    gap: 1em;
     border-radius: 10px;
     width: 100%;
 
@@ -58,6 +31,7 @@
       .name {
         display: flex;
         align-items: center;
+        color: #ccc;
       }
 
       .horizontal-err {
@@ -68,6 +42,7 @@
       }
 
       svg {
+        fill: #ccc;
         font-size: 0.8em;
       }
 
@@ -79,12 +54,12 @@
       input {
         font-family: "Roboto Regular", Arial;
         transition: background 0.3s ease-in-out;
-        margin-top: 10px;
+        margin-top: .5em;
         background: #3a3a3a;
         outline: none;
         border: none;
         border-radius: 5px;
-        padding: 10px 20px;
+        padding: 1em;
         color: #ffffff;
         width: 100%;
         height: 40px;
