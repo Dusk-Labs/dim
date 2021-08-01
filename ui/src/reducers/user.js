@@ -4,10 +4,19 @@ import {
   FETCH_USER_ERR,
   CHANGE_USERNAME_ERR,
   CHANGE_USERNAME_START,
-  CHANGE_USERNAME_OK
+  CHANGE_USERNAME_OK,
+  CHANGE_AVATAR_START,
+  CHANGE_AVATAR_OK,
+  CHANGE_AVATAR_ERR
 } from "../actions/types.js";
 
 const changeUsername = {
+  changing: false,
+  changed: true,
+  error: null
+};
+
+const changeAvatar = {
   changing: false,
   changed: true,
   error: null
@@ -18,7 +27,8 @@ const initialState = {
   fetching: false,
   fetched: false,
   error: null,
-  changeUsername
+  changeUsername,
+  changeAvatar
 };
 
 export default function userReducer(state = initialState, action) {
@@ -29,7 +39,17 @@ export default function userReducer(state = initialState, action) {
         info: {},
         fetching: true,
         fetched: false,
-        error: null
+        error: null,
+        changeUsername: {
+          changing: false,
+          changed: false,
+          error: null
+        },
+        changeAvatar: {
+          changing: false,
+          changed: false,
+          error: null
+        }
       };
     case FETCH_USER_OK:
       return {
@@ -68,6 +88,33 @@ export default function userReducer(state = initialState, action) {
         ...state,
         changeUsername: {
           ...state.changeUsername,
+          changing: false,
+          err: action.payload
+        }
+      };
+    case CHANGE_AVATAR_START:
+      return {
+        ...state,
+        changeAvatar: {
+          changing: true,
+          changed: false,
+          error: null
+        }
+      };
+    case CHANGE_AVATAR_OK:
+      return {
+        ...state,
+        changeAvatar: {
+          ...state.changeAvatar,
+          changing: false,
+          changed: true
+        }
+      };
+    case CHANGE_AVATAR_ERR:
+      return {
+        ...state,
+        changeAvatar: {
+          ...state.changeAvatar,
           changing: false,
           err: action.payload
         }
