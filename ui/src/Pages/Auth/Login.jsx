@@ -37,6 +37,7 @@ function Login() {
           icon="user"
           data={[username, setUsername]}
           error={[usernameErr, setUsernameErr]}
+          autocomplete="username"
         />
         <Field
           name="Password"
@@ -44,6 +45,7 @@ function Login() {
           data={[password, setPassword]}
           error={[passwordErr, setPasswordErr]}
           type="password"
+          autocomplete="current-password"
         />
       </div>
       <footer>
