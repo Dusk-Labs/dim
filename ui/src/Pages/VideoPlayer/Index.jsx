@@ -9,7 +9,7 @@ import VideoEvents from "./Events";
 import VideoMediaData from "./MediaData";
 
 import RingLoad from "../../Components/Load/Ring";
-import Menus from "./Menus";
+import Menus from "./Menus/Index";
 import VideoControls from "./Controls/Index";
 import ErrorBox from "./ErrorBox";
 import ContinueProgress from "./ContinueProgress";
@@ -170,7 +170,7 @@ function VideoPlayer() {
         <video ref={videoRef}/>
         <VideoSubtitles/>
         <div className="overlay" ref={overlay}>
-          {(!error && (manifest.loaded && video.canPlay && video.showSubSwitcher)) && <Menus/>}
+          {(!error && (manifest.loaded && video.canPlay)) && <Menus/>}
           {(!error && (manifest.loaded && video.canPlay)) && <VideoControls/>}
           {(!error & (manifest.loading || !video.canPlay) || video.waiting) && <RingLoad/>}
           {((!error && (manifest.loaded && video.canPlay)) && extra_media_info.info.progress > 0) && (
