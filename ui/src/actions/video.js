@@ -5,7 +5,8 @@ import {
   SET_SHOW_SUB_SWITCHER,
   UPDATE_TRACK,
   UPDATE_VIDEO,
-  CLEAR_VIDEO_DATA
+  CLEAR_VIDEO_DATA,
+  SET_SHOW_SETTINGS
 } from "./types.js";
 
 export const setGID = (gid) => async (dispatch) => {
@@ -49,6 +50,15 @@ export const toggleShowSubSwitcher = () => async (dispatch, getState) => {
 
   dispatch({
     type: SET_SHOW_SUB_SWITCHER,
+    state: !state
+  });
+};
+
+export const toggleShowSettings = () => async (dispatch, getState) => {
+  const state = getState().video.showSettings;
+
+  dispatch({
+    type: SET_SHOW_SETTINGS,
     state: !state
   });
 };
