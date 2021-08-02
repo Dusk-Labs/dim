@@ -67,7 +67,7 @@ function Media() {
         mediaEpisodes[seasons[x].season_number] = seasons[x].episodes.map((episode, i) => {
           return (
             <Link to={`/play/${episode.versions[0].id}`} className="episode" key={i}>
-              <CardImage src={episode.backdrop}/>
+              <CardImage src={episode.backdrop} progress={episode.progress}/>
               <p>Episode {episode.episode}</p>
             </Link>
           );
