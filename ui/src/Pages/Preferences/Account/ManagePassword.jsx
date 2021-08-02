@@ -48,6 +48,7 @@ function ManagePassword() {
           data={[oldPass, setOldPass]}
           error={[oldPassErr, setOldPassErr]}
           type="password"
+          autocomplete="current-password"
         />
         <Field
           name="New password"
@@ -55,6 +56,7 @@ function ManagePassword() {
           data={[newPass, setNewPass]}
           error={[newPassErr, setNewPassErr]}
           type="password"
+          autocomplete="new-password"
         />
       </div>
       {valid && (
