@@ -79,6 +79,7 @@ function Search() {
           autoCapitalize="off"
           spellCheck="false"
           placeholder="Search"
+          type="search"
         />
         <button onClick={fullSearch}>
           <SearchIcon/>
