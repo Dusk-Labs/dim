@@ -1,11 +1,9 @@
 import { useCallback, useEffect } from "react";
-import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+
 import NewLibraryModal from "../../Modals/NewLibrary/Index";
+import { handleWsNewLibrary, handleWsDelLibrary, wsScanStart, wsScanStop } from "../../actions/library.js";
 
-import { fetchLibraries, handleWsNewLibrary, handleWsDelLibrary, wsScanStart, wsScanStop } from "../../actions/library.js";
-
-import HomeIcon from "../../assets/Icons/Home";
 import Library from "./Library";
 
 function Libraries() {
@@ -43,11 +41,7 @@ function Libraries() {
     return () => ws.conn.removeEventListener("message", handleWS);
   }, [handleWS, ws.conn]);
 
-  useEffect(() => {
-    dispatch(fetchLibraries());
-  }, [dispatch]);
-
-  let libs;
+  let libs = [];
 
   const { fetched, error, items } = libraries;
 
@@ -69,10 +63,6 @@ function Libraries() {
         </NewLibraryModal>
       </header>
       <div className="list">
-        <NavLink className="item" to="/" exact>
-          <HomeIcon/>
-          <p>Dashboard</p>
-        </NavLink>
         {libs}
       </div>
     </section>
