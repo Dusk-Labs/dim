@@ -5,7 +5,7 @@ import UserIcon from "../../assets/Icons/User";
 import KeyIcon from "../../assets/Icons/Key";
 
 function Field(
-  { name, icon, data, error, type = "text", placeholder = "" }
+  { name, icon, data, error, type = "text", placeholder = "", autocomplete = "off" }
 ) {
   const [value, setValue] = data;
   const [err, setErr] = error;
@@ -30,7 +30,7 @@ function Field(
         onChange={e => setValue(e.target.value)}
         value={value}
         spellCheck="false"
-        autoComplete="off"
+        autoComplete={autocomplete}
         autoCorrect="off"
         autoCapitalize="none"
         type={type}
