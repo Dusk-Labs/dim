@@ -33,6 +33,11 @@ function CardImage(props) {
       {(loaded && error) && (
         <div className="placeholder"/>
       )}
+      {props.progress !== undefined && (
+        <div className="progress">
+          <div className="value" style={{width: `${props.progress | 0}%`}}/>
+        </div>
+      )}
     </div>
   );
 }

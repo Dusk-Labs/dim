@@ -71,9 +71,14 @@
 
         &:hover .cardImageWrapper {
           filter: brightness(1.2);
+
+          .progress {
+            opacity: 1;
+          }
         }
 
         .cardImageWrapper {
+          position: relative;
           width: inherit;
           height: 200px;
           border-radius: 10px;
@@ -84,6 +89,29 @@
             height: 100%;
             width: 100%;
             object-fit: cover;
+          }
+
+          .progress {
+            position: absolute;
+            background: #3a3a3a;
+            left: 50%;
+            opacity: 0;
+            bottom: 1em;
+            height: 4px;
+            border-radius: 10px;
+            width: 90%;
+            transition: opacity 200ms ease-in-out;
+            transform: translateX(-50%);
+
+            .value {
+              position: absolute;
+              left: 0;
+              width: 0;
+              height: 4px;
+              border-radius: 4px;
+              transition: width 200ms ease-in-out;
+              background: #f7931e;
+            }
           }
         }
       }
