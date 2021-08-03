@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateVideo } from "../../../actions/video";
+import { updateVideo, updateTrack } from "../../../actions/video";
 
 import ArrowLeftIcon from "../../../assets/Icons/ArrowLeft";
 import ChevronRightIcon from "../../../assets/Icons/ChevronRight";
@@ -31,6 +31,17 @@ function VideoMenuSettings() {
     if (!activeInnerMenu) return;
     setActiveInnerMenu();
   }, [activeInnerMenu]);
+
+  const changeTrack = useCallback((i) => {
+    console.log(video.tracks.video.current, i);
+
+    if (video.tracks.video.current === i) return;
+
+    dispatch(updateTrack("video", {
+      current: i,
+      ready: false
+    }));
+  }, [dispatch, video]);
 
   useEffect(() => {
     if (video.idleCount >= 2) {
@@ -76,7 +87,11 @@ function VideoMenuSettings() {
       {activeInnerMenu === "Video tracks" && (
         <div className="innerMenu">
           <div className="tracks">
-            {video.tracks.video.list.map((track, i) => <p key={i}>{track.id}</p>)}
+            {video.tracks.video.list.map((track, i) => (
+              <div key={i} className={`track ${track.current === i ? "active" : ""}`} onClick={() => changeTrack(i)}>
+                <p>{track.label}</p>
+              </div>)
+            )}
           </div>
         </div>
       )}
