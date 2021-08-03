@@ -32,12 +32,12 @@ function VideoMenuSettings() {
     setActiveInnerMenu();
   }, [activeInnerMenu]);
 
-  const changeTrack = useCallback((i) => {
+  const changeTrack = useCallback((track_type, i) => {
     console.log(video.tracks.video.current, i);
 
     if (video.tracks.video.current === i) return;
 
-    dispatch(updateTrack("video", {
+    dispatch(updateTrack(track_type, {
       current: i,
       ready: false
     }));
@@ -88,7 +88,7 @@ function VideoMenuSettings() {
         <div className="innerMenu">
           <div className="tracks">
             {video.tracks.video.list.map((track, i) => (
-              <div key={i} className={`track ${video.tracks.video.current === i ? "active" : ""}`} onClick={() => changeTrack(i)}>
+              <div key={i} className={`track ${video.tracks.video.current === i ? "active" : ""}`} onClick={() => changeTrack("video", i)}>
                 <p>{track.label}</p>
               </div>)
             )}
@@ -98,7 +98,11 @@ function VideoMenuSettings() {
       {activeInnerMenu === "Audio tracks" && (
         <div className="innerMenu">
           <div className="tracks">
-            {video.tracks.audio.list.map((track, i) => <p key={i}>{track.id}</p>)}
+            {video.tracks.audio.list.map((track, i) => (
+              <div key={i} className={`track ${video.tracks.audio.current === i ? "active" : ""}`} onClick={() => changeTrack("audio", i)}>
+                <p>{track.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       )}
