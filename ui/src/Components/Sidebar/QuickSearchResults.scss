@@ -5,8 +5,8 @@
   min-height: 40px;
   opacity: 0;
   border-radius: 10px;
-  background: #4a4a4a;
-  color: #8a8a8a;
+  background: var(--quaternaryColor);
+  color: var(--tertiaryTextColor);
   font-family: "Roboto Condensed Regular", Arial;
 
   .state {
@@ -40,7 +40,7 @@
         transition: background .3s ease-in-out;
 
         &:hover {
-          background: #5a5a5a;
+          background: var(--quinaryColor);
 
         }
       }

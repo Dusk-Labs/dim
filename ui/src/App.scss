@@ -24,7 +24,7 @@
   }
 
   &-thumb {
-    background: #f7931e;
+    background: var(--accentColor);
     border-radius: 10px;
   }
 
@@ -66,14 +66,14 @@ input[type=range] {
     width: 100%;
     height: 8.4px;
     cursor: pointer;
-    background: #f7931e;
+    background: var(--accentColor);
   }
 
   &::-moz-range-track {
     width: 100%;
     height: 8.4px;
     cursor: pointer;
-    background: #f7931e;
+    background: var(--accentColor);
     border-radius: 10px;
   }
 }
@@ -92,8 +92,8 @@ html, body, #root {
 
 body {
   -webkit-font-smoothing: antialiased;
-  background: #1a1a1a;
-  scrollbar-color: #f7931e #333333;
+  background: var(--primaryColor);
+  scrollbar-color: var(--accentColor) #333333;
   scrollbar-width: thin;
   scroll-behavior: smooth;
   font-family: "Roboto Regular", Arial;
@@ -105,12 +105,12 @@ body {
 
 a {
   text-decoration: none;
-  color: #fff;
+  color: var(--primaryTextColor);
   outline: none;
 }
 
 img {
-  background: #2a2a2a;
+  background: var(--secondaryColor);
 
   &:-moz-loading {
     visibility: hidden;
@@ -140,10 +140,10 @@ svg {
   grid-template-columns: auto 1fr;
   gap: 5px;
   font-family: "Roboto Condensed Regular", Arial;
-  background: #f7931e;
+  background: var(--accentColor);
   border-radius: 10px;
   padding: 3px 5px;
-  color: #ffffff;
+  color: var(--primaryTextColor);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -193,7 +193,7 @@ input {
   margin: 0 auto;
   height: 2px;
   width: 100%;
-  background: #4a4a4a;
+  background: var(--quaternaryColor);
   border-radius: 2px;
 }
 
@@ -201,12 +201,12 @@ input {
   animation: appear .5s ease-in-out;
   position: relative;
   height: 100%;
-  background: #2a2a2a;
+  background: var(--secondaryColor);
   border-radius: 10px;
 
   &-text {
     transition: width .3s ease-in-out;
-    background: #2a2a2a;
+    background: var(--secondaryColor);
     border-radius: 10px;
     height: 30px;
     width: 150px;
@@ -235,7 +235,7 @@ input {
     width: 100%;
     border: solid 2px #3a3a3a;
     background: rgba(0, 0, 0, .2);
-    border-top-color: #ffffff;
+    border-top-color: var(--primaryTextColor);
   }
 }
 
@@ -253,7 +253,7 @@ input {
 main {
   position: relative;
   margin-left: 150px;
-  color: #fff;
+  color: var(--primaryTextColor);
   transition: margin-left 300ms ease-in-out;
 
   &.full {

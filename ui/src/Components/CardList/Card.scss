@@ -25,7 +25,7 @@
 
       .progress {
         position: absolute;
-        background: #3a3a3a;
+        background: var(--tertiaryColor);
         left: 50%;
         opacity: 0;
         bottom: 1em;
@@ -42,7 +42,7 @@
           height: 4px;
           border-radius: 4px;
           transition: width 200ms ease-in-out;
-          background: #f7931e;
+          background: var(--accentColor);
         }
       }
     }
@@ -65,7 +65,7 @@
 
     p {
       text-align: center;
-      color: #ccc;
+      color: var(--secondaryTextColor);
       padding: 0 2px;
       transition: opacity .3s ease-in-out;
       font-family: "Roboto Condensed Regular", Arial;

@@ -3,8 +3,8 @@
 
   input {
     width: 100%;
-    background: #2a2a2a;
-    color: #fff;
+    background: var(--secondaryColor);
+    color: var(--primaryTextColor);
     border-radius: 10px;
     padding: 1em;
     font-size: 1em;
@@ -55,7 +55,7 @@
         }
 
         img {
-          background: #2a2a2a;
+          background: var(--secondaryColor);
           height: 100%;
           width: 100%;
           border-radius: 10px;

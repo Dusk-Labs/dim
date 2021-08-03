@@ -8,7 +8,7 @@
   height: 100px;
   scroll-snap-type: y mandatory;
   scrollbar-width: thin;
-  scrollbar-color: #f7931e #4a4a4a;
+  scrollbar-color: var(--accentColor) #4a4a4a;
 
   .vertical-err {
     position: absolute;
@@ -29,15 +29,15 @@
     transition: background 0.1s ease-in-out;
     cursor: pointer;
     padding: 1em;
-    border: solid 2px #2a2a2a;
-    color: #eee;
+    border: solid 2px var(--tertiaryColor);
+    color: var(--primaryTextColor);
 
     &:hover {
-      background: #2a2a2a;
+      background: var(--secondaryColor);
     }
 
     &.selected-true {
-      background: #4a4a4a;
+      background: var(--quaternaryColor);
       cursor: default;
     }
 
@@ -48,7 +48,7 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        color: #4a4a4a;
+        color: var(--secondaryTextColor);
         font-size: .8em;
         font-family: "Roboto Bold", Arial;
         position: absolute;
@@ -58,6 +58,7 @@
 
     svg {
       font-size: 2em;
+      fill: var(--tertiaryColor);
     }
 
     // path name

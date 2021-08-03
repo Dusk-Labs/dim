@@ -5,7 +5,7 @@
   height: 100%;
   width: 150px;
   position: fixed;
-  background: #3a3a3a;
+  background: var(--tertiaryColor);
   z-index: 2;
   box-shadow: 0 0 5px 2px #1a1a1add;
   transition: width .3s ease-in-out;
@@ -63,7 +63,7 @@
   h4 {
     font-family: "Roboto Bold", Arial;
     margin: 0;
-    color: #808080;
+    color: var(--tertiaryTextColor);
   }
 
   .openNewLibrary {
@@ -72,15 +72,15 @@
     align-items: center;
     border-radius: 50%;
     font-family: "Roboto Regular", Arial;
-    background: #4a4a4a;
-    color: #fff;
+    background: var(--quaternaryColor);
+    color: var(--primaryTextColor);
     width: 20px;
     height: 20px;
     transition: .2s ease-in-out;
     transition-property: background, opacity;
 
     &:hover, &:focus {
-      background: #5a5a5a;
+      background: var(--quinaryColor);
     }
 
     &:focus {
@@ -106,24 +106,24 @@
 
       .barLoad {
         animation: appear 300ms ease-in-out;
-        background: #5a5a5a;
+        background: var(--quinaryColor);
       }
 
       &:focus,
       &:hover {
-        background: #2a2a2a;
+        background: var(--secondaryColor);
       }
 
       &.active {
         cursor: default;
-        background: #5a5a5a;
+        background: var(--quinaryColor);
 
         &:focus, &:hover {
-          background: #5a5a5a;
+          background: var(--quinaryColor);
         }
 
         .barLoad {
-          background: #7a7a7a;
+          background: var(--septenaryColor);
         }
       }
     }
@@ -133,11 +133,12 @@
       font-size: 16px;
       width: 100%;
       background: transparent;
-      color: #fff;
+      color: var(--primaryTextColor);
     }
 
     svg {
       margin: 0 auto;
+      fill: var(--primaryTextColor);
     }
   }
 }

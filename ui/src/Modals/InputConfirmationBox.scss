@@ -1,7 +1,7 @@
 .modalConfirmation {
   display: grid;
   grid-template-rows: auto auto 1fr auto;
-  color: #ffffff;
+  color: var(--primaryTextColor);
   padding: 20px;
 
   .separator {
@@ -34,8 +34,8 @@
       padding: .5em;
       border-radius: 10px;
       outline: none;
-      background: #f7931e;
-      color: #ffffff;
+      background: var(--accentColor);
+      color: var(--primaryTextColor);
 
       &:focus,
       &:hover {
@@ -86,12 +86,12 @@
       font-family: "Roboto Regular", Arial;
       transition: background 0.3s ease-in-out;
       margin-top: 10px;
-      background: #3a3a3a;
+      background: var(--tertiaryColor);
       outline: none;
       border: none;
       border-radius: 5px;
       padding: 10px 20px;
-      color: #ffffff;
+      color: var(--primaryTextColor);
       width: 100%;
       height: 40px;
       overflow: hidden;
@@ -99,7 +99,7 @@
 
       &:focus,
       &:hover {
-        background: #4a4a4a;
+        background: var(--quaternaryColor);
       }
     }
   }

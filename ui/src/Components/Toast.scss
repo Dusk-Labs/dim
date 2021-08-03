@@ -5,8 +5,8 @@
   gap: 1em;
   padding: .5em;
   border-radius: 10px;
-  background: #4a4a4a;
-  color: #fff;
+  background: var(--quaternaryColor);
+  color: var(--primaryTextColor);
   animation: appear 250ms ease-in-out forwards;
   font-family: "Roboto Bold";
   box-shadow: 0 0 .25em #1a1a1a;

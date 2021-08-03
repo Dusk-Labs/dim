@@ -1,7 +1,7 @@
 .modalConfirmation {
   display: grid;
   grid-template-rows: auto auto 1fr auto;
-  color: #ffffff;
+  color: var(--primaryTextColor);
   padding: 20px;
 
   .separator {
@@ -30,8 +30,8 @@
       padding: .5em;
       border-radius: 10px;
       outline: none;
-      background: #f7931e;
-      color: #ffffff;
+      background: var(--accentColor);
+      color: var(--primaryTextColor);
 
       &:focus,
       &:hover {

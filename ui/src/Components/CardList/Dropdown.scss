@@ -4,24 +4,24 @@
   .toggle {
     display: flex;
     transition: background 200ms ease-in-out;
-    background: #2a2a2a;
+    background: var(--secondaryColor);
     padding: .5em;
     border-radius: 10px;
     cursor: pointer;
 
     &:hover {
-      background: #3a3a3a;
+      background: var(--tertiaryColor);
     }
 
     &.visible-true {
-      background: #3a3a3a;
+      background: var(--tertiaryColor);
     }
 
     div {
       height: 10px;
       width: 10px;
       border-radius: 50%;
-      background: #fff;
+      background: var(--primaryTextColor);
       transition: transform .1s ease-in-out;
 
       &:not(:first-child) {
@@ -34,7 +34,7 @@
     display: flex;
     justify-content: center;
     flex-direction: column;
-    background: #2a2a2a;
+    background: var(--secondaryColor);
     position: absolute;
     top: calc(100% + 1em);
     right: 0;
@@ -59,8 +59,8 @@
 
     button {
       font-family: "Roboto Bold", Arial;
-      color: #eee;
-      background: #2a2a2a;
+      color: var(--primaryTextColor);
+      background: var(--secondaryColor);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -68,7 +68,7 @@
       width: 100%;
 
       &:hover {
-        background: #3a3a3a;
+        background: var(--tertiaryColor);
       }
 
       &.delete {

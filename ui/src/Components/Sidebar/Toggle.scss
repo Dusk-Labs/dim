@@ -13,8 +13,7 @@
     height: 30px;
     width: 30px;
     border-radius: 50%;
-    background: #4a4a4a;
-    color: #fff;
+    background: var(--quaternaryColor);
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -24,11 +23,12 @@
     transition-property: transform, background;
 
     &:hover {
-      background: #5a5a5a;
+      background: var(--quinaryColor);
     }
 
     svg {
       width: .5em;
+      fill: var(--secondaryTextColor);
     }
   }
 }

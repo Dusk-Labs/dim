@@ -9,6 +9,7 @@
   position: relative;
   grid-template-columns: 1fr 1fr;
   transition: opacity 100ms ease-in-out;
+  color: #fff;
   grid-template-areas:
     "name time"
     "seekbar seekbar"
@@ -24,7 +25,7 @@
   }
 
   .name svg, .time svg {
-    fill: #f7931e;
+    fill: var(--accentColor);
     width: .4em;
   }
 
