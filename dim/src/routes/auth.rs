@@ -1,7 +1,7 @@
-use bytes::BufMut;
 use crate::core::DbConnection;
 use crate::errors;
 use auth::{jwt_generate, Wrapper as Auth};
+use bytes::BufMut;
 
 use database::asset::Asset;
 use database::asset::InsertableAsset;
@@ -449,7 +449,10 @@ pub async fn user_upload_avatar(
     Ok(StatusCode::OK)
 }
 
-pub async fn process_part(conn: &DbConnection, p: warp::multipart::Part) -> Result<Asset, errors::DimError> {
+pub async fn process_part(
+    conn: &DbConnection,
+    p: warp::multipart::Part,
+) -> Result<Asset, errors::DimError> {
     if p.name() != "file" {
         return Err(errors::DimError::UploadFailed);
     }
@@ -457,7 +460,7 @@ pub async fn process_part(conn: &DbConnection, p: warp::multipart::Part) -> Resu
     let file_ext = match dbg!(p.content_type()) {
         Some("image/jpeg" | "image/jpg") => "jpg",
         Some("image/png") => "png",
-        _ => return Err(errors::DimError::UnsupportedFile)
+        _ => return Err(errors::DimError::UnsupportedFile),
     };
 
     let contents = p
@@ -470,13 +473,21 @@ pub async fn process_part(conn: &DbConnection, p: warp::multipart::Part) -> Resu
         .map_err(|_| errors::DimError::UploadFailed)?;
 
     let local_file = format!("{}.{}", Uuid::new_v4().to_string(), file_ext);
-    let local_path = format!("{}/{}", crate::core::METADATA_PATH.get().unwrap(), &local_file);
+    let local_path = format!(
+        "{}/{}",
+        crate::core::METADATA_PATH.get().unwrap(),
+        &local_file
+    );
 
-    tokio::fs::write(&local_path, contents).await.map_err(|_| errors::DimError::UploadFailed)?;
+    tokio::fs::write(&local_path, contents)
+        .await
+        .map_err(|_| errors::DimError::UploadFailed)?;
 
     Ok(InsertableAsset {
         local_path: local_file,
         file_ext: file_ext.into(),
         ..Default::default()
-    }.insert(&conn).await?)
+    }
+    .insert(&conn)
+    .await?)
 }

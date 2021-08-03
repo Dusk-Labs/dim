@@ -207,16 +207,16 @@ impl User {
     pub async fn set_picture(
         conn: &crate::DbConnection,
         username: String,
-        asset_id: i64
+        asset_id: i64,
     ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!(
-                "UPDATE users SET picture = $1 WHERE users.username = ?2",
-                asset_id,
-                username
-            )
-            .execute(conn)
-            .await?
-            .rows_affected() as usize)
+            "UPDATE users SET picture = $1 WHERE users.username = ?2",
+            asset_id,
+            username
+        )
+        .execute(conn)
+        .await?
+        .rows_affected() as usize)
     }
 }
 
