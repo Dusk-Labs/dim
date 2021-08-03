@@ -81,7 +81,10 @@ impl InsertableAsset {
             Asset,
             "SELECT * FROM assets WHERE local_path = ?",
             local_path
-        ).fetch_one(conn).await {
+        )
+        .fetch_one(conn)
+        .await
+        {
             return Ok(x);
         }
 

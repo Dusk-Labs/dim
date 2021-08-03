@@ -8,8 +8,8 @@ use crate::stream_tracking::StreamTracking;
 use crate::stream_tracking::VirtualManifest;
 use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::get_avc1_tag;
-use crate::streaming::level_to_tag;
 use crate::streaming::get_qualities;
+use crate::streaming::level_to_tag;
 
 use database::mediafile::MediaFile;
 
@@ -404,7 +404,13 @@ pub async fn return_virtual_manifest(
         )
         .await;
 
-    let qualities = get_qualities(video_stream.height.unwrap_or(1080) as u64, video_stream.get_bitrate().or(info.get_container_bitrate()).unwrap_or(10_000_000));
+    let qualities = get_qualities(
+        video_stream.height.unwrap_or(1080) as u64,
+        video_stream
+            .get_bitrate()
+            .or(info.get_container_bitrate())
+            .unwrap_or(10_000_000),
+    );
 
     for quality in qualities {
         let ctx = ProfileContext {
@@ -434,12 +440,7 @@ pub async fn return_virtual_manifest(
         let video_avc = video_stream
             .level
             .and_then(|x| level_to_tag(x))
-            .unwrap_or(get_avc1_tag(
-                    width,
-                    quality.height,
-                    quality.bitrate,
-                    24,
-            ));
+            .unwrap_or(get_avc1_tag(width, quality.height, quality.bitrate, 24));
 
         stream_tracking
             .insert(
@@ -456,16 +457,13 @@ pub async fn return_virtual_manifest(
                     bandwidth: quality.bitrate,
                     args: {
                         let mut x = HashMap::new();
-                        x.insert(
-                            "height".to_string(),
-                            quality.height.to_string(),
-                        );
+                        x.insert("height".to_string(), quality.height.to_string());
                         x
                     },
                     is_default: false,
                 },
-                )
-                    .await;
+            )
+            .await;
     }
 
     let audio_streams = info.find_by_type("audio");
