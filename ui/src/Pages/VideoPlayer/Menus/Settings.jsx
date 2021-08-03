@@ -88,7 +88,7 @@ function VideoMenuSettings() {
         <div className="innerMenu">
           <div className="tracks">
             {video.tracks.video.list.map((track, i) => (
-              <div key={i} className={`track ${track.current === i ? "active" : ""}`} onClick={() => changeTrack(i)}>
+              <div key={i} className={`track ${video.tracks.video.current === i ? "active" : ""}`} onClick={() => changeTrack(i)}>
                 <p>{track.label}</p>
               </div>)
             )}
