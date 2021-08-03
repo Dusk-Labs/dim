@@ -1,5 +1,6 @@
 use serde_derive::{Deserialize, Serialize};
 use std::{path::Path, process::Command, str};
+use std::collections::VecDeque;
 
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct FFPWrapper {
@@ -174,14 +175,14 @@ impl FFPWrapper {
     }
 
     pub fn get_primary(&self, codec_type: &str) -> Option<&Stream> {
-        let mut streams = self.find_by_type(codec_type);
+        let mut streams: VecDeque<_> = self.find_by_type(codec_type).into();
 
         if streams.is_empty() {
             return None;
         }
 
         if streams.len() == 1 {
-            return streams.pop();
+            return streams.pop_front();
         }
 
         let primary_stream = streams.iter().find_map(|x| {
@@ -192,7 +193,7 @@ impl FFPWrapper {
             }
         });
 
-        primary_stream.or_else(|| streams.pop())
+        primary_stream.or_else(|| streams.pop_front())
     }
 
     pub fn get_primary_codec(&self, codec_type: &str) -> Option<&str> {
