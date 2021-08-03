@@ -49,6 +49,14 @@ impl Stream {
     pub fn get_codec(&self) -> &str {
         &self.codec_name
     }
+
+    pub fn get_language(&self) -> Option<String> {
+        self.tags.as_ref()?.language.clone()
+    }
+
+    pub fn get_title(&self) -> Option<String> {
+        self.tags.as_ref()?.title.clone()
+    }
 }
 
 impl From<Stream> for nightfall::profiles::InputCtx {

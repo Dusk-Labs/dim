@@ -10,6 +10,7 @@ use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::get_avc1_tag;
 use crate::streaming::get_qualities;
 use crate::streaming::level_to_tag;
+use crate::utils::quality_to_label;
 
 use database::mediafile::MediaFile;
 
@@ -375,6 +376,21 @@ pub async fn return_virtual_manifest(
             24,
         ));
 
+    let bitrate = video_stream
+        .get_bitrate()
+        .or(info.get_container_bitrate())
+        .unwrap_or(10_000_000);
+
+    let label = {
+        let (ident, bitrate_norm) = if bitrate > 1_000_000 {
+            ("MB", bitrate / 1_000_000)
+        } else {
+            ("KB", bitrate / 1_000)
+        };
+
+        format!("{}p@{}{} (Native)", video_stream.height.clone().unwrap(), bitrate_norm, ident)
+    };
+
     stream_tracking
         .insert(
             &gid,
@@ -400,6 +416,7 @@ pub async fn return_virtual_manifest(
                     x
                 },
                 is_default: true,
+                label
             },
         )
         .await;
@@ -442,6 +459,8 @@ pub async fn return_virtual_manifest(
             .and_then(|x| level_to_tag(x))
             .unwrap_or(get_avc1_tag(width, quality.height, quality.bitrate, 24));
 
+        let label = quality_to_label(quality);
+
         stream_tracking
             .insert(
                 &gid,
@@ -461,6 +480,7 @@ pub async fn return_virtual_manifest(
                         x
                     },
                     is_default: false,
+                    label,
                 },
             )
             .await;
@@ -501,6 +521,7 @@ pub async fn return_virtual_manifest(
                     init_seg: Some(format!("{}/data/init.mp4", audio.clone())),
                     args: HashMap::new(),
                     is_default,
+                    label: stream.get_language().unwrap_or_default()
                 },
             )
             .await;
@@ -558,16 +579,14 @@ pub async fn return_virtual_manifest(
                             init_seg: None,
                             args: {
                                 let mut x = HashMap::new();
-                                if let Some(y) = stream
-                                    .tags
-                                    .as_ref()
-                                    .and_then(|x| x.title.clone().or(x.language.clone()))
+                                if let Some(y) = stream.get_title().or(stream.get_language())
                                 {
                                     x.insert("title".to_string(), y);
                                 }
                                 x
                             },
                             is_default,
+                            label: stream.get_title().or(stream.get_language()).unwrap_or_default()
                         },
                     )
                     .await;

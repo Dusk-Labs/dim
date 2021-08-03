@@ -398,3 +398,21 @@ macro_rules! json_unexpected {
 macro_rules! json_expect_expr_comma {
     ($e:expr , $($tt:tt)*) => {};
 }
+
+use crate::streaming::Quality;
+
+pub fn quality_to_label(quality: &'static Quality) -> String {
+    let bandwidth_ident = if quality.bitrate > 1_000_000 {
+        "MB"
+    } else {
+        "KB"
+    };
+
+    let bandwidth_norm = if quality.bitrate > 1_000_000 {
+        quality.bitrate / 1_000_000
+    } else {
+        quality.bitrate / 1_000
+    };
+
+    format!("{}p@{}{}", quality.height, bandwidth_norm, bandwidth_ident)
+}

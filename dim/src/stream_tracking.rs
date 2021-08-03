@@ -29,6 +29,7 @@ pub struct VirtualManifest {
     pub chunk_path: String,
     pub init_seg: Option<String>,
     pub is_default: bool,
+    pub label: String,
 }
 
 impl VirtualManifest {
