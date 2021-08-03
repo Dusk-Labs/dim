@@ -1,5 +1,3 @@
-import React from "react";
-
 const DimLogo = () => (
   <svg className="logo" style={{overflow: "hidden"}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 22.979">
     <g transform="translate(-454.7 -509.13)">

@@ -1,5 +1,3 @@
-import React from "react";
-
 import "./ProgressBar.scss";
 import CircleIcon from "../../assets/Icons/Circle";
 
