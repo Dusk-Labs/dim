@@ -54,11 +54,15 @@
 
     .heading {
       display: flex;
+      align-items: center;
       gap: .5em;
       padding: .5em;
       justify-content: space-between;
 
       button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         background: transparent;
         background: #3a3a3a;
         padding: 0 .5em;
