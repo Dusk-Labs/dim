@@ -2,7 +2,7 @@ import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { MediaPlayer } from "dashjs";
 
-import { setManifestState, updateVideo } from "../../actions/video";
+import { setManifestState, updateTrack, updateVideo } from "../../actions/video";
 
 function VideoEvents() {
   const dispatch = useDispatch();
@@ -109,6 +109,19 @@ function VideoEvents() {
     }));
   }, [dispatch, player, video.prevSeekTo]);
 
+  const eQualityChange = useCallback(e => {
+    console.log("[video] quality changing ", e);
+
+    if (e.mediaType !== "video" && e.mediaType !== "audio") return;
+
+    const bitrates = player.getBitrateInfoListFor(e.mediaType);
+    const inverted = (bitrates.length - 1) - e.newQuality;
+
+    dispatch(updateTrack(e.mediaType, {
+      current: inverted
+    }));
+  }, [dispatch, player]);
+
   // other events
   useEffect(() => {
     if (!player) return;
@@ -134,6 +147,7 @@ function VideoEvents() {
     player.on(MediaPlayer.events.PLAYBACK_TIME_UPDATED, ePlayBackTimeUpdated);
     player.on(MediaPlayer.events.PLAYBACK_NOT_ALLOWED, ePlayBackNotAllowed);
     player.on(MediaPlayer.events.PLAYBACK_ENDED, ePlayBackEnded);
+    player.on(MediaPlayer.events.QUALITY_CHANGE_REQUESTED, eQualityChange);
 
     return () => {
       player.off(MediaPlayer.events.PLAYBACK_PAUSED, ePlayBackPaused);
@@ -142,8 +156,9 @@ function VideoEvents() {
       player.off(MediaPlayer.events.PLAYBACK_TIME_UPDATED, ePlayBackTimeUpdated);
       player.off(MediaPlayer.events.PLAYBACK_NOT_ALLOWED, ePlayBackNotAllowed);
       player.off(MediaPlayer.events.PLAYBACK_ENDED, ePlayBackEnded);
+      player.off(MediaPlayer.events.QUALITY_CHANGE_REQUESTED, eQualityChange);
     };
-  }, [ePlayBackEnded, ePlayBackNotAllowed, ePlayBackPaused, ePlayBackPlaying, ePlayBackTimeUpdated, ePlayBackWaiting, player]);
+  }, [ePlayBackEnded, ePlayBackNotAllowed, ePlayBackPaused, ePlayBackPlaying, ePlayBackTimeUpdated, ePlayBackWaiting, eQualityChange, player]);
 
   return null;
 }
