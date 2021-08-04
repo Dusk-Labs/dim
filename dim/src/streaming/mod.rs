@@ -80,7 +80,7 @@ pub fn get_qualities(height: u64, bitrate: u64) -> Vec<&'static Quality> {
         .collect()
 }
 
-pub const VIDEO_QUALITIES: [Quality; 15] = [
+pub const VIDEO_QUALITIES: [Quality; 19] = [
     Quality {
         height: 2160,
         bitrate: 120_000_000,
@@ -141,6 +141,22 @@ pub const VIDEO_QUALITIES: [Quality; 15] = [
         height: 720,
         bitrate: 1_500_000,
     },
+    Quality {
+        height: 480,
+        bitrate: 1_000_000,
+    },
+    Quality {
+        height: 480,
+        bitrate: 500_000,
+    },
+    Quality {
+        height: 360,
+        bitrate: 500_000,
+    },
+    Quality {
+        height: 360,
+        bitrate: 250_000,
+    }
 ];
 
 #[derive(Clone)]
