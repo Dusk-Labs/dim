@@ -29,8 +29,7 @@ impl Season {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id as "id!", season_number, tvshowid, added, poster as "poster?"
-            FROM season WHERE tvshowid = ?"#,
+            r#"SELECT id as "id!", season_number, tvshowid, added, poster as "poster?" FROM season WHERE tvshowid = ?"#,
             tv_id
         )
         .fetch_all(conn)
@@ -186,27 +185,18 @@ impl UpdateSeason {
     pub async fn update(
         self,
         conn: &crate::DbConnection,
-        tv_id: i64,
-        season_num: i64,
+        id: i64,
     ) -> Result<usize, DatabaseError> {
         let tx = conn.begin().await?;
 
-        let row = sqlx::query!(
-            "SELECT season.id FROM season 
-            INNER JOIN tv_show WHERE tv_show.id = ? 
-            AND season.season_number = ?",
-            tv_id,
-            season_num
-        )
-        .fetch_one(conn)
-        .await?;
-
         opt_update!(conn, tx,
-            "UPDATE _tblseason SET season_number = ? WHERE id = ?" => (self.season_number, row.id),
-            "UPDATE _tblseason SET tvshowid = ? WHERE id = ?" => (self.tvshowid, row.id),
-            "UPDATE _tblseason SET added = ? WHERE id = ?" => (self.added, row.id),
-            "UPDATE _tblseason SET poster = ? WHERE id = ?" => (self.poster, row.id)
+            "UPDATE _tblseason SET season_number = $1 WHERE id = ?2" => (self.season_number, id),
+            "UPDATE _tblseason SET tvshowid = $1 WHERE id = ?2" => (self.tvshowid, id),
+            "UPDATE _tblseason SET added = $1 WHERE id = ?2" => (self.added, id),
+            "UPDATE _tblseason SET poster = $1 WHERE id = ?2" => (self.poster, id)
         );
+
+        tx.commit().await?;
 
         Ok(1)
     }

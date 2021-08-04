@@ -1,8 +1,27 @@
 use crate::get_conn_memory;
 use crate::tv;
+use crate::media;
+use crate::library;
 
 use super::library_tests::create_test_library;
 use super::media_tests::insert_media;
+
+pub async fn insert_tv(conn: &crate::DbConnection) -> i64 {
+    let media = media::InsertableMedia {
+        library_id: 1,
+        name: "TestMedia".into(),
+        description: None,
+        rating: Some(10),
+        year: Some(2020),
+        added: "Test".into(),
+        poster: None,
+        backdrop: None,
+        media_type: library::MediaType::Movie,
+    };
+
+    let id = media.insert(conn).await.unwrap();
+    tv::TVShow::insert(conn, id).await.unwrap()
+}
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_insert_get_all() {

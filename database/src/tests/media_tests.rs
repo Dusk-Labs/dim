@@ -14,8 +14,8 @@ pub async fn insert_media(conn: &crate::DbConnection) -> i64 {
         rating: Some(10),
         year: Some(2020),
         added: "Test".into(),
-        poster_path: None,
-        backdrop_path: None,
+        poster: None,
+        backdrop: None,
         media_type: library::MediaType::Movie,
     };
 
@@ -31,8 +31,8 @@ pub async fn insert_many(conn: &crate::DbConnection, n: usize) {
             rating: Some(10),
             year: Some(2020),
             added: "Test".into(),
-            poster_path: None,
-            backdrop_path: None,
+            poster: None,
+            backdrop: None,
             media_type: library::MediaType::Movie,
         };
 
@@ -139,9 +139,9 @@ async fn test_blind_insert() {
         rating: Some(10),
         year: Some(2020),
         added: "Test".into(),
-        poster_path: None,
-        backdrop_path: None,
-        media_type: library::MediaType::Movie,
+        poster: None,
+        backdrop: None,
+        media_type: library::MediaType::Episode,
     };
 
     let result = media.clone().insert_blind(conn).await.unwrap();
@@ -163,8 +163,8 @@ async fn test_update() {
         rating: Some(10),
         year: Some(2020),
         added: "Test".into(),
-        poster_path: None,
-        backdrop_path: None,
+        poster: None,
+        backdrop: None,
         media_type: library::MediaType::Movie,
     };
 
