@@ -4,13 +4,14 @@ on: [push, pull_request]
 
 env:
   CARGO_TERM_COLOR: always
+  DATABASE_URL: "./dim_dev.db"
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
-        - run: sudo apt-get install -y libva-dev libva-drm2 libva2
+        - run: sudo apt-get install -y libva-dev libva-drm2 libva2 sqlite3
         - uses: actions/checkout@v2
         - uses: actions-rs/toolchain@v1
           with:
@@ -18,6 +19,7 @@ jobs:
               toolchain: nightly
               override: true
               components: cargo
+        - run: sqlite3 ./dim_dev.db -init ./database/migrations/20210619211347_dim.sql
         - uses: actions-rs/cargo@v1
           with:
               command: build
