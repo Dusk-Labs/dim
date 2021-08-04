@@ -85,12 +85,14 @@ function VideoPlayer() {
   useEffect(() => {
     if (!video.gid || !manifest.virtual.loaded) return;
 
+    console.log("[video] loading manifest");
+
     dispatch(setManifestState({
       loading: true,
       loaded: false
     }));
 
-    const includes = `${videoTracks.list[videoTracks.current].id},${audioTracks.list[audioTracks.current].id}`;
+    const includes = `${videoTracks.list.map(track => track.id).join(",")},${audioTracks.list.map(track => track.id).join(",")}`;
     const url = `/api/v1/stream/${video.gid}/manifest.mpd?start_num=0&should_kill=false&includes=${includes}`;
     const mediaPlayer = MediaPlayer().create();
 
@@ -140,7 +142,7 @@ function VideoPlayer() {
         sessionStorage.clear();
       })();
     };
-  }, [audioTracks, auth.token, dispatch, manifest.virtual.loaded, video.gid, videoTracks]);
+  }, [audioTracks.list, auth.token, dispatch, manifest.virtual.loaded, video.gid, videoTracks.list]);
 
   const seekTo = useCallback(async newTime => {
     player.seek(newTime);
