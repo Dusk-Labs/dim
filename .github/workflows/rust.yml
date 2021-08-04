@@ -10,7 +10,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-        - run: apt-get install -y libva-dev libva-drm2 libva2
+        - run: sudo apt-get install -y libva-dev libva-drm2 libva2
         - uses: actions/checkout@v2
         - uses: actions-rs/toolchain@v1
           with:
