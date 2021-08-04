@@ -107,7 +107,12 @@ function VideoPlayer() {
         bufferTimeAtTopQualityLongForm: 20,
         useAppendWindow: true,
         bufferPruningInterval: 10,
-        smallGapLimit: 1000
+        smallGapLimit: 1000,
+        abr: {
+          autoSwitchBitrate: {
+            video: false
+          }
+        }
       }
     };
 
