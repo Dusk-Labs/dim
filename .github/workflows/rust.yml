@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 env:
   CARGO_TERM_COLOR: always
-  DATABASE_URL: "./dim_dev.db"
+  DATABASE_URL: "sqlite://./dim_dev.db"
 
 jobs:
   build:
