@@ -35,8 +35,8 @@ async fn test_get_by_media() {
         rating: Some(10),
         year: Some(2020),
         added: "Test".into(),
-        poster_path: None,
-        backdrop_path: None,
+        poster: None,
+        backdrop: None,
         media_type: library::MediaType::Movie,
     };
 

@@ -4,6 +4,7 @@ use crate::tv;
 
 use super::library_tests::create_test_library;
 use super::media_tests::insert_media;
+use super::tv_tests::insert_tv;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_insert_and_get_methods() {
@@ -62,8 +63,7 @@ async fn test_insert_and_get_methods() {
 async fn test_update() {
     let ref conn = get_conn_memory().await.unwrap();
     let _lib = create_test_library(conn).await;
-    let tv = insert_media(conn).await;
-    tv::TVShow::insert(conn, tv).await.unwrap();
+    let tv = insert_tv(conn).await;
 
     let _season = dbg!(season::InsertableSeason {
         season_number: 2,
@@ -73,11 +73,13 @@ async fn test_update() {
     .await
     .unwrap());
 
+    dbg!(season::Season::get_all(conn, tv).await);
+
     let rows = season::UpdateSeason {
         season_number: Some(1),
         ..Default::default()
     }
-    .update(conn, tv, 2)
+    .update(conn, _season)
     .await
     .unwrap();
     assert_eq!(rows, 1);

@@ -134,6 +134,7 @@ pub mod fetcher {
         }
     }
 
+    /// Function creates a task that fetches and caches posters from various sources.
     pub async fn tmdb_poster_fetcher(log: Logger) {
         let (tx, mut rx): (UnboundedSender<PosterType>, UnboundedReceiver<PosterType>) =
             unbounded_channel();
@@ -173,9 +174,12 @@ pub mod fetcher {
                                                 let mut content = Cursor::new(bytes);
                                                 if let Err(e) = copy(&mut content, &mut file) {
                                                     error!(log, "Failed to cache {} locally, e={:?}", url, e);
+                                                    processing.insert(poster);
                                                 }
                                             }
                                         }
+                                    } else {
+                                        processing.insert(poster);
                                     }
                                 }
                                 Err(e) => {

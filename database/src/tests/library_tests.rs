@@ -1,13 +1,17 @@
 use crate::get_conn_memory;
 use crate::library;
+use std::sync::atomic::AtomicU64;
+use std::sync::atomic::Ordering;
 
 pub async fn create_test_library(conn: &crate::DbConnection) -> i64 {
+    static _LIB: AtomicU64 = AtomicU64::new(0);
     let lib = library::InsertableLibrary {
-        name: "test".into(),
-        location: "/dev/null".into(),
+        name: format!("test{}", _LIB.load(Ordering::Relaxed)),
+        location: format!("/dev/null{}", _LIB.load(Ordering::Relaxed)),
         media_type: library::MediaType::Movie,
     };
 
+    _LIB.fetch_add(1, Ordering::SeqCst);
     lib.insert(conn).await.unwrap()
 }
 
@@ -25,8 +29,6 @@ async fn test_get_one() {
 
     let result = library::Library::get_one(&conn, id).await.unwrap();
 
-    assert_eq!(result.name, "test".to_string());
-    assert_eq!(result.location, "/dev/null".to_string());
     assert_eq!(result.media_type, library::MediaType::Movie);
 }
 
