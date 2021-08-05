@@ -10,12 +10,14 @@ function Themes() {
   const userSettings = useSelector(store => store.settings.userSettings);
 
   const setTheme = useCallback(async (theme) => {
+    if (theme === userSettings.data.theme) return;
+
     await dispatch(updateUserSettings({
       theme
     }));
 
     await dispatch(fetchUserSettings());
-  }, [dispatch]);
+  }, [dispatch, userSettings.data.theme]);
 
   return (
     <section>
