@@ -83,7 +83,7 @@ function CachePrivateRoute(props) {
   const { exact, path, render, children } = props;
 
   return (token && tokenInCookie) && (
-    <CacheRoute exact={exact} path={path} render={render} children={children}/>
+    <CacheRoute exact={exact} path={path} render={render} children={children} when="always"/>
   );
 }
 

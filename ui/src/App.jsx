@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, Switch } from "react-router-dom";
 import { CacheSwitch } from "react-router-cache-route";
 
 import WS from "./Components/WS";
@@ -21,7 +21,7 @@ import Preferences from "./Pages/Preferences/Index";
 import "./App.scss";
 
 const routes = (
-  <CacheSwitch>
+  <Switch>
     <NotAuthedOnlyRoute exact path="/login">
       <Login/>
     </NotAuthedOnlyRoute>
@@ -33,21 +33,21 @@ const routes = (
         <Dashboard/>
       </MainLayout>
     </PrivateRoute>
-    <CachePrivateRoute exact path="/library/:id">
+    <PrivateRoute exact path="/library/:id">
       <MainLayout>
         <Library/>
       </MainLayout>
-    </CachePrivateRoute>
+    </PrivateRoute>
     <PrivateRoute path="/search">
       <MainLayout>
         <SearchResults/>
       </MainLayout>
     </PrivateRoute>
-    <PrivateRoute exact path="/media/:id">
+    <CachePrivateRoute exact path="/media/:id">
       <MainLayout>
         <Media/>
       </MainLayout>
-    </PrivateRoute>
+    </CachePrivateRoute>
     <PrivateRoute exact path="/preferences">
       <MainLayout>
         <Preferences/>
@@ -56,7 +56,7 @@ const routes = (
     <PrivateRoute exact path="/play/:fileID">
       <VideoPlayer/>
     </PrivateRoute>
-  </CacheSwitch>
+  </Switch>
 );
 
 function App() {
