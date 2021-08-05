@@ -7,7 +7,7 @@
   border-radius: 10px;
 
   &.small-true div {
-    border: .2em dotted #f7931e;
+    border: .2em dotted var(--accentColor);
   }
 
   div {
@@ -15,10 +15,10 @@
     position: absolute;
     width: 50%;
     height: inherit;
-    background:#f7931e;
+    background:var(--accentColor);
     border-radius: 10px;
     animation: barLoad 1500ms cubic-bezier(0.85, 0, 0.15, 1) infinite;
-    border-color: #f7931e;
+    border-color: var(--accentColor);
   }
 }
 

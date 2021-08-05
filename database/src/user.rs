@@ -19,6 +19,7 @@ pub type Credential = [u8; CREDENTIAL_LEN];
 pub enum Theme {
     Light,
     Dark,
+    Black
 }
 
 pub fn default_theme() -> Theme {

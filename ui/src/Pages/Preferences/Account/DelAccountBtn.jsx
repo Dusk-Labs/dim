@@ -1,10 +1,9 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import InputConfirmationBox from "../../../Modals/InputConfirmationBox.jsx";
 import { delAccount, logout } from "../../../actions/auth.js";
-import { useState } from "react";
 import Button from "../../../Components/Misc/Button.jsx";
 
 function DelAccountBtn() {

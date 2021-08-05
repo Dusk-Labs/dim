@@ -27,6 +27,7 @@
     bottom: 0;
     border-radius: 0;
     text-align: center;
+    background: var(--bannerPrimaryColor);
     border-bottom: 4px solid #3a3a3a;
 
     h2 {
@@ -47,7 +48,7 @@
       filter: saturate(0.7);
       font-family: "Roboto Bold", Arial;
       border-radius: 10px;
-      background: #f7931e;
+      background: var(--accentColor);
       color: #2a2a2a;
       padding: .5em .8em;
       animation: appear 500ms ease-in-out;
@@ -104,12 +105,16 @@
     align-items: center;
     flex-wrap: wrap;
 
+    a {
+      color: var(--bannerPrimaryTextColor);
+    }
+
     // separator
     svg {
       display: none;
       margin: 0 10px;
       font-size: 0.4em;
-      fill: #f7931e;
+      fill: var(--accentColor);
     }
 
     // not year
@@ -119,7 +124,7 @@
       transition: color .2s ease-in-out;
 
       &:hover {
-        color: #ccc;
+        color: var(--bannerTertiaryTextColor);
       }
     }
   }
@@ -128,6 +133,7 @@
     max-width: 60ch;
     line-height: 1.5em;
     grid-area: info;
+    color: var(--bannerPrimaryTextColor);
 
     h1 {
       font-size: 2em;
@@ -137,7 +143,7 @@
 
     .description {
       margin: 1em 0;
-      color: #ddd;
+      color: var(--bannerSecondaryTextColor);
     }
   }
 }

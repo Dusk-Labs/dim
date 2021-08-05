@@ -1,11 +1,12 @@
-import { useEffect } from "react";
 import { BrowserRouter, Switch } from "react-router-dom";
-import { CacheSwitch } from "react-router-cache-route";
 
 import WS from "./Components/WS";
+
+import ThemeController from "./Controllers/Theme";
+import FaviconController from "./Controllers/Favicon";
+
 import NotAuthedOnlyRoute from "./Routes/NotAuthedOnly";
 import PrivateRoute from "./Routes/Private";
-import CachePrivateRoute from "./Routes/CachedPrivate";
 import MainLayout from "./Layouts/MainLayout";
 import Notifications from "./Components/Notifications";
 
@@ -43,11 +44,11 @@ const routes = (
         <SearchResults/>
       </MainLayout>
     </PrivateRoute>
-    <CachePrivateRoute exact path="/media/:id">
+    <PrivateRoute exact path="/media/:id">
       <MainLayout>
         <Media/>
       </MainLayout>
-    </CachePrivateRoute>
+    </PrivateRoute>
     <PrivateRoute exact path="/preferences">
       <MainLayout>
         <Preferences/>
@@ -59,44 +60,15 @@ const routes = (
   </Switch>
 );
 
-function App() {
-  /*
-    true: white logo (dark mode)
-    false: black logo (light mode)
-  */
-  const updateLogo = (color) => {
-    const favicon = document.getElementById("favicon");
-    const textFavicon = document.getElementById("textFavicon");
-
-    if (color) {
-      favicon.href = "/static/logoWhite128.png";
-      textFavicon.href = "/static/textLogoWhite128.png";
-    } else {
-      favicon.href = "/static/logoBlack128.png";
-      textFavicon.href = "/static/textLogoBlack128.png";
-    }
-  };
-
-  useEffect(() => {
-    const mql = matchMedia("(prefers-color-scheme: dark)");
-
-    updateLogo(mql.matches);
-
-    mql.addEventListener("change", (e) => updateLogo(e.matches));
-
-    return () => {
-      mql.removeEventListener("change", (e) => updateLogo(e.matches));
-    };
-  }, []);
-
-  return (
-    <WS>
-      <BrowserRouter>
-        {routes}
-      </BrowserRouter>
-      <Notifications/>
-    </WS>
-  );
-}
+const App = () => (
+  <WS>
+    <ThemeController/>
+    <FaviconController/>
+    <BrowserRouter>
+      {routes}
+    </BrowserRouter>
+    <Notifications/>
+  </WS>
+);
 
 export default App;
