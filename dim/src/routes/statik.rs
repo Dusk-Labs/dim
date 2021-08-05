@@ -1,6 +1,8 @@
 use rust_embed::RustEmbed;
 use warp::Filter;
 use warp::Reply;
+use warp::path;
+use http::StatusCode;
 
 pub fn statik_routes(
 ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
@@ -12,8 +14,10 @@ pub fn statik_routes(
 
 mod filters {
     use std::path::PathBuf;
+    use serde::Deserialize;
     use warp::Filter;
     use rust_embed::RustEmbed;
+    use super::super::global_filters::with_state;
 
     pub fn react_routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
     {
@@ -21,8 +25,22 @@ mod filters {
     }
 
     pub fn get_image() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        #[derive(Deserialize)]
+        struct QueryArgs {
+            w: Option<u32>,
+            h: Option<u32>,
+        }
+
         let metadata_path = crate::core::METADATA_PATH.get().unwrap();
-        warp::path("images").and(warp::fs::dir(metadata_path))
+
+        warp::path!("images" / ..)
+            .and(warp::get())
+            .and(warp::path::tail())
+            .and(warp::query::query::<QueryArgs>())
+            .and(with_state(metadata_path.clone()))
+            .and_then(|x: warp::path::Tail, QueryArgs { w, h }: QueryArgs, meta_path: String| async move {
+                super::get_image(x, w, h, meta_path).await
+            })
     }
 
     pub fn dist_static() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
@@ -83,4 +101,34 @@ pub async fn react_routes() -> Result<impl warp::Reply, warp::Rejection> {
     } else {
         Err(warp::reject::not_found())
     }
+}
+
+pub async fn get_image(
+    path: path::Tail,
+    resize_w: Option<u32>,
+    resize_h: Option<u32>,
+    meta_path: String
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let mut file_path = PathBuf::from(&meta_path);
+    file_path.push(path.as_str());
+
+    /*
+    let image = if let (Some(w), Some(h)) = (resize_w, resize_h) {
+        spawn_blocking(move ||  { resize_image(file_path, w, h).ok() }).await.unwrap()
+    } else {
+        tokio::fs::read(file_path).await.ok()
+    };
+    */
+
+    let image = tokio::fs::read(file_path).await.ok();
+
+    if let Some(data) = image {
+        return warp::http::Response::builder()
+            .status(StatusCode::OK)
+            .header("ContentType", "image/jpeg")
+            .body(data)
+            .map_err(|_| warp::reject::not_found());
+    }
+
+    Err(warp::reject::not_found())
 }
