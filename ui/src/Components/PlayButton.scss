@@ -4,13 +4,13 @@
   filter: saturate(0.7);
   font-family: "Roboto Bold", Arial;
   border-radius: 10px;
-  background: #5a5a5a;
+  background: var(--quinaryColor);
   display: inline-flex;
   overflow: hidden;
   outline: none;
   cursor: pointer;
   align-items: center;
-  color: #eee;
+  color: var(--accentTextColor);
   font-size: 1em;
 
   &:focus,
@@ -20,11 +20,12 @@
 
   p {
     padding: .5em .8em;
-    background: #f7931e;
+    background: var(--accentColor);
   }
 
   svg {
     font-size: .6em;
     margin: 0 10px;
+    fill: var(--primaryTextColor);
   }
 }

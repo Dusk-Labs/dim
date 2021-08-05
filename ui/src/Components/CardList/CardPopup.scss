@@ -18,7 +18,7 @@
     height: 100%;
     top: 0;
     left: 0;
-    background: #3a3a3a;
+    background: var(--tertiaryColor);
     z-index: -1;
     pointer-events: auto;
   }
@@ -74,15 +74,15 @@
     svg {
       font-size: .4em;
       margin: 0 1em;
-      fill: #f7931e;
+      fill: var(--accentColor);
     }
 
     a {
-      color: #ddd;
+      color: var(--tertiaryTextColor);
       transition: color .2s ease-in-out;
 
       &:hover {
-        color: #fff;
+        color: var(--primaryTextColor);
       }
     }
 
@@ -112,7 +112,7 @@
 
     /* hint */
     p:nth-child(2) {
-      color: #5a5a5a;
+      color: var(--tertiaryTextColor);
       font-size: 0.7em;
     }
   }

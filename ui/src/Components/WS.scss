@@ -5,7 +5,7 @@
   height: 100%;
   flex-direction: column;
   gap: 2em;
-  color: #eee;
+  color: var(--primaryTextColor);
 
   svg {
     width: 10em;
@@ -23,7 +23,7 @@
 
   p {
     margin-top: .5em;
-    color: #aaa;
+    color: var(--tertiaryTextColor);
   }
 
   button {
@@ -34,10 +34,10 @@
     filter: saturate(0.7);
     font-family: "Roboto Bold", Arial;
     border-radius: 10px;
-    background: #f7931e;
+    background: var(--accentColor);
     outline: none;
     cursor: pointer;
-    color: #eee;
+    color: var(--accentTextColor);
     font-size: 1em;
 
     &:focus,
@@ -47,7 +47,7 @@
 
     p {
       padding: .5em .8em;
-      background: #f7931e;
+      background: var(--accentColor);
     }
   }
 }

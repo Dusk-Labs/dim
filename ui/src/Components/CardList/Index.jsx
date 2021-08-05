@@ -89,8 +89,8 @@ function CardList(props) {
           </div>
           {sections[section].length === 0 && (
             section === "CONTINUE WATCHING"
-              ? <p>Anything you watch will show up here in your recents.</p>
-              : <p>No media has been found</p>
+              ? <p className="sectionDesc">Anything you watch will show up here in your recents.</p>
+              : <p className="sectionDesc">No media has been found</p>
           )}
           {sections[section].length > 0 && (
             <div className="cards">

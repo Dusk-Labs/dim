@@ -26,15 +26,15 @@
     svg {
       margin: 0 10px;
       font-size: 0.4em;
-      fill: #f7931e;
+      fill: var(--accentColor);
     }
 
     a {
-      color: #ddd;
+      color: var(--secondaryTextColor);
       transition: color .2s ease-in-out;
 
       &:hover {
-        color: #fff;
+        color: var(--primaryTextColor);
       }
 
       // NOT YEAR
@@ -64,7 +64,7 @@
     }
 
     .info {
-      background: #2a2a2a;
+      background: var(--secondaryColor);
       border-radius: 10px;
       padding: 1em;
     }

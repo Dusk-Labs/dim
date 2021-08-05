@@ -13,22 +13,21 @@
     height: 30px;
     width: 30px;
     border-radius: 50%;
-    background: #4a4a4a;
-    color: #fff;
+    background: var(--quaternaryColor);
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1;
-    transition: 0.3s ease-in-out;
-    transition-property: transform, background;
+    transition: transform 0.3s ease-in-out, background 100ms ease-in-out;
 
     &:hover {
-      background: #5a5a5a;
+      background: var(--quinaryColor);
     }
 
     svg {
       width: .5em;
+      fill: var(--secondaryTextColor);
     }
   }
 }

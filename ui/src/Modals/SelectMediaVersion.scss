@@ -1,7 +1,7 @@
 .modalSelectMediaVersion {
   display: grid;
   grid-template-rows: auto auto 1fr auto;
-  color: #ffffff;
+  color: var(--primaryTextColor);
   padding: 20px;
 
   .separator {
@@ -23,7 +23,7 @@
     overflow-y: auto;
     height: 150px;
     border-radius: inherit;
-    background: #4a4a4a;
+    background: var(--quaternaryColor);
     scrollbar-width: thin;
 
     .vertical-err {
@@ -38,10 +38,10 @@
       transition: background 0.1s ease-in-out;
       cursor: pointer;
       padding: .5em 10px;
-      color: #eee;
+      color: var(--primaryTextColor);
 
       &:hover {
-        background: #5a5a5a;
+        background: var(--quinaryColor);
       }
 
       // folder icon
@@ -72,8 +72,8 @@
       padding: .5em;
       border-radius: 10px;
       outline: none;
-      background: #f7931e;
-      color: #ffffff;
+      background: var(--accentColor);
+      color: var(--primaryTextColor);
 
       &:focus,
       &:hover {
