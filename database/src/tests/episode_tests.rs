@@ -7,6 +7,9 @@ use crate::tv;
 use super::library_tests::create_test_library;
 use super::media_tests::insert_media;
 
+use std::sync::atomic::AtomicU64;
+use std::sync::atomic::Ordering;
+
 #[tokio::test(flavor = "multi_thread")]
 async fn test_insert_get_and_delete() {
     let ref conn = get_conn_memory().await.unwrap();
@@ -165,10 +168,11 @@ async fn test_get_all_of_tv() {
         .unwrap();
 
         for i in 1..=12 {
+            static _CNT: AtomicU64 = AtomicU64::new(0);
             let _episode = episode::InsertableEpisode {
                 media: media::InsertableMedia {
                     library_id: _lib,
-                    name: format!("TestEpisode{}", i),
+                    name: format!("TestEpisode{}", _CNT.load(Ordering::Relaxed)),
                     ..Default::default()
                 },
                 seasonid: season,
@@ -177,6 +181,8 @@ async fn test_get_all_of_tv() {
             .insert(conn)
             .await
             .unwrap();
+
+            _CNT.fetch_add(1, Ordering::SeqCst);
         }
     }
 

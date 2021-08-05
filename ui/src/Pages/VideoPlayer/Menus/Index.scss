@@ -23,27 +23,27 @@
       justify-content: space-between;
       border-radius: 5px;
       cursor: pointer;
-      color: var(--secondaryTextColor);
+      color: #ccc;
 
       svg {
         width: .5em;
       }
 
       &:hover {
-        background: var(--tertiaryColor);
+        background: #2a2a2a;
       }
     }
   }
 
   .innerMenu {
-    overflow: hidden;
+      overflow: hidden;
   }
 
   .menu {
     display: flex;
     flex-direction: column;
     padding: .5em;
-    background: var(--primaryColor);
+    background: #1a1a1a;
     width: 50%;
     border-radius: 10px;
 
@@ -54,27 +54,20 @@
 
     .heading {
       display: flex;
-      align-items: center;
       gap: .5em;
       padding: .5em;
       justify-content: space-between;
 
       button {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: var(--tertiaryColor);
+        background: transparent;
+        background: #3a3a3a;
         padding: 0 .5em;
         height: 100%;
         border-radius: 5px;
         transition: background 100ms ease-in-out;
 
-        svg {
-          fill: var(--primaryTextColor);
-        }
-
         &:hover {
-          background: var(--quaternaryColor);
+          background: #4a4a4a;
         }
       }
     }
@@ -84,7 +77,7 @@
       height: 100%;
       overflow-y: auto;
       scrollbar-width: thin;
-      scrollbar-color: var(--accentColor) #1a1a1a;
+      scrollbar-color: #f7931e #1a1a1a;
     }
 
     .track {
@@ -94,12 +87,12 @@
       &:not(.active) {
         cursor: pointer;
         &:hover {
-          background: var(--secondaryColor);
+          background: #2a2a2a;
         }
       }
 
       &.active {
-        background: var(--tertiaryColor);
+        background: #3a3a3a;
       }
     }
   }

@@ -222,7 +222,7 @@ impl Media {
     /// * `conn` - postgres connection
     /// * `id` - id of a media object we want to delete
     pub async fn delete(conn: &crate::DbConnection, id: i64) -> Result<usize, DatabaseError> {
-        Ok(sqlx::query!("DELETE FROM media WHERE id = ?", id)
+        Ok(sqlx::query!("DELETE FROM _tblmedia WHERE id = ?", id)
             .execute(conn)
             .await?
             .rows_affected() as usize)
@@ -235,7 +235,7 @@ impl Media {
         library_id: i64,
     ) -> Result<usize, DatabaseError> {
         Ok(
-            sqlx::query!("DELETE FROM media WHERE library_id = ?", library_id)
+            sqlx::query!("DELETE FROM _tblmedia WHERE library_id = ?", library_id)
                 .execute(conn)
                 .await?
                 .rows_affected() as usize,
