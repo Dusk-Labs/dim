@@ -147,9 +147,15 @@ impl StreamTracking {
             .filter_map(|x| x.compile(start_num))
             .collect::<Vec<_>>();
 
+        let audio_tracks = manifests
+            .iter()
+            .filter(|x| matches!(x.content_type, ContentType::Audio))
+            .filter_map(|x| x.compile(start_num))
+            .collect::<Vec<_>>();
+
         let mut rest = manifests
             .iter()
-            .filter(|x| !matches!(x.content_type, ContentType::Video))
+            .filter(|x| !matches!(x.content_type, ContentType::Audio | ContentType::Video))
             .filter_map(|x| x.compile(start_num))
             .collect::<Vec<_>>();
 
@@ -157,10 +163,17 @@ impl StreamTracking {
 
         let video_set = format!(
             include_str!("./static/adaptation_set.mpd"),
+            contentType = "video",
             templates = video_tracks.join("\n")
         );
 
-        let mut tracks = vec![video_set];
+        let audio_set = format!(
+            include_str!("./static/adaptation_set.mpd"),
+            contentType = "audio",
+            templates = audio_tracks.join("\n")
+        );
+
+        let mut tracks = vec![video_set, audio_set];
         tracks.append(&mut rest);
 
         Some(format!(
@@ -182,13 +195,19 @@ impl StreamTracking {
 
         let video_tracks = manifests
             .iter()
-            .filter(|x| matches!(x.content_type, ContentType::Video) && filter.contains(&x.id))
+            .filter(|x| matches!(x.content_type, ContentType::Video))
+            .filter_map(|x| x.compile(start_num))
+            .collect::<Vec<_>>();
+
+        let audio_tracks = manifests
+            .iter()
+            .filter(|x| matches!(x.content_type, ContentType::Audio))
             .filter_map(|x| x.compile(start_num))
             .collect::<Vec<_>>();
 
         let mut rest = manifests
             .iter()
-            .filter(|x| !matches!(x.content_type, ContentType::Video) && filter.contains(&x.id))
+            .filter(|x| !matches!(x.content_type, ContentType::Audio | ContentType::Video))
             .filter_map(|x| x.compile(start_num))
             .collect::<Vec<_>>();
 
@@ -196,10 +215,17 @@ impl StreamTracking {
 
         let video_set = format!(
             include_str!("./static/adaptation_set.mpd"),
+            contentType = "video",
             templates = video_tracks.join("\n")
         );
 
-        let mut tracks = vec![video_set];
+        let audio_set = format!(
+            include_str!("./static/adaptation_set.mpd"),
+            contentType = "audio",
+            templates = audio_tracks.join("\n")
+        );
+
+        let mut tracks = vec![video_set, audio_set];
         tracks.append(&mut rest);
 
         Some(format!(
