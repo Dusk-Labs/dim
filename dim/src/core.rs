@@ -172,15 +172,14 @@ pub mod fetcher {
                                         if let Ok(mut file) = File::create(out_path) {
                                             if let Ok(bytes) = resp.bytes().await {
                                                 let mut content = Cursor::new(bytes);
-                                                if let Err(e) = copy(&mut content, &mut file) {
-                                                    error!(log, "Failed to cache {} locally, e={:?}", url, e);
-                                                    processing.insert(poster);
+                                                if copy(&mut content, &mut file).is_ok() {
+                                                    continue;
                                                 }
                                             }
                                         }
-                                    } else {
-                                        processing.insert(poster);
                                     }
+                                    error!(log, "Failed to cache {} locally, appending back into queue", &url);
+                                    processing.insert(poster);
                                 }
                                 Err(e) => {
                                     error!(log, "Failed to cache {} locally, e={:?}", url, e);
