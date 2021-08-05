@@ -46,6 +46,7 @@ pub mod global_filters {
     pub async fn handle_rejection(
         err: warp::reject::Rejection,
     ) -> Result<impl warp::Reply, warp::reject::Rejection> {
+        println!("{:?}", err);
         if let Some(e) = err.find::<errors::AuthError>() {
             return Ok(e.clone().into_response());
         } else if let Some(e) = err.find::<errors::DimError>() {
