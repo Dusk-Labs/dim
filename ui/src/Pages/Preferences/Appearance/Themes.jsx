@@ -1,6 +1,6 @@
 import DefaultTheme from "../../../assets/themes/Default";
 import Blind from "../../../assets/themes/Blind";
-// import LightsOff from "../../../assets/themes/LightsOff";
+import LightsOff from "../../../assets/themes/LightsOff";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
 import { updateUserSettings } from "../../../actions/settings";
@@ -32,12 +32,12 @@ function Themes() {
           </div>
           <p>Blind</p>
         </div>
-        {/* <div className="themeContainer">
-          <div className="theme">
+        <div className="themeContainer" onClick={() => setTheme("LightsOff")}>
+          <div className={`theme ${userSettings.data.theme === "LightsOff" ? "active" : ""}`}>
             <LightsOff/>
           </div>
           <p>Lights Off</p>
-        </div> */}
+        </div>
       </div>
     </section>
   );

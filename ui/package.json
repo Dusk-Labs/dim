@@ -13,7 +13,6 @@
     "react-modal": "^3.12.1",
     "react-redux": "^7.2.2",
     "react-router": "^5.2.0",
-    "react-router-cache-route": "^1.11.1",
     "react-router-dom": "^5.2.0",
     "react-router-hash-link": "^2.4.0",
     "react-scripts": "^4.0.3",
