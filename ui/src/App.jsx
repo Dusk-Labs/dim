@@ -7,7 +7,6 @@ import FaviconController from "./Controllers/Favicon";
 
 import NotAuthedOnlyRoute from "./Routes/NotAuthedOnly";
 import PrivateRoute from "./Routes/Private";
-import CachePrivateRoute from "./Routes/CachedPrivate";
 import MainLayout from "./Layouts/MainLayout";
 import Notifications from "./Components/Notifications";
 
@@ -45,11 +44,11 @@ const routes = (
         <SearchResults/>
       </MainLayout>
     </PrivateRoute>
-    <CachePrivateRoute exact path="/media/:id">
+    <PrivateRoute exact path="/media/:id">
       <MainLayout>
         <Media/>
       </MainLayout>
-    </CachePrivateRoute>
+    </PrivateRoute>
     <PrivateRoute exact path="/preferences">
       <MainLayout>
         <Preferences/>
