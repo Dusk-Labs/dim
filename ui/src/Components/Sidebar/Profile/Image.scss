@@ -7,7 +7,7 @@
     width: inherit;
     object-fit: cover;
     border-radius: 50%;
-    background: #f7931e;
+    background: var(--accentColor);
     animation: onShowProfileImage .3s ease-in-out;
   }
 

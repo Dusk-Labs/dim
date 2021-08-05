@@ -1,6 +1,6 @@
 .modalNewLibrary {
   scrollbar-width: thin;
-  color: #ffffff;
+  color: var(--primaryTextColor);
   overflow-y: auto;
   padding: 20px;
   display: grid;
@@ -33,11 +33,11 @@
 
     input {
       transition: border 0.3s ease-in-out;
-      background: #3a3a3a;
+      background: var(--tertiaryColor);
       outline: none;
       height: 100%;
       padding: .5em;
-      color: #ffffff;
+      color: var(--primaryTextColor);
       overflow: hidden;
       white-space: nowrap;
       border: solid 2px transparent;
@@ -69,8 +69,8 @@
       padding: .5em;
       border-radius: 10px;
       outline: none;
-      background: #f7931e;
-      color: #eee;
+      background: var(--accentColor);
+      color: var(--primaryTextColor);
       font-size: 16px;
 
       &:focus,

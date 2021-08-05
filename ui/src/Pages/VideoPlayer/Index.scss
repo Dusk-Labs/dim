@@ -5,7 +5,7 @@
   position: relative;
   overflow: hidden;
   font-family: "Roboto Bold", Arial;
-  color: #eee;
+  color: var(--primaryTextColor);
 
   video {
     height: 100%;
@@ -34,7 +34,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: #2a2a2a;
+      background: var(--secondaryColor);
       padding: 1em;
       border-radius: 10px;
       animation: appear 200ms ease-in-out;
@@ -55,7 +55,7 @@
         margin-top: .5em;
         padding: .5em;
         border-radius: 10px;
-        background: #3a3a3a;
+        background: var(--tertiaryColor);
       }
 
       code {
@@ -85,7 +85,7 @@
         border-radius: 10px;
         background: transparent;
         cursor: pointer;
-        color: #fff;
+        color: var(--primaryTextColor);
         font-size: 1em;
         padding: .5em .8em;
 
@@ -99,7 +99,7 @@
         }
 
         &:nth-child(2) {
-          background: #f7931e;
+          background: var(--accentColor);
           transition-property: filter;
           filter: saturate(0.7);
 

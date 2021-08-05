@@ -15,7 +15,7 @@
     overflow-y: auto;
     height: 224px;
     border-radius: inherit;
-    background: #3a3a3a;
+    background: var(--tertiaryColor);
     scrollbar-width: thin;
 
     .vertical-err {
@@ -31,15 +31,16 @@
       cursor: pointer;
       padding: 0 .5em;
       min-height: 32px;
-      color: #eee;
+      color: var(--primaryTextColor);
 
       &:hover {
-        background: #4a4a4a;
+        background: var(--quaternaryColor);
       }
 
       // folder icon
       svg {
         margin-right: 10px;
+        fill: var(--tertiaryTextColor);
       }
 
       // path name
@@ -70,8 +71,8 @@
       border-radius: 10px;
       font-size: 16px;
       outline: none;
-      background: #f7931e;
-      color: #ffffff;
+      background: var(--accentColor);
+      color: var(--primaryTextColor);
 
       &:focus,
       &:hover {
@@ -81,6 +82,10 @@
       &.disable-true {
         cursor: not-allowed;
         opacity: .5;
+      }
+
+      svg {
+        fill: var(--primaryTextColor);
       }
     }
 

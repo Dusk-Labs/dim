@@ -5,7 +5,7 @@
   animation: appear .5s ease-in-out;
 
   .sectionDesc {
-    color: #ddd;
+    color: var(--secondaryTextColor);
     margin: .5em 0 1em 0;
   }
 
@@ -17,8 +17,8 @@
     padding: .5em;
     border-radius: 10px;
     outline: none;
-    background: #f7931e;
-    color: #ffffff;
+    background: var(--accentColor);
+    color: var(--primaryTextColor);
 
     &:focus,
     &:hover {

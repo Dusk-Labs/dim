@@ -2,6 +2,7 @@
   grid-area: progressbar;
   align-self: flex-end;
   display: grid;
+  color: var(--bannerPrimaryTextColor);
   justify-content: start;
 
   p {
@@ -12,7 +13,7 @@
   svg {
     margin: 0 5px;
     font-size: 0.4em;
-    fill: #f7931e;
+    fill: var(--accentColor);
   }
 
   // SEASON AND EPISODE
@@ -62,7 +63,7 @@
         height: 4px;
         border-radius: 4px;
         transition: width 0.3s ease-in-out;
-        background: #f7931e;
+        background: var(--accentColor);
       }
     }
   }
