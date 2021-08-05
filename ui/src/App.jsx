@@ -1,4 +1,5 @@
-import { BrowserRouter, Switch } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
+import { CacheSwitch } from "react-router-cache-route";
 
 import WS from "./Components/WS";
 
@@ -7,6 +8,7 @@ import FaviconController from "./Controllers/Favicon";
 
 import NotAuthedOnlyRoute from "./Routes/NotAuthedOnly";
 import PrivateRoute from "./Routes/Private";
+import CachePrivateRoute from "./Routes/CachedPrivate";
 import MainLayout from "./Layouts/MainLayout";
 import Notifications from "./Components/Notifications";
 
@@ -22,7 +24,7 @@ import Preferences from "./Pages/Preferences/Index";
 import "./App.scss";
 
 const routes = (
-  <Switch>
+  <CacheSwitch>
     <NotAuthedOnlyRoute exact path="/login">
       <Login/>
     </NotAuthedOnlyRoute>
@@ -34,11 +36,11 @@ const routes = (
         <Dashboard/>
       </MainLayout>
     </PrivateRoute>
-    <PrivateRoute exact path="/library/:id">
+    <CachePrivateRoute exact path="/library/:id">
       <MainLayout>
         <Library/>
       </MainLayout>
-    </PrivateRoute>
+    </CachePrivateRoute>
     <PrivateRoute path="/search">
       <MainLayout>
         <SearchResults/>
@@ -57,7 +59,7 @@ const routes = (
     <PrivateRoute exact path="/play/:fileID">
       <VideoPlayer/>
     </PrivateRoute>
-  </Switch>
+  </CacheSwitch>
 );
 
 const App = () => (

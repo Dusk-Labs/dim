@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateTrack, updateVideo } from "../../actions/video";
+import { updateTrack, updateVideo } from "../../../actions/video";
 
-function VideoMenus() {
+function VideoMenuSubSwitcher() {
   const dispatch = useDispatch();
 
   const { video, subtitleTracks } = useSelector(store => ({
@@ -70,23 +70,25 @@ function VideoMenus() {
   }, [handleClick]);
 
   return (
-    <div className="videoMenus">
-      <div className="menu" ref={menuRef}>
-        <h3>Select subtitle</h3>
+    <div className="menu" ref={menuRef}>
+      <div className="heading">
+        <h3>Subtitles</h3>
+      </div>
+      <div className="separatorContainer">
         <div className="separator"/>
-        <div className="tracks">
-          <div className={`track ${subtitleTracks.current === -1 ? "active" : ""}`} onClick={turnOffSubs}>
-            <p>Off</p>
-          </div>
-          {subtitleTracks.list.map((track, i) => (
-            <div key={i} className={`track ${subtitleTracks.current === i ? "active" : ""}`} onClick={() => changeTrack(i)}>
-              <p>{track.title || "No title"}</p>
-            </div>
-          ))}
+      </div>
+      <div className="tracks">
+        <div className={`track ${subtitleTracks.current === -1 ? "active" : ""}`} onClick={turnOffSubs}>
+          <p>Off</p>
         </div>
+        {subtitleTracks.list.map((track, i) => (
+          <div key={i} className={`track ${subtitleTracks.current === i ? "active" : ""}`} onClick={() => changeTrack(i)}>
+            <p>{track.title || "No title"}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-export default VideoMenus;
+export default VideoMenuSubSwitcher;

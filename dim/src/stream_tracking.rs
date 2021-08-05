@@ -28,6 +28,8 @@ pub struct VirtualManifest {
     pub duration: Option<i32>,
     pub chunk_path: String,
     pub init_seg: Option<String>,
+    pub is_default: bool,
+    pub label: String,
 }
 
 impl VirtualManifest {
@@ -139,12 +141,27 @@ impl StreamTracking {
         let lock = self.streaming_sessions.read().await;
         let manifests = lock.get(gid)?;
 
-        let tracks = manifests
+        let video_tracks = manifests
             .iter()
+            .filter(|x| matches!(x.content_type, ContentType::Video))
+            .filter_map(|x| x.compile(start_num))
+            .collect::<Vec<_>>();
+
+        let mut rest = manifests
+            .iter()
+            .filter(|x| !matches!(x.content_type, ContentType::Video))
             .filter_map(|x| x.compile(start_num))
             .collect::<Vec<_>>();
 
         let duration = manifests.first().and_then(|x| x.duration)?;
+
+        let video_set = format!(
+            include_str!("./static/adaptation_set.mpd"),
+            templates = video_tracks.join("\n")
+        );
+
+        let mut tracks = vec![video_set];
+        tracks.append(&mut rest);
 
         Some(format!(
             include_str!("./static/manifest.mpd"),
@@ -163,13 +180,27 @@ impl StreamTracking {
         let lock = self.streaming_sessions.read().await;
         let manifests = lock.get(gid)?;
 
-        let tracks = manifests
+        let video_tracks = manifests
             .iter()
-            .filter(|x| filter.contains(&x.id))
+            .filter(|x| matches!(x.content_type, ContentType::Video) && filter.contains(&x.id))
+            .filter_map(|x| x.compile(start_num))
+            .collect::<Vec<_>>();
+
+        let mut rest = manifests
+            .iter()
+            .filter(|x| !matches!(x.content_type, ContentType::Video) && filter.contains(&x.id))
             .filter_map(|x| x.compile(start_num))
             .collect::<Vec<_>>();
 
         let duration = manifests.first().and_then(|x| x.duration)?;
+
+        let video_set = format!(
+            include_str!("./static/adaptation_set.mpd"),
+            templates = video_tracks.join("\n")
+        );
+
+        let mut tracks = vec![video_set];
+        tracks.append(&mut rest);
 
         Some(format!(
             include_str!("./static/manifest.mpd"),

@@ -86,7 +86,10 @@ impl UserRolesToken {
 
     /// Method returns a clone of all roles.
     pub fn clone_roles(&self) -> Vec<String> {
-        self.roles.iter().map(|x| x.to_ascii_lowercase()).collect::<Vec<_>>()
+        self.roles
+            .iter()
+            .map(|x| x.to_ascii_lowercase())
+            .collect::<Vec<_>>()
     }
 }
 

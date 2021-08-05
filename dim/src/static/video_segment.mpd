@@ -1,6 +1,4 @@
-<AdaptationSet contentType="video">
-    <Representation id="{id}" bandwidth="{bandwidth}" mimeType="{mimeType}" codecs="{avc}" {args}>
-        <SegmentTemplate timescale="1000" duration="5000" initialization="{init}" media="{chunk_path}" startNumber="{start_num}">
-        </SegmentTemplate>
-    </Representation>
-</AdaptationSet>
+<Representation id="{id}" bandwidth="{bandwidth}" mimeType="{mimeType}" codecs="{avc}" {args}>
+    <SegmentTemplate timescale="1000" duration="5000" initialization="{init}" media="{chunk_path}" startNumber="{start_num}">
+    </SegmentTemplate>
+</Representation>
