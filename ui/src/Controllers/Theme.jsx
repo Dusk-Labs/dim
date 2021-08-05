@@ -15,12 +15,12 @@ function ThemeController() {
           document.documentElement.style.setProperty(`--${prop}`, `${DefaultTheme[prop]}`);
         }
         break;
-      case "Blind":
+      case "Light":
         for (const prop in BlindTheme) {
           document.documentElement.style.setProperty(`--${prop}`, `${BlindTheme[prop]}`);
         }
         break;
-      case "LightsOff":
+      case "Black":
         for (const prop in LightsOff) {
           document.documentElement.style.setProperty(`--${prop}`, `${LightsOff[prop]}`);
         }

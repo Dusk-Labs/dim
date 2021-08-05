@@ -3,16 +3,18 @@ import Blind from "../../../assets/themes/Blind";
 import LightsOff from "../../../assets/themes/LightsOff";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
-import { updateUserSettings } from "../../../actions/settings";
+import { fetchUserSettings, updateUserSettings } from "../../../actions/settings";
 
 function Themes() {
   const dispatch = useDispatch();
   const userSettings = useSelector(store => store.settings.userSettings);
 
-  const setTheme = useCallback((theme) => {
-    dispatch(updateUserSettings({
+  const setTheme = useCallback(async (theme) => {
+    await dispatch(updateUserSettings({
       theme
     }));
+
+    await dispatch(fetchUserSettings());
   }, [dispatch]);
 
   return (
@@ -26,14 +28,14 @@ function Themes() {
           </div>
           <p>Dark</p>
         </div>
-        <div className="themeContainer" onClick={() => setTheme("Blind")}>
-          <div className={`theme ${userSettings.data.theme === "Blind" ? "active" : ""}`}>
+        <div className="themeContainer" onClick={() => setTheme("Light")}>
+          <div className={`theme ${userSettings.data.theme === "Light" ? "active" : ""}`}>
             <Blind/>
           </div>
           <p>Blind</p>
         </div>
-        <div className="themeContainer" onClick={() => setTheme("LightsOff")}>
-          <div className={`theme ${userSettings.data.theme === "LightsOff" ? "active" : ""}`}>
+        <div className="themeContainer" onClick={() => setTheme("Black")}>
+          <div className={`theme ${userSettings.data.theme === "Black" ? "active" : ""}`}>
             <LightsOff/>
           </div>
           <p>Lights Off</p>
