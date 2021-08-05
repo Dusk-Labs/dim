@@ -102,8 +102,8 @@ pub fn settings_router(
     conn: DbConnection,
 ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
     filters::get_user_settings(conn.clone())
-        .or(filters::get_global_settings())
         .or(filters::post_user_settings(conn))
+        .or(filters::get_global_settings())
         .or(filters::set_global_settings())
 }
 
@@ -139,10 +139,12 @@ mod filters {
         warp::path!("api" / "v1" / "user" / "settings")
             .and(warp::post())
             .and(warp::body::json::<UserSettings>())
+            .map(|x| {println!("got a post to user/settings"); x})
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
             .and_then(
                 |settings: UserSettings, auth: Auth, conn: DbConnection| async move {
+                    println!("saving user settings");
                     super::post_user_settings(conn, auth, settings)
                         .await
                         .map_err(|e| reject::custom(e))
@@ -194,7 +196,7 @@ pub async fn post_user_settings(
         prefs: Some(new_settings.clone()),
     };
 
-    update_user.update(&db, &user.0.claims.get_user()).await?;
+    dbg!(update_user.update(&db, &user.0.claims.get_user()).await)?;
 
     Ok(reply::json(&new_settings))
 }
