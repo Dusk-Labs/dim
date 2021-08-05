@@ -4,34 +4,34 @@
 }
 
 .search-box-wrapper {
-  background: #4a4a4a;
+  background: var(--quaternaryColor);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
   height: 40px;
 
   input {
-    background: #4a4a4a;
+    background: var(--quaternaryColor);
     border: none;
     outline: none;
     padding: 10px 43px 10px 10px;
-    color: #ffffff;
+    color: var(--primaryTextColor);
     font-family: "Roboto Regular", Arial;
     width: 100%;
     overflow: hidden;
     font-size: 16px;
     height: 100%;
-    transition: 0.3s ease-in-out;
-    transition-property: background, padding;
+    transition: padding 0.3s ease-in-out, background 100ms ease-in-out;
 
     &::placeholder {
-      color: #aaa;
+      color: var(--secondaryTextColor);
     }
 
   }
 
   svg {
     overflow: visible;
+    fill: var(--secondaryTextColor);
   }
 
   button {
@@ -45,15 +45,15 @@
     width: 26px;
     border-radius: 50%;
     font-size: 0.6em;
-    background: #6a6a6a;
-    color: #fff;
+    background: var(--senaryColor);
+    color: var(--primaryTextColor);
     outline: none;
     transform: translateY(-50%);
-    transition: background .2s ease-in-out;
+    transition: background 100ms ease-in-out,;
 
     &:focus,
     &:hover {
-      background: #7a7a7a;
+      background: var(--septenaryColor);
     }
   }
 }

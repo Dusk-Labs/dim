@@ -7,7 +7,7 @@
   outline: none;
 
   &.primary {
-    background: #f7931e;
+    background: var(--accentColor);
   }
 
   &.primary, &.critical {
@@ -20,7 +20,7 @@
 
   &.secondary {
     background: transparent;
-    color: #fff;
+    color: var(--primaryTextColor);
 
     &:hover {
       text-decoration: underline;
@@ -33,7 +33,7 @@
   }
 
   &.critical {
-    background: #e91619;
-    color: #eee;
+    background: var(--criticalColor);
+    color: var(--criticalTextColor);
   }
 }

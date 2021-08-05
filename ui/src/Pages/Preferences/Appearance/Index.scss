@@ -19,7 +19,7 @@
       }
 
       &.active {
-        border: solid 3px #fff;
+        border: solid 3px var(--primaryTextColor);
         opacity: 1;
       }
 

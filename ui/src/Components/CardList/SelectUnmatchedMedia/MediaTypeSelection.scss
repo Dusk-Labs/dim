@@ -14,29 +14,33 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #3a3a3a;
+      background: var(--tertiaryColor);
       padding: .5em;
       border-radius: 10px;
       cursor: pointer;
       transition: background .2s ease-in-out;
 
       &:not(.disabled):hover {
-        background: #4a4a4a;
+        background: var(--quaternaryColor);
       }
 
       p {
         margin: 0 .5em;
       }
 
+      svg {
+        fill: var(--primaryTextColor);
+      }
+
       .select {
         height: 12px;
         border-radius: 10px;
         width: 12px;
-        border: solid .1em #fff;
+        border: solid .1em var(--primaryTextColor);
         transition: background .2s ease-in-out;
 
         &.true {
-          background: #f7931e;
+          background: var(--accentColor);
         }
       }
     }

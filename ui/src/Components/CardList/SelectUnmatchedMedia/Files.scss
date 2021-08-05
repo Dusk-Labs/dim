@@ -3,11 +3,11 @@
 
   .files {
     height: 150px;
-    background: #2a2a2a;
+    background: var(--secondaryColor);
     border-radius: 10px;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: #f7931e #4a4a4a;
+    scrollbar-color: var(--accentColor) #4a4a4a;
 
     .selectBox {
       display: flex;
@@ -16,7 +16,7 @@
       height: 20px;
       width: 20px;
       border-radius: 5px;
-      border: solid 2px #f7931e;
+      border: solid 2px var(--accentColor);
       transition: background 150ms ease-in-out;
       margin-right: .5em;
 
@@ -34,11 +34,11 @@
       cursor: pointer;
 
       &:hover {
-        background: #3a3a3a;
+        background: var(--tertiaryColor);
       }
 
       &.selected-true .selectBox {
-        background: #f7931e;
+        background: var(--accentColor);
 
         svg {
           opacity: 1;

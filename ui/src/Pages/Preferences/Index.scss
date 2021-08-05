@@ -20,25 +20,25 @@ main {
 
     h3 {
       font-size: 1.2em;
-      color: #aaa;
+      color: var(--tertiaryTextColor);
       cursor: default;
 
       &:not(.active) {
         cursor: pointer;
 
         &:hover {
-          color: #bbb;
+          color: var(--secondaryTextColor);
         }
       }
 
       &.active {
-        color: white;
+        color: var(--primaryTextColor);
       }
     }
 
     button {
       font-size: 1.2em;
-      color: #aaa;
+      color: var(--tertiaryTextColor);
       background: transparent;
       font-family: "Roboto Regular";
 
@@ -49,13 +49,13 @@ main {
   }
 
   .desc {
-    color: #bbb;
+    color: var(--secondaryTextColor);
   }
 
   section {
     display: grid;
     gap: 1em;
-    background: #2a2a2a;
+    background: var(--secondaryColor);
     padding: 1em;
     border-radius: 10px;
     animation: appear 200ms ease-in-out;

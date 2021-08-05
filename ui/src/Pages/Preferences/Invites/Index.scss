@@ -3,7 +3,7 @@
   gap: 1em;
 
   .tokensContainer {
-    background: #3a3a3a;
+    background: var(--tertiaryColor);
     border-radius: 10px;
     padding: .5em;
   }
@@ -26,13 +26,13 @@
       border-radius: 10px;
       display: grid;
       gap: 1em;
-      color: #eee;
+      color: var(--primaryTextColor);
       align-items: center;
       grid-template-columns: 1fr 1fr 1fr 1em;
       word-break: break-all;
 
       &:hover {
-        background: #2a2a2a;
+        background: var(--secondaryColor);
 
         svg {
           opacity: 1;
@@ -42,7 +42,7 @@
       svg {
         cursor: pointer;
         opacity: 0;
-        fill: #ccc;
+        fill: var(--secondaryTextColor);
 
         &:hover {
           fill: #fff;
@@ -66,7 +66,7 @@
     font-size: 1em;
     border-radius: 10px;
     transition: filter 0.3s ease-in-out;
-    background: #f7931e;
+    background: var(--accentColor);
     filter: saturate(0.7);
     font-family: "Roboto Bold";
     outline: none;
@@ -87,7 +87,7 @@
 
     &.important {
       background: transparent;
-      color: #fff;
+      color: var(--primaryTextColor);
       outline: solid 2px #ff6961;
     }
   }

@@ -36,7 +36,7 @@
 
     .volSlider {
       animation: appear 250ms ease-in-out;
-      background: #2a2a2a;
+      background: var(--secondaryColor);
       height: 5px;
       width: 100%;
       cursor: pointer;
@@ -60,7 +60,7 @@
       .vol {
         border-radius: 10px;
         height: 100%;
-        background: #f7931e;
+        background: var(--accentColor);
       }
     }
   }
@@ -75,7 +75,7 @@
     background: transparent;
 
     &:hover svg, &:focus svg {
-      fill: #f7931e;
+      fill: var(--accentColor);
     }
 
     svg {
@@ -86,16 +86,20 @@
 
     &.trackActive-true {
       &:not(.menuActive-true):hover {
-        background: #1a1a1a;
+        background: var(--primaryColor);
       }
 
       svg {
-        fill: #f7931e;
+        fill: var(--accentColor);
       }
     }
 
     &.menuActive-true {
-      background: #2a2a2a;
+      background: var(--secondaryColor);
+
+      svg {
+        fill: var(--primaryTextColor);
+      }
     }
   }
 

@@ -1,5 +1,5 @@
 .selectUnmatchedMediaOptions {
-  background: #1a1a1a;
+  background: var(--primaryColor);
   display: flex;
   bottom: 0;
   margin-bottom: 30px;
@@ -15,8 +15,8 @@
     padding: .5em;
     border-radius: 10px;
     outline: none;
-    background: #f7931e;
-    color: #ffffff;
+    background: var(--accentColor);
+    color: var(--primaryTextColor);
 
     &:focus,
     &:hover {
