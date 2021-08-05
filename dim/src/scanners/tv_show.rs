@@ -169,7 +169,7 @@ impl<'a> TvShowMatcher<'a> {
         let insertable_season = InsertableSeason {
             season_number: orphan.season.unwrap_or(0),
             added: Utc::now().to_string(),
-            poster: season_poster
+            poster: season_poster,
         };
 
         let seasonid = insertable_season.insert(&self.conn, media_id).await?;

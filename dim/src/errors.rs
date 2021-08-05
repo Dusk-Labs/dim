@@ -55,9 +55,9 @@ impl warp::Reply for DimError {
             | Self::ScannerError(_)
             | Self::UploadFailed => StatusCode::INTERNAL_SERVER_ERROR,
             Self::AuthRequired | Self::Unauthorized => StatusCode::UNAUTHORIZED,
-            Self::UnsupportedFile
-            | Self::InvalidMediaType 
-            | Self::MissingFieldInBody { .. } => StatusCode::NOT_ACCEPTABLE,
+            Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {
+                StatusCode::NOT_ACCEPTABLE
+            }
         };
 
         let resp = json!({

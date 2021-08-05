@@ -5,6 +5,7 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "dashjs": "^3.2.2",
+    "http-proxy-middleware": "^2.0.1",
     "libass-wasm": "^4.0.0",
     "node-sass": "^5.0.0",
     "react": "^17.0.2",
@@ -12,14 +13,14 @@
     "react-modal": "^3.12.1",
     "react-redux": "^7.2.2",
     "react-router": "^5.2.0",
+    "react-router-cache-route": "^1.11.1",
     "react-router-dom": "^5.2.0",
     "react-router-hash-link": "^2.4.0",
     "react-scripts": "^4.0.3",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
-    "web-vitals": "^1.0.1",
-    "http-proxy-middleware": "^2.0.1"
+    "web-vitals": "^1.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -21,63 +21,13 @@
     width: 100%;
     background: linear-gradient(to top, #000, transparent 30%);
     display: grid;
+    gap: 1em;
     align-items: flex-end;
     grid-template-rows: 1fr auto;
     grid-template-areas:
       "menus"
       "controls";
     transition: background 200ms ease-in-out;
-
-    .videoMenus {
-      display: flex;
-      justify-content: flex-end;
-      grid-area: menus;
-      height: 210px;
-      margin: 0 auto 1em auto;
-      max-width: 1080px;
-      width: 100%;
-      transition: opacity 200ms ease-in-out;
-
-      &.false {
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      .separator {
-        margin: .5em 0;
-      }
-
-      .menu {
-        display: flex;
-        flex-direction: column;
-        padding: 1em;
-        background: #1a1a1a;
-        border-radius: 10px;
-
-        .tracks {
-          height: 100%;
-          overflow-y: auto;
-          scrollbar-width: thin;
-          scrollbar-color: #f7931e #1a1a1a;
-        }
-
-        .track {
-          padding: .3em .5em;
-          border-radius: 10px;
-
-          &:not(.active) {
-            cursor: pointer;
-            &:hover {
-              background: #2a2a2a;
-            }
-          }
-
-          &.active {
-            background: #3a3a3a;
-          }
-        }
-      }
-    }
 
     .errorBox {
       position: absolute;
