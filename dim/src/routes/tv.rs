@@ -83,13 +83,13 @@ mod filters {
     pub fn patch_season_by_num(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
-        warp::path!("api" / "v1" / "tv" / i64 / "season" / i64)
+        warp::path!("api" / "v1" / "season" / i64)
             .and(warp::patch())
             .and(warp::body::json::<UpdateSeason>())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, season_num: i64, data: UpdateSeason, auth: Auth, conn: DbConnection| async move {
-                super::patch_season_by_num(conn, id, season_num, data, auth)
+            .and_then(|id: i64, data: UpdateSeason, auth: Auth, conn: DbConnection| async move {
+                super::patch_season_by_num(conn, id, data, auth)
                     .await
                     .map_err(|e| reject::custom(e))
             })
@@ -211,11 +211,10 @@ pub async fn get_season_by_num(
 pub async fn patch_season_by_num(
     conn: DbConnection,
     id: i64,
-    season_num: i64,
     data: UpdateSeason,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    data.update(&conn, id, season_num).await?;
+    data.update(&conn, id).await?;
     Ok(StatusCode::NO_CONTENT)
 }
 
