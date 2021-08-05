@@ -5,7 +5,8 @@ import {
   SET_SHOW_SUB_SWITCHER,
   UPDATE_TRACK,
   UPDATE_VIDEO,
-  CLEAR_VIDEO_DATA
+  CLEAR_VIDEO_DATA,
+  SET_SHOW_SETTINGS
 } from "../../actions/types.js";
 
 import trackReducer from "./track";
@@ -48,6 +49,7 @@ const initialState = {
   gid: null,
   player: null,
   showSubSwitcher: false,
+  showSettings: false,
   canPlay: false,
   waiting: false,
   seeking: false,
@@ -92,7 +94,14 @@ export default function videoReducer(state = initialState, action) {
     case SET_SHOW_SUB_SWITCHER:
       return {
         ...state,
-        showSubSwitcher: action.state
+        showSubSwitcher: action.state,
+        showSettings: false
+      };
+    case SET_SHOW_SETTINGS:
+      return {
+        ...state,
+        showSettings: action.state,
+        showSubSwitcher: false
       };
     case SET_MANIFEST_STATE:
       return {

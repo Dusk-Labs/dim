@@ -1,16 +1,17 @@
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import Volume from "./Actions/Volume";
-import SeekBack from "./Actions/SeekBack";
-import PlayPause from "./Actions/PlayPause";
-import SeekForward from "./Actions/SeekForward";
-import Subtitles from "./Actions/Subtitles";
-import Fullscreen from "./Actions/Fullscreen";
+import Volume from "./Volume";
+import SeekBack from "./SeekBack";
+import PlayPause from "./PlayPause";
+import SeekForward from "./SeekForward";
+import Subtitles from "./Subtitles";
+import Fullscreen from "./Fullscreen";
+import VideoActionSettings from "./Settings";
 
-import { updateVideo } from "../../../actions/video";
+import { updateVideo } from "../../../../actions/video";
 
-import "./Actions.scss";
+import "./Index.scss";
 
 function VideoActions(props) {
   const dispatch = useDispatch();
@@ -55,6 +56,7 @@ function VideoActions(props) {
         <SeekForward/>
       </section>
       <section className="right">
+        <VideoActionSettings/>
         <Subtitles/>
         <Fullscreen/>
       </section>

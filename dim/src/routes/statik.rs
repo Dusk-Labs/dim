@@ -13,6 +13,7 @@ pub fn statik_routes(
 mod filters {
     use std::path::PathBuf;
     use warp::Filter;
+    use rust_embed::RustEmbed;
 
     pub fn react_routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
     {

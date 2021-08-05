@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { formatHHMMSS } from "../../../Helpers/utils";
 import { VideoPlayerContext } from "../Context";
 import SeekBar from "./SeekBar";
-import Actions from "./Actions";
+import Actions from "./Actions/Index";
 import CircleIcon from "../../../assets/Icons/Circle";
 
 import "./Index.scss";

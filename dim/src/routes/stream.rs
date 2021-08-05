@@ -8,7 +8,9 @@ use crate::stream_tracking::StreamTracking;
 use crate::stream_tracking::VirtualManifest;
 use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::get_avc1_tag;
+use crate::streaming::get_qualities;
 use crate::streaming::level_to_tag;
+use crate::utils::quality_to_label;
 
 use database::mediafile::MediaFile;
 
@@ -374,6 +376,21 @@ pub async fn return_virtual_manifest(
             24,
         ));
 
+    let bitrate = video_stream
+        .get_bitrate()
+        .or(info.get_container_bitrate())
+        .unwrap_or(10_000_000);
+
+    let label = {
+        let (ident, bitrate_norm) = if bitrate > 1_000_000 {
+            ("MB", bitrate / 1_000_000)
+        } else {
+            ("KB", bitrate / 1_000)
+        };
+
+        format!("{}p@{}{} (Native)", video_stream.height.clone().unwrap(), bitrate_norm, ident)
+    };
+
     stream_tracking
         .insert(
             &gid,
@@ -398,13 +415,81 @@ pub async fn return_virtual_manifest(
                     );
                     x
                 },
+                is_default: true,
+                label
             },
         )
         .await;
 
+    let qualities = get_qualities(
+        video_stream.height.unwrap_or(1080) as u64,
+        video_stream
+            .get_bitrate()
+            .or(info.get_container_bitrate())
+            .unwrap_or(10_000_000),
+    );
+
+    for quality in qualities {
+        let ctx = ProfileContext {
+            file: media.target_file.clone(),
+            input_ctx: video_stream.clone().into(),
+            output_ctx: OutputCtx {
+                codec: "h264".into(),
+                start_num: 0,
+                bitrate: Some(quality.bitrate),
+                height: Some(quality.height as i64),
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        // FIXME: remove this panic
+        let profile = get_profile_for(&log, StreamType::Video, &ctx)
+            .pop()
+            .expect("Failed to find a supported transcoding profile.");
+
+        let video = state.create(profile, ctx).await?;
+
+        let video_stream_height = video_stream.height.unwrap_or(1080) as u64;
+        let ratio = video_stream_height / quality.height;
+        let width = video_stream.width.unwrap_or(1920) as u64 / ratio;
+
+        let video_avc = video_stream
+            .level
+            .and_then(|x| level_to_tag(x))
+            .unwrap_or(get_avc1_tag(width, quality.height, quality.bitrate, 24));
+
+        let label = quality_to_label(quality);
+
+        stream_tracking
+            .insert(
+                &gid,
+                VirtualManifest {
+                    id: video.clone(),
+                    is_direct: false,
+                    mime: "video/mp4".into(),
+                    duration: info.get_duration(),
+                    content_type: ContentType::Video,
+                    chunk_path: format!("{}/data/$Number$.m4s", video.clone()),
+                    init_seg: Some(format!("{}/data/init.mp4", video.clone())),
+                    codecs: video_avc.to_string(),
+                    bandwidth: quality.bitrate,
+                    args: {
+                        let mut x = HashMap::new();
+                        x.insert("height".to_string(), quality.height.to_string());
+                        x
+                    },
+                    is_default: false,
+                    label,
+                },
+            )
+            .await;
+    }
+
     let audio_streams = info.find_by_type("audio");
 
     for stream in audio_streams {
+        let is_default = info.get_primary("audio") == Some(stream);
         let ctx = ProfileContext {
             file: media.target_file.clone(),
             input_ctx: stream.clone().into(),
@@ -435,6 +520,8 @@ pub async fn return_virtual_manifest(
                     chunk_path: format!("{}/data/$Number$.m4s", audio.clone()),
                     init_seg: Some(format!("{}/data/init.mp4", audio.clone())),
                     args: HashMap::new(),
+                    is_default,
+                    label: stream.get_language().unwrap_or_default()
                 },
             )
             .await;
@@ -443,6 +530,7 @@ pub async fn return_virtual_manifest(
     let subtitles = info.find_by_type("subtitle");
 
     for stream in subtitles {
+        let is_default = info.get_primary("subtitle") == Some(stream);
         let output_codec = if &stream.codec_name == "ass" {
             "ass"
         } else {
@@ -491,15 +579,14 @@ pub async fn return_virtual_manifest(
                             init_seg: None,
                             args: {
                                 let mut x = HashMap::new();
-                                if let Some(y) = stream
-                                    .tags
-                                    .as_ref()
-                                    .and_then(|x| x.title.clone().or(x.language.clone()))
+                                if let Some(y) = stream.get_title().or(stream.get_language())
                                 {
                                     x.insert("title".to_string(), y);
                                 }
                                 x
                             },
+                            is_default,
+                            label: stream.get_title().or(stream.get_language()).unwrap_or_default()
                         },
                     )
                     .await;

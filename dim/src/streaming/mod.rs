@@ -67,6 +67,98 @@ pub fn ffcheck() -> Vec<Result<Box<str>, &'static str>> {
     results
 }
 
+#[derive(Clone, Copy)]
+pub struct Quality {
+    pub height: u64,
+    pub bitrate: u64,
+}
+
+pub fn get_qualities(height: u64, bitrate: u64) -> Vec<&'static Quality> {
+    VIDEO_QUALITIES
+        .iter()
+        .filter(|x| x.height <= height && x.bitrate <= bitrate)
+        .collect()
+}
+
+pub const VIDEO_QUALITIES: [Quality; 19] = [
+    Quality {
+        height: 2160,
+        bitrate: 120_000_000,
+    },
+    Quality {
+        height: 2160,
+        bitrate: 80_000_000,
+    },
+    Quality {
+        height: 1080,
+        bitrate: 60_000_000,
+    },
+    Quality {
+        height: 1080,
+        bitrate: 40_000_000,
+    },
+    Quality {
+        height: 1080,
+        bitrate: 20_000_000,
+    },
+    Quality {
+        height: 1080,
+        bitrate: 15_000_000,
+    },
+    Quality {
+        height: 1080,
+        bitrate: 10_000_000,
+    },
+    Quality {
+        height: 1080,
+        bitrate: 7_000_000,
+    },
+    Quality {
+        height: 1080,
+        bitrate: 4_000_000,
+    },
+    Quality {
+        height: 1080,
+        bitrate: 2_000_000,
+    },
+    Quality {
+        height: 1080,
+        bitrate: 1_000_000,
+    },
+    Quality {
+        height: 720,
+        bitrate: 7_000_000,
+    },
+    Quality {
+        height: 720,
+        bitrate: 5_000_000,
+    },
+    Quality {
+        height: 720,
+        bitrate: 3_000_000,
+    },
+    Quality {
+        height: 720,
+        bitrate: 1_500_000,
+    },
+    Quality {
+        height: 480,
+        bitrate: 1_000_000,
+    },
+    Quality {
+        height: 480,
+        bitrate: 500_000,
+    },
+    Quality {
+        height: 360,
+        bitrate: 500_000,
+    },
+    Quality {
+        height: 360,
+        bitrate: 250_000,
+    }
+];
+
 #[derive(Clone)]
 pub struct Avc1Level {
     pub level: u64,
