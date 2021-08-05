@@ -24,10 +24,13 @@
     transition: 0.3s ease-in-out;
     transition-property: background, padding;
 
+    &::-webkit-search-cancel-button{
+      -webkit-appearance: none;
+    }
+
     &::placeholder {
       color: #aaa;
     }
-
   }
 
   svg {
