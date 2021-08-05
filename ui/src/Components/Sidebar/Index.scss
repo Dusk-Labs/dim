@@ -8,7 +8,7 @@
   background: var(--tertiaryColor);
   z-index: 2;
   box-shadow: 0 0 5px 2px #1a1a1add;
-  transition: width .3s ease-in-out;
+  transition: width .3s ease-in-out, background 100ms ease-in-out;
   animation: appear .3s ease-in-out;
 
   &.show .toggle {

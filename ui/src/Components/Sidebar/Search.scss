@@ -21,8 +21,7 @@
     overflow: hidden;
     font-size: 16px;
     height: 100%;
-    transition: 0.3s ease-in-out;
-    transition-property: background, padding;
+    transition: padding 0.3s ease-in-out, background 100ms ease-in-out;
 
     &::placeholder {
       color: var(--secondaryTextColor);
@@ -50,7 +49,7 @@
     color: var(--primaryTextColor);
     outline: none;
     transform: translateY(-50%);
-    transition: background .2s ease-in-out;
+    transition: background 100ms ease-in-out,;
 
     &:focus,
     &:hover {
