@@ -1,7 +1,7 @@
 .banner-wrapper {
   position: relative;
   z-index: 0;
-  background: #1a1a1a;
+  background: var(--bannerPrimaryColor);
   overflow: hidden;
   animation: bannerAppear .3s ease-in-out;
 }
@@ -11,46 +11,6 @@
 */
 
 @keyframes bannerAppear {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes onActiveBannerImage {
-  0% {
-    opacity: 0;
-    transform: scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes onHideBannerImage {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.05);
-  }
-}
-
-@keyframes onHideBanner {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-@keyframes onActiveBanner {
   0% {
     opacity: 0;
   }

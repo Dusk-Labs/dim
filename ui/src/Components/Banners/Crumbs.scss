@@ -12,7 +12,7 @@
     height: 15px;
     width: 15px;
     border-radius: 50%;
-    border: solid 3px #fff;
+    border: solid 3px var(--bannerPrimaryTextColor);
     transition: transform .1s ease-in-out;
     cursor: pointer;
 
@@ -22,7 +22,7 @@
 
     &.active {
       animation: crumbActive .5s ease-out;
-      background: #fff;
+      background: var(--bannerPrimaryTextColor);
     }
   }
 }
