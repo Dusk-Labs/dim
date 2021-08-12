@@ -65,6 +65,9 @@ function ImageLoad(props) {
       setImageSrc(imageObjectURL);
       setErr(false);
     } catch (e) {
+      setErr(true);
+      setShow(true);
+
       console.log("[img] unexpected error:", e);
     }
   }, [props.src, signal, tryAgainCount]);
