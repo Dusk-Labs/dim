@@ -39,7 +39,7 @@ function ImageLoad(props) {
       setLoaded(true);
       setCurrentSrc(props.src);
 
-      if (blob.type === "text/html; charset=utf-8" || req.status !== 200) {
+      if (blob.type.includes("text/html") || req.status !== 200) {
         setShow(true);
         setErr(true);
 
