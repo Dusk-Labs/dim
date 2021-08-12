@@ -1,40 +1,21 @@
-import { useState, useEffect } from "react";
+import DimLogo from "../../assets/DimLogo";
+import ImageLoad from "../../Components/ImageLoad";
 
-function BannerImage(props) {
-  const [loaded, setLoaded] = useState(false);
-  const [error, setErr] = useState(false);
-  const [imgSrc, setImgSrc] = useState();
-
-  useEffect(() => {
-    if (props.src === undefined) return;
-
-    const img = new Image();
-
-    img.onload = () => {
-      setImgSrc(img.src);
-      setLoaded(true);
-      setErr(false);
-    };
-
-    img.onerror = () => {
-      setLoaded(true);
-      setErr(true);
-    };
-
-    img.src = new RegExp("/^(?:/|[a-z]+://)/").test(props.src)
-      ? props.src : `/${props.src}`;
-  }, [props.src]);
-
-  return (
-    <div className="bannerImageWrapper">
-      {(loaded && !error) && (
-        <img src={imgSrc} alt="cover"/>
-      )}
-      {error && (
-        <div className="placeholder"/>
-      )}
-    </div>
-  );
-}
+const BannerImage = (props) => (
+  <div className="bannerImageWrapper">
+    <ImageLoad src={props.src} triggerAnimation="onHideImage">
+      {(imageSrc, loaded, error) => {
+        if (loaded && !error) return (
+          <img src={imageSrc} alt="banner"/>
+        );
+        if (error) return (
+          <div className="placeholder">
+            <DimLogo/>
+          </div>
+        );
+      }}
+    </ImageLoad>
+  </div>
+);
 
 export default BannerImage;

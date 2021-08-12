@@ -27,13 +27,27 @@
     width: auto;
     height: 100%;
     overflow: hidden;
+    background: #2a2a2a;
 
-    img {
-      animation: appear .3s ease-in-out;
+    .imageLoad {
       height: inherit;
       width: inherit;
-      object-fit: cover;
-      object-position: bottom;
+      animation: onHideImage 0s ease-in-out forwards;
+
+      &.show-true {
+        animation: onActiveImage 300ms ease-in-out forwards;
+      }
+
+      &.show-false {
+        animation: onHideImage 300ms ease-in-out forwards;
+      }
+
+      img {
+        height: inherit;
+        width: inherit;
+        object-fit: cover;
+        object-position: bottom;
+      }
     }
 
     .placeholder {
@@ -46,12 +60,32 @@
     border-radius: 10px;
     overflow: hidden;
     height: 100%;
-    width: 100%;
+    width: auto;
     position: relative;
     display: inline-block;
 
+    .imageLoad {
+      height: inherit;
+      width: inherit;
+      animation: onHideImage 0s ease-in-out forwards;
+
+      &.show-true {
+        animation: onActiveImage 300ms ease-in-out forwards;
+      }
+
+      &.show-false {
+        animation: onHideImage 300ms ease-in-out forwards;
+      }
+
+      img {
+        height: inherit;
+        width: inherit;
+        object-fit: cover;
+        object-position: bottom;
+      }
+    }
+
     img {
-      animation: appear .3s ease-in-out;
       transition: object-position 0.3s ease-in-out;
       object-fit: cover;
       border-radius: 10px;
@@ -62,7 +96,29 @@
 }
 
 /*
-    * == MEDIA QUERIES ==
+  * == KEYFRAMES ==
+*/
+
+@keyframes onActiveImage {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes onHideImage {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/*
+  * == MEDIA QUERIES ==
 */
 
 @media only screen and (max-width: 2560px) and (max-height: 1440px) {

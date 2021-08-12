@@ -51,10 +51,36 @@
           transition: 0.2s ease-in-out;
           transition-property: filter, opacity;
 
-          img {
+          .placeholder {
             height: 100%;
             width: 100%;
-            object-fit: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            svg {
+              width: 48px;
+            }
+          }
+
+          .imageLoad {
+            height: 100%;
+            width: 100%;
+            animation: onHideImage 0s ease-in-out forwards;
+
+            &.show-true {
+              animation: onActiveImage 300ms ease-in-out forwards;
+            }
+
+            &.show-false {
+              animation: onHideImage 300ms ease-in-out forwards;
+            }
+
+            img {
+              height: 100%;
+              width: 100%;
+              object-fit: cover;
+            }
           }
         }
       }
@@ -85,10 +111,36 @@
           overflow: hidden;
           transition: filter 0.2s ease-in-out;
 
-          img {
+          .placeholder {
             height: 100%;
             width: 100%;
-            object-fit: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            svg {
+              width: 48px;
+            }
+          }
+
+          .imageLoad {
+            height: 100%;
+            width: 100%;
+            animation: onHideImage 0s ease-in-out forwards;
+
+            &.show-true {
+              animation: onActiveImage 300ms ease-in-out forwards;
+            }
+
+            &.show-false {
+              animation: onHideImage 300ms ease-in-out forwards;
+            }
+
+            img {
+              height: 100%;
+              width: 100%;
+              object-fit: cover;
+            }
           }
 
           .progress {
@@ -151,6 +203,25 @@
     opacity: 1;
   }
 }
+
+@keyframes onActiveImage {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes onHideImage {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 
 /*
     * == MEDIA QUERIES ==
