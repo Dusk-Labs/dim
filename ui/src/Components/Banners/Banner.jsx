@@ -63,10 +63,7 @@ function Banner(props) {
 
     return (
       <div className="banner">
-        <Image
-          src={backdrop}
-          hideAnimationName="onHideBannerImage"
-        />
+        <Image src={backdrop}/>
         <div className="extras">
           <Link to={`/search?year=${year}`}>{year}</Link>
           {genres.length > 0 && (
