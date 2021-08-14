@@ -16,11 +16,24 @@
 
     .cardImageWrapper {
       position: relative;
+      background: var(--secondaryColor);
       transition: filter 0.2s ease-in-out;
+
+      .imageLoad {
+        animation: onHideImage 0s ease-in-out forwards;
+
+        &.show-true {
+          animation: onActiveImage 300ms ease-in-out forwards;
+        }
+
+        &.show-false {
+          animation: onHideImage 300ms ease-in-out forwards;
+        }
+      }
 
       img {
         object-fit: cover;
-        animation: imageLoaded .3s ease-in;
+        animation: imageLoaded 300ms ease-in;
       }
 
       .progress {
@@ -39,6 +52,7 @@
           position: absolute;
           left: 0;
           width: 0;
+          max-width: 100%;
           height: 4px;
           border-radius: 4px;
           transition: width 200ms ease-in-out;
@@ -100,5 +114,23 @@
   }
   100% {
     opacity: 1;
+  }
+}
+
+@keyframes onActiveImage {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes onHideImage {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }

@@ -12,7 +12,7 @@
     "info"
     "progressbar";
   transition: padding .3s ease-in-out;
-  border-bottom: 4px solid #2a2a2a;
+  border-bottom: 4px solid var(--bannerBottomBorderColor);
 
   .placeholder {
     z-index: 1;
@@ -28,7 +28,6 @@
     border-radius: 0;
     text-align: center;
     background: var(--bannerPrimaryColor);
-    border-bottom: 4px solid #3a3a3a;
 
     h2 {
       font-family: "Roboto Bold", Arial;
@@ -60,7 +59,7 @@
     }
   }
 
-  .image-wrapper {
+  .imageWrapper {
     z-index: -1;
     top: 0;
     right: 0;
@@ -68,35 +67,44 @@
     bottom: 0;
     position: absolute;
     overflow: hidden;
-    animation: onActiveBannerImage .3s ease-in-out;
 
-    img {
-      mask-image: linear-gradient(to bottom, #000 80%, transparent 100%);
-      transition: object-position .3s ease-in-out;
-      object-fit: cover;
+    .placeholder {
+      background: var(--bannerPrimaryColor);
+    }
+
+    .imageLoad {
       height: 100%;
-      width: 100%;
-    }
+      animation: onHideBannerImage 0s ease-in-out forwards;
 
-    // overlay shadow
-    &::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      background: #1a1a1add;
-      transition: background .2s ease-in-out;
-    }
+      &.show-true {
+        animation: onActiveBannerImage 400ms ease-in-out forwards;
+      }
 
-    &.show-true {
-      animation: onActiveBannerImage .3s ease-in-out forwards;
-    }
+      &.show-false {
+        animation: onHideBannerImage 300ms ease-in-out forwards;
+      }
 
-    &.show-false {
-      animation: onHideBannerImage .3s ease-in-out forwards;
+      img {
+        mask-image: linear-gradient(to bottom, #000 80%, transparent 100%);
+        transition: object-position .3s ease-in-out;
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+      }
+
+      // overlay shadow
+      &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: var(--bannerOverlayShadow);
+        transition: background .2s ease-in-out;
+      }
     }
   }
+
 
   // year + genre
   .extras {
@@ -149,6 +157,50 @@
 }
 
 /*
+    * == KEYFRAMES ==
+*/
+
+@keyframes onActiveBannerImage {
+  0% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes onHideBannerImage {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes onHideBanner {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes onActiveBanner {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/*
     * == MEDIA QUERIES ==
 */
 
@@ -184,7 +236,7 @@
       "genres ."
       "info progressbar";
 
-    .image-wrapper {
+    .imageWrapper {
       &::after {
         background: #1a1a1abb;
       }
