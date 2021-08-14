@@ -14,10 +14,13 @@ const Blind = {
   quinaryColor: "#bbb",
   senaryColor: "#aaa",
   septenaryColor: "#999",
-  bannerPrimaryColor: "#3a3a3a",
+  bannerPrimaryColor: "#2a2a2a",
+  bannerSecondaryColor: "#3a3a3a",
   bannerPrimaryTextColor: "#fff",
   bannerSecondaryTextColor: "#ddd",
-  bannerTertiaryTextColor: "#ccc"
+  bannerTertiaryTextColor: "#ccc",
+  bannerBottomBorderColor: "#3a3a3a",
+  bannerOverlayShadow: "#1a1a1add"
 };
 
 export default Blind;

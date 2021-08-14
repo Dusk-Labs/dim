@@ -15,9 +15,12 @@ const LightsOff = {
   senaryColor: "#404040",
   septenaryColor: "#505050",
   bannerPrimaryColor: "#101010",
+  bannerSecondaryColor: "#202020",
   bannerPrimaryTextColor: "#eee",
   bannerSecondaryTextColor: "#ccc",
-  bannerTertiaryTextColor: "#bbb"
+  bannerTertiaryTextColor: "#bbb",
+  bannerBottomBorderColor: "#303030",
+  bannerOverlayShadow: "#151515cc"
 };
 
 export default LightsOff;

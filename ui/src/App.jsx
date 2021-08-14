@@ -61,14 +61,16 @@ const routes = (
 );
 
 const App = () => (
-  <WS>
+  <>
     <ThemeController/>
     <FaviconController/>
-    <BrowserRouter>
-      {routes}
-    </BrowserRouter>
-    <Notifications/>
-  </WS>
+    <WS>
+      <BrowserRouter>
+        {routes}
+      </BrowserRouter>
+      <Notifications/>
+    </WS>
+  </>
 );
 
 export default App;

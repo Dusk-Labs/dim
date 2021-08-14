@@ -11,7 +11,10 @@ import CircleIcon from "../../assets/Icons/Circle";
 import "./Banner.scss";
 
 function Banner(props) {
-  const banners = useSelector(store => store.banner);
+  const { banners, libraries } = useSelector(store => ({
+    banners: store.banner,
+    libraries: store.library.fetch_libraries
+  }));
 
   // FETCH_BANNERS_FETCHING or FETCH_BANNERS_ERROR
   if (banners.fetching || (banners.fetched && banners.error)) {
@@ -24,6 +27,23 @@ function Banner(props) {
 
   // FETCH_BANNERS_FETCHED
   if (banners.fetched && !banners.error) {
+    if (!props.data && libraries.fetched && libraries.items.length > 0) {
+      return (
+        <div className="banner">
+          <div className="placeholder">
+            <h2>Your libraries are empty</h2>
+            <p>
+              Populate the folders they are pointing to with
+              media or add another library with existing media
+            </p>
+            <NewLibraryModal>
+              <button>Add another library</button>
+            </NewLibraryModal>
+          </div>
+        </div>
+      );
+    }
+
     if (!props.data) {
       return (
         <div className="banner">
@@ -63,10 +83,7 @@ function Banner(props) {
 
     return (
       <div className="banner">
-        <Image
-          src={backdrop}
-          hideAnimationName="onHideBannerImage"
-        />
+        <Image src={backdrop}/>
         <div className="extras">
           <Link to={`/search?year=${year}`}>{year}</Link>
           {genres.length > 0 && (

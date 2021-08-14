@@ -1,45 +1,28 @@
-import { useState, useEffect } from "react";
+import ImageLoad from "../../Components/ImageLoad";
+import DimLogo from "../../assets/DimLogo";
 
-function CardImage(props) {
-  const [loaded, setLoaded] = useState(false);
-  const [error, setErr] = useState(false);
-  const [imgSrc, setImgSrc] = useState();
-
-  useEffect(() => {
-    if (props.src === undefined) return;
-
-    const img = new Image();
-
-    img.onload = () => {
-      setImgSrc(img.src);
-      setLoaded(true);
-      setErr(false);
-    };
-
-    img.onerror = () => {
-      setLoaded(true);
-      setErr(true);
-    };
-
-    img.src = new RegExp("/^(?:/|[a-z]+://)/").test(props.src)
-      ? props.src : `/${props.src}`;
-  }, [props.src]);
-
-  return (
-    <div className="cardImageWrapper">
-      {(loaded && !error) && (
-        <img src={imgSrc} alt="cover"/>
+const CardImage = (props) => (
+  <div className="cardImageWrapper">
+    <ImageLoad src={props.src} triggerAnimation="onHideImage">
+      {(imageSrc, loaded, error) => (
+        <>
+          {loaded && !error && (
+            <img src={imageSrc} alt="cover"/>
+          )}
+          {error && (
+            <div className="placeholder">
+              <DimLogo/>
+            </div>
+          )}
+          {props.progress !== undefined && (
+            <div className="progress">
+              <div className="value" style={{width: `${props.progress | 0}%`}}/>
+            </div>
+          )}
+        </>
       )}
-      {(loaded && error) && (
-        <div className="placeholder"/>
-      )}
-      {props.progress !== undefined && (
-        <div className="progress">
-          <div className="value" style={{width: `${props.progress | 0}%`}}/>
-        </div>
-      )}
-    </div>
-  );
-}
+    </ImageLoad>
+  </div>
+);
 
 export default CardImage;

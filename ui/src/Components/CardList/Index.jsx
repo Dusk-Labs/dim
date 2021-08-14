@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
@@ -13,6 +13,8 @@ function CardList(props) {
   const location = useLocation();
   const dispatch = useDispatch();
 
+  const [throttleEventNewCardID, setThrottleEventNewCardID] = useState(false);
+
   const { ws, cards } = useSelector(store => ({
     cards: store.card.cards,
     ws: store.ws
@@ -25,12 +27,19 @@ function CardList(props) {
   const handleWS = useCallback((e) => {
     const { type } = JSON.parse(e.data);
 
-    console.log("type", type);
-
     if (type === "EventNewCard") {
-      dispatch(fetchCards(path, false));
+      if (throttleEventNewCardID) {
+        clearTimeout(throttleEventNewCardID);
+        setThrottleEventNewCardID();
+      }
+
+      const id = setTimeout(() => {
+        dispatch(fetchCards(path, false));
+      }, 500);
+
+      setThrottleEventNewCardID(id);
     }
-  }, [dispatch, path]);
+  }, [dispatch, path, throttleEventNewCardID]);
 
   useEffect(() => {
     if (!ws.conn) return;
