@@ -1,5 +1,4 @@
 .btn {
-  padding: .5em;
   font-size: 1em;
   border-radius: 10px;
   transition: filter 0.3s ease-in-out;
@@ -7,6 +6,7 @@
   outline: none;
 
   &.primary {
+    padding: .5em;
     background: var(--accentColor);
   }
 
