@@ -9,10 +9,16 @@ import UnmatchedCardList from "../../Components/CardList/UnmatchedCardList.jsx";
 const Library = () => {
   const dispatch = useDispatch();
 
-  const { unmatched, ws } = useSelector(store => ({
+  const { unmatched, ws, library } = useSelector(store => ({
     unmatched: store.library.fetch_library_unmatched,
-    ws: store.ws
+    ws: store.ws,
+    library: store.card.cards.items
   }));
+
+  useEffect(() => {
+    if (!Object.keys(library)[0]) return;
+    document.title = `Dim - ${Object.keys(library)[0]}`;
+  }, [library]);
 
   const params = useParams();
 
