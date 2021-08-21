@@ -17,9 +17,13 @@
     grid-area: heading;
     font-family: "Roboto Bold", Arial;
 
-    h2 {
+    h3 {
       margin-bottom: .5em;
     }
+  }
+
+  h4 {
+    color: var(--secondaryTextColor);
   }
 
   .fields {
@@ -27,25 +31,49 @@
     align-items: center;
     gap: 1em;
 
-    h3 {
-      margin-bottom: .5em;
-    }
+    label {
+      .name {
+        display: flex;
+        align-items: center;
+        color: var(--secondaryTextColor);
+      }
 
-    input {
-      transition: border 0.3s ease-in-out;
-      background: var(--tertiaryColor);
-      outline: none;
-      height: 100%;
-      padding: .5em;
-      color: var(--primaryTextColor);
-      overflow: hidden;
-      white-space: nowrap;
-      border: solid 2px transparent;
-      font-size: 16px;
-      border-radius: 10px !important;
+      .horizontal-err {
+        padding: 2px 5px;
+        font-size: .8em;
+        margin-left: 5px;
+        background: #ee4740;
+      }
 
-      &:focus {
-        border: solid 2px transparent !important;
+      svg {
+        font-size: 0.8em;
+      }
+
+      .name > p {
+        margin-right: 5px;
+        font-family: "Roboto Condensed Regular", Arial;
+      }
+
+      input {
+        font-size: 1em;
+        font-family: "Roboto Regular", Arial;
+        transition: background 0.3s ease-in-out;
+        margin-top: .5em;
+        background: var(--tertiaryColor);
+        outline: none;
+        border: none;
+        border-radius: 5px;
+        padding: 1em;
+        color: var(--primaryTextColor);
+        width: 100%;
+        height: 40px;
+        overflow: hidden;
+        white-space: nowrap;
+  
+        &:focus,
+        &:hover {
+          background: var(--quaternaryColor);
+        }
       }
     }
   }
