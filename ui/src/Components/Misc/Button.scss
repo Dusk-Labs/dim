@@ -6,8 +6,11 @@
   outline: none;
 
   &.primary {
-    padding: .5em;
     background: var(--accentColor);
+  }
+
+  &:not(.secondary) {
+    padding: .5em;
   }
 
   &.primary, &.critical {
