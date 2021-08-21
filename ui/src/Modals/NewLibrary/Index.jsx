@@ -70,7 +70,7 @@ function NewLibraryModal(props) {
       {closeModal => (
         <div className="modalNewLibrary">
           <div className="heading">
-            <h3>Add a new library</h3>
+            <h3>Create a new library</h3>
             <div className="separator"/>
           </div>
           <div className="fields">
