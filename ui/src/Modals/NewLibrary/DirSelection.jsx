@@ -5,6 +5,7 @@ import { fetchDirectories } from "../../actions/fileBrowser.js";
 import FolderIcon from "../../assets/Icons/Folder";
 import ArrowLeftIcon from "../../assets/Icons/ArrowLeft";
 import CheckIcon from "../../assets/Icons/Check.jsx";
+import Button from "../../Components/Misc/Button";
 
 import "./DirSelection.scss";
 
@@ -34,6 +35,10 @@ function DirSelection(props) {
       setSelectedFolders(state => [...state, path]);
     }
   }, [selectedFolders, setSelectedFolders]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedFolders([]);
+  }, [setSelectedFolders]);
 
   const select = useCallback(path => {
     dispatch(fetchDirectories(path));
@@ -103,7 +108,12 @@ function DirSelection(props) {
 
   return (
     <div className="dirSelection">
-      <h4>Select folders ({selectedFolders.length})</h4>
+      <div className="header">
+        <h4>Select folders ({selectedFolders.length})</h4>
+        {selectedFolders.length > 0 && (
+          <Button type="secondary" onClick={clearSelection}>Clear all</Button>
+        )}
+      </div>
       <div className="dirs-wrapper">
         <div className="dirs">
           {dirs}

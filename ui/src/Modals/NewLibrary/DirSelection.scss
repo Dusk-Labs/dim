@@ -1,8 +1,14 @@
 .dirSelection {
   grid-area: dirSelection;
 
-  h4 {
+  .header {
+    display: flex;
     margin-bottom: .5em;
+    justify-content: space-between;
+
+    button {
+      animation: appear 200ms ease-in-out;
+    }
   }
 
   .dirs-wrapper {
