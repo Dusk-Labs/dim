@@ -49,6 +49,10 @@ function Preferences() {
   }, [user.error, user.fetched, user.info.roles]);
 
   useEffect(() => {
+    document.title = "Dim - Preferences";
+  }, []);
+
+  useEffect(() => {
     dispatch(fetchUserSettings());
     dispatch(fetchGlobalSettings());
   }, [dispatch]);
