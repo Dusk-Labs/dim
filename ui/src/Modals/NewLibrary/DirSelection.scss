@@ -25,17 +25,21 @@
     }
 
     .dir {
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 1fr 20px;
+      gap: .5em;
       align-items: center;
-      transition: background 0.1s ease-in-out;
       cursor: pointer;
-      padding: 0 .5em;
+      padding: .5em;
       min-height: 32px;
       color: var(--primaryTextColor);
 
       &:hover {
         background: var(--quaternaryColor);
+      }
+
+      &.selected-false .selectBox {
+        opacity: 0;
       }
 
       &.selected-true .selectBox {
@@ -44,6 +48,10 @@
         svg {
           opacity: 1;
         }
+      }
+
+      &.selected-false:hover .selectBox {
+        opacity: 1;
       }
 
       .label {
