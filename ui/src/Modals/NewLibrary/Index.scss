@@ -59,7 +59,7 @@
         font-family: "Roboto Regular", Arial;
         transition: background 0.3s ease-in-out;
         margin-top: .5em;
-        background: var(--tertiaryColor);
+        background: var(--modalSecondaryColor);
         outline: none;
         border: none;
         border-radius: 5px;
@@ -69,10 +69,10 @@
         height: 40px;
         overflow: hidden;
         white-space: nowrap;
-  
+
         &:focus,
         &:hover {
-          background: var(--quaternaryColor);
+          background: var(--modalTertiaryColor);
         }
       }
     }

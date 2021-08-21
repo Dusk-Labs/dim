@@ -20,7 +20,10 @@ const LightsOff = {
   bannerSecondaryTextColor: "#ccc",
   bannerTertiaryTextColor: "#bbb",
   bannerBottomBorderColor: "#303030",
-  bannerOverlayShadow: "#151515cc"
+  bannerOverlayShadow: "#151515cc",
+  modalPrimaryColor: "#000",
+  modalSecondaryColor: "#101010",
+  modalTertiaryColor: "#202020"
 };
 
 export default LightsOff;

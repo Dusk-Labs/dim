@@ -13,7 +13,7 @@
     align-items: center;
     cursor: pointer;
     padding: .5em;
-    background: var(--tertiaryColor);
+    background: var(--modalSecondaryColor);
     border-radius: 10px;
 
     svg:first-child {
@@ -33,14 +33,14 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: var(--tertiaryColor);
+      background: var(--modalSecondaryColor);
       padding: .5em;
       border-radius: 10px;
       cursor: pointer;
       transition: background .2s ease-in-out;
 
       &:not(.disabled):hover {
-        background: var(--quaternaryColor);
+        background: var(--modalTertiaryColor);
       }
 
       &.disabled {

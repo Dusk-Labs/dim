@@ -20,7 +20,10 @@ const Blind = {
   bannerSecondaryTextColor: "#ddd",
   bannerTertiaryTextColor: "#ccc",
   bannerBottomBorderColor: "#3a3a3a",
-  bannerOverlayShadow: "#1a1a1add"
+  bannerOverlayShadow: "#1a1a1add",
+  modalPrimaryColor: "#eee",
+  modalSecondaryColor: "#ddd",
+  modalTertiaryColor: "#ccc"
 };
 
 export default Blind;
