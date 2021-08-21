@@ -3,6 +3,10 @@
   grid-area: mediaTypeSelection;
   overflow: hidden;
 
+  h4 {
+    color: var(--secondaryTextColor);
+  }
+
   .openSelection {
     display: flex;
     justify-content: center;

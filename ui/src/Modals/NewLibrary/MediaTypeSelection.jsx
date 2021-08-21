@@ -29,7 +29,7 @@ function MediaTypeSelection(props) {
 
   return (
     <div className="mediaTypeSelection">
-      <h3>Choose a type</h3>
+      <h4>Choose a type</h4>
       <div className="types">
         <div className="type" onClick={selectMovie}>
           <FilmIcon/>
