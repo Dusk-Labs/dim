@@ -51,7 +51,7 @@ function NewLibraryModal(props) {
     if (name) {
       const data = {
         name,
-        location: selectedFolders,
+        locations: selectedFolders,
         media_type: mediaType
       };
 
