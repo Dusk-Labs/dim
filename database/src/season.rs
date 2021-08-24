@@ -182,11 +182,7 @@ impl UpdateSeason {
     /// * `conn` - diesel connection reference to postgres
     /// * `id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - Season number we'd like to update.
-    pub async fn update(
-        self,
-        conn: &crate::DbConnection,
-        id: i64,
-    ) -> Result<usize, DatabaseError> {
+    pub async fn update(self, conn: &crate::DbConnection, id: i64) -> Result<usize, DatabaseError> {
         let tx = conn.begin().await?;
 
         opt_update!(conn, tx,

@@ -2,7 +2,6 @@ use crate::get_conn_memory;
 use crate::user;
 use crate::user::Login;
 
-
 pub async fn insert_user(conn: &crate::DbConnection) -> String {
     let invite = Login::new_invite(conn).await.unwrap();
     let user = user::InsertableUser {
@@ -24,7 +23,7 @@ pub async fn insert_many(conn: &crate::DbConnection, n: usize) {
             password: "test".into(),
             roles: vec!["User".into()],
             prefs: Default::default(),
-            claimed_invite: invite
+            claimed_invite: invite,
         };
 
         user.insert(conn).await.unwrap();
