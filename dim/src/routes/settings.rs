@@ -53,7 +53,8 @@ impl Default for GlobalSettings {
             metadata_dir: "./metadata".into(),
             quiet_boot: false,
             disable_auth: false,
-            verbose: false, }
+            verbose: false,
+        }
     }
 }
 

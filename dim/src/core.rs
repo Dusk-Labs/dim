@@ -3,8 +3,8 @@ use crate::fetcher::PosterType;
 use crate::logger::RequestLogger;
 use crate::routes;
 use crate::scanners;
-use crate::websocket;
 use crate::stream_tracking::StreamTracking;
+use crate::websocket;
 
 use once_cell::sync::OnceCell;
 
@@ -13,8 +13,8 @@ use slog::Logger;
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::sync::mpsc::UnboundedSender;
 
-use warp::Filter;
 use warp::http::status::StatusCode;
+use warp::Filter;
 
 use crate::routes::*;
 
@@ -101,16 +101,6 @@ pub async fn warp_core(
 
     let request_logger = RequestLogger::new(logger.clone());
 
-    /*
-        .or(
-        )
-        .or(routes::statik::statik_routes())
-        .with(warp::filters::log::custom(move |x| {
-            request_logger.on_response(x);
-        }))
-        .with(warp::cors().allow_any_origin());
-    */
-
     let routes = balanced_or_tree![
         /* NOTE: v1 REST API routes start HERE */
         /* /api/v1/auth and /user routes */
@@ -125,11 +115,9 @@ pub async fn warp_core(
         auth::filters::user_delete_self(conn.clone()),
         auth::filters::user_change_username(conn.clone()),
         auth::filters::user_upload_avatar(conn.clone()),
-
         /* general routes */
         routes::general::filters::search(conn.clone()),
         routes::general::filters::get_directory_structure(),
-
         /* library routes */
         routes::library::filters::library_get(conn.clone()),
         routes::library::filters::library_post(conn.clone(), logger.clone(), event_tx.clone()),
@@ -137,19 +125,15 @@ pub async fn warp_core(
         routes::library::filters::library_get_self(conn.clone()),
         routes::library::filters::get_all_of_library(conn.clone()),
         routes::library::filters::get_all_unmatched_media(conn.clone()),
-
         /* dashboard routes */
         routes::dashboard::filters::dashboard(conn.clone(), rt.clone()),
         routes::dashboard::filters::banners(conn.clone()),
-
         /* media routes */
         routes::media::filters::get_media_by_id(conn.clone()),
-        routes::media::filters::get_extra_info_by_id(conn.clone()),
         routes::media::filters::update_media_by_id(conn.clone()),
         routes::media::filters::delete_media_by_id(conn.clone()),
         routes::media::filters::tmdb_search(),
         routes::media::filters::map_progress(conn.clone()),
-
         /* tv routes */
         routes::tv::filters::get_tv_by_id(conn.clone()),
         routes::tv::filters::get_tv_seasons(conn.clone()),
@@ -158,20 +142,26 @@ pub async fn warp_core(
         routes::tv::filters::get_episode_by_num(conn.clone()),
         routes::tv::filters::patch_episode_by_num(conn.clone()),
         routes::tv::filters::delete_episode_by_num(conn.clone()),
-
         /* mediafile routes */
         routes::mediafile::filters::get_mediafile_info(conn.clone()),
         routes::mediafile::filters::rematch_mediafile(conn.clone(), logger.clone()),
-
         /* settings routes */
         routes::settings::filters::get_user_settings(conn.clone()),
         routes::settings::filters::post_user_settings(conn.clone()),
         routes::settings::filters::get_global_settings(),
         routes::settings::filters::set_global_settings(),
-
         /* stream routes */
-        routes::stream::filters::return_virtual_manifest(conn.clone(), state.clone(), stream_tracking.clone(), logger.clone()),
-        routes::stream::filters::return_manifest(conn.clone(), state.clone(), stream_tracking.clone()),
+        routes::stream::filters::return_virtual_manifest(
+            conn.clone(),
+            state.clone(),
+            stream_tracking.clone(),
+            logger.clone()
+        ),
+        routes::stream::filters::return_manifest(
+            conn.clone(),
+            state.clone(),
+            stream_tracking.clone()
+        ),
         routes::stream::filters::get_init(state.clone()),
         routes::stream::filters::should_client_hard_seek(state.clone(), stream_tracking.clone()),
         routes::stream::filters::session_get_stderr(state.clone(), stream_tracking.clone()),
@@ -181,19 +171,15 @@ pub async fn warp_core(
         warp::path!("api" / "stream" / ..)
             .and(warp::any())
             .map(|| StatusCode::NOT_FOUND),
-
         /* NOTE: This is a barrier to 404 any rest api calls that dont match till here */
         routes::global_filters::api_not_found(),
-
         /* websocket route */
         websocket::event_socket(tokio::runtime::Handle::current(), event_rx)
             .recover(routes::global_filters::handle_rejection),
-
         /* static routes */
         routes::statik::filters::dist_static(),
         routes::statik::filters::get_image(),
         routes::statik::filters::react_routes(),
-        
     ]
     .recover(routes::global_filters::handle_rejection)
     .with(warp::filters::log::custom(move |x| {

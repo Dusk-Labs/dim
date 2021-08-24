@@ -1,6 +1,5 @@
 use crate::core::DbConnection;
 use crate::errors;
-use crate::routes::construct_standard;
 use crate::routes::get_top_duration;
 
 use auth::Wrapper as Auth;
@@ -21,7 +20,6 @@ use serde_json::json;
 use serde_json::Value;
 
 use warp::reply;
-use warp::Filter;
 
 pub mod filters {
     use database::DbConnection;
@@ -73,19 +71,60 @@ pub async fn dashboard(
     user: Auth,
     _rt: tokio::runtime::Handle,
 ) -> Result<impl warp::Reply, errors::DimError> {
+    let _tx = conn.begin().await.map_err(|_| errors::DimError::DatabaseError)?;
+
     let mut top_rated = Vec::new();
     for media in Media::get_top_rated(&conn, 10).await? {
-        top_rated.push(construct_standard(&conn, &media, &user).await?);
+        let item = match sqlx::query!(
+            "SELECT name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
+            WHERE _tblmedia.id = ?",
+            media
+        ).fetch_one(&conn).await {
+            Ok(x) => x,
+            Err(_) => continue,
+        };
+
+        top_rated.push(json!({
+            "id": media,
+            "poster_path": item.local_path,
+            "name": item.name
+        }));
     }
 
     let mut recently_added = Vec::new();
     for media in Media::get_recently_added(&conn, 10).await? {
-        recently_added.push(construct_standard(&conn, &media, &user).await?);
+        let item = match sqlx::query!(
+            "SELECT name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
+            WHERE _tblmedia.id = ?",
+            media
+        ).fetch_one(&conn).await {
+            Ok(x) => x,
+            Err(_) => continue,
+        };
+
+        recently_added.push(json!({
+            "id": media,
+            "poster_path": item.local_path,
+            "name": item.name
+        }));
     }
 
     let mut continue_watching = Vec::new();
     for media in Progress::get_continue_watching(&conn, user.0.claims.get_user(), 10).await? {
-        continue_watching.push(construct_standard(&conn, &media, &user).await?);
+        let item = match sqlx::query!(
+            "SELECT name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
+            WHERE _tblmedia.id = ?",
+            media
+        ).fetch_one(&conn).await {
+            Ok(x) => x,
+            Err(_) => continue,
+        };
+
+        continue_watching.push(json!({
+            "id": media,
+            "poster_path": item.local_path,
+            "name": item.name
+        }));
     }
 
     Ok(reply::json(&json!({
