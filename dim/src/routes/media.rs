@@ -21,19 +21,7 @@ use warp::http::status::StatusCode;
 use warp::reply;
 use warp::Filter;
 
-pub fn media_router(
-    conn: DbConnection,
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    filters::get_media_by_id(conn.clone())
-        .or(filters::get_extra_info_by_id(conn.clone()))
-        .or(filters::update_media_by_id(conn.clone()))
-        .or(filters::delete_media_by_id(conn.clone()))
-        .or(filters::tmdb_search())
-        .or(filters::map_progress(conn.clone()))
-        .recover(super::global_filters::handle_rejection)
-}
-
-mod filters {
+pub mod filters {
     use warp::reject;
     use warp::Filter;
 

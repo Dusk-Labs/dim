@@ -53,8 +53,7 @@ impl Default for GlobalSettings {
             metadata_dir: "./metadata".into(),
             quiet_boot: false,
             disable_auth: false,
-            verbose: false,
-        }
+            verbose: false, }
     }
 }
 
@@ -98,16 +97,7 @@ pub fn set_global_settings(settings: GlobalSettings) -> Result<(), Box<dyn Error
     Ok(())
 }
 
-pub fn settings_router(
-    conn: DbConnection,
-) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
-    filters::get_user_settings(conn.clone())
-        .or(filters::post_user_settings(conn))
-        .or(filters::get_global_settings())
-        .or(filters::set_global_settings())
-}
-
-mod filters {
+pub mod filters {
     use database::user::UserSettings;
     use database::DbConnection;
 
@@ -139,7 +129,10 @@ mod filters {
         warp::path!("api" / "v1" / "user" / "settings")
             .and(warp::post())
             .and(warp::body::json::<UserSettings>())
-            .map(|x| {println!("got a post to user/settings"); x})
+            .map(|x| {
+                println!("got a post to user/settings");
+                x
+            })
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
             .and_then(

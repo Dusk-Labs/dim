@@ -23,16 +23,7 @@ use serde_json::Value;
 use warp::reply;
 use warp::Filter;
 
-pub fn dashboard_router(
-    conn: DbConnection,
-    rt: tokio::runtime::Handle,
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    filters::dashboard(conn.clone(), rt.clone())
-        .or(filters::banners(conn.clone()))
-        .recover(super::global_filters::handle_rejection)
-}
-
-mod filters {
+pub mod filters {
     use database::DbConnection;
 
     use warp::reject;
