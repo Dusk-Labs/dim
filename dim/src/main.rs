@@ -85,7 +85,7 @@ fn main() {
     );
 
     let async_main = async move {
-        core::fetcher::tmdb_poster_fetcher(logger.clone()).await;
+        dim::fetcher::tmdb_poster_fetcher(logger.clone()).await;
 
         let (event_tx, event_rx) = tokio::sync::mpsc::unbounded_channel();
 
