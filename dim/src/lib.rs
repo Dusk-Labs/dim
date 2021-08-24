@@ -65,6 +65,8 @@ pub mod streaming;
 pub mod utils;
 /// Websocket related logic.
 pub mod websocket;
+/// Contains the code for fetching assets like posters and stills.
+pub mod fetcher;
 
 pub use routes::settings::get_global_settings;
 pub use routes::settings::init_global_settings;

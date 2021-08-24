@@ -24,7 +24,8 @@ use slog::Logger;
 use events::Message;
 use events::PushEventType;
 
-use crate::core::{fetcher::PosterType, EventTx};
+use crate::core::EventTx;
+use crate::fetcher::PosterType;
 
 pub struct TvShowMatcher<'a> {
     pub conn: &'a DbConnection,
