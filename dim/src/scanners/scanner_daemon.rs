@@ -1,9 +1,9 @@
 use crate::core::EventTx;
 
+use std::array::IntoIter;
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::time::Duration;
-use std::array::IntoIter;
 
 use database::get_conn;
 use database::library::Library;

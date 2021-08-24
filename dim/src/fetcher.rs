@@ -18,7 +18,6 @@ use std::io::copy;
 use std::io::Cursor;
 use std::path::PathBuf;
 
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum PosterType {
     Banner(String),
@@ -56,11 +55,12 @@ impl From<PosterType> for String {
     }
 }
 
+use std::collections::BinaryHeap;
 use std::lazy::SyncLazy;
 use tokio::sync::Mutex;
-use std::collections::BinaryHeap;
 
-static PROCESSING_QUEUE: SyncLazy<Mutex<BinaryHeap<PosterType>>> = SyncLazy::new(|| Mutex::new(BinaryHeap::new()));
+static PROCESSING_QUEUE: SyncLazy<Mutex<BinaryHeap<PosterType>>> =
+    SyncLazy::new(|| Mutex::new(BinaryHeap::new()));
 
 async fn process_receiver(log: Logger, mut rx: UnboundedReceiver<PosterType>) {
     let mut poster_cache = HashSet::<PosterType>::new();
@@ -107,13 +107,16 @@ async fn process_queue(log: Logger) {
                             }
                         }
                     }
-                    error!(log, "Failed to cache {} locally, appending back into queue", &url);
+                    error!(
+                        log,
+                        "Failed to cache {} locally, appending back into queue", &url
+                    );
                     lock.push(poster);
                 }
                 Err(e) => {
                     error!(log, "Failed to cache {} locally, e={:?}", url, e);
                     lock.push(poster);
-                },
+                }
             }
         }
 
@@ -125,8 +128,8 @@ async fn process_queue(log: Logger) {
 
 /// Function creates a task that fetches and caches posters from various sources.
 pub async fn tmdb_poster_fetcher(log: Logger) {
-    let (tx, rx): (UnboundedSender<PosterType>, UnboundedReceiver<PosterType>) = 
-                       unbounded_channel();
+    let (tx, rx): (UnboundedSender<PosterType>, UnboundedReceiver<PosterType>) =
+        unbounded_channel();
 
     tokio::spawn(process_receiver(log.clone(), rx));
     tokio::spawn(process_queue(log.clone()));

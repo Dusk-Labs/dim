@@ -1,6 +1,6 @@
 use serde_derive::{Deserialize, Serialize};
-use std::{path::Path, process::Command, str};
 use std::collections::VecDeque;
+use std::{path::Path, process::Command, str};
 
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct FFPWrapper {
