@@ -18,7 +18,7 @@ use structopt::StructOpt;
 #[structopt(version = env!("CARGO_PKG_VERSION"), author = env!("CARGO_PKG_AUTHORS"))]
 #[structopt(rename_all = "kebab")]
 struct Args {
-    #[structopt(short, long, parse(from_os_str), default_value = "config.json")]
+    #[structopt(short, long, parse(from_os_str), default_value = "config.toml")]
     config: PathBuf,
     /// Enables debug mode, which enables debug logs.
     #[structopt(short, long)]
