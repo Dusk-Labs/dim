@@ -20,7 +20,10 @@ const Default = {
   bannerSecondaryTextColor: "#ddd",
   bannerTertiaryTextColor: "#ccc",
   bannerBottomBorderColor: "#3a3a3a",
-  bannerOverlayShadow: "#1a1a1add"
+  bannerOverlayShadow: "#1a1a1add",
+  modalPrimaryColor: "#2a2a2a",
+  modalSecondaryColor: "#3a3a3a",
+  modalTertiaryColor: "#4a4a4a"
 };
 
 export default Default;

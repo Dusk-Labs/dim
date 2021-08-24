@@ -1,12 +1,18 @@
 -- Library table
 CREATE TABLE library (
     id INTEGER PRIMARY KEY NOT NULL,
-    name TEXT NOT NULL,
-    location TEXT NOT NULL,
+    name TEXT NOT NULL UNIQUE,
     media_type TEXT NOT NULL
 );
 
-CREATE UNIQUE INDEX library_idx ON library(name, location, media_type);
+CREATE TABLE indexed_paths (
+    id INTEGER PRIMARY KEY NOT NULL,
+    -- must be absolute path
+    location TEXT NOT NULL UNIQUE,
+    library_id INTEGER NOT NULL,
+
+    FOREIGN KEY (library_id) REFERENCES library(id) ON DELETE CASCADE
+);
 
 -- Media table
 -- This table contains the template for
