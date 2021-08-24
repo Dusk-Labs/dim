@@ -81,11 +81,11 @@ pub fn get_matcher_unchecked() -> &'static base::MetadataMatcher {
     METADATA_MATCHER.get().unwrap()
 }
 
-pub async fn start_custom<T: AsRef<Path>>(
+pub async fn start_custom(
     library_id: i64,
     log: slog::Logger,
     tx: EventTx,
-    path: T,
+    paths: impl Iterator<Item = impl AsRef<Path>>,
     media_type: MediaType,
 ) -> Result<(), self::base::ScannerError> {
     info!(log, "Scanning library"; "mod" => "scanner", "library_id" => library_id);
@@ -103,17 +103,19 @@ pub async fn start_custom<T: AsRef<Path>>(
     let extractor = get_extractor(&log, &tx);
     let matcher = get_matcher(&log, &tx);
 
-    let files: Vec<PathBuf> = WalkDir::new(path)
-        // we want to follow all symlinks in case of complex dir structures
-        .follow_links(true)
-        .into_iter()
-        .filter_map(Result::ok)
-        // ignore all hidden files.
-        .filter(|f| {
-            !f.path()
-                .iter()
-                .any(|s| s.to_str().map(|x| x.starts_with('.')).unwrap_or(false))
-        })
+    let mut files = Vec::with_capacity(2048);
+    for path in paths {
+        let mut subfiles: Vec<PathBuf> = WalkDir::new(path)
+            // we want to follow all symlinks in case of complex dir structures
+            .follow_links(true)
+            .into_iter()
+            .filter_map(Result::ok)
+            // ignore all hidden files.
+            .filter(|f| {
+                !f.path()
+                    .iter()
+                    .any(|s| s.to_str().map(|x| x.starts_with('.')).unwrap_or(false))
+            })
         // check whether `f` has a supported extension
         .filter(|f| {
             f.path()
@@ -122,7 +124,10 @@ pub async fn start_custom<T: AsRef<Path>>(
                 .map_or(false, |e| SUPPORTED_EXTS.contains(&e))
         })
         .map(|f| f.into_path())
-        .collect();
+            .collect();
+
+        files.append(&mut subfiles);
+    }
 
     let total_files = files.len();
 
@@ -180,6 +185,5 @@ pub async fn start(
 ) -> Result<(), self::base::ScannerError> {
     let conn = get_conn().await.expect("Failed to grab the conn pool");
     let lib = Library::get_one(&conn, library_id).await?;
-    let path = lib.location.as_str();
-    start_custom(library_id, log, tx, path, lib.media_type).await
+    start_custom(library_id, log, tx, lib.locations.into_iter(), lib.media_type).await
 }

@@ -3,6 +3,7 @@ use crate::core::EventTx;
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::time::Duration;
+use std::array::IntoIter;
 
 use database::get_conn;
 use database::library::Library;
@@ -64,7 +65,9 @@ impl FsWatcher {
         let (tx, mut rx) = mpsc::channel();
         let mut watcher = <RecommendedWatcher as Watcher>::new(tx, Duration::from_secs(1))?;
 
-        watcher.watch(library.location.as_str(), RecursiveMode::Recursive)?;
+        for location in &library.locations {
+            watcher.watch(location.as_str(), RecursiveMode::Recursive)?;
+        }
 
         loop {
             // NOTE: God forgive me
@@ -120,7 +123,7 @@ impl FsWatcher {
                     self.library_id,
                     self.logger.clone(),
                     self.tx.clone(),
-                    x,
+                    IntoIter::new([x]),
                     self.media_type,
                 )
                 .await;

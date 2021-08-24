@@ -44,9 +44,8 @@ pub struct Library {
     pub name: String,
 
     /// a path on the filesystem that holds media. ie /home/user/media/movies
-    // TODO: convert location from `String` to `Vec<String>` to allow for one library to hold more
-    // than one path to media.
-    pub location: String,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub locations: Vec<String>,
 
     /// Enum used to identify the media type that this library contains. At the
     /// moment only `movie` and `tv` are supported
@@ -57,17 +56,37 @@ pub struct Library {
 impl Library {
     /// Method returns all libraries that exist in the database in the form of a Vec.
     /// If no libraries are found the the Vec will just be empty.
+    ///
+    /// This method will not return the locations indexed for this library, if you need those you
+    /// must query for them separately.
     pub async fn get_all(conn: &crate::DbConnection) -> Vec<Self> {
-        sqlx::query_as!(
-            Library,
-            r#"SELECT id, name, location, media_type as "media_type: _" FROM library"#
+        sqlx::query!(
+            r#"SELECT id, name, media_type as "media_type: MediaType" FROM library"#
         )
-        .fetch_all(conn)
-        .await
-        .unwrap_or_default()
+            .fetch_all(conn)
+            .await
+            .unwrap_or_default()
+            .into_iter()
+            .map(|x| Self {
+                id: x.id,
+                name: x.name,
+                media_type: x.media_type,
+                locations: vec![]
+            })
+            .collect()
+    }
+
+    pub async fn get_locations(conn: &crate::DbConnection, id: i64) -> Result<Vec<String>, DatabaseError> {
+        Ok(sqlx::query_scalar!(
+            "SELECT location FROM indexed_paths
+            WHERE library_id = ?",
+            id)
+            .fetch_all(conn)
+            .await?)
     }
 
     /// Method filters the database for a library with the id supplied and returns it.
+    /// This method will also fetch the indexed locations for this library.
     ///
     /// # Arguments
     /// * `conn` - [diesel connection](crate::DbConnection)
@@ -75,14 +94,26 @@ impl Library {
     pub async fn get_one(
         conn: &crate::DbConnection,
         lib_id: i64,
-    ) -> Result<Library, DatabaseError> {
-        Ok(sqlx::query_as!(
-            Library,
-            r#"SELECT id, name, location, media_type as "media_type: _" FROM library WHERE id = ?"#,
+    ) -> Result<Self, DatabaseError> {
+        let tx = conn.begin().await?;
+
+        let library = sqlx::query!(
+            r#"SELECT id, name, media_type as "media_type: MediaType" FROM library
+            WHERE id = ?"#,
             lib_id
-        )
-        .fetch_one(conn)
-        .await?)
+        ).fetch_one(conn).await?;
+
+        let locations = sqlx::query_scalar!(
+            r#"SELECT location FROM indexed_paths
+            WHERE library_id = ?"#,
+            lib_id).fetch_all(conn).await?;
+
+        Ok(Self {
+            id: library.id,
+            name: library.name,
+            media_type: library.media_type,
+            locations,
+        })
     }
 
     /// Method filters the database for a library with the id supplied and deletes it.
@@ -105,7 +136,7 @@ impl Library {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct InsertableLibrary {
     pub name: String,
-    pub location: String,
+    pub locations: Vec<String>,
     pub media_type: MediaType,
 }
 
@@ -115,28 +146,26 @@ impl InsertableLibrary {
     /// # Arguments
     /// * `conn` - [diesel connection](crate::DbConnection)
     pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
-        cfg_if! {
-            if #[cfg(feature = "postgres")] {
-                Ok(sqlx::query!(
-                        r#"INSERT INTO library (name, location, media_type)
-                           VALUES ($1, $2, $3)
-                           RETURNING id"#,
-                        self.name,
-                        self.location,
-                        self.media_type)
-                    .fetch_one(conn)
-                    .await?)
+        let tx = conn.begin().await?;
+        let lib_id = sqlx::query!(
+            r#"INSERT INTO library (name, media_type) VALUES ($1, $2)"#,
+            self.name,
+            self.media_type)
+            .execute(conn)
+            .await?
+            .last_insert_rowid();
 
-            } else {
-                Ok(sqlx::query!(
-                        r#"INSERT INTO library (name, location, media_type) VALUES ($1, $2, $3)"#,
-                        self.name,
-                        self.location,
-                        self.media_type)
-                    .execute(conn)
-                    .await?
-                    .last_insert_rowid())
-            }
+
+        for location in &self.locations {
+            sqlx::query!(
+                r#"INSERT into indexed_paths(location, library_id)
+                VALUES ($1, $2)"#,
+                location, lib_id
+            ).execute(conn).await?;
         }
+
+        tx.commit().await?;
+
+        Ok(lib_id)
     }
 }
