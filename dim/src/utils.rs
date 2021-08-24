@@ -39,7 +39,7 @@
 #[macro_export]
 macro_rules! balanced_or_tree {
     // Base case: just a single expression, return it wrapped in `debug_boxed`
-    ($x:expr $(,)?) => { debug_boxed!($x) };
+    ($x:expr $(,)?) => { $x };
     // Multiple expressions: recurse with three lists: left, right and counter.
     ($($x:expr),+ $(,)?) => {
         balanced_or_tree!(@internal  ;     $($x),+; $($x),+)
