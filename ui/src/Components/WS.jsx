@@ -109,7 +109,10 @@ function WS(props) {
           </div>
         )}
         {!ws.error && (
-          <Bar/>
+          <>
+            <h2>Connecting to server</h2>
+            <Bar/>
+          </>
         )}
       </div>
     );
