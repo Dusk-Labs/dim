@@ -145,21 +145,15 @@ pub mod fetcher {
             let mut poster_cache = HashSet::<PosterType>::new();
             let mut processing = BTreeSet::<PosterType>::new();
 
-            let mut timer = tokio::time::interval(Duration::from_millis(5));
+            let mut timer = tokio::time::interval(Duration::from_millis(100));
 
             loop {
                 tokio::select! {
-                    Some(poster) = rx.recv() => {
-                        if !poster_cache.contains(&poster) {
-                            processing.insert(poster.clone());
-                            poster_cache.insert(poster);
-                        }
-                    }
-
                     _ = timer.tick() => {
                         while let Some(poster) = processing.pop_last() {
                             let url: String = poster.clone().into();
 
+                            debug!(log, "Trying to cache {}", url);
                             match reqwest::get(url.as_str()).await {
                                 Ok(resp) => {
                                     if let Some(fname) = resp.url().path_segments().and_then(|segs| segs.last()) {
@@ -187,12 +181,22 @@ pub mod fetcher {
                                 },
                             }
                         }
+
+                        assert!(processing.is_empty());
+                    }
+
+                    Some(poster) = rx.recv() => {
+                        if !poster_cache.contains(&poster) {
+                            debug!(log, "Inserting {:?} into queue", poster);
+                            processing.insert(poster.clone());
+                            poster_cache.insert(poster);
+                        }
                     }
                 }
 
                 // NOTE(val): turns out that sometimes looping too fast can result in data
-                // magically disappearing.
-                tokio::time::sleep(Duration::from_millis(1)).await;
+                // magically disappearing. yield to be nice :)
+                tokio::task::yield_now().await;
             }
         };
 

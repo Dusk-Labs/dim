@@ -22,8 +22,6 @@
 //! To test run `make test` in the root, or `cargo test` in the root of each module including the
 //! root dir.
 #![feature(
-    proc_macro_hygiene,
-    decl_macro,
     result_flattening,
     once_cell,
     type_ascription,

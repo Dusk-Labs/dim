@@ -1,8 +1,14 @@
 .dirSelection {
   grid-area: dirSelection;
 
-  h3 {
+  .header {
+    display: flex;
     margin-bottom: .5em;
+    justify-content: space-between;
+
+    button {
+      animation: appear 200ms ease-in-out;
+    }
   }
 
   .dirs-wrapper {
@@ -15,41 +21,88 @@
     overflow-y: auto;
     height: 224px;
     border-radius: inherit;
-    background: var(--tertiaryColor);
+    background: var(--modalSecondaryColor);
     scrollbar-width: thin;
 
     .vertical-err {
       position: absolute;
       left: 50%;
       transform: translate(-50%);
+
+      p {
+        color: var(--primaryTextColor);
+      }
     }
 
     .dir {
-      display: flex;
-      align-items: center;
-      transition: background 0.1s ease-in-out;
-      cursor: pointer;
+      display: grid;
+      grid-template-columns: 1fr 20px;
+      gap: .5em;
       padding: 0 .5em;
+      align-items: center;
+      cursor: pointer;
       min-height: 32px;
       color: var(--primaryTextColor);
 
       &:hover {
-        background: var(--quaternaryColor);
+        background: var(--modalTertiaryColor);
       }
 
-      // folder icon
-      svg {
-        margin-right: 10px;
-        fill: var(--tertiaryTextColor);
+      &.selected-false .selectBox {
+        opacity: 0;
       }
 
-      // path name
-      p {
-        margin: 0;
-        user-select: none;
-        overflow-wrap: break-word;
-        overflow: hidden;
-        word-break: break-all;
+      &.selected-true .selectBox {
+        background: var(--accentColor);
+
+        svg {
+          opacity: 1;
+        }
+      }
+
+      &.selected-false:hover .selectBox {
+        opacity: 1;
+      }
+
+      .label {
+        padding: .5em 0;
+        width: 100%;
+        display: flex;
+
+        // folder icon
+        svg {
+          margin-right: 10px;
+          fill: var(--tertiaryTextColor);
+        }
+
+        // path name
+        p {
+          margin: 0;
+          user-select: none;
+          overflow-wrap: break-word;
+          overflow: hidden;
+          word-break: break-all;
+        }
+      }
+
+      .selectBox {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 20px;
+        width: 20px;
+        border-radius: 5px;
+        border: solid 2px var(--accentColor);
+        transition: background 150ms ease-in-out;
+        margin-right: .5em;
+
+        svg {
+          fill: var(--primaryTextColor);
+          font-size: .6em;
+          overflow: unset;
+          opacity: 0;
+          transition: opacity 150ms ease-in-out;
+        }
       }
     }
   }
@@ -85,15 +138,13 @@
       }
 
       svg {
-        fill: var(--primaryTextColor);
+        fill: var(--accentTextColor);
       }
     }
 
-    h4 {
+    .current {
       margin-left: .5em;
-      span {
-        font-family: "Roboto Condensed Regular", Arial;
-      }
+      font-family: "Roboto Condensed Regular", Arial;
     }
   }
 }

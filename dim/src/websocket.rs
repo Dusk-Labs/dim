@@ -213,6 +213,8 @@ pub fn event_socket(
                             else => break 'outer,
                         }
                     }
+
+                    tokio::task::yield_now().await;
                 })
             },
         )

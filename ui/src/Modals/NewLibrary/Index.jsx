@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Modal from "react-modal";
 import { useDispatch } from "react-redux";
 
@@ -6,6 +6,7 @@ import { newLibrary } from "../../actions/library.js";
 import MediaTypeSelection from "./MediaTypeSelection.jsx";
 import DirSelection from "./DirSelection.jsx";
 import ModalBox from "../Index.jsx";
+import Field from "../../Pages/Auth/Field.jsx";
 
 import "./Index.scss";
 
@@ -14,17 +15,11 @@ Modal.setAppElement("body");
 function NewLibraryModal(props) {
   const dispatch = useDispatch();
 
-  const nameInput = useRef(null);
-
   const [current, setCurrent] = useState("");
   const [name, setName] = useState("");
+  const [nameErr, setNameErr] = useState("");
   const [mediaType, setMediaType] = useState("movie");
-
-  useEffect(() => {
-    if (nameInput.current) {
-      nameInput.current.style.border = "solid 2px transparent";
-    }
-  }, [name]);
+  const [selectedFolders, setSelectedFolders] = useState([]);
 
   useEffect(() => {
     if (!name) return;
@@ -50,13 +45,13 @@ function NewLibraryModal(props) {
 
   const add = useCallback(async (closeModal) => {
     if (!name) {
-      nameInput.current.style.border = "solid 2px #ff6961";
+      setNameErr("Label your library");
     }
 
     if (name) {
       const data = {
         name,
-        location: current,
+        locations: selectedFolders,
         media_type: mediaType
       };
 
@@ -64,30 +59,27 @@ function NewLibraryModal(props) {
 
       setName("");
       setCurrent("");
+      setSelectedFolders([]);
       setMediaType("movie");
       closeModal();
     }
-  }, [current, dispatch, mediaType, name]);
+  }, [dispatch, mediaType, name, selectedFolders]);
 
   return (
     <ModalBox id="modalNewLibrary" activatingComponent={props.children}>
       {closeModal => (
         <div className="modalNewLibrary">
           <div className="heading">
-            <h2>Add a new library</h2>
+            <h3>Create a new library</h3>
             <div className="separator"/>
           </div>
           <div className="fields">
-            <div className="field">
-              <h3>Name</h3>
-              <input
-                ref={nameInput}
-                onChange={e => setName(e.target.value)}
-                type="text"
-                placeholder="Untitled"
-                value={name}
-              />
-            </div>
+            <Field
+              name="Name"
+              placeholder="Untitled"
+              data={[name, setName]}
+              error={[nameErr, setNameErr]}
+            />
           </div>
           <MediaTypeSelection
             mediaType={mediaType}
@@ -96,6 +88,8 @@ function NewLibraryModal(props) {
           <DirSelection
             current={current}
             setCurrent={setCurrent}
+            selectedFolders={selectedFolders}
+            setSelectedFolders={setSelectedFolders}
           />
           <div className="options">
             <button onClick={closeModal}>Nevermind</button>
