@@ -1,17 +1,16 @@
 name: CD
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   push_image:
       name: Push docker image to dockerhub
       runs-on: ubuntu-latest
       steps:
-        - name: Check out to the repo
           uses: actions/checkout@v2
-        - name: Push to dockerhub
           uses: docker/build-push-action@v1
           with:
               username: ${{ secrets.DOCKER_USERNAME }}
