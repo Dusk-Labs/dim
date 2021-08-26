@@ -2,13 +2,13 @@ FROM rustlang/rust:nightly AS build
 RUN cargo --version && \
     rustc --version
 
-RUN apt-get -y update && apt-get install -y nodejs yarn
+RUN apt-get -y update && apt-get install -y nodejs yarn libva2 libva-dev sqlite3 libdrm2 libdrm-dev libdrm-amdgpu1
 
 COPY . /src/dim
 WORKDIR /src/dim
 RUN cargo build --release
 
-FROM ubuntu:18.04 AS release
+FROM ubuntu:20.04 AS release
 ENV RUST_BACKTRACE=full
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 ENV SSL_CERT_DIR=/etc/ssl/certs
