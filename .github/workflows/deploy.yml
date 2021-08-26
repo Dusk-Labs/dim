@@ -9,6 +9,8 @@ jobs:
   push_image:
       name: Push docker image to dockerhub
       runs-on: ubuntu-latest
+      env:
+        DATABASE_URL: "sqlite://./dim_dev.db"
       steps:
         - uses: actions/checkout@v2
         - uses: docker/build-push-action@v1
