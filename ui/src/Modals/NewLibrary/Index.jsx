@@ -7,6 +7,7 @@ import MediaTypeSelection from "./MediaTypeSelection.jsx";
 import DirSelection from "./DirSelection.jsx";
 import ModalBox from "../Index.jsx";
 import Field from "../../Pages/Auth/Field.jsx";
+import Button from "../../Components/Misc/Button.jsx";
 
 import "./Index.scss";
 
@@ -48,7 +49,7 @@ function NewLibraryModal(props) {
       setNameErr("Label your library");
     }
 
-    if (name) {
+    if (name && selectedFolders.length > 0) {
       const data = {
         name,
         locations: selectedFolders,
@@ -92,8 +93,15 @@ function NewLibraryModal(props) {
             setSelectedFolders={setSelectedFolders}
           />
           <div className="options">
-            <button onClick={closeModal}>Nevermind</button>
-            <button onClick={() => add(closeModal)}>Add library</button>
+            <Button
+              type="secondary"
+              onClick={closeModal}
+            >Nevermind</Button>
+            <Button
+              disabled={!name || selectedFolders.length === 0}
+              onClick={() => add(closeModal)}>
+              Add library
+            </Button>
           </div>
         </div>
       )}

@@ -120,9 +120,9 @@ function DirSelection(props) {
         </div>
       </div>
       <div className="controls">
-        <button onClick={goBack} className={`disable-${props.current === ""}`}>
+        <Button onClick={goBack} disabled={props.current === ""}>
           <ArrowLeftIcon/>
-        </button>
+        </Button>
         <p className="current">{props.current}</p>
       </div>
     </div>

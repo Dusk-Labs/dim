@@ -84,42 +84,10 @@
     display: grid;
     justify-content: flex-end;
     grid-template-columns: auto auto;
-    gap: .5em;
+    gap: 1em;
 
     .page-controls svg {
       margin: 0;
-    }
-
-    button {
-      filter: saturate(0.7);
-      transition: filter 0.3s ease-in-out;
-      font-family: "Roboto Bold", Arial;
-      padding: .5em;
-      border-radius: 10px;
-      outline: none;
-      background: var(--accentColor);
-      color: var(--primaryTextColor);
-      font-size: 16px;
-
-      &:focus,
-      &:hover {
-        filter: saturate(1);
-      }
-
-      &:nth-child(2) {
-        color: #2a2a2a;
-      }
-
-      // cancel button
-      &:nth-child(1) {
-        transition: color 0.3s ease-in-out;
-        background: transparent;
-
-        &:focus,
-        &:hover {
-          color: #ff6961;
-        }
-      }
     }
   }
 }
