@@ -1,6 +1,6 @@
 [package]
 name = "dim"
-version = "0.3.0"
+version = "0.3.0-rc2"
 build = "src/build.rs"
 authors = ["Valerian G. <valerian.garleanu@pm.me>"]
 edition = "2018"
