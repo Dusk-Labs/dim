@@ -21,7 +21,7 @@ base64 = "0.13.0"
 uuid = { version = "0.8.1", features = ["v4"] }
 cfg-if = "1.0.0"
 err-derive = "0.3.0"
-sqlx = { version = "^0.5.5", features = ["runtime-tokio-rustls", "offline"] }
+sqlx = { version = "=0.5.5", features = ["runtime-tokio-rustls"] }
 
 [dev-dependencies]
 tokio = { version = "1", default-features = false, features = ["rt", "macros"] }
