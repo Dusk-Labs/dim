@@ -19,6 +19,7 @@ COPY . /src/dim
 WORKDIR /src/dim/ui
 RUN yarn && yarn build
 WORKDIR /src/dim
+RUN sqlite3 -init /src/dim/database/migrations/*.sql /src/dim/dim_dev.db
 RUN DATABASE_URL="sqlite:///src/dim/dim_dev.db" cargo build --release
 
 FROM ubuntu:20.04 AS release
