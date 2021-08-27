@@ -5,11 +5,7 @@
 Dim is a self hosted media manager. With minimal setup, Dim will organize and beautify your media collections, letting you access and play them anytime from any browser window.
 
 ## Installation (Docker)
-  1. `docker volume create dim` \
-  2. `docker run -d -p 8000:8000/tcp -p 3012:3012/tcp \` \
-`        --mount source=dim,target="/var/lib/postgresql/" \` \
-`        --mount type=bind,source="$HOME/media",target=/media \` \
-`        vgarleanu/dim-server:latest`
+  1. `docker run -d -p 8000:8000/tcp --mount type=bind,source=/media,target=/media vgarleanu/dim:latest` 
 
 ## Installation (From source)
   1. `git clone git@github.com:vgarleanu/dim.git`
