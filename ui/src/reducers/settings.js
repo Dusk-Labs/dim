@@ -4,7 +4,9 @@ import {
   FETCH_USER_SETTINGS_ERR,
   FETCH_GLOBAL_SETTINGS_START,
   FETCH_GLOBAL_SETTINGS_OK,
-  FETCH_GLOBAL_SETTINGS_ERR
+  FETCH_GLOBAL_SETTINGS_ERR,
+  UPDATE_GLOBAL_SETTINGS,
+  UPDATE_USER_SETTINGS
 } from "../actions/types.js";
 
 const globalSettings = {
@@ -58,6 +60,14 @@ export default function settingsReducer(state = initialState, action) {
           error: action.payload
         }
       };
+    case UPDATE_USER_SETTINGS:
+      return {
+        ...state,
+        userSettings: {
+          ...state.userSettings,
+          data: action.payload
+        }
+      };
     case FETCH_GLOBAL_SETTINGS_START:
       return {
         ...state,
@@ -86,6 +96,14 @@ export default function settingsReducer(state = initialState, action) {
           fetching: false,
           fetched: true,
           error: action.payload
+        }
+      };
+    case UPDATE_GLOBAL_SETTINGS:
+      return {
+        ...state,
+        globalSettings: {
+          ...state.globalSettings,
+          data: action.payload
         }
       };
     default:

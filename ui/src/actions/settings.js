@@ -5,7 +5,9 @@ import {
   FETCH_GLOBAL_SETTINGS_START,
   FETCH_GLOBAL_SETTINGS_OK,
   FETCH_GLOBAL_SETTINGS_ERR,
-  NOTIFICATIONS_ADD
+  NOTIFICATIONS_ADD,
+  UPDATE_USER_SETTINGS,
+  UPDATE_GLOBAL_SETTINGS
 } from "./types.js";
 
 export const fetchUserSettings = () => async (dispatch, getState) => {
@@ -87,16 +89,18 @@ export const updateUserSettings = (data) => async (dispatch, getState) => {
   const userSettings = state.settings.userSettings;
   const token = state.auth.token;
 
+  const newSettings = {
+    ...userSettings.data,
+    ...data
+  };
+
   const config = {
     method: "POST",
     headers: {
       "Authorization" : token,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      ...userSettings.data,
-      ...data
-    })
+    body: JSON.stringify(newSettings)
   };
 
   try {
@@ -112,6 +116,11 @@ export const updateUserSettings = (data) => async (dispatch, getState) => {
 
       return;
     }
+
+    dispatch({
+      type: UPDATE_USER_SETTINGS,
+      payload: newSettings
+    });
 
     dispatch({
       type: NOTIFICATIONS_ADD,
@@ -132,8 +141,13 @@ export const updateUserSettings = (data) => async (dispatch, getState) => {
 export const updateGlobalSettings = (data) => async (dispatch, getState) => {
   const state = getState();
 
-  const globalSettings = state.settings.globalSettings;
+  const globalSettings = state.settings.globalSettings.data;
   const token = state.auth.token;
+
+  const newSettings = {
+    ...globalSettings,
+    ...data
+  };
 
   const config = {
     method: "POST",
@@ -141,10 +155,7 @@ export const updateGlobalSettings = (data) => async (dispatch, getState) => {
       "Authorization" : token,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      ...globalSettings.data,
-      ...data
-    })
+    body: JSON.stringify(newSettings)
   };
 
   try {
@@ -160,6 +171,11 @@ export const updateGlobalSettings = (data) => async (dispatch, getState) => {
 
       return;
     }
+
+    dispatch({
+      type: UPDATE_GLOBAL_SETTINGS,
+      payload: newSettings
+    });
 
     dispatch({
       type: NOTIFICATIONS_ADD,
