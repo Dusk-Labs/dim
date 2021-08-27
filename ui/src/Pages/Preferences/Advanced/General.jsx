@@ -52,6 +52,8 @@ function General() {
           state={verbose}
         />
         <Field
+          type="number"
+          maxLength="4"
           name="Port"
           data={[port, setPort]}
           error={[portErr, setPortErr]}
