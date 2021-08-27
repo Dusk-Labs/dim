@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
 import { Link, useParams } from "react-router-dom";
 
+import Button from "../../Components/Misc/Button";
 import { clearMediaInfo, fetchMediaInfo } from "../../actions/card.js";
 import PlayButton from "../../Components/PlayButton.jsx";
 import CircleIcon from "../../assets/Icons/Circle";
@@ -10,6 +12,7 @@ import "./MetaContent.scss";
 
 function MetaContent() {
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const { auth, media_info } = useSelector(store => ({
     auth: store.auth,
@@ -67,6 +70,17 @@ function MetaContent() {
   }, [media_info]);
 
   let metaContent = <></>;
+
+  // FETCH_MEDIA_INFO_OK
+  if (media_info.fetched && media_info.error) {
+    metaContent = (
+      <div className="metaContentErr">
+        <h2>Failed to load media</h2>
+        <p className="desc">Something went wrong with this media during scan.</p>
+        <Button onClick={history.goBack}>Go back</Button>
+      </div>
+    );
+  }
 
   // FETCH_MEDIA_INFO_OK
   if (media_info.fetched && !media_info.error) {
