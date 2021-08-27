@@ -1,3 +1,14 @@
+.metaContentErr {
+  .desc {
+    margin: .5em 0 1em 0;
+    color: var(--secondaryTextColor);
+  }
+
+  button {
+    display: inline-block;
+  }
+}
+
 .metaContent {
   display: grid;
   gap: 1em;
