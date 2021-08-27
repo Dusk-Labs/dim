@@ -1,9 +1,10 @@
-.banner-progress-bar {
+.bannerProgressBar {
   grid-area: progressbar;
+  justify-self: flex-end;
   align-self: flex-end;
-  display: grid;
+  width: 100%;
   color: var(--bannerPrimaryTextColor);
-  justify-content: start;
+  transition: width 500ms ease-in-out;
 
   p {
     margin: 0;
@@ -19,9 +20,8 @@
   // SEASON AND EPISODE
   .s-e {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
-    margin: 0 auto;
     font-family: "Roboto Bold", Arial;
   }
 
@@ -49,7 +49,7 @@
     .bar {
       margin: 0 10px;
       height: 4px;
-      width: 175px;
+      width: 100%;
       background: var(--bannerPrimaryTextColor);
       -webkit-appearance: none;
       border-radius: 4px;
@@ -73,8 +73,8 @@
     * == MEDIA QUERIES ==
 */
 
-@media only screen and (min-width: 1080px) {
-  .banner-progress-bar {
-    justify-self: end;
+@media only screen and (min-width: 720px) {
+  .bannerProgressBar {
+    width: 250px;
   }
 }
