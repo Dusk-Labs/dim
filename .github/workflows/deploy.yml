@@ -1,6 +1,10 @@
 name: CD
 
 on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Version tag'
   push:
     tags:
       - 'v*'
