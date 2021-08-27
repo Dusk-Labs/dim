@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import Volume from "./Volume";
@@ -9,6 +9,7 @@ import Subtitles from "./Subtitles";
 import Fullscreen from "./Fullscreen";
 import VideoActionSettings from "./Settings";
 
+import { VideoPlayerContext } from "../../Context";
 import { updateVideo } from "../../../../actions/video";
 
 import "./Index.scss";
@@ -20,13 +21,15 @@ function VideoActions(props) {
     video: store.video
   }));
 
+  const { videoPlayer } = useContext(VideoPlayerContext);
+
   const { setVisible } = props;
 
   useEffect(() => {
-    const body = document.getElementsByTagName("body")[0];
+    if (!videoPlayer.current) return;
     setVisible(video.idleCount <= 2);
-    body.style.cursor = video.idleCount <= 2 ? "default" : "none";
-  }, [video.idleCount, setVisible]);
+    videoPlayer.current.style.cursor = video.idleCount <= 2 ? "default" : "none";
+  }, [video.idleCount, setVisible, videoPlayer]);
 
   const showPlayer = useCallback(() => {
     dispatch(updateVideo({
@@ -34,8 +37,11 @@ function VideoActions(props) {
     }));
 
     setVisible(true);
-    document.getElementsByTagName("body")[0].style.cursor = "default";
-  }, [dispatch, setVisible]);
+
+    if (videoPlayer.current) {
+      videoPlayer.current.style.cursor = "default";
+    }
+  }, [dispatch, setVisible, videoPlayer]);
 
   useEffect(() => {
     document.addEventListener("mousemove", showPlayer);
