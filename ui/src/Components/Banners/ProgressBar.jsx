@@ -12,7 +12,7 @@ function ProgressBar(props) {
   const width = current / duration * 100 + "%";
 
   return (
-    <div className="banner-progress-bar">
+    <div className="bannerProgressBar">
       {((season || season === 0) && (episode || episode === 0)) && (
         <div className="s-e">
           <p>S{season}</p>
