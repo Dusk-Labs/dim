@@ -13,7 +13,6 @@ function Button(props) {
 
   return (
     <button
-      title={`${props.disabled ? "This feature is currently disabled." : ""}`}
       className={`btn ${props.type || "primary"} ${props.disabled ? "disabled" : ""}`}
       onClick={handleClick}
     >

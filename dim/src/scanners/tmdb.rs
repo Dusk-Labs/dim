@@ -368,6 +368,14 @@ pub struct Media {
 
 impl From<Media> for super::ApiMedia {
     fn from(this: Media) -> Self {
+        let backdrop_path = this.backdrop_path.clone().map(|bp| {
+            if bp.starts_with('/') {
+                format!("https://image.tmdb.org/t/p/original/{}", bp)
+            } else {
+                format!("https://image.tmdb.org/t/p/original{}", bp)
+            }
+        });
+
         Self {
             id: this.id,
             title: this.title,
@@ -378,10 +386,7 @@ impl From<Media> for super::ApiMedia {
                 .clone()
                 .map(|s| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{}", s)),
             poster_file: this.poster_path,
-            backdrop_path: this
-                .backdrop_path
-                .clone()
-                .map(|s| format!("https://image.tmdb.org/t/p/original/{}", s)),
+            backdrop_path,
             backdrop_file: this.backdrop_path,
             genres: this.genres,
             rating: this.vote_average.map(|x| x as i32),

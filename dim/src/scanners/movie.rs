@@ -58,20 +58,20 @@ impl<'a> MovieMatcher<'a> {
 
         let poster = match poster_path {
             Some(path) => InsertableAsset {
-                remote_url: Some(path),
-                local_path: result
-                    .poster_file
-                    .clone()
-                    .map(|x| format!("images/{}", x))
-                    .unwrap_or_default(),
-                file_ext: "jpg".into(),
-                ..Default::default()
-            }
-            .insert(self.conn)
-            .await
-            .ok()
-            .map(|x| x.id),
-            None => None,
+                    remote_url: Some(path),
+                    local_path: result
+                        .poster_file
+                        .clone()
+                        .map(|x| format!("images/{}", x.trim_start_matches("/")))
+                        .unwrap_or_default(),
+                        file_ext: "jpg".into(),
+                        ..Default::default()
+                    }
+                .insert(self.conn)
+                    .await
+                    .ok()
+                    .map(|x| x.id),
+                None => None,
         };
 
         let backdrop = match backdrop_path {
@@ -80,7 +80,7 @@ impl<'a> MovieMatcher<'a> {
                 local_path: result
                     .backdrop_file
                     .clone()
-                    .map(|x| format!("images/{}", x))
+                    .map(|x| format!("images/{}", x.trim_start_matches("/")))
                     .unwrap_or_default(),
                 file_ext: "jpg".into(),
                 ..Default::default()

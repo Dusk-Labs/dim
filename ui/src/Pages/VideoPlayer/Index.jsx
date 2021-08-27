@@ -62,6 +62,8 @@ function VideoPlayer() {
       const tAudios = payload.tracks.filter(track => track.content_type === "audio");
       const tSubtitles = payload.tracks.filter(track => track.content_type === "subtitle");
 
+      console.log(payload);
+
       dispatch(setTracks({
         video: tVideos,
         audio: tAudios,

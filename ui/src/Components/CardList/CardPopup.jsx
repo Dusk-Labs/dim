@@ -67,9 +67,11 @@ function CardPopup(props) {
       if (payload.error) return;
 
       if (payload.seasons) {
-        setMediaVersions(
-          payload.seasons[0].episodes[0].versions
-        );
+        if (payload.seasons.length > 0) {
+          setMediaVersions(
+            payload.seasons[0].episodes[0].versions
+          );
+        }
       } else {
         setMediaVersions(payload.versions);
       }

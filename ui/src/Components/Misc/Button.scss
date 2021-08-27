@@ -1,28 +1,33 @@
 .btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 1em;
   border-radius: 10px;
-  transition: filter 0.3s ease-in-out;
+  background: transparent;
+  transition: 200ms ease-in-out;
+  transition-property: background, opacity;
   font-family: "Roboto Bold";
   outline: none;
 
+  &:not(.disabled) {
+    opacity: 1;
+  }
+
   &.primary {
-    background: var(--accentColor);
-  }
-
-  &:not(.secondary) {
     padding: .5em;
-  }
+    background: var(--accentLighterColor);
 
-  &.primary, &.critical {
-    filter: saturate(0.7);
+    svg {
+      fill: var(--accentTextColor);
+    }
 
     &:hover {
-      filter: saturate(1);
+      background: var(--accentColor);
     }
   }
 
   &.secondary {
-    background: transparent;
     color: var(--primaryTextColor);
 
     &:hover {
@@ -36,7 +41,12 @@
   }
 
   &.critical {
-    background: var(--criticalColor);
+    padding: .5em;
+    background: var(--criticalLighterColor);
     color: var(--criticalTextColor);
+
+    &:hover {
+      background: var(--criticalColor);
+    }
   }
 }

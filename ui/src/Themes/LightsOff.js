@@ -1,8 +1,10 @@
 const LightsOff = {
   borderRadius: "10px",
   accentColor: "#f7931e",
+  accentLighterColor: "#dd9745",
   accentTextColor: "#1a1a1a",
   criticalColor:  "#e91619",
+  criticalLighterColor: "#b72426",
   criticalTextColor: "#eee",
   primaryTextColor: "#eee",
   secondaryTextColor: "#ccc",
