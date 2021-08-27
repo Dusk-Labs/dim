@@ -7,9 +7,10 @@ import CardImage from "./CardImage.jsx";
 import "./Index.scss";
 
 function Media() {
-  const extra_media_info = useSelector(store => (
-    store.card.extra_media_info
-  ));
+  const {media_info, extra_media_info} = useSelector(store => ({
+    extra_media_info: store.card.extra_media_info,
+    media_info: store.card.media_info
+  }));
 
   const episodes = useRef(null);
 
@@ -76,24 +77,28 @@ function Media() {
     }
   }
 
-  return (
-    <div className="mediaPageSeasons">
-      <section>
-        <h2>Seasons</h2>
-        <div className={`seasons ${season && "selected"}`}>
-          {mediaSeasons}
-        </div>
-      </section>
-      {season !== undefined && (
+  if (media_info.fetched && !media_info.error) {
+    return (
+      <div className="mediaPageSeasons">
         <section>
-          <h2>Episodes</h2>
-          <div className="episodes" ref={episodes}>
-            {mediaEpisodes[season]}
+          <h2>Seasons</h2>
+          <div className={`seasons ${season && "selected"}`}>
+            {mediaSeasons}
           </div>
         </section>
-      )}
-    </div>
-  );
+        {season !== undefined && (
+          <section>
+            <h2>Episodes</h2>
+            <div className="episodes" ref={episodes}>
+              {mediaEpisodes[season]}
+            </div>
+          </section>
+        )}
+      </div>
+    );
+  }
+
+  return null;
 }
 
 export default Media;
