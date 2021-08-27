@@ -57,7 +57,7 @@ pub struct UserSettings {
     external_args: HashMap<String, String>,
     /// Whether hovercards are hidden or not
     #[serde(default)]
-    hide_hovercards: bool,
+    show_hovercards: bool,
 }
 
 impl Default for UserSettings {
@@ -71,7 +71,7 @@ impl Default for UserSettings {
             default_subtitle_language: Some("english".into()),
             default_audio_language: Some("english".into()),
             external_args: HashMap::new(),
-            hide_hovercards: false,
+            show_hovercards: true,
         }
     }
 }
