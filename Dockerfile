@@ -6,7 +6,7 @@ RUN apt-get -y update && apt-get install -y nodejs yarn libva2 libva-dev sqlite3
 
 COPY . /src/dim
 WORKDIR /src/dim
-ENV DATABASE_URL "sqlite://./dim_dev.db"
+ENV DATABASE_URL "sqlite:///src/dim/dim_dev.db"
 RUN cargo build --release
 
 FROM ubuntu:20.04 AS release
