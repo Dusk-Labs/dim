@@ -11,29 +11,14 @@ use database::media::Media;
 use database::media::UpdateMedia;
 use database::mediafile::MediaFile;
 use database::progress::Progress;
-use database::season::Season;
 use database::tv::TVShow;
 
 use serde_json::json;
-use serde_json::Value;
 
 use warp::http::status::StatusCode;
 use warp::reply;
-use warp::Filter;
 
-pub fn media_router(
-    conn: DbConnection,
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    filters::get_media_by_id(conn.clone())
-        .or(filters::get_extra_info_by_id(conn.clone()))
-        .or(filters::update_media_by_id(conn.clone()))
-        .or(filters::delete_media_by_id(conn.clone()))
-        .or(filters::tmdb_search())
-        .or(filters::map_progress(conn.clone()))
-        .recover(super::global_filters::handle_rejection)
-}
-
-mod filters {
+pub mod filters {
     use warp::reject;
     use warp::Filter;
 
@@ -53,20 +38,6 @@ mod filters {
             .and(auth::with_auth())
             .and_then(|id: i64, conn: DbConnection, user: Auth| async move {
                 super::get_media_by_id(conn, id, user)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
-
-    pub fn get_extra_info_by_id(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "media" / i64 / "info")
-            .and(warp::get())
-            .and(with_state::<DbConnection>(conn))
-            .and(auth::with_auth())
-            .and_then(|id: i64, conn: DbConnection, user: Auth| async move {
-                super::get_extra_info_by_id(conn, id, user)
                     .await
                     .map_err(|e| reject::custom(e))
             })
@@ -231,119 +202,6 @@ pub async fn get_media_by_id(
         "duration": duration,
         "duration_pretty": duration_pretty,
     })))
-}
-
-/// Method mapped to `GET /api/v1/media/<id>/info` returns extra information about the media object
-/// such as casts, directors, and mediafiles. This method can only be accessed by authenticated
-/// users.
-///
-/// # Arguments
-/// * `conn` - database connection
-/// * `id` - id of the media we want to query info of
-/// * `_user` - Auth middleware
-pub async fn get_extra_info_by_id(
-    conn: DbConnection,
-    id: i64,
-    user: Auth,
-) -> Result<impl warp::Reply, errors::DimError> {
-    let media = Media::get(&conn, id).await?;
-
-    match media.media_type {
-        MediaType::Movie | MediaType::Episode => get_for_streamable(conn, id, user)
-            .await
-            .map(|x| reply::json(&x)),
-        MediaType::Tv => get_for_show(conn, id, user).await.map(|x| reply::json(&x)),
-    }
-}
-
-async fn get_for_streamable(
-    conn: DbConnection,
-    media_id: i64,
-    user: Auth,
-) -> Result<Value, errors::DimError> {
-    let media_files = MediaFile::get_of_media(&conn, media_id).await?;
-
-    Ok(json!({
-        "progress": Progress::get_for_media_user(&conn, user.0.claims.get_user(), media_id).await
-            .map(|x| x.delta)
-            .unwrap_or(0),
-        "versions": media_files.iter().map(|x| json!({
-            "id": x.id,
-            "file": x.target_file,
-            "display_name": format!("{} - {} - {} - Library {}",
-                                    x.codec.as_ref().unwrap_or(&"Unknown VC".to_string()),
-                                    x.audio.as_ref().unwrap_or(&"Unknwon AC".to_string()),
-                                    x.original_resolution.as_ref().unwrap_or(&"Unknown res".to_string()),
-                                    x.library_id)
-        })).collect::<Vec<_>>(),
-    }))
-}
-
-async fn get_for_episode(
-    conn: &DbConnection,
-    media: Episode,
-    user: &Auth,
-) -> Result<Value, errors::DimError> {
-    let media_files = MediaFile::get_of_media(&conn, media.id).await?;
-
-    Ok(json!({
-        "id": media.id,
-        "progress": Progress::get_for_media_user(&conn, user.0.claims.get_user(), media.id)
-            .await
-            .map(|x| x.delta)
-            .unwrap_or(0),
-        "episode": media.episode,
-        "description": media.media.description,
-        "rating": media.media.rating,
-        "backdrop": media.media.backdrop_path,
-        "versions": media_files.iter().map(|x| json!({
-            "id": x.id,
-            "file": x.target_file,
-            "display_name": format!("{} - {} - {} - Library {}",
-                                    x.codec.as_ref().unwrap_or(&"Unknown VC".to_string()),
-                                    x.audio.as_ref().unwrap_or(&"Unknwon AC".to_string()),
-                                    x.original_resolution.as_ref().unwrap_or(&"Unknown res".to_string()),
-                                    x.library_id)
-        })).collect::<Vec<_>>(),
-    }))
-}
-
-async fn get_for_show(
-    conn: DbConnection,
-    media_id: i64,
-    user: Auth,
-) -> Result<Value, errors::DimError> {
-    let seasons = Season::get_all(&conn, media_id).await?;
-
-    let mut result: Vec<Value> = Vec::new();
-
-    for season in seasons.iter() {
-        if let Ok(eps) = Episode::get_all_of_season(&conn, season.id).await {
-            let mut episodes = vec![];
-            for i in eps {
-                if let Ok(y) = get_for_episode(&conn, i, &user).await {
-                    episodes.push(y);
-                }
-            }
-
-            result.push(json!({
-                "id": season.id,
-                "season_number": season.season_number,
-                "name": if season.season_number == 0 {
-                    "Extras".to_string()
-                } else {
-                    format!("Season {}", season.season_number)
-                },
-                "added": season.added,
-                "poster": season.poster,
-                "episodes": episodes
-            }));
-        }
-    }
-
-    Ok(json!({
-        "seasons": result,
-    }))
 }
 
 /// Method mapped to `PATCH /api/v1/media/<id>` is used to edit information about a media entry

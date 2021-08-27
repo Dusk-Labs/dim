@@ -9,16 +9,7 @@ use warp::http::status::StatusCode;
 use warp::reply;
 use warp::Filter;
 
-pub fn mediafile_router(
-    conn: DbConnection,
-    log: slog::Logger,
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    filters::get_mediafile_info(conn.clone())
-        .or(filters::rematch_mediafile(conn.clone(), log.clone()))
-        .recover(super::global_filters::handle_rejection)
-}
-
-mod filters {
+pub mod filters {
     use warp::reject;
     use warp::Filter;
 

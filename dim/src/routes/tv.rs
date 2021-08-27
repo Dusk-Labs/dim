@@ -11,21 +11,7 @@ use warp::http::status::StatusCode;
 use warp::reply;
 use warp::Filter;
 
-pub fn tv_router(
-    conn: DbConnection,
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    filters::get_tv_by_id(conn.clone())
-        .or(filters::get_tv_seasons(conn.clone()))
-        .or(filters::get_season_by_num(conn.clone()))
-        .or(filters::patch_season_by_num(conn.clone()))
-        .or(filters::delete_season_by_num(conn.clone()))
-        .or(filters::get_episode_by_num(conn.clone()))
-        .or(filters::patch_episode_by_num(conn.clone()))
-        .or(filters::delete_episode_by_num(conn.clone()))
-        .recover(super::global_filters::handle_rejection)
-}
-
-mod filters {
+pub mod filters {
     use warp::reject;
     use warp::Filter;
     use warp::Rejection;
@@ -88,11 +74,13 @@ mod filters {
             .and(warp::body::json::<UpdateSeason>())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, data: UpdateSeason, auth: Auth, conn: DbConnection| async move {
-                super::patch_season_by_num(conn, id, data, auth)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
+            .and_then(
+                |id: i64, data: UpdateSeason, auth: Auth, conn: DbConnection| async move {
+                    super::patch_season_by_num(conn, id, data, auth)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                },
+            )
     }
 
     pub fn delete_season_by_num(

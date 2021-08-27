@@ -1,7 +1,7 @@
 use crate::get_conn_memory;
-use crate::tv;
-use crate::media;
 use crate::library;
+use crate::media;
+use crate::tv;
 
 use super::library_tests::create_test_library;
 use super::media_tests::insert_media;

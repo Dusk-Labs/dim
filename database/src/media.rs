@@ -119,13 +119,11 @@ impl Media {
     pub async fn get_top_rated(
         conn: &crate::DbConnection,
         limit: i64,
-    ) -> Result<Vec<Self>, DatabaseError> {
-        Ok(sqlx::query_as!(
-                Media,
-                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path as "poster_path?", backdrop_path as "backdrop_path?", media_type as "media_type: _"
-                FROM media
+    ) -> Result<Vec<i64>, DatabaseError> {
+        Ok(sqlx::query_scalar!(
+                r#"SELECT _tblmedia.id
+                FROM _tblmedia
                 WHERE NOT media_type = "episode"
-                GROUP BY id, name
                 ORDER BY rating DESC
                 LIMIT ?"#,
                 limit
@@ -136,13 +134,11 @@ impl Media {
     pub async fn get_recently_added(
         conn: &crate::DbConnection,
         limit: i64,
-    ) -> Result<Vec<Self>, DatabaseError> {
-        Ok(sqlx::query_as!(
-                Media,
-                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path as "poster_path?", backdrop_path as "backdrop_path?", media_type as "media_type: _"
-                FROM media
+    ) -> Result<Vec<i64>, DatabaseError> {
+        Ok(sqlx::query_scalar!(
+                r#"SELECT _tblmedia.id
+                FROM _tblmedia
                 WHERE NOT media_type = "episode"
-                GROUP BY id, name
                 ORDER BY added DESC
                 LIMIT ?"#,
                 limit

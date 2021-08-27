@@ -156,7 +156,7 @@ pub const VIDEO_QUALITIES: [Quality; 19] = [
     Quality {
         height: 360,
         bitrate: 250_000,
-    }
+    },
 ];
 
 #[derive(Clone)]

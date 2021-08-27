@@ -51,6 +51,8 @@ use std::fs::File;
 pub mod core;
 /// Module contains all the error definitions used in dim, and returned by the web-service.
 pub mod errors;
+/// Contains the code for fetching assets like posters and stills.
+pub mod fetcher;
 /// Contains our custom logger for rocket
 pub mod logger;
 /// Contains all of the routes exposed by the webapi.
@@ -65,8 +67,6 @@ pub mod streaming;
 pub mod utils;
 /// Websocket related logic.
 pub mod websocket;
-/// Contains the code for fetching assets like posters and stills.
-pub mod fetcher;
 
 pub use routes::settings::get_global_settings;
 pub use routes::settings::init_global_settings;
