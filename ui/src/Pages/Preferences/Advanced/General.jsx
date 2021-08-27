@@ -27,7 +27,7 @@ function General() {
   }, [dispatch]);
 
   const updatePort = useCallback(() => {
-    if (port.length === 0) {
+    if (port.length === 0 || port < 1 || port > 65535) {
       setPortErr("Invalid port");
       return;
     }
@@ -52,6 +52,8 @@ function General() {
           state={verbose}
         />
         <Field
+          type="number"
+          maxLength="5"
           name="Port"
           data={[port, setPort]}
           error={[portErr, setPortErr]}

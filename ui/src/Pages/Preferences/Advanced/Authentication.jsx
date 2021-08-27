@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateGlobalSettings } from "../../../actions/settings";
 
@@ -6,14 +6,14 @@ import Toggle from "../../../Components/Toggle";
 
 function Authentication() {
   const dispatch = useDispatch();
-  const settings = useSelector(store => store.settings);
 
-  const [disableAuth, setDisableAuth] = useState(false);
+  const { disableAuth } = useSelector(store => {
+    const { data } = store.settings.globalSettings;
 
-  useEffect(() => {
-    const { data } = settings.globalSettings;
-    setDisableAuth(data.disable_auth);
-  }, [settings]);
+    return {
+      disableAuth: data.disable_auth
+    };
+  });
 
   const handleToggle = useCallback((state) => {
     dispatch(updateGlobalSettings({

@@ -12,7 +12,10 @@ use serde::Serialize;
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
+use std::io::Write;
 use std::lazy::SyncOnceCell;
+use std::lazy::SyncLazy;
+use std::sync::Mutex;
 
 use warp::reply;
 use warp::Filter;
@@ -58,21 +61,19 @@ impl Default for GlobalSettings {
     }
 }
 
-static GLOBAL_SETTINGS: SyncOnceCell<GlobalSettings> = SyncOnceCell::new();
+static GLOBAL_SETTINGS: SyncLazy<Mutex<GlobalSettings>> = SyncLazy::new(|| Default::default());
 static SETTINGS_PATH: SyncOnceCell<String> = SyncOnceCell::new();
 
-pub fn get_global_settings() -> &'static GlobalSettings {
-    if let Some(x) = GLOBAL_SETTINGS.get() {
-        return x;
-    }
-
-    unreachable!("Global settings not initialized.");
+pub fn get_global_settings() -> GlobalSettings {
+    let lock = GLOBAL_SETTINGS.lock().unwrap();
+    lock.clone()
 }
 
 pub fn init_global_settings(path: Option<String>) -> Result<(), Box<dyn Error>> {
-    let path = path.unwrap_or("./config.json".into());
+    let path = path.unwrap_or("./config.toml".into());
     let _ = SETTINGS_PATH.set(path.clone());
     let mut content = String::new();
+
     File::with_options()
         .write(true)
         .create(true)
@@ -80,8 +81,12 @@ pub fn init_global_settings(path: Option<String>) -> Result<(), Box<dyn Error>> 
         .open(path)?
         .read_to_string(&mut content)?;
 
-    let _ = GLOBAL_SETTINGS.set(serde_json::from_str(&content).unwrap_or_default());
-    let _ = set_global_settings(get_global_settings().clone());
+    {
+        let mut lock = GLOBAL_SETTINGS.lock().unwrap();
+        *lock = toml::from_str(&content).unwrap_or_default();
+    }
+
+    let _ = set_global_settings(get_global_settings());
 
     Ok(())
 }
@@ -90,10 +95,15 @@ pub fn set_global_settings(settings: GlobalSettings) -> Result<(), Box<dyn Error
     let path = SETTINGS_PATH
         .get()
         .cloned()
-        .unwrap_or("./config.json".into());
-    let _ = GLOBAL_SETTINGS.set(settings);
-    let settings = GLOBAL_SETTINGS.get().unwrap();
-    serde_json::to_writer(File::create(path)?, settings)?;
+        .unwrap_or("./config.toml".into());
+
+    {
+        let mut lock = GLOBAL_SETTINGS.lock().unwrap();
+        *lock = settings;
+    }
+
+    let settings = get_global_settings();
+    File::create(path)?.write(toml::to_string_pretty(&settings).unwrap().as_ref()).unwrap();
 
     Ok(())
 }
@@ -202,7 +212,7 @@ pub async fn post_user_settings(
 }
 
 pub async fn http_get_global_settings(_user: Auth) -> Result<impl warp::Reply, errors::DimError> {
-    Ok(reply::json(get_global_settings()))
+    Ok(reply::json(&get_global_settings()))
 }
 
 pub async fn http_set_global_settings(
@@ -210,8 +220,8 @@ pub async fn http_set_global_settings(
     new_settings: GlobalSettings,
 ) -> Result<impl warp::Reply, errors::DimError> {
     if user.0.claims.has_role("owner") {
-        let _ = set_global_settings(new_settings);
-        return Ok(reply::json(get_global_settings()));
+        set_global_settings(new_settings).unwrap();
+        return Ok(reply::json(&get_global_settings()));
     }
 
     Err(errors::DimError::Unauthorized)
