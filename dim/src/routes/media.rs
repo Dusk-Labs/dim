@@ -1,5 +1,6 @@
 use crate::core::DbConnection;
 use crate::errors;
+use crate::json;
 
 use auth::Wrapper as Auth;
 use std::convert::Infallible;
@@ -12,8 +13,6 @@ use database::media::UpdateMedia;
 use database::mediafile::MediaFile;
 use database::progress::Progress;
 use database::tv::TVShow;
-
-use serde_json::json;
 
 use warp::http::status::StatusCode;
 use warp::reply;
@@ -162,7 +161,7 @@ pub mod filters {
 pub async fn get_media_by_id(
     conn: DbConnection,
     id: i64,
-    _user: Auth,
+    user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let media = Media::get(&conn, id).await?;
 
@@ -189,15 +188,17 @@ pub async fn get_media_by_id(
         .map(|x| x.name)
         .collect::<Vec<String>>();
 
-    let duration_pretty = match media.media_type {
-        MediaType::Movie | MediaType::Episode => {
-            format!("{} min", duration / 60)
-        }
-        MediaType::Tv => {
-            let total_eps = TVShow::get_total_episodes(&conn, id).await?;
-            let total_len = TVShow::get_total_duration(&conn, id).await?;
-            format!("{} episodes | {} hr", total_eps, total_len / 3600)
-        }
+    let progress = match media.media_type {
+        MediaType::Episode | MediaType::Movie => json!({
+            "progress": Progress::get_for_media_user(&conn, user.0.claims.get_user(), id)
+                .await
+                .map(|x| x.delta)
+                .unwrap_or_default()
+        }),
+        // TODO (val): We can report on last episode + ts for tv shows here.
+        MediaType::Tv => json!({
+            "progress": 0
+        }),
     };
 
     // FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
@@ -214,7 +215,7 @@ pub async fn get_media_by_id(
         "media_type": media.media_type,
         "genres": genres,
         "duration": duration,
-        "duration_pretty": duration_pretty,
+        ...progress
     })))
 }
 
