@@ -43,6 +43,20 @@ pub mod filters {
             })
     }
 
+    pub fn get_media_files(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "media" / i64 / "files")
+            .and(warp::get())
+            .and(with_state::<DbConnection>(conn))
+            .and(auth::with_auth())
+            .and_then(|id: i64, conn: DbConnection, _user: Auth| async move {
+                super::get_media_files(conn, id)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
     pub fn update_media_by_id(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
@@ -201,6 +215,16 @@ pub async fn get_media_by_id(
         "genres": genres,
         "duration": duration,
         "duration_pretty": duration_pretty,
+    })))
+}
+
+pub async fn get_media_files(
+    conn: DbConnection,
+    id: i64
+) -> Result<impl warp::Reply, errors::DimError> {
+    let mediafiles = MediaFile::get_of_media(&conn, id).await?;
+    Ok(reply::json(&json!({
+        "files": mediafiles,
     })))
 }
 

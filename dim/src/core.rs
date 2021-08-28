@@ -130,6 +130,7 @@ pub async fn warp_core(
         routes::dashboard::filters::banners(conn.clone()),
         /* media routes */
         routes::media::filters::get_media_by_id(conn.clone()),
+        routes::media::filters::get_media_files(conn.clone()),
         routes::media::filters::update_media_by_id(conn.clone()),
         routes::media::filters::delete_media_by_id(conn.clone()),
         routes::media::filters::tmdb_search(),
