@@ -224,9 +224,7 @@ pub async fn get_media_files(
     id: i64
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mediafiles = MediaFile::get_of_media(&conn, id).await?;
-    Ok(reply::json(&json!({
-        "files": mediafiles,
-    })))
+    Ok(reply::json(&mediafiles))
 }
 
 /// Method mapped to `PATCH /api/v1/media/<id>` is used to edit information about a media entry
