@@ -22,20 +22,6 @@ pub mod filters {
     use database::season::UpdateSeason;
     use database::DbConnection;
 
-    pub fn get_tv_by_id(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
-        warp::path!("api" / "v1" / "tv" / i64)
-            .and(warp::get())
-            .and(auth::with_auth())
-            .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
-                super::get_tv_by_id(conn, id, auth)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
-
     pub fn get_tv_seasons(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
@@ -143,19 +129,6 @@ pub mod filters {
                     .map_err(|e| reject::custom(e))
             })
     }
-}
-
-/// Method mapped to `GET /api/v1/tv/<id>` returns info about a a TV Show mapped to the id passed
-/// in.
-///
-/// # Arguments
-/// * `id` - id of the tv show we want info about
-pub async fn get_tv_by_id(
-    conn: DbConnection,
-    id: i64,
-    _user: Auth,
-) -> Result<impl warp::Reply, errors::DimError> {
-    Ok(reply::json(&Media::get(&conn, id).await?))
 }
 
 /// Method mapped to `GET /api/v1/tv/<id>/season` returns all seasons for TV Show mapped to the id
