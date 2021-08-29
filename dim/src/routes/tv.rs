@@ -208,10 +208,10 @@ pub async fn get_season_episodes(
     }
 
     let result = sqlx::query_as!(Record,
-        r#"SELECT episode.id as "id!", media.name, assets.local_path as thumbnail_url, episode.episode_ as "episode!"
+        r#"SELECT episode.id as "id!", _tblmedia.name, assets.local_path as thumbnail_url, episode.episode_ as "episode!"
         FROM episode
-        INNER JOIN media on media.id = episode.id
-        LEFT JOIN assets ON assets.id = media.backdrop
+        INNER JOIN _tblmedia on _tblmedia.id = episode.id
+        LEFT JOIN assets ON assets.id = _tblmedia.backdrop
         WHERE episode.seasonid = ?"#,
         season_id
     ).fetch_all(&conn).await.map_err(|_| errors::DimError::DatabaseError)?;
