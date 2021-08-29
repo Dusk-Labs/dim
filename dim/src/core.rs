@@ -137,11 +137,11 @@ pub async fn warp_core(
         routes::media::filters::map_progress(conn.clone()),
         /* tv routes */
         routes::tv::filters::get_tv_seasons(conn.clone()),
-        routes::tv::filters::patch_episode_by_num(conn.clone()),
-        routes::tv::filters::delete_season_by_num(conn.clone()),
-        routes::tv::filters::get_episode_by_num(conn.clone()),
-        routes::tv::filters::patch_episode_by_num(conn.clone()),
-        routes::tv::filters::delete_episode_by_num(conn.clone()),
+        routes::tv::filters::patch_episode_by_id(conn.clone()),
+        routes::tv::filters::delete_season_by_id(conn.clone()),
+        routes::tv::filters::get_season_episodes(conn.clone()),
+        routes::tv::filters::patch_episode_by_id(conn.clone()),
+        routes::tv::filters::delete_episode_by_id(conn.clone()),
         /* mediafile routes */
         routes::mediafile::filters::get_mediafile_info(conn.clone()),
         routes::mediafile::filters::rematch_mediafile(conn.clone(), logger.clone()),

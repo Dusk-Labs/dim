@@ -77,7 +77,20 @@ impl Season {
         )
         .execute(conn)
         .await?
-        .last_insert_rowid() as usize)
+        .rows_affected() as usize)
+    }
+
+    pub async fn delete_by_id(
+        conn: &crate::DbConnection,
+        season_id: i64
+    ) -> Result<usize, DatabaseError> {
+        Ok(sqlx::query!(
+            "DELETE FROM season where id = ?",
+            season_id
+        )
+            .execute(conn)
+            .await?
+            .rows_affected() as usize)
     }
 
     /// Method will return the oldest season for a tv show that is available.

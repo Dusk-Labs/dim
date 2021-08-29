@@ -36,23 +36,23 @@ pub mod filters {
             })
     }
 
-    pub fn get_season_by_num(
+    pub fn get_season_by_id(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
-        warp::path!("api" / "v1" / "tv" / i64 / "season" / i64)
+        warp::path!("api" / "v1" / "season" / i64)
             .and(warp::get())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
             .and_then(
-                |id: i64, season_num: i64, auth: Auth, conn: DbConnection| async move {
-                    super::get_season_by_num(conn, id, season_num, auth)
+                |id: i64, auth: Auth, conn: DbConnection| async move {
+                    super::get_season_by_id(conn, id, auth)
                         .await
                         .map_err(|e| reject::custom(e))
                 },
             )
     }
 
-    pub fn patch_season_by_num(
+    pub fn patch_season_by_id(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "season" / i64)
@@ -62,44 +62,45 @@ pub mod filters {
             .and(with_state::<DbConnection>(conn))
             .and_then(
                 |id: i64, data: UpdateSeason, auth: Auth, conn: DbConnection| async move {
-                    super::patch_season_by_num(conn, id, data, auth)
+                    super::patch_season_by_id(conn, id, data, auth)
                         .await
                         .map_err(|e| reject::custom(e))
                 },
             )
     }
 
-    pub fn delete_season_by_num(
+    pub fn delete_season_by_id(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
-        warp::path!("api" / "v1" / "tv" / i64 / "season" / i64)
+        warp::path!("api" / "v1" / "season" / i64)
             .and(warp::delete())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
             .and_then(
-                |id: i64, season_num: i64, auth: Auth, conn: DbConnection| async move {
-                    super::delete_season_by_num(conn, id, season_num, auth)
+                |id: i64, auth: Auth, conn: DbConnection| async move {
+                    super::delete_season_by_id(conn, id, auth)
                         .await
                         .map_err(|e| reject::custom(e))
                 },
             )
     }
 
-    pub fn get_episode_by_num(
-        conn: DbConnection,
+    pub fn get_season_episodes(
+        conn: DbConnection
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
-        warp::path!("api" / "v1" / "episode" / i64)
+        warp::path!("api" / "v1" / "season" / i64 / "episodes")
             .and(warp::get())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
-                super::get_episode_by_id(conn, id, auth)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
+            .and_then(
+                |id: i64, auth: Auth, conn: DbConnection | async move {
+                    super::get_season_episodes(conn, id, auth)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                })
     }
 
-    pub fn patch_episode_by_num(
+    pub fn patch_episode_by_id(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "episode" / i64)
@@ -116,7 +117,7 @@ pub mod filters {
             )
     }
 
-    pub fn delete_episode_by_num(
+    pub fn delete_episode_by_id(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "episode" / i64)
@@ -150,13 +151,12 @@ pub async fn get_tv_seasons(
 /// # Arguments
 /// * `id` - id of the tv show we want info about
 /// * `season_num` - the season we want info about
-pub async fn get_season_by_num(
+pub async fn get_season_by_id(
     conn: DbConnection,
     id: i64,
-    season_num: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    Ok(reply::json(&Season::get(&conn, id, season_num).await?))
+    Ok(reply::json(&Season::get_by_id(&conn, id).await?))
 }
 
 /// Method mapped to `PATCH /api/v1/tv/<id>/season/<season_num>` allows you to patch in info about
@@ -169,7 +169,7 @@ pub async fn get_season_by_num(
 /// # Data
 /// This route additionally requires you to pass in a json object by the format of
 /// `database::season::UpdateSeason`.
-pub async fn patch_season_by_num(
+pub async fn patch_season_by_id(
     conn: DbConnection,
     id: i64,
     data: UpdateSeason,
@@ -185,13 +185,12 @@ pub async fn patch_season_by_num(
 /// # Arguments
 /// * `id` - id of the tv show.
 /// * `season_num` - the season we want to remove
-pub async fn delete_season_by_num(
+pub async fn delete_season_by_id(
     conn: DbConnection,
     id: i64,
-    season_num: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    Season::delete(&conn, id, season_num).await?;
+    Season::delete_by_id(&conn, id).await?;
     Ok(StatusCode::OK)
 }
 
@@ -200,13 +199,31 @@ pub async fn delete_season_by_num(
 ///
 /// # Arguments
 /// * `id` - id of the episode.
-pub async fn get_episode_by_id(
+pub async fn get_season_episodes(
     conn: DbConnection,
-    id: i64,
-    _user: Auth,
+    season_id: i64,
+    _user: Auth
 ) -> Result<impl warp::Reply, errors::DimError> {
-    Ok(reply::json(&Episode::get_by_id(&conn, id).await?))
+    #[derive(serde::Serialize)]
+    pub struct Record {
+        pub id: i64,
+        pub name: String,
+        pub thumbnail_url: Option<String>,
+        pub episode: i64,
+    }
+
+    let result = sqlx::query_as!(Record,
+        r#"SELECT episode.id as "id!", media.name, assets.local_path as thumbnail_url, episode.episode_ as "episode!"
+        FROM episode
+        INNER JOIN media on media.id = episode.id
+        LEFT JOIN assets ON assets.id = media.backdrop
+        WHERE episode.seasonid = ?"#,
+        season_id
+    ).fetch_all(&conn).await.map_err(|_| errors::DimError::DatabaseError)?;
+
+    Ok(reply::json(&result))
 }
+
 
 /// TODO: Move all of these into a unified update interface for media items
 /// Method mapped to `PATCH /api/v1/episode/<id>` lets you patch

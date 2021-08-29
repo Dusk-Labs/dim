@@ -136,6 +136,7 @@ impl Episode {
         Ok(episodes)
     }
 
+    pub type QUERY_RESULT = (i64, String);
     /// Method returns a episodes discriminated by episode number, season number and tv show id
     ///
     /// # Arguments
