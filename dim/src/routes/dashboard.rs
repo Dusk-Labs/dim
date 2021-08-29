@@ -71,7 +71,10 @@ pub async fn dashboard(
     user: Auth,
     _rt: tokio::runtime::Handle,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let _tx = conn.begin().await.map_err(|_| errors::DimError::DatabaseError)?;
+    let _tx = conn
+        .begin()
+        .await
+        .map_err(|_| errors::DimError::DatabaseError)?;
 
     let mut top_rated = Vec::new();
     for media in Media::get_top_rated(&conn, 10).await? {

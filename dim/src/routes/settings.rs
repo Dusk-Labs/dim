@@ -13,8 +13,8 @@ use std::error::Error;
 use std::fs::File;
 use std::io::Read;
 use std::io::Write;
-use std::lazy::SyncOnceCell;
 use std::lazy::SyncLazy;
+use std::lazy::SyncOnceCell;
 use std::sync::Mutex;
 
 use warp::reply;
@@ -103,7 +103,9 @@ pub fn set_global_settings(settings: GlobalSettings) -> Result<(), Box<dyn Error
     }
 
     let settings = get_global_settings();
-    File::create(path)?.write(toml::to_string_pretty(&settings).unwrap().as_ref()).unwrap();
+    File::create(path)?
+        .write(toml::to_string_pretty(&settings).unwrap().as_ref())
+        .unwrap();
 
     Ok(())
 }

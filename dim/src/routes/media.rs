@@ -221,7 +221,7 @@ pub async fn get_media_by_id(
 
 pub async fn get_media_files(
     conn: DbConnection,
-    id: i64
+    id: i64,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mediafiles = MediaFile::get_of_media(&conn, id).await?;
     Ok(reply::json(&mediafiles))

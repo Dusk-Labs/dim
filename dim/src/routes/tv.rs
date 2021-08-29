@@ -43,13 +43,11 @@ pub mod filters {
             .and(warp::get())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
-            .and_then(
-                |id: i64, auth: Auth, conn: DbConnection| async move {
-                    super::get_season_by_id(conn, id, auth)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
+            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
+                super::get_season_by_id(conn, id, auth)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
     }
 
     pub fn patch_season_by_id(
@@ -76,28 +74,25 @@ pub mod filters {
             .and(warp::delete())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
-            .and_then(
-                |id: i64, auth: Auth, conn: DbConnection| async move {
-                    super::delete_season_by_id(conn, id, auth)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
+            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
+                super::delete_season_by_id(conn, id, auth)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
     }
 
     pub fn get_season_episodes(
-        conn: DbConnection
+        conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "season" / i64 / "episodes")
             .and(warp::get())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
-            .and_then(
-                |id: i64, auth: Auth, conn: DbConnection | async move {
-                    super::get_season_episodes(conn, id, auth)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                })
+            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
+                super::get_season_episodes(conn, id, auth)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
     }
 
     pub fn patch_episode_by_id(
@@ -202,7 +197,7 @@ pub async fn delete_season_by_id(
 pub async fn get_season_episodes(
     conn: DbConnection,
     season_id: i64,
-    _user: Auth
+    _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
     #[derive(serde::Serialize)]
     pub struct Record {
@@ -223,7 +218,6 @@ pub async fn get_season_episodes(
 
     Ok(reply::json(&result))
 }
-
 
 /// TODO: Move all of these into a unified update interface for media items
 /// Method mapped to `PATCH /api/v1/episode/<id>` lets you patch

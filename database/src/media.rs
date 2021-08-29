@@ -121,13 +121,15 @@ impl Media {
         limit: i64,
     ) -> Result<Vec<i64>, DatabaseError> {
         Ok(sqlx::query_scalar!(
-                r#"SELECT _tblmedia.id
+            r#"SELECT _tblmedia.id
                 FROM _tblmedia
                 WHERE NOT media_type = "episode"
                 ORDER BY rating DESC
                 LIMIT ?"#,
-                limit
-            ).fetch_all(conn).await?)
+            limit
+        )
+        .fetch_all(conn)
+        .await?)
     }
 
     /// Method returns the recently added medias
@@ -136,13 +138,15 @@ impl Media {
         limit: i64,
     ) -> Result<Vec<i64>, DatabaseError> {
         Ok(sqlx::query_scalar!(
-                r#"SELECT _tblmedia.id
+            r#"SELECT _tblmedia.id
                 FROM _tblmedia
                 WHERE NOT media_type = "episode"
                 ORDER BY added DESC
                 LIMIT ?"#,
-                limit
-            ).fetch_all(conn).await?)
+            limit
+        )
+        .fetch_all(conn)
+        .await?)
     }
 
     pub async fn get_random_with(
