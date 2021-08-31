@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link, useParams } from "react-router-dom";
 
 import Button from "../../Components/Misc/Button";
-import { clearMediaInfo, fetchMediaInfo } from "../../actions/card.js";
-import PlayButton from "../../Components/PlayButton.jsx";
+import { fetchMediaInfo } from "../../actions/media";
 import CircleIcon from "../../assets/Icons/Circle";
+import SelectMediaFile from "../../Modals/SelectMediaFile/Index";
+import SelectMediaFilePlayButton from "../../Modals/SelectMediaFile/Activators/PlayButton";
 
 import "./MetaContent.scss";
 
@@ -14,76 +15,42 @@ function MetaContent() {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const { auth, media_info } = useSelector(store => ({
-    auth: store.auth,
-    media_info: store.card.media_info
-  }));
+  const media = useSelector(store => (
+    store.media
+  ));
 
   const { id } = useParams();
 
-  const [mediaVersions, setMediaVersions] = useState([]);
-
   useEffect(() => {
     dispatch(fetchMediaInfo(id));
-    return () => dispatch(clearMediaInfo());
   }, [dispatch, id]);
 
-  const { token } = auth;
-
-  // to get file versions
   useEffect(() => {
-    // note: quickly coded
-    (async () => {
-      const config = {
-        headers: {
-          "authorization": token
-        }
-      };
+    if (!media[id]?.info) return;
 
-      const res = await fetch(`/api/v1/media/${id}/info`, config);
-
-      if (res.status !== 200) return;
-
-      const payload = await res.json();
-
-      if (payload.error) return;
-
-      if (payload.seasons) {
-        if (payload.seasons.length > 0) {
-          setMediaVersions(
-            payload.seasons[0].episodes[0].versions
-          );
-        }
-      } else {
-        setMediaVersions(payload.versions);
-      }
-    })();
-  }, [id, token]);
-
-  useEffect(() => {
-    const { fetched, error, info } = media_info;
+    const { fetched, error, data } = media[id].info;
 
     // FETCH_MEDIA_INFO_OK
     if (fetched && !error) {
-      document.title = `Dim - ${info.name}`;
+      document.title = `Dim - ${data.name}`;
     }
-  }, [media_info]);
+  }, [id, media]);
 
   let metaContent = <></>;
 
   // FETCH_MEDIA_INFO_OK
-  if (media_info.fetched && media_info.error) {
+  if (media[id]?.info?.fetched && media[id]?.info?.error) {
     metaContent = (
       <div className="metaContentErr">
         <h2>Failed to load media</h2>
-        <p className="desc">Something went wrong with this media during scan.</p>
+        <p className="desc">Something went wrong somewhere.</p>
         <Button onClick={history.goBack}>Go back</Button>
       </div>
     );
   }
 
   // FETCH_MEDIA_INFO_OK
-  if (media_info.fetched && !media_info.error) {
+  if (media[id]?.info?.fetched && !media[id]?.info?.error) {
     const {
       description,
       genres,
@@ -92,9 +59,11 @@ function MetaContent() {
       rating,
       year,
       media_type,
-      id,
-      seasons
-    } = media_info.info;
+      seasons,
+      progress,
+      season,
+      episode
+    } = media[id].info.data;
 
     const length = {
       hh: ("0" + Math.floor(duration / 3600)).slice(-2),
@@ -111,7 +80,7 @@ function MetaContent() {
             <CircleIcon/>
           )}
           {genres &&
-            genres.map((genre, i) => <Link to={`/search?genre=${genre}`} key={i}>{genre}</Link>)
+            genres.map((genre, i) => <Link to={`/search?genre=${encodeURIComponent(genre)}`} key={i}>{genre}</Link>)
           }
         </div>
         <p className="description">{description}</p>
@@ -142,7 +111,9 @@ function MetaContent() {
           </div>
         </div>
         {media_type !== "tv" && (
-          <PlayButton mediaID={id} versions={mediaVersions}/>
+          <SelectMediaFile title={name} mediaID={id}>
+            <SelectMediaFilePlayButton progress={progress} seasonep={{season, episode}}/>
+          </SelectMediaFile>
         )}
       </div>
     );

@@ -60,9 +60,7 @@ impl Library {
     /// This method will not return the locations indexed for this library, if you need those you
     /// must query for them separately.
     pub async fn get_all(conn: &crate::DbConnection) -> Vec<Self> {
-        sqlx::query!(
-            r#"SELECT id, name, media_type as "media_type: MediaType" FROM library"#
-        )
+        sqlx::query!(r#"SELECT id, name, media_type as "media_type: MediaType" FROM library"#)
             .fetch_all(conn)
             .await
             .unwrap_or_default()
@@ -71,18 +69,22 @@ impl Library {
                 id: x.id,
                 name: x.name,
                 media_type: x.media_type,
-                locations: vec![]
+                locations: vec![],
             })
             .collect()
     }
 
-    pub async fn get_locations(conn: &crate::DbConnection, id: i64) -> Result<Vec<String>, DatabaseError> {
+    pub async fn get_locations(
+        conn: &crate::DbConnection,
+        id: i64,
+    ) -> Result<Vec<String>, DatabaseError> {
         Ok(sqlx::query_scalar!(
             "SELECT location FROM indexed_paths
             WHERE library_id = ?",
-            id)
-            .fetch_all(conn)
-            .await?)
+            id
+        )
+        .fetch_all(conn)
+        .await?)
     }
 
     /// Method filters the database for a library with the id supplied and returns it.
@@ -91,22 +93,24 @@ impl Library {
     /// # Arguments
     /// * `conn` - [diesel connection](crate::DbConnection)
     /// * `lib_id` - a integer that is the id of the library we are trying to query
-    pub async fn get_one(
-        conn: &crate::DbConnection,
-        lib_id: i64,
-    ) -> Result<Self, DatabaseError> {
+    pub async fn get_one(conn: &crate::DbConnection, lib_id: i64) -> Result<Self, DatabaseError> {
         let tx = conn.begin().await?;
 
         let library = sqlx::query!(
             r#"SELECT id, name, media_type as "media_type: MediaType" FROM library
             WHERE id = ?"#,
             lib_id
-        ).fetch_one(conn).await?;
+        )
+        .fetch_one(conn)
+        .await?;
 
         let locations = sqlx::query_scalar!(
             r#"SELECT location FROM indexed_paths
             WHERE library_id = ?"#,
-            lib_id).fetch_all(conn).await?;
+            lib_id
+        )
+        .fetch_all(conn)
+        .await?;
 
         Ok(Self {
             id: library.id,
@@ -150,18 +154,21 @@ impl InsertableLibrary {
         let lib_id = sqlx::query!(
             r#"INSERT INTO library (name, media_type) VALUES ($1, $2)"#,
             self.name,
-            self.media_type)
-            .execute(conn)
-            .await?
-            .last_insert_rowid();
-
+            self.media_type
+        )
+        .execute(conn)
+        .await?
+        .last_insert_rowid();
 
         for location in &self.locations {
             sqlx::query!(
                 r#"INSERT into indexed_paths(location, library_id)
                 VALUES ($1, $2)"#,
-                location, lib_id
-            ).execute(conn).await?;
+                location,
+                lib_id
+            )
+            .execute(conn)
+            .await?;
         }
 
         tx.commit().await?;

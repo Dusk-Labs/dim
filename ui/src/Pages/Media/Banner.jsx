@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import { useParams } from "react-router";
 
 import BannerImage from "./BannerImage";
 import CardImage from "./CardImage";
@@ -6,14 +7,14 @@ import CardImage from "./CardImage";
 import "./Banner.scss";
 
 function Banner() {
-  const media_info = useSelector(store => store.card.media_info);
+  const media = useSelector(store => store.media);
 
-  const { poster_path, backdrop_path } = media_info.info;
+  const { id } = useParams();
 
   return (
     <div className="backdrop">
-      <CardImage src={poster_path}/>
-      <BannerImage src={backdrop_path}/>
+      <CardImage src={media[id]?.info.data.poster_path}/>
+      <BannerImage src={media[id]?.info.data.backdrop_path}/>
     </div>
   );
 }

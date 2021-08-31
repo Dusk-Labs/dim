@@ -37,7 +37,7 @@ function PropCardList(props) {
       card_list = (
         <section>
           <h1>{props.title}</h1>
-          <p>No media has been found</p>
+          <p className="sectionDesc">No media has been found</p>
         </section>
       );
     } else {

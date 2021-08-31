@@ -1,98 +1,57 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { fetchMediaSeasons } from "../../actions/media.js";
 
 import CardImage from "./CardImage.jsx";
+import MediaEpisodes from "./Episodes.jsx";
 
 import "./Index.scss";
 
-function Media() {
-  const {media_info, extra_media_info} = useSelector(store => ({
-    extra_media_info: store.card.extra_media_info,
-    media_info: store.card.media_info
+function MediaSeasons() {
+  const dispatch = useDispatch();
+
+  const {media} = useSelector(store => ({
+    media: store.media
   }));
 
-  const episodes = useRef(null);
-
-  const [scrollSmoothly, setScrollSmoothly] = useState(false);
+  const { id } = useParams();
   const [season, setSeason] = useState();
 
   useEffect(() => {
-    if (!scrollSmoothly) return;
-    episodes.current?.scrollIntoView({behavior: "smooth"});
-  }, [scrollSmoothly]);
-
-  const { info, fetched, error } = extra_media_info;
+    dispatch(fetchMediaSeasons(id));
+  }, [dispatch, id]);
 
   useEffect(() => {
-    if (info.seasons.length === 1) {
-      setSeason(info.seasons[0].season_number);
+    if (!media[id].seasons) return;
+
+    const { seasons } = media[id];
+
+    if (seasons.length > 0) {
+      setSeason(seasons[0].id);
     }
-  }, [info.seasons]);
+  }, [id, media]);
 
-  const showSeason = useCallback(number => {
-    setSeason(number);
-    setScrollSmoothly(true);
-  }, []);
-
-  let mediaSeasons;
-  let mediaEpisodes = {};
-
-  if (fetched && !error) {
-    if (info.seasons) {
-      const { seasons } = info;
-
-      seasons.sort((a, b) => {
-        return a.season_number - b.season_number;
-      });
-
-      mediaSeasons = seasons.map(({season_number, poster}, i) => {
-        return (
-          <div
-            className={`season ${season_number === season && "active"}`}
-            key={i}
-            onClick={() => showSeason(season_number)}
-          >
-            <CardImage src={poster}/>
-            <p>Season {season_number}</p>
-          </div>
-        );
-      });
-
-      for (let x = 0; x < seasons.length; x++) {
-        seasons[x].episodes.sort((a, b) => {
-          return a.episode - b.episode;
-        });
-
-        // TODO: modal selecting which file
-        mediaEpisodes[seasons[x].season_number] = seasons[x].episodes.map((episode, i) => {
-          return (
-            <Link to={`/play/${episode.versions[0].id}`} className="episode" key={i}>
-              <CardImage src={episode.backdrop} progress={episode.progress}/>
-              <p>Episode {episode.episode}</p>
-            </Link>
-          );
-        });
-      }
-    }
-  }
-
-  if (media_info.fetched && !media_info.error) {
+  if (media[id]?.seasons) {
     return (
       <div className="mediaPageSeasons">
         <section>
           <h2>Seasons</h2>
           <div className={`seasons ${season && "selected"}`}>
-            {mediaSeasons}
+            {media[id].seasons.map(({id, season_number, poster}, i) => (
+              <div
+                className={`season ${id === season && "active"}`}
+                key={i}
+                onClick={() => setSeason(id)}
+              >
+                <CardImage src={poster}/>
+                <p>Season {season_number}</p>
+              </div>
+            ))}
           </div>
         </section>
         {season !== undefined && (
-          <section>
-            <h2>Episodes</h2>
-            <div className="episodes" ref={episodes}>
-              {mediaEpisodes[season]}
-            </div>
-          </section>
+          <MediaEpisodes seasonID={season}/>
         )}
       </div>
     );
@@ -101,4 +60,4 @@ function Media() {
   return null;
 }
 
-export default Media;
+export default MediaSeasons;

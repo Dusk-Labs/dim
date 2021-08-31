@@ -3,16 +3,15 @@ import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 
 import { updateVideo } from "../../actions/video";
-import { clearMediaInfo, fetchExtraMediaInfo, fetchMediaInfo } from "../../actions/card";
+import { fetchMediaInfo } from "../../actions/media";
 
 function VideoMediaData() {
   const params = useParams();
   const dispatch = useDispatch();
 
-  const { video, auth, extra_media_info } = useSelector(store => ({
+  const { video, auth } = useSelector(store => ({
     auth: store.auth,
-    video: store.video,
-    extra_media_info: store.card.extra_media_info
+    video: store.video
   }));
 
   const { token } = auth;
@@ -40,42 +39,8 @@ function VideoMediaData() {
   }, [dispatch, params.fileID, token]);
 
   useEffect(() => {
-    if (extra_media_info.info.seasons) {
-      const { seasons } = extra_media_info.info;
-
-      let episode;
-
-      for (const season of seasons) {
-        const found = season.episodes.filter(ep => {
-          return ep.versions.filter(version => version.id === parseInt(params.fileID)).length === 1;
-        });
-
-        if (found.length > 0) {
-          episode = {
-            ...found[0],
-            season: season.season_number
-          };
-
-          break;
-        }
-      }
-
-      if (episode) {
-        dispatch(updateVideo({episode}));
-      }
-    }
-  }, [dispatch, extra_media_info.info, params.fileID]);
-
-  useEffect(() => {
-    if (!video.mediaID) return;
-    dispatch(fetchExtraMediaInfo(video.mediaID));
-    return () => dispatch(clearMediaInfo());
-  }, [dispatch, video.mediaID]);
-
-  useEffect(() => {
     if (!video.mediaID) return;
     dispatch(fetchMediaInfo(video.mediaID));
-    return () => dispatch(clearMediaInfo());
   }, [dispatch, video.mediaID]);
 
   return null;

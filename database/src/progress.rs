@@ -115,15 +115,11 @@ impl Progress {
         conn: &crate::DbConnection,
         uid: String,
         count: i64,
-    ) -> Result<Vec<Media>, DieselError> {
-        Ok(sqlx::query_as!(
-            Media,
-            r#"SELECT media.id, media.library_id, media.name, media.description,
-                    media.rating, media.year, media.added,
-                    media.poster_path as "poster_path?", media.backdrop_path as "backdrop_path?",
-                    media.media_type as "media_type: MediaType" FROM media
+    ) -> Result<Vec<i64>, DieselError> {
+        Ok(sqlx::query_scalar!(
+            r#"SELECT _tblmedia.id  FROM _tblmedia
 
-            JOIN tv_show on tv_show.id = media.id
+            JOIN tv_show on tv_show.id = _tblmedia.id
             JOIN season on season.tvshowid = tv_show.id
             JOIN episode on episode.seasonid = season.id
             JOIN progress on progress.media_id = episode.id
@@ -131,7 +127,7 @@ impl Progress {
             WHERE NOT progress.populated = 0
             AND progress.user_id = ?
 
-            GROUP BY media.id
+            GROUP BY _tblmedia.id
             ORDER BY progress.populated DESC
             LIMIT ?"#,
             uid,

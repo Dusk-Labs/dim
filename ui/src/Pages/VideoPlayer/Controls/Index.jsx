@@ -10,9 +10,9 @@ import CircleIcon from "../../../assets/Icons/Circle";
 import "./Index.scss";
 
 function VideoControls() {
-  const { video, mediaInfo } = useSelector(store => ({
+  const { video, media } = useSelector(store => ({
     video: store.video,
-    mediaInfo: store.card.media_info.info
+    media: store.media
   }));
 
   const nameDiv = useRef(null);
@@ -30,12 +30,12 @@ function VideoControls() {
   return (
     <div className={`videoControls ${visible}`}>
       <div className="name" ref={nameDiv}>
-        <p>{mediaInfo.name}</p>
-        {video.episode && (
+        <p>{media[video.mediaID]?.info.data.name}</p>
+        {media[video.mediaID]?.info.data.episode && (
           <div className="season-ep">
-            <p>S{video.episode.season}</p>
+            <p>S{media[video.mediaID]?.info.data.season}</p>
             <CircleIcon/>
-            <p>E{video.episode.episode}</p>
+            <p>E{media[video.mediaID]?.info.data.episode}</p>
           </div>
         )}
       </div>

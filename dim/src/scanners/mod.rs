@@ -116,14 +116,14 @@ pub async fn start_custom(
                     .iter()
                     .any(|s| s.to_str().map(|x| x.starts_with('.')).unwrap_or(false))
             })
-        // check whether `f` has a supported extension
-        .filter(|f| {
-            f.path()
-                .extension()
-                .and_then(|e| e.to_str())
-                .map_or(false, |e| SUPPORTED_EXTS.contains(&e))
-        })
-        .map(|f| f.into_path())
+            // check whether `f` has a supported extension
+            .filter(|f| {
+                f.path()
+                    .extension()
+                    .and_then(|e| e.to_str())
+                    .map_or(false, |e| SUPPORTED_EXTS.contains(&e))
+            })
+            .map(|f| f.into_path())
             .collect();
 
         files.append(&mut subfiles);
@@ -185,5 +185,12 @@ pub async fn start(
 ) -> Result<(), self::base::ScannerError> {
     let conn = get_conn().await.expect("Failed to grab the conn pool");
     let lib = Library::get_one(&conn, library_id).await?;
-    start_custom(library_id, log, tx, lib.locations.into_iter(), lib.media_type).await
+    start_custom(
+        library_id,
+        log,
+        tx,
+        lib.locations.into_iter(),
+        lib.media_type,
+    )
+    .await
 }

@@ -35,40 +35,7 @@ use warp::http::status::StatusCode;
 use warp::reply;
 use warp::Filter;
 
-pub fn stream_router(
-    conn: DbConnection,
-    state: StateManager,
-    stream_tracking: StreamTracking,
-    log: slog::Logger,
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    filters::return_virtual_manifest(conn.clone(), state.clone(), stream_tracking.clone(), log)
-        .or(filters::return_manifest(
-            conn.clone(),
-            state.clone(),
-            stream_tracking.clone(),
-        ))
-        .or(filters::get_init(state.clone()))
-        .or(filters::should_client_hard_seek(
-            state.clone(),
-            stream_tracking.clone(),
-        ))
-        .or(filters::session_get_stderr(
-            state.clone(),
-            stream_tracking.clone(),
-        ))
-        .or(filters::kill_session(
-            state.clone(),
-            stream_tracking.clone(),
-        ))
-        .or(filters::get_subtitle(state.clone()))
-        .or(filters::get_chunk(state.clone()))
-        .or(warp::path!("api" / "stream" / ..)
-            .and(warp::any())
-            .map(|| StatusCode::NOT_FOUND))
-        .recover(super::global_filters::handle_rejection)
-}
-
-mod filters {
+pub mod filters {
     use warp::reject;
     use warp::reply::Reply;
     use warp::Filter;
@@ -388,7 +355,12 @@ pub async fn return_virtual_manifest(
             ("KB", bitrate / 1_000)
         };
 
-        format!("{}p@{}{} (Native)", video_stream.height.clone().unwrap(), bitrate_norm, ident)
+        format!(
+            "{}p@{}{} (Native)",
+            video_stream.height.clone().unwrap(),
+            bitrate_norm,
+            ident
+        )
     };
 
     stream_tracking
@@ -416,7 +388,7 @@ pub async fn return_virtual_manifest(
                     x
                 },
                 is_default: true,
-                label
+                label,
             },
         )
         .await;
@@ -521,7 +493,7 @@ pub async fn return_virtual_manifest(
                     init_seg: Some(format!("{}/data/init.mp4", audio.clone())),
                     args: HashMap::new(),
                     is_default,
-                    label: stream.get_language().unwrap_or_default()
+                    label: stream.get_language().unwrap_or_default(),
                 },
             )
             .await;
@@ -579,14 +551,16 @@ pub async fn return_virtual_manifest(
                             init_seg: None,
                             args: {
                                 let mut x = HashMap::new();
-                                if let Some(y) = stream.get_title().or(stream.get_language())
-                                {
+                                if let Some(y) = stream.get_title().or(stream.get_language()) {
                                     x.insert("title".to_string(), y);
                                 }
                                 x
                             },
                             is_default,
-                            label: stream.get_title().or(stream.get_language()).unwrap_or_default()
+                            label: stream
+                                .get_title()
+                                .or(stream.get_language())
+                                .unwrap_or_default(),
                         },
                     )
                     .await;

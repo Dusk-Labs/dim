@@ -22,25 +22,7 @@ use futures::TryStreamExt;
 use std::convert::Infallible;
 use uuid::Uuid;
 
-pub fn auth_routes(
-    conn: DbConnection,
-) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    filters::login(conn.clone())
-        .or(filters::whoami(conn.clone()))
-        .or(filters::admin_exists(conn.clone()))
-        .or(filters::register(conn.clone()))
-        .or(filters::get_all_invites(conn.clone()))
-        .or(filters::generate_invite(conn.clone()))
-        .or(filters::user_change_password(conn.clone()))
-        .or(filters::admin_delete_token(conn.clone()))
-        .or(filters::user_delete_self(conn.clone()))
-        .or(filters::user_change_username(conn.clone()))
-        .or(filters::user_upload_avatar(conn.clone()))
-        .recover(super::global_filters::handle_rejection)
-        .boxed()
-}
-
-mod filters {
+pub mod filters {
     use crate::core::DbConnection;
     use serde::Deserialize;
 

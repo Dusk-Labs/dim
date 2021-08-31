@@ -77,7 +77,17 @@ impl Season {
         )
         .execute(conn)
         .await?
-        .last_insert_rowid() as usize)
+        .rows_affected() as usize)
+    }
+
+    pub async fn delete_by_id(
+        conn: &crate::DbConnection,
+        season_id: i64,
+    ) -> Result<usize, DatabaseError> {
+        Ok(sqlx::query!("DELETE FROM season where id = ?", season_id)
+            .execute(conn)
+            .await?
+            .rows_affected() as usize)
     }
 
     /// Method will return the oldest season for a tv show that is available.
@@ -182,11 +192,7 @@ impl UpdateSeason {
     /// * `conn` - diesel connection reference to postgres
     /// * `id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - Season number we'd like to update.
-    pub async fn update(
-        self,
-        conn: &crate::DbConnection,
-        id: i64,
-    ) -> Result<usize, DatabaseError> {
+    pub async fn update(self, conn: &crate::DbConnection, id: i64) -> Result<usize, DatabaseError> {
         let tx = conn.begin().await?;
 
         opt_update!(conn, tx,
