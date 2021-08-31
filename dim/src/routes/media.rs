@@ -12,7 +12,6 @@ use database::media::Media;
 use database::media::UpdateMedia;
 use database::mediafile::MediaFile;
 use database::progress::Progress;
-use database::tv::TVShow;
 
 use warp::http::status::StatusCode;
 use warp::reply;
@@ -201,6 +200,17 @@ pub async fn get_media_by_id(
         }),
     };
 
+    let season_episode_tag = match media.media_type {
+        MediaType::Episode => {
+            let result = Episode::get_season_episode_by_id(&conn, id).await?;
+            Some(json!({
+                "season": result.0,
+                "episode": result.1,
+            }))
+        },
+        _ => None,
+    };
+
     // FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
     Ok(reply::json(&json!({
         "id": media.id,
@@ -215,6 +225,7 @@ pub async fn get_media_by_id(
         "media_type": media.media_type,
         "genres": genres,
         "duration": duration,
+        ..?season_episode_tag,
         ...progress
     })))
 }
