@@ -1,8 +1,5 @@
-import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-
-import { clearMediaInfo, fetchExtraMediaInfo } from "../../actions/card.js";
+import { useSelector } from "react-redux";
 
 import Banner from "./Banner";
 import MetaContent from "./MetaContent";
@@ -11,28 +8,11 @@ import Seasons from "./Seasons.jsx";
 import "./Index.scss";
 
 function Media() {
-  const dispatch = useDispatch();
-
-  const { media_info, extra_media_info } = useSelector(store => ({
-    media_info: store.card.media_info,
-    extra_media_info: store.card.extra_media_info
-  }));
+  const media = useSelector(store => (
+    store.media
+  ));
 
   const { id } = useParams();
-
-  useEffect(() => {
-    dispatch(fetchExtraMediaInfo(id));
-    return () => dispatch(clearMediaInfo());
-  }, [dispatch, id]);
-
-  useEffect(() => {
-    const { fetched, error, info } = media_info;
-
-    // FETCH_MEDIA_INFO_OK
-    if (fetched && !error) {
-      document.title = `Dim - ${info.name}`;
-    }
-  }, [media_info]);
 
   return (
     <div className="mediaPage">
@@ -41,7 +21,7 @@ function Media() {
         <div>
           <MetaContent/>
         </div>
-        {extra_media_info.info.seasons && (
+        {media[id]?.info.data.media_type === "tv" && (
           <Seasons/>
         )}
       </div>

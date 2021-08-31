@@ -21,10 +21,9 @@ function VideoPlayer() {
   const params = useParams();
   const dispatch = useDispatch();
 
-  const { error, manifest, player, audioTracks, videoTracks, video, auth, media_info, extra_media_info } = useSelector(store => ({
+  const { error, manifest, player, audioTracks, videoTracks, video, auth, media } = useSelector(store => ({
+    media: store.media,
     auth: store.auth,
-    media_info: store.card.media_info,
-    extra_media_info: store.card.extra_media_info,
     video: store.video,
     player: store.video.player,
     manifest: store.video.manifest,
@@ -62,8 +61,6 @@ function VideoPlayer() {
       const tAudios = payload.tracks.filter(track => track.content_type === "audio");
       const tSubtitles = payload.tracks.filter(track => track.content_type === "subtitle");
 
-      console.log(payload);
-
       dispatch(setTracks({
         video: tVideos,
         audio: tAudios,
@@ -77,12 +74,15 @@ function VideoPlayer() {
   }, [dispatch, params.fileID, token, video.gid]);
 
   useEffect(() => {
-    document.title = "Dim - Video Player";
-
-    if (media_info.info.name) {
-      document.title = `Dim - Playing '${media_info.info.name}'`;
+    if (!video.mediaID) {
+      document.title = "Dim - Video Player";
+      return;
     }
-  }, [media_info.info.name]);
+
+    if (media[video.mediaID]?.info?.data.name) {
+      document.title = `Dim - Playing '${media[video.mediaID].info.data.name}'`;
+    }
+  }, [media, video.mediaID]);
 
   useEffect(() => {
     if (!video.gid || !manifest.virtual.loaded) return;
@@ -182,7 +182,7 @@ function VideoPlayer() {
           {(!error && (manifest.loaded && video.canPlay)) && <Menus/>}
           {(!error && (manifest.loaded && video.canPlay)) && <VideoControls/>}
           {(!error & (manifest.loading || !video.canPlay) || video.waiting) && <RingLoad/>}
-          {((!error && (manifest.loaded && video.canPlay)) && extra_media_info.info.progress > 0) && (
+          {((!error && (manifest.loaded && video.canPlay)) && media[video.mediaID]?.info.data.progress > 0) && (
             <ContinueProgress/>
           )}
           {error && <ErrorBox/>}
