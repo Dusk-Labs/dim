@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { createRef, useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import CardPopup from "./CardPopup.jsx";
@@ -8,12 +8,13 @@ import "./Card.scss";
 
 function Card(props) {
   const cardWrapper = useRef(null);
-  const cardPopup = useRef(null);
+  const hoverCard = createRef();
   const card = useRef(null);
 
   const [mediaProgress, setMediaProgress] = useState(0);
   const [hovering, setHovering] = useState(false);
   const [timeoutID, setTimeoutID] = useState(null);
+  const [hoverCardSide, setHoverCardSide] = useState("right");
 
   useEffect(() => {
     return () => {
@@ -28,8 +29,8 @@ function Card(props) {
   const onMouseLeave = useCallback(() => {
     clearTimeout(timeoutID);
 
-    cardPopup.current?.classList.add("hideCardPopup");
-  }, [timeoutID, cardPopup]);
+    hoverCard.current?.classList.add("hideCardPopup");
+  }, [timeoutID, hoverCard]);
 
   const handleMouseEnter = useCallback(() => {
     // removes cardHighlight animation (when searched for)
@@ -37,7 +38,18 @@ function Card(props) {
       card.current.style.animation = "";
     }
 
-    if (hovering || window.innerWidth < 1300) return;
+    if (hovering || window.innerWidth < 1400) return;
+
+    const rect = card.current.getBoundingClientRect();
+
+    const hoverCardWidth = parseInt(
+      getComputedStyle(document.documentElement).getPropertyValue("--hoverCardWidth")
+    );
+
+    const showHoverOnRight = window.innerWidth - rect.right > hoverCardWidth;
+    const side = showHoverOnRight ? "right" : "left";
+
+    setHoverCardSide(side);
 
     const ID = setTimeout(showPopup, 600);
     setTimeoutID(ID);
@@ -67,7 +79,8 @@ function Card(props) {
       </div>
       {hovering && (
         <CardPopup
-          popup={cardPopup}
+          side={hoverCardSide}
+          popup={hoverCard}
           data={props.data}
           setHovering={setHovering}
         />

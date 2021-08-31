@@ -1,151 +1,139 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+
+import { fetchMediaInfo } from "../../actions/media.js";
 
 import TruncText from "../../Helpers/TruncText.jsx";
 import IMDbLogo from "../../assets/IMDB";
-import PlayButton from "../PlayButton.jsx";
 import CircleIcon from "../../assets/Icons/Circle";
+import SelectMediaFile from "../../Modals/SelectMediaFile/Index.jsx";
+import SelectMediaFilePlayButton from "../../Modals/SelectMediaFile/Activators/PlayButton.jsx";
 
 import "./CardPopup.scss";
 
 function CardPopup(props) {
-  const auth = useSelector(store => store.auth);
+  const dispatch = useDispatch();
 
-  const [overflowing, setOverflowing] = useState(false);
-  const [mediaVersions, setMediaVersions] = useState([]);
-  const [direction, setDirection] = useState("card-popup-right");
+  const { media } = useSelector(store => ({
+    media: store.media
+  }));
 
   const { setHovering } = props;
 
   const onAnimationEnd = useCallback(e => {
     if (e.animationName !== "CardPopupHide") return;
+
     setHovering(false);
   }, [setHovering]);
 
+  const { id, name } = props.data;
+
   useEffect(() => {
-    const { x, width } = props.popup.current.getBoundingClientRect();
-    const overflowing = (x + width > window.innerWidth - 5);
+    if (!id) return;
 
-    if (!overflowing) return;
+    dispatch(fetchMediaInfo(id));
+  }, [dispatch, id]);
 
-    setOverflowing(true);
-    setDirection("card-popup-left");
-  }, [props.popup, overflowing]);
+  if (!media[id]) return null;
 
-  const {
-    id,
-    name,
-    rating,
-    description,
-    genres,
-    year,
-    duration,
-    progress,
-    season,
-    episode
-  } = props.data;
+  const { info } = media[id];
+  const { data, fetched, error } = info;
 
-  const { token } = auth;
-
-  // to get file versions
-  useEffect(() => {
-    // note: quickly coded
-    (async () => {
-      const config = {
-        headers: {
-          "authorization": token
-        }
-      };
-
-      const res = await fetch(`/api/v1/media/${id}/info`, config);
-
-      if (res.status !== 200) return;
-
-      const payload = await res.json();
-
-      if (payload.error) return;
-
-      if (payload.seasons) {
-        if (payload.seasons.length > 0) {
-          setMediaVersions(
-            payload.seasons[0].episodes[0].versions
-          );
-        }
-      } else {
-        setMediaVersions(payload.versions);
-      }
-    })();
-  }, [id, token]);
-
-  const length = {
-    hh: ("0" + Math.floor(duration / 3600)).slice(-2),
-    mm: ("0" + Math.floor((duration % 3600) / 60)).slice(-2),
-    ss: ("0" + Math.floor((duration % 3600) % 60)).slice(-2)
-  };
-
-  if (genres.length > 3) {
-    genres.length = 3;
+  // FETCH_MEDIA_INFO_ERR
+  if (fetched && error) {
+    return (
+      <div
+        className={props.side === "right" ? "card-popup-right" : "card-popup-left"}
+        ref={props.popup}
+        onAnimationEnd={onAnimationEnd}
+      >
+        <div className="clipped"/>
+        <div className="contentWrapper">
+          <section className="header">
+            <h2>Failed to load media</h2>
+          </section>
+          <section className="separator"/>
+          <section className="description">
+            <p>Something went wrong somewhere.</p>
+          </section>
+        </div>
+      </div>
+    );
   }
 
-  return (
-    <div
-      className={direction}
-      ref={props.popup}
-      onAnimationEnd={onAnimationEnd}
-    >
-      <div className="clipped"/>
-      <div className="contentWrapper">
-        <section className="header">
-          <h2><TruncText content={name} max={8}/></h2>
-          {(rating || rating === 0) && (
-            <div className="rating">
-              <p>{rating}</p>
-              <IMDbLogo/>
-            </div>
-          )}
-        </section>
-        <section className="separator"/>
-        <section className="description">
-          {description !== null && description.length > 0
-            ? <p><TruncText content={description} max={21}/></p>
-            : <p>No description found</p>
-          }
-        </section>
-        {(year && genres) && (
-          <section className="tags">
-            <Link to={`/search?year=${year}`}>{year}</Link>
-            {genres.length > 0 && (
-              <CircleIcon/>
+  // FETCH_MEDIA_INFO_OK
+  if (fetched && !error) {
+    const { duration, genres, rating, description, year, progress, season, episode } = data;
+
+    const length = {
+      hh: ("0" + Math.floor(duration / 3600)).slice(-2),
+      mm: ("0" + Math.floor((duration % 3600) / 60)).slice(-2),
+      ss: ("0" + Math.floor((duration % 3600) % 60)).slice(-2)
+    };
+
+    if (genres.length > 3) {
+      genres.length = 3;
+    }
+
+    return (
+      <div
+        className={props.side === "right" ? "card-popup-right" : "card-popup-left"}
+        ref={props.popup}
+        onAnimationEnd={onAnimationEnd}
+      >
+        <div className="clipped"/>
+        <div className="contentWrapper">
+          <section className="header">
+            <h2><TruncText content={name} max={8}/></h2>
+            {(rating || rating === 0) && (
+              <div className="rating">
+                <p>{rating}</p>
+                <IMDbLogo/>
+              </div>
             )}
-            <div className="genres">
-              {genres.map((genre, i) => (
-                <Link
-                  to={`/search?genre=${encodeURIComponent(genre)}`}
-                  key={i}
-                >
-                  {genre}
-                </Link>
-              ))}
-            </div>
           </section>
-        )}
-        <section className="separator"/>
-        <section className="footer">
-          <div className="length">
-            <p>{length.hh}:{length.mm}:{length.ss}</p>
-            <p>HH MM SS</p>
-          </div>
-          <PlayButton
-            mediaID={id}
-            versions={mediaVersions}
-            progress={progress}
-            seasonep={{season, episode}}
-          />
-        </section>
+          <section className="separator"/>
+          <section className="description">
+            {description !== null && description.length > 0
+              ? <p><TruncText content={description} max={21}/></p>
+              : <p>No description found</p>
+            }
+          </section>
+          {(year && genres) && (
+            <section className="tags">
+              <Link to={`/search?year=${year}`}>{year}</Link>
+              {genres.length > 0 && (
+                <CircleIcon/>
+              )}
+              <div className="genres">
+                {genres.map((genre, i) => (
+                  <Link
+                    to={`/search?genre=${encodeURIComponent(genre)}`}
+                    key={i}
+                  >
+                    {genre}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+          <section className="separator"/>
+          <section className="footer">
+            <div className="length">
+              <p>{length.hh}:{length.mm}:{length.ss}</p>
+              <p>HH MM SS</p>
+            </div>
+            <SelectMediaFile title={name} mediaID={id}>
+              <SelectMediaFilePlayButton progress={progress} seasonep={{season, episode}}/>
+            </SelectMediaFile>
+          </section>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return null;
 }
 
 export default CardPopup;

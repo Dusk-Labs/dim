@@ -16,17 +16,8 @@ use std::path::PathBuf;
 
 use warp::reply;
 use warp::Filter;
-use warp::Rejection;
 
-pub fn general_router(
-    conn: DbConnection,
-) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
-    filters::search(conn)
-        .or(filters::get_directory_structure())
-        .recover(super::global_filters::handle_rejection)
-}
-
-mod filters {
+pub mod filters {
     use database::DbConnection;
 
     use auth::Wrapper as Auth;

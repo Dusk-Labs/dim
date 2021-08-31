@@ -1,19 +1,29 @@
-.modalSelectMediaVersion {
+.modalSelectMediaFile {
   display: grid;
+  gap: 1em;
   grid-template-rows: auto auto 1fr auto;
   color: var(--primaryTextColor);
   padding: 20px;
-
-  .separator {
-    margin: .5em 0;
-  }
 
   h3 {
     font-family: "Roboto Condensed Regular", Arial;
   }
 
+  .desc {
+    margin-top: .5em;
+    color: var(--secondaryTextColor);
+  }
+
+  .err {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 150px;
+    border-radius: 10px;
+    background: var(--tertiaryColor);
+  }
+
   .fileVersionsWrapper {
-    margin-bottom: .5em;
     border-radius: 10px;
     overflow: hidden;
   }
@@ -23,7 +33,7 @@
     overflow-y: auto;
     height: 150px;
     border-radius: inherit;
-    background: var(--quaternaryColor);
+    background: var(--tertiaryColor);
     scrollbar-width: thin;
 
     .vertical-err {
@@ -41,7 +51,7 @@
       color: var(--primaryTextColor);
 
       &:hover {
-        background: var(--quinaryColor);
+        background: var(--quaternaryColor);
       }
 
       // folder icon
@@ -63,28 +73,11 @@
   .options {
     display: flex;
     justify-content: flex-end;
-
-    button {
-      font-size: 16px;
-      filter: saturate(0.7);
-      transition: filter 0.3s ease-in-out;
-      font-family: "Roboto Bold", Arial;
-      padding: .5em;
-      border-radius: 10px;
-      outline: none;
-      background: var(--accentColor);
-      color: var(--primaryTextColor);
-
-      &:focus,
-      &:hover {
-        filter: saturate(1);
-      }
-    }
   }
 }
 
 @media only screen and (min-width: 650px) {
-  #modalSelectMediaVersion {
+  #modalSelectMediaFile {
     max-width: 600px;
   }
 }

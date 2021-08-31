@@ -89,7 +89,7 @@ function CardList(props) {
       card_list = items.map(section => (
         <section key={section}>
           <div className="sectionHeader">
-            <h1>{section}</h1>
+            <h1>{section.toLowerCase()}</h1>
             {props.actions && (
               <div className="actions">
                 <Dropdown/>

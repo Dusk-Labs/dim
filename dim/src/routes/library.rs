@@ -27,27 +27,9 @@ use warp::http::StatusCode;
 use warp::reply;
 use warp::Filter;
 
-use serde_json::Value;
+use serde::Serialize;
 
-pub fn library_routes(
-    conn: DbConnection,
-    logger: slog::Logger,
-    event_tx: EventTx,
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    filters::library_get(conn.clone())
-        .or(filters::library_post(
-            conn.clone(),
-            logger.clone(),
-            event_tx.clone(),
-        ))
-        .or(filters::library_delete(conn.clone(), event_tx.clone()))
-        .or(filters::library_get_self(conn.clone()))
-        .or(filters::get_all_of_library(conn.clone()))
-        .or(filters::get_all_unmatched_media(conn.clone()))
-        .recover(super::global_filters::handle_rejection)
-}
-
-mod filters {
+pub mod filters {
     use warp::reject;
     use warp::Filter;
 
@@ -281,15 +263,28 @@ pub async fn get_all_library(
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut result = HashMap::new();
     let lib = Library::get_one(&conn, id).await?;
-    let mut data = Media::get_all(&conn, id).await?;
+
+    #[derive(Serialize)]
+    struct Record {
+        id: i64,
+        name: String,
+        poster_path: Option<String>,
+    }
+
+    let mut data = sqlx::query_as!(
+        Record,
+        r#"SELECT _tblmedia.id, name, assets.local_path as poster_path FROM _tblmedia
+        LEFT JOIN assets ON _tblmedia.poster = assets.id
+        WHERE library_id = ? AND NOT media_type = "episode""#,
+        id
+    )
+    .fetch_all(&conn)
+    .await
+    .map_err(|_| errors::DimError::NotFoundError)?;
 
     data.sort_by(|a, b| a.name.cmp(&b.name));
-    let out = stream::iter(data)
-        .filter_map(|x| async { construct_standard(&conn, &x.into(), &user).await.ok() })
-        .collect::<Vec<Value>>()
-        .await;
 
-    result.insert(lib.name, out);
+    result.insert(lib.name, data);
 
     Ok(reply::json(&result))
 }
@@ -309,38 +304,37 @@ pub async fn get_all_unmatched_media(
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut result = HashMap::new();
 
-    let filtered = MediaFile::get_by_lib_null_media(&conn, id)
-        .await?
-        .into_iter()
-        .map(|x| {
-            let mut path = Path::new(&x.target_file).to_path_buf();
-            let file_name = path.file_name().unwrap().to_string_lossy().to_string();
-            path.pop();
+    #[derive(Serialize)]
+    struct Record {
+        id: i64,
+        name: String,
+        duration: Option<i64>,
+        target_file: String,
+    }
 
-            let dir = path.file_name();
-            let group = dir
-                .map(|x| x.to_string_lossy().to_string())
-                .unwrap_or(file_name);
+    sqlx::query_as!(
+        Record,
+        r#"SELECT id, raw_name as name, duration, target_file FROM mediafile
+        WHERE library_id = ? AND media_id IS NULL"#,
+        id
+    )
+    .fetch_all(&conn)
+    .await
+    .map_err(|_| errors::DimError::NotFoundError)?
+    .into_iter()
+    .map(|x| {
+        let mut path = Path::new(&x.target_file).to_path_buf();
+        let file_name = path.file_name().unwrap().to_string_lossy().to_string();
+        path.pop();
 
-            (group, x)
-        })
-        .collect::<Vec<_>>();
+        let dir = path.file_name();
+        let group = dir
+            .map(|x| x.to_string_lossy().to_string())
+            .unwrap_or(file_name);
 
-    stream::iter(filtered)
-        .filter_map(|(k, v)| {
-            let (k, v) = (k.clone(), v.clone());
-            async {
-                let (k, v) = (k, v);
-                construct_standard(&conn, &v.into(), &user)
-                    .await
-                    .ok()
-                    .and_then(|x| Some((k, x)))
-            }
-        })
-        .collect::<Vec<_>>()
-        .await
-        .into_iter()
-        .for_each(|(k, v)| result.entry(k).or_insert(vec![]).push(v));
+        (group, x)
+    })
+    .for_each(|(k, v)| result.entry(k).or_insert(vec![]).push(v));
 
     Ok(reply::json(&result))
 }

@@ -1,24 +1,15 @@
-use std::path::PathBuf;
-use rust_embed::RustEmbed;
-use warp::Filter;
-use warp::Reply;
-use warp::path;
 use http::StatusCode;
+use rust_embed::RustEmbed;
+use std::path::PathBuf;
+use warp::path;
+use warp::Reply;
 
-pub fn statik_routes(
-) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    filters::dist_static()
-        .or(filters::get_image())
-        .or(filters::react_routes())
-        .recover(super::global_filters::handle_rejection)
-}
-
-mod filters {
-    use std::path::PathBuf;
-    use serde::Deserialize;
-    use warp::Filter;
-    use rust_embed::RustEmbed;
+pub mod filters {
     use super::super::global_filters::with_state;
+    use rust_embed::RustEmbed;
+    use serde::Deserialize;
+    use std::path::PathBuf;
+    use warp::Filter;
 
     pub fn react_routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
     {
@@ -39,9 +30,11 @@ mod filters {
             .and(warp::path::tail())
             .and(warp::query::query::<QueryArgs>())
             .and(with_state(metadata_path.clone()))
-            .and_then(|x: warp::path::Tail, QueryArgs { w, h }: QueryArgs, meta_path: String| async move {
-                super::get_image(x, w, h, meta_path).await
-            })
+            .and_then(
+                |x: warp::path::Tail, QueryArgs { w, h }: QueryArgs, meta_path: String| async move {
+                    super::get_image(x, w, h, meta_path).await
+                },
+            )
     }
 
     pub fn dist_static() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
@@ -108,7 +101,7 @@ pub async fn get_image(
     path: path::Tail,
     resize_w: Option<u32>,
     resize_h: Option<u32>,
-    meta_path: String
+    meta_path: String,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let mut file_path = PathBuf::from(&meta_path);
     file_path.push(path.as_str());

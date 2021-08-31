@@ -35,6 +35,29 @@
     }
   }
 
+  &.icon {
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--quinaryColor);
+
+    p {
+      padding: .5em .8em;
+      background: var(--accentLighterColor);
+      transition: 200ms ease-in-out;
+      transition-property: background, opacity;
+    }
+
+    svg {
+      font-size: .6em;
+      margin: 0 10px;
+      fill: var(--primaryTextColor);
+    }
+
+    &:hover p {
+      background: var(--accentColor);
+    }
+  }
+
   &.disabled {
     opacity: .5;
     cursor: not-allowed;

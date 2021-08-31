@@ -39,7 +39,7 @@
 #[macro_export]
 macro_rules! balanced_or_tree {
     // Base case: just a single expression, return it wrapped in `debug_boxed`
-    ($x:expr $(,)?) => { debug_boxed!($x) };
+    ($x:expr $(,)?) => { $x };
     // Multiple expressions: recurse with three lists: left, right and counter.
     ($($x:expr),+ $(,)?) => {
         balanced_or_tree!(@internal  ;     $($x),+; $($x),+)
@@ -285,6 +285,24 @@ macro_rules! json_internal {
         }
     };
 
+    // Next entry is a key with the optional spread operator and no value.
+    // This takes in a `Option` and will merge the value if its `Some`.
+    (@object $object:ident ($(..?$key:expr)+) (, $($rest:tt)*) $copy:tt) => {
+        if let Some(map) = ($($key)+).clone().as_mut().and_then(|x| x.as_object_mut()) {
+            let _ = $object.append(map);
+        }
+
+        json_internal!(@object $object () ($($rest)*) ($($rest)*));
+    };
+
+    // Last entry is a key with the optional spread operator and no value.
+    // This takes in a `Option` and will merge the value if its `Some`.
+    (@object $object:ident ($(..?$key:expr)+) () $copy:tt) => {
+        if let Some(map) = ($($key)+).clone().as_mut().and_then(|x| x.as_object_mut()) {
+            let _ = $object.append(map);
+        }
+    };
+
     // Last value is an expression with no trailing comma.
     (@object $object:ident ($($key:tt)+) (: $value:expr) $copy:tt) => {
         json_internal!(@object $object [$($key)+] (json_internal!($value)));
@@ -358,7 +376,7 @@ macro_rules! json_internal {
     };
 
     ({}) => {
-        ::serde_json::Value::Object($crate::Map::new())
+        ::serde_json::Value::Object(::serde_json::Map::new())
     };
 
     ({ $($tt:tt)+ }) => {

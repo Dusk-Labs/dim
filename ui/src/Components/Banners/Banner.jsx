@@ -3,9 +3,10 @@ import { useSelector } from "react-redux";
 
 import ProgressBar from "./ProgressBar.jsx";
 import Image from "./Image.jsx";
-import PlayButton from "../PlayButton.jsx";
 import TruncText from "../../Helpers/TruncText.jsx";
 import NewLibraryModal from "../../Modals/NewLibrary/Index";
+import SelectMediaFile from "../../Modals/SelectMediaFile/Index.jsx";
+import SelectMediaFilePlayButton from "../../Modals/SelectMediaFile/Activators/PlayButton.jsx";
 import CircleIcon from "../../assets/Icons/Circle";
 
 import "./Banner.scss";
@@ -103,12 +104,9 @@ function Banner(props) {
           <p className="description">
             <TruncText content={synopsis} max={35}/>
           </p>
-          <PlayButton
-            mediaID={id}
-            versions={props.data.versions}
-            progress={delta}
-            seasonep={{season, episode}}
-          />
+          <SelectMediaFile title={title} mediaID={id}>
+            <SelectMediaFilePlayButton progress={delta} seasonep={{season, episode}}/>
+          </SelectMediaFile>
         </div>
         <ProgressBar data={progressBarData}/>
       </div>
