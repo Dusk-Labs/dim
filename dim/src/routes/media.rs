@@ -188,16 +188,14 @@ pub async fn get_media_by_id(
         .collect::<Vec<String>>();
 
     let progress = match media.media_type {
-        MediaType::Episode | MediaType::Movie => json!({
-            "progress": Progress::get_for_media_user(&conn, user.0.claims.get_user(), id)
+        MediaType::Episode | MediaType::Movie => {
+            Progress::get_for_media_user(&conn, user.0.claims.get_user(), id)
                 .await
-                .map(|x| x.delta)
-                .unwrap_or_default()
-        }),
+                .map(|x| json!({"progress": x.delta}))
+                .ok()
+        },
         // TODO (val): We can report on last episode + ts for tv shows here.
-        MediaType::Tv => json!({
-            "progress": 0
-        }),
+        MediaType::Tv => None,
     };
 
     let season_episode_tag = match media.media_type {
@@ -226,7 +224,7 @@ pub async fn get_media_by_id(
         "genres": genres,
         "duration": duration,
         ..?season_episode_tag,
-        ...progress
+        ..?progress
     })))
 }
 
