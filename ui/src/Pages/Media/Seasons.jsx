@@ -27,7 +27,7 @@ function MediaSeasons() {
 
     const { seasons } = media[id];
 
-    if (seasons.length === 1) {
+    if (seasons.length > 0) {
       setSeason(seasons[0].id);
     }
   }, [id, media]);
