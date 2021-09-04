@@ -1,61 +1,36 @@
-import { useCallback, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import { useSelector } from "react-redux";
 
-import { fetchLibraryUnmatched } from "../../actions/library.js";
-import CardList from "../../Components/CardList/Index.jsx";
-import UnmatchedCardList from "../../Components/CardList/UnmatchedCardList.jsx";
+import UnmatchedCard from "./UnmatchedMedia/Index.jsx";
+import Cards from "./Cards.jsx";
+import { LibraryContext } from "./Context";
+
+import "./Index.scss";
 
 const Library = () => {
-  const dispatch = useDispatch();
-
-  const { unmatched, ws, library } = useSelector(store => ({
-    unmatched: store.library.fetch_library_unmatched,
-    ws: store.ws,
-    library: store.card.cards.items
+  const { unmatched } = useSelector(store => ({
+    unmatched: store.library.fetch_library_unmatched
   }));
 
-  useEffect(() => {
-    if (!Object.keys(library)[0]) return;
-    document.title = `Dim - ${Object.keys(library)[0]}`;
-  }, [library]);
-
-  const params = useParams();
-
-  const handleWS = useCallback((e) => {
-    const { type } = JSON.parse(e.data);
-
-    if (type === "EventRemoveCard" || type === "EventNewCard") {
-      dispatch(fetchLibraryUnmatched(params.id));
-    }
-  }, [dispatch, params.id]);
-
-  useEffect(() => {
-    if (!ws.conn) return;
-
-    ws.conn.addEventListener("message", handleWS);
-
-    return () => {
-      ws.conn.removeEventListener("message", handleWS);
-    };
-  }, [handleWS, ws]);
-
-  useEffect(() => {
-    dispatch(fetchLibraryUnmatched(params.id));
-  }, [dispatch, params.id]);
+  const [showUnmatched, setShowUnmatched] = useState(false);
 
   const { fetched, items } = unmatched;
 
+  const initialValue = {
+    showUnmatched,
+    setShowUnmatched,
+    unmatched
+  };
+
   return (
-    <div className="library">
-      <CardList path={`/api/v1/library/${params.id}/media`} actions={true}/>
-      {(fetched && Object.keys(items).length > 0) && (
-        <>
-          <div className="separator"/>
-          <UnmatchedCardList cards={unmatched}/>
-        </>
-      )}
-    </div>
+    <LibraryContext.Provider value={initialValue}>
+      <div className="library">
+        {(fetched && Object.keys(items).length > 0) && (
+          <UnmatchedCard/>
+        )}
+        <Cards slip={showUnmatched}/>
+      </div>
+    </LibraryContext.Provider>
   );
 };
 

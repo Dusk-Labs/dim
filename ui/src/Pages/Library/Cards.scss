@@ -1,0 +1,78 @@
+.libraryCards {
+  padding: 30px;
+  z-index: 1;
+  position: absolute;
+  width: 100%;
+  pointer-events: none;
+  top: 0;
+  opacity: 1;
+  transition: .3s ease-in-out;
+  background: var(--primaryColor);
+  transition: padding 300ms ease-in-out, top 300ms ease-in-out, opacity 300ms ease-in-out;
+  animation: appear .5s ease-in-out;
+  height: 100%;
+
+  &.slip-true {
+    border-top: solid 3px var(--tertiaryColor);
+    top: 85vh;
+    opacity: .5;
+  }
+
+  .desc {
+    color: var(--secondaryTextColor);
+    margin: .5em 0 1em 0;
+  }
+
+  .libraryHeader {
+    margin-bottom: 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h2::first-letter {
+      text-transform: uppercase;
+    }
+  }
+}
+
+.cards {
+  display: grid;
+  grid-gap: 2em;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
+  &.show-true {
+    animation: showCards 250ms ease-in-out forwards;
+  }
+
+  &.show-false {
+    animation: hideCards 250ms ease-in-out forwards;
+  }
+}
+
+/*
+    * == MEDIA QUERIES ==
+*/
+
+@media only screen and (min-width: 1080px) {
+  .libraryCards {
+    padding: 60px 90px;
+  }
+}
+
+@keyframes showCards {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes hideCards {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
