@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import Banner from "./Banner.jsx";
 import Crumbs from "./Crumbs.jsx";
-import { fetchBanners } from "../../actions/banner.js";
+import { fetchBanners } from "../../../actions/banner.js";
 
 import "./Index.scss";
 

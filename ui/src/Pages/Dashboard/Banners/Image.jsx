@@ -1,14 +1,15 @@
-import ImageLoad from "../ImageLoad";
+import ImageLoad from "../../../Components/ImageLoad";
 
 const BannerImage = (props) => (
   <div className="imageWrapper">
     <ImageLoad src={props.src} triggerAnimation="onHideBannerImage">
-      {(imageSrc, loaded, error) => {
+      {({imageSrc, error, setErr}) => {
         if (!error) return (
           <img
             src={imageSrc}
             key={imageSrc}
             aria-label="banner"
+            onError={() => setErr(true)}
           />
         );
 

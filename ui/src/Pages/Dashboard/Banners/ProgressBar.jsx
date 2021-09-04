@@ -1,5 +1,5 @@
 import "./ProgressBar.scss";
-import CircleIcon from "../../assets/Icons/Circle";
+import CircleIcon from "../../../assets/Icons/Circle";
 
 function ProgressBar(props) {
   const { season, episode } = props.data;
