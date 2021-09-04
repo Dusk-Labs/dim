@@ -10,11 +10,11 @@ import PrivateRoute from "./Routes/Private";
 import MainLayout from "./Layouts/MainLayout";
 import Notifications from "./Components/Notifications";
 
-import Dashboard from "./Pages/Dashboard";
+import Dashboard from "./Pages/Dashboard/Index";
 import Library from "./Pages/Library/Index";
 import Media from "./Pages/Media/Index";
 import VideoPlayer from "./Pages/VideoPlayer/Index";
-import SearchResults from "./Pages/SearchResults";
+import SearchResults from "./Pages/SearchResults/Index";
 import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
 import Preferences from "./Pages/Preferences/Index";
