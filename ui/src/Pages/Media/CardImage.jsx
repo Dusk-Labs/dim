@@ -4,10 +4,10 @@ import DimLogo from "../../assets/DimLogo";
 const CardImage = (props) => (
   <div className="cardImageWrapper">
     <ImageLoad src={props.src} triggerAnimation="onHideImage">
-      {(imageSrc, loaded, error) => (
+      {({imageSrc, loaded, error, setErr}) => (
         <>
           {loaded && !error && (
-            <img src={imageSrc} alt="cover"/>
+            <img src={imageSrc} alt="cover" onError={() => setErr(true)}/>
           )}
           {error && (
             <div className="placeholder">
