@@ -30,7 +30,7 @@ function ImageLoad(props) {
     setTryAgain(false);
     setTimeoutID();
 
-    const src = new RegExp("/^(?:/|[a-z]+://)/").test(props.src) ? props.src : `/${props.src}`;
+    const src = new RegExp("^(?:[a-z]+:)?//").test(props.src) ? props.src : `/${props.src}`;
 
     try {
       const req = await fetch(src, {signal});
@@ -121,7 +121,7 @@ function ImageLoad(props) {
       className={`imageLoad show-${show}`}
       onAnimationEnd={handleAnimationEnd}
     >
-      {props.children(imageSrc, loaded, error)}
+      {props.children({imageSrc, loaded, error, setErr})}
     </div>
   );
 }
