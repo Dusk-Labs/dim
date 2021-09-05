@@ -23,14 +23,14 @@ function MediaSeasons() {
   }, [dispatch, id]);
 
   useEffect(() => {
-    if (!media[id].seasons) return;
+    if (!media[id].seasons || season) return;
 
     const { seasons } = media[id];
 
     if (seasons.length > 0) {
       setSeason(seasons[0].id);
     }
-  }, [id, media]);
+  }, [id, media, season]);
 
   if (media[id]?.seasons) {
     return (
