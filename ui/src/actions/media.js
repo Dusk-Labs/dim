@@ -1,5 +1,4 @@
 import {
-  FETCH_MEDIA_INFO_START,
   FETCH_MEDIA_INFO_OK,
   FETCH_MEDIA_INFO_ERR,
   FETCH_MEDIA_FILES_OK,
@@ -9,11 +8,6 @@ import {
 
 export const fetchMediaInfo = (id) => async (dispatch, getState) => {
   const token = getState().auth.token;
-
-  dispatch({
-    type: FETCH_MEDIA_INFO_START,
-    id
-  });
 
   try {
     const config = {

@@ -1,5 +1,4 @@
 import {
-  FETCH_MEDIA_INFO_START,
   FETCH_MEDIA_INFO_OK,
   FETCH_MEDIA_INFO_ERR,
   FETCH_MEDIA_FILES_OK,
@@ -18,7 +17,6 @@ const files = {
 const initialState = {};
 
 const infoActions = [
-  FETCH_MEDIA_INFO_START,
   FETCH_MEDIA_INFO_OK,
   FETCH_MEDIA_INFO_ERR
 ];
