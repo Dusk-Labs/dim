@@ -2,7 +2,7 @@ import DimLogo from "../../assets/DimLogo";
 import ImageLoad from "../../Components/ImageLoad";
 
 const BannerImage = (props) => (
-  <div className="bannerImageWrapper">
+  <div className="mediaBannerImageWrapper">
     <ImageLoad src={props.src} triggerAnimation="onHideImage">
       {({imageSrc, loaded, error, setErr}) => {
         if (loaded && !error) return (

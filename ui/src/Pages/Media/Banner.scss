@@ -1,96 +1,31 @@
-.backdrop {
-  position: relative;
-  height: 35vmin;
-  width: 100%;
-  padding: 30px 30px 0 30px;
-  transition: padding .3s ease-in-out;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-areas: "cover banner";
-  gap: 1em;
+.mediaBannerImageWrapper {
+  position: fixed;
+  height: 100%;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  overflow: hidden;
+  z-index: -1;
+  mask-image: linear-gradient(to bottom, #00000044, transparent);
 
-  .placeholder {
+  .imageLoad {
     height: 100%;
     width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    animation: onHideImage 0s ease-in-out forwards;
 
-    svg {
-      width: 48px;
-    }
-  }
-
-  .cardImageWrapper {
-    grid-area: cover;
-    border-radius: 10px;
-    width: auto;
-    height: 100%;
-    overflow: hidden;
-    background: #2a2a2a;
-
-    .imageLoad {
-      height: inherit;
-      width: inherit;
-      animation: onHideImage 0s ease-in-out forwards;
-
-      &.show-true {
-        animation: onActiveImage 300ms ease-in-out forwards;
-      }
-
-      &.show-false {
-        animation: onHideImage 300ms ease-in-out forwards;
-      }
-
-      img {
-        height: inherit;
-        width: inherit;
-        object-fit: cover;
-        object-position: bottom;
-      }
+    &.show-true {
+      animation: onActiveImage 300ms ease-in-out forwards;
     }
 
-    .placeholder {
-      width: 20vmin;
-    }
-  }
-
-  .bannerImageWrapper {
-    grid-area: banner;
-    border-radius: 10px;
-    overflow: hidden;
-    height: 100%;
-    width: 100%;
-    position: relative;
-    display: inline-block;
-
-    .imageLoad {
-      height: inherit;
-      width: inherit;
-      animation: onHideImage 0s ease-in-out forwards;
-
-      &.show-true {
-        animation: onActiveImage 300ms ease-in-out forwards;
-      }
-
-      &.show-false {
-        animation: onHideImage 300ms ease-in-out forwards;
-      }
-
-      img {
-        height: inherit;
-        width: inherit;
-        object-fit: cover;
-        object-position: bottom;
-      }
+    &.show-false {
+      animation: onHideImage 300ms ease-in-out forwards;
     }
 
     img {
-      transition: object-position 0.3s ease-in-out;
-      object-fit: cover;
-      border-radius: 10px;
       height: 100%;
       width: 100%;
+      object-fit: cover;
     }
   }
 }
@@ -114,27 +49,5 @@
   }
   100% {
     opacity: 0;
-  }
-}
-
-/*
-  * == MEDIA QUERIES ==
-*/
-
-@media only screen and (max-width: 2560px) and (max-height: 1440px) {
-  .backdrop .bannerImageWrapper .imageLoad img {
-    object-position: 30% 30%;
-  }
-}
-
-@media only screen and (max-width: 720px) and (max-height: 1440px) {
-  .backdrop .bannerImageWrapper .imageLoad {
-    object-position: 50% !important;
-  }
-}
-
-@media only screen and (min-width: 1080px) {
-  .backdrop {
-    padding: 60px 90px 0 90px;
   }
 }
