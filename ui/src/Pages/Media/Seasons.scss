@@ -1,0 +1,177 @@
+.mediaPageSeasons {
+  display: grid;
+  gap: 2em;
+  align-content: flex-start;
+
+  .seasons, .episodes {
+    display: grid;
+    width: 100%;
+    margin: 1em 0;
+    grid-gap: 2em;
+
+    p {
+      margin-top: 1em;
+      color: var(--secondaryTextColor);
+      padding: 0 2px;
+      font-family: "Roboto Condensed Regular", Arial;
+    }
+  }
+
+  .seasons {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
+    &.selected {
+      .season:not(.active) img {
+        opacity: .2;
+      }
+    }
+
+    .season {
+      width: 200px;
+      text-align: center;
+      animation: appear 200ms ease-in-out;
+
+      &:not(.active) {
+        cursor: pointer;
+
+        &:hover img {
+          filter: brightness(1.2);
+        }
+      }
+
+      .mediaCardImage {
+        width: 200px;
+        height: 300px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--secondaryColor);
+        border-radius: 10px;
+
+        .placeholder {
+          height: 100%;
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          svg {
+            width: 48px;
+          }
+        }
+
+        .imageLoad {
+          height: 100%;
+          width: 100%;
+          animation: onHideImage 0s ease-in-out forwards;
+
+          &.show-true {
+            animation: onActiveImage 300ms ease-in-out forwards;
+          }
+
+          &.show-false {
+            animation: onHideImage 300ms ease-in-out forwards;
+          }
+
+          img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            transition: 0.2s ease-in-out;
+            transition-property: filter, opacity;
+          }
+        }
+      }
+    }
+  }
+
+  .desc {
+    margin-top: .5em;
+    color: var(--secondaryTextColor);
+  }
+
+  .episodes {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+
+    .episode {
+      text-align: center;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+
+      &:hover .mediaCardImage {
+        filter: brightness(1.2);
+
+        .progress {
+          opacity: 1;
+        }
+      }
+
+      .mediaCardImage {
+        position: relative;
+        width: inherit;
+        height: 200px;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: filter 0.2s ease-in-out;
+        background: var(--secondaryColor);
+        border-radius: 10px;
+
+        .placeholder {
+          height: 100%;
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          svg {
+            width: 48px;
+          }
+        }
+
+        .imageLoad {
+          height: 100%;
+          width: 100%;
+          animation: onHideImage 0s ease-in-out forwards;
+
+          &.show-true {
+            animation: onActiveImage 300ms ease-in-out forwards;
+          }
+
+          &.show-false {
+            animation: onHideImage 300ms ease-in-out forwards;
+          }
+
+          img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+          }
+        }
+
+        .progress {
+          position: absolute;
+          background: var(--tertiaryColor);
+          left: 50%;
+          opacity: 0;
+          bottom: 1em;
+          height: 4px;
+          border-radius: 10px;
+          width: 90%;
+          transition: opacity 200ms ease-in-out;
+          transform: translateX(-50%);
+
+          .value {
+            position: absolute;
+            left: 0;
+            width: 0;
+            max-width: 100%;
+            height: 4px;
+            border-radius: 4px;
+            transition: width 200ms ease-in-out;
+            background: var(--accentColor);
+          }
+        }
+      }
+    }
+  }
+}
