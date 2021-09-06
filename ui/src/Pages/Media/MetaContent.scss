@@ -18,6 +18,35 @@
     margin-bottom: 10px;
   }
 
+  .mediaCardImage {
+    margin-bottom: 1em;
+    width: 250px;
+    height: 350px;
+    background: var(--secondaryColor);
+    border-radius: 10px;
+
+    .imageLoad {
+      height: 100%;
+      width: 100%;
+      animation: onHideImage 0s ease-in-out forwards;
+
+      &.show-true {
+        animation: onActiveImage 300ms ease-in-out forwards;
+      }
+
+      &.show-false {
+        animation: onHideImage 300ms ease-in-out forwards;
+      }
+
+      img {
+        border-radius: 10px;
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+      }
+    }
+  }
+
   h1 {
     font-family: "Roboto Bold", Arial;
   }
