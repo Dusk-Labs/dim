@@ -5,8 +5,6 @@ import { fetchMediaEpisodes } from "../../actions/media.js";
 import SelectMediaFileEpisode from "../../Modals/SelectMediaFile/Activators/Episode.jsx";
 import SelectMediaFile from "../../Modals/SelectMediaFile/Index.jsx";
 
-import "./Index.scss";
-
 function MediaEpisodes(props) {
   const dispatch = useDispatch();
 
