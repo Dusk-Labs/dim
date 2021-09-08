@@ -59,7 +59,7 @@ function Cards(props) {
       setFetched(true);
 
     } catch(err) {}
-  }, [auth.token, currentID]);
+  }, [auth.token, currentID, setShowUnmatched]);
 
   const handleWS = useCallback((e) => {
     const { type } = JSON.parse(e.data);
