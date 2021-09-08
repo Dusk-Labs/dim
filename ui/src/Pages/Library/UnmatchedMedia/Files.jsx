@@ -29,6 +29,7 @@ const SelectUnmatchedMediaFiles = () => {
       ...state,
       [file.id]: {
         id: file.id,
+        name: file.target_file.split(/\/|\\/g).pop(),
         parent: currentFolder
       }
     }));
