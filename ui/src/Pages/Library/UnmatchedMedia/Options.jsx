@@ -1,14 +1,21 @@
 import { useCallback, useContext } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router";
+
+import { fetchLibraryUnmatched } from "../../../actions/library";
 import Button from "../../../Components/Misc/Button";
 import { LibraryContext } from "../Context";
 import { SelectUnmatchedContext } from "./Context";
+import { NOTIFICATIONS_ADD } from "../../../actions/types";
 
 import "./Options.scss";
 
 const SelectUnmatchedMediaOptions = () => {
+  const dispatch = useDispatch();
+  const params = useParams();
+
   const { setShowUnmatched } = useContext(LibraryContext);
-  const { mediaType, tmdbID, selectedFiles, setError } = useContext(SelectUnmatchedContext);
+  const { mediaType, tmdbID, selectedFiles, clearData, setError, setFilesMatched, setMatching } = useContext(SelectUnmatchedContext);
 
   const { token } = useSelector(store => ({
     token: store.auth.token
@@ -21,6 +28,8 @@ const SelectUnmatchedMediaOptions = () => {
 
     if (files.length === 0) return;
 
+    setMatching(true);
+
     const config = {
       method: "PATCH",
       headers: {
@@ -29,7 +38,7 @@ const SelectUnmatchedMediaOptions = () => {
     };
 
     for (const file of files) {
-      console.log(`[Matcher] matching ${file.id} to tmdb ID ${tmdbID}`);
+      setFilesMatched(state => [...state, file.name]);
 
       const req = await fetch(`/api/v1/mediafile/${file.id}/match?tmdb_id=${tmdbID}&media_type=${mediaType}`, config);
 
@@ -39,8 +48,16 @@ const SelectUnmatchedMediaOptions = () => {
       }
     }
 
-    console.log("[Matcher] finished");
-  }, [mediaType, selectedFiles, setError, tmdbID, token]);
+    dispatch({
+      type: NOTIFICATIONS_ADD,
+      payload: {
+        msg: `Sucessfuly matched ${files.length} files.`
+      }
+    });
+
+    clearData();
+    dispatch(fetchLibraryUnmatched(params.id));
+  }, [clearData, dispatch, mediaType, params.id, selectedFiles, setError, setFilesMatched, setMatching, tmdbID, token]);
 
   const totalCount = Object.keys(selectedFiles).length;
 
@@ -50,7 +67,7 @@ const SelectUnmatchedMediaOptions = () => {
         type="secondary"
         onClick={() => setShowUnmatched(false)}
       >
-        Cancel
+        Close
       </Button>
       <Button
         onClick={() => match()}
