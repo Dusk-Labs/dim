@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 import UnmatchedCard from "./UnmatchedMedia/Index.jsx";
@@ -13,6 +13,12 @@ const Library = () => {
   }));
 
   const [showUnmatched, setShowUnmatched] = useState(false);
+
+  useEffect(() => {
+    if (unmatched.fetched && Object.keys(unmatched.items).length === 0) {
+      setShowUnmatched(false);
+    }
+  }, [setShowUnmatched, unmatched.fetched, unmatched.items]);
 
   const { fetched, items } = unmatched;
 
