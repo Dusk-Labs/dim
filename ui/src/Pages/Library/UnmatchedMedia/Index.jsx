@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
 
 import Folders from "./Folders";
@@ -28,6 +28,18 @@ const UnmatchedMedia = (props) => {
   const [tmdbID, setTmdbID] = useState();
   const [error, setError] = useState("");
 
+  const [filesMatched, setFilesMatched] = useState([]);
+  const [matching, setMatching] = useState(false);
+
+  const clearData = useCallback(() => {
+    setTmdbID();
+    setTmdbResults([]);
+    setError();
+    setQuery();
+    setSelectedFiles({});
+    setCurrentFolder();
+  }, []);
+
   useEffect(() => {
     setError("");
   }, [selectedFiles, currentFolder, query, tmdbResults, mediaType, tmdbID]);
@@ -49,14 +61,8 @@ const UnmatchedMedia = (props) => {
 
   useEffect(() => {
     if (showUnmatched) return;
-
-    setTmdbID();
-    setTmdbResults([]);
-    setError();
-    setQuery();
-    setSelectedFiles({});
-    setCurrentFolder();
-  }, [showUnmatched]);
+    clearData();
+  }, [clearData, showUnmatched]);
 
   const initialValue = {
     setManuallyMatch: props.setManuallyMatch,
@@ -65,7 +71,10 @@ const UnmatchedMedia = (props) => {
     mediaType, setMediaType,
     tmdbResults, setTmdbResults,
     query, setQuery,
-    tmdbID, setTmdbID
+    tmdbID, setTmdbID,
+    filesMatched, setFilesMatched,
+    matching, setMatching,
+    clearData
   };
 
   const count = Object.values(unmatched.items).flat().length;
@@ -73,6 +82,15 @@ const UnmatchedMedia = (props) => {
   return (
     <SelectUnmatchedContext.Provider value={initialValue}>
       <div className={`unmatchedMedia show-${showUnmatched}`}>
+        {matching && (
+          <div className="matchingProgress">
+            <div className="progress" style={{width: `${(filesMatched.length / Object.keys(selectedFiles).length) * 100}%`}}/>
+            {filesMatched.length === Object.keys(selectedFiles).length
+              ? <p>Finished matching</p>
+              : <p>({filesMatched.length}/{Object.keys(selectedFiles).length}) Matching '{filesMatched[filesMatched.length - 1]}'</p>
+            }
+          </div>
+        )}
         <h2>Unmatched</h2>
         <p className="sectionDesc">Could not find an accurate match for {count} {count === 0 ? "file" : "files"} in this library.</p>
         <div className="selectUnmatchedMedia">
