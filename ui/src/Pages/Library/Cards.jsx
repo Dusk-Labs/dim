@@ -11,7 +11,7 @@ import "./Cards.scss";
 function Cards(props) {
   const params = useParams();
 
-  const { showUnmatched } = useContext(LibraryContext);
+  const { showUnmatched, setShowUnmatched } = useContext(LibraryContext);
 
   const [title, setTitle] = useState("");
   const [cards, setCards] = useState([]);
@@ -37,6 +37,7 @@ function Cards(props) {
 
   const fetchCards = useCallback(async () => {
     setNewCards([]);
+    setShowUnmatched(false);
 
     try {
       const config = {
