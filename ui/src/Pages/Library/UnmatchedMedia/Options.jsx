@@ -51,7 +51,7 @@ const SelectUnmatchedMediaOptions = () => {
     dispatch({
       type: NOTIFICATIONS_ADD,
       payload: {
-        msg: `Sucessfuly matched ${files.length} files.`
+        msg: `Sucessfuly matched ${files.length} ${files.length > 1 ? "files" : "file"}.`
       }
     });
 
