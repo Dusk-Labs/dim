@@ -12,6 +12,32 @@
     opacity: 1;
   }
 
+  .matchingProgress {
+    margin-bottom: 1em;
+    background: var(--tertiaryColor);
+    color: var(--primaryTextColor);
+    border-radius: 10px;
+    display: flex;
+    padding: .3em 1em;
+    position: relative;
+    justify-content: center;
+    overflow: hidden;
+
+    p {
+      z-index: 1;
+      font-family: "Roboto Bold", Arial;
+    }
+
+    .progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      transition: width 300ms ease-in-out;
+      background: var(--accentLighterColor);
+    }
+  }
+
   .sectionDesc {
     color: var(--secondaryTextColor);
     margin: .5em 0 1em 0;
