@@ -35,9 +35,11 @@ function Cards(props) {
 
   const cardList = useRef(null);
 
-  const fetchCards = useCallback(async () => {
-    setNewCards([]);
-    setShowUnmatched(false);
+  const fetchCards = useCallback(async (reset = true) => {
+    if (reset) {
+      setNewCards([]);
+      setShowUnmatched(false);
+    }
 
     try {
       const config = {
@@ -71,7 +73,7 @@ function Cards(props) {
       }
 
       const id = setTimeout(() => {
-        fetchCards();
+        fetchCards(false);
       }, 500);
 
       setThrottleEventNewCardID(id);
