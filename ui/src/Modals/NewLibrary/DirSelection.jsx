@@ -84,9 +84,9 @@ function DirSelection(props) {
       );
     } else {
       dirs = items.map((dir, i) => {
-        const count = selectedFolders.filter(folder => {
-          return folder.includes(dir) && folder !== dir;
-        }).length;
+        const count = selectedFolders.filter(folder => (
+          folder.includes(dir + "/") && folder !== dir
+        )).length;
 
         return (
           <div

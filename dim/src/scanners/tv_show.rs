@@ -126,7 +126,7 @@ impl<'a> TvShowMatcher<'a> {
         let media_id = media.insert(&self.conn).await?;
         let _ = TVShow::insert(&self.conn, media_id).await;
 
-        self.push_event(media_id).await;
+        self.push_event(media_id, media.library_id).await;
 
         for name in result.genres {
             let genre = InsertableGenre { name };
@@ -259,7 +259,7 @@ impl<'a> TvShowMatcher<'a> {
         Ok(())
     }
 
-    async fn push_event(&self, id: i64) {
+    async fn push_event(&self, id: i64, lib_id: i64) {
         use std::lazy::SyncLazy;
         use std::sync::Mutex;
 
@@ -275,7 +275,7 @@ impl<'a> TvShowMatcher<'a> {
 
         let event = Message {
             id,
-            event_type: PushEventType::EventNewCard,
+            event_type: PushEventType::EventNewCard { lib_id },
         };
 
         let _ = self.event_tx.send(serde_json::to_string(&event).unwrap());

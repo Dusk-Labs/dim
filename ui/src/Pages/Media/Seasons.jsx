@@ -6,7 +6,7 @@ import { fetchMediaSeasons } from "../../actions/media.js";
 import CardImage from "./CardImage.jsx";
 import MediaEpisodes from "./Episodes.jsx";
 
-import "./Index.scss";
+import "./Seasons.scss";
 
 function MediaSeasons() {
   const dispatch = useDispatch();
@@ -17,6 +17,7 @@ function MediaSeasons() {
 
   const { id } = useParams();
   const [season, setSeason] = useState();
+  const [prevID, setPrevID] = useState();
 
   useEffect(() => {
     dispatch(fetchMediaSeasons(id));
@@ -27,10 +28,11 @@ function MediaSeasons() {
 
     const { seasons } = media[id];
 
-    if (seasons.length > 0) {
+    if (prevID !== id) {
+      setPrevID(id);
       setSeason(seasons[0].id);
     }
-  }, [id, media]);
+  }, [id, media, prevID]);
 
   if (media[id]?.seasons) {
     return (
@@ -50,7 +52,7 @@ function MediaSeasons() {
             ))}
           </div>
         </section>
-        {season !== undefined && (
+        {(season !== undefined && prevID === id) && (
           <MediaEpisodes seasonID={season}/>
         )}
       </div>

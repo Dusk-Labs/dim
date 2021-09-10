@@ -8,6 +8,7 @@ import { fetchMediaInfo } from "../../actions/media";
 import CircleIcon from "../../assets/Icons/Circle";
 import SelectMediaFile from "../../Modals/SelectMediaFile/Index";
 import SelectMediaFilePlayButton from "../../Modals/SelectMediaFile/Activators/PlayButton";
+import CardImage from "./CardImage";
 
 import "./MetaContent.scss";
 
@@ -73,6 +74,7 @@ function MetaContent() {
 
     metaContent = (
       <div className="metaContent">
+        <CardImage src={media[id]?.info.data.poster_path}/>
         <h1>{name}</h1>
         <div className="genres">
           <Link to={`/search?year=${year}`}>{year}</Link>
