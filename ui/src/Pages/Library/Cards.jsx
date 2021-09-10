@@ -64,9 +64,11 @@ function Cards(props) {
   }, [auth.token, currentID, setShowUnmatched]);
 
   const handleWS = useCallback((e) => {
-    const { type } = JSON.parse(e.data);
+    const { type, lib_id } = JSON.parse(e.data);
 
     if (type === "EventNewCard") {
+      if (lib_id !== parseInt(params.id)) return;
+
       if (throttleEventNewCardID) {
         clearTimeout(throttleEventNewCardID);
         setThrottleEventNewCardID();
@@ -78,7 +80,7 @@ function Cards(props) {
 
       setThrottleEventNewCardID(id);
     }
-  }, [fetchCards, throttleEventNewCardID]);
+  }, [fetchCards, params.id, throttleEventNewCardID]);
 
   useEffect(() => {
     if (!ws.conn) return;
