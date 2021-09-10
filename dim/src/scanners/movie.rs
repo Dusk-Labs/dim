@@ -140,15 +140,15 @@ impl<'a> MovieMatcher<'a> {
 
         updated_mediafile.update(&self.conn, orphan.id).await?;
 
-        self.push_event(media_id).await;
+        self.push_event(media_id, media.library_id).await;
 
         Ok(())
     }
 
-    async fn push_event(&self, id: i64) {
+    async fn push_event(&self, id: i64, lib_id: i64) {
         let event = Message {
             id,
-            event_type: PushEventType::EventNewCard,
+            event_type: PushEventType::EventNewCard { lib_id },
         };
 
         let _ = self.event_tx.send(serde_json::to_string(&event).unwrap());
