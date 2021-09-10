@@ -1,8 +1,9 @@
-import ImageLoad from "../../Components/ImageLoad";
+
 import DimLogo from "../../assets/DimLogo";
+import ImageLoad from "../ImageLoad";
 
 const CardImage = (props) => (
-  <div className="mediaCardImage">
+  <div className="cardImageWrapper">
     <ImageLoad src={props.src} triggerAnimation="onHideImage">
       {({imageSrc, loaded, error, setErr}) => (
         <>

@@ -1,0 +1,195 @@
+%card-popup {
+  display: flex;
+  align-items: center;
+  transition: width 0.3s ease-in-out;
+  position: absolute;
+  top: -10px;
+  height: 340px;
+  width: 500px;
+  background: transparent;
+  pointer-events: none;
+  z-index: 2;
+  font-family: "Roboto Bold", Arial;
+  animation: CardPopupAppear 0.2s ease-in-out;
+
+  .clipped {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: var(--tertiaryColor);
+    z-index: -1;
+    pointer-events: auto;
+  }
+
+  .contentWrapper {
+    display: grid;
+    gap: 1em;
+    width: 100%;
+  }
+
+  section {
+    pointer-events: auto;
+  }
+
+  .hoverCardHeader {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1em;
+    align-items: center;
+    position: relative;
+
+    .titleWrapper {
+      overflow: hidden;
+      position: relative;
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        right: 0;
+        background: linear-gradient(to right, transparent 80%, var(--tertiaryColor));
+      }
+    }
+
+    h2 {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 1.4em;
+    }
+
+    .rating {
+      display: flex;
+
+      svg {
+        margin-left: 5px;
+        width: 32px;
+      }
+    }
+  }
+
+  .description {
+    line-height: 1.5em;
+
+    h4 {
+      margin-bottom: 5px;
+      font-family: "Roboto Bold", Arial;
+    }
+
+    p {
+      font-family: "Roboto Regular", Arial;
+    }
+  }
+
+  .tags {
+    font-family: "Roboto Condensed Regular", Arial;
+    display: flex;
+    align-items: center;
+
+    svg {
+      font-size: .4em;
+      margin: 0 1em;
+      fill: var(--accentColor);
+    }
+
+    a {
+      color: var(--tertiaryTextColor);
+      transition: color .2s ease-in-out;
+
+      &:hover {
+        color: var(--primaryTextColor);
+      }
+    }
+
+    .genres {
+      display: grid;
+      justify-content: start;
+      grid-template-columns: repeat(3, auto);
+      align-items: center;
+      gap: .5em;
+    }
+  }
+
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .length {
+    text-align: center;
+
+    // value
+    p:nth-child(1) {
+      margin-bottom: 5px;
+      letter-spacing: 1px;
+    }
+
+    /* hint */
+    p:nth-child(2) {
+      color: var(--tertiaryTextColor);
+      font-size: 0.7em;
+    }
+  }
+
+  .separator {
+    width: 100%;
+  }
+}
+
+.hideCardPopup {
+  animation: CardPopupHide 0.2s ease-in-out forwards;
+}
+
+.card-popup-right {
+  @extend %card-popup;
+  filter: drop-shadow(-5px 0 10px #1a1a1a);
+  left: 80%;
+  right: unset;
+  padding: 0 50px 0 60px;
+
+  .clipped {
+    clip-path: polygon(5% 0, 100% 0, 100% 100%, 0 100%);
+    border-radius: 10px;
+    border-right: 3px solid #4a4a4a;
+  }
+}
+
+.card-popup-left {
+  @extend %card-popup;
+  filter: drop-shadow(5px 0 10px #1a1a1a);
+  left: unset;
+  right: 80%;
+  padding: 0 60px 0 50px;
+
+  .clipped {
+    clip-path: polygon(0 0, 95% 0, 100% 100%, 0 100%);
+    border-radius: 10px;
+    border-left: 3px solid #4a4a4a;
+  }
+}
+
+/*
+    * == KEYFRAMES ===
+*/
+
+@keyframes CardPopupAppear {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes CardPopupHide {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
