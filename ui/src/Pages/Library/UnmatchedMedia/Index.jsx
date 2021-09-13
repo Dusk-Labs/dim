@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 
 import Folders from "./Folders";
@@ -6,9 +7,9 @@ import Files from "./Files";
 import Search from "./Search";
 import Options from "./Options";
 
+import MediaTypeSelection from "../../../Modals/NewLibrary/MediaTypeSelection";
 import { SelectUnmatchedContext } from "./Context";
 import { LibraryContext } from "../Context";
-import { useSelector } from "react-redux";
 
 import "./Index.scss";
 
@@ -100,7 +101,12 @@ const UnmatchedMedia = (props) => {
           {currentFolder && (
             <Files/>
           )}
-          {(Object.values(selectedFiles).length > 0) && <Search/>}
+          {Object.values(selectedFiles).length > 0 && (
+            <div>
+              <MediaTypeSelection mediaType={mediaType} setMediaType={setMediaType}/>
+            </div>
+          )}
+          {Object.values(selectedFiles).length > 0 && <Search/>}
           {error && <p className="err">Error: {error}</p>}
           <Options/>
         </div>
