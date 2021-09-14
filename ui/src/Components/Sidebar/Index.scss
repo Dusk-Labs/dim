@@ -99,14 +99,14 @@
       transition: 100ms ease-in-out;
       transition-property: padding, background, transform;
 
-      .ringLoad {
-        animation: appear 300ms ease-in-out;
-        display: none;
-      }
+      &.showLoad-true {
+        grid-template-rows: 1fr 1fr 10px;
 
-      .barLoad {
-        animation: appear 300ms ease-in-out;
-        background: var(--quinaryColor);
+        .barLoad {
+          height: 6px;
+          background: var(--quinaryColor);
+          animation: appear 300ms ease-in-out;
+        }
       }
 
       &:focus,
@@ -198,9 +198,19 @@
     .list .item {
       text-align: left;
       justify-content: left;
-      grid-template-columns: 40px 1fr auto;
-      grid-template-areas: "icon name ring";
+      grid-template-columns: 40px 1fr;
+      grid-template-areas: "icon name";
       padding: .8em .5em;
+
+      &.showLoad-true {
+        grid-template-areas: "icon name" "ring ring";
+        grid-template-rows: 1fr 10px;
+
+        .barLoad {
+          grid-area: ring;
+          height: 5px;
+        }
+      }
 
       p {
         grid-area: name;
@@ -210,16 +220,6 @@
         grid-area: icon;
       }
 
-      .ringLoad {
-        display: block;
-        grid-area: ring;
-        width: 20px;
-        height: 20px;
-      }
-
-      .barLoad {
-        display: none;
-      }
     }
   }
 }

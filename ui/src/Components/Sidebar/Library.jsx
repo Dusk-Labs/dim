@@ -2,7 +2,6 @@ import { NavLink } from "react-router-dom";
 
 import FilmIcon from "../../assets/Icons/Film";
 import TvIcon from "../../assets/Icons/TvIcon";
-import Ring from "../Load/Ring";
 import BarLoad from "../Load/Bar";
 import { useSelector } from "react-redux";
 
@@ -13,16 +12,13 @@ function Library(props) {
   return (
     <NavLink
       to={"/library/" + id}
-      className="item"
+      className={`item showLoad-${scanning.includes(id)}`}
     >
       {media_type === "movie" && <FilmIcon/>}
       {media_type === "tv" && <TvIcon/>}
       <p>{name}</p>
       {scanning.includes(id) && (
-        <>
-          <Ring small={true}/>
-          <BarLoad/>
-        </>
+        <BarLoad/>
       )}
     </NavLink>
   );
