@@ -20,7 +20,7 @@ use events::Message;
 use events::PushEventType;
 
 use crate::core::EventTx;
-use crate::fetcher::PosterType;
+use crate::fetcher::insert_into_queue;
 
 pub struct MovieMatcher<'a> {
     pub conn: &'a DbConnection,
@@ -46,14 +46,12 @@ impl<'a> MovieMatcher<'a> {
 
         let backdrop_path = result.backdrop_path.clone();
 
-        let meta_fetcher = crate::core::METADATA_FETCHER_TX.get().unwrap().get();
-
         if let Some(poster_path) = poster_path.as_ref() {
-            let _ = meta_fetcher.send(PosterType::Banner(poster_path.clone()));
+            let _ = insert_into_queue(self.log, poster_path.clone(), 3);
         }
 
         if let Some(backdrop_path) = backdrop_path.as_ref() {
-            let _ = meta_fetcher.send(PosterType::Banner(backdrop_path.clone()));
+            let _ = insert_into_queue(self.log, backdrop_path.clone(), 3);
         }
 
         let poster = match poster_path {
