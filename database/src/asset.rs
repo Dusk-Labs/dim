@@ -1,4 +1,5 @@
 use crate::DatabaseError;
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, Default)]
 pub struct Asset {
@@ -62,6 +63,20 @@ impl Asset {
         .fetch_one(conn)
         .await?
         .id)
+    }
+
+    pub async fn get_url_by_file(
+        conn: &crate::DbConnection,
+        path: &PathBuf,
+    ) -> Result<String, DatabaseError> {
+        let cleaned_path: &str = &path.to_string_lossy();
+        Ok(sqlx::query!(
+            r#"SELECT remote_url as "remote_url!" FROM assets WHERE Local_path = ?"#,
+            cleaned_path
+        )
+        .fetch_one(conn)
+        .await?
+        .remote_url)
     }
 }
 

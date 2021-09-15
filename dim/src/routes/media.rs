@@ -193,7 +193,7 @@ pub async fn get_media_by_id(
                 .await
                 .map(|x| json!({"progress": x.delta}))
                 .ok()
-        },
+        }
         // TODO (val): We can report on last episode + ts for tv shows here.
         MediaType::Tv => None,
     };
@@ -205,7 +205,7 @@ pub async fn get_media_by_id(
                 "season": result.0,
                 "episode": result.1,
             }))
-        },
+        }
         _ => None,
     };
 

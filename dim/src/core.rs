@@ -1,5 +1,4 @@
 use crate::balanced_or_tree;
-use crate::fetcher::PosterType;
 use crate::logger::RequestLogger;
 use crate::routes;
 use crate::scanners;
@@ -43,11 +42,6 @@ unsafe impl<T: Clone> Sync for CloneOnDeref<T> {}
 
 /// Path to where metadata is stored and should be fetched to.
 pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
-// NOTE: While the sender is wrapped in a Mutex, we dont really care as wel copy the inner type at
-// some point anyway.
-/// Contains the tx channel over which we can send images to be cached locally.
-pub static METADATA_FETCHER_TX: OnceCell<CloneOnDeref<UnboundedSender<PosterType>>> =
-    OnceCell::new();
 
 /// Function dumps a list of all libraries in the database and starts a scanner for each which
 /// monitors for new files using fsnotify. It also scans all orphans on boot.
@@ -178,7 +172,7 @@ pub async fn warp_core(
             .recover(routes::global_filters::handle_rejection),
         /* static routes */
         routes::statik::filters::dist_static(),
-        routes::statik::filters::get_image(),
+        routes::statik::filters::get_image(conn.clone(), logger.clone()),
         routes::statik::filters::react_routes(),
     ]
     .recover(routes::global_filters::handle_rejection)

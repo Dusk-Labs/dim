@@ -25,9 +25,7 @@ impl ToString for Message {
 #[serde(tag = "type")]
 pub enum PushEventType {
     /// A new media card has been added to the database
-    EventNewCard {
-        lib_id: i64,
-    },
+    EventNewCard { lib_id: i64 },
     /// A card has been removed from the database
     EventRemoveCard,
     /// A new library has been added to the database

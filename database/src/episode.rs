@@ -188,19 +188,22 @@ impl Episode {
 
     pub async fn get_season_episode_by_id(
         conn: &crate::DbConnection,
-        episode_id: i64
+        episode_id: i64,
     ) -> Result<(i64, i64), DatabaseError> {
         struct Record {
             episode: i64,
             season: i64,
         }
 
-        let result = sqlx::query_as!(Record,
+        let result = sqlx::query_as!(
+            Record,
             "SELECT episode_ as episode, season.season_number as season FROM episode
             INNER JOIN season ON season.id = episode.seasonid
             WHERE episode.id = ?",
             episode_id
-        ).fetch_one(conn).await?;
+        )
+        .fetch_one(conn)
+        .await?;
 
         Ok((result.season, result.episode))
     }

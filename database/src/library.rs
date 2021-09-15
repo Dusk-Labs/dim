@@ -1,5 +1,4 @@
 use crate::DatabaseError;
-use cfg_if::cfg_if;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt;
@@ -94,7 +93,8 @@ impl Library {
     /// * `conn` - [diesel connection](crate::DbConnection)
     /// * `lib_id` - a integer that is the id of the library we are trying to query
     pub async fn get_one(conn: &crate::DbConnection, lib_id: i64) -> Result<Self, DatabaseError> {
-        let tx = conn.begin().await?;
+        // NOTE: Create a transaction so we immediately lock the database.
+        let _tx = conn.begin().await?;
 
         let library = sqlx::query!(
             r#"SELECT id, name, media_type as "media_type: MediaType" FROM library

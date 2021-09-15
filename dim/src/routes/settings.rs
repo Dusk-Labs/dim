@@ -103,7 +103,9 @@ pub fn set_global_settings(settings: GlobalSettings) -> Result<(), Box<dyn Error
     }
 
     let settings = get_global_settings();
-    File::create(path)?.write(toml::to_string_pretty(&settings).unwrap().as_ref()).unwrap();
+    File::create(path)?
+        .write(toml::to_string_pretty(&settings).unwrap().as_ref())
+        .unwrap();
 
     Ok(())
 }
