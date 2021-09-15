@@ -1,7 +1,6 @@
 use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors;
-use crate::routes::construct_standard;
 use crate::scanners;
 
 use auth::Wrapper as Auth;
@@ -18,14 +17,10 @@ use std::collections::HashMap;
 use std::convert::Infallible;
 use std::path::Path;
 
-use futures::stream;
-use futures::StreamExt;
-
 use slog::Logger;
 
 use warp::http::StatusCode;
 use warp::reply;
-use warp::Filter;
 
 use serde::Serialize;
 
