@@ -146,6 +146,8 @@ impl<'a> MovieMatcher<'a> {
     }
 
     async fn push_event(&self, id: i64, lib_id: i64) {
+        // TODO: verify if this scanner suffers from the same duplicate top-level media insertion
+        // bug.
         let event = Message {
             id,
             event_type: PushEventType::EventNewCard { lib_id },
