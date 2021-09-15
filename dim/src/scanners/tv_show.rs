@@ -263,14 +263,14 @@ impl<'a> TvShowMatcher<'a> {
         use std::lazy::SyncLazy;
         use std::sync::Mutex;
 
-        static DUPLICATE_LOG: SyncLazy<Mutex<Vec<i64>>> = SyncLazy::new(Default::default);
+        static DUPLICATE_LOG: SyncLazy<Mutex<Vec<(i64, i64)>>> = SyncLazy::new(Default::default);
 
         {
             let mut lock = DUPLICATE_LOG.lock().unwrap();
-            if lock.contains(&id) {
+            if lock.contains(&(lib_id, id)) {
                 return;
             }
-            lock.push(id);
+            lock.push((lib_id, id));
         }
 
         let event = Message {
