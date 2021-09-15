@@ -25,7 +25,7 @@ use events::Message;
 use events::PushEventType;
 
 use crate::core::EventTx;
-use crate::fetcher::PosterType;
+use crate::fetcher::insert_into_queue;
 
 pub struct TvShowMatcher<'a> {
     pub conn: &'a DbConnection,
@@ -49,14 +49,12 @@ impl<'a> TvShowMatcher<'a> {
 
         let backdrop_path = result.backdrop_path.clone();
 
-        let meta_fetcher = crate::core::METADATA_FETCHER_TX.get().unwrap().get();
-
         if let Some(poster_path) = poster_path.as_ref() {
-            let _ = meta_fetcher.send(PosterType::Banner(poster_path.clone()));
+            let _ = insert_into_queue(self.log, poster_path.clone(), 3).await;
         }
 
         if let Some(backdrop_path) = backdrop_path.as_ref() {
-            let _ = meta_fetcher.send(PosterType::Banner(backdrop_path.clone()));
+            let _ = insert_into_queue(self.log, backdrop_path.clone(), 3).await;
         }
 
         let poster = match poster_path {
@@ -121,8 +119,6 @@ impl<'a> TvShowMatcher<'a> {
         media: InsertableMedia,
         result: super::ApiMedia,
     ) -> Result<(), super::base::ScannerError> {
-        let meta_fetcher = crate::core::METADATA_FETCHER_TX.get().unwrap().get();
-
         let media_id = media.insert(&self.conn).await?;
         let _ = TVShow::insert(&self.conn, media_id).await;
 
@@ -148,7 +144,7 @@ impl<'a> TvShowMatcher<'a> {
         let poster_file = season.and_then(|x| x.poster_path.clone());
 
         if let Some(x) = poster_file.as_ref() {
-            let _ = meta_fetcher.send(PosterType::Season(x.clone()));
+            let _ = insert_into_queue(self.log, x.clone(), 2).await;
         }
 
         let season_poster = match poster_file {
@@ -187,7 +183,7 @@ impl<'a> TvShowMatcher<'a> {
         let still = search_ep.as_ref().and_then(|x| x.still.clone());
 
         if let Some(x) = still.as_ref() {
-            let _ = meta_fetcher.send(PosterType::Episode(x.clone()));
+            let _ = insert_into_queue(self.log, x.clone(), 1).await;
         }
 
         let backdrop = match still {

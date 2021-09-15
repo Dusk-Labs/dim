@@ -1,8 +1,13 @@
+use database::asset;
 use http::StatusCode;
 use rust_embed::RustEmbed;
-use std::path::PathBuf;
 use warp::path;
 use warp::Reply;
+
+use std::path::Path;
+use std::path::PathBuf;
+
+use crate::fetcher::bump_priority;
 
 pub mod filters {
     use super::super::global_filters::with_state;
@@ -16,7 +21,10 @@ pub mod filters {
         warp::get().and_then(super::react_routes)
     }
 
-    pub fn get_image() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    pub fn get_image(
+        conn: database::DbConnection,
+        log: slog::Logger,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         #[derive(Deserialize)]
         struct QueryArgs {
             w: Option<u32>,
@@ -30,9 +38,11 @@ pub mod filters {
             .and(warp::path::tail())
             .and(warp::query::query::<QueryArgs>())
             .and(with_state(metadata_path.clone()))
+            .and(with_state(conn))
+            .and(with_state(log))
             .and_then(
-                |x: warp::path::Tail, QueryArgs { w, h }: QueryArgs, meta_path: String| async move {
-                    super::get_image(x, w, h, meta_path).await
+                |x, QueryArgs { w, h }: QueryArgs, meta_path, conn, log| async move {
+                    super::get_image(x, w, h, meta_path, conn, log).await
                 },
             )
     }
@@ -102,9 +112,14 @@ pub async fn get_image(
     resize_w: Option<u32>,
     resize_h: Option<u32>,
     meta_path: String,
+    conn: database::DbConnection,
+    log: slog::Logger,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let mut file_path = PathBuf::from(&meta_path);
     file_path.push(path.as_str());
+
+    let mut url_path = PathBuf::from("images/");
+    url_path.push(path.as_str());
 
     /*
     let image = if let (Some(w), Some(h)) = (resize_w, resize_h) {
@@ -113,6 +128,12 @@ pub async fn get_image(
         tokio::fs::read(file_path).await.ok()
     };
     */
+
+    if !Path::new(&file_path).exists() {
+        if let Ok(x) = dbg!(asset::Asset::get_url_by_file(&conn, &url_path).await) {
+            bump_priority(&log, x, 5).await;
+        }
+    }
 
     let image = tokio::fs::read(file_path).await.ok();
 
