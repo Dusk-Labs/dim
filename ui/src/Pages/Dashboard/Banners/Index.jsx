@@ -17,20 +17,26 @@ function Banners() {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [currentTimeoutID, setCurrentTimeoutID] = useState();
+  const [throttleEventNewCardID, setThrottleEventNewCardID] = useState(false);
 
-  const handleWS = useCallback(e => {
+  const handleWS = useCallback((e) => {
     const { type } = JSON.parse(e.data);
-
-    if (type === "EventRemoveLibrary") {
-      dispatch(fetchBanners());
-    }
 
     if (banners.items.length >= 3) return;
 
     if (type === "EventNewCard") {
-      dispatch(fetchBanners());
+      if (throttleEventNewCardID) {
+        clearTimeout(throttleEventNewCardID);
+        setThrottleEventNewCardID();
+      }
+
+      const id = setTimeout(() => {
+        dispatch(fetchBanners());
+      }, 500);
+
+      setThrottleEventNewCardID(id);
     }
-  }, [banners.items.length, dispatch]);
+  }, [banners.items, dispatch, throttleEventNewCardID]);
 
   useEffect(() => {
     const timeout = setTimeout(timeoutID => {
