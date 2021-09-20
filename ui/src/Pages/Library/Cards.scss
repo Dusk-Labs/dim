@@ -11,6 +11,8 @@
   transition: padding 300ms ease-in-out, top 300ms ease-in-out, opacity 300ms ease-in-out;
   animation: appear .5s ease-in-out;
   height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
 
   &.slip-true {
     border-top: solid 3px var(--tertiaryColor);
