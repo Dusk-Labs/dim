@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { cloneElement, useCallback, useEffect, useState } from "react";
 import Modal from "react-modal";
 import { useDispatch } from "react-redux";
 
 import { newLibrary } from "../../actions/library.js";
 import MediaTypeSelection from "./MediaTypeSelection.jsx";
 import DirSelection from "./DirSelection.jsx";
-import ModalBox from "../Index.jsx";
 import Field from "../../Pages/Auth/Field.jsx";
 import Button from "../../Components/Misc/Button.jsx";
 
@@ -15,12 +14,40 @@ Modal.setAppElement("body");
 
 function NewLibraryModal(props) {
   const dispatch = useDispatch();
+  const [visible, setVisible] = useState(false);
 
   const [current, setCurrent] = useState("");
   const [name, setName] = useState("");
   const [nameErr, setNameErr] = useState("");
   const [mediaType, setMediaType] = useState("movie");
   const [selectedFolders, setSelectedFolders] = useState([]);
+
+  // prevent scrolling behind Modal
+  useEffect(() => {
+    visible
+      ? document.body.style.overflow = "hidden"
+      : document.body.style.overflow = "unset";
+  }, [visible]);
+
+  const clear = useCallback(() => {
+    setName("");
+    setCurrent("");
+    setSelectedFolders([]);
+    setMediaType("movie");
+  }, []);
+
+  const close = useCallback(() => {
+    setVisible(false);
+    clear();
+
+    if (props.cleanUp) {
+      props.cleanUp();
+    }
+  }, [clear, props]);
+
+  const open = useCallback(() => {
+    setVisible(true);
+  }, []);
 
   useEffect(() => {
     if (!name) return;
@@ -44,7 +71,7 @@ function NewLibraryModal(props) {
     }
   }, [name]);
 
-  const add = useCallback(async (closeModal) => {
+  const add = useCallback(async () => {
     if (!name) {
       setNameErr("Label your library");
     }
@@ -58,17 +85,20 @@ function NewLibraryModal(props) {
 
       await dispatch(newLibrary(data));
 
-      setName("");
-      setCurrent("");
-      setSelectedFolders([]);
-      setMediaType("movie");
-      closeModal();
+      close();
     }
-  }, [dispatch, mediaType, name, selectedFolders]);
+  }, [close, dispatch, mediaType, name, selectedFolders]);
 
   return (
-    <ModalBox id="modalNewLibrary" activatingComponent={props.children}>
-      {closeModal => (
+    <div className="modalBoxContainer">
+      {cloneElement(props.children, { onClick: () => open() })}
+      <Modal
+        isOpen={visible}
+        className="modalBox"
+        id="modalNewLibrary"
+        onRequestClose={close}
+        overlayClassName="popupOverlay"
+      >
         <div className="modalNewLibrary">
           <div className="heading">
             <h3>Create a new library</h3>
@@ -95,17 +125,17 @@ function NewLibraryModal(props) {
           <div className="options">
             <Button
               type="secondary"
-              onClick={closeModal}
+              onClick={close}
             >Nevermind</Button>
             <Button
               disabled={!name || selectedFolders.length === 0}
-              onClick={() => add(closeModal)}>
+              onClick={add}>
               Add library
             </Button>
           </div>
         </div>
-      )}
-    </ModalBox>
+      </Modal>
+    </div>
   );
 }
 
