@@ -323,11 +323,8 @@ pub async fn return_virtual_manifest(
         ..Default::default()
     };
 
-    let profile = get_profile_for(&log, StreamType::Video, &ctx)
-        .pop()
-        .expect("Failed to find a supported transcoding profile.");
-
-    let video = state.create(profile, ctx).await?;
+    let profile_chain = get_profile_for(&log, StreamType::Video, &ctx);
+    let video = state.create(profile_chain, ctx).await?;
 
     // FIXME: Stop hardcoding a fps of 24
     let video_avc = video_stream
@@ -416,11 +413,8 @@ pub async fn return_virtual_manifest(
         };
 
         // FIXME: remove this panic
-        let profile = get_profile_for(&log, StreamType::Video, &ctx)
-            .pop()
-            .expect("Failed to find a supported transcoding profile.");
-
-        let video = state.create(profile, ctx).await?;
+        let profile_chain = get_profile_for(&log, StreamType::Video, &ctx);
+        let video = state.create(profile_chain, ctx).await?;
 
         let video_stream_height = video_stream.height.unwrap_or(1080) as u64;
         let ratio = video_stream_height / quality.height;
@@ -473,9 +467,7 @@ pub async fn return_virtual_manifest(
             ..Default::default()
         };
 
-        let profile = get_profile_for(&log, StreamType::Audio, &ctx)
-            .pop()
-            .expect("Failed to find a supported transcoding profile.");
+        let profile = get_profile_for(&log, StreamType::Audio, &ctx);
         let audio = state.create(profile, ctx).await?;
 
         stream_tracking
@@ -532,41 +524,37 @@ pub async fn return_virtual_manifest(
             "vtt"
         };
 
-        match get_profile_for(&log, StreamType::Subtitle, &ctx).pop() {
-            Some(profile) => {
-                let subtitle = state.create(profile, ctx).await?;
+        let profile_chain = get_profile_for(&log, StreamType::Subtitle, &ctx);
+        let subtitle = state.create(profile_chain, ctx).await?;
 
-                stream_tracking
-                    .insert(
-                        &gid,
-                        VirtualManifest {
-                            id: subtitle.clone(),
-                            is_direct: false,
-                            content_type: ContentType::Subtitle,
-                            mime: mime.into(),
-                            codecs: codec.into(), //ignored
-                            bandwidth: 0,         // ignored
-                            duration: None,
-                            chunk_path: format!("{}/data/stream", subtitle.clone()),
-                            init_seg: None,
-                            args: {
-                                let mut x = HashMap::new();
-                                if let Some(y) = stream.get_title().or(stream.get_language()) {
-                                    x.insert("title".to_string(), y);
-                                }
-                                x
-                            },
-                            is_default,
-                            label: stream
-                                .get_title()
-                                .or(stream.get_language())
-                                .unwrap_or_default(),
-                        },
-                    )
-                    .await;
-            }
-            None => {}
-        }
+        stream_tracking
+            .insert(
+                &gid,
+                VirtualManifest {
+                    id: subtitle.clone(),
+                    is_direct: false,
+                    content_type: ContentType::Subtitle,
+                    mime: mime.into(),
+                    codecs: codec.into(), //ignored
+                    bandwidth: 0,         // ignored
+                    duration: None,
+                    chunk_path: format!("{}/data/stream", subtitle.clone()),
+                    init_seg: None,
+                    args: {
+                        let mut x = HashMap::new();
+                        if let Some(y) = stream.get_title().or(stream.get_language()) {
+                            x.insert("title".to_string(), y);
+                        }
+                        x
+                    },
+                    is_default,
+                    label: stream
+                        .get_title()
+                        .or(stream.get_language())
+                        .unwrap_or_default(),
+                },
+            )
+            .await;
     }
 
     Ok(reply::json(&json!({

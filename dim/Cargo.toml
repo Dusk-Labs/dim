@@ -24,7 +24,7 @@ database = { path = "../database", default-features = false, optional = true }
 events = { path = "../events" }
 auth = { path = "../auth" }
 #nightfall = { path = "../../nightfall" }
-nightfall = { git = "https://github.com/vgarleanu/nightfall", tag = "0.2.6" }
+nightfall = { git = "https://github.com/vgarleanu/nightfall", tag = "0.3.0" }
 
 lazy_static = "1.4.0"
 walkdir = "2.3.1"
