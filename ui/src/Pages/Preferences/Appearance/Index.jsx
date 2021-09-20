@@ -1,6 +1,6 @@
 import Themes from "./Themes";
 import Cards from "./Cards";
-import Sidebar from "./Sidebar";
+// import Sidebar from "./Sidebar";
 
 import "./Index.scss";
 
@@ -9,7 +9,7 @@ function Appearance() {
     <div className="preferencesAppearance">
       <Themes/>
       <Cards/>
-      <Sidebar/>
+      {/* <Sidebar/> */}
     </div>
   );
 }
