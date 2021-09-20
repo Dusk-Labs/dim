@@ -1,4 +1,5 @@
 import { createRef, useCallback, useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import HoverCard from "./HoverCard.jsx";
@@ -7,6 +8,10 @@ import Image from "./Image";
 import "./Index.scss";
 
 function Card(props) {
+  const { settings } = useSelector(store => ({
+    settings: store.settings.userSettings
+  }));
+
   const cardWrapper = useRef(null);
   const hoverCard = createRef();
   const card = useRef(null);
@@ -38,7 +43,7 @@ function Card(props) {
       card.current.style.animation = "";
     }
 
-    if (hovering || window.innerWidth < 1400) return;
+    if (hovering || window.innerWidth < 1400 || !settings.data.show_hovercards) return;
 
     const rect = card.current.getBoundingClientRect();
 
@@ -53,7 +58,7 @@ function Card(props) {
 
     const ID = setTimeout(showPopup, 600);
     setTimeoutID(ID);
-  }, [hovering, showPopup]);
+  }, [hovering, settings.data.show_hovercards, showPopup]);
 
   const { name, poster_path, id, media_type } = props.data;
 
@@ -74,7 +79,9 @@ function Card(props) {
       <div id={id} className="card" ref={card}>
         <Link to={`/media/${id}`}>
           <Image src={poster_path} progress={mediaProgress}/>
-          <p style={{opacity: + !hovering}}>{name}</p>
+          {settings.data.show_card_names && (
+            <p style={{opacity: + !hovering}}>{name}</p>
+          )}
         </Link>
       </div>
       {hovering && (
