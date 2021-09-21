@@ -151,11 +151,12 @@ function VideoPlayer() {
     };
   }, [audioTracks.list, auth.token, dispatch, manifest.virtual.loaded, video.gid, videoTracks.list]);
 
-  const seekTo = useCallback(async newTime => {
+  const seekTo = useCallback(newTime => {
     player.seek(newTime);
 
     dispatch(updateVideo({
-      seeking: false
+      seeking: false,
+      currentTime: newTime
     }));
   }, [dispatch, player]);
 

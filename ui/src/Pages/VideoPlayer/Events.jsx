@@ -105,7 +105,8 @@ function VideoEvents() {
 
     dispatch(updateVideo({
       currentTime: newTime,
-      buffer: Math.round(player.getBufferLength())
+      buffer: Math.round(player.getBufferLength()),
+      waiting: false
     }));
   }, [dispatch, player, video.prevSeekTo]);
 

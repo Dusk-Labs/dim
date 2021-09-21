@@ -27,9 +27,11 @@ function VideoActions(props) {
 
   useEffect(() => {
     if (!videoPlayer.current) return;
+    if (video.showSettings || video.showSubSwitcher) return;
+
     setVisible(video.idleCount <= 2);
     videoPlayer.current.style.cursor = video.idleCount <= 2 ? "default" : "none";
-  }, [video.idleCount, setVisible, videoPlayer]);
+  }, [setVisible, video.idleCount, video.showSettings, video.showSubSwitcher, videoPlayer]);
 
   const showPlayer = useCallback(() => {
     dispatch(updateVideo({
