@@ -32,6 +32,7 @@ function VideoActionPlayPause() {
 
   const handleKeyDown = useCallback(e => {
     if (e.key !== " ") return;
+    if (e.target !== document.body) return;
 
     player.isPaused() ? play() : pause();
   }, [pause, play, player]);
@@ -44,15 +45,12 @@ function VideoActionPlayPause() {
     };
   }, [handleKeyDown]);
 
-  if (video.paused) return (
-    <button onClick={play} className="playpause">
-      <PlayIcon/>
-    </button>
-  );
-
-  else return (
-    <button onClick={pause} className="playpause">
-      <PauseIcon/>
+  return (
+    <button
+      onClick={video.paused ? play : pause}
+      className="playpause"
+    >
+      {video.paused ? <PlayIcon/> : <PauseIcon/>}
     </button>
   );
 }
