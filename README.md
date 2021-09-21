@@ -8,7 +8,7 @@ Dim is a self hosted media manager. With minimal setup, Dim will organize and be
   1. `docker run -d -p 8000:8000/tcp --mount type=bind,source=/media,target=/media vgarleanu/dim:latest` 
 
 ## Installation (From source)
-  1. `git clone git@github.com:vgarleanu/dim.git`
+  1. `git clone https://github.com/Dusk-Labs/dim`
   2. `cargo run`
 
 
