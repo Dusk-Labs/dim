@@ -13,6 +13,7 @@ Dim is a self hosted media manager. With minimal setup, Dim will organize and be
   * rustc (nightly)
   * yarn, npm
   * libssl-dev
+  * ffmpeg
 
 ## Installation (From source)
   1. `git clone https://github.com/Dusk-Labs/dim`
