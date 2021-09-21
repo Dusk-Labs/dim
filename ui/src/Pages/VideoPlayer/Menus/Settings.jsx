@@ -49,14 +49,6 @@ function VideoMenuSettings() {
   }, [player]);
 
   useEffect(() => {
-    if (video.idleCount >= 2) {
-      dispatch(updateVideo({
-        showSettings: false
-      }));
-    }
-  }, [video.idleCount, dispatch]);
-
-  useEffect(() => {
     window.addEventListener("click", handleClick);
 
     return () => {
