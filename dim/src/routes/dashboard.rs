@@ -1,6 +1,7 @@
 use crate::core::DbConnection;
 use crate::errors;
 use crate::routes::get_top_duration;
+use crate::json;
 
 use auth::Wrapper as Auth;
 
@@ -16,7 +17,6 @@ use database::tv::TVShow;
 use futures::stream;
 use futures::StreamExt;
 
-use serde_json::json;
 use serde_json::Value;
 
 use warp::reply;
@@ -130,8 +130,16 @@ pub async fn dashboard(
         }));
     }
 
+    let continue_watching = if !continue_watching.is_empty() {
+        Some(json!({
+            "CONTINUE WATCHING": continue_watching,
+        }))
+    } else {
+        None
+    };
+
     Ok(reply::json(&json!({
-        "CONTINUE WATCHING": continue_watching,
+        ..?continue_watching,
         "TOP RATED": top_rated,
         "FRESHLY ADDED": recently_added,
     })))
