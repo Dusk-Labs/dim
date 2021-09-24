@@ -11,7 +11,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh \
         && chmod +x rustup.sh
 
 ENV PATH="/root/.cargo/bin:${PATH}"
-RUN ./rustup.sh -y --default-toolchain nightly
+# using nightly 2021-09-07 to avoid rustc deadlock + memleak bug
+RUN ./rustup.sh -y --default-toolchain nightly-2021-09-07
 
 RUN npm install -g yarn
 

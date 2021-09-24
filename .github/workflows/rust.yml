@@ -17,7 +17,7 @@ jobs:
         - uses: actions-rs/toolchain@v1
           with:
               profile: minimal
-              toolchain: nightly
+              toolchain: nightly-2021-09-07
               override: true
               components: cargo
         - run: sqlite3 ./dim_dev.db -init ./database/migrations/20210619211347_dim.sql
