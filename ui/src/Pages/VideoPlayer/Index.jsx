@@ -111,6 +111,7 @@ function VideoPlayer() {
         bufferPruningInterval: 10,
         smallGapLimit: 1000,
         abr: {
+          initialBitrate: window.location.hostname === "localhost" ? 0 : -1,
           autoSwitchBitrate: {
             video: false
           }
