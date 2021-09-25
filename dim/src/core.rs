@@ -95,7 +95,7 @@ pub async fn warp_core(
 
     let request_logger = RequestLogger::new(logger.clone());
 
-    let routes = balanced_or_tree![
+    let api_routes = balanced_or_tree![
         /* NOTE: v1 REST API routes start HERE */
         /* /api/v1/auth and /user routes */
         auth::filters::login(conn.clone()),
@@ -167,6 +167,10 @@ pub async fn warp_core(
         warp::path!("api" / "stream" / ..)
             .and(warp::any())
             .map(|| StatusCode::NOT_FOUND),
+    ];
+
+    let routes = balanced_or_tree![
+        api_routes.recover(routes::global_filters::handle_rejection),
         /* NOTE: This is a barrier to 404 any rest api calls that dont match till here */
         routes::global_filters::api_not_found(),
         /* websocket route */
