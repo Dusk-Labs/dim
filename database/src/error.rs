@@ -2,7 +2,7 @@ use err_derive::Error;
 
 #[derive(Debug, Error)]
 pub enum DatabaseError {
-    #[error(display = "An error has occured")]
+    #[error(display = "{:?}", _0)]
     DatabaseError(sqlx::error::Error),
 }
 

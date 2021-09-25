@@ -250,6 +250,7 @@ impl<'a> TvShowMatcher<'a> {
                         );
                         None
                     }
+
                 }
             }
             None => None,
