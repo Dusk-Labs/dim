@@ -35,9 +35,12 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      - run: yarn
-      - run: yarn build
-      - uses: actions/upload-artifact@v2
+      - name: Setup yarn
+        run: yarn
+      - name: Build webui
+        run: yarn build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
         with: 
           name: webui
           path: ui/build/
