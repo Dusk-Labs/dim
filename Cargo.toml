@@ -10,4 +10,3 @@ opt-level = 'z'
 
 [patch.crates-io]
 sqlx = { git = "https://github.com/launchbadge/sqlx", tag = "v0.5.5" }
-rusty_vainfo = { git = "https://github.com/vgarleanu/rusty_vainfo" }
