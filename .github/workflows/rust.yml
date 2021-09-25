@@ -21,7 +21,6 @@ jobs:
             workflow: react.yml
             workflow_conclusion: success
             branch: master
-            event: push
             name: webui
             path: ui/build
             repo: ${{github.repository}}
