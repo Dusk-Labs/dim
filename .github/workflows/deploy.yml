@@ -1,10 +1,7 @@
-name: CD
+name: build-docker-image
 
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Version tag'
   push:
     tags:
       - 'v*'
