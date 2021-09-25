@@ -103,14 +103,23 @@ impl InsertableAsset {
             return Ok(x);
         }
 
-        let result = sqlx::query_as_unchecked!(
+        sqlx::query_as_unchecked!(
             Asset,
-            "INSERT INTO assets (remote_url, local_path, file_ext)
-                VALUES ($1, $2, $3)
-                RETURNING id, remote_url, local_path, file_ext",
+            "INSERT OR IGNORE INTO assets (remote_url, local_path, file_ext)
+                VALUES ($1, $2, $3)",
             self.remote_url,
             self.local_path,
             self.file_ext
+        )
+        .execute(conn)
+        .await?;
+
+        // NOTE: asset is guaranteed to be in the table if we get here
+
+        let result = sqlx::query_as_unchecked!(
+            Asset,
+            "SELECT * FROM assets WHERE local_path = ?",
+            local_path
         )
         .fetch_one(conn)
         .await?;
