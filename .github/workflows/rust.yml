@@ -16,7 +16,7 @@ jobs:
         - uses: actions/checkout@v2
 
         - name: Download UI artifacts
-        - uses: dawidd6/action-download-artifact@v2
+          uses: dawidd6/action-download-artifact@v2
           with:
             workflow: react.yml
             workflow_conclusion: success
@@ -26,7 +26,6 @@ jobs:
             path: ui/build
             repo: ${{github.repository}}
 
-        - name: Build Dim
         - uses: actions-rs/toolchain@v1
           with:
               profile: minimal
@@ -34,13 +33,14 @@ jobs:
               override: true
               components: cargo
         - run: sqlite3 ./dim_dev.db -init ./database/migrations/20210619211347_dim.sql
-        - uses: actions-rs/cargo@v1
+        - name: Build Dim
+          uses: actions-rs/cargo@v1
           with:
               command: build
               args: --verbose --release
 
         - name: Download ffmpeg artifacts
-        - uses: dawidd6/action-download-artifact@v2
+          uses: dawidd6/action-download-artifact@v2
           with:
             workflow: main.yml
             workflow_conclusion: success
@@ -51,7 +51,7 @@ jobs:
             repo: Dusk-Labs/ffmpeg-static
 
         - name: Save artifacts
-        - uses: actions/upload-artifact@v2
+          uses: actions/upload-artifact@v2
           with:
             name: release
             path: |
