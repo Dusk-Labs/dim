@@ -36,3 +36,7 @@ jobs:
             ${{ runner.os }}-
       - run: yarn
       - run: yarn build
+      - uses: actions/upload-artifact@v2
+        with: 
+          name: webui
+          path: build/
