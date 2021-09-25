@@ -1,6 +1,7 @@
 name: React
 
 on:
+  workflow_dispatch:
   push:
     paths:
     - "ui/**"
