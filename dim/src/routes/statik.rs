@@ -58,6 +58,7 @@ pub mod filters {
                         Some("css") => "text/css",
                         Some("woff2") => "font/woff2",
                         Some("png") => "image/png",
+                        Some("ttf") => "font/ttf",
                         _ => return Err(warp::reject::not_found()),
                     };
 
