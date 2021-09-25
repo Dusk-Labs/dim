@@ -49,10 +49,20 @@ jobs:
             path: utils
             repo: Dusk-Labs/ffmpeg-static
 
+        - name: Create release dir
+          run: mkdir release && \
+            mv target/release/dim release && \
+            mv utils release && \
+            chmod +x release/dim && \
+            chmod +x release/utils/ffmpeg && \
+            chmod +x release/utils/ffprobe
+
+        - name: Compress release dir
+          run: tar -zcvf release.tar.gz release
+
         - name: Save artifacts
           uses: actions/upload-artifact@v2
           with:
             name: release
-            path: |
-              target/release/dim
-              utils/
+            path: release.tar.gz
+
