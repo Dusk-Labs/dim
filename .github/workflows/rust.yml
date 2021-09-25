@@ -50,11 +50,12 @@ jobs:
             repo: Dusk-Labs/ffmpeg-static
 
         - name: Create release dir
-          run: mkdir release && \
-            mv target/release/dim release && \
-            mv utils release && \
-            chmod +x release/dim && \
-            chmod +x release/utils/ffmpeg && \
+          run: |
+            mkdir release
+            cp target/release/dim release/dim
+            cp -R utils release/utils
+            chmod +x release/dim
+            chmod +x release/utils/ffmpeg
             chmod +x release/utils/ffprobe
 
         - name: Compress release dir
