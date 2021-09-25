@@ -55,38 +55,64 @@ impl<'a> MovieMatcher<'a> {
         }
 
         let poster = match poster_path {
-            Some(path) => InsertableAsset {
-                remote_url: Some(path),
-                local_path: result
-                    .poster_file
-                    .clone()
-                    .map(|x| format!("images/{}", x.trim_start_matches("/")))
-                    .unwrap_or_default(),
-                file_ext: "jpg".into(),
-                ..Default::default()
+            Some(path) => {
+                let asset = InsertableAsset {
+                    remote_url: Some(path),
+                    local_path: result
+                        .poster_file
+                        .clone()
+                        .map(|x| format!("images/{}", x.trim_start_matches("/")))
+                        .unwrap_or_default(),
+                    file_ext: "jpg".into(),
+                    ..Default::default()
+                }
+                .insert(self.conn)
+                .await;
+
+                match asset {
+                    Ok(x) => Some(x.id),
+                    Err(e) => {
+                        warn!(
+                            self.log,
+                            "Failed to insert poster into db";
+                            "reason" => e.to_string(),
+                            "orphan_id" => orphan.id
+                        );
+                        None
+                    }
+                }
             }
-            .insert(self.conn)
-            .await
-            .ok()
-            .map(|x| x.id),
             None => None,
         };
 
         let backdrop = match backdrop_path {
-            Some(path) => InsertableAsset {
-                remote_url: Some(path),
-                local_path: result
-                    .backdrop_file
-                    .clone()
-                    .map(|x| format!("images/{}", x.trim_start_matches("/")))
-                    .unwrap_or_default(),
-                file_ext: "jpg".into(),
-                ..Default::default()
+            Some(path) => {
+                let asset = InsertableAsset {
+                    remote_url: Some(path),
+                    local_path: result
+                        .backdrop_file
+                        .clone()
+                        .map(|x| format!("images/{}", x.trim_start_matches("/")))
+                        .unwrap_or_default(),
+                    file_ext: "jpg".into(),
+                    ..Default::default()
+                }
+                .insert(self.conn)
+                .await;
+
+                match asset {
+                    Ok(x) => Some(x.id),
+                    Err(e) => {
+                        warn!(
+                            self.log,
+                            "Failed to insert backdrop into db";
+                            "reason" => e.to_string(),
+                            "orphan_id" => orphan.id
+                        );
+                        None
+                    }
+                }
             }
-            .insert(self.conn)
-            .await
-            .ok()
-            .map(|x| x.id),
             None => None,
         };
 

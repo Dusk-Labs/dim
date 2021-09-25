@@ -1,7 +1,7 @@
 use crate::core::DbConnection;
 use crate::errors;
-use crate::routes::get_top_duration;
 use crate::json;
+use crate::routes::get_top_duration;
 
 use auth::Wrapper as Auth;
 
