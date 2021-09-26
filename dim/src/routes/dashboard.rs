@@ -269,7 +269,7 @@ async fn banner_for_show(
     };
 
     Ok(json!({
-        "id": media.id,
+        "id": episode.id,
         "title": media.name,
         "year": media.year,
         "synopsis": media.description,
