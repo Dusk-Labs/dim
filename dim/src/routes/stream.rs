@@ -188,7 +188,7 @@ pub mod filters {
     pub fn get_subtitle(
         state: StateManager,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "stream" / String / "data" / "stream")
+        warp::path!("api" / "v1" / "stream" / String / "data" / "stream.vtt")
             .and(warp::get())
             .and(with_state::<StateManager>(state))
             .and_then(|id: String, state: StateManager| async move {
@@ -495,11 +495,16 @@ pub async fn return_virtual_manifest(
 
     for stream in subtitles {
         let is_default = info.get_primary("subtitle") == Some(stream);
+
+        /* FIXME: same as below.
         let output_codec = if &stream.codec_name == "ass" {
             "ass"
         } else {
             "webvtt"
         };
+        */
+
+        let output_codec = "webvtt";
 
         let ctx = ProfileContext {
             file: media.target_file.clone(),
@@ -512,6 +517,8 @@ pub async fn return_virtual_manifest(
             ..Default::default()
         };
 
+        /* FIXME: Atm the frontend doesnt support ASS/SSA subs so we just push vtt subs if
+         * possible.
         let mime = if &stream.codec_name == "ass" {
             "text/ass"
         } else {
@@ -523,6 +530,10 @@ pub async fn return_virtual_manifest(
         } else {
             "vtt"
         };
+        */
+
+        let mime = "text/vtt";
+        let codec = "vtt";
 
         let profile_chain = get_profile_for(&log, StreamType::Subtitle, &ctx);
         let subtitle = state.create(profile_chain, ctx).await?;
@@ -538,7 +549,7 @@ pub async fn return_virtual_manifest(
                     codecs: codec.into(), //ignored
                     bandwidth: 0,         // ignored
                     duration: None,
-                    chunk_path: format!("{}/data/stream", subtitle.clone()),
+                    chunk_path: format!("{}/data/stream.vtt", subtitle.clone()),
                     init_seg: None,
                     args: {
                         let mut x = HashMap::new();
@@ -652,7 +663,6 @@ where
 ///
 /// # Query args
 /// * `start_num` - first chunk index
-//#[get("/<id>/data/init.mp4?<start_num>", rank = 1)]
 pub async fn get_init(
     state: StateManager,
     id: String,
@@ -669,7 +679,6 @@ pub async fn get_init(
 }
 
 /// Method mapped to `/api/v1/stream/<id>/data/<chunk..>` returns a chunk for stream `id`.
-// #[get("/<id>/data/<chunk..>", rank = 3)]
 pub async fn get_chunk(
     state: StateManager,
     id: String,
@@ -712,13 +721,12 @@ pub async fn get_chunk(
 ///
 /// # Arguments
 /// * `id` - id of the underlying stream (Must be a subtitle stream of non-bitmap format).
-//#[get("/<id>/data/stream.vtt", rank = 2)]
 pub async fn get_subtitle(
     state: StateManager,
     id: String,
 ) -> Result<impl warp::Reply, errors::StreamingErrors> {
     let path: String = timeout_segment(
-        || state.get_sub(id.clone(), "stream.vtt".into()),
+        || state.get_sub(id.clone(), "stream".into()),
         Duration::from_millis(100),
         200,
     )
