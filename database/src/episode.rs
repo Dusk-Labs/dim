@@ -25,7 +25,7 @@ pub struct Episode {
 
 /// This struct is purely used for querying episodes which later gets converted into a Episode
 /// struct
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone, sqlx::FromRow)]
 pub struct EpisodeWrapper {
     pub id: i64,
     pub seasonid: i64,
@@ -206,6 +206,75 @@ impl Episode {
         .await?;
 
         Ok((result.season, result.episode))
+    }
+
+    pub async fn get_season_number(
+        &self,
+        conn: &crate::DbConnection
+    ) -> Result<i64, DatabaseError> {
+        let record = sqlx::query!(
+            "SELECT season.season_number FROM season
+            WHERE season.id = ?",
+            self.seasonid
+        ).fetch_one(conn).await?;
+
+        Ok(record.season_number)
+    }
+
+    /// Function will query for the episode after the episode passed in.
+    pub async fn get_next_episode(
+        &self,
+        conn: &crate::DbConnection,
+        tv_id: i64,
+    ) -> Result<Episode, DatabaseError> {
+        let season_number = self.get_season_number(conn).await?;
+
+        let record = sqlx::query_as!(
+            EpisodeWrapper,
+            r#"SELECT episode.id as "id!", episode.seasonid, episode.episode_ FROM episode
+            INNER JOIN season ON season.id = episode.seasonid
+            WHERE season.tvshowid = ? AND episode.episode_ > ? AND season.season_number >= ?
+            ORDER BY season.season_number, episode.episode_
+            LIMIT 1"#,
+            tv_id, self.episode, season_number
+        )
+        .fetch_one(conn)
+        .await?;
+
+        let ep = Media::get(conn, record.id as i64).await?;
+
+        Ok(record.into_episode(ep))
+    }
+
+    /// Function will query the last episode that was watched for a show.
+    pub async fn get_last_watched_episode(
+        conn: &crate::DbConnection,
+        tvid: i64,
+        uid: String,
+    ) -> Result<Option<Episode>, DatabaseError> {
+        // FIXME: We're using the query_as function instead of macro because `LEFT OUTER JOIN`
+        // crashes the proc macro.
+        let result = sqlx::query_as::<_, EpisodeWrapper>(
+            "SELECT episode.* FROM episode
+            INNER JOIN season ON season.id = episode.seasonid
+            LEFT OUTER JOIN progress ON progress.media_id = episode.id AND progress.user_id = ?
+            WHERE season.tvshowid = ?
+            ORDER BY progress.populated DESC
+            LIMIT 1",
+        )
+        .bind(uid)
+        .bind(tvid)
+        .fetch_optional(conn)
+        .await?;
+
+        let result = if let Some(r) = result {
+            r
+        } else {
+            return Ok(None);
+        };
+
+        let ep = Media::get(conn, result.id as i64).await?;
+        Ok(Some(result.into_episode(ep)))
     }
 
     /// Method deletes a episode based on the tv show id, season number, and episode number
