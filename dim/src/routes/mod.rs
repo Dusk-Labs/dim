@@ -70,23 +70,6 @@ pub mod global_filters {
     }
 }
 
-pub async fn get_top_duration(conn: &DbConnection, data: &Media) -> Result<i64, errors::DimError> {
-    match MediaFile::get_of_media(conn, data.id).await {
-        Ok(files) => {
-            let last = files
-                .iter()
-                .filter(|file| !matches!(file.corrupt, Some(true)))
-                .last();
-
-            match last {
-                None => Ok(0),
-                Some(file) => file.duration.ok_or(errors::DimError::NoneError),
-            }
-        }
-        Err(_) => Ok(0),
-    }
-}
-
 pub async fn get_season(conn: &DbConnection, data: &Media) -> Result<Season, errors::DimError> {
     Ok(Season::get_first(conn, data.id).await?)
 }
@@ -109,7 +92,7 @@ pub async fn construct_standard(
     user: &::auth::Wrapper,
 ) -> Result<JsonValue, errors::DimError> {
     // TODO: convert to enums
-    let duration = get_top_duration(conn, data).await?;
+    let duration = MediaFile::get_largest_duration(conn, data.id).await?;
     let season = get_season(conn, data).await;
 
     let genres = Genre::get_by_media(&conn, data.id)
@@ -125,7 +108,7 @@ pub async fn construct_standard(
                 .map(|x| x.delta)
                 .unwrap_or(0);
 
-            let duration = get_top_duration(conn, &episode.media).await?;
+            let duration = MediaFile::get_largest_duration(conn, episode.id).await?;
 
             return Ok(json!({
                 "id": data.id,
