@@ -110,8 +110,8 @@ function VideoPlayer() {
         useAppendWindow: true,
         bufferPruningInterval: 10,
         smallGapLimit: 1000,
+        selectionModeForInitialTrack: "highestBitrate",
         abr: {
-          initialBitrate: window.location.hostname === "localhost" ? 0 : -1,
           autoSwitchBitrate: {
             video: false
           }
@@ -120,7 +120,6 @@ function VideoPlayer() {
     };
 
     mediaPlayer.updateSettings(settings);
-
     mediaPlayer.extend("RequestModifier", function () {
       return {
         modifyRequestHeader: function (xhr) {
