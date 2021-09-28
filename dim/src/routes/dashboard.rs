@@ -1,7 +1,6 @@
 use crate::core::DbConnection;
 use crate::errors;
 use crate::json;
-use crate::routes::get_top_duration;
 
 use auth::Wrapper as Auth;
 
@@ -11,11 +10,6 @@ use database::library::MediaType;
 use database::media::Media;
 use database::mediafile::MediaFile;
 use database::progress::Progress;
-use database::season::Season;
-use database::tv::TVShow;
-
-use futures::stream;
-use futures::StreamExt;
 
 use serde_json::Value;
 
@@ -173,7 +167,7 @@ async fn banner_for_movie(
         .unwrap_or(0);
 
     let mediafiles = MediaFile::get_of_media(conn, media.id).await?;
-    let media_duration = get_top_duration(conn, media).await?;
+    let media_duration = MediaFile::get_largest_duration(conn, media.id).await?;
 
     let genres = Genre::get_by_media(conn, media.id)
         .await
@@ -213,40 +207,22 @@ async fn banner_for_show(
     user: &Auth,
     media: &Media,
 ) -> Result<Value, errors::DimError> {
-    let show: TVShow = media.clone().into();
-    let first_season = Season::get_first(conn, show.id).await?;
+    let episode = if let Ok(Some(ep)) =
+        Episode::get_last_watched_episode(conn, media.id, user.0.claims.get_user()).await
+    {
+        let (delta, duration) =
+            Progress::get_progress_for_media(conn, ep.id, user.0.claims.get_user())
+            .await
+            .unwrap_or((0, 1));
 
-    let episodes = Episode::get_all_of_tv(conn, media.id).await?;
-
-    let delta_sorted = stream::iter(episodes)
-        .filter_map(|x| {
-            // FIXME: ugly workaround.
-            let x = x.clone();
-            async {
-                let x = x;
-                Progress::get_for_media_user(conn, user.0.claims.get_user(), x.id)
-                    .await
-                    .ok()
-                    .and_then(|y| Some((x.clone(), y)))
-            }
-        })
-        .collect::<Vec<_>>()
-        .await;
-
-    let mut delta_sorted = delta_sorted
-        .iter()
-        .filter(|(_, x)| x.delta > 0)
-        .collect::<Vec<_>>();
-
-    delta_sorted.sort_unstable_by(|a, b| a.1.populated.partial_cmp(&b.1.populated).unwrap());
-
-    let episode = if let Some(x) = delta_sorted.first() {
-        x.0.clone()
+        if (delta as f64 / duration as f64) > 0.90 {
+            ep.get_next_episode(conn, media.id).await.unwrap_or(ep)
+        } else {
+            ep
+        }
     } else {
-        Episode::get_first_for_season(conn, first_season.id).await?
+        Episode::get_first_for_show(conn, media.id).await?
     };
-
-    let season = Season::get_by_id(conn, episode.seasonid).await?;
 
     let genres = Genre::get_by_media(conn, media.id)
         .await
@@ -259,7 +235,9 @@ async fn banner_for_show(
         .await
         .map(|x| x.delta)
         .unwrap_or(0);
-    let duration = get_top_duration(conn, &episode.media).await?;
+
+    let duration = MediaFile::get_largest_duration(conn, episode.id).await.unwrap_or(0);
+
     let mediafiles = MediaFile::get_of_media(conn, episode.id).await?;
 
     let caption = if progress > 0 {
@@ -279,7 +257,7 @@ async fn banner_for_show(
         "delta": progress,
         "banner_caption": caption,
         "episode": episode.episode,
-        "season": season.season_number,
+        "season": episode.get_season_number(conn).await.unwrap_or(0),
         "versions": mediafiles.iter().map(|x| json!({
             "id": x.id,
             "file": x.target_file,
