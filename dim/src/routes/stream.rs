@@ -33,7 +33,6 @@ use serde_json::json;
 use uuid::Uuid;
 use warp::http::status::StatusCode;
 use warp::reply;
-use warp::Filter;
 
 pub mod filters {
     use warp::reject;
