@@ -167,10 +167,17 @@ pub async fn warp_core(
         warp::path!("api" / "stream" / ..)
             .and(warp::any())
             .map(|| StatusCode::NOT_FOUND),
-    ];
+    ]
+    .recover(routes::global_filters::handle_rejection);
+
+    cfg_if::cfg_if! {
+        if #[cfg(debug_assertions)] {
+            let api_routes = api_routes.boxed();
+        }
+    }
 
     let routes = balanced_or_tree![
-        api_routes.recover(routes::global_filters::handle_rejection),
+        api_routes,
         /* NOTE: This is a barrier to 404 any rest api calls that dont match till here */
         routes::global_filters::api_not_found(),
         /* websocket route */
