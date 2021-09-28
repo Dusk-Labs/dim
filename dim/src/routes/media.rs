@@ -205,10 +205,13 @@ pub async fn get_media_by_id(
 
                 if (delta as f64 / duration as f64) > 0.90 {
                     if let Ok(next_episode) = ep.get_next_episode(&conn, id).await {
-                        let (delta, _duration) =
-                            Progress::get_progress_for_media(&conn, ep.id, user.0.claims.get_user())
-                            .await
-                            .unwrap_or((0, 1));
+                        let (delta, _duration) = Progress::get_progress_for_media(
+                            &conn,
+                            ep.id,
+                            user.0.claims.get_user(),
+                        )
+                        .await
+                        .unwrap_or((0, 1));
 
                         Some(json!({
                             "progress": delta,
@@ -241,8 +244,6 @@ pub async fn get_media_by_id(
         }
         _ => None,
     };
-
-    println!("{:?}", season_episode_tag);
 
     // FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
     Ok(reply::json(&json!({

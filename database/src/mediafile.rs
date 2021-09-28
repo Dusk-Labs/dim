@@ -147,14 +147,20 @@ impl MediaFile {
     }
 
     /// Function will return the largest duration for a media.
-    pub async fn get_largest_duration(conn: &crate::DbConnection, media_id: i64) -> Result<i64, DatabaseError> {
+    pub async fn get_largest_duration(
+        conn: &crate::DbConnection,
+        media_id: i64,
+    ) -> Result<i64, DatabaseError> {
         Ok(sqlx::query!(
             r#"SELECT MAX(COALESCE(mediafile.duration, 0)) as "duration!: i64" FROM mediafile
             WHERE mediafile.media_id = ?
             GROUP BY mediafile.media_id
             LIMIT 1"#,
             media_id
-        ).fetch_one(conn).await?.duration)
+        )
+        .fetch_one(conn)
+        .await?
+        .duration)
     }
 
     /// Method deletes mediafile matching the id supplied

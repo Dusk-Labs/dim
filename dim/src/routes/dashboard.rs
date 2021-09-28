@@ -212,8 +212,8 @@ async fn banner_for_show(
     {
         let (delta, duration) =
             Progress::get_progress_for_media(conn, ep.id, user.0.claims.get_user())
-            .await
-            .unwrap_or((0, 1));
+                .await
+                .unwrap_or((0, 1));
 
         if (delta as f64 / duration as f64) > 0.90 {
             ep.get_next_episode(conn, media.id).await.unwrap_or(ep)
@@ -236,7 +236,9 @@ async fn banner_for_show(
         .map(|x| x.delta)
         .unwrap_or(0);
 
-    let duration = MediaFile::get_largest_duration(conn, episode.id).await.unwrap_or(0);
+    let duration = MediaFile::get_largest_duration(conn, episode.id)
+        .await
+        .unwrap_or(0);
 
     let mediafiles = MediaFile::get_of_media(conn, episode.id).await?;
 
