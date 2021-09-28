@@ -194,8 +194,41 @@ pub async fn get_media_by_id(
                 .map(|x| json!({"progress": x.delta}))
                 .ok()
         }
-        // TODO (val): We can report on last episode + ts for tv shows here.
-        MediaType::Tv => None,
+        MediaType::Tv => {
+            if let Ok(Some(ep)) =
+                Episode::get_last_watched_episode(&conn, id, user.0.claims.get_user()).await
+            {
+                let (delta, duration) =
+                    Progress::get_progress_for_media(&conn, ep.id, user.0.claims.get_user())
+                        .await
+                        .unwrap_or((0, 1));
+
+                if (delta as f64 / duration as f64) > 0.90 {
+                    if let Ok(next_episode) = ep.get_next_episode(&conn, id).await {
+                        let (delta, _duration) =
+                            Progress::get_progress_for_media(&conn, ep.id, user.0.claims.get_user())
+                            .await
+                            .unwrap_or((0, 1));
+
+                        Some(json!({
+                            "progress": delta,
+                            "season": next_episode.get_season_number(&conn).await.unwrap_or(0),
+                            "episode": next_episode.episode,
+                        }))
+                    } else {
+                        None
+                    }
+                } else {
+                    Some(json!({
+                        "progress": delta,
+                        "season": ep.get_season_number(&conn).await.unwrap_or(0),
+                        "episode": ep.episode,
+                    }))
+                }
+            } else {
+                None
+            }
+        }
     };
 
     let season_episode_tag = match media.media_type {
@@ -208,6 +241,8 @@ pub async fn get_media_by_id(
         }
         _ => None,
     };
+
+    println!("{:?}", season_episode_tag);
 
     // FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
     Ok(reply::json(&json!({
