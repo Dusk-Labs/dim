@@ -89,6 +89,34 @@ impl Progress {
         }
     }
 
+    pub async fn get_progress_for_media(
+        conn: &crate::DbConnection,
+        id: i64,
+        uid: String,
+    ) -> Result<(i64, i64), DieselError> {
+        #[derive(sqlx::FromRow)]
+        struct Record {
+            delta: i64,
+            duration: i64,
+        }
+
+        // FIXME: Use query_as macro instead of query_as function when https://github.com/launchbadge/sqlx/issues/1249 is fixed.
+        let record = sqlx::query_as::<_, Record>(
+            "SELECT progress.delta, MAX(mediafile.duration) duration FROM _tblmedia
+            INNER JOIN mediafile ON mediafile.media_id = _tblmedia.id
+            LEFT OUTER JOIN progress ON progress.media_id = _tblmedia.id AND progress.user_id = ?
+            WHERE _tblmedia.id = ?
+            GROUP BY _tblmedia.id
+            LIMIT 1",
+        )
+        .bind(uid)
+        .bind(id)
+        .fetch_one(conn)
+        .await?;
+
+        Ok((record.delta, record.duration))
+    }
+
     pub async fn get_total_for_tv(
         conn: &crate::DbConnection,
         uid: String,
