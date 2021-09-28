@@ -210,13 +210,15 @@ impl Episode {
 
     pub async fn get_season_number(
         &self,
-        conn: &crate::DbConnection
+        conn: &crate::DbConnection,
     ) -> Result<i64, DatabaseError> {
         let record = sqlx::query!(
             "SELECT season.season_number FROM season
             WHERE season.id = ?",
             self.seasonid
-        ).fetch_one(conn).await?;
+        )
+        .fetch_one(conn)
+        .await?;
 
         Ok(record.season_number)
     }
@@ -236,7 +238,9 @@ impl Episode {
             WHERE season.tvshowid = ? AND episode.episode_ > ? AND season.season_number >= ?
             ORDER BY season.season_number, episode.episode_
             LIMIT 1"#,
-            tv_id, self.episode, season_number
+            tv_id,
+            self.episode,
+            season_number
         )
         .fetch_one(conn)
         .await?;
