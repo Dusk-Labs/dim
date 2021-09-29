@@ -73,10 +73,6 @@ function VideoMenuSettings() {
             Video tracks
             <ChevronRightIcon/>
           </p>
-          <p onClick={() => setActiveInnerMenu("Audio tracks")}>
-            Audio tracks
-            <ChevronRightIcon/>
-          </p>
         </div>
       )}
       {activeInnerMenu === "Video tracks" && (
@@ -93,6 +89,13 @@ function VideoMenuSettings() {
     </div>
   );
 }
+/*
+ *
+          <p onClick={() => setActiveInnerMenu("Audio tracks")}>
+            Audio tracks
+            <ChevronRightIcon/>
+          </p>
+          */
 
 /* FIXME: basically dash.js loads and recognizes the audio tracks correctly, but when changeTrack is called, nothing happens.
       {activeInnerMenu === "Audio tracks" && (
