@@ -547,13 +547,14 @@ pub async fn return_virtual_manifest(
                     content_type: ContentType::Subtitle,
                     mime: mime.into(),
                     codecs: codec.into(), //ignored
-                    bandwidth: 0,         // ignored
+                    bandwidth: 1024,         // ignored
                     duration: None,
                     chunk_path: format!("{}/data/stream.vtt", subtitle.clone()),
                     init_seg: None,
                     args: {
                         let mut x = HashMap::new();
                         if let Some(y) = stream.get_title().or(stream.get_language()) {
+                            let y = y.replace("&", "and"); // dash.js seems to note like when there are `&` within titles.
                             x.insert("title".to_string(), y);
                         }
                         x
