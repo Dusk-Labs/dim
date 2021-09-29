@@ -97,6 +97,8 @@ function VideoPlayer() {
     const includes = `${videoTracks.list.map(track => track.id).join(",")},${audioTracks.list.map(track => track.id).join(",")}`;
     const url = `/api/v1/stream/${video.gid}/manifest.mpd?start_num=0&should_kill=false&includes=${includes}`;
     const mediaPlayer = MediaPlayer().create();
+    const hostname = window.location.hostname;
+    const initialVideoBitrate = ["localhost", "127.0.0.1", "::1"].includes(hostname) || hostname.startsWith("192.168") ? videoTracks.list[0].bandwidth : -1;
 
     // even with these settings, high bitrate movies fail.
     // The only solution is to have a constant bitrate and cosistent segments.
@@ -112,6 +114,10 @@ function VideoPlayer() {
         smallGapLimit: 1000,
         selectionModeForInitialTrack: "firstTrack",
         abr: {
+          initialBitrate: {
+            audio: -1,
+            video: initialVideoBitrate
+          },
           autoSwitchBitrate: {
             video: false
           }
