@@ -43,7 +43,7 @@ function VideoMenuSettings() {
     */
     const inverted = (bitrates.length - 1) - i;
 
-    console.log("[video] changed track to", inverted);
+    console.log("[video] changed track to", bitrates[inverted]);
 
     player.setQualityFor(trackType, inverted);
   }, [player]);
@@ -56,6 +56,7 @@ function VideoMenuSettings() {
     };
   }, [handleClick]);
 
+  window.video = video;
   return (
     <div className="menu" ref={menuRef}>
       <div className="heading">

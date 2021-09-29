@@ -116,7 +116,10 @@ function VideoEvents() {
     if (e.mediaType !== "video" && e.mediaType !== "audio") return;
 
     const bitrates = player.getBitrateInfoListFor(e.mediaType);
+    console.log(bitrates);
+    console.log(e.newQuality);
     const inverted = (bitrates.length - 1) - e.newQuality;
+    console.log(bitrates[e.newQuality]);
 
     dispatch(updateTrack(e.mediaType, {
       current: inverted
