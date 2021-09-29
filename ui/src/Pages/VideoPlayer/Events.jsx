@@ -24,12 +24,23 @@ function VideoEvents() {
   const eCanPlay = useCallback(() => {
     console.log("[VIDEO] can play");
 
+    window.video = video;
+    // we need to do all this shit so that the UI selects the correct tracks.
+    const videoQualityIndex = player.getQualityFor("video");
+    const videoQuality = player.getBitrateInfoListFor("video")[videoQualityIndex];
+
+    const playerVideoTrackIdx = video.tracks.video.list.filter(track => track.bandwidth === videoQuality.bitrate && parseInt(track.height) === videoQuality.height);
+
+    dispatch(updateTrack("video", {
+      current: video.tracks.video.list.indexOf(playerVideoTrackIdx[0])
+    }));
+
     dispatch(updateVideo({
       canPlay: true,
       waiting: false,
       duration: Math.round(player.duration()) | 0
     }));
-  }, [dispatch, player]);
+  }, [dispatch, player, video]);
 
   const ePlayBackPaused = useCallback(() => {
     console.log("[VIDEO] paused");
@@ -113,12 +124,12 @@ function VideoEvents() {
   const eQualityChange = useCallback(e => {
     console.log("[video] quality changing ", e);
 
-    if (e.mediaType !== "video" && e.mediaType !== "audio") return;
+    if (e.mediaType !== "video") return;
 
     const tracks = e.mediaType === "video" ? video.tracks.video.list : video.tracks.audio.list;
 
     // here we gotta basically do the opposite of what we do in Settings.jsx
-    const newTrack = player.getBitrateInfoListFor(e.mediaType).filter(track => track.qualityIndex === e.newQuality)[0];
+    const newTrack = player.getBitrateInfoListFor(e.mediaType)[e.newQuality];
     const realTrack = tracks.filter(track => track.bandwidth === newTrack.bitrate && parseInt(track.height) === newTrack.height)[0];
 
     dispatch(updateTrack(e.mediaType, {

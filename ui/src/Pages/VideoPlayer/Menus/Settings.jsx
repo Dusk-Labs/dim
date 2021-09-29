@@ -90,6 +90,11 @@ function VideoMenuSettings() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* FIXME: basically dash.js loads and recognizes the audio tracks correctly, but when changeTrack is called, nothing happens.
       {activeInnerMenu === "Audio tracks" && (
         <div className="innerMenu">
           <div className="tracks">
@@ -101,8 +106,5 @@ function VideoMenuSettings() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
+      */
 export default VideoMenuSettings;
