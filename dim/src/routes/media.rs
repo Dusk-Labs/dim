@@ -229,7 +229,12 @@ pub async fn get_media_by_id(
                     }))
                 }
             } else {
-                None
+                let ep = Episode::get_first_for_show(&conn, id).await?;
+                Some(json!({
+                    "progress": 0,
+                    "season": ep.get_season_number(&conn).await.unwrap_or(0),
+                    "episode": ep.episode,
+                }))
             }
         }
     };
