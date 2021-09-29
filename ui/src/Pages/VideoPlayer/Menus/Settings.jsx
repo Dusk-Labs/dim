@@ -34,19 +34,16 @@ function VideoMenuSettings() {
   }, [activeInnerMenu]);
 
   const changeTrack = useCallback((trackType, i) => {
-    const bitrates = player.getBitrateInfoListFor(trackType);
+    const tracks = trackType === "video" ? video.tracks.video.list : video.tracks.audio.list;
 
-    /*
-      dashjs sorts from lowest to highest quality
-      where as the quality selector menu shows from
-      highest to lowest.
-    */
-    const inverted = (bitrates.length - 1) - i;
+    const playerTracks = player.getBitrateInfoListFor(trackType);
+    // dash.js quality ordering is weird so we have to bruteforce search for our desired track.
+    const selectedTrack = playerTracks.filter(track => track.bitrate === tracks[i].bandwidth && track.height === parseInt(tracks[i].height));
 
-    console.log("[video] changed track to", bitrates[inverted]);
+    console.log("[video] changed track to", selectedTrack[0]);
 
-    player.setQualityFor(trackType, inverted);
-  }, [player]);
+    player.setQualityFor(trackType, selectedTrack[0].qualityIndex);
+  }, [player, video]);
 
   useEffect(() => {
     window.addEventListener("click", handleClick);

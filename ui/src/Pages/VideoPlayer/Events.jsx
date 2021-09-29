@@ -115,16 +115,16 @@ function VideoEvents() {
 
     if (e.mediaType !== "video" && e.mediaType !== "audio") return;
 
-    const bitrates = player.getBitrateInfoListFor(e.mediaType);
-    console.log(bitrates);
-    console.log(e.newQuality);
-    const inverted = (bitrates.length - 1) - e.newQuality;
-    console.log(bitrates[e.newQuality]);
+    const tracks = e.mediaType === "video" ? video.tracks.video.list : video.tracks.audio.list;
+
+    // here we gotta basically do the opposite of what we do in Settings.jsx
+    const newTrack = player.getBitrateInfoListFor(e.mediaType).filter(track => track.qualityIndex === e.newQuality)[0];
+    const realTrack = tracks.filter(track => track.bandwidth === newTrack.bitrate && parseInt(track.height) === newTrack.height)[0];
 
     dispatch(updateTrack(e.mediaType, {
-      current: inverted
+      current: tracks.indexOf(realTrack)
     }));
-  }, [dispatch, player]);
+  }, [dispatch, player, video]);
 
   // other events
   useEffect(() => {
