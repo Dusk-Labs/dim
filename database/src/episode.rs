@@ -261,7 +261,7 @@ impl Episode {
         let result = sqlx::query_as::<_, EpisodeWrapper>(
             "SELECT episode.* FROM episode
             INNER JOIN season ON season.id = episode.seasonid
-            LEFT OUTER JOIN progress ON progress.media_id = episode.id AND progress.user_id = ?
+            INNER JOIN progress ON progress.media_id = episode.id AND progress.user_id = ?
             WHERE season.tvshowid = ?
             ORDER BY progress.populated DESC
             LIMIT 1",
