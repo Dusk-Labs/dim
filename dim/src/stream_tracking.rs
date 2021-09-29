@@ -65,6 +65,7 @@ impl VirtualManifest {
             include_str!("./static/audio_segment.mpd"),
             id = &self.id,
             bandwidth = self.bandwidth.to_string(),
+            contentType = "audio",
             mimeType = &self.mime,
             codecs = &self.codecs,
             init = format!("{}?start_num={}", self.init_seg.clone().unwrap(), start_num),
@@ -147,6 +148,8 @@ impl StreamTracking {
             .filter_map(|x| x.compile(start_num))
             .collect::<Vec<_>>();
 
+        // audio tracks are treated as separate tracks/adaptation sets, rather than just
+        // representations.
         let audio_tracks = manifests
             .iter()
             .filter(|x| matches!(x.content_type, ContentType::Audio))
@@ -167,13 +170,7 @@ impl StreamTracking {
             templates = video_tracks.join("\n")
         );
 
-        let audio_set = format!(
-            include_str!("./static/adaptation_set.mpd"),
-            contentType = "audio",
-            templates = audio_tracks.join("\n")
-        );
-
-        let mut tracks = vec![video_set, audio_set];
+        let mut tracks = vec![video_set, audio_tracks.join("\n")];
         tracks.append(&mut rest);
 
         Some(format!(
@@ -219,13 +216,7 @@ impl StreamTracking {
             templates = video_tracks.join("\n")
         );
 
-        let audio_set = format!(
-            include_str!("./static/adaptation_set.mpd"),
-            contentType = "audio",
-            templates = audio_tracks.join("\n")
-        );
-
-        let mut tracks = vec![video_set, audio_set];
+        let mut tracks = vec![video_set, audio_tracks.join("\n")];
         tracks.append(&mut rest);
 
         Some(format!(
