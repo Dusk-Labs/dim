@@ -1,8 +1,8 @@
 [package]
 name = "dim"
-version = "0.3.0-rc4"
+version = "0.3.0-rc5"
 build = "src/build.rs"
-authors = ["Valerian G. <valerian.garleanu@pm.me>"]
+authors = ["Valerian G. <valerian@dusklabs.io>"]
 edition = "2018"
 
 [features]
@@ -23,7 +23,7 @@ serde_json = "^1.0.64"
 database = { path = "../database", default-features = false, optional = true }
 events = { path = "../events" }
 auth = { path = "../auth" }
-nightfall = { git = "https://github.com/vgarleanu/nightfall", tag = "0.3.4", features = ["cuda"] }
+nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.4", features = ["cuda"] }
 
 lazy_static = "1.4.0"
 walkdir = "2.3.1"
