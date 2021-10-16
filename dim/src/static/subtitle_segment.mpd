@@ -1,5 +1,0 @@
-<AdaptationSet mimeType="{mimeType}" {args}>
-    <Representation id="{id}" bandwidth="{bandwidth}">
-        <BaseURL>{path}</BaseURL>
-    </Representation>
-</AdaptationSet>
