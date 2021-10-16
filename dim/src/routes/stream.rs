@@ -19,9 +19,9 @@ use nightfall::profiles::*;
 
 use std::collections::HashMap;
 use std::future::Future;
+use std::num::NonZeroU64;
 use std::path::PathBuf;
 use std::time::Duration;
-use std::num::NonZeroU64;
 
 use futures::stream;
 use futures::StreamExt;
@@ -457,7 +457,7 @@ pub async fn return_virtual_manifest(
             )
             .await;
     }
-    
+
     set_id += 1; // video streams are all wrapped in one adaptationset, so we reuse the same id.
 
     let audio_streams = info.find_by_type("audio");

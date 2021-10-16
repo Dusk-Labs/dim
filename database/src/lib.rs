@@ -1,7 +1,7 @@
 use cfg_if::cfg_if;
 
-use slog::Logger;
 use once_cell::sync::OnceCell;
+use slog::Logger;
 
 use std::str::FromStr;
 use std::sync::atomic::AtomicBool;

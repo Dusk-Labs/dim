@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::sync::Arc;
 use std::num::NonZeroU64;
+use std::sync::Arc;
 
 use crate::core::StateManager;
 use crate::utils::ts_to_xml;
@@ -52,7 +52,7 @@ impl VirtualManifest {
             w.start_element("AdaptationSet");
             w.write_attribute("contentType", "audio");
             w.write_attribute("id", &self.set_id);
-            
+
             if let Some(lang) = self.lang.as_ref() {
                 w.write_attribute("lang", lang);
             }
@@ -67,7 +67,7 @@ impl VirtualManifest {
         w.write_attribute("bandwidth", &self.bandwidth);
         w.write_attribute("mimeType", &self.mime);
         w.write_attribute("codecs", &self.codecs);
-        
+
         for (k, v) in self.args.iter() {
             w.write_attribute(k, v);
         }
@@ -75,7 +75,10 @@ impl VirtualManifest {
         // write audio channel config
         if matches!(self.content_type, ContentType::Audio) {
             w.start_element("AudioChannelConfiguration");
-            w.write_attribute("schemeIdUri", "urn:mpeg:dash:23003:3:audio_channel_configuration:2011");
+            w.write_attribute(
+                "schemeIdUri",
+                "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
+            );
             w.write_attribute("value", "2"); // FIXME: At some point we need to stop hardcoding 2ch audio
             w.end_element();
         }
@@ -105,7 +108,7 @@ impl VirtualManifest {
         if let Some(lang) = self.lang.as_ref() {
             w.write_attribute("lang", lang);
         }
-        
+
         for (k, v) in self.args.iter() {
             w.write_attribute(k, v);
         }
@@ -113,7 +116,7 @@ impl VirtualManifest {
         w.start_element("Representation");
         w.write_attribute("id", &self.id);
         w.write_attribute("bandwidth", &self.bandwidth);
-        
+
         w.start_element("BaseURL");
         w.write_text(&self.chunk_path);
         w.end_element();
@@ -207,7 +210,10 @@ impl StreamTracking {
 
         // write the audio and subtitle tracks.
         for track in manifests {
-            if matches!(track.content_type, ContentType::Audio | ContentType::Subtitle) {
+            if matches!(
+                track.content_type,
+                ContentType::Audio | ContentType::Subtitle
+            ) {
                 track.compile(&mut w, start_num);
             }
         }
