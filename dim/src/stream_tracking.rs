@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::num::NonZeroU64;
 
 use crate::core::StateManager;
+use crate::utils::ts_to_xml;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
@@ -20,6 +22,7 @@ pub enum ContentType {
 pub struct VirtualManifest {
     pub content_type: ContentType,
     pub id: String,
+    pub set_id: NonZeroU64,
     pub is_direct: bool,
     pub mime: String,
     pub codecs: String,
@@ -31,6 +34,7 @@ pub struct VirtualManifest {
     pub init_seg: Option<String>,
     pub is_default: bool,
     pub label: String,
+    pub lang: Option<String>,
 }
 
 impl VirtualManifest {
@@ -47,6 +51,11 @@ impl VirtualManifest {
             // different bitrates of the same track rather than separate tracks.
             w.start_element("AdaptationSet");
             w.write_attribute("contentType", "audio");
+            w.write_attribute("id", &self.set_id);
+            
+            if let Some(lang) = self.lang.as_ref() {
+                w.write_attribute("lang", lang);
+            }
         }
 
         let init = format!("{}?start_num={}", self.init_seg.clone().unwrap(), start_num);
@@ -61,6 +70,14 @@ impl VirtualManifest {
         
         for (k, v) in self.args.iter() {
             w.write_attribute(k, v);
+        }
+
+        // write audio channel config
+        if matches!(self.content_type, ContentType::Audio) {
+            w.start_element("AudioChannelConfiguration");
+            w.write_attribute("schemeIdUri", "urn:mpeg:dash:23003:3:audio_channel_configuration:2011");
+            w.write_attribute("value", "2"); // FIXME: At some point we need to stop hardcoding 2ch audio
+            w.end_element();
         }
 
         // write segment template
@@ -83,6 +100,11 @@ impl VirtualManifest {
     fn compile_sub(&self, w: &mut XmlWriter) {
         w.start_element("AdapationSet");
         w.write_attribute("mimeType", &self.mime);
+        w.write_attribute("id", &self.set_id);
+
+        if let Some(lang) = self.lang.as_ref() {
+            w.write_attribute("lang", lang);
+        }
         
         for (k, v) in self.args.iter() {
             w.write_attribute(k, v);
@@ -150,19 +172,18 @@ impl StreamTracking {
     pub async fn compile(&self, gid: &Uuid, start_num: u64) -> Option<String> {
         let lock = self.streaming_sessions.read().await;
         let manifests = lock.get(gid)?;
-        let duration = manifests.first().and_then(|x| x.duration)?;
+        let duration = ts_to_xml(manifests.first().and_then(|x| x.duration)? as u64);
 
         let mut w = XmlWriter::new(Default::default());
         w.write_declaration();
 
         w.start_element("MPD");
-        w.write_attribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         w.write_attribute("xmlns", "urn:mpeg:dash:schema:mpd:2011");
-        w.write_attribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+        w.write_attribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         w.write_attribute("xsi:schemaLocation", "urn:mpeg:dash:schema:mpd:2011 http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-DASH_schema_files/DASH-MPD.xsd");
         w.write_attribute("profiles", "urn:mpeg:dash:profile:full:2011");
         w.write_attribute("type", "static");
-        w.write_attribute("mediaPresentationTime", &duration);
+        w.write_attribute("mediaPresentationDuration", &duration);
         w.write_attribute("minBufferTime", "PT20S");
         w.write_attribute("maxSegmentDuration", "PT20S");
 
@@ -175,6 +196,7 @@ impl StreamTracking {
         // write video tracks within the first adaptation set.
         w.start_element("AdaptationSet");
         w.write_attribute("contentType", "video");
+        w.write_attribute("id", "0");
 
         for track in manifests {
             if matches!(track.content_type, ContentType::Video) {
