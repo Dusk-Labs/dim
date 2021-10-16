@@ -126,7 +126,7 @@ impl MetadataExtractor {
             .unwrap()
             .to_owned();
 
-        let clone = file_name_clone.clone();
+        let clone = file_name_clone.clone().replace(|c: char| !c.is_ascii(), "");
 
         // closure needs to be bound because of a lifetime bug where the closure passed to
         // `spawn_blocking` lives more than the data moved into it thus we cant pass a reference to
