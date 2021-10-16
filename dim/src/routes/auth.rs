@@ -14,7 +14,6 @@ use database::user::User;
 use serde_json::json;
 
 use warp::reply;
-use warp::Filter;
 
 use http::StatusCode;
 

@@ -11,13 +11,13 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::io::copy;
 use std::io::Cursor;
-use std::lazy::SyncLazy;
 use std::path::PathBuf;
 
-static PROCESSING_QUEUE: SyncLazy<Mutex<PriorityQueue<String, usize>>> =
-    SyncLazy::new(|| Mutex::new(Default::default()));
-static POSTER_CACHE: SyncLazy<Mutex<HashSet<String>>> =
-    SyncLazy::new(|| Mutex::new(Default::default()));
+use once_cell::sync::Lazy;
+
+static PROCESSING_QUEUE: Lazy<Mutex<PriorityQueue<String, usize>>> =
+    Lazy::new(|| Mutex::new(Default::default()));
+static POSTER_CACHE: Lazy<Mutex<HashSet<String>>> = Lazy::new(|| Mutex::new(Default::default()));
 
 pub async fn insert_into_queue(log: &Logger, poster: String, priority: usize) {
     let mut cache_lock = POSTER_CACHE.lock().await;

@@ -4,7 +4,7 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
-    "dashjs": "^3.2.2",
+    "dashjs": "^4.1.0",
     "http-proxy-middleware": "^2.0.1",
     "libass-wasm": "^4.0.0",
     "node-sass": "^5.0.0",

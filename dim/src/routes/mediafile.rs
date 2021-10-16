@@ -7,7 +7,6 @@ use database::mediafile::MediaFile;
 use serde_json::json;
 use warp::http::status::StatusCode;
 use warp::reply;
-use warp::Filter;
 
 pub mod filters {
     use warp::reject;

@@ -15,7 +15,6 @@ use std::io;
 use std::path::PathBuf;
 
 use warp::reply;
-use warp::Filter;
 
 pub mod filters {
     use database::DbConnection;

@@ -264,13 +264,16 @@ impl MetadataMatcher {
             .map(ToString::to_string)
             .unwrap_or_default();
 
-        let els: Elements = spawn_blocking(move || {
+        // FIXME: We an use into_ok_or_err here once it hits stable.
+        let els: Elements = match spawn_blocking(move || {
             let mut anitomy = Anitomy::new();
             anitomy.parse(filename.as_str())
         })
         .await
         .unwrap()
-        .into_ok_or_err();
+        {
+            Ok(v) | Err(v) => v,
+        };
 
         let mut result = self
             .tv_tmdb
@@ -340,13 +343,16 @@ impl MetadataMatcher {
             .map(ToString::to_string)
             .unwrap_or_default();
 
-        let els: Elements = spawn_blocking(move || {
+        // FIXME: Use into_ok_or_err when it hits stable.
+        let els: Elements = match spawn_blocking(move || {
             let mut anitomy = Anitomy::new();
             anitomy.parse(filename.as_str())
         })
         .await
         .unwrap()
-        .into_ok_or_err();
+        {
+            Ok(v) | Err(v) => v,
+        };
 
         if media.episode.is_none() {
             // NOTE: In some cases our base matcher extracts the correct title from the filename but incorrect episode and season numbers.
