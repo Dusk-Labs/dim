@@ -1,12 +1,10 @@
 use crate::core::DbConnection;
 use crate::errors;
-use crate::routes::construct_standard;
-use crate::routes::construct_standard_quick;
 
 use auth::Wrapper as Auth;
+use serde::Serialize;
 
 use database::genre::*;
-use database::media::Media;
 
 use tokio::task::spawn_blocking;
 
@@ -134,11 +132,9 @@ pub async fn search(
     year: Option<i32>,
     _library_id: Option<i32>,
     genre: Option<String>,
-    quick: Option<bool>,
-    user: Auth,
-) -> Result<impl warp::Reply, errors::DimError> {
-    let quick = quick.unwrap_or(false);
-
+    _quick: Option<bool>,
+    _user: Auth,
+) -> Result<warp::reply::Json, errors::DimError> {
     if let Some(query_string) = query {
         let query_string = query_string
             .split(' ')
@@ -146,54 +142,107 @@ pub async fn search(
             .as_slice()
             .join("% %");
 
-        let mut items = Vec::new();
-        for x in Media::get_search(&conn, &query_string, 15).await? {
-            if quick {
-                if let Ok(x) = construct_standard_quick(&x).await {
-                    items.push(x);
-                }
-            } else {
-                if let Ok(x) = construct_standard(&conn, &x, &user).await {
-                    items.push(x);
-                }
-            }
-        }
-
-        return Ok(reply::json(&items));
+        return search_by_name(&conn, &query_string, 15).await;
     }
 
     if let Some(x) = genre {
-        let genre_row = Genre::get_by_name(&conn, x).await?.id;
-        let mut items = Vec::new();
-
-        for x in Media::get_of_genre(&conn, genre_row).await? {
-            if quick {
-                if let Ok(x) = construct_standard_quick(&x).await {
-                    items.push(x);
-                }
-            } else if let Ok(x) = construct_standard(&conn, &x, &user).await {
-                items.push(x);
-            }
-        }
-
-        return Ok(reply::json(&items));
+        let genre_id = Genre::get_by_name(&conn, x).await?.id;
+        return search_by_genre(&conn, genre_id).await;
     }
 
     if let Some(x) = year {
-        let mut items = Vec::new();
-
-        for x in Media::get_of_year(&conn, x as i64).await? {
-            if quick {
-                if let Ok(x) = construct_standard_quick(&x).await {
-                    items.push(x);
-                }
-            } else if let Ok(x) = construct_standard(&conn, &x, &user).await {
-                items.push(x);
-            }
-        }
-
-        return Ok(reply::json(&items));
+        return search_by_release_year(&conn, x as i64).await;
     }
 
     Err(errors::DimError::NotFoundError)
+}
+
+async fn search_by_name(
+    conn: &DbConnection,
+    query: &str,
+    limit: i64,
+) -> Result<warp::reply::Json, errors::DimError> {
+    #[derive(Serialize)]
+    struct Record {
+        id: i64,
+        library_id: i64,
+        name: String,
+        poster_path: Option<String>,
+    }
+
+    let data = sqlx::query_as!(
+        Record,
+        r#"SELECT _tblmedia.id, library_id, name, assets.local_path as poster_path FROM _tblmedia
+           LEFT JOIN assets on _tblmedia.poster = assets.id
+           WHERE NOT media_type = "episode"
+           AND UPPER(name) LIKE ?
+           ORDER BY name
+           LIMIT ?"#,
+        query,
+        limit
+    )
+    .fetch_all(conn)
+    .await
+    .map_err(|_| errors::DimError::NotFoundError)?;
+
+    Ok(reply::json(&data))
+}
+
+async fn search_by_genre(
+    conn: &DbConnection,
+    genre_id: i64,
+) -> Result<warp::reply::Json, errors::DimError> {
+    #[derive(Serialize)]
+    struct Record {
+        id: i64,
+        library_id: i64,
+        name: String,
+        poster_path: Option<String>,
+    }
+
+    let data = sqlx::query_as!(
+        Record,
+        r#"SELECT _tblmedia.id, library_id, name, assets.local_path as poster_path
+                FROM _tblmedia
+                LEFT JOIN assets on _tblmedia.poster = assets.id
+                INNER JOIN genre_media ON genre_media.media_id = _tblmedia.id
+                WHERE NOT media_type = "episode"
+                AND genre_media.genre_id = ?
+                "#,
+        genre_id,
+    )
+    .fetch_all(conn)
+    .await
+    .map_err(|_| errors::DimError::NotFoundError)?;
+
+    Ok(reply::json(&data))
+}
+
+async fn search_by_release_year(
+    conn: &DbConnection,
+    year: i64,
+) -> Result<warp::reply::Json, errors::DimError> {
+    #[derive(Serialize)]
+    struct Record {
+        id: i64,
+        library_id: i64,
+        name: String,
+        poster_path: Option<String>,
+    }
+
+    let data = sqlx::query_as!(
+        Record,
+        r#"SELECT _tblmedia.id, library_id, name, assets.local_path as poster_path
+                FROM _tblmedia
+            LEFT JOIN assets on _tblmedia.poster = assets.id
+                WHERE NOT media_type = "episode"
+                AND year = ?
+                "#,
+        year,
+    )
+    .fetch_all(conn)
+    .await
+    .map_err(|_| errors::DimError::NotFoundError)?;
+
+    Ok(warp::reply::json(&data))
 }
