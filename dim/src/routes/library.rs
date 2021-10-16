@@ -254,7 +254,7 @@ pub async fn get_self(
 pub async fn get_all_library(
     conn: DbConnection,
     id: i64,
-    user: Auth,
+    _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut result = HashMap::new();
     let lib = Library::get_one(&conn, id).await?;
@@ -295,7 +295,7 @@ pub async fn get_all_library(
 pub async fn get_all_unmatched_media(
     conn: DbConnection,
     id: i64,
-    user: Auth,
+    _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut result = HashMap::new();
 

@@ -33,7 +33,6 @@ use serde_json::json;
 use uuid::Uuid;
 use warp::http::status::StatusCode;
 use warp::reply;
-use warp::Filter;
 
 pub mod filters {
     use warp::reject;
@@ -547,7 +546,7 @@ pub async fn return_virtual_manifest(
                     content_type: ContentType::Subtitle,
                     mime: mime.into(),
                     codecs: codec.into(), //ignored
-                    bandwidth: 1024,         // ignored
+                    bandwidth: 1024,      // ignored
                     duration: None,
                     chunk_path: format!("{}/data/stream.vtt", subtitle.clone()),
                     init_seg: None,

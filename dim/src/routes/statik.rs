@@ -110,8 +110,8 @@ pub async fn react_routes() -> Result<impl warp::Reply, warp::Rejection> {
 
 pub async fn get_image(
     path: path::Tail,
-    resize_w: Option<u32>,
-    resize_h: Option<u32>,
+    _resize_w: Option<u32>,
+    _resize_h: Option<u32>,
     meta_path: String,
     conn: database::DbConnection,
     log: slog::Logger,

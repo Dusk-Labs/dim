@@ -1,11 +1,8 @@
-#![feature(once_cell, box_syntax)]
-#![feature(proc_macro_hygiene, decl_macro, option_result_unwrap_unchecked)]
-
 use cfg_if::cfg_if;
 
 use slog::Logger;
+use once_cell::sync::OnceCell;
 
-use std::lazy::SyncOnceCell;
 use std::str::FromStr;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
@@ -44,7 +41,7 @@ lazy_static::lazy_static! {
     static ref MIGRATIONS_FLAG: AtomicBool = AtomicBool::new(false);
 }
 
-static __GLOBAL: SyncOnceCell<crate::DbConnection> = SyncOnceCell::new();
+static __GLOBAL: OnceCell<crate::DbConnection> = OnceCell::new();
 
 cfg_if! {
     if #[cfg(feature = "postgres")] {
@@ -70,7 +67,7 @@ pub async fn get_conn() -> sqlx::Result<crate::DbConnection> {
     } else {
         let conn = internal_get_conn(None).await?;
         let _ = __GLOBAL.set(conn);
-        unsafe { __GLOBAL.get().unwrap_unchecked() }
+        __GLOBAL.get().unwrap()
     };
 
     if !MIGRATIONS_FLAG.load(Ordering::SeqCst) {
@@ -128,7 +125,7 @@ pub async fn get_conn_logged(log: &Logger) -> sqlx::Result<DbConnection> {
     } else {
         let conn = internal_get_conn(Some(log)).await?;
         let _ = __GLOBAL.set(conn);
-        unsafe { __GLOBAL.get().unwrap_unchecked() }
+        __GLOBAL.get().unwrap()
     };
 
     slog::info!(log, "Creating new database connection");

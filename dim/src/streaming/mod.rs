@@ -74,9 +74,7 @@ pub struct Quality {
 }
 
 pub fn get_qualities(height: u64, bitrate: u64) -> Vec<&'static Quality> {
-    VIDEO_QUALITIES
-        .iter()
-        .collect()
+    VIDEO_QUALITIES.iter().collect()
 }
 
 pub const VIDEO_QUALITIES: [Quality; 3] = [

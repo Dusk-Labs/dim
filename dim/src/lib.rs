@@ -21,17 +21,6 @@
 //! # Testing
 //! To test run `make test` in the root, or `cargo test` in the root of each module including the
 //! root dir.
-#![feature(
-    result_flattening,
-    once_cell,
-    type_ascription,
-    result_into_ok_or_err,
-    stmt_expr_attributes,
-    with_options,
-    map_first_last,
-    never_type
-)]
-
 use chrono::Utc;
 
 use slog::o;

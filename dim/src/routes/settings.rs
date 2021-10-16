@@ -11,15 +11,15 @@ use serde::Serialize;
 
 use std::error::Error;
 use std::fs::File;
+use std::fs::OpenOptions;
 use std::io::Read;
 use std::io::Write;
-use std::lazy::SyncLazy;
-use std::lazy::SyncOnceCell;
 use std::sync::Mutex;
 
+use once_cell::sync::Lazy;
+use once_cell::sync::OnceCell;
+
 use warp::reply;
-use warp::Filter;
-use warp::Rejection;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct GlobalSettings {
@@ -61,8 +61,8 @@ impl Default for GlobalSettings {
     }
 }
 
-static GLOBAL_SETTINGS: SyncLazy<Mutex<GlobalSettings>> = SyncLazy::new(|| Default::default());
-static SETTINGS_PATH: SyncOnceCell<String> = SyncOnceCell::new();
+static GLOBAL_SETTINGS: Lazy<Mutex<GlobalSettings>> = Lazy::new(|| Default::default());
+static SETTINGS_PATH: OnceCell<String> = OnceCell::new();
 
 pub fn get_global_settings() -> GlobalSettings {
     let lock = GLOBAL_SETTINGS.lock().unwrap();
@@ -74,7 +74,7 @@ pub fn init_global_settings(path: Option<String>) -> Result<(), Box<dyn Error>> 
     let _ = SETTINGS_PATH.set(path.clone());
     let mut content = String::new();
 
-    File::with_options()
+    OpenOptions::new()
         .write(true)
         .create(true)
         .read(true)

@@ -4,12 +4,10 @@ use crate::errors;
 use auth::Wrapper as Auth;
 
 use database::episode::{Episode, UpdateEpisode};
-use database::media::Media;
 use database::season::{Season, UpdateSeason};
 
 use warp::http::status::StatusCode;
 use warp::reply;
-use warp::Filter;
 
 pub mod filters {
     use warp::reject;

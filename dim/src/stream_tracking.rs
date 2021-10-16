@@ -185,7 +185,7 @@ impl StreamTracking {
         &self,
         gid: &Uuid,
         start_num: u64,
-        filter: Vec<String>,
+        _filter: Vec<String>,
     ) -> Option<String> {
         let lock = self.streaming_sessions.read().await;
         let manifests = lock.get(gid)?;

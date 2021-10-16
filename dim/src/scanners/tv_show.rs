@@ -308,10 +308,10 @@ impl<'a> TvShowMatcher<'a> {
     }
 
     async fn push_event(&self, id: i64, lib_id: i64) {
-        use std::lazy::SyncLazy;
+        use once_cell::sync::Lazy;
         use std::sync::Mutex;
 
-        static DUPLICATE_LOG: SyncLazy<Mutex<Vec<(i64, i64)>>> = SyncLazy::new(Default::default);
+        static DUPLICATE_LOG: Lazy<Mutex<Vec<(i64, i64)>>> = Lazy::new(Default::default);
 
         {
             let mut lock = DUPLICATE_LOG.lock().unwrap();

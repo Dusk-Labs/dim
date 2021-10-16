@@ -12,9 +12,9 @@ use crate::core::EventTx;
 
 use slog::info;
 
+use once_cell::sync::OnceCell;
 use walkdir::WalkDir;
 
-use std::lazy::SyncOnceCell;
 use std::path::Path;
 use std::path::PathBuf;
 use std::time::Instant;
@@ -57,8 +57,8 @@ pub struct ApiEpisode {
     pub still_file: Option<String>,
 }
 
-pub(super) static METADATA_EXTRACTOR: SyncOnceCell<base::MetadataExtractor> = SyncOnceCell::new();
-pub(super) static METADATA_MATCHER: SyncOnceCell<base::MetadataMatcher> = SyncOnceCell::new();
+pub(super) static METADATA_EXTRACTOR: OnceCell<base::MetadataExtractor> = OnceCell::new();
+pub(super) static METADATA_MATCHER: OnceCell<base::MetadataMatcher> = OnceCell::new();
 pub(super) static SUPPORTED_EXTS: &[&str] = &["mp4", "mkv", "avi", "webm"];
 
 pub fn get_extractor(log: &slog::Logger, _tx: &EventTx) -> &'static base::MetadataExtractor {
