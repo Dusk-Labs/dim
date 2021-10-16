@@ -33,16 +33,27 @@ function VideoMenuSettings() {
     setActiveInnerMenu();
   }, [activeInnerMenu]);
 
-  const changeTrack = useCallback((trackType, i) => {
+  const changeQuality = useCallback((trackType, i) => {
     const tracks = trackType === "video" ? video.tracks.video.list : video.tracks.audio.list;
 
     const playerTracks = player.getBitrateInfoListFor(trackType);
     // dash.js quality ordering is weird so we have to bruteforce search for our desired track.
     const selectedTrack = playerTracks.filter(track => track.bitrate === tracks[i].bandwidth && track.height === parseInt(tracks[i].height));
 
-    console.log("[video] changed track to", selectedTrack[0]);
+    console.log("[video] changed quality to", selectedTrack[0]);
 
     player.setQualityFor(trackType, selectedTrack[0].qualityIndex);
+  }, [player, video]);
+
+  const changeTrack = useCallback((trackType, i) => {
+    const tracks = trackType === "video" ? video.tracks.video.list : video.tracks.audio.list;
+
+    const playerTracks = player.getTracksFor(trackType);
+    const selectedTrack = playerTracks.filter(track => track.id === tracks[i].set_id);
+
+    console.log("[video] changed track to", selectedTrack[0]);
+
+    player.setCurrentTrack(selectedTrack[0]);
   }, [player, video]);
 
   useEffect(() => {
@@ -73,13 +84,28 @@ function VideoMenuSettings() {
             Video tracks
             <ChevronRightIcon/>
           </p>
+          <p onClick={() => setActiveInnerMenu("Audio tracks")}>
+            Audio tracks
+            <ChevronRightIcon/>
+          </p>
         </div>
       )}
       {activeInnerMenu === "Video tracks" && (
         <div className="innerMenu">
           <div className="tracks">
             {video.tracks.video.list.map((track, i) => (
-              <div key={i} className={`track ${video.tracks.video.current === i ? "active" : ""}`} onClick={() => changeTrack("video", `${i}`)}>
+              <div key={i} className={`track ${video.tracks.video.current === i ? "active" : ""}`} onClick={() => changeQuality("video", `${i}`)}>
+                <p>{track.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {activeInnerMenu === "Audio tracks" && (
+        <div className="innerMenu">
+          <div className="tracks">
+            {video.tracks.audio.list.map((track, i) => (
+              <div key={i} className={`track ${video.tracks.audio.current === i ? "active" : ""}`} onClick={() => changeTrack("audio", `${i}`)}>
                 <p>{track.label}</p>
               </div>
             ))}
@@ -89,25 +115,5 @@ function VideoMenuSettings() {
     </div>
   );
 }
-/*
- *
-          <p onClick={() => setActiveInnerMenu("Audio tracks")}>
-            Audio tracks
-            <ChevronRightIcon/>
-          </p>
-          */
 
-/* FIXME: basically dash.js loads and recognizes the audio tracks correctly, but when changeTrack is called, nothing happens.
-      {activeInnerMenu === "Audio tracks" && (
-        <div className="innerMenu">
-          <div className="tracks">
-            {video.tracks.audio.list.map((track, i) => (
-              <div key={i} className={`track ${video.tracks.audio.current === i.toString() ? "active" : ""}`} onClick={() => changeTrack("audio", `${i}`)}>
-                <p>{track.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      */
 export default VideoMenuSettings;

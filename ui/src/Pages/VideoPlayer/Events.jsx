@@ -31,8 +31,15 @@ function VideoEvents() {
 
     const playerVideoTrackIdx = video.tracks.video.list.filter(track => track.bandwidth === videoQuality.bitrate && parseInt(track.height) === videoQuality.height);
 
+    const audioTrack = player.getCurrentTrackFor("audio");
+    const audioTrackIdx = video.tracks.audio.list.filter(track => track.set_id === audioTrack.id);
+
     dispatch(updateTrack("video", {
       current: video.tracks.video.list.indexOf(playerVideoTrackIdx[0])
+    }));
+
+    dispatch(updateTrack("audio", {
+      current: video.tracks.audio.list.indexOf(audioTrackIdx[0])
     }));
 
     dispatch(updateVideo({
@@ -137,6 +144,19 @@ function VideoEvents() {
     }));
   }, [dispatch, player, video]);
 
+  const eTrackChange = useCallback(e => {
+    console.log("[video] track changing ", e);
+
+    if (e.mediaType !== "audio") return;
+
+    const tracks = video.tracks.audio.list;
+    const realTrack = tracks.filter(track => track.set_id === e.newMediaInfo.id)[0];
+
+    dispatch(updateTrack(e.mediaType, {
+      current: tracks.indexOf(realTrack)
+    }));
+  }, [dispatch, video]);
+
   // other events
   useEffect(() => {
     if (!player) return;
@@ -163,6 +183,7 @@ function VideoEvents() {
     player.on(MediaPlayer.events.PLAYBACK_NOT_ALLOWED, ePlayBackNotAllowed);
     player.on(MediaPlayer.events.PLAYBACK_ENDED, ePlayBackEnded);
     player.on(MediaPlayer.events.QUALITY_CHANGE_REQUESTED, eQualityChange);
+    player.on(MediaPlayer.events.TRACK_CHANGE_RENDERED, eTrackChange);
 
     return () => {
       player.off(MediaPlayer.events.PLAYBACK_PAUSED, ePlayBackPaused);
@@ -172,8 +193,9 @@ function VideoEvents() {
       player.off(MediaPlayer.events.PLAYBACK_NOT_ALLOWED, ePlayBackNotAllowed);
       player.off(MediaPlayer.events.PLAYBACK_ENDED, ePlayBackEnded);
       player.off(MediaPlayer.events.QUALITY_CHANGE_REQUESTED, eQualityChange);
+      player.off(MediaPlayer.events.TRACK_CHANGE_RENDERED, eTrackChange);
     };
-  }, [ePlayBackEnded, ePlayBackNotAllowed, ePlayBackPaused, ePlayBackPlaying, ePlayBackTimeUpdated, ePlayBackWaiting, eQualityChange, player]);
+  }, [ePlayBackEnded, ePlayBackNotAllowed, ePlayBackPaused, ePlayBackPlaying, ePlayBackTimeUpdated, ePlayBackWaiting, eQualityChange, eTrackChange, player]);
 
   return null;
 }
