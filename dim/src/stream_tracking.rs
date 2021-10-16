@@ -6,6 +6,7 @@ use tokio::sync::RwLock;
 use uuid::Uuid;
 
 use serde::Serialize;
+use xmlwriter::*;
 
 #[derive(Debug, Clone, Copy, Serialize)]
 #[serde(rename_all = "lowercase")]
@@ -33,61 +34,69 @@ pub struct VirtualManifest {
 }
 
 impl VirtualManifest {
-    pub fn compile(&self, start_num: u64) -> Option<String> {
+    pub fn compile(&self, w: &mut XmlWriter, start_num: u64) {
         match self.content_type {
-            ContentType::Video => self.compile_video(start_num),
-            ContentType::Audio => self.compile_audio(start_num),
-            ContentType::Subtitle => self.compile_sub(),
+            ContentType::Subtitle => self.compile_sub(w),
+            _ => self.compile_av(w, start_num),
         }
     }
 
-    fn compile_video(&self, start_num: u64) -> Option<String> {
-        Some(format!(
-            include_str!("./static/video_segment.mpd"),
-            id = &self.id,
-            bandwidth = self.bandwidth.to_string(),
-            mimeType = &self.mime,
-            avc = &self.codecs,
-            init = format!("{}?start_num={}", self.init_seg.clone().unwrap(), start_num),
-            chunk_path = self.chunk_path.clone(),
-            start_num = start_num,
-            args = self
-                .args
-                .iter()
-                .map(|(k, v)| format!("{}=\"{}\"", k, v))
-                .collect::<Vec<_>>()
-                .join(" ")
-        ))
+    fn compile_av(&self, w: &mut XmlWriter, start_num: u64) {
+        if matches!(self.content_type, ContentType::Audio) {
+            // Each audio stream must be in a separate adaptation set otherwise theyre treated as
+            // different bitrates of the same track rather than separate tracks.
+            w.start_element("AdaptationSet");
+            w.write_attribute("contentType", "audio");
+        }
+
+        let init = format!("{}?start_num={}", self.init_seg.clone().unwrap(), start_num);
+        let chunk_path = self.chunk_path.clone();
+
+        // write representations
+        w.start_element("Representation");
+        w.write_attribute("id", &self.id);
+        w.write_attribute("bandwidth", &self.bandwidth);
+        w.write_attribute("mimeType", &self.mime);
+        w.write_attribute("codecs", &self.codecs);
+        
+        for (k, v) in self.args.iter() {
+            w.write_attribute(k, v);
+        }
+
+        // write segment template
+        w.start_element("SegmentTemplate");
+        w.write_attribute("timescale", &1000);
+        w.write_attribute("duration", &5000);
+        w.write_attribute("initialization", &init);
+        w.write_attribute("media", &chunk_path);
+        w.write_attribute("startNumber", &start_num);
+
+        // close SegmentTemplate and Representation
+        w.end_element();
+        w.end_element();
+
+        if matches!(self.content_type, ContentType::Audio) {
+            w.end_element(); // close AdapationSet
+        }
     }
 
-    fn compile_audio(&self, start_num: u64) -> Option<String> {
-        Some(format!(
-            include_str!("./static/audio_segment.mpd"),
-            id = &self.id,
-            bandwidth = self.bandwidth.to_string(),
-            contentType = "audio",
-            mimeType = &self.mime,
-            codecs = &self.codecs,
-            init = format!("{}?start_num={}", self.init_seg.clone().unwrap(), start_num),
-            chunk_path = self.chunk_path.clone(),
-            start_num = start_num,
-        ))
-    }
+    fn compile_sub(&self, w: &mut XmlWriter) {
+        w.start_element("AdapationSet");
+        w.write_attribute("mimeType", &self.mime);
+        
+        for (k, v) in self.args.iter() {
+            w.write_attribute(k, v);
+        }
 
-    fn compile_sub(&self) -> Option<String> {
-        Some(format!(
-            include_str!("./static/subtitle_segment.mpd"),
-            id = &self.id,
-            bandwidth = self.bandwidth.to_string(),
-            mimeType = &self.mime,
-            path = self.chunk_path.clone(),
-            args = self
-                .args
-                .iter()
-                .map(|(k, v)| format!("{}=\"{}\"", k, v))
-                .collect::<Vec<_>>()
-                .join(" ")
-        ))
+        w.start_element("Representation");
+        w.write_attribute("id", &self.id);
+        w.write_attribute("bandwidth", &self.bandwidth);
+        
+        w.start_element("BaseURL");
+        w.write_text(&self.chunk_path);
+        w.end_element();
+        w.end_element();
+        w.end_element();
     }
 }
 
@@ -141,44 +150,47 @@ impl StreamTracking {
     pub async fn compile(&self, gid: &Uuid, start_num: u64) -> Option<String> {
         let lock = self.streaming_sessions.read().await;
         let manifests = lock.get(gid)?;
-
-        let video_tracks = manifests
-            .iter()
-            .filter(|x| matches!(x.content_type, ContentType::Video))
-            .filter_map(|x| x.compile(start_num))
-            .collect::<Vec<_>>();
-
-        // audio tracks are treated as separate tracks/adaptation sets, rather than just
-        // representations.
-        let audio_tracks = manifests
-            .iter()
-            .filter(|x| matches!(x.content_type, ContentType::Audio))
-            .filter_map(|x| x.compile(start_num))
-            .collect::<Vec<_>>();
-
-        let mut rest = manifests
-            .iter()
-            .filter(|x| !matches!(x.content_type, ContentType::Audio | ContentType::Video))
-            .filter_map(|x| x.compile(start_num))
-            .collect::<Vec<_>>();
-
         let duration = manifests.first().and_then(|x| x.duration)?;
 
-        let video_set = format!(
-            include_str!("./static/adaptation_set.mpd"),
-            contentType = "video",
-            templates = video_tracks.join("\n")
-        );
+        let mut w = XmlWriter::new(Default::default());
+        w.write_declaration();
 
-        let mut tracks = vec![video_set, audio_tracks.join("\n")];
-        tracks.append(&mut rest);
+        w.start_element("MPD");
+        w.write_attribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        w.write_attribute("xmlns", "urn:mpeg:dash:schema:mpd:2011");
+        w.write_attribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+        w.write_attribute("xsi:schemaLocation", "urn:mpeg:dash:schema:mpd:2011 http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-DASH_schema_files/DASH-MPD.xsd");
+        w.write_attribute("profiles", "urn:mpeg:dash:profile:full:2011");
+        w.write_attribute("type", "static");
+        w.write_attribute("mediaPresentationTime", &duration);
+        w.write_attribute("minBufferTime", "PT20S");
+        w.write_attribute("maxSegmentDuration", "PT20S");
 
-        Some(format!(
-            include_str!("./static/manifest.mpd"),
-            duration = format!("PT{}S", duration),
-            base_url = "/api/v1/stream/",
-            segments = tracks.join("\n")
-        ))
+        w.start_element("Period");
+        w.write_attribute("duration", &duration);
+        w.start_element("BaseURL");
+        w.write_text("/api/v1/stream/");
+        w.end_element();
+
+        // write video tracks within the first adaptation set.
+        w.start_element("AdaptationSet");
+        w.write_attribute("contentType", "video");
+
+        for track in manifests {
+            if matches!(track.content_type, ContentType::Video) {
+                track.compile(&mut w, start_num);
+            }
+        }
+        w.end_element();
+
+        // write the audio and subtitle tracks.
+        for track in manifests {
+            if matches!(track.content_type, ContentType::Audio | ContentType::Subtitle) {
+                track.compile(&mut w, start_num);
+            }
+        }
+
+        Some(w.end_document())
     }
 
     pub async fn compile_only(
@@ -187,44 +199,7 @@ impl StreamTracking {
         start_num: u64,
         _filter: Vec<String>,
     ) -> Option<String> {
-        let lock = self.streaming_sessions.read().await;
-        let manifests = lock.get(gid)?;
-
-        let video_tracks = manifests
-            .iter()
-            .filter(|x| matches!(x.content_type, ContentType::Video))
-            .filter_map(|x| x.compile(start_num))
-            .collect::<Vec<_>>();
-
-        let audio_tracks = manifests
-            .iter()
-            .filter(|x| matches!(x.content_type, ContentType::Audio))
-            .filter_map(|x| x.compile(start_num))
-            .collect::<Vec<_>>();
-
-        let mut rest = manifests
-            .iter()
-            .filter(|x| !matches!(x.content_type, ContentType::Audio | ContentType::Video))
-            .filter_map(|x| x.compile(start_num))
-            .collect::<Vec<_>>();
-
-        let duration = manifests.first().and_then(|x| x.duration)?;
-
-        let video_set = format!(
-            include_str!("./static/adaptation_set.mpd"),
-            contentType = "video",
-            templates = video_tracks.join("\n")
-        );
-
-        let mut tracks = vec![video_set, audio_tracks.join("\n")];
-        tracks.append(&mut rest);
-
-        Some(format!(
-            include_str!("./static/manifest.mpd"),
-            duration = duration,
-            base_url = "/api/v1/stream/",
-            segments = tracks.join("\n")
-        ))
+        self.compile(gid, start_num).await
     }
 }
 
