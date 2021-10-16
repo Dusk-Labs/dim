@@ -138,9 +138,10 @@ pub async fn search(
     if let Some(query_string) = query {
         let query_string = query_string
             .split(' ')
-            .collect::<Vec<&str>>()
+            .map(|x| format!("%{}%", x))
+            .collect::<Vec<_>>()
             .as_slice()
-            .join("% %");
+            .join(" ");
 
         return search_by_name(&conn, &query_string, 15).await;
     }
@@ -176,7 +177,6 @@ async fn search_by_name(
            LEFT JOIN assets on _tblmedia.poster = assets.id
            WHERE NOT media_type = "episode"
            AND UPPER(name) LIKE ?
-           ORDER BY name
            LIMIT ?"#,
         query,
         limit
