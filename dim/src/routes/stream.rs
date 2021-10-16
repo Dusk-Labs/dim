@@ -21,6 +21,7 @@ use std::collections::HashMap;
 use std::future::Future;
 use std::path::PathBuf;
 use std::time::Duration;
+use std::num::NonZeroU64;
 
 use futures::stream;
 use futures::StreamExt;
@@ -359,6 +360,8 @@ pub async fn return_virtual_manifest(
         )
     };
 
+    let mut set_id = 1;
+
     stream_tracking
         .insert(
             &gid,
@@ -385,6 +388,8 @@ pub async fn return_virtual_manifest(
                 },
                 is_default: true,
                 label,
+                lang: None,
+                set_id: NonZeroU64::new(set_id).unwrap(),
             },
         )
         .await;
@@ -446,10 +451,14 @@ pub async fn return_virtual_manifest(
                     },
                     is_default: false,
                     label,
+                    lang: None,
+                    set_id: NonZeroU64::new(set_id).unwrap(),
                 },
             )
             .await;
     }
+    
+    set_id += 1; // video streams are all wrapped in one adaptationset, so we reuse the same id.
 
     let audio_streams = info.find_by_type("audio");
 
@@ -485,9 +494,13 @@ pub async fn return_virtual_manifest(
                     args: HashMap::new(),
                     is_default,
                     label: stream.get_language().unwrap_or_default(),
+                    lang: stream.get_language(),
+                    set_id: NonZeroU64::new(set_id).unwrap(),
                 },
             )
             .await;
+
+        set_id += 1;
     }
 
     let subtitles = info.find_by_type("subtitle");
@@ -563,9 +576,12 @@ pub async fn return_virtual_manifest(
                         .get_title()
                         .or(stream.get_language())
                         .unwrap_or_default(),
+                    lang: stream.get_language(),
+                    set_id: NonZeroU64::new(set_id).unwrap(),
                 },
             )
             .await;
+        set_id += 1;
     }
 
     Ok(reply::json(&json!({
