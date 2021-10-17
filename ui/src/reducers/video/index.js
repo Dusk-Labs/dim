@@ -65,7 +65,7 @@ const initialState = {
   prevSeekTo: 0,
   currentTime: 0,
   duration: 0,
-  currentCue: "",
+  currentCue: [],
   idleCount: 0
 };
 
