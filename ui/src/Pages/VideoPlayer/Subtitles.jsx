@@ -41,9 +41,9 @@ function VideoSubtitles() {
   const handleCueChange = useCallback((e) => {
     if (e.srcElement.activeCues.length > 0) {
 
-      const cue = e.srcElement.activeCues[0].text
+      const cue = e.srcElement.activeCues.map(x => x.text
         .replace(/<[^>]*>?/gm, "")
-        .split("\n");
+        .split("\n"));
 
       dispatch(updateVideo({
         currentCue: cue
@@ -82,7 +82,7 @@ function VideoSubtitles() {
   // clear current cue if track changed
   useEffect(() => {
     dispatch(updateVideo({
-      currentCue: ""
+      currentCue: []
     }));
   }, [dispatch, current]);
 
@@ -166,7 +166,9 @@ function VideoSubtitles() {
 
   return (
     <div className={`videoSubtitles show-${video.textTrackEnabled && show}`}>
-      <p>{video.currentCue}</p>
+      {
+        video.currentCue.map(x => <p>{x}</p>)
+      }
     </div>
   );
 }
