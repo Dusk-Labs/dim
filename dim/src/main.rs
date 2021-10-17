@@ -10,6 +10,7 @@ use xtra::spawn::Tokio;
 use dim::build_logger;
 use dim::core;
 use dim::streaming;
+use dim::routes::settings::GlobalSettings;
 
 use structopt::StructOpt;
 
@@ -52,6 +53,19 @@ fn main() {
 
     // never panics because we set a default value to metadata_dir
     let _ = create_dir_all(global_settings.metadata_dir.clone());
+
+    // set our jwt secret key
+    let settings_clone = global_settings.clone();
+    let secret_key = global_settings.secret_key.unwrap_or_else(move || {
+        let secret_key = auth::generate_key();
+        dim::set_global_settings(GlobalSettings {
+            secret_key: Some(secret_key),
+            ..settings_clone
+        }).expect("Failed to save JWT secret_key.");
+        secret_key
+    });
+
+    auth::set_jwt_key(secret_key);
 
     core::METADATA_PATH
         .set(global_settings.metadata_dir.clone())

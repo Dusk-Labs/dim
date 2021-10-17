@@ -35,6 +35,7 @@ pub struct GlobalSettings {
     pub disable_auth: bool,
 
     pub verbose: bool,
+    pub secret_key: Option<[u8; 16]>,
 }
 
 impl Default for GlobalSettings {
@@ -57,6 +58,7 @@ impl Default for GlobalSettings {
             quiet_boot: false,
             disable_auth: false,
             verbose: false,
+            secret_key: None,
         }
     }
 }
