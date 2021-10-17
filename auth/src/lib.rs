@@ -10,6 +10,8 @@ use jsonwebtoken::Validation;
 use serde::Deserialize;
 use serde::Serialize;
 use time::get_time;
+use rand::Rng;
+use once_cell::sync::OnceCell;
 
 use warp::filters::header::headers_cloned;
 use warp::http::header::HeaderMap;
@@ -23,10 +25,20 @@ std::compile_error!("Cannot disable authentication for non-devel environments.")
 
 /// This is the secret key with which we sign the JWT tokens.
 // TODO: Generate this at first run to ensure security
-static KEY: &[u8; 16] = &[
-    25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25,
-];
+static KEY: OnceCell<[u8; 16]> = OnceCell::new();
 static ONE_WEEK: i64 = 60 * 60 * 24 * 7;
+
+pub fn generate_key() -> [u8; 16] {
+    rand::thread_rng().gen()
+}
+
+pub fn set_jwt_key(k: [u8; 16]) {
+    KEY.set(k).expect("Failed to set JWT secret_key")
+}
+
+fn get_key() -> &'static [u8; 16] {
+    KEY.get().expect("JWT key must be initialized")
+}
 
 /// Struct holds info needed for JWT to function correctly
 #[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
@@ -118,7 +130,7 @@ pub fn jwt_generate(user: String, roles: Vec<String>) -> String {
     encode(
         &Header::new(Algorithm::HS512),
         &payload,
-        &EncodingKey::from_secret(KEY),
+        &EncodingKey::from_secret(get_key()),
     )
     .unwrap()
 }
@@ -141,7 +153,7 @@ pub fn jwt_generate(user: String, roles: Vec<String>) -> String {
 pub fn jwt_check(token: String) -> Result<TokenData<UserRolesToken>, jsonwebtoken::errors::Error> {
     decode::<UserRolesToken>(
         &token,
-        &DecodingKey::from_secret(KEY),
+        &DecodingKey::from_secret(get_key()),
         &Validation::new(Algorithm::HS512),
     )
 }
@@ -157,7 +169,7 @@ pub fn jwt_check(_: String) -> Result<TokenData<UserRolesToken>, jsonwebtoken::e
             id: uuid::Uuid::new_v4().to_u128_le(),
             iat: 0,
             exp: i64::MAX,
-            user: "Hiro".into(),
+            user: "Admin".into(),
             roles: vec!["owner".into()],
         },
     })
