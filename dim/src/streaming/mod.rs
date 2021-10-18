@@ -1,33 +1,15 @@
 pub mod ffprobe;
 
-use lazy_static::lazy_static;
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
 };
 
-cfg_if::cfg_if! {
-    if #[cfg(target_os = "windows")] {
-        macro_rules! which {
-            ($prog:expr) => {$prog.into()};
-        }
-    } else {
-        macro_rules! which {
-            ($prog:expr) => {
-                String::from_utf8(Command::new("which").arg($prog).output().unwrap().stdout)
-                    .expect("Failed to decode `which $prog`.")
-                    .trim_end()
-                    .into();
-            };
-        }
-    }
-}
+pub static FFMPEG_BIN: &'static str = "./utils/ffmpeg";
+pub static FFPROBE_BIN: &'static str = "./utils/ffprobe";
 
-lazy_static! {
-    pub static ref FFMPEG_BIN: Box<str> = which!("./utils/ffmpeg");
-    pub static ref FFPROBE_BIN: Box<str> = which!("./utils/ffprobe");
-    pub static ref STREAMING_SESSION: Arc<RwLock<HashMap<String, HashMap<String, String>>>> =
-        Arc::new(RwLock::new(HashMap::new()));
+lazy_static::lazy_static! {
+    pub static ref STREAMING_SESSION: Arc<RwLock<HashMap<String, HashMap<String, String>>>> = Arc::new(RwLock::new(HashMap::new()));
 }
 
 use std::process::Command;
