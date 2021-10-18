@@ -312,7 +312,6 @@ pub async fn return_virtual_manifest(
         .cloned()
         .ok_or(errors::StreamingErrors::FileIsCorrupt)?;
 
-    eprintln!("{:?}", video_stream);
 
     let ctx = ProfileContext {
         file: media.target_file.clone(),
@@ -423,7 +422,7 @@ pub async fn return_virtual_manifest(
         let video = state.create(profile_chain, ctx).await?;
 
         let video_stream_height = video_stream.height.unwrap_or(1080) as u64;
-        let ratio = video_stream_height as f64) / quality.height as f64;
+        let ratio = video_stream_height as f64 / quality.height as f64;
         let width = video_stream.width.unwrap_or(1920) as f64 / ratio;
 
         let video_avc = video_stream
