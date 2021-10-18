@@ -312,6 +312,7 @@ pub async fn return_virtual_manifest(
         .cloned()
         .ok_or(errors::StreamingErrors::FileIsCorrupt)?;
 
+
     let ctx = ProfileContext {
         file: media.target_file.clone(),
         input_ctx: video_stream.clone().into(),
@@ -423,13 +424,13 @@ pub async fn return_virtual_manifest(
         let video = state.create(profile_chain, ctx).await?;
 
         let video_stream_height = video_stream.height.unwrap_or(1080) as u64;
-        let ratio = video_stream_height / quality.height;
-        let width = video_stream.width.unwrap_or(1920) as u64 / ratio;
+        let ratio = video_stream_height as f64 / quality.height as f64;
+        let width = video_stream.width.unwrap_or(1920) as f64 / ratio;
 
         let video_avc = video_stream
             .level
             .and_then(|x| level_to_tag(x))
-            .unwrap_or(get_avc1_tag(width, quality.height, quality.bitrate, 24));
+            .unwrap_or(get_avc1_tag(width as u64, quality.height, quality.bitrate, 24));
 
         let label = quality_to_label(quality);
 
