@@ -41,7 +41,7 @@ function VideoSubtitles() {
   const handleCueChange = useCallback((e) => {
     if (e.srcElement.activeCues.length > 0) {
 
-      const cue = e.srcElement.activeCues.map(x => x.text
+      const cue = Object.entries(e.srcElement.activeCues).map(([_, x]) => x.text
         .replace(/<[^>]*>?/gm, "")
         .split("\n"));
 
@@ -167,7 +167,7 @@ function VideoSubtitles() {
   return (
     <div className={`videoSubtitles show-${video.textTrackEnabled && show}`}>
       {
-        video.currentCue.map(x => <p>{x}</p>)
+        video.currentCue.map((x, key) => <p key={key}>{x}</p>)
       }
     </div>
   );
