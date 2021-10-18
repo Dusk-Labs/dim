@@ -4,10 +4,17 @@
 
 Dim is a self hosted media manager. With minimal setup, Dim will organize and beautify your media collections, letting you access and play them anytime from anywhere.
 
-## Installation (Docker)
+## Running from binaries
+  1. Obtain binaries from the release tab in github.
+  2. Unpack with `unzip ./release-linux.zip && tar -xvzf ./release.tar.gz`
+  3. Run `cd release && ./dim`
+
+## Running with docker
   1. `docker run -d -p 8000:8000/tcp --mount type=bind,source=/media,target=/media vgarleanu/dim:latest` 
 
-## Dependencies
+## Running from source
+### Dependencies
+  To run from source, you'll first need to install the following dependencies on your system:
   * sqlite
   * cargo
   * rustc (nightly)
@@ -15,7 +22,7 @@ Dim is a self hosted media manager. With minimal setup, Dim will organize and be
   * libssl-dev
   * ffmpeg
 
-## Installation (From source)
+  You can then clone the repository and build dim with the following commands:
   1. `git clone https://github.com/Dusk-Labs/dim`
   2. `yarn --cwd ui/ && yarn --cwd ui/ build`
   3. `cargo run --release`
