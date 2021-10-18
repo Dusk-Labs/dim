@@ -1,15 +1,13 @@
 pub mod ffprobe;
 
-use std::{
-    collections::HashMap,
-    sync::{Arc, RwLock},
-};
-
-pub static FFMPEG_BIN: &'static str = "./utils/ffmpeg";
-pub static FFPROBE_BIN: &'static str = "./utils/ffprobe";
+use std::collections::HashMap;
+use std::sync::Arc;
+use std::sync::RwLock;
 
 lazy_static::lazy_static! {
     pub static ref STREAMING_SESSION: Arc<RwLock<HashMap<String, HashMap<String, String>>>> = Arc::new(RwLock::new(HashMap::new()));
+    pub static ref FFMPEG_BIN: &'static str = ffpath("utils/ffmpeg");
+    pub static ref FFPROBE_BIN: &'static str = ffpath("utils/ffprobe");
 }
 
 use std::process::Command;
@@ -34,7 +32,7 @@ use std::process::Command;
 pub fn ffcheck() -> Vec<Result<Box<str>, &'static str>> {
     let mut results = vec![];
 
-    for program in ["./utils/ffmpeg", "./utils/ffprobe"].iter() {
+    for program in [*FFMPEG_BIN, *FFPROBE_BIN].iter() {
         if let Ok(output) = Command::new(program).arg("-version").output() {
             let stdout = String::from_utf8(output.stdout)
                 .expect("Failed to decode subprocess stdout.")
@@ -47,6 +45,20 @@ pub fn ffcheck() -> Vec<Result<Box<str>, &'static str>> {
     }
 
     results
+}
+
+#[cfg(not(debug_assertions))]
+fn ffpath(bin: impl AsRef<str>) -> &'static str {
+    let mut path = std::env::current_exe().expect("Failed to grab path to the `dim` binary.");
+    path.pop(); // remove the dim bin to get the dir of `dim`
+    path.push(bin.as_ref());
+
+    Box::leak(path.to_string_lossy().to_string().into_boxed_str())
+}
+
+#[cfg(debug_assertions)]
+fn ffpath(bin: impl AsRef<str>) -> &'static str {
+    Box::leak(bin.as_ref().to_string().into_boxed_str())
 }
 
 #[derive(Clone, Copy)]
