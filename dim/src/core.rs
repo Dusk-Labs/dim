@@ -21,25 +21,6 @@ pub type StateManager = nightfall::StateManager;
 pub type DbConnection = database::DbConnection;
 pub type EventTx = UnboundedSender<String>;
 
-/// Hacky type we use to implement clone on deref types.
-#[derive(Clone, Debug)]
-pub struct CloneOnDeref<T> {
-    inner: T,
-}
-
-impl<T: Clone> CloneOnDeref<T> {
-    pub fn new(inner: T) -> Self {
-        Self { inner }
-    }
-
-    pub fn get(&self) -> T {
-        self.inner.clone()
-    }
-}
-
-unsafe impl<T: Send> Send for CloneOnDeref<T> {}
-unsafe impl<T: Clone> Sync for CloneOnDeref<T> {}
-
 /// Path to where metadata is stored and should be fetched to.
 pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
 
