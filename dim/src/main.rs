@@ -95,7 +95,7 @@ fn main() {
 
     nightfall::profiles::profiles_init(
         logger.clone(),
-        crate::streaming::FFMPEG_BIN.clone().into_string(),
+        crate::streaming::FFMPEG_BIN.to_string(),
     );
 
     let async_main = async move {
