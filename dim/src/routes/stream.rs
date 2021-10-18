@@ -418,6 +418,8 @@ pub async fn return_virtual_manifest(
 
         // FIXME: remove this panic
         let profile_chain = get_profile_for(&log, StreamType::Video, &ctx);
+        debug_assert!(!profile_chain.is_empty());
+
         let video = state.create(profile_chain, ctx).await?;
 
         let video_stream_height = video_stream.height.unwrap_or(1080) as u64;
@@ -507,6 +509,11 @@ pub async fn return_virtual_manifest(
 
     for stream in subtitles {
         let is_default = info.get_primary("subtitle") == Some(stream);
+
+        if !["ass", "ssa", "srt", "webvtt", "vtt"].contains(&stream.codec_name.as_str()) {
+            // FIXME: hdmv_pgs_subtitle are not supported yet.
+            continue;
+        }
 
         /* FIXME: same as below.
         let output_codec = if &stream.codec_name == "ass" {
