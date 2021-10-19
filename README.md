@@ -1,6 +1,7 @@
 <h1 align="center">Dim</h1>
 
 ![Dashboard](https://user-images.githubusercontent.com/44278658/116753720-71724180-a9ff-11eb-8ac0-6fe4df85e63f.png)
+![Discord](https://img.shields.io/discord/834495310332035123)
 
 Dim is a self hosted media manager. With minimal setup, Dim will organize and beautify your media collections, letting you access and play them anytime from anywhere.
 
