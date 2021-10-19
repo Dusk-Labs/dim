@@ -1,5 +1,6 @@
 use crate::core::DbConnection;
 use crate::errors;
+use crate::utils::ffpath;
 
 use database::user::UpdateableUser;
 use database::user::User;
@@ -54,7 +55,7 @@ impl Default for GlobalSettings {
                     }
                 }
             },
-            metadata_dir: "./metadata".into(),
+            metadata_dir: ffpath("config/metadata").into(),
             quiet_boot: false,
             disable_auth: false,
             verbose: false,
@@ -72,7 +73,7 @@ pub fn get_global_settings() -> GlobalSettings {
 }
 
 pub fn init_global_settings(path: Option<String>) -> Result<(), Box<dyn Error>> {
-    let path = path.unwrap_or("./config.toml".into());
+    let path = path.unwrap_or(ffpath("config/config.toml").into());
     let _ = SETTINGS_PATH.set(path.clone());
     let mut content = String::new();
 
@@ -97,7 +98,7 @@ pub fn set_global_settings(settings: GlobalSettings) -> Result<(), Box<dyn Error
     let path = SETTINGS_PATH
         .get()
         .cloned()
-        .unwrap_or("./config.toml".into());
+        .unwrap_or(ffpath("config/config.toml").into());
 
     {
         let mut lock = GLOBAL_SETTINGS.lock().unwrap();

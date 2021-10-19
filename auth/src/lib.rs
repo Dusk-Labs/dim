@@ -7,11 +7,11 @@ use jsonwebtoken::Header;
 use jsonwebtoken::TokenData;
 use jsonwebtoken::Validation;
 
+use once_cell::sync::OnceCell;
+use rand::Rng;
 use serde::Deserialize;
 use serde::Serialize;
 use time::get_time;
-use rand::Rng;
-use once_cell::sync::OnceCell;
 
 use warp::filters::header::headers_cloned;
 use warp::http::header::HeaderMap;
