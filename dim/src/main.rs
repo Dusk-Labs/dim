@@ -9,8 +9,8 @@ use xtra::spawn::Tokio;
 
 use dim::build_logger;
 use dim::core;
-use dim::streaming;
 use dim::routes::settings::GlobalSettings;
+use dim::streaming;
 
 use structopt::StructOpt;
 
@@ -19,35 +19,21 @@ use structopt::StructOpt;
 #[structopt(version = env!("CARGO_PKG_VERSION"), author = env!("CARGO_PKG_AUTHORS"))]
 #[structopt(rename_all = "kebab")]
 struct Args {
-    #[structopt(short, long, parse(from_os_str), default_value = "config.toml")]
-    config: PathBuf,
-    /// Enables debug mode, which enables debug logs.
-    #[structopt(short, long)]
-    debug: bool,
-
-    /// The port that the HTTP backend will use.
-    #[structopt(short, long, default_value = "8000")]
-    port: u16,
-
-    /// Where all the metadata will be kept.
-    #[structopt(short, long, parse(from_os_str), default_value = "./metadata")]
-    metadata_dir: PathBuf,
-
-    /// Where the transcoders will cache to.
-    #[structopt(long, parse(from_os_str), default_value = "/tmp/streaming_cache")]
-    cache_dir: PathBuf,
-
-    /// Disable the scanners working at boot time.
-    #[structopt(short, long)]
-    no_scanners: bool,
+    #[structopt(short, long, parse(from_os_str))]
+    config: Option<PathBuf>,
 }
 
 fn main() {
     let args = Args::from_args();
+    let _ = create_dir_all(dim::utils::ffpath("config"));
+
+    let config_path = args
+        .config
+        .map(|x| x.to_string_lossy().to_string())
+        .unwrap_or(dim::utils::ffpath("config/config.toml").to_string());
 
     // initialize global settings.
-    dim::init_global_settings(Some(args.config.to_string_lossy().to_string()))
-        .expect("Failed to initialize global settings.");
+    dim::init_global_settings(Some(config_path)).expect("Failed to initialize global settings.");
 
     let global_settings = dim::get_global_settings();
 
@@ -61,7 +47,8 @@ fn main() {
         dim::set_global_settings(GlobalSettings {
             secret_key: Some(secret_key),
             ..settings_clone
-        }).expect("Failed to save JWT secret_key.");
+        })
+        .expect("Failed to save JWT secret_key.");
         secret_key
     });
 
@@ -93,10 +80,7 @@ fn main() {
         }
     }
 
-    nightfall::profiles::profiles_init(
-        logger.clone(),
-        crate::streaming::FFMPEG_BIN.to_string(),
-    );
+    nightfall::profiles::profiles_init(logger.clone(), crate::streaming::FFMPEG_BIN.to_string());
 
     let async_main = async move {
         dim::fetcher::tmdb_poster_fetcher(logger.clone()).await;

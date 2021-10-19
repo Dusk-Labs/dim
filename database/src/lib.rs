@@ -3,6 +3,7 @@ use cfg_if::cfg_if;
 use once_cell::sync::OnceCell;
 use slog::Logger;
 
+use crate::utils::ffpath;
 use std::str::FromStr;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
@@ -146,7 +147,7 @@ async fn internal_get_conn(_log: Option<&Logger>) -> sqlx::Result<DbConnection> 
             ).await
         } else {
                 sqlx::Pool::connect_with(
-                    sqlx::sqlite::SqliteConnectOptions::from_str("sqlite://dim.db")?
+                    sqlx::sqlite::SqliteConnectOptions::from_str(ffpath("config/dim.db"))?
                     .create_if_missing(true)
                     .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
                 ).await
