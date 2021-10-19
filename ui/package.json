@@ -7,7 +7,7 @@
     "dashjs": "^4.1.0",
     "http-proxy-middleware": "^2.0.1",
     "libass-wasm": "^4.0.0",
-    "node-sass": "^5.0.0",
+    "node-sass": "^6.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.1",
     "react-modal": "^3.12.1",
