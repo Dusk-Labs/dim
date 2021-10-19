@@ -11,6 +11,8 @@ Dim is a self hosted media manager. With minimal setup, Dim will organize and be
 
 ## Running with docker
   1. `docker run -d -p 8000:8000/tcp --mount type=bind,source=/media,target=/media vgarleanu/dim:latest` 
+  You can also run dim with hardware accelerated transcoding enabled with:
+  2. `docker run -d -p 8000:8000/tcp --mount type=bind,source=/media,target=/media --device=/dev/dri/renderD128 vgarleanu/dim:latest`
 
 ## Running from source
 ### Dependencies
@@ -20,6 +22,9 @@ Dim is a self hosted media manager. With minimal setup, Dim will organize and be
   * rustc (nightly)
   * yarn, npm
   * libssl-dev
+  * libva
+  * libva-dev
+  * libva-drm
   * ffmpeg
 
   You can then clone the repository and build dim with the following commands:
