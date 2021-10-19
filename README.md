@@ -20,10 +20,10 @@ Dim is a self hosted media manager. With minimal setup, Dim will organize and be
   2. Run `cd release && ./dim`
 
 ## Running with docker
-  1. `docker run -d -p 8000:8000/tcp --mount type=bind,source=$HOME/.config/dim,target=/opt/dim/config --mount type=bind,source=/media,target=/media vgarleanu/dim:latest` 
+  * `docker run -d -p 8000:8000/tcp --mount type=bind,source=$HOME/.config/dim,target=/opt/dim/config --mount type=bind,source=/media,target=/media vgarleanu/dim:latest` 
 
-  You can also run dim with hardware accelerated transcoding enabled with:
-  2. `docker run -d -p 8000:8000/tcp --mount type=bind,source=$HOME/.config/dim,target=/opt/dim/config --mount type=bind,source=/media,target=/media --device=/dev/dri/renderD128 vgarleanu/dim:latest`
+### With hardware acceleration
+  * `docker run -d -p 8000:8000/tcp --mount type=bind,source=$HOME/.config/dim,target=/opt/dim/config --mount type=bind,source=/media,target=/media --device=/dev/dri/renderD128 vgarleanu/dim:latest`
 
 ## Running from source
 ### Dependencies
