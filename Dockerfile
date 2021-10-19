@@ -36,5 +36,5 @@ COPY --from=build /src/dim/utils/ffmpeg /opt/dim/utils/ffmpeg
 COPY --from=build /src/dim/utils/ffprobe /opt/dim/utils/ffprobe
 
 EXPOSE 8000
-VOLUME ["/opt/dim/transcoding", "/opt/dim/config"]
+VOLUME ["/opt/dim/config"]
 CMD ["/opt/dim/dim"]
