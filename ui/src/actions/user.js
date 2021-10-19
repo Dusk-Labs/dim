@@ -8,7 +8,8 @@ import {
   CHANGE_USERNAME_OK,
   CHANGE_AVATAR_START,
   CHANGE_AVATAR_ERR,
-  CHANGE_AVATAR_OK
+  CHANGE_AVATAR_OK,
+  AUTH_LOGOUT
 } from "./types.js";
 
 export const fetchUser = () => async (dispatch, getState) => {
@@ -24,6 +25,12 @@ export const fetchUser = () => async (dispatch, getState) => {
 
   try {
     const res = await fetch("/api/v1/auth/whoami", config);
+
+    if (res.status === 401) {
+      return dispatch({
+        type: AUTH_LOGOUT
+      });
+    }
 
     if (res.status !== 200) {
       return dispatch({
