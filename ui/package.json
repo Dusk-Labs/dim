@@ -4,6 +4,10 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "@types/jest": "^27.0.2",
+    "@types/node": "^16.11.1",
+    "@types/react": "^17.0.30",
+    "@types/react-dom": "^17.0.9",
     "dashjs": "^4.1.0",
     "http-proxy-middleware": "^2.0.1",
     "libass-wasm": "^4.0.0",
@@ -19,6 +23,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
+    "typescript": "^4.4.4",
     "web-vitals": "^1.0.1"
   },
   "scripts": {

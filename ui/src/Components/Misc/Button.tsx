@@ -2,7 +2,14 @@ import { useCallback } from "react";
 
 import "./Button.scss";
 
-function Button(props) {
+type ButtonProps = {
+  disabled?: boolean
+  onClick?: (...args: any) => any
+  type?: string
+  children: React.ReactNode
+}
+
+function Button(props: ButtonProps) {
   const handleClick = useCallback(() => {
     if (props.disabled) return;
 
