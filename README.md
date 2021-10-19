@@ -5,14 +5,25 @@
 Dim is a self hosted media manager. With minimal setup, Dim will organize and beautify your media collections, letting you access and play them anytime from anywhere.
 
 ## Running from binaries
-  1. Obtain binaries from the release tab in github.
-  2. Unpack with `unzip ./release-linux.zip && tar -xvzf ./release.tar.gz`
-  3. Run `cd release && ./dim`
+### Dependencies
+  * libva2
+  * libva-drm2
+  * libharfbuzz
+  * libfontconfig
+  * libfribidi
+  * libtheora
+  * libvorbis
+  * libvorbisenc
+
+  You can then obtain binaries from the release tab in github:
+  1. Unpack with `unzip ./release-linux.zip && tar -xvzf ./release.tar.gz`
+  2. Run `cd release && ./dim`
 
 ## Running with docker
-  1. `docker run -d -p 8000:8000/tcp --mount type=bind,source=/media,target=/media vgarleanu/dim:latest` 
+  1. `docker run -d -p 8000:8000/tcp --mount type=bind,source=$HOME/.config/dim,target=/opt/dim/config --mount type=bind,source=/media,target=/media vgarleanu/dim:latest` 
+
   You can also run dim with hardware accelerated transcoding enabled with:
-  2. `docker run -d -p 8000:8000/tcp --mount type=bind,source=/media,target=/media --device=/dev/dri/renderD128 vgarleanu/dim:latest`
+  2. `docker run -d -p 8000:8000/tcp --mount type=bind,source=$HOME/.config/dim,target=/opt/dim/config --mount type=bind,source=/media,target=/media --device=/dev/dri/renderD128 vgarleanu/dim:latest`
 
 ## Running from source
 ### Dependencies
@@ -22,9 +33,9 @@ Dim is a self hosted media manager. With minimal setup, Dim will organize and be
   * rustc (nightly)
   * yarn, npm
   * libssl-dev
-  * libva
+  * libva2
   * libva-dev
-  * libva-drm
+  * libva-drm2
   * ffmpeg
 
   You can then clone the repository and build dim with the following commands:
