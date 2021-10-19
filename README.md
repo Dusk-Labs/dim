@@ -18,6 +18,7 @@ Dim is a self hosted media manager. With minimal setup, Dim will organize and be
   You can then obtain binaries from the release tab in github:
   1. Unpack with `unzip ./release-linux.zip && tar -xvzf ./release.tar.gz`
   2. Run `cd release && ./dim`
+  3. Then you can access the Dim web UI through your browser with `http://0.0.0.0:8000` (assuming it's running locally.)
 
 ## Running with docker
   * `docker run -d -p 8000:8000/tcp --mount type=bind,source=$HOME/.config/dim,target=/opt/dim/config --mount type=bind,source=/media,target=/media vgarleanu/dim:latest` 
