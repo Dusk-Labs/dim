@@ -1,6 +1,10 @@
 import "./Ring.scss";
 
-function RingLoad(props) {
+type RingProps = {
+  small: boolean
+}
+
+function RingLoad(props: RingProps) {
   return (
     <div className={`ringLoad small-${props.small}`}>
       <div/>
