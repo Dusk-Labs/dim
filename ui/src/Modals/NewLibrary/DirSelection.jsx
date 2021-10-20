@@ -124,6 +124,7 @@ function DirSelection(props) {
   return (
     <div className="dirSelection">
       <div className="header">
+        <h4>Select folders containing media ({selectedFolders.length})</h4>
         <div className="actions">
           <Button
             disabled={selectedFolders.length <= 0}
