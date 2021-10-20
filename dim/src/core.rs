@@ -8,6 +8,7 @@ use crate::websocket;
 use once_cell::sync::OnceCell;
 
 use slog::Logger;
+use slog::info;
 
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::sync::mpsc::UnboundedSender;
@@ -180,6 +181,8 @@ pub async fn warp_core(
             let routes = routes.boxed();
         }
     }
+
+    info!(logger, "Webserver is listening on 0.0.0.0:{}", port);
 
     tokio::select! {
         _ = warp::serve(routes).run(([0, 0, 0, 0], port)) => {},
