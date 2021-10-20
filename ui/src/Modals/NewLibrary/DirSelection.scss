@@ -3,11 +3,14 @@
 
   .header {
     display: flex;
+    gap: .5em;
     margin-bottom: .5em;
     justify-content: space-between;
+    flex-wrap: wrap;
 
-    button {
-      animation: appear 200ms ease-in-out;
+    .actions {
+      display: flex;
+      gap: 1em;
     }
   }
 
@@ -83,6 +86,10 @@
           overflow: hidden;
           word-break: break-all;
         }
+      }
+
+      .selectedInsideCount {
+        color: var(--tertiaryTextColor);
       }
 
       .selectBox {
