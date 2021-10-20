@@ -103,7 +103,10 @@ function DirSelection(props) {
           >
             <div className="label" onClick={() => select(dir)}>
               <FolderIcon/>
-              <p>{dir.replace(props.current, "").replace("/", "")}{count ? ` (${count})` : ""}</p>
+              <p>
+                {dir.replace(props.current, "").replace("/", "")}
+                <span className="selectedInsideCount">{count ? ` (${count} folders selected inside)` : ""}</span>
+              </p>
             </div>
             <div className="selectBox" onClick={() => selectFolder(dir)}>
               <CheckIcon/>
