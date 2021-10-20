@@ -36,6 +36,14 @@ function DirSelection(props) {
     }
   }, [selectedFolders, setSelectedFolders]);
 
+  const selectAllFolders = useCallback(() => {
+    const unselectedFolders = fileBrowser.items.filter(item => (
+      !selectedFolders.includes(item)
+    ));
+
+    setSelectedFolders(state => unselectedFolders.concat(state));
+  }, [fileBrowser.items, selectedFolders, setSelectedFolders]);
+
   const clearSelection = useCallback(() => {
     setSelectedFolders([]);
   }, [setSelectedFolders]);
@@ -95,7 +103,10 @@ function DirSelection(props) {
           >
             <div className="label" onClick={() => select(dir)}>
               <FolderIcon/>
-              <p>{dir.replace(props.current, "").replace("/", "")}{count ? ` (${count})` : ""}</p>
+              <p>
+                {dir.replace(props.current, "").replace("/", "")}
+                <span className="selectedInsideCount">{count ? ` (${count} folders selected inside)` : ""}</span>
+              </p>
             </div>
             <div className="selectBox" onClick={() => selectFolder(dir)}>
               <CheckIcon/>
@@ -106,13 +117,26 @@ function DirSelection(props) {
     }
   }
 
+  const allFoldersInCurrentSelected = fileBrowser.items.every(item => (
+    selectedFolders.includes(item)
+  ));
+
   return (
     <div className="dirSelection">
       <div className="header">
-        <h4>Select folders ({selectedFolders.length})</h4>
-        {selectedFolders.length > 0 && (
-          <Button type="secondary" onClick={clearSelection}>Clear all</Button>
-        )}
+        <h4>Select folders containing media ({selectedFolders.length})</h4>
+        <div className="actions">
+          <Button
+            disabled={selectedFolders.length <= 0}
+            type="secondary"
+            onClick={clearSelection}
+          >Clear all</Button>
+          <Button
+            disabled={allFoldersInCurrentSelected}
+            type="secondary"
+            onClick={selectAllFolders}
+          >Select all</Button>
+        </div>
       </div>
       <div className="dirs-wrapper">
         <div className="dirs">

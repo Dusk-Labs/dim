@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import InputConfirmationBox from "../../../Modals/InputConfirmationBox.jsx";
 import { delAccount, logout } from "../../../actions/auth.js";
-import Button from "../../../Components/Misc/Button.jsx";
+import Button from "../../../Components/Misc/Button";
 
 function DelAccountBtn() {
   const deleteAccount = useSelector(store => store.auth.deleteAccount);
