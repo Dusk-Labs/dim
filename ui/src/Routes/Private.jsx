@@ -14,7 +14,11 @@ function PrivateRoute(props) {
   }));
 
   const history = useHistory();
-  const tokenInCookie = document.cookie.split("=")[1];
+
+  const tokenInCookie = document?.cookie
+    .split("; ")
+    .find(cookie => cookie.startsWith("token="))
+    ?.split("=")[1];
 
   const { logged_in, error } = auth.login;
   const { token } = auth;
@@ -25,14 +29,15 @@ function PrivateRoute(props) {
       return;
     }
 
+    // save token in cookie if not saved
     if (logged_in && token && !error && !tokenInCookie) {
-
       const dateExpires = new Date();
 
+      // expire cookie token in 7 days
       dateExpires.setTime(dateExpires.getTime() + 604800000);
 
       document.cookie = (
-        `token=${token};expires=${dateExpires.toGMTString()};`
+        `token=${token};expires=${dateExpires.toGMTString()};samesite=lax;`
       );
     }
 
