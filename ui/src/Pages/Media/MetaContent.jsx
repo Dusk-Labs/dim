@@ -88,10 +88,6 @@ function MetaContent() {
         <p className="description">{description}</p>
         <div className="meta-info">
           <div className="info">
-            <h4>ID</h4>
-            <p>{id}</p>
-          </div>
-          <div className="info">
             <h4>Type</h4>
             <p>{media_type}</p>
           </div>
