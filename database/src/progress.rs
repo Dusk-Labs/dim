@@ -122,7 +122,12 @@ impl Progress {
         uid: String,
         tv_id: i64,
     ) -> Result<i32, DieselError> {
-        Ok(sqlx::query!(
+        #[derive(sqlx::FromRow)]
+        struct Row {
+            total: i32,
+        }
+
+        Ok(sqlx::query_as::<_, Row>(
             "SELECT COALESCE(SUM(progress.delta), 0) as total FROM _tblmedia
             JOIN progress ON progress.media_id = _tblmedia.id
             JOIN episode ON episode.id = _tblmedia.id
@@ -131,9 +136,9 @@ impl Progress {
             
             WHERE tv_show.id = ?
             AND progress.user_id = ?",
-            tv_id,
-            uid
         )
+        .bind(tv_id)
+        .bind(uid)
         .fetch_one(conn)
         .await?
         .total)
@@ -144,7 +149,7 @@ impl Progress {
         uid: String,
         count: i64,
     ) -> Result<Vec<i64>, DieselError> {
-        Ok(sqlx::query_scalar!(
+        Ok(sqlx::query_scalar(
             r#"SELECT _tblmedia.id  FROM _tblmedia
 
             JOIN tv_show on tv_show.id = _tblmedia.id
@@ -158,9 +163,9 @@ impl Progress {
             GROUP BY _tblmedia.id
             ORDER BY progress.populated DESC
             LIMIT ?"#,
-            uid,
-            count
         )
+        .bind(uid)
+        .bind(count)
         .fetch_all(conn)
         .await?)
     }
