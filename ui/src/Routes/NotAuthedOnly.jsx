@@ -9,7 +9,11 @@ function NotAuthedOnlyRoute(props) {
   const auth = useSelector(store => store.auth);
 
   const history = useHistory();
-  const tokenInCookie = document.cookie.split("=")[1];
+
+  const tokenInCookie = document.cookie
+    .split("; ")
+    .find(cookie => cookie.startsWith("token="))
+    ?.split("=")[1];
 
   const { logged_in, error } = auth.login;
   const { token } = auth;
@@ -19,13 +23,15 @@ function NotAuthedOnlyRoute(props) {
       dispatch(updateAuthToken(tokenInCookie));
     }
 
+    // save token in cookie if not saved
     if (logged_in && token && !error && !tokenInCookie) {
       const dateExpires = new Date();
 
       dateExpires.setTime(dateExpires.getTime() + 604800000);
 
+      // expire cookie token in 7 days
       document.cookie = (
-        `token=${token};expires=${dateExpires.toGMTString()};`
+        `token=${token};expires=${dateExpires.toGMTString()};samesite=lax;`
       );
 
       history.push("/");
