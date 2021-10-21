@@ -25,7 +25,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 ENV SSL_CERT_DIR=/etc/ssl/certs
 ENV RUST_BACKTRACE=full
-RUN apt update -y && apt install -y libva2 libva-drm2 libharfbuzz0b libfontconfig libfribidi0 libtheora0 libvorbis0a libvorbisenc2
+RUN apt update -y && apt install -y ca-certificates libva2 libva-drm2 libharfbuzz0b libfontconfig libfribidi0 libtheora0 libvorbis0a libvorbisenc2
 COPY --from=dim /dim/target/release/dim /opt/dim/dim
 COPY --from=ffmpeg /ffmpeg /opt/dim/utils/ffmpeg
 COPY --from=ffmpeg /ffprobe /opt/dim/utils/ffprobe
