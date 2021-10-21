@@ -8,7 +8,7 @@ const CardImage = (props) => (
       {({imageSrc, loaded, error, setErr}) => (
         <>
           {loaded && !error && (
-            <img src={imageSrc} alt="cover" onError={() => setErr(true)}/>
+            <img src={imageSrc} alt="cover" loading="lazy" onError={() => setErr(true)}/>
           )}
           {error && (
             <div className="placeholder">
