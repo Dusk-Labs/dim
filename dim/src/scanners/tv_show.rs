@@ -208,7 +208,13 @@ impl<'a> TvShowMatcher<'a> {
             poster: season_poster,
         };
 
-        let seasonid = insertable_season.insert(&self.conn, media_id).await?;
+        let seasonid = match insertable_season.insert(&self.conn, media_id).await {
+            Ok(x) => x,
+            Err(e) => {
+                warn!(self.log, "Failed to insert season into the database."; "reason" => e.to_string());
+                return Err(e.into());
+            }
+        };
 
         let search_ep = {
             let orphan_episode = orphan.episode.unwrap_or(0) as u64;
