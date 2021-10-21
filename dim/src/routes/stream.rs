@@ -515,7 +515,7 @@ pub async fn return_virtual_manifest(
     for stream in subtitles {
         let is_default = info.get_primary("subtitle") == Some(stream);
 
-        if !["ass", "ssa", "srt", "webvtt", "vtt"].contains(&stream.codec_name.as_str()) {
+        if !["subrip", "ass", "ssa", "srt", "webvtt", "vtt"].contains(&stream.codec_name.as_str()) {
             // FIXME: hdmv_pgs_subtitle are not supported yet.
             continue;
         }
