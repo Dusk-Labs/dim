@@ -29,6 +29,15 @@ RUN apt update -y && apt install -y libva2 libva-drm2 libharfbuzz0b libfontconfi
 COPY --from=dim /dim/target/release/dim /opt/dim/dim
 COPY --from=ffmpeg /ffmpeg /opt/dim/utils/ffmpeg
 COPY --from=ffmpeg /ffprobe /opt/dim/utils/ffprobe
+
+# Temporary ffmpeg workaround for non-amd64 architectures
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" != "amd64" ]; then \
+    apt install -y ffmpeg && \
+    ln -sf /usr/bin/ffmpeg /opt/dim/utils/ffmpeg && \
+    ln -sf /usr/bin/ffprobe /opt/dim/utils/ffprobe \
+    ; fi
+
 EXPOSE 8000
 VOLUME ["/opt/dim/config"]
 CMD ["/opt/dim/dim"]
