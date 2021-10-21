@@ -11,6 +11,7 @@ use crate::streaming::get_avc1_tag;
 use crate::streaming::get_qualities;
 use crate::streaming::level_to_tag;
 use crate::utils::quality_to_label;
+use crate::streaming::Quality;
 
 use database::mediafile::MediaFile;
 
@@ -323,7 +324,7 @@ pub async fn return_virtual_manifest(
         ..Default::default()
     };
 
-    let profile_chain = get_profile_for(&log, StreamType::Video, &ctx);
+    let profile_chain = get_profile_for_with_type(&log, StreamType::Video, ProfileType::Transmux, &ctx);
     let video = state.create(profile_chain, ctx).await?;
 
     // FIXME: Stop hardcoding a fps of 24
@@ -353,7 +354,7 @@ pub async fn return_virtual_manifest(
         };
 
         format!(
-            "{}p@{}{} (Native)",
+            "{}p@{}{} (Direct Play)",
             video_stream.height.clone().unwrap(),
             bitrate_norm,
             ident
@@ -401,6 +402,8 @@ pub async fn return_virtual_manifest(
             .or(info.get_container_bitrate())
             .unwrap_or(10_000_000),
     );
+
+    let qualities: Vec<&Quality> = vec![];
 
     for quality in qualities {
         let ctx = ProfileContext {
