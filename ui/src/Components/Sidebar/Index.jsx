@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useDispatch} from "react-redux";
 
-import { fetchUser } from "../../actions/user.js";
 import { fetchUserSettings } from "../../actions/settings.js";
 import { fetchLibraries } from "../../actions/library.js";
 
@@ -19,7 +18,6 @@ function Sidebar() {
 
   useEffect(() => {
     dispatch(fetchLibraries());
-    dispatch(fetchUser());
     dispatch(fetchUserSettings());
   }, [dispatch]);
 
