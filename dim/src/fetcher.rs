@@ -12,6 +12,7 @@ use std::fs::File;
 use std::io::copy;
 use std::io::Cursor;
 use std::path::PathBuf;
+use std::time::Duration;
 
 use once_cell::sync::Lazy;
 
@@ -42,7 +43,7 @@ async fn process_queue(log: Logger) {
     loop {
         let mut lock = PROCESSING_QUEUE.lock().await;
         if lock.is_empty() {
-            tokio::task::yield_now().await;
+            tokio::time::sleep(Duration::from_millis(100)).await;
             continue;
         }
 
