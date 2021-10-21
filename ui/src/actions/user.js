@@ -1,3 +1,5 @@
+import { logout } from "./auth.js";
+
 import {
   FETCH_USER_START,
   FETCH_USER_OK,
@@ -8,8 +10,7 @@ import {
   CHANGE_USERNAME_OK,
   CHANGE_AVATAR_START,
   CHANGE_AVATAR_ERR,
-  CHANGE_AVATAR_OK,
-  AUTH_LOGOUT
+  CHANGE_AVATAR_OK
 } from "./types.js";
 
 export const fetchUser = () => async (dispatch, getState) => {
@@ -27,18 +28,7 @@ export const fetchUser = () => async (dispatch, getState) => {
     const res = await fetch("/api/v1/auth/whoami", config);
 
     if (res.status === 401) {
-      document.cookie = "token=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-
-      if ("BroadcastChannel" in window) {
-        const bc = new BroadcastChannel("dim");
-
-        bc.postMessage("logout");
-        bc.close();
-      }
-
-      return dispatch({
-        type: AUTH_LOGOUT
-      });
+      return dispatch(logout());
     }
 
     if (res.status !== 200) {
