@@ -3,7 +3,7 @@
 ![Dashboard](docs/design/dashboard.jpg)
 [![Discord](https://img.shields.io/discord/834495310332035123)](http://discord.gg/YJCrFTykQ4)
 
-Dim is a self hosted media manager. With minimal setup, Dim will organize and beautify your media collections, letting you access and play them anytime from anywhere.
+Dim is a self-hosted media manager. With minimal setup, Dim will organize and beautify your media collections, letting you access and play them anytime from anywhere.
 
 ## Running from binaries
 ### Dependencies
