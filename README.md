@@ -1,3 +1,4 @@
+
 <h1 align="center">Dim</h1>
 
 ![Dashboard](docs/design/dashboard.jpg)
@@ -26,6 +27,23 @@ Dim is a self hosted media manager. With minimal setup, Dim will organize and be
 
 ### With hardware acceleration
   * `docker run -d -p 8000:8000/tcp --mount type=bind,source=$HOME/.config/dim,target=/opt/dim/config --mount type=bind,source=/media,target=/media --device=/dev/dri/renderD128 vgarleanu/dim:latest`
+### With Docker Compose
+  ```
+  version: "3.8"
+
+	services:
+		dim:
+			container_name: dim
+			image: vgarleanu/dim
+		ports:
+			- 8000:8000
+		volumes:
+			- /<host_config_folder>:/opt/dim/config
+			- /<host_media_path>:/<container_media_path>
+		#Use the below lines, to pass your device with hardware acceleration
+		devices:
+			- /<device>:/<device>
+  ```
 
 ## Running from source
 ### Dependencies
