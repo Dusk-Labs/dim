@@ -3,10 +3,15 @@ import { Route, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { updateAuthToken } from "../actions/auth.js";
+import { fetchUser } from "../actions/user.js";
 
 function PrivateRoute(props) {
   const dispatch = useDispatch();
-  const auth = useSelector(store => store.auth);
+
+  const { auth, user } = useSelector(store => ({
+    auth: store.auth,
+    user: store.user
+  }));
 
   const history = useHistory();
   const tokenInCookie = document.cookie.split("=")[1];
@@ -79,9 +84,14 @@ function PrivateRoute(props) {
     })();
   }, [history.location.pathname]);
 
-  const { exact, path, render, children } = props;
+  useEffect(() => {
+    dispatch(fetchUser());
+  }, [dispatch]);
 
-  return (token && tokenInCookie) && (
+  const { exact, path, render, children } = props;
+  const userExists = user.fetched && !user.error;
+
+  return (userExists && token && tokenInCookie) && (
     <Route exact={exact} path={path} render={render} children={children}/>
   );
 }
