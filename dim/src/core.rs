@@ -7,8 +7,8 @@ use crate::websocket;
 
 use once_cell::sync::OnceCell;
 
-use slog::Logger;
 use slog::info;
+use slog::Logger;
 
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::sync::mpsc::UnboundedSender;
