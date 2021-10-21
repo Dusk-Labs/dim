@@ -1,0 +1,23 @@
+# use custom docker image with all dependencies pre-installed
+image:
+  file: .gitpod/Dockerfile
+
+tasks:
+# run the webapp
+- command: cargo run --release
+  # this enables "prebuilds": this command is run on every push to the repo (requires GitHub app: https://github.com/apps/gitpod-io).
+  # the result is re-used for every workspace started on that commit
+  init: cargo build --release
+# run 'cargo check' on every change
+- command: cargo watch -x check
+  openMode: split-right
+
+ports:
+# auto-open the webapp
+- port: 8000
+  onOpen: open-preview
+  visibility: private
+
+vscode:
+  extensions:
+    - matklad.rust-analyzer
