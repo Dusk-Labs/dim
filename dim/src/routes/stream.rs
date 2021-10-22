@@ -395,6 +395,8 @@ pub async fn return_virtual_manifest(
         )
         .await;
 
+    set_id += 1;
+
     let qualities = get_qualities(
         video_stream.height.unwrap_or(1080) as u64,
         video_stream
@@ -403,16 +405,16 @@ pub async fn return_virtual_manifest(
             .unwrap_or(10_000_000),
     );
 
-    let qualities: Vec<&Quality> = vec![];
-
     for quality in qualities {
+        let bitrate = video_stream.get_bitrate().or(Some(quality.bitrate)).unwrap().min(quality.bitrate);
+
         let ctx = ProfileContext {
             file: media.target_file.clone(),
             input_ctx: video_stream.clone().into(),
             output_ctx: OutputCtx {
                 codec: "h264".into(),
                 start_num: 0,
-                bitrate: Some(quality.bitrate),
+                bitrate: Some(bitrate),
                 height: Some(quality.height as i64),
                 ..Default::default()
             },
@@ -453,7 +455,7 @@ pub async fn return_virtual_manifest(
                     chunk_path: format!("{}/data/$Number$.m4s", video.clone()),
                     init_seg: Some(format!("{}/data/init.mp4", video.clone())),
                     codecs: video_avc.to_string(),
-                    bandwidth: quality.bitrate,
+                    bandwidth: bitrate,
                     args: {
                         let mut x = HashMap::new();
                         x.insert("height".to_string(), quality.height.to_string());
@@ -466,9 +468,8 @@ pub async fn return_virtual_manifest(
                 },
             )
             .await;
+        set_id += 1;
     }
-
-    set_id += 1; // video streams are all wrapped in one adaptationset, so we reuse the same id.
 
     let audio_streams = info.find_by_type("audio");
 
