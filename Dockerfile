@@ -14,11 +14,27 @@ RUN DATABASE_URL="sqlite:///dim/dim_dev.db" cargo build --release
 
 FROM debian:bullseye AS ffmpeg
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt update -y && apt install -y unzip
-ADD https://nightly.link/Dusk-Labs/ffmpeg-static/workflows/main/master/bins.zip .
-RUN unzip bins.zip
-RUN chmod +x /ffmpeg
-RUN chmod +x /ffprobe
+WORKDIR /static
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+    apt update -y && \
+    apt install -y wget unzip && \
+    wget https://nightly.link/Dusk-Labs/ffmpeg-static/workflows/main/master/bins.zip && \
+    unzip bins.zip \
+    ; fi
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+    apt update -y && \
+    apt install -y wget tar && \
+    wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz && \
+    tar --strip-components 1 -xf ffmpeg-release-arm64-static.tar.xz \
+    ; fi
+RUN if [ "$TARGETARCH" = "arm" ]; then \
+    apt update -y && \
+    apt install -y wget tar && \
+    wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-armhf-static.tar.xz && \
+    tar --strip-components 1 -xf ffmpeg-release-armhf-static.tar.xz \
+    ; fi
+RUN chmod +x /static/ffmpeg && chmod +x /static/ffprobe
 
 FROM debian:bullseye
 ENV DEBIAN_FRONTEND=noninteractive
@@ -27,16 +43,8 @@ ENV SSL_CERT_DIR=/etc/ssl/certs
 ENV RUST_BACKTRACE=full
 RUN apt update -y && apt install -y ca-certificates libva2 libva-drm2 libharfbuzz0b libfontconfig libfribidi0 libtheora0 libvorbis0a libvorbisenc2
 COPY --from=dim /dim/target/release/dim /opt/dim/dim
-COPY --from=ffmpeg /ffmpeg /opt/dim/utils/ffmpeg
-COPY --from=ffmpeg /ffprobe /opt/dim/utils/ffprobe
-
-# Temporary ffmpeg workaround for non-amd64 architectures
-ARG TARGETARCH
-RUN if [ "$TARGETARCH" != "amd64" ]; then \
-    apt install -y ffmpeg && \
-    ln -sf /usr/bin/ffmpeg /opt/dim/utils/ffmpeg && \
-    ln -sf /usr/bin/ffprobe /opt/dim/utils/ffprobe \
-    ; fi
+COPY --from=ffmpeg /static/ffmpeg /opt/dim/utils/ffmpeg
+COPY --from=ffmpeg /static/ffprobe /opt/dim/utils/ffprobe
 
 EXPOSE 8000
 VOLUME ["/opt/dim/config"]
