@@ -142,7 +142,9 @@ function VideoPlayer() {
     const getInitialTrack = (trackArr) => {
       const trackList = trackArr[0].type === "video" ? videoTracks.list : audioTracks.list;
       const defaultTrack = trackList.filter(track => track.is_default)[0];
-      return trackArr.filter(x => x.id === defaultTrack.id);
+      const initialTracks = trackArr.filter(x => x.id === defaultTrack.set_id);
+      console.log(`[${trackArr[0].type}] setting initial track to`, initialTracks);
+      return initialTracks;
     };
 
     mediaPlayer.initialize(videoRef.current, url, true);
