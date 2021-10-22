@@ -229,6 +229,9 @@ impl MetadataMatcher {
                     self.log,
                     "Could not match movie to tmdb";
                     "reason" => e.to_string(),
+                    "raw_name" => media.raw_name.clone(),
+                    "raw_year" => media.raw_year,
+                    "target_file" => media.target_file.clone(),
                 );
                 return Err(ScannerError::UnknownError);
             }
@@ -318,6 +321,8 @@ impl MetadataMatcher {
                     self.log,
                     "Could not match tv show to tmdb";
                     "reason" => e.to_string(),
+                    "raw_name" => media.raw_name.clone(),
+                    "target_file" => media.target_file.clone(),
                 );
                 return Err(ScannerError::UnknownError);
             }

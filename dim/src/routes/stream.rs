@@ -446,7 +446,7 @@ pub async fn return_virtual_manifest(
                 24,
             ));
 
-        let label = quality_to_label(quality);
+        let label = quality_to_label(quality, Some(bitrate));
 
         stream_tracking
             .insert(
@@ -482,12 +482,14 @@ pub async fn return_virtual_manifest(
 
     for stream in audio_streams {
         let is_default = info.get_primary("audio") == Some(stream);
+        let bitrate = stream.bit_rate.as_ref().and_then(|x| x.parse::<u64>().ok()).unwrap_or(120_000);
         let ctx = ProfileContext {
             file: media.target_file.clone(),
             input_ctx: stream.clone().into(),
             output_ctx: OutputCtx {
                 codec: "aac".into(),
                 start_num: 0,
+                bitrate: Some(bitrate),
                 ..Default::default()
             },
             ..Default::default()
@@ -495,6 +497,9 @@ pub async fn return_virtual_manifest(
 
         let profile = get_profile_for(&log, StreamType::Audio, &ctx);
         let audio = state.create(profile, ctx).await?;
+
+        let bitrate_kbps = bitrate / 1000;
+        let label = format!("{} (aac:2.1ch @ {}kbps)", stream.get_language().unwrap_or_default(), bitrate_kbps);
 
         stream_tracking
             .insert(
@@ -505,13 +510,13 @@ pub async fn return_virtual_manifest(
                     mime: "audio/mp4".into(),
                     duration: info.get_duration(),
                     codecs: "mp4a.40.2".into(),
-                    bandwidth: 120_000,
+                    bandwidth: bitrate,
                     content_type: ContentType::Audio,
                     chunk_path: format!("{}/data/$Number$.m4s", audio.clone()),
                     init_seg: Some(format!("{}/data/init.mp4", audio.clone())),
                     args: HashMap::new(),
                     is_default,
-                    label: stream.get_language().unwrap_or_default(),
+                    label,
                     lang: stream.get_language(),
                     set_id: NonZeroU64::new(set_id).unwrap(),
                 },
