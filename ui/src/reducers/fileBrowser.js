@@ -2,7 +2,7 @@ import {
   FETCH_DIRECTORIES_START,
   FETCH_DIRECTORIES_OK,
   FETCH_DIRECTORIES_ERR
-} from "../actions/types.js";
+} from "../actions/types";
 
 const initialState = {
   items: [],

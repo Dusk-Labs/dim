@@ -4,7 +4,7 @@ import {
   WS_CONNECT_ERR,
   WS_SHOW_RECONNECT,
   NOTIFICATIONS_ADD
-} from "./types.js";
+} from "./types";
 
 export const wsConnect = () => async (dispatch, getState) => {
   dispatch({ type: WS_CONNECT_START });

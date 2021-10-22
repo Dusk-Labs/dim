@@ -2,7 +2,7 @@ import {
   FETCH_CARDS_START,
   FETCH_CARDS_OK,
   FETCH_CARDS_ERR
-} from "./types.js";
+} from "./types";
 
 export const fetchCards = (path, reset = true) => async (dispatch, getState) => {
   const token = getState().auth.token;

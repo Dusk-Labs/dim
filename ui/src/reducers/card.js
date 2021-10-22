@@ -2,7 +2,7 @@ import {
   FETCH_CARDS_START,
   FETCH_CARDS_OK,
   FETCH_CARDS_ERR
-} from "../actions/types.js";
+} from "../actions/types";
 
 const cards = {
   items: [],

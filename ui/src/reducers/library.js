@@ -17,7 +17,7 @@ import {
   FETCH_LIBRARY_UNMATCHED_START,
   FETCH_LIBRARY_UNMATCHED_OK,
   FETCH_LIBRARY_UNMATCHED_ERR
-} from "../actions/types.js";
+} from "../actions/types";
 
 const fetch_libraries = {
   items: [],

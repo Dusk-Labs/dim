@@ -4,7 +4,7 @@ import {
   SEARCH_START,
   SEARCH_OK,
   SEARCH_ERR
-} from "./types.js";
+} from "./types";
 
 export const search = (params) => async (dispatch, getState) => {
   const token = getState().auth.token;
