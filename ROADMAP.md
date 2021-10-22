@@ -14,6 +14,8 @@ Our mission is to create a ecosystem of open source applications with high UX va
 
 ## Player experience
 
+Progress of this milestone is tracked in <a href=https://github.com/Dusk-Labs/dim/issues/292>Issue 292</a>.
+
 | Status | Goal | Labels | Repository |
 | :---: | :--- | --- | --- |
 | ❌ | [Native Subtitle rendering](https://github.com/Dusk-Labs/dim/issues/162) | | <a href=https://github.com/Dusk-Labs/dim>Dusk-Labs/dim</a> |
