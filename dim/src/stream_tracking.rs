@@ -18,6 +18,16 @@ pub enum ContentType {
     Subtitle,
 }
 
+impl std::fmt::Display for ContentType {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(fmt, "{}", match *self {
+            ContentType::Audio => "audio",
+            ContentType::Subtitle => "subtitle",
+            ContentType::Video => "video",
+        })
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct VirtualManifest {
     pub content_type: ContentType,
@@ -46,11 +56,11 @@ impl VirtualManifest {
     }
 
     fn compile_av(&self, w: &mut XmlWriter, start_num: u64) {
-        if matches!(self.content_type, ContentType::Audio) {
+        if matches!(self.content_type, ContentType::Audio | ContentType::Video) {
             // Each audio stream must be in a separate adaptation set otherwise theyre treated as
             // different bitrates of the same track rather than separate tracks.
             w.start_element("AdaptationSet");
-            w.write_attribute("contentType", "audio");
+            w.write_attribute("contentType", &self.content_type.to_string());
             w.write_attribute("id", &self.set_id);
 
             if let Some(lang) = self.lang.as_ref() {
@@ -83,6 +93,14 @@ impl VirtualManifest {
             w.end_element();
         }
 
+        // mark the default video track
+        if matches!(self.content_type, ContentType::Audio | ContentType::Video) && self.is_default {
+            w.start_element("Role");
+            w.write_attribute("schemeIdUri", "urn:mpeg:dash:role:2011");
+            w.write_attribute("value", "main");
+            w.end_element();
+        }
+
         // write segment template
         w.start_element("SegmentTemplate");
         w.write_attribute("timescale", &1000);
@@ -95,7 +113,7 @@ impl VirtualManifest {
         w.end_element();
         w.end_element();
 
-        if matches!(self.content_type, ContentType::Audio) {
+        if matches!(self.content_type, ContentType::Audio | ContentType::Video) {
             w.end_element(); // close AdapationSet
         }
     }
@@ -196,17 +214,11 @@ impl StreamTracking {
         w.write_text("/api/v1/stream/");
         w.end_element();
 
-        // write video tracks within the first adaptation set.
-        w.start_element("AdaptationSet");
-        w.write_attribute("contentType", "video");
-        w.write_attribute("id", "0");
-
         for track in manifests {
             if matches!(track.content_type, ContentType::Video) {
                 track.compile(&mut w, start_num);
             }
         }
-        w.end_element();
 
         // write the audio and subtitle tracks.
         for track in manifests {
