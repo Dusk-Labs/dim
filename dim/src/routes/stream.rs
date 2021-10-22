@@ -11,9 +11,10 @@ use crate::streaming::get_avc1_tag;
 use crate::streaming::get_qualities;
 use crate::streaming::level_to_tag;
 use crate::utils::quality_to_label;
-use crate::streaming::Quality;
 
 use database::mediafile::MediaFile;
+use database::user::DefaultVideoQuality;
+use database::user::User;
 
 use nightfall::error::NightfallError;
 use nightfall::profiles::*;
@@ -273,7 +274,7 @@ pub mod filters {
 pub async fn return_virtual_manifest(
     state: StateManager,
     stream_tracking: StreamTracking,
-    _auth: Auth,
+    auth: Auth,
     conn: DbConnection,
     log: slog::Logger,
     id: i64,
@@ -285,6 +286,11 @@ pub async fn return_virtual_manifest(
             "gid": gid.to_hyphenated().to_string(),
         })));
     }
+
+    let user_prefs = User::get(&conn, auth.0.claims.get_user_ref())
+        .await
+        .map(|x| x.prefs)
+        .unwrap_or_default();
 
     let gid = uuid::Uuid::new_v4();
 
@@ -325,9 +331,14 @@ pub async fn return_virtual_manifest(
         ..Default::default()
     };
 
-    let dp_profile_chain = get_profile_for_with_type(&log, StreamType::Video, ProfileType::Transmux, &ctx);
+    let dp_profile_chain =
+        get_profile_for_with_type(&log, StreamType::Video, ProfileType::Transmux, &ctx);
     // Should secondary (transcoded) streams default.
-    let mut should_stream_default = dp_profile_chain.is_empty();
+    let mut should_stream_default = dp_profile_chain.is_empty()
+        || !matches!(
+            user_prefs.default_video_quality,
+            DefaultVideoQuality::DirectPlay
+        );
 
     if !dp_profile_chain.is_empty() {
         let video = state.create(dp_profile_chain, ctx).await?;
@@ -337,13 +348,13 @@ pub async fn return_virtual_manifest(
             .level
             .and_then(|x| level_to_tag(x))
             .unwrap_or(get_avc1_tag(
-                    video_stream.width.clone().unwrap_or(1920) as u64,
-                    video_stream.height.clone().unwrap_or(1080) as u64,
-                    video_stream
+                video_stream.width.clone().unwrap_or(1920) as u64,
+                video_stream.height.clone().unwrap_or(1080) as u64,
+                video_stream
                     .get_bitrate()
                     .or(info.get_container_bitrate())
                     .expect("Failed to pick bitrate for video stream"),
-                    24,
+                24,
             ));
 
         let bitrate = video_stream
@@ -365,7 +376,6 @@ pub async fn return_virtual_manifest(
                 ident
             )
         };
-
 
         stream_tracking
             .insert(
@@ -391,13 +401,13 @@ pub async fn return_virtual_manifest(
                         );
                         x
                     },
-                    is_default: true,
+                    is_default: !should_stream_default,
                     label,
                     lang: None,
                     set_id: NonZeroU64::new(set_id).unwrap(),
                 },
-                )
-                    .await;
+            )
+            .await;
 
         set_id += 1;
     }
@@ -411,7 +421,11 @@ pub async fn return_virtual_manifest(
     );
 
     for quality in qualities {
-        let bitrate = video_stream.get_bitrate().or(Some(quality.bitrate)).unwrap().min(quality.bitrate);
+        let bitrate = video_stream
+            .get_bitrate()
+            .or(Some(quality.bitrate))
+            .unwrap()
+            .min(quality.bitrate);
 
         let ctx = ProfileContext {
             file: media.target_file.clone(),
@@ -448,6 +462,11 @@ pub async fn return_virtual_manifest(
 
         let label = quality_to_label(quality, Some(bitrate));
 
+        // TODO: This code will not work correctly if there are similar resolutions with different
+        // brates.
+        let should_be_default = should_stream_default
+            && matches!(user_prefs.default_video_quality, DefaultVideoQuality::Resolution(res, brate) if res == quality.height);
+
         stream_tracking
             .insert(
                 &gid,
@@ -466,7 +485,7 @@ pub async fn return_virtual_manifest(
                         x.insert("height".to_string(), quality.height.to_string());
                         x
                     },
-                    is_default: should_stream_default,
+                    is_default: should_be_default,
                     label,
                     lang: None,
                     set_id: NonZeroU64::new(set_id).unwrap(),
@@ -475,14 +494,20 @@ pub async fn return_virtual_manifest(
             .await;
         set_id += 1;
         // we wan to default only the first stream.
-        should_stream_default = false;
+        if should_be_default {
+            should_stream_default = false;
+        }
     }
 
     let audio_streams = info.find_by_type("audio");
 
     for stream in audio_streams {
         let is_default = info.get_primary("audio") == Some(stream);
-        let bitrate = stream.bit_rate.as_ref().and_then(|x| x.parse::<u64>().ok()).unwrap_or(120_000);
+        let bitrate = stream
+            .bit_rate
+            .as_ref()
+            .and_then(|x| x.parse::<u64>().ok())
+            .unwrap_or(120_000);
         let ctx = ProfileContext {
             file: media.target_file.clone(),
             input_ctx: stream.clone().into(),
@@ -499,7 +524,11 @@ pub async fn return_virtual_manifest(
         let audio = state.create(profile, ctx).await?;
 
         let bitrate_kbps = bitrate / 1000;
-        let label = format!("{} (aac:2.1ch @ {}kbps)", stream.get_language().unwrap_or_default(), bitrate_kbps);
+        let label = format!(
+            "{} (aac:2.1ch @ {}kbps)",
+            stream.get_language().unwrap_or_default(),
+            bitrate_kbps
+        );
 
         stream_tracking
             .insert(

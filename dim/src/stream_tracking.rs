@@ -20,11 +20,15 @@ pub enum ContentType {
 
 impl std::fmt::Display for ContentType {
     fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(fmt, "{}", match *self {
-            ContentType::Audio => "audio",
-            ContentType::Subtitle => "subtitle",
-            ContentType::Video => "video",
-        })
+        write!(
+            fmt,
+            "{}",
+            match *self {
+                ContentType::Audio => "audio",
+                ContentType::Subtitle => "subtitle",
+                ContentType::Video => "video",
+            }
+        )
     }
 }
 

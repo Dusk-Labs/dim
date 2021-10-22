@@ -40,7 +40,7 @@ pub enum DefaultVideoQuality {
     /// Represents DirectPlay quality
     DirectPlay,
     /// Represents a default video quality made up of resolution and bitrate.
-    Resolution(u64, u64)
+    Resolution(u64, u64),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -62,7 +62,7 @@ pub struct UserSettings {
     /// If a file has audio then the audio track with this language will be selected, otherwise the first one.
     default_audio_language: Option<String>,
     /// Represents the default video quality for user.
-    default_video_quality: DefaultVideoQuality,
+    pub default_video_quality: DefaultVideoQuality,
     /// Any other external args.
     #[serde(default)]
     external_args: HashMap<String, String>,
