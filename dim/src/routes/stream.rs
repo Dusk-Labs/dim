@@ -313,6 +313,7 @@ pub async fn return_virtual_manifest(
         .cloned()
         .ok_or(errors::StreamingErrors::FileIsCorrupt)?;
 
+    let mut set_id = 1;
     let ctx = ProfileContext {
         file: media.target_file.clone(),
         input_ctx: video_stream.clone().into(),
@@ -324,78 +325,82 @@ pub async fn return_virtual_manifest(
         ..Default::default()
     };
 
-    let profile_chain = get_profile_for_with_type(&log, StreamType::Video, ProfileType::Transmux, &ctx);
-    let video = state.create(profile_chain, ctx).await?;
+    let dp_profile_chain = get_profile_for_with_type(&log, StreamType::Video, ProfileType::Transmux, &ctx);
+    // Should secondary (transcoded) streams default.
+    let mut should_stream_default = dp_profile_chain.is_empty();
 
-    // FIXME: Stop hardcoding a fps of 24
-    let video_avc = video_stream
-        .level
-        .and_then(|x| level_to_tag(x))
-        .unwrap_or(get_avc1_tag(
-            video_stream.width.clone().unwrap_or(1920) as u64,
-            video_stream.height.clone().unwrap_or(1080) as u64,
-            video_stream
-                .get_bitrate()
-                .or(info.get_container_bitrate())
-                .expect("Failed to pick bitrate for video stream"),
-            24,
-        ));
+    if !dp_profile_chain.is_empty() {
+        let video = state.create(dp_profile_chain, ctx).await?;
 
-    let bitrate = video_stream
-        .get_bitrate()
-        .or(info.get_container_bitrate())
-        .unwrap_or(10_000_000);
-
-    let label = {
-        let (ident, bitrate_norm) = if bitrate > 1_000_000 {
-            ("MB", bitrate / 1_000_000)
-        } else {
-            ("KB", bitrate / 1_000)
-        };
-
-        format!(
-            "{}p@{}{} (Direct Play)",
-            video_stream.height.clone().unwrap(),
-            bitrate_norm,
-            ident
-        )
-    };
-
-    let mut set_id = 1;
-
-    stream_tracking
-        .insert(
-            &gid,
-            VirtualManifest {
-                id: video.clone(),
-                is_direct: true,
-                mime: "video/mp4".into(),
-                duration: info.get_duration(),
-                content_type: ContentType::Video,
-                chunk_path: format!("{}/data/$Number$.m4s", video.clone()),
-                init_seg: Some(format!("{}/data/init.mp4", video.clone())),
-                codecs: video_avc.to_string(),
-                bandwidth: video_stream
+        // FIXME: Stop hardcoding a fps of 24
+        let video_avc = video_stream
+            .level
+            .and_then(|x| level_to_tag(x))
+            .unwrap_or(get_avc1_tag(
+                    video_stream.width.clone().unwrap_or(1920) as u64,
+                    video_stream.height.clone().unwrap_or(1080) as u64,
+                    video_stream
                     .get_bitrate()
                     .or(info.get_container_bitrate())
-                    .unwrap_or(10_000_000), // lol rip
-                args: {
-                    let mut x = HashMap::new();
-                    x.insert(
-                        "height".to_string(),
-                        video_stream.height.clone().unwrap().to_string(),
-                    );
-                    x
-                },
-                is_default: true,
-                label,
-                lang: None,
-                set_id: NonZeroU64::new(set_id).unwrap(),
-            },
-        )
-        .await;
+                    .expect("Failed to pick bitrate for video stream"),
+                    24,
+            ));
 
-    set_id += 1;
+        let bitrate = video_stream
+            .get_bitrate()
+            .or(info.get_container_bitrate())
+            .unwrap_or(10_000_000);
+
+        let label = {
+            let (ident, bitrate_norm) = if bitrate > 1_000_000 {
+                ("MB", bitrate / 1_000_000)
+            } else {
+                ("KB", bitrate / 1_000)
+            };
+
+            format!(
+                "{}p@{}{} (Direct Play)",
+                video_stream.height.clone().unwrap(),
+                bitrate_norm,
+                ident
+            )
+        };
+
+
+        stream_tracking
+            .insert(
+                &gid,
+                VirtualManifest {
+                    id: video.clone(),
+                    is_direct: true,
+                    mime: "video/mp4".into(),
+                    duration: info.get_duration(),
+                    content_type: ContentType::Video,
+                    chunk_path: format!("{}/data/$Number$.m4s", video.clone()),
+                    init_seg: Some(format!("{}/data/init.mp4", video.clone())),
+                    codecs: video_avc.to_string(),
+                    bandwidth: video_stream
+                        .get_bitrate()
+                        .or(info.get_container_bitrate())
+                        .unwrap_or(10_000_000), // lol rip
+                    args: {
+                        let mut x = HashMap::new();
+                        x.insert(
+                            "height".to_string(),
+                            video_stream.height.clone().unwrap().to_string(),
+                        );
+                        x
+                    },
+                    is_default: true,
+                    label,
+                    lang: None,
+                    set_id: NonZeroU64::new(set_id).unwrap(),
+                },
+                )
+                    .await;
+
+        set_id += 1;
+    }
 
     let qualities = get_qualities(
         video_stream.height.unwrap_or(1080) as u64,
@@ -461,7 +466,7 @@ pub async fn return_virtual_manifest(
                         x.insert("height".to_string(), quality.height.to_string());
                         x
                     },
-                    is_default: false,
+                    is_default: should_stream_default,
                     label,
                     lang: None,
                     set_id: NonZeroU64::new(set_id).unwrap(),
@@ -469,6 +474,8 @@ pub async fn return_virtual_manifest(
             )
             .await;
         set_id += 1;
+        // we wan to default only the first stream.
+        should_stream_default = false;
     }
 
     let audio_streams = info.find_by_type("audio");
