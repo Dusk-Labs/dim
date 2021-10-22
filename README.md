@@ -22,10 +22,10 @@ Dim is a self-hosted media manager. With minimal setup, Dim will organize and be
   3. Then you can access the Dim web UI through your browser with `http://0.0.0.0:8000` (assuming it's running locally.)
 
 ## Running with docker
-  * `docker run -d -p 8000:8000/tcp --mount type=bind,source=$HOME/.config/dim,target=/opt/dim/config --mount type=bind,source=/media,target=/media vgarleanu/dim:latest` 
+  * `docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media vgarleanu/dim:latest` 
 
 ### With hardware acceleration
-  * `docker run -d -p 8000:8000/tcp --mount type=bind,source=$HOME/.config/dim,target=/opt/dim/config --mount type=bind,source=/media,target=/media --device=/dev/dri/renderD128 vgarleanu/dim:latest`
+  * `docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media --device=/dev/dri/renderD128 vgarleanu/dim:latest`
 
 ## Running from source
 ### Dependencies
