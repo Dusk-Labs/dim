@@ -1,14 +1,23 @@
+import { AnyAction } from "redux";
 import {
   NOTIFICATIONS_ADD,
   NOTIFICATIONS_REMOVE,
   NOTIFICATIONS_CLEAR
 } from "../actions/types.js";
 
-const initialState = {
+export type Notification = {
+  msg: string
+}
+
+type NotificationState = {
+  list: Array<Notification>
+}
+
+const initialState: NotificationState = {
   list: []
 };
 
-export default function notificationsReducer(state = initialState, action) {
+export default function notificationsReducer(state = initialState, action: AnyAction) {
   switch(action.type) {
     case NOTIFICATIONS_ADD:
       return {

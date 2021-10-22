@@ -1,11 +1,11 @@
-import { useSelector } from "react-redux";
+import { useAppSelector } from "../hooks/store";
 
 import Toast from "./Toast";
 
 import "./Notifications.scss";
 
 function Notifications() {
-  const notifs = useSelector(state => state.notifications);
+  const notifs = useAppSelector(state => state.notifications);
 
   return (
     <div className="notifications">
