@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { MediaPlayer } from "dashjs";
+import { MediaPlayer, Debug, MediaType } from "dashjs";
 
 import { setTracks, setGID, setManifestState, updateVideo, incIdleCount, clearVideoData } from "../../actions/video";
 import { VideoPlayerContext } from "./Context";
@@ -98,12 +98,14 @@ function VideoPlayer() {
     const url = `/api/v1/stream/${video.gid}/manifest.mpd?start_num=0&should_kill=false&includes=${includes}`;
     const mediaPlayer = MediaPlayer().create();
     const hostname = window.location.hostname;
-    const initialVideoBitrate = ["localhost", "127.0.0.1", "::1"].includes(hostname) || hostname.startsWith("192.168") ? videoTracks.list[0].bandwidth : -1;
 
     // even with these settings, high bitrate movies fail.
     // The only solution is to have a constant bitrate and cosistent segments.
     // Thus transcoding is the only solution.
     let settings = {
+      debug: {
+        logLevel: Debug.LOG_LEVEL_DEBUG
+      },
       streaming: {
         stableBufferTime: 20,
         bufferToKeep: 10,
@@ -112,11 +114,10 @@ function VideoPlayer() {
         useAppendWindow: true,
         bufferPruningInterval: 10,
         smallGapLimit: 1000,
-        selectionModeForInitialTrack: "firstTrack",
         abr: {
           initialBitrate: {
             audio: -1,
-            video: initialVideoBitrate
+            video: -1
           },
           autoSwitchBitrate: {
             video: false
@@ -138,7 +139,14 @@ function VideoPlayer() {
       };
     });
 
+    const getInitialTrack = (trackArr) => {
+      const trackList = trackArr[0].type === "video" ? videoTracks.list : audioTracks.list;
+      const defaultTrack = trackList.filter(track => track.is_default)[0];
+      return trackArr.filter(x => x.id === defaultTrack.id);
+    };
+
     mediaPlayer.initialize(videoRef.current, url, true);
+    mediaPlayer.setCustomInitialTrackSelectionFunction(getInitialTrack);
 
     dispatch(updateVideo({
       player: mediaPlayer
