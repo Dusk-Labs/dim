@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateVideo } from "../../../actions/video";
+import { updateVideo, updateTrack } from "../../../actions/video";
 
 import ArrowLeftIcon from "../../../assets/Icons/ArrowLeft";
 import ChevronRightIcon from "../../../assets/Icons/ChevronRight";
@@ -54,6 +54,10 @@ function VideoMenuSettings() {
     console.log("[video] changed track to", selectedTrack[0]);
 
     player.setCurrentTrack(selectedTrack[0]);
+
+    dispatch(updateTrack(trackType, {
+      current: parseInt(i)
+    }));
   }, [player, video]);
 
   useEffect(() => {
@@ -80,7 +84,7 @@ function VideoMenuSettings() {
       </div>
       {activeInnerMenu === undefined && (
         <div className="innerMenus">
-          <p onClick={() => setActiveInnerMenu("Video tracks")}>
+          <p onClick={() => setActiveInnerMenu("Video Quality")}>
             Video tracks
             <ChevronRightIcon/>
           </p>
@@ -90,11 +94,11 @@ function VideoMenuSettings() {
           </p>
         </div>
       )}
-      {activeInnerMenu === "Video tracks" && (
+      {activeInnerMenu === "Video Quality" && (
         <div className="innerMenu">
           <div className="tracks">
             {video.tracks.video.list.map((track, i) => (
-              <div key={i} className={`track ${video.tracks.video.current === i ? "active" : ""}`} onClick={() => changeQuality("video", `${i}`)}>
+              <div key={i} className={`track ${video.tracks.video.current === i ? "active" : ""}`} onClick={() => changeTrack("video", `${i}`)}>
                 <p>{track.label}</p>
               </div>
             ))}
