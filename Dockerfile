@@ -24,13 +24,13 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     ; fi
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
     apt update -y && \
-    apt install -y wget tar && \
+    apt install -y wget tar xz-utils && \
     wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz && \
     tar --strip-components 1 -xf ffmpeg-release-arm64-static.tar.xz \
     ; fi
 RUN if [ "$TARGETARCH" = "arm" ]; then \
     apt update -y && \
-    apt install -y wget tar && \
+    apt install -y wget tar xz-utils && \
     wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-armhf-static.tar.xz && \
     tar --strip-components 1 -xf ffmpeg-release-armhf-static.tar.xz \
     ; fi
