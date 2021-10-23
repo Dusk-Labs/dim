@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
-import ConfirmationBox from "../../Modals/ConfirmationBox.jsx";
+import ConfirmationBox from "../../Modals/ConfirmationBox";
 import { logout } from "../../actions/auth.js";
 
 function LogoutBtn() {

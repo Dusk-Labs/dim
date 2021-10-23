@@ -1,4 +1,4 @@
-import Sidebar from "../Components/Sidebar/Index.jsx";
+import Sidebar from "../Components/Sidebar/Index";
 
 const MainLayout = (props) => (
   <>

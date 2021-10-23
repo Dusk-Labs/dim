@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import ProgressBar from "./ProgressBar.jsx";
-import Image from "./Image.jsx";
-import TruncText from "../../../Helpers/TruncText.jsx";
+import ProgressBar from "./ProgressBar";
+import Image from "./Image";
+import TruncText from "../../../Helpers/TruncText";
 import NewLibraryModal from "../../../Modals/NewLibrary/Index";
-import SelectMediaFile from "../../../Modals/SelectMediaFile/Index.jsx";
-import SelectMediaFilePlayButton from "../../../Modals/SelectMediaFile/Activators/PlayButton.jsx";
+import SelectMediaFile from "../../../Modals/SelectMediaFile/Index";
+import SelectMediaFilePlayButton from "../../../Modals/SelectMediaFile/Activators/PlayButton";
 import CircleIcon from "../../../assets/Icons/Circle";
 
 import "./Banner.scss";

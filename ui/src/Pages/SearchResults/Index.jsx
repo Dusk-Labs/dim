@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
 import { search } from "../../actions/search.js";
-import PropCardList from "./PropCardList.jsx";
+import PropCardList from "./PropCardList";
 
 function SearchResults() {
   const dispatch = useDispatch();

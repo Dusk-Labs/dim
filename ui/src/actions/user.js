@@ -11,7 +11,7 @@ import {
   CHANGE_AVATAR_START,
   CHANGE_AVATAR_ERR,
   CHANGE_AVATAR_OK
-} from "./types.js";
+} from "./types";
 
 export const fetchUser = () => async (dispatch, getState) => {
   const token = getState().auth.token;

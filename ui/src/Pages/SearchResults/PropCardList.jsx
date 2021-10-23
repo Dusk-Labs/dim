@@ -1,5 +1,5 @@
 import Card from "../../Components/Card/Index";
-import GhostCards from "./Ghost.jsx";
+import GhostCards from "./Ghost";
 
 function PropCardList(props) {
   let card_list;
