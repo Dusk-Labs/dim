@@ -32,7 +32,12 @@ pub mod filters {
             .and(warp::path::tail())
             .and(auth::with_auth())
             .and_then(|tail: warp::path::Tail, user: Auth| async move {
-                super::get_directory_structure(tail.as_str().into(), user)
+                let decoded_path = percent_encoding::percent_decode(tail.as_str().as_bytes())
+                    .decode_utf8()
+                    .unwrap()
+                    .to_string();
+
+                super::get_directory_structure(decoded_path.into(), user)
                     .await
                     .map_err(|e| reject::custom(e))
             })
