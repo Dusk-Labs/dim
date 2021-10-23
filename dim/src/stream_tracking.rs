@@ -36,7 +36,7 @@ impl std::fmt::Display for ContentType {
 pub struct VirtualManifest {
     pub content_type: ContentType,
     pub id: String,
-    pub set_id: NonZeroU64,
+    pub set_id: usize,
     pub is_direct: bool,
     pub mime: String,
     pub codecs: String,
@@ -52,6 +52,88 @@ pub struct VirtualManifest {
 }
 
 impl VirtualManifest {
+    pub fn new(
+        id: String,
+        chunk_path: String,
+        init_seg: Option<String>,
+        content_type: ContentType,
+    ) -> Self {
+        Self {
+            id,
+            chunk_path,
+            init_seg,
+            content_type,
+            set_id: 0,
+            is_direct: false,
+            is_default: false,
+            mime: String::new(),
+            codecs: String::new(),
+            bandwidth: 0,
+            args: Default::default(),
+            duration: None,
+            label: String::new(),
+            lang: None,
+        }
+    }
+
+    pub fn set_direct(mut self) -> Self {
+        self.is_direct = true;
+        self
+    }
+
+    pub fn set_content_type(mut self, content_type: ContentType) -> Self {
+        self.content_type = content_type;
+        self
+    }
+
+    pub fn set_mime(mut self, mime: impl Into<String>) -> Self {
+        self.mime = mime.into();
+        self
+    }
+
+    pub fn set_codecs(mut self, codecs: impl Into<String>) -> Self {
+        self.codecs = codecs.into();
+        self
+    }
+
+    pub fn set_bandwidth(mut self, bandwidth: u64) -> Self {
+        self.bandwidth = bandwidth;
+        self
+    }
+
+    pub fn set_duration(mut self, duration: Option<i32>) -> Self {
+        self.duration = duration;
+        self
+    }
+
+    pub fn set_args(mut self, args: impl IntoIterator<Item = (impl ToString, impl ToString)>) -> Self {
+        for (k, v) in args.into_iter() {
+            self.args.insert(k.to_string(), v.to_string());
+        }
+
+        self
+    }
+
+    pub fn set_is_default(mut self, is_default: bool) -> Self {
+        self.is_default = is_default;
+        self
+    }
+
+    pub fn set_label(mut self, label: String) -> Self {
+        self.label = label;
+        self
+    }
+
+    pub fn set_lang(mut self, lang: Option<String>) -> Self {
+        self.lang = lang;
+        self
+    }
+
+    pub fn set_sid(mut self, id: usize) -> Self {
+        self.set_id = id;
+        self
+    }
+
     pub fn compile(&self, w: &mut XmlWriter, start_num: u64) {
         match self.content_type {
             ContentType::Subtitle => self.compile_sub(w),
@@ -194,6 +276,18 @@ impl StreamTracking {
         lock.get(gid).cloned().unwrap_or_default()
     }
 
+    pub async fn generate_sids(&self, gid: &Uuid) -> Option<()> {
+        let mut lock = self.streaming_sessions.write().await;
+        let manifests = lock.get_mut(gid)?;
+
+        let sids = 0..manifests.len();
+        for (track, sid) in manifests.iter_mut().zip(sids) {
+            track.set_id = sid;
+        }
+
+        Some(())
+    }
+
     pub async fn compile(&self, gid: &Uuid, start_num: u64) -> Option<String> {
         let lock = self.streaming_sessions.read().await;
         let manifests = lock.get(gid)?;
@@ -219,19 +313,7 @@ impl StreamTracking {
         w.end_element();
 
         for track in manifests {
-            if matches!(track.content_type, ContentType::Video) {
-                track.compile(&mut w, start_num);
-            }
-        }
-
-        // write the audio and subtitle tracks.
-        for track in manifests {
-            if matches!(
-                track.content_type,
-                ContentType::Audio | ContentType::Subtitle
-            ) {
-                track.compile(&mut w, start_num);
-            }
+            track.compile(&mut w, start_num);
         }
 
         Some(w.end_document())
