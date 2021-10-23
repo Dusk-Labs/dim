@@ -54,6 +54,7 @@ anitomy = "0.1.2"
 warp = { version = "0.3.1", features = ["tls", "tokio-rustls"] }
 http = "^0.2.3"
 structopt = "0.3.21"
+tap = "1.0.1"
 toml = "0.5.8"
 sqlx = "=0.5.5"
 

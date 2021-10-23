@@ -9,8 +9,8 @@ use xtra::spawn::Tokio;
 
 use dim::build_logger;
 use dim::core;
-use dim::routes::settings::GlobalSettings;
 use dim::streaming;
+use tap::prelude::*;
 
 use structopt::StructOpt;
 
@@ -25,7 +25,7 @@ struct Args {
 
 fn main() {
     let args = Args::from_args();
-    let _ = create_dir_all(dim::utils::ffpath("config"));
+    create_dir_all(dim::utils::ffpath("config")).expect("cannot create missing config dir.");
 
     let config_path = args
         .config
@@ -38,21 +38,15 @@ fn main() {
     let global_settings = dim::get_global_settings();
 
     // never panics because we set a default value to metadata_dir
-    let _ = create_dir_all(global_settings.metadata_dir.clone());
+    create_dir_all(&global_settings.metadata_dir).expect("cannot create missing metadata dir.");
 
-    // set our jwt secret key
-    let settings_clone = global_settings.clone();
-    let secret_key = global_settings.secret_key.unwrap_or_else(move || {
-        let secret_key = auth::generate_key();
-        dim::set_global_settings(GlobalSettings {
-            secret_key: Some(secret_key),
-            ..settings_clone
-        })
-        .expect("Failed to save JWT secret_key.");
-        secret_key
+    // Generate a jwt secret key if it is not already set.
+    let global_settings = global_settings.tap_mut(|s| {
+        if s.secret_key.is_none() {
+            s.secret_key = Some(auth::generate_key());
+        }
     });
-
-    auth::set_jwt_key(secret_key);
+    auth::set_jwt_key(global_settings.secret_key.unwrap());
 
     core::METADATA_PATH
         .set(global_settings.metadata_dir.clone())
