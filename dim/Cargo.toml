@@ -38,7 +38,7 @@ slog-async = "2.5.0"
 chrono = "0.4.11"
 err-derive = "^0.3.0"
 rust-embed = "^5.9.0"
-torrent-name-parser = "0.6.0"
+torrent-name-parser = "0.6.1"
 reqwest = { version = "0.11.0", features = ["json", "default-tls"], default-features = false }
 notify = "4.0.15"
 cfg-if = "1.0.0"
