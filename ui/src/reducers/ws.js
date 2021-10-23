@@ -3,7 +3,7 @@ import {
   WS_CONNECTED,
   WS_CONNECT_ERR,
   WS_SHOW_RECONNECT
-} from "../actions/types.js";
+} from "../actions/types";
 
 const initialState = {
   conn: null,

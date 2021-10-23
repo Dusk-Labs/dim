@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 
-import ProfileImage from "./Image.jsx";
+import ProfileImage from "./Image";
 import CircleIcon from "../../../assets/Icons/Circle";
 
 import "./Index.scss";

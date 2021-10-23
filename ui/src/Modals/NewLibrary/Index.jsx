@@ -3,9 +3,9 @@ import Modal from "react-modal";
 import { useDispatch } from "react-redux";
 
 import { newLibrary } from "../../actions/library.js";
-import MediaTypeSelection from "./MediaTypeSelection.jsx";
-import DirSelection from "./DirSelection.jsx";
-import Field from "../../Pages/Auth/Field.jsx";
+import MediaTypeSelection from "./MediaTypeSelection";
+import DirSelection from "./DirSelection";
+import Field from "../../Pages/Auth/Field";
 import Button from "../../Components/Misc/Button";
 
 import "./Index.scss";

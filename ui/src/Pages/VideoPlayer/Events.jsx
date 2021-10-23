@@ -135,7 +135,7 @@ function VideoEvents() {
 
     const tracks = e.mediaType === "video" ? video.tracks.video.list : video.tracks.audio.list;
 
-    // here we gotta basically do the opposite of what we do in Settings.jsx
+    // here we gotta basically do the opposite of what we do in Settings
     const newTrack = player.getBitrateInfoListFor(e.mediaType)[e.newQuality];
     const realTrack = tracks.filter(track => track.bandwidth === newTrack.bitrate && parseInt(track.height) === newTrack.height)[0];
 

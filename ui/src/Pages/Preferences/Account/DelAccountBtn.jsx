@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import InputConfirmationBox from "../../../Modals/InputConfirmationBox.jsx";
+import InputConfirmationBox from "../../../Modals/InputConfirmationBox";
 import { delAccount, logout } from "../../../actions/auth.js";
 import Button from "../../../Components/Misc/Button";
 
