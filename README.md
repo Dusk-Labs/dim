@@ -43,7 +43,9 @@ Dim is a self-hosted media manager. With minimal setup, Dim will organize and be
   You can then clone the repository and build dim with the following commands:
   1. `git clone https://github.com/Dusk-Labs/dim`
   2. `yarn --cwd ui/ && yarn --cwd ui/ build`
-  3. `cargo run --release`
+  3. `cargo sqlx database create`
+  4. `(cd database; cargo sqlx migrate run -D sqlite:../dim_dev.db)`
+  5. `cargo run --release`
 
 ## License
 Dim is licensed under the GPLv2 license ([LICENSE.md](LICENSE.md) or http://opensource.org/licenses/GPL-2.0)
