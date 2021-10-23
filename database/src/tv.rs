@@ -56,7 +56,14 @@ impl TVShow {
         conn: &crate::DbConnection,
         id: i64,
     ) -> Result<i64, DatabaseError> {
-        Ok(sqlx::query!(
+        #[derive(sqlx::FromRow)]
+        struct Row {
+            total: i64,
+        }
+
+        // FIXME: The sqlx proc macro crashes on this query with the message: "no entry found for
+        // key"
+        Ok(sqlx::query_as::<_, Row>(
             r#"SELECT COALESCE(SUM(mediafile.duration), 0) as "total: i64"
             FROM tv_show
             INNER JOIN season on season.tvshowid = tv_show.id
@@ -65,12 +72,11 @@ impl TVShow {
             WHERE tv_show.id = ?
             GROUP BY episode.id
             "#,
-            id
         )
+        .bind(id)
         .fetch_one(conn)
         .await?
-        .total
-        .unwrap_or(0))
+        .total)
     }
 
     /// Returns total number of episodes for a tv show.
@@ -78,13 +84,19 @@ impl TVShow {
         conn: &crate::DbConnection,
         id: i64,
     ) -> Result<i64, DatabaseError> {
-        Ok(sqlx::query!(
+        #[derive(sqlx::FromRow)]
+        struct Row {
+            total: i64,
+        }
+
+        // FIXME: See `get_total_duration`
+        Ok(sqlx::query_as::<_, Row>(
             r#"SELECT COALESCE(COUNT(episode.id), 0) as "total: i64" FROM tv_show
             INNER JOIN season on season.tvshowid = tv_show.id
             INNER JOIN episode on episode.seasonid = season.id
             WHERE tv_show.id = ?"#,
-            id
         )
+        .bind(id)
         .fetch_one(conn)
         .await?
         .total)
