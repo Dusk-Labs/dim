@@ -137,7 +137,7 @@ impl MetadataExtractor {
         let metadata = match spawn_blocking(meta_from_string).await {
             Ok(x) => x?,
             Err(e) => {
-                error!(self.logger, "Metadata::from possibly panic'd"; "e" => e.to_string());
+                error!(self.logger, "Metadata::from possibly panic'd"; "e" => format!("{:?}", e));
                 return Err(ScannerError::UnknownError);
             }
         };
