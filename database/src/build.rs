@@ -1,17 +1,22 @@
-use anyhow::*;
 use std::env;
 use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
+use std::error::Error;
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    dotenv::dotenv().context("loading .env")?;
+async fn main() -> Result<(), Box<dyn Error>> {
+    // The env vars are not necessarily provided by a .env file, so ignore err.
+    dotenv::dotenv().ok();
 
-    let manifest_dir =
-        PathBuf::from(env::var("CARGO_MANIFEST_DIR").context("CARGO_MANIFEST_DIR is not set")?);
-
-    let mut db_file = env::var("DATABASE_URL").context("DATABASE_URL is not set")?;
+    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").map_err(|e| {
+        println!("cargo:error=CARGO_MANIFEST_DIR is not set");
+        e
+    })?);
+    let mut db_file = env::var("DATABASE_URL").map_err(|e| {
+        println!("cargo:error=DATABASE_URL is not set");
+        e
+    })?;
     if db_file.starts_with("sqlite://") {
         db_file = db_file.split_off(9);
     }
@@ -33,10 +38,10 @@ async fn main() -> anyhow::Result<()> {
             )
             .await?;
 
-        if let Err(e) = sqlx::migrate!().run(&pool).await {
+        sqlx::migrate!().run(&pool).await.map_err(|e| {
             println!("cargo:error=Migration failed: {:?}", e);
-            return Err(anyhow!("cannot perform migration"));
-        }
+            e
+        })?;
         println!(
             "cargo:warning=Built database {}.",
             db_path.to_string_lossy().as_ref()
