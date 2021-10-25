@@ -1,7 +1,7 @@
 import {
   FETCH_MEDIA_INFO_OK,
   FETCH_MEDIA_INFO_ERR
-} from "../../actions/types.js";
+} from "../../actions/types";
 
 const info = {
   data: {},

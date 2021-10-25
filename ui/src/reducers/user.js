@@ -8,7 +8,7 @@ import {
   CHANGE_AVATAR_START,
   CHANGE_AVATAR_OK,
   CHANGE_AVATAR_ERR
-} from "../actions/types.js";
+} from "../actions/types";
 
 const changeUsername = {
   changing: false,

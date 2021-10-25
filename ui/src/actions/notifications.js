@@ -2,7 +2,7 @@ import {
   NOTIFICATIONS_ADD,
   NOTIFICATIONS_REMOVE,
   NOTIFICATIONS_CLEAR
-} from "./types.js";
+} from "./types";
 
 export const notificationsAdd = (props) => async (dispatch) => {
   dispatch({

@@ -8,7 +8,7 @@ import {
   NOTIFICATIONS_ADD,
   UPDATE_USER_SETTINGS,
   UPDATE_GLOBAL_SETTINGS
-} from "./types.js";
+} from "./types";
 
 export const fetchUserSettings = () => async (dispatch, getState) => {
   const token = getState().auth.token;

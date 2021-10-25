@@ -17,7 +17,7 @@ import {
   DEL_ACCOUNT_START,
   DEL_ACCOUNT_OK,
   DEL_ACCOUNT_ERR
-} from "../actions/types.js";
+} from "../actions/types";
 
 const login = {
   logging_in: false,

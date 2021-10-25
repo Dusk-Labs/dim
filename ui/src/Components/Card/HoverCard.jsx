@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 
 import { fetchMediaInfo } from "../../actions/media.js";
 
-import TruncText from "../../Helpers/TruncText.jsx";
+import TruncText from "../../Helpers/TruncText";
 import IMDbLogo from "../../assets/IMDB";
 import CircleIcon from "../../assets/Icons/Circle";
-import SelectMediaFile from "../../Modals/SelectMediaFile/Index.jsx";
-import SelectMediaFilePlayButton from "../../Modals/SelectMediaFile/Activators/PlayButton.jsx";
+import SelectMediaFile from "../../Modals/SelectMediaFile/Index";
+import SelectMediaFilePlayButton from "../../Modals/SelectMediaFile/Activators/PlayButton";
 
 import "./HoverCard.scss";
 

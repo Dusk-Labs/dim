@@ -4,7 +4,7 @@ import {
   FETCH_MEDIA_FILES_OK,
   FETCH_MEDIA_SEASONS_OK,
   FETCH_MEDIA_EPISODES_OK
-} from "./types.js";
+} from "./types";
 
 export const fetchMediaInfo = (id) => async (dispatch, getState) => {
   const token = getState().auth.token;

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import { useDispatch} from "react-redux";
 
+import { useAppDispatch } from "../../hooks/store";
 import { fetchUserSettings } from "../../actions/settings.js";
 import { fetchLibraries } from "../../actions/library.js";
 
@@ -13,7 +13,7 @@ import General from "./General";
 import "./Index.scss";
 
 function Sidebar() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const divContainer = useRef(null);
 
   useEffect(() => {

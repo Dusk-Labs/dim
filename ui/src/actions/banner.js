@@ -2,7 +2,7 @@ import {
   FETCH_BANNERS_START,
   FETCH_BANNERS_OK,
   FETCH_BANNERS_ERR
-} from "./types.js";
+} from "./types";
 
 export const fetchBanners = () => async (dispatch, getState) => {
   const token = getState().auth.token;

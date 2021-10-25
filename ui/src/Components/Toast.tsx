@@ -4,7 +4,12 @@ import { notificationsRemove } from "../actions/notifications";
 
 import "./Toast.scss";
 
-function Toast(props) {
+type ToastProps = {
+  id: number
+  children: React.ReactNode
+}
+
+function Toast(props: ToastProps) {
   const dispatch = useDispatch();
 
   const dismiss = useCallback(() => {

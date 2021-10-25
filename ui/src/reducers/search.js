@@ -5,7 +5,7 @@ import {
   SEARCH_START,
   SEARCH_OK,
   SEARCH_ERR
-} from "../actions/types.js";
+} from "../actions/types";
 
 const search = {
   items: [],

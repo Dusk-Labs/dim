@@ -4,7 +4,7 @@ import { useLocation } from "react-router";
 
 import { fetchCards } from "../../../actions/card.js";
 import Card from "../../../Components/Card/Index";
-import GhostCards from "./Ghost.jsx";
+import GhostCards from "./Ghost";
 
 import "./Index.scss";
 

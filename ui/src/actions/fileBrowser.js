@@ -2,7 +2,7 @@ import {
   FETCH_DIRECTORIES_START,
   FETCH_DIRECTORIES_OK,
   FETCH_DIRECTORIES_ERR
-} from "./types.js";
+} from "./types";
 
 export const fetchDirectories = (path) => async (dispatch, getState) => {
   const token = getState().auth.token;

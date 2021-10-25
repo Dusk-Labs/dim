@@ -7,7 +7,7 @@ import {
   FETCH_GLOBAL_SETTINGS_ERR,
   UPDATE_GLOBAL_SETTINGS,
   UPDATE_USER_SETTINGS
-} from "../actions/types.js";
+} from "../actions/types";
 
 const globalSettings = {
   fetching: false,
