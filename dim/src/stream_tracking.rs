@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::num::NonZeroU64;
 use std::sync::Arc;
 
 use crate::core::StateManager;
@@ -49,6 +48,7 @@ pub struct VirtualManifest {
     pub is_default: bool,
     pub label: String,
     pub lang: Option<String>,
+    pub target_duration: u32,
 }
 
 impl VirtualManifest {
@@ -73,6 +73,7 @@ impl VirtualManifest {
             duration: None,
             label: String::new(),
             lang: None,
+            target_duration: 5,
         }
     }
 
@@ -134,6 +135,11 @@ impl VirtualManifest {
         self
     }
 
+    pub fn set_target_duration(mut self, duration: u32) -> Self {
+        self.target_duration = duration;
+        self
+    }
+
     pub fn compile(&self, w: &mut XmlWriter, start_num: u64) {
         match self.content_type {
             ContentType::Subtitle => self.compile_sub(w),
@@ -189,8 +195,8 @@ impl VirtualManifest {
 
         // write segment template
         w.start_element("SegmentTemplate");
-        w.write_attribute("timescale", &1000);
-        w.write_attribute("duration", &5000);
+        w.write_attribute("timescale", &1);
+        w.write_attribute("duration", &self.target_duration);
         w.write_attribute("initialization", &init);
         w.write_attribute("media", &chunk_path);
         w.write_attribute("startNumber", &start_num);

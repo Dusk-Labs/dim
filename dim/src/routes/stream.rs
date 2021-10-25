@@ -21,9 +21,7 @@ use database::user::UserSettings;
 use nightfall::error::NightfallError;
 use nightfall::profiles::*;
 
-use std::collections::HashMap;
 use std::future::Future;
-use std::num::NonZeroU64;
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -350,6 +348,7 @@ pub async fn try_create_dstream(
         output_ctx: OutputCtx {
             codec: "h264".into(),
             start_num: 0,
+            target_gop: 10,
             ..Default::default()
         },
         ..Default::default()
@@ -412,6 +411,7 @@ pub async fn try_create_dstream(
             .set_bandwidth(bitrate)
             .set_args([("height", video_stream.height.clone().unwrap())])
             .set_is_default(!should_stream_default)
+            .set_target_duration(10)
             .set_label(label);
 
         stream_tracking
