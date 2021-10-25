@@ -107,6 +107,7 @@ function VideoPlayer() {
         logLevel: Debug.LOG_LEVEL_DEBUG
       },
       streaming: {
+        /*
         stableBufferTime: 20,
         bufferToKeep: 10,
         bufferTimeAtTopQuality: 20,
@@ -114,11 +115,8 @@ function VideoPlayer() {
         useAppendWindow: true,
         bufferPruningInterval: 10,
         smallGapLimit: 1000,
+        */
         abr: {
-          initialBitrate: {
-            audio: -1,
-            video: -1
-          },
           autoSwitchBitrate: {
             video: false
           }
