@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 
 import { fetchMediaInfo } from "../../actions/media.js";
 
-import TruncText from "../../Helpers/TruncText.jsx";
+import TruncText from "../../Helpers/TruncText";
 import IMDbLogo from "../../assets/IMDB";
 import CircleIcon from "../../assets/Icons/Circle";
-import SelectMediaFile from "../../Modals/SelectMediaFile/Index.jsx";
-import SelectMediaFilePlayButton from "../../Modals/SelectMediaFile/Activators/PlayButton.jsx";
+import SelectMediaFile from "../../Modals/SelectMediaFile/Index";
+import SelectMediaFilePlayButton from "../../Modals/SelectMediaFile/Activators/PlayButton";
 
 import "./HoverCard.scss";
 
@@ -64,7 +64,7 @@ function HoverCard(props) {
 
   // FETCH_MEDIA_INFO_OK
   if (fetched && !error) {
-    const { duration, genres, rating, description, year, progress, season, episode } = data;
+    const { duration, genres, rating, description, year, progress, season, episode, play_btn_id } = data;
 
     const length = {
       hh: ("0" + Math.floor(duration / 3600)).slice(-2),
@@ -126,7 +126,7 @@ function HoverCard(props) {
               <p>{length.hh}:{length.mm}:{length.ss}</p>
               <p>HH MM SS</p>
             </div>
-            <SelectMediaFile title={name} mediaID={id}>
+            <SelectMediaFile title={name} mediaID={play_btn_id || id}>
               <SelectMediaFilePlayButton progress={progress} seasonep={{season, episode}}/>
             </SelectMediaFile>
           </section>

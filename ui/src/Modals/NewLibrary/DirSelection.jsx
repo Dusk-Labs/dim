@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchDirectories } from "../../actions/fileBrowser.js";
 import FolderIcon from "../../assets/Icons/Folder";
 import ArrowLeftIcon from "../../assets/Icons/ArrowLeft";
-import CheckIcon from "../../assets/Icons/Check.jsx";
+import CheckIcon from "../../assets/Icons/Check";
 import Button from "../../Components/Misc/Button";
 
 import "./DirSelection.scss";

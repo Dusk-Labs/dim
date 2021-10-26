@@ -17,7 +17,7 @@ import {
   FETCH_LIBRARY_UNMATCHED_START,
   FETCH_LIBRARY_UNMATCHED_ERR,
   FETCH_LIBRARY_UNMATCHED_OK
-} from "./types.js";
+} from "./types";
 
 export const fetchLibraries = () => async (dispatch, getState) => {
   const token = getState().auth.token;

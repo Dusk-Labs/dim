@@ -7,7 +7,7 @@ import {
   UPDATE_VIDEO,
   CLEAR_VIDEO_DATA,
   SET_SHOW_SETTINGS
-} from "./types.js";
+} from "./types";
 
 export const setGID = (gid) => async (dispatch) => {
   dispatch({

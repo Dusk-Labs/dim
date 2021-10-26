@@ -2,7 +2,7 @@ import {
   FETCH_BANNERS_START,
   FETCH_BANNERS_OK,
   FETCH_BANNERS_ERR
-} from "../actions/types.js";
+} from "../actions/types";
 
 const initialState = {
   items: [],

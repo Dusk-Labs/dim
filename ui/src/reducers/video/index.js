@@ -7,7 +7,7 @@ import {
   UPDATE_VIDEO,
   CLEAR_VIDEO_DATA,
   SET_SHOW_SETTINGS
-} from "../../actions/types.js";
+} from "../../actions/types";
 
 import trackReducer from "./track";
 

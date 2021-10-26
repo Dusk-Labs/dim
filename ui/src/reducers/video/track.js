@@ -1,7 +1,7 @@
 import {
   SET_TRACKS,
   UPDATE_TRACK
-} from "../../actions/types.js";
+} from "../../actions/types";
 
 export default function trackReducer(state, action) {
   switch(action.type) {

@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import "./Toggle.scss";
 
-function Toggle(props) {
+type ToggleProps = {
+  name: string
+  desc: string
+  state?: boolean
+  disabled?: boolean
+  onToggle?: (...args: any) => any
+}
+
+function Toggle(props: ToggleProps) {
   const [active, setActive] = useState(false);
 
   useEffect(() => {

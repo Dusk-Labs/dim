@@ -4,7 +4,7 @@
     "react-app/jest"
   ],
   "overrides": [{
-    "files": ["**/*.js?(x)"],
+    "files": ["**/*.+(js|ts)?(x)"],
     "rules": {
       "indent": ["error", 2, {"SwitchCase": 1}],
       "no-trailing-spaces": "error",

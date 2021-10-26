@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-import UnmatchedCard from "./UnmatchedMedia/Index.jsx";
-import Cards from "./Cards.jsx";
+import UnmatchedCard from "./UnmatchedMedia/Index";
+import Cards from "./Cards";
 import { LibraryContext } from "./Context";
 
 import "./Index.scss";

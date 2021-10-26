@@ -4,8 +4,8 @@ import {
   FETCH_MEDIA_FILES_OK,
   FETCH_MEDIA_SEASONS_OK,
   FETCH_MEDIA_EPISODES_OK
-} from "../../actions/types.js";
-import mediaInfoReducer from "./infoReducer.js";
+} from "../../actions/types";
+import mediaInfoReducer from "./infoReducer";
 
 const files = {
   items: [],

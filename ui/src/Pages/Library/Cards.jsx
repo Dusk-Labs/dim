@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 
 import Card from "../../Components/Card/Index";
-import Dropdown from "./Dropdown.jsx";
+import Dropdown from "./Dropdown";
 import { LibraryContext } from "./Context";
 
 import "./Cards.scss";

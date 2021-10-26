@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchMediaSeasons } from "../../actions/media.js";
 
-import CardImage from "./CardImage.jsx";
-import MediaEpisodes from "./Episodes.jsx";
+import CardImage from "./CardImage";
+import MediaEpisodes from "./Episodes";
 
 import "./Seasons.scss";
 
