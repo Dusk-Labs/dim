@@ -49,7 +49,7 @@ const AccountActions = (props) => {
             <h3>{"Preferences"}</h3>
           </NavLink>
           <div className="separator"/>
-          <LogoutBtn className="button"/>
+          <LogoutBtn/>
         </div>
       </Modal>
     </div>
