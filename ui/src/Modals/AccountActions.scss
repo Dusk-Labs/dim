@@ -50,7 +50,6 @@
       border-radius: 10px;
       outline: none;
       background: transparent;
-      // background: var(--accentColor);
       color: var(--tertiaryTextColor);
 
       &:focus,
@@ -71,49 +70,3 @@
   }
 }
 
-// .modalAccountActions {
-//   display: flex;
-//   width: 100%;
-//   color: var(--primaryTextColor);
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: flex-start;
-//   // grid-template-rows: repeat(1fr, 2);
-//   padding: 20px;
-//
-//   .separator {
-//     margin-top: .5em;
-//   }
-//
-//   .item {
-//     display: flex;
-//     justify-content: flex-start;
-//     padding: 1em;
-//     gap: .5em;
-//     align-items: center;
-//
-//     h3 {
-//       font-family: "Roboto Condensed Regular", Arial;
-//       margin-left: .5em;
-//     }
-//   }
-//
-//   button {
-//     font-size: 1.2em;
-//     filter: saturate(0.7);
-//     transition: filter 0.3s ease-in-out;
-//     font-family: "Roboto Regular";
-//     padding: .5em;
-//     border-radius: 10px;
-//     outline: none;
-//     background: transparent;
-//     // background: var(--accentColor);
-//     color: var(--tertiaryTextColor);
-//
-//     &:focus,
-//     &:hover {
-//       filter: saturate(1);
-//     }
-//   }
-// }
-//
