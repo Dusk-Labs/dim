@@ -1,0 +1,136 @@
+@keyframes blink {
+  0% {
+    outline: solid 1px transparent;
+  }
+  100% {
+    outline: solid 2px var(--accentColor);
+  }
+}
+
+.quickLinksDropdown {
+  position: relative;
+
+  .username {
+    display: grid;
+    grid-template-columns: [padding] 1fr [username] 3fr [icon] 1fr;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    // username
+    h4 {
+      grid-column: username;
+      font-family: "Roboto Bold", Arial;
+      color: var(--primaryTextColor);
+    }
+
+    .toggle {
+      position: relative;
+      display: flex;
+      transition: background 200ms ease-in-out;
+      transition: transform 300ms ease-in-out;
+      color: var(--primaryTextColor);
+      // background: white;
+      background: var(--tertiaryColor);
+      width: 5px;
+      height: 5px;
+      padding: .5em;
+      border-radius: 10px;
+      cursor: pointer;
+
+      svg {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 1em;
+        height: 1em;
+      }
+
+      &:hover, &:focus {
+        background: var(--secondaryColor);
+      }
+
+      &.visible-true {
+        background: var(--secondaryColor);
+        transform: rotate(180deg);
+      }
+
+      &.grabAttention {
+        outline-offset: 2px;
+        animation: blink 500ms 5 ease-in-out forwards alternate;
+      }
+
+      div {
+        transition: transform .1s ease-in-out;
+
+        &:not(:first-child) {
+          margin-left: 5px;
+        }
+      }
+    }
+  }
+
+  .dropDownContent {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    background: var(--secondaryColor);
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: 1.4em;
+    white-space: nowrap;
+    z-index: 1;
+    border-radius: 10px;
+    pointer-events: none;
+    opacity: 0;
+    overflow: hidden;
+    transition: opacity 150ms ease-in-out;
+    box-shadow: -2px 2px 4px #1a1a1a;
+
+    &.visible-true {
+      pointer-events: unset;
+      opacity: 1;
+      z-index: 2;
+    }
+
+    &.deleting-true {
+      cursor: not-allowed;
+      opacity: .5;
+    }
+
+    .action {
+      display: flex;
+      background: blue;
+    }
+
+    button {
+      display: flex;
+      gap: 2em;
+      justify-content: space-between;
+      font-family: "Roboto Bold", Arial;
+      color: var(--primaryTextColor);
+      background: var(--secondaryColor);
+      display: flex;
+      align-items: center;
+      padding: 1em;
+      width: 100%;
+
+      &:hover {
+        background: var(--tertiaryColor);
+      }
+
+      &.delete {
+        background: var(--criticalLighterColor);
+
+        &:hover {
+          background: var(--criticalColor);
+        }
+      }
+
+      &.rename, &.create {
+        cursor: not-allowed;
+      }
+    }
+  }
+}

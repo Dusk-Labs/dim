@@ -49,7 +49,7 @@
     &.libraries {
       margin: 2em 0;
 
-      &:hover .openNewLibrary, .openAccountActions {
+      &:hover .openNewLibrary {
         opacity: 1;
       }
     }
@@ -80,25 +80,6 @@
     transition-property: background, opacity;
 
     &:hover, &:focus {
-      background: var(--quinaryColor);
-    }
-
-    &:focus {
-      opacity: 1;
-    }
-  }
-
-  .openAccountActions {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: "Roboto Regular", Arial;
-    background: var(--tertiaryColor);
-    color: var(--primaryTextColor);
-    transition: .2s ease-in-out;
-    transition-property: background, opacity;
-
-    &:focus {
       background: var(--quinaryColor);
     }
 
