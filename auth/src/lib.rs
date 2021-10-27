@@ -91,6 +91,10 @@ impl UserRolesToken {
         self.user.clone()
     }
 
+    pub fn get_user_ref(&self) -> &str {
+        &self.user
+    }
+
     /// Method returns the id of this token
     pub fn get_id(&self) -> u128 {
         self.id

@@ -6,6 +6,7 @@ use crate::errors;
 use crate::stream_tracking::ContentType;
 use crate::stream_tracking::StreamTracking;
 use crate::stream_tracking::VirtualManifest;
+use crate::streaming::ffprobe::FFPWrapper;
 use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::get_avc1_tag;
 use crate::streaming::get_qualities;
@@ -13,13 +14,14 @@ use crate::streaming::level_to_tag;
 use crate::utils::quality_to_label;
 
 use database::mediafile::MediaFile;
+use database::user::DefaultVideoQuality;
+use database::user::User;
+use database::user::UserSettings;
 
 use nightfall::error::NightfallError;
 use nightfall::profiles::*;
 
-use std::collections::HashMap;
 use std::future::Future;
-use std::num::NonZeroU64;
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -272,7 +274,7 @@ pub mod filters {
 pub async fn return_virtual_manifest(
     state: StateManager,
     stream_tracking: StreamTracking,
-    _auth: Auth,
+    auth: Auth,
     conn: DbConnection,
     log: slog::Logger,
     id: i64,
@@ -284,6 +286,11 @@ pub async fn return_virtual_manifest(
             "gid": gid.to_hyphenated().to_string(),
         })));
     }
+
+    let user_prefs = User::get(&conn, auth.0.claims.get_user_ref())
+        .await
+        .map(|x| x.prefs)
+        .unwrap_or_default();
 
     let gid = uuid::Uuid::new_v4();
 
@@ -307,6 +314,48 @@ pub async fn return_virtual_manifest(
 
     ms.truncate(4);
 
+    let should_stream_default = try_create_dstream(
+        &log,
+        &info,
+        &media,
+        &stream_tracking,
+        &gid,
+        &state,
+        &user_prefs,
+    )
+    .await?;
+
+    create_video(
+        &log,
+        &info,
+        &media,
+        &stream_tracking,
+        &gid,
+        &state,
+        &user_prefs,
+        should_stream_default,
+    )
+    .await?;
+    create_audio(&log, &info, &media, &stream_tracking, &gid, &state).await?;
+    create_subtitles(&log, &info, &media, &stream_tracking, &gid, &state).await?;
+
+    stream_tracking.generate_sids(&gid).await;
+
+    Ok(reply::json(&json!({
+        "tracks": stream_tracking.get_for_gid(&gid).await,
+        "gid": gid.to_hyphenated().to_string(),
+    })))
+}
+
+pub async fn try_create_dstream(
+    log: &slog::Logger,
+    info: &FFPWrapper,
+    media: &MediaFile,
+    stream_tracking: &StreamTracking,
+    gid: &Uuid,
+    state: &StateManager,
+    prefs: &UserSettings,
+) -> Result<bool, errors::StreamingErrors> {
     let video_stream = info
         .get_primary("video")
         .cloned()
@@ -318,81 +367,90 @@ pub async fn return_virtual_manifest(
         output_ctx: OutputCtx {
             codec: "h264".into(),
             start_num: 0,
+            target_gop: 10,
             ..Default::default()
         },
         ..Default::default()
     };
 
-    let profile_chain = get_profile_for(&log, StreamType::Video, &ctx);
-    let video = state.create(profile_chain, ctx).await?;
+    let dp_profile_chain =
+        get_profile_for_with_type(&log, StreamType::Video, ProfileType::Transmux, &ctx);
 
-    // FIXME: Stop hardcoding a fps of 24
-    let video_avc = video_stream
-        .level
-        .and_then(|x| level_to_tag(x))
-        .unwrap_or(get_avc1_tag(
-            video_stream.width.clone().unwrap_or(1920) as u64,
-            video_stream.height.clone().unwrap_or(1080) as u64,
-            video_stream
-                .get_bitrate()
-                .or(info.get_container_bitrate())
-                .expect("Failed to pick bitrate for video stream"),
-            24,
-        ));
+    // Should secondary (transcoded) streams default.
+    let should_stream_default = dp_profile_chain.is_empty()
+        || !matches!(prefs.default_video_quality, DefaultVideoQuality::DirectPlay);
 
-    let bitrate = video_stream
-        .get_bitrate()
-        .or(info.get_container_bitrate())
-        .unwrap_or(10_000_000);
+    if !dp_profile_chain.is_empty() {
+        let video = state.create(dp_profile_chain, ctx).await?;
 
-    let label = {
-        let (ident, bitrate_norm) = if bitrate > 1_000_000 {
-            ("MB", bitrate / 1_000_000)
-        } else {
-            ("KB", bitrate / 1_000)
-        };
-
-        format!(
-            "{}p@{}{} (Native)",
-            video_stream.height.clone().unwrap(),
-            bitrate_norm,
-            ident
-        )
-    };
-
-    let mut set_id = 1;
-
-    stream_tracking
-        .insert(
-            &gid,
-            VirtualManifest {
-                id: video.clone(),
-                is_direct: true,
-                mime: "video/mp4".into(),
-                duration: info.get_duration(),
-                content_type: ContentType::Video,
-                chunk_path: format!("{}/data/$Number$.m4s", video.clone()),
-                init_seg: Some(format!("{}/data/init.mp4", video.clone())),
-                codecs: video_avc.to_string(),
-                bandwidth: video_stream
+        // FIXME: Stop hardcoding a fps of 24
+        let video_avc = video_stream
+            .level
+            .and_then(|x| level_to_tag(x))
+            .unwrap_or(get_avc1_tag(
+                video_stream.width.clone().unwrap_or(1920) as u64,
+                video_stream.height.clone().unwrap_or(1080) as u64,
+                video_stream
                     .get_bitrate()
                     .or(info.get_container_bitrate())
-                    .unwrap_or(10_000_000), // lol rip
-                args: {
-                    let mut x = HashMap::new();
-                    x.insert(
-                        "height".to_string(),
-                        video_stream.height.clone().unwrap().to_string(),
-                    );
-                    x
-                },
-                is_default: true,
-                label,
-                lang: None,
-                set_id: NonZeroU64::new(set_id).unwrap(),
-            },
-        )
-        .await;
+                    .expect("Failed to pick bitrate for video stream"),
+                24,
+            ));
+
+        let bitrate = video_stream
+            .get_bitrate()
+            .or(info.get_container_bitrate())
+            .unwrap_or(10_000_000);
+
+        let label = {
+            let (ident, bitrate_norm) = if bitrate > 1_000_000 {
+                ("MB", bitrate / 1_000_000)
+            } else {
+                ("KB", bitrate / 1_000)
+            };
+
+            format!(
+                "{}p@{}{} (Direct Play)",
+                video_stream.height.clone().unwrap(),
+                bitrate_norm,
+                ident
+            )
+        };
+
+        let chunk_path = format!("{}/data/$Number$.m4s", video.clone());
+        let init_seg = Some(format!("{}/data/init.mp4", video.clone()));
+        let virtual_manifest =
+            VirtualManifest::new(video.clone(), chunk_path, init_seg, ContentType::Video)
+                .set_direct()
+                .set_mime("video/mp4")
+                .set_duration(info.get_duration())
+                .set_codecs(video_avc.to_string())
+                .set_bandwidth(bitrate)
+                .set_args([("height", video_stream.height.clone().unwrap())])
+                .set_is_default(!should_stream_default)
+                .set_target_duration(10)
+                .set_label(label);
+
+        stream_tracking.insert(&gid, virtual_manifest).await;
+    }
+
+    Ok(should_stream_default)
+}
+
+pub async fn create_video(
+    log: &slog::Logger,
+    info: &FFPWrapper,
+    media: &MediaFile,
+    stream_tracking: &StreamTracking,
+    gid: &Uuid,
+    state: &StateManager,
+    prefs: &UserSettings,
+    mut should_stream_default: bool,
+) -> Result<(), errors::StreamingErrors> {
+    let video_stream = info
+        .get_primary("video")
+        .cloned()
+        .ok_or(errors::StreamingErrors::FileIsCorrupt)?;
 
     let qualities = get_qualities(
         video_stream.height.unwrap_or(1080) as u64,
@@ -403,13 +461,19 @@ pub async fn return_virtual_manifest(
     );
 
     for quality in qualities {
+        let bitrate = video_stream
+            .get_bitrate()
+            .or(Some(quality.bitrate))
+            .unwrap()
+            .min(quality.bitrate);
+
         let ctx = ProfileContext {
             file: media.target_file.clone(),
             input_ctx: video_stream.clone().into(),
             output_ctx: OutputCtx {
                 codec: "h264".into(),
                 start_num: 0,
-                bitrate: Some(quality.bitrate),
+                bitrate: Some(bitrate),
                 height: Some(quality.height as i64),
                 ..Default::default()
             },
@@ -436,47 +500,58 @@ pub async fn return_virtual_manifest(
                 24,
             ));
 
-        let label = quality_to_label(quality);
+        let label = quality_to_label(quality, Some(bitrate));
 
-        stream_tracking
-            .insert(
-                &gid,
-                VirtualManifest {
-                    id: video.clone(),
-                    is_direct: false,
-                    mime: "video/mp4".into(),
-                    duration: info.get_duration(),
-                    content_type: ContentType::Video,
-                    chunk_path: format!("{}/data/$Number$.m4s", video.clone()),
-                    init_seg: Some(format!("{}/data/init.mp4", video.clone())),
-                    codecs: video_avc.to_string(),
-                    bandwidth: quality.bitrate,
-                    args: {
-                        let mut x = HashMap::new();
-                        x.insert("height".to_string(), quality.height.to_string());
-                        x
-                    },
-                    is_default: false,
-                    label,
-                    lang: None,
-                    set_id: NonZeroU64::new(set_id).unwrap(),
-                },
-            )
-            .await;
+        // TODO: This code will not work correctly if there are similar resolutions with different
+        // brates.
+        let should_be_default = should_stream_default
+            && matches!(prefs.default_video_quality, DefaultVideoQuality::Resolution(res, brate) if res == quality.height);
+
+        let chunk_path = format!("{}/data/$Number$.m4s", video.clone());
+        let init_seg = Some(format!("{}/data/init.mp4", video.clone()));
+        let virtual_manifest =
+            VirtualManifest::new(video.clone(), chunk_path, init_seg, ContentType::Video)
+                .set_mime("video/mp4")
+                .set_duration(info.get_duration())
+                .set_codecs(video_avc.to_string())
+                .set_bandwidth(bitrate)
+                .set_args([("height", quality.height)])
+                .set_is_default(should_be_default)
+                .set_label(label);
+
+        stream_tracking.insert(&gid, virtual_manifest).await;
+        // we wan to default only the first stream.
+        if should_be_default {
+            should_stream_default = false;
+        }
     }
+    Ok(())
+}
 
-    set_id += 1; // video streams are all wrapped in one adaptationset, so we reuse the same id.
-
+pub async fn create_audio(
+    log: &slog::Logger,
+    info: &FFPWrapper,
+    media: &MediaFile,
+    stream_tracking: &StreamTracking,
+    gid: &Uuid,
+    state: &StateManager,
+) -> Result<(), errors::StreamingErrors> {
     let audio_streams = info.find_by_type("audio");
 
     for stream in audio_streams {
         let is_default = info.get_primary("audio") == Some(stream);
+        let bitrate = stream
+            .bit_rate
+            .as_ref()
+            .and_then(|x| x.parse::<u64>().ok())
+            .unwrap_or(120_000);
         let ctx = ProfileContext {
             file: media.target_file.clone(),
             input_ctx: stream.clone().into(),
             output_ctx: OutputCtx {
                 codec: "aac".into(),
                 start_num: 0,
+                bitrate: Some(bitrate),
                 ..Default::default()
             },
             ..Default::default()
@@ -485,31 +560,38 @@ pub async fn return_virtual_manifest(
         let profile = get_profile_for(&log, StreamType::Audio, &ctx);
         let audio = state.create(profile, ctx).await?;
 
-        stream_tracking
-            .insert(
-                &gid,
-                VirtualManifest {
-                    id: audio.clone(),
-                    is_direct: false,
-                    mime: "audio/mp4".into(),
-                    duration: info.get_duration(),
-                    codecs: "mp4a.40.2".into(),
-                    bandwidth: 120_000,
-                    content_type: ContentType::Audio,
-                    chunk_path: format!("{}/data/$Number$.m4s", audio.clone()),
-                    init_seg: Some(format!("{}/data/init.mp4", audio.clone())),
-                    args: HashMap::new(),
-                    is_default,
-                    label: stream.get_language().unwrap_or_default(),
-                    lang: stream.get_language(),
-                    set_id: NonZeroU64::new(set_id).unwrap(),
-                },
-            )
-            .await;
+        let bitrate_kbps = bitrate / 1000;
+        let label = format!(
+            "{} (aac:2.1ch @ {}kbps)",
+            stream.get_language().unwrap_or_default(),
+            bitrate_kbps
+        );
 
-        set_id += 1;
+        let chunk_path = format!("{}/data/$Number$.m4s", audio.clone());
+        let init_seg = Some(format!("{}/data/init.mp4", audio.clone()));
+        let virtual_manifest =
+            VirtualManifest::new(audio.clone(), chunk_path, init_seg, ContentType::Audio)
+                .set_mime("audio/mp4")
+                .set_codecs("mp4a.40.2")
+                .set_bandwidth(bitrate)
+                .set_is_default(is_default)
+                .set_label(label)
+                .set_lang(stream.get_language());
+
+        stream_tracking.insert(&gid, virtual_manifest).await;
     }
 
+    Ok(())
+}
+
+pub async fn create_subtitles(
+    log: &slog::Logger,
+    info: &FFPWrapper,
+    media: &MediaFile,
+    stream_tracking: &StreamTracking,
+    gid: &Uuid,
+    state: &StateManager,
+) -> Result<(), errors::StreamingErrors> {
     let subtitles = info.find_by_type("subtitle");
 
     for stream in subtitles {
@@ -519,14 +601,6 @@ pub async fn return_virtual_manifest(
             // FIXME: hdmv_pgs_subtitle are not supported yet.
             continue;
         }
-
-        /* FIXME: same as below.
-        let output_codec = if &stream.codec_name == "ass" {
-            "ass"
-        } else {
-            "webvtt"
-        };
-        */
 
         let output_codec = "webvtt";
 
@@ -541,65 +615,38 @@ pub async fn return_virtual_manifest(
             ..Default::default()
         };
 
-        /* FIXME: Atm the frontend doesnt support ASS/SSA subs so we just push vtt subs if
-         * possible.
-        let mime = if &stream.codec_name == "ass" {
-            "text/ass"
-        } else {
-            "text/vtt"
-        };
-
-        let codec = if &stream.codec_name == "ass" {
-            "ass"
-        } else {
-            "vtt"
-        };
-        */
-
         let mime = "text/vtt";
         let codec = "vtt";
 
         let profile_chain = get_profile_for(&log, StreamType::Subtitle, &ctx);
         let subtitle = state.create(profile_chain, ctx).await?;
 
-        stream_tracking
-            .insert(
-                &gid,
-                VirtualManifest {
-                    id: subtitle.clone(),
-                    is_direct: false,
-                    content_type: ContentType::Subtitle,
-                    mime: mime.into(),
-                    codecs: codec.into(), //ignored
-                    bandwidth: 1024,      // ignored
-                    duration: None,
-                    chunk_path: format!("{}/data/stream.vtt", subtitle.clone()),
-                    init_seg: None,
-                    args: {
-                        let mut x = HashMap::new();
-                        if let Some(y) = stream.get_title().or(stream.get_language()) {
-                            let y = y.replace("&", "and"); // dash.js seems to note like when there are `&` within titles.
-                            x.insert("title".to_string(), y);
-                        }
-                        x
-                    },
-                    is_default,
-                    label: stream
+        let chunk_path = format!("{}/data/stream.vtt", subtitle.clone());
+        let virtual_manifest =
+            VirtualManifest::new(subtitle.clone(), chunk_path, None, ContentType::Subtitle)
+                .set_mime(mime)
+                .set_codecs(codec)
+                .set_bandwidth(1024)
+                .set_is_default(is_default)
+                .set_label(
+                    stream
                         .get_title()
                         .or(stream.get_language())
                         .unwrap_or_default(),
-                    lang: stream.get_language(),
-                    set_id: NonZeroU64::new(set_id).unwrap(),
-                },
-            )
-            .await;
-        set_id += 1;
+                )
+                .set_lang(stream.get_language());
+
+        let virtual_manifest = if let Some(title) = stream.get_title().or(stream.get_language()) {
+            let title = title.replace("&", "and"); // dash.js seems to note like when there are `&` within titles.
+            virtual_manifest.set_args([("title".to_string(), title)])
+        } else {
+            virtual_manifest
+        };
+
+        stream_tracking.insert(&gid, virtual_manifest).await;
     }
 
-    Ok(reply::json(&json!({
-        "tracks": stream_tracking.get_for_gid(&gid).await,
-        "gid": gid.to_hyphenated().to_string(),
-    })))
+    Ok(())
 }
 
 /// Method mapped to `/api/v1/stream/<gid>/manifest.mpd` compiles a virtual manifest into a
