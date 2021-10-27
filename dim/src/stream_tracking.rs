@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::num::NonZeroU64;
 use std::sync::Arc;
 
 use crate::core::StateManager;
@@ -18,11 +17,25 @@ pub enum ContentType {
     Subtitle,
 }
 
+impl std::fmt::Display for ContentType {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            fmt,
+            "{}",
+            match *self {
+                ContentType::Audio => "audio",
+                ContentType::Subtitle => "subtitle",
+                ContentType::Video => "video",
+            }
+        )
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct VirtualManifest {
     pub content_type: ContentType,
     pub id: String,
-    pub set_id: NonZeroU64,
+    pub set_id: usize,
     pub is_direct: bool,
     pub mime: String,
     pub codecs: String,
@@ -35,9 +48,101 @@ pub struct VirtualManifest {
     pub is_default: bool,
     pub label: String,
     pub lang: Option<String>,
+    pub target_duration: u32,
 }
 
 impl VirtualManifest {
+    pub fn new(
+        id: String,
+        chunk_path: String,
+        init_seg: Option<String>,
+        content_type: ContentType,
+    ) -> Self {
+        Self {
+            id,
+            chunk_path,
+            init_seg,
+            content_type,
+            set_id: 0,
+            is_direct: false,
+            is_default: false,
+            mime: String::new(),
+            codecs: String::new(),
+            bandwidth: 0,
+            args: Default::default(),
+            duration: None,
+            label: String::new(),
+            lang: None,
+            target_duration: 5,
+        }
+    }
+
+    pub fn set_direct(mut self) -> Self {
+        self.is_direct = true;
+        self
+    }
+
+    pub fn set_content_type(mut self, content_type: ContentType) -> Self {
+        self.content_type = content_type;
+        self
+    }
+
+    pub fn set_mime(mut self, mime: impl Into<String>) -> Self {
+        self.mime = mime.into();
+        self
+    }
+
+    pub fn set_codecs(mut self, codecs: impl Into<String>) -> Self {
+        self.codecs = codecs.into();
+        self
+    }
+
+    pub fn set_bandwidth(mut self, bandwidth: u64) -> Self {
+        self.bandwidth = bandwidth;
+        self
+    }
+
+    pub fn set_duration(mut self, duration: Option<i32>) -> Self {
+        self.duration = duration;
+        self
+    }
+
+    pub fn set_args(
+        mut self,
+        args: impl IntoIterator<Item = (impl ToString, impl ToString)>,
+    ) -> Self {
+        for (k, v) in args.into_iter() {
+            self.args.insert(k.to_string(), v.to_string());
+        }
+
+        self
+    }
+
+    pub fn set_is_default(mut self, is_default: bool) -> Self {
+        self.is_default = is_default;
+        self
+    }
+
+    pub fn set_label(mut self, label: String) -> Self {
+        self.label = label;
+        self
+    }
+
+    pub fn set_lang(mut self, lang: Option<String>) -> Self {
+        self.lang = lang;
+        self
+    }
+
+    pub fn set_sid(mut self, id: usize) -> Self {
+        self.set_id = id;
+        self
+    }
+
+    pub fn set_target_duration(mut self, duration: u32) -> Self {
+        self.target_duration = duration;
+        self
+    }
+
     pub fn compile(&self, w: &mut XmlWriter, start_num: u64) {
         match self.content_type {
             ContentType::Subtitle => self.compile_sub(w),
@@ -46,11 +151,11 @@ impl VirtualManifest {
     }
 
     fn compile_av(&self, w: &mut XmlWriter, start_num: u64) {
-        if matches!(self.content_type, ContentType::Audio) {
+        if matches!(self.content_type, ContentType::Audio | ContentType::Video) {
             // Each audio stream must be in a separate adaptation set otherwise theyre treated as
             // different bitrates of the same track rather than separate tracks.
             w.start_element("AdaptationSet");
-            w.write_attribute("contentType", "audio");
+            w.write_attribute("contentType", &self.content_type.to_string());
             w.write_attribute("id", &self.set_id);
 
             if let Some(lang) = self.lang.as_ref() {
@@ -83,10 +188,18 @@ impl VirtualManifest {
             w.end_element();
         }
 
+        // mark the default video track
+        if matches!(self.content_type, ContentType::Audio | ContentType::Video) && self.is_default {
+            w.start_element("Role");
+            w.write_attribute("schemeIdUri", "urn:mpeg:dash:role:2011");
+            w.write_attribute("value", "main");
+            w.end_element();
+        }
+
         // write segment template
         w.start_element("SegmentTemplate");
-        w.write_attribute("timescale", &1000);
-        w.write_attribute("duration", &5000);
+        w.write_attribute("timescale", &1);
+        w.write_attribute("duration", &self.target_duration);
         w.write_attribute("initialization", &init);
         w.write_attribute("media", &chunk_path);
         w.write_attribute("startNumber", &start_num);
@@ -95,7 +208,7 @@ impl VirtualManifest {
         w.end_element();
         w.end_element();
 
-        if matches!(self.content_type, ContentType::Audio) {
+        if matches!(self.content_type, ContentType::Audio | ContentType::Video) {
             w.end_element(); // close AdapationSet
         }
     }
@@ -172,6 +285,18 @@ impl StreamTracking {
         lock.get(gid).cloned().unwrap_or_default()
     }
 
+    pub async fn generate_sids(&self, gid: &Uuid) -> Option<()> {
+        let mut lock = self.streaming_sessions.write().await;
+        let manifests = lock.get_mut(gid)?;
+
+        let sids = 0..manifests.len();
+        for (track, sid) in manifests.iter_mut().zip(sids) {
+            track.set_id = sid;
+        }
+
+        Some(())
+    }
+
     pub async fn compile(&self, gid: &Uuid, start_num: u64) -> Option<String> {
         let lock = self.streaming_sessions.read().await;
         let manifests = lock.get(gid)?;
@@ -196,26 +321,8 @@ impl StreamTracking {
         w.write_text("/api/v1/stream/");
         w.end_element();
 
-        // write video tracks within the first adaptation set.
-        w.start_element("AdaptationSet");
-        w.write_attribute("contentType", "video");
-        w.write_attribute("id", "0");
-
         for track in manifests {
-            if matches!(track.content_type, ContentType::Video) {
-                track.compile(&mut w, start_num);
-            }
-        }
-        w.end_element();
-
-        // write the audio and subtitle tracks.
-        for track in manifests {
-            if matches!(
-                track.content_type,
-                ContentType::Audio | ContentType::Subtitle
-            ) {
-                track.compile(&mut w, start_num);
-            }
+            track.compile(&mut w, start_num);
         }
 
         Some(w.end_document())
