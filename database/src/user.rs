@@ -83,7 +83,7 @@ impl Default for UserSettings {
             default_audio_language: Some("english".into()),
             external_args: HashMap::new(),
             show_hovercards: true,
-            default_video_quality: DefaultVideoQuality::Resolution(1080, 10_000_000),
+            default_video_quality: DefaultVideoQuality::DirectPlay,
         }
     }
 }
