@@ -419,14 +419,14 @@ macro_rules! json_expect_expr_comma {
 
 use crate::streaming::Quality;
 
-pub fn quality_to_label(quality: &'static Quality) -> String {
-    let bandwidth_ident = if quality.bitrate > 1_000_000 {
+pub fn quality_to_label(quality: &'static Quality, brate: Option<u64>) -> String {
+    let bandwidth_ident = if brate.unwrap_or(quality.bitrate) > 1_000_000 {
         "MB"
     } else {
         "KB"
     };
 
-    let bandwidth_norm = if quality.bitrate > 1_000_000 {
+    let bandwidth_norm = if brate.unwrap_or(quality.bitrate) > 1_000_000 {
         quality.bitrate / 1_000_000
     } else {
         quality.bitrate / 1_000

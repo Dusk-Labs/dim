@@ -9,7 +9,7 @@
     "@types/react": "^17.0.30",
     "@types/react-dom": "^17.0.9",
     "@types/react-redux": "^7.1.19",
-    "dashjs": "^4.1.0",
+    "dashjs": "=4.1.0",
     "http-proxy-middleware": "^2.0.1",
     "libass-wasm": "^4.0.0",
     "node-sass": "^6.0.0",
