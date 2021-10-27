@@ -1,4 +1,4 @@
-.preferencesAccount {
+.preferencesPlayback {
   display: grid;
   gap: 1em;
 
@@ -19,58 +19,5 @@
     background: var(--secondaryColor);
     padding: 1em;
     border-radius: 10px;
-  }
-
-  .fields {
-    display: grid;
-    gap: 1em;
-    border-radius: 10px;
-    width: 100%;
-
-    label {
-      .name {
-        display: flex;
-        align-items: center;
-        color: var(--secondaryTextColor);
-      }
-
-      .horizontal-err {
-        padding: 2px 5px;
-        font-size: .8em;
-        margin-left: 5px;
-        background: #ee4740;
-      }
-
-      svg {
-        fill: var(--secondaryTextColor);
-        font-size: 0.8em;
-      }
-
-      .name > p {
-        margin: 0 5px;
-        font-family: "Roboto Condensed Regular", Arial;
-      }
-
-      input {
-        font-family: "Roboto Regular", Arial;
-        transition: background 0.3s ease-in-out;
-        margin-top: .5em;
-        background: var(--tertiaryColor);
-        outline: none;
-        border: none;
-        border-radius: 5px;
-        padding: 1em;
-        color: var(--primaryTextColor);
-        width: 100%;
-        height: 40px;
-        overflow: hidden;
-        white-space: nowrap;
-
-        &:focus,
-        &:hover {
-          background: var(--quaternaryColor);
-        }
-      }
-    }
   }
 }
