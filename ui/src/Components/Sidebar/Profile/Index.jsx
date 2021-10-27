@@ -1,8 +1,8 @@
 import { useSelector } from "react-redux";
 
 import ProfileImage from "./Image";
+import Username from "./Username";
 import CircleIcon from "../../../assets/Icons/Circle";
-import AccountActions from "../../../Modals/AccountActions";
 
 import "./Index.scss";
 
@@ -12,35 +12,27 @@ function Profile(props) {
   // FETCH_USER_START
   if (user.fetching) {
     return (
-      <AccountActions>
-        <div className="openAccountActions">
-          <div className="profile">
-            <div className="icon loading">
-              <div className="placeholder-icon"/>
-            </div>
-          </div>
+      <div className="profile">
+        <div className="icon loading">
+          <div className="placeholder-icon"/>
         </div>
-      </AccountActions>
+      </div>
     );
   }
 
   // FETCH_USER_ERR
   if (user.fetched && user.error) {
     return (
-      <AccountActions>
-        <div className="openAccountActions">
-          <div className="profile">
-            <div className="icon">
-              <div className="error-icon">
-                <CircleIcon/>
-              </div>
-            </div>
-            <div className="info">
-              <h5>Cannot load data</h5>
-            </div>
+      <div className="profile">
+        <div className="icon">
+          <div className="error-icon">
+            <CircleIcon/>
           </div>
         </div>
-      </AccountActions>
+        <div className="info">
+          <h5>Cannot load data</h5>
+        </div>
+      </div>
     );
   }
 
@@ -49,21 +41,17 @@ function Profile(props) {
     const { username, picture, spentWatching } = user.info;
 
     return (
-      <AccountActions>
-        <div className="openAccountActions">
-          <div className="profile">
-            <div className="icon">
-              <ProfileImage src={picture} />
-            </div>
-            <div className="info">
-              <h4>{username || "eray_chumak"}</h4>
-              {props.hoursSpentWatching &&
-              <h5>Spent {spentWatching || 0}h watching</h5>
-              }
-            </div>
-          </div>
+      <div className="profile">
+        <div className="icon">
+          <ProfileImage src={picture} />
         </div>
-      </AccountActions>
+        <div className="info">
+          <Username username={username || "eray_chumak"}/>
+          {props.hoursSpentWatching &&
+          <h5>Spent {spentWatching || 0}h watching</h5>
+          }
+        </div>
+      </div>
     );
   }
 
