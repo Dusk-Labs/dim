@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateVideo } from "../../../actions/video";
+import { updateVideo, updateTrack } from "../../../actions/video";
 
 import ArrowLeftIcon from "../../../assets/Icons/ArrowLeft";
 import ChevronRightIcon from "../../../assets/Icons/ChevronRight";
@@ -33,18 +33,6 @@ function VideoMenuSettings() {
     setActiveInnerMenu();
   }, [activeInnerMenu]);
 
-  const changeQuality = useCallback((trackType, i) => {
-    const tracks = trackType === "video" ? video.tracks.video.list : video.tracks.audio.list;
-
-    const playerTracks = player.getBitrateInfoListFor(trackType);
-    // dash.js quality ordering is weird so we have to bruteforce search for our desired track.
-    const selectedTrack = playerTracks.filter(track => track.bitrate === tracks[i].bandwidth && track.height === parseInt(tracks[i].height));
-
-    console.log("[video] changed quality to", selectedTrack[0]);
-
-    player.setQualityFor(trackType, selectedTrack[0].qualityIndex);
-  }, [player, video]);
-
   const changeTrack = useCallback((trackType, i) => {
     const tracks = trackType === "video" ? video.tracks.video.list : video.tracks.audio.list;
 
@@ -54,7 +42,11 @@ function VideoMenuSettings() {
     console.log("[video] changed track to", selectedTrack[0]);
 
     player.setCurrentTrack(selectedTrack[0]);
-  }, [player, video]);
+
+    dispatch(updateTrack(trackType, {
+      current: parseInt(i)
+    }));
+  }, [dispatch, player, video]);
 
   useEffect(() => {
     window.addEventListener("click", handleClick);
@@ -80,7 +72,7 @@ function VideoMenuSettings() {
       </div>
       {activeInnerMenu === undefined && (
         <div className="innerMenus">
-          <p onClick={() => setActiveInnerMenu("Video tracks")}>
+          <p onClick={() => setActiveInnerMenu("Video Quality")}>
             Video tracks
             <ChevronRightIcon/>
           </p>
@@ -90,11 +82,11 @@ function VideoMenuSettings() {
           </p>
         </div>
       )}
-      {activeInnerMenu === "Video tracks" && (
+      {activeInnerMenu === "Video Quality" && (
         <div className="innerMenu">
           <div className="tracks">
             {video.tracks.video.list.map((track, i) => (
-              <div key={i} className={`track ${video.tracks.video.current === i ? "active" : ""}`} onClick={() => changeQuality("video", `${i}`)}>
+              <div key={i} className={`track ${video.tracks.video.current === i ? "active" : ""}`} onClick={() => changeTrack("video", `${i}`)}>
                 <p>{track.label}</p>
               </div>
             ))}

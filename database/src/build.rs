@@ -1,8 +1,8 @@
 use std::env;
+use std::error::Error;
 use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
-use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
