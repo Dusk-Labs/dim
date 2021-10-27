@@ -16,7 +16,6 @@ WORKDIR /dim
 COPY . .
 COPY --from=web /ui/build ui/build
 ARG DATABASE_URL="sqlite://dim_dev.db"
-RUN sqlite3 -init database/migrations/*.sql dim_dev.db
 RUN cargo build --release
 
 FROM debian:bullseye AS ffmpeg
