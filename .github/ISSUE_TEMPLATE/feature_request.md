@@ -2,7 +2,7 @@
 name: Feature request
 about: Suggest an idea to help us improve
 title: ''
-labels: T-feature-request
+labels: ["T-feature-request", "S-needs-triage"]
 assignees: ''
 
 ---
