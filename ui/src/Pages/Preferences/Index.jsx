@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchGlobalSettings, fetchUserSettings } from "../../actions/settings.js";
 
 import Account from "./Account/Index";
+import Playback from "./Playback/Index";
 import Profile from "./Profile/Index";
 import Invites from "./Invites/Index";
 import Appearance from "./Appearance/Index";
@@ -40,9 +41,10 @@ function Preferences() {
     const pages = [
       { name: "Account" },
       { name: "Profile" },
+      { name: "Playback" },
       { name: "Invites", show: user.info.roles?.includes("owner") || false },
       { name: "Appearance" },
-      { name: "Advanced" }
+      { name: "Advanced", show: user.info.roles?.includes("owner") || false }
     ];
 
     setSections(pages);
@@ -73,9 +75,10 @@ function Preferences() {
       <div className="content">
         {active === 0 && <Account/>}
         {active === 1 && <Profile/>}
-        {active === 2 && <Invites/>}
-        {active === 3 && <Appearance/>}
-        {active === 4 && <Advanced/>}
+        {active === 2 && <Playback/>}
+        {active === 3 && <Invites/>}
+        {active === 4 && <Appearance/>}
+        {active === 5 && <Advanced/>}
       </div>
     </div>
   );

@@ -1,0 +1,86 @@
+.preferencesPlaybackDefaults {
+  .field > p {
+    font-family: "Roboto Condensed Regular", Arial;
+    color: var(--secondaryTextColor);
+    margin-bottom: .5em;
+  }
+
+  .dropdown {
+    position: relative;
+
+    .toggle {
+      display: flex;
+      transition: background 200ms ease-in-out;
+      background: var(--tertiaryColor);
+      padding: .5em;
+      border-radius: 10px;
+      cursor: pointer;
+
+      &:hover {
+        background: var(--quaternaryColor);
+      }
+
+      &.visible-true {
+        background: var(--quinaryColor);
+      }
+
+      &.grabAttention {
+        outline-offset: 2px;
+        animation: blink 500ms 5 ease-in-out forwards alternate;
+      }
+
+      div {
+        height: 10px;
+        width: 10px;
+        border-radius: 50%;
+        background: var(--primaryTextColor);
+        transition: transform .1s ease-in-out;
+
+        &:not(:first-child) {
+          margin-left: 5px;
+        }
+      }
+    }
+
+    .dropDownContent {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      background: var(--tertiaryColor);
+      position: absolute;
+      top: calc(100% + .5em);
+      left: 0;
+      right: 0;
+      white-space: nowrap;
+      z-index: 1;
+      border-radius: 10px;
+      pointer-events: none;
+      opacity: 0;
+      overflow: hidden;
+      transition: opacity 150ms ease-in-out;
+      box-shadow: -2px 2px 4px #1a1a1a;
+
+      &.visible-true {
+        pointer-events: unset;
+        opacity: 1;
+      }
+
+      button {
+        display: flex;
+        gap: 2em;
+        justify-content: space-between;
+        font-family: "Roboto Bold", Arial;
+        color: var(--primaryTextColor);
+        background: var(--tertiaryColor);
+        display: flex;
+        align-items: center;
+        padding: 1em;
+        width: 100%;
+
+        &:hover {
+          background: var(--quaternaryColor);
+        }
+      }
+    }
+  }
+}

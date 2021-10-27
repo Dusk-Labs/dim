@@ -1,47 +1,61 @@
 FROM node:bullseye AS web
-COPY ui /ui
 WORKDIR /ui
-RUN yarn && yarn build
+COPY ui/package*.json .
+RUN yarn install
+COPY ui .
+RUN yarn run build
 
 FROM rust:bullseye AS dim
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt update -y && apt install -y libva-dev libva-drm2 libva2 sqlite3
-COPY . /dim
+RUN apt-get update && apt-get install -y \
+    libva-dev \
+    libva-drm2 \
+    libva2 \
+    sqlite3
 WORKDIR /dim
-COPY --from=web /ui/build /dim/ui/build
-RUN sqlite3 -init ./database/migrations/*.sql ./dim_dev.db
-RUN DATABASE_URL="sqlite:///dim/dim_dev.db" cargo build --release
+COPY . .
+COPY --from=web /ui/build ui/build
+ARG DATABASE_URL="sqlite://dim_dev.db"
+RUN cargo build --release
 
 FROM debian:bullseye AS ffmpeg
 ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /static
 ARG TARGETARCH
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
-    apt update -y && \
-    apt install -y wget unzip && \
+    apt-get update && \
+    apt-get install -y wget unzip && \
     wget https://nightly.link/Dusk-Labs/ffmpeg-static/workflows/main/master/bins.zip && \
     unzip bins.zip \
     ; fi
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
-    apt update -y && \
-    apt install -y wget tar xz-utils && \
+    apt-get update && \
+    apt-get install -y wget tar xz-utils && \
     wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz && \
     tar --strip-components 1 -xf ffmpeg-release-arm64-static.tar.xz \
     ; fi
 RUN if [ "$TARGETARCH" = "arm" ]; then \
-    apt update -y && \
-    apt install -y wget tar xz-utils && \
+    apt-get update && \
+    apt-get install -y wget tar xz-utils && \
     wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-armhf-static.tar.xz && \
     tar --strip-components 1 -xf ffmpeg-release-armhf-static.tar.xz \
     ; fi
 RUN chmod +x /static/ffmpeg && chmod +x /static/ffprobe
 
 FROM debian:bullseye
-ENV DEBIAN_FRONTEND=noninteractive
-ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-ENV SSL_CERT_DIR=/etc/ssl/certs
 ENV RUST_BACKTRACE=full
-RUN apt update -y && apt install -y ca-certificates libva2 libva-drm2 libharfbuzz0b libfontconfig libfribidi0 libtheora0 libvorbis0a libvorbisenc2
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    libfontconfig \
+    libfribidi0 \
+    libharfbuzz0b \
+    libtheora0 \
+    libva-drm2 \
+    libva2 \
+    libvorbis0a \
+    libvorbisenc2 \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=dim /dim/target/release/dim /opt/dim/dim
 COPY --from=ffmpeg /static/ffmpeg /opt/dim/utils/ffmpeg
 COPY --from=ffmpeg /static/ffprobe /opt/dim/utils/ffprobe
