@@ -35,6 +35,15 @@ pub fn default_false() -> bool {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum DefaultVideoQuality {
+    /// Represents DirectPlay quality
+    DirectPlay,
+    /// Represents a default video quality made up of resolution and bitrate.
+    Resolution(u64, u64),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserSettings {
     /// Theme of the app
     #[serde(default = "default_theme")]
@@ -52,6 +61,8 @@ pub struct UserSettings {
     default_subtitle_language: Option<String>,
     /// If a file has audio then the audio track with this language will be selected, otherwise the first one.
     default_audio_language: Option<String>,
+    /// Represents the default video quality for user.
+    pub default_video_quality: DefaultVideoQuality,
     /// Any other external args.
     #[serde(default)]
     external_args: HashMap<String, String>,
@@ -72,6 +83,7 @@ impl Default for UserSettings {
             default_audio_language: Some("english".into()),
             external_args: HashMap::new(),
             show_hovercards: true,
+            default_video_quality: DefaultVideoQuality::DirectPlay,
         }
     }
 }

@@ -205,15 +205,17 @@ pub async fn post_user_settings(
         prefs: Some(new_settings.clone()),
     };
 
-    dbg!(update_user.update(&db, &user.0.claims.get_user()).await)?;
+    update_user.update(&db, &user.0.claims.get_user()).await?;
 
     Ok(reply::json(&new_settings))
 }
 
+// TODO: Hide secret key.
 pub async fn http_get_global_settings(_user: Auth) -> Result<impl warp::Reply, errors::DimError> {
     Ok(reply::json(&get_global_settings()))
 }
 
+// TODO: Disallow setting secret key over http.
 pub async fn http_set_global_settings(
     user: Auth,
     new_settings: GlobalSettings,
