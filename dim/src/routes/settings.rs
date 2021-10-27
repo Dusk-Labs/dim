@@ -205,7 +205,7 @@ pub async fn post_user_settings(
         prefs: Some(new_settings.clone()),
     };
 
-    dbg!(update_user.update(&db, &user.0.claims.get_user()).await)?;
+    update_user.update(&db, &user.0.claims.get_user()).await?;
 
     Ok(reply::json(&new_settings))
 }

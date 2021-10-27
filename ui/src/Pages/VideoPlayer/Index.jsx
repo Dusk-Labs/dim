@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { MediaPlayer, Debug, MediaType } from "dashjs";
+import { MediaPlayer, Debug } from "dashjs";
 
 import { setTracks, setGID, setManifestState, updateVideo, incIdleCount, clearVideoData } from "../../actions/video";
 import { VideoPlayerContext } from "./Context";
@@ -97,7 +97,6 @@ function VideoPlayer() {
     const includes = `${videoTracks.list.map(track => track.id).join(",")},${audioTracks.list.map(track => track.id).join(",")}`;
     const url = `/api/v1/stream/${video.gid}/manifest.mpd?start_num=0&should_kill=false&includes=${includes}`;
     const mediaPlayer = MediaPlayer().create();
-    const hostname = window.location.hostname;
 
     // even with these settings, high bitrate movies fail.
     // The only solution is to have a constant bitrate and cosistent segments.

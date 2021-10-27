@@ -107,7 +107,10 @@ impl VirtualManifest {
         self
     }
 
-    pub fn set_args(mut self, args: impl IntoIterator<Item = (impl ToString, impl ToString)>) -> Self {
+    pub fn set_args(
+        mut self,
+        args: impl IntoIterator<Item = (impl ToString, impl ToString)>,
+    ) -> Self {
         for (k, v) in args.into_iter() {
             self.args.insert(k.to_string(), v.to_string());
         }

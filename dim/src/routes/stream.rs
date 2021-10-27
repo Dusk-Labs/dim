@@ -314,9 +314,28 @@ pub async fn return_virtual_manifest(
 
     ms.truncate(4);
 
-    let should_stream_default = try_create_dstream(&log, &info, &media, &stream_tracking, &gid, &state, &user_prefs).await?;
+    let should_stream_default = try_create_dstream(
+        &log,
+        &info,
+        &media,
+        &stream_tracking,
+        &gid,
+        &state,
+        &user_prefs,
+    )
+    .await?;
 
-    create_video(&log, &info, &media, &stream_tracking, &gid, &state, &user_prefs, should_stream_default).await?;
+    create_video(
+        &log,
+        &info,
+        &media,
+        &stream_tracking,
+        &gid,
+        &state,
+        &user_prefs,
+        should_stream_default,
+    )
+    .await?;
     create_audio(&log, &info, &media, &stream_tracking, &gid, &state).await?;
     create_subtitles(&log, &info, &media, &stream_tracking, &gid, &state).await?;
 
@@ -359,10 +378,7 @@ pub async fn try_create_dstream(
 
     // Should secondary (transcoded) streams default.
     let should_stream_default = dp_profile_chain.is_empty()
-        || !matches!(
-            prefs.default_video_quality,
-            DefaultVideoQuality::DirectPlay
-        );
+        || !matches!(prefs.default_video_quality, DefaultVideoQuality::DirectPlay);
 
     if !dp_profile_chain.is_empty() {
         let video = state.create(dp_profile_chain, ctx).await?;
@@ -403,23 +419,19 @@ pub async fn try_create_dstream(
 
         let chunk_path = format!("{}/data/$Number$.m4s", video.clone());
         let init_seg = Some(format!("{}/data/init.mp4", video.clone()));
-        let virtual_manifest = VirtualManifest::new(video.clone(), chunk_path, init_seg, ContentType::Video)
-            .set_direct()
-            .set_mime("video/mp4")
-            .set_duration(info.get_duration())
-            .set_codecs(video_avc.to_string())
-            .set_bandwidth(bitrate)
-            .set_args([("height", video_stream.height.clone().unwrap())])
-            .set_is_default(!should_stream_default)
-            .set_target_duration(10)
-            .set_label(label);
+        let virtual_manifest =
+            VirtualManifest::new(video.clone(), chunk_path, init_seg, ContentType::Video)
+                .set_direct()
+                .set_mime("video/mp4")
+                .set_duration(info.get_duration())
+                .set_codecs(video_avc.to_string())
+                .set_bandwidth(bitrate)
+                .set_args([("height", video_stream.height.clone().unwrap())])
+                .set_is_default(!should_stream_default)
+                .set_target_duration(10)
+                .set_label(label);
 
-        stream_tracking
-            .insert(
-                &gid,
-                virtual_manifest
-            )
-            .await;
+        stream_tracking.insert(&gid, virtual_manifest).await;
     }
 
     Ok(should_stream_default)
@@ -497,21 +509,17 @@ pub async fn create_video(
 
         let chunk_path = format!("{}/data/$Number$.m4s", video.clone());
         let init_seg = Some(format!("{}/data/init.mp4", video.clone()));
-        let virtual_manifest = VirtualManifest::new(video.clone(), chunk_path, init_seg, ContentType::Video)
-            .set_mime("video/mp4")
-            .set_duration(info.get_duration())
-            .set_codecs(video_avc.to_string())
-            .set_bandwidth(bitrate)
-            .set_args([("height", quality.height)])
-            .set_is_default(should_be_default)
-            .set_label(label);
+        let virtual_manifest =
+            VirtualManifest::new(video.clone(), chunk_path, init_seg, ContentType::Video)
+                .set_mime("video/mp4")
+                .set_duration(info.get_duration())
+                .set_codecs(video_avc.to_string())
+                .set_bandwidth(bitrate)
+                .set_args([("height", quality.height)])
+                .set_is_default(should_be_default)
+                .set_label(label);
 
-        stream_tracking
-            .insert(
-                &gid,
-                virtual_manifest
-            )
-            .await;
+        stream_tracking.insert(&gid, virtual_manifest).await;
         // we wan to default only the first stream.
         if should_be_default {
             should_stream_default = false;
@@ -560,21 +568,17 @@ pub async fn create_audio(
         );
 
         let chunk_path = format!("{}/data/$Number$.m4s", audio.clone());
-        let init_seg= Some(format!("{}/data/init.mp4", audio.clone()));
-        let virtual_manifest = VirtualManifest::new(audio.clone(), chunk_path, init_seg, ContentType::Audio)
-            .set_mime("audio/mp4")
-            .set_codecs("mp4a.40.2")
-            .set_bandwidth(bitrate)
-            .set_is_default(is_default)
-            .set_label(label)
-            .set_lang(stream.get_language());
+        let init_seg = Some(format!("{}/data/init.mp4", audio.clone()));
+        let virtual_manifest =
+            VirtualManifest::new(audio.clone(), chunk_path, init_seg, ContentType::Audio)
+                .set_mime("audio/mp4")
+                .set_codecs("mp4a.40.2")
+                .set_bandwidth(bitrate)
+                .set_is_default(is_default)
+                .set_label(label)
+                .set_lang(stream.get_language());
 
-        stream_tracking
-            .insert(
-                &gid,
-                virtual_manifest
-            )
-            .await;
+        stream_tracking.insert(&gid, virtual_manifest).await;
     }
 
     Ok(())
