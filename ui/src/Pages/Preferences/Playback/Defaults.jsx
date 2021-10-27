@@ -12,19 +12,9 @@ function Defaults() {
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  const handleToggle = useCallback(() => {
-    if (!dropdownVisible) {
-      setDropdownVisible(true);
-    } else {
-      setDropdownVisible(false);
-    }
-  }, [dropdownVisible]);
-
   const setVideoQuality = useCallback(quality => {
     dispatch(updateUserSettings({
-      "default_video_quality": quality === "directplay" ? quality : {
-        "resolution": quality
-      }
+      "default_video_quality": quality
     }));
 
     setDropdownVisible(false);
@@ -46,22 +36,24 @@ function Defaults() {
     };
   }, [handleClick]);
 
-  const availableQualities = [[1080, 10_000_000], [720, 5_000_000], [480, 1_000_000]];
   const default_quality = settings.userSettings.data.default_video_quality;
   const isDirectPlay = default_quality === "directplay";
 
-  const currentlySelected = availableQualities.filter(([resolution, brate]) => {
-    const [selected_res, selected_brate] = (
-      isDirectPlay ? [null, null] : default_quality["resolution"]
-    );
+  const availableQualities = [[1080, 10_000_000], [720, 5_000_000], [480, 1_000_000]].filter(([resolution, brate]) => {
+    if (isDirectPlay) return true;
 
+    const [selected_res, selected_brate] = default_quality.resolution;
     const isSelected = selected_res === resolution && selected_brate === brate;
 
-    return isSelected;
+    return !isSelected;
   });
 
-  const norm_brate = currentlySelected[0][1] / 1_000_000;
-  const CS = `${currentlySelected[0][0]}p - ${norm_brate}MB`;
+  let CS = "Direct Play";
+
+  if (!isDirectPlay) {
+    const norm_brate = default_quality.resolution[1] / 1_000_000;
+    CS = `${default_quality.resolution[0]}p - ${norm_brate}MB`;
+  }
 
   return (
     <section className="preferencesPlaybackDefaults">
@@ -71,32 +63,22 @@ function Defaults() {
         <div className="dropdown" ref={dropdownRef}>
           <div
             className={`toggle visible-${dropdownVisible}`}
-            onClick={handleToggle}
+            onClick={() => setDropdownVisible(!dropdownVisible)}
           >
             <p>{CS}</p>
           </div>
           <div className={`dropDownContent visible-${dropdownVisible}`}>
-            {isDirectPlay && (
-              <button>Direct Play</button>
+            {!isDirectPlay && (
+              <button onClick={() => setVideoQuality("directplay")}>Direct Play</button>
             )}
-            {availableQualities.map(([resolution, brate], i) => {
-              const norm_brate = brate / 1_000_000;
-              const label = `${resolution}p - ${norm_brate}MB`;
-
-              const [selected_res, selected_brate] = isDirectPlay ? [null, null] : default_quality["resolution"];
-              const isSelected = selected_res === resolution && selected_brate === brate;
-
-              if (!isSelected) {
-                return (
-                  <button
-                    key={i}
-                    onClick={() => setVideoQuality([resolution, brate])}
-                  >
-                    {label}
-                  </button>
-                );
-              }
-            })}
+            {availableQualities.map(([resolution, brate], i) => (
+              <button
+                key={i}
+                onClick={() => setVideoQuality({resolution: [resolution, brate]})}
+              >
+                {`${resolution}p - ${brate / 1_000_000}MB`}
+              </button>
+            ))}
           </div>
         </div>
       </div>
