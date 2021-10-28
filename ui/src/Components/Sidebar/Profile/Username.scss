@@ -15,37 +15,21 @@
     grid-template-columns: [padding] 1fr [username] 3fr [icon] 1fr;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
 
     // username
-    h4 {
+    p {
       grid-column: username;
       font-family: "Roboto Bold", Arial;
       color: var(--primaryTextColor);
       user-select: none;
+      cursor: pointer;
+      display: inline;
     }
 
     .toggle {
-      position: relative;
-      display: flex;
-      transition: background 200ms ease-in-out;
+      display: none;
+      pointer-events: none;
       transition: transform 300ms ease-in-out;
-      color: var(--primaryTextColor);
-      // background: white;
-      background: var(--tertiaryColor);
-      width: 5px;
-      height: 5px;
-      padding: .5em;
-      border-radius: 10px;
-      cursor: pointer;
-
-      svg {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 1em;
-        height: 1em;
-      }
 
       &:hover, &:focus {
         background: var(--secondaryColor);
@@ -53,7 +37,6 @@
 
       &.visible-true {
         background: var(--secondaryColor);
-        transform: rotate(180deg);
       }
 
       &.grabAttention {
@@ -79,6 +62,7 @@
     position: absolute;
     top: 0;
     left: 0;
+    right: 0;
     margin-top: 1.4em;
     white-space: nowrap;
     z-index: 1;
@@ -135,3 +119,39 @@
     }
   }
 }
+
+@media only screen and (min-width: 1080px) {
+  .quickLinksDropdown {
+    .username {
+      .toggle {
+        display: flex;
+        position: relative;
+        transition: transform 300ms ease-in-out;
+        pointer-events: auto;
+        cursor: pointer;
+        grid-column: icon;
+        color: var(--primaryTextColor);
+        background: var(--tertiaryColor);
+        width: 5px;
+        height: 5px;
+        padding: .5em;
+        border-radius: 50%;
+        cursor: pointer;
+
+        svg {
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 1em;
+          height: 1em;
+          cursor: pointer;
+        }
+
+        &.visible-true {
+          transform: rotate(180deg);
+        }
+      }
+    }
+  }
+}
+

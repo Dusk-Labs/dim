@@ -6,6 +6,8 @@ import ConfirmationBox from "../../../Modals/ConfirmationBox";
 import Logout from "../../../assets/Icons/Logout";
 import { logout } from "../../../actions/auth.js";
 
+import "./LogoutBtn.scss";
+
 function LogoutBtn() {
   const dispatch = useDispatch();
   const history = useHistory();
@@ -24,7 +26,9 @@ function LogoutBtn() {
       msg="Are you sure you want to logout?"
     >
       <button className="logout">
-        <p className="logout">Logout</p>
+        <div className={"buttonLabel"}>
+          <p>Logout</p>
+        </div>
         <Logout/>
       </button>
     </ConfirmationBox>

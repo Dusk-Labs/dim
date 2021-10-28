@@ -41,9 +41,12 @@ function Username(_props) {
 
   return (
     <div className="quickLinksDropdown" ref={dropdownRef}>
-      <div className="username" onClick={handleToggle}>
-        <h4>{user.info.username || "eray_chumak"}</h4>
-        <div className={`toggle visible-${dropdownVisible}`}>
+      <div className="username">
+        <p onClick={handleToggle}>{user.info.username || "eray_chumak"}</p>
+        <div
+          className={`toggle visible-${dropdownVisible}`}
+          onClick={handleToggle}
+        >
           <CaretDown/>
         </div>
       </div>
