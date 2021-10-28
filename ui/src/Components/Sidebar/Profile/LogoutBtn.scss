@@ -1,0 +1,18 @@
+.logout {
+  .buttonLabel {
+    width: 100%;
+    text-align: center;
+  }
+
+  svg {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 1080px) {
+  .logout {
+    svg {
+      display: block;
+    }
+  }
+}
