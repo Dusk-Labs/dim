@@ -7,7 +7,11 @@ services:
       - 8000:8000
     volumes:
       - /<host_config_folder>:/opt/dim/config
-      - /<host_media_path>:/<container_media_path>
+      - /<host_media_path>:/media
+      # Add more folders like so:
+      # - /<host_media_path>:/media2
     # Use the below lines to pass your device with hardware acceleration
     devices:
       - /<device>:/<device>
+      # VAAPI Device example:
+      # - /dev/dri/renderD128:/dev/dri/renderD128
