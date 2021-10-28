@@ -22,6 +22,7 @@
       grid-column: username;
       font-family: "Roboto Bold", Arial;
       color: var(--primaryTextColor);
+      user-select: none;
     }
 
     .toggle {
