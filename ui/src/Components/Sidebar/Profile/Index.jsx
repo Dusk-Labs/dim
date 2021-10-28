@@ -46,7 +46,9 @@ function Profile(props) {
           <ProfileImage src={picture} />
         </div>
         <div className="info">
+
           <Username username={username || "eray_chumak"}/>
+
           {props.hoursSpentWatching &&
           <h5>Spent {spentWatching || 0}h watching</h5>
           }
