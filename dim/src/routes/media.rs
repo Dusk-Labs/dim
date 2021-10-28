@@ -217,6 +217,7 @@ pub async fn get_media_by_id(
                             "progress": delta,
                             "season": next_episode.get_season_number(&conn).await.unwrap_or(0),
                             "episode": next_episode.episode,
+                            "play_btn_id": next_episode.id,
                         }))
                     } else {
                         None
@@ -226,6 +227,7 @@ pub async fn get_media_by_id(
                         "progress": delta,
                         "season": ep.get_season_number(&conn).await.unwrap_or(0),
                         "episode": ep.episode,
+                        "play_btn_id": ep.id,
                     }))
                 }
             } else {
@@ -234,6 +236,7 @@ pub async fn get_media_by_id(
                     "progress": 0,
                     "season": ep.get_season_number(&conn).await.unwrap_or(0),
                     "episode": ep.episode,
+                    "play_btn_id": ep.id,
                 }))
             }
         }

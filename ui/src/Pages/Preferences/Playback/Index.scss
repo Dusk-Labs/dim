@@ -1,0 +1,23 @@
+.preferencesPlayback {
+  display: grid;
+  gap: 1em;
+
+  h3 {
+    margin-bottom: 1em;
+  }
+
+  .desc {
+    color: var(--secondaryTextColor);
+  }
+
+  .options {
+    display: flex;
+    gap: 1em;
+  }
+
+  section {
+    background: var(--secondaryColor);
+    padding: 1em;
+    border-radius: 10px;
+  }
+}
