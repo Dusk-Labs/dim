@@ -67,15 +67,16 @@ impl From<database::DatabaseError> for ScannerError {
 /// Which will query extra external metadata from various APIs.
 #[actor]
 pub struct MetadataExtractor {
-    pub conn: DbConnection,
+    pub conn: database::DbConnection,
     pub logger: slog::Logger,
 }
 
 #[actor]
 impl MetadataExtractor {
     pub fn new(logger: slog::Logger) -> Self {
+        let conn = database::try_get_conn().unwrap().clone();
         Self {
-            conn: database::try_get_conn().unwrap().clone(),
+            conn,
             logger: logger.new(o!("actor" => "MetadataExtractor")),
         }
     }
@@ -88,6 +89,12 @@ impl MetadataExtractor {
         _media_type: MediaType,
     ) -> Result<MediaFile, ScannerError> {
         let target_file = file.to_str().unwrap().to_owned();
+        let mut tx = self
+            .conn
+            .write()
+            .begin()
+            .await
+            .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
         let _file_name = if let Some(file_name) = file.file_name().and_then(|x| x.to_str()) {
             file_name
@@ -101,7 +108,7 @@ impl MetadataExtractor {
         };
 
         let target_file_clone = target_file.clone();
-        let res = MediaFile::get_by_file(&self.conn, &target_file_clone).await;
+        let res = MediaFile::get_by_file(&mut tx, &target_file_clone).await;
 
         if let Ok(_media_file) = res {
             debug!(
@@ -174,11 +181,15 @@ impl MetadataExtractor {
             corrupt: ffprobe_data.is_corrupt(),
         };
 
-        let file_id = media_file.insert(&self.conn).await?;
+        let file_id = media_file.insert(&mut tx).await?;
 
-        let id = MediaFile::get_one(&self.conn, file_id).await?;
+        let id = MediaFile::get_one(&mut tx, file_id).await?;
 
         assert!(file_id == id.id);
+
+        tx.commit()
+            .await
+            .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
         info!(
             self.logger,
@@ -283,6 +294,13 @@ impl MetadataMatcher {
             .search(media.raw_name.clone(), media.raw_year.map(|x| x as i32))
             .await;
 
+        let mut tx = self
+            .conn
+            .write()
+            .begin()
+            .await
+            .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
+
         if let Some(x) = els.get(ElementCategory::AnimeTitle) {
             if result.is_err() {
                 // NOTE: If we got here then we assume that the file uses common anime release naming schemes.
@@ -307,12 +325,16 @@ impl MetadataMatcher {
                     ..Default::default()
                 };
 
-                let _ = update_mediafile.update(&self.conn, media.id).await;
+                let _ = update_mediafile.update(&mut tx, media.id).await;
 
                 media.episode = anitomy_episode.map(|x| x as i64);
                 media.season = anitomy_season.map(|x| x as i64);
             }
         }
+
+        tx.commit()
+            .await
+            .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
         let result = match result {
             Ok(v) => v,
@@ -359,6 +381,12 @@ impl MetadataMatcher {
             Ok(v) | Err(v) => v,
         };
 
+        let mut tx = self
+            .conn
+            .write()
+            .begin()
+            .await
+            .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
         if media.episode.is_none() {
             // NOTE: In some cases our base matcher extracts the correct title from the filename but incorrect episode and season numbers.
             let anitomy_episode = els
@@ -371,7 +399,7 @@ impl MetadataMatcher {
                 ..Default::default()
             };
 
-            let _ = updated_mediafile.update(&self.conn, media.id).await;
+            let _ = updated_mediafile.update(&mut tx, media.id).await;
             media.episode = anitomy_episode.map(|x| x as i64);
         }
 
@@ -387,9 +415,13 @@ impl MetadataMatcher {
                 ..Default::default()
             };
 
-            let _ = updated_mediafile.update(&self.conn, media.id).await;
+            let _ = updated_mediafile.update(&mut tx, media.id).await;
             media.season = anitomy_season.map(|x| x as i64);
         }
+
+        tx.commit()
+            .await
+            .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
         let mut seasons: Vec<super::ApiSeason> = self
             .tv_tmdb

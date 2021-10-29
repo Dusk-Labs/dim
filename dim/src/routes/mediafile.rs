@@ -74,7 +74,8 @@ pub async fn get_mediafile_info(
     id: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mediafile = MediaFile::get_one(&conn, id)
+    let mut tx = conn.read().begin().await?;
+    let mediafile = MediaFile::get_one(&mut tx, id)
         .await
         .map_err(|_| errors::DimError::NotFoundError)?;
 
@@ -107,7 +108,8 @@ pub async fn rematch_mediafile(
     use crate::scanners::tmdb::Tmdb;
     use database::library::MediaType;
 
-    let mediafile = MediaFile::get_one(&conn, id).await?;
+    let mut tx = conn.read().begin().await?;
+    let mediafile = MediaFile::get_one(&mut tx, id).await?;
     let matcher = crate::scanners::get_matcher_unchecked();
 
     let mut tmdb = match media_type.to_lowercase().as_ref() {

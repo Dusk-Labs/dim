@@ -140,6 +140,7 @@ pub async fn search(
     _quick: Option<bool>,
     _user: Auth,
 ) -> Result<warp::reply::Json, errors::DimError> {
+    let mut tx = conn.read().begin().await?;
     if let Some(query_string) = query {
         let query_string = query_string
             .split(' ')
@@ -148,23 +149,23 @@ pub async fn search(
             .as_slice()
             .join(" ");
 
-        return search_by_name(&conn, &query_string, 15).await;
+        return search_by_name(&mut tx, &query_string, 15).await;
     }
 
     if let Some(x) = genre {
-        let genre_id = Genre::get_by_name(&conn, x).await?.id;
-        return search_by_genre(&conn, genre_id).await;
+        let genre_id = Genre::get_by_name(&mut tx, x).await?.id;
+        return search_by_genre(&mut tx, genre_id).await;
     }
 
     if let Some(x) = year {
-        return search_by_release_year(&conn, x as i64).await;
+        return search_by_release_year(&mut tx, x as i64).await;
     }
 
     Err(errors::DimError::NotFoundError)
 }
 
 async fn search_by_name(
-    conn: &DbConnection,
+    conn: &mut database::Transaction<'_>,
     query: &str,
     limit: i64,
 ) -> Result<warp::reply::Json, errors::DimError> {
@@ -194,7 +195,7 @@ async fn search_by_name(
 }
 
 async fn search_by_genre(
-    conn: &DbConnection,
+    conn: &mut database::Transaction<'_>,
     genre_id: i64,
 ) -> Result<warp::reply::Json, errors::DimError> {
     #[derive(Serialize)]
@@ -224,7 +225,7 @@ async fn search_by_genre(
 }
 
 async fn search_by_release_year(
-    conn: &DbConnection,
+    conn: &mut database::Transaction<'_>,
     year: i64,
 ) -> Result<warp::reply::Json, errors::DimError> {
     #[derive(Serialize)]

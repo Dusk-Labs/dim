@@ -21,7 +21,6 @@ use std::time::Instant;
 
 use serde::Deserialize;
 use serde::Serialize;
-
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ApiMedia {
     pub id: u64,
@@ -184,7 +183,13 @@ pub async fn start(
     tx: EventTx,
 ) -> Result<(), self::base::ScannerError> {
     let conn = get_conn().await.expect("Failed to grab the conn pool");
-    let lib = Library::get_one(&conn, library_id).await?;
+    let mut db_tx = conn
+        .read()
+        .begin()
+        .await
+        .map_err(|e| self::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
+
+    let lib = Library::get_one(&mut db_tx, library_id).await?;
     start_custom(
         library_id,
         log,

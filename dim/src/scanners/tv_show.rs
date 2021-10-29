@@ -37,6 +37,14 @@ impl<'a> TvShowMatcher<'a> {
     pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
         let name = result.title.clone();
 
+        let mut tx = match self.conn.write().begin().await {
+            Ok(x) => x,
+            Err(e) => {
+                error!(self.log, "Failed to create transaction."; "reason" => format!("{:?}", e));
+                return;
+            }
+        };
+
         let year: Option<i64> = result
             .release_date
             .clone()
@@ -68,7 +76,7 @@ impl<'a> TvShowMatcher<'a> {
                         .unwrap_or_default(),
                     file_ext: "jpg".into(),
                 }
-                .insert(self.conn)
+                .insert(&mut tx)
                 .await;
 
                 match asset {
@@ -98,7 +106,7 @@ impl<'a> TvShowMatcher<'a> {
                         .unwrap_or_default(),
                     file_ext: "jpg".into(),
                 }
-                .insert(self.conn)
+                .insert(&mut tx)
                 .await;
 
                 match asset {
@@ -116,6 +124,11 @@ impl<'a> TvShowMatcher<'a> {
             }
             None => None,
         };
+
+        if let Err(e) = tx.commit().await {
+            error!(self.log, "Failed to commit transaction."; "reason" => format!("{:?}", e));
+            return;
+        }
 
         let media = InsertableMedia {
             name,
@@ -145,16 +158,20 @@ impl<'a> TvShowMatcher<'a> {
         media: InsertableMedia,
         result: super::ApiMedia,
     ) -> Result<(), super::base::ScannerError> {
-        let media_id = media.insert(&self.conn).await?;
-        let _ = TVShow::insert(&self.conn, media_id).await;
-
-        self.push_event(media_id, media.library_id).await;
+        let mut tx = self
+            .conn
+            .write()
+            .begin()
+            .await
+            .map_err(|e| super::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
+        let media_id = media.insert(&mut tx).await?;
+        let _ = TVShow::insert(&mut tx, media_id).await;
 
         for name in result.genres {
             let genre = InsertableGenre { name };
 
-            if let Ok(x) = genre.insert(&self.conn).await {
-                let _ = InsertableGenreMedia::insert_pair(x, media_id, &self.conn).await;
+            if let Ok(x) = genre.insert(&mut tx).await {
+                let _ = InsertableGenreMedia::insert_pair(x, media_id, &mut tx).await;
             }
         }
 
@@ -183,7 +200,7 @@ impl<'a> TvShowMatcher<'a> {
                         .unwrap_or_default(),
                     file_ext: "jpg".into(),
                 }
-                .insert(self.conn)
+                .insert(&mut tx)
                 .await;
 
                 match asset {
@@ -208,7 +225,7 @@ impl<'a> TvShowMatcher<'a> {
             poster: season_poster,
         };
 
-        let seasonid = match insertable_season.insert(&self.conn, media_id).await {
+        let seasonid = match insertable_season.insert(&mut tx, media_id).await {
             Ok(x) => x,
             Err(e) => {
                 warn!(self.log, "Failed to insert season into the database."; "reason" => e.to_string());
@@ -242,7 +259,7 @@ impl<'a> TvShowMatcher<'a> {
                         .unwrap_or_default(),
                     file_ext: "jpg".into(),
                 }
-                .insert(self.conn)
+                .insert(&mut tx)
                 .await;
 
                 match asset {
@@ -290,8 +307,8 @@ impl<'a> TvShowMatcher<'a> {
         };
 
         // manually insert the underlying `media` into the table and convert it into a streamable movie/ep
-        let raw_ep_id = episode.media.insert_blind(&self.conn).await?;
-        if let Err(e) = InsertableMovie::insert(&self.conn, raw_ep_id).await {
+        let raw_ep_id = episode.media.insert_blind(&mut tx).await?;
+        if let Err(e) = InsertableMovie::insert(&mut tx, raw_ep_id).await {
             error!(
                 self.log,
                 "Failed to turn episode into a streamable movie";
@@ -301,14 +318,18 @@ impl<'a> TvShowMatcher<'a> {
             );
         }
 
-        let episode_id = episode.insert(&self.conn).await?;
+        let episode_id = episode.insert(&mut tx).await?;
 
         let updated_mediafile = UpdateMediaFile {
             media_id: Some(episode_id),
             ..Default::default()
         };
 
-        updated_mediafile.update(&self.conn, orphan.id).await?;
+        updated_mediafile.update(&mut tx, orphan.id).await?;
+        tx.commit()
+            .await
+            .map_err(|e| super::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
+        self.push_event(media_id, media.library_id).await;
 
         Ok(())
     }

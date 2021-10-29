@@ -10,16 +10,16 @@ pub struct Asset {
 }
 
 impl Asset {
-    pub async fn get_by_id(conn: &crate::DbConnection, id: i64) -> Result<Self, DatabaseError> {
+    pub async fn get_by_id(conn: &mut crate::Transaction<'_>, id: i64) -> Result<Self, DatabaseError> {
         Ok(
             sqlx::query_as!(Asset, "SELECT * FROM assets WHERE id = ?", id)
-                .fetch_one(conn)
+                .fetch_one(&mut *conn)
                 .await?,
         )
     }
 
     pub async fn get_of_user(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         username: &str,
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -29,13 +29,13 @@ impl Asset {
                 WHERE users.username = ?"#,
             username
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?)
     }
 
     pub async fn into_media_poster(
         &self,
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         media_id: i64,
     ) -> Result<i64, DatabaseError> {
         Ok(sqlx::query!(
@@ -44,14 +44,14 @@ impl Asset {
             media_id,
             self.id
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?
         .id)
     }
 
     pub async fn into_media_backdrop(
         &self,
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         media_id: i64,
     ) -> Result<i64, DatabaseError> {
         Ok(sqlx::query!(
@@ -60,13 +60,13 @@ impl Asset {
             media_id,
             self.id
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?
         .id)
     }
 
     pub async fn get_url_by_file(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         path: &PathBuf,
     ) -> Result<String, DatabaseError> {
         let cleaned_path: &str = &path.to_string_lossy();
@@ -74,7 +74,7 @@ impl Asset {
             r#"SELECT remote_url as "remote_url!" FROM assets WHERE Local_path = ?"#,
             cleaned_path
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?
         .remote_url)
     }
@@ -88,8 +88,7 @@ pub struct InsertableAsset {
 }
 
 impl InsertableAsset {
-    pub async fn insert(self, conn: &crate::DbConnection) -> Result<Asset, DatabaseError> {
-        let tx = conn.begin().await?;
+    pub async fn insert(self, conn: &mut crate::Transaction<'_>) -> Result<Asset, DatabaseError> {
         let local_path = self.local_path.clone();
 
         if let Ok(x) = sqlx::query_as_unchecked!(
@@ -97,7 +96,7 @@ impl InsertableAsset {
             "SELECT * FROM assets WHERE local_path = ?",
             local_path
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await
         {
             return Ok(x);
@@ -111,7 +110,7 @@ impl InsertableAsset {
             self.local_path,
             self.file_ext
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await?;
 
         // NOTE: asset is guaranteed to be in the table if we get here
@@ -121,10 +120,8 @@ impl InsertableAsset {
             "SELECT * FROM assets WHERE local_path = ?",
             local_path
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?;
-
-        tx.commit().await?;
 
         Ok(result)
     }

@@ -10,11 +10,11 @@ impl InsertableMovie {
     /// to the field id.
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `&` - diesel &ection reference to postgres
     /// * `id` - id of the media that should be a movie
-    pub async fn insert(conn: &crate::DbConnection, id: i64) -> Result<i64, DatabaseError> {
+    pub async fn insert(conn: &mut crate::Transaction<'_>, id: i64) -> Result<i64, DatabaseError> {
         Ok(sqlx::query!("INSERT INTO movie (id) VALUES ($1)", id)
-            .execute(conn)
+            .execute(&mut *conn)
             .await?
             .last_insert_rowid())
     }

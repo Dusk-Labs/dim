@@ -53,10 +53,10 @@ impl MediaFile {
     /// Method returns all mediafiles associated with a library.
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
+    /// * `&` - postgres &ection
     /// * `lib` - reference to a Library object that we will match against
     pub async fn get_by_lib(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         library_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -64,7 +64,7 @@ impl MediaFile {
             "SELECT * FROM mediafile WHERE library_id = ?",
             library_id
         )
-        .fetch_all(conn)
+        .fetch_all(&mut *conn)
         .await?)
     }
 
@@ -72,10 +72,10 @@ impl MediaFile {
     /// associated with a media
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
+    /// * `&` - postgres &ection
     /// * `lib` - reference to a Library object that we will match against
     pub async fn get_by_lib_null_media(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         library_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -83,17 +83,17 @@ impl MediaFile {
             "SELECT * FROM mediafile WHERE library_id = ? AND media_id IS NULL",
             library_id
         )
-        .fetch_all(conn)
+        .fetch_all(&mut *conn)
         .await?)
     }
 
     /// Method returns all mediafiles associated with a Media object.
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
+    /// * `&` - postgres &ection
     /// * `lib` - reference to a Library object that we will match against
     pub async fn get_of_media(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         media_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -103,19 +103,19 @@ impl MediaFile {
                 WHERE media.id = ?",
             media_id
         )
-        .fetch_all(conn)
+        .fetch_all(&mut *conn)
         .await?)
     }
 
     /// Method returns all metadata of a mediafile based on the id supplied.
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
+    /// * `&` - postgres &ection
     /// * `_id` - id of the mediafile object we are targetting
-    pub async fn get_one(conn: &crate::DbConnection, id: i64) -> Result<Self, DatabaseError> {
+    pub async fn get_one(conn: &mut crate::Transaction<'_>, id: i64) -> Result<Self, DatabaseError> {
         Ok(
             sqlx::query_as!(MediaFile, "SELECT * FROM mediafile WHERE id = ?", id)
-                .fetch_one(conn)
+                .fetch_one(&mut *conn)
                 .await?,
         )
     }
@@ -124,17 +124,17 @@ impl MediaFile {
     /// a bool.
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
+    /// * `&` - postgres &ection
     /// * `file` - string slice containing our filepath
-    pub async fn exists_by_file(conn: &crate::DbConnection, file: &str) -> bool {
+    pub async fn exists_by_file(conn: &mut crate::Transaction<'_>, file: &str) -> bool {
         sqlx::query!("SELECT id FROM mediafile WHERE target_file = ?", file)
-            .fetch_one(conn)
+            .fetch_one(&mut *conn)
             .await
             .is_ok()
     }
 
     pub async fn get_by_file(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         file: &str,
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -142,13 +142,13 @@ impl MediaFile {
             r#"SELECT * FROM mediafile WHERE target_file = ?"#,
             file
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?)
     }
 
     /// Function will return the largest duration for a media.
     pub async fn get_largest_duration(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         media_id: i64,
     ) -> Result<i64, DatabaseError> {
         Ok(sqlx::query!(
@@ -158,7 +158,7 @@ impl MediaFile {
             LIMIT 1"#,
             media_id
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?
         .duration)
     }
@@ -166,11 +166,11 @@ impl MediaFile {
     /// Method deletes mediafile matching the id supplied
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
+    /// * `&` - postgres &ection
     /// * `_id` - id of the mediafile entry we want to delete
-    pub async fn delete(conn: &crate::DbConnection, id: i64) -> Result<usize, DatabaseError> {
+    pub async fn delete(conn: &mut crate::Transaction<'_>, id: i64) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM mediafile WHERE id = ?", id)
-            .execute(conn)
+            .execute(&mut *conn)
             .await?
             .rows_affected() as usize)
     }
@@ -178,12 +178,12 @@ impl MediaFile {
     /// Function deletes all mediafiles with `library_id` of lib_id. This function is used when
     /// deleting a library with a sqlite backend.
     pub async fn delete_by_lib_id(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         lib_id: i64,
     ) -> Result<usize, DatabaseError> {
         Ok(
             sqlx::query!("DELETE FROM mediafile WHERE library_id = ?", lib_id)
-                .execute(conn)
+                .execute(&mut *conn)
                 .await?
                 .rows_affected() as usize,
         )
@@ -220,10 +220,8 @@ impl InsertableMediaFile {
     /// Method inserts a new mediafile into the database.
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
-    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
-        let tx = conn.begin().await?;
-
+    /// * `&` - postgres &ection
+    pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
         let id = sqlx::query!(
             r#"
             INSERT INTO mediafile (media_id, library_id, target_file, raw_name, raw_year, quality,
@@ -245,11 +243,9 @@ impl InsertableMediaFile {
             self.season,
             self.corrupt
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await?
         .last_insert_rowid();
-
-        tx.commit().await?;
 
         Ok(id)
     }
@@ -284,16 +280,14 @@ impl UpdateMediaFile {
     /// based on its id.
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
+    /// * `&` - postgres &ection
     /// * `_id` - id of the mediafile row we are targetting
     pub async fn update(
         &self,
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         id: i64,
     ) -> Result<usize, DatabaseError> {
-        let tx = conn.begin().await?;
-
-        crate::opt_update!(conn, tx,
+        crate::opt_update!(conn,
             "UPDATE mediafile SET media_id = ? WHERE id = ?" => (self.media_id, id),
             "UPDATE mediafile SET target_file = ? WHERE id = ?" => (self.target_file, id),
             "UPDATE mediafile SET raw_name = ? WHERE id = ?" => (self.raw_name, id),
@@ -309,7 +303,6 @@ impl UpdateMediaFile {
             "UPDATE mediafile SET corrupt = ? WHERE id = ?" => (self.corrupt, id)
         );
 
-        tx.commit().await?;
         Ok(1)
     }
 }

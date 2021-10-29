@@ -13,6 +13,7 @@ use chrono::prelude::Utc;
 use chrono::Datelike;
 use chrono::NaiveDate;
 
+use slog::error;
 use slog::warn;
 use slog::Logger;
 
@@ -31,6 +32,14 @@ pub struct MovieMatcher<'a> {
 impl<'a> MovieMatcher<'a> {
     pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
         let name = result.title.clone();
+
+        let mut tx = match self.conn.write().begin().await {
+            Ok(x) => x,
+            Err(e) => {
+                error!(self.log, "Failed to create transaction."; "reason" => format!("{:?}", e));
+                return;
+            }
+        };
 
         let year: Option<i64> = result
             .release_date
@@ -66,7 +75,7 @@ impl<'a> MovieMatcher<'a> {
                     file_ext: "jpg".into(),
                     ..Default::default()
                 }
-                .insert(self.conn)
+                .insert(&mut tx)
                 .await;
 
                 match asset {
@@ -97,7 +106,7 @@ impl<'a> MovieMatcher<'a> {
                     file_ext: "jpg".into(),
                     ..Default::default()
                 }
-                .insert(self.conn)
+                .insert(&mut tx)
                 .await;
 
                 match asset {
@@ -115,6 +124,11 @@ impl<'a> MovieMatcher<'a> {
             }
             None => None,
         };
+
+        if let Err(e) = tx.commit().await {
+            error!(self.log, "Failed to commit transaction."; "reason" => format!("{:?}", e));
+            return;
+        }
 
         let media = InsertableMedia {
             library_id: orphan.library_id,
@@ -145,15 +159,21 @@ impl<'a> MovieMatcher<'a> {
         media: InsertableMedia,
         result: super::ApiMedia,
     ) -> Result<(), super::base::ScannerError> {
-        let media_id = media.insert(&self.conn).await?;
+        let mut tx = self
+            .conn
+            .write()
+            .begin()
+            .await
+            .map_err(|e| super::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
+        let media_id = media.insert(&mut tx).await?;
         // the reason we ignore the result here is that in some cases this can fail. Specifically when there are multiple mediafiles for a movie.
-        let _ = InsertableMovie::insert(&self.conn, media_id).await;
+        let _ = InsertableMovie::insert(&mut tx, media_id).await;
 
         for name in result.genres {
             let genre = InsertableGenre { name };
 
-            if let Ok(x) = genre.insert(&self.conn).await {
-                let _ = InsertableGenreMedia::insert_pair(x, media_id, &self.conn).await;
+            if let Ok(x) = genre.insert(&mut tx).await {
+                let _ = InsertableGenreMedia::insert_pair(x, media_id, &mut tx).await;
             }
         }
 
@@ -162,7 +182,10 @@ impl<'a> MovieMatcher<'a> {
             ..Default::default()
         };
 
-        updated_mediafile.update(&self.conn, orphan.id).await?;
+        updated_mediafile.update(&mut tx, orphan.id).await?;
+        tx.commit()
+            .await
+            .map_err(|e| super::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
 
         self.push_event(media_id, media.library_id).await;
 

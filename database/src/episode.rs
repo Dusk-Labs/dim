@@ -34,7 +34,7 @@ pub struct EpisodeWrapper {
 
 impl Episode {
     pub async fn get_first_for_season(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         season_id: i64,
     ) -> Result<Self, DatabaseError> {
         let wrapper = sqlx::query_as!(
@@ -45,7 +45,7 @@ impl Episode {
             ORDER BY episode_ ASC"#,
             season_id
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?;
 
         let ep = Media::get(conn, wrapper.id).await?;
@@ -54,7 +54,7 @@ impl Episode {
     }
 
     pub async fn get_first_for_show(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         tv_id: i64,
     ) -> Result<Self, DatabaseError> {
         let wrapper = sqlx::query_as!(
@@ -67,7 +67,7 @@ impl Episode {
             LIMIT 1"#,
             tv_id
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?;
 
         let ep = Media::get(conn, wrapper.id).await?;
@@ -78,10 +78,10 @@ impl Episode {
     /// Method returns all of the episodes belonging to a tv show.
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `&` - diesel &ection reference to postgres
     /// * `media` - reference to a media object which should be a tv show.
     pub async fn get_all_of_tv(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         tv_show_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         let mut episodes = vec![];
@@ -95,11 +95,11 @@ impl Episode {
                 ORDER BY season.season_number, episode.episode_"#,
             tv_show_id
         )
-        .fetch_all(conn)
+        .fetch_all(&mut *conn)
         .await?;
 
         for wrapper in wrappers {
-            if let Ok(episode) = Media::get(conn, wrapper.id as i64).await {
+            if let Ok(episode) = Media::get(&mut *conn, wrapper.id as i64).await {
                 episodes.push(wrapper.into_episode(episode))
             }
         }
@@ -111,10 +111,10 @@ impl Episode {
     /// Method returns all of the episodes belonging to a season.
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `&` - diesel &ection reference to postgres
     /// * `media` - reference to a season object/entry.
     pub async fn get_all_of_season(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         season_id: i64,
     ) -> Result<Vec<Episode>, DatabaseError> {
         let wrappers = sqlx::query_as!(
@@ -122,13 +122,13 @@ impl Episode {
             r#"SELECT id as "id!", episode_, seasonid FROM episode WHERE seasonid = ?"#,
             season_id
         )
-        .fetch_all(conn)
+        .fetch_all(&mut *conn)
         .await?;
 
         let mut episodes = vec![];
 
         for wrapper in wrappers {
-            if let Ok(episode) = Media::get(conn, wrapper.id as i64).await {
+            if let Ok(episode) = Media::get(&mut *conn, wrapper.id as i64).await {
                 episodes.push(wrapper.into_episode(episode))
             }
         }
@@ -139,12 +139,12 @@ impl Episode {
     /// Method returns a episodes discriminated by episode number, season number and tv show id
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `&` - diesel &ection reference to postgres
     /// * `id` - The id of a tv show we target
     /// * `season_num` - The season we are targetting
     /// * `ep_num` - Episode we are targetting
     pub async fn get(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         tv_id: i64,
         season_num: i64,
         ep_num: i64,
@@ -160,7 +160,7 @@ impl Episode {
             season_num,
             ep_num
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?;
 
         let ep = Media::get(conn, wrapper.id as i64).await?;
@@ -169,7 +169,7 @@ impl Episode {
     }
 
     pub async fn get_by_id(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         episode_id: i64,
     ) -> Result<Episode, DatabaseError> {
         let wrapper = sqlx::query_as!(
@@ -178,7 +178,7 @@ impl Episode {
             WHERE episode.id = ?"#,
             episode_id
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?;
 
         let ep = Media::get(conn, wrapper.id as i64).await?;
@@ -187,7 +187,7 @@ impl Episode {
     }
 
     pub async fn get_season_episode_by_id(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         episode_id: i64,
     ) -> Result<(i64, i64), DatabaseError> {
         struct Record {
@@ -202,7 +202,7 @@ impl Episode {
             WHERE episode.id = ?",
             episode_id
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?;
 
         Ok((result.season, result.episode))
@@ -210,14 +210,14 @@ impl Episode {
 
     pub async fn get_season_number(
         &self,
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
     ) -> Result<i64, DatabaseError> {
         let record = sqlx::query!(
             "SELECT season.season_number FROM season
             WHERE season.id = ?",
             self.seasonid
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?;
 
         Ok(record.season_number)
@@ -226,10 +226,10 @@ impl Episode {
     /// Function will query for the episode after the episode passed in.
     pub async fn get_next_episode(
         &self,
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         tv_id: i64,
     ) -> Result<Episode, DatabaseError> {
-        let season_number = self.get_season_number(conn).await?;
+        let season_number = self.get_season_number(&mut *conn).await?;
 
         let record = sqlx::query_as!(
             EpisodeWrapper,
@@ -242,7 +242,7 @@ impl Episode {
             self.episode,
             season_number
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?;
 
         let ep = Media::get(conn, record.id as i64).await?;
@@ -252,7 +252,7 @@ impl Episode {
 
     /// Function will query the last episode that was watched for a show.
     pub async fn get_last_watched_episode(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         tvid: i64,
         uid: String,
     ) -> Result<Option<Episode>, DatabaseError> {
@@ -268,7 +268,7 @@ impl Episode {
         )
         .bind(uid)
         .bind(tvid)
-        .fetch_optional(conn)
+        .fetch_optional(&mut *conn)
         .await?;
 
         let result = if let Some(r) = result {
@@ -284,12 +284,12 @@ impl Episode {
     /// Method deletes a episode based on the tv show id, season number, and episode number
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `&` - diesel &ection reference to postgres
     /// * `id` - The id of a tv show we target
     /// * `season_num` - The season we are targetting
     /// * `ep_num` - Episode we are targetting
     pub async fn delete(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         episode_id: i64,
     ) -> Result<usize, DatabaseError> {
         // NOTE: no need to manually delete the episode entry from `episode` because of the
@@ -309,23 +309,21 @@ impl InsertableEpisode {
     /// Method inserts a new episode into the database
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
-    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
-        let tx = conn.begin().await?;
-
+    /// * `&` - diesel &ection reference to postgres
+    pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
         if let Some(r) = sqlx::query!(
             r#"SELECT id as "id!" FROM episode WHERE episode.seasonid = ? AND episode.episode_ = ?"#,
             self.seasonid,
             self.episode
         )
-        .fetch_optional(conn)
+        .fetch_optional(&mut *conn)
         .await?
         {
             return Ok(r.id);
         }
 
         // NOTE: use insert blind here just in case we have conflicts between episode names.
-        let media_id = self.media.insert_blind(conn).await?;
+        let media_id = self.media.insert_blind(&mut *conn).await?;
         let result = sqlx::query!(
             "INSERT INTO episode (id, episode_, seasonid)
             VALUES ($1, $2, $3)",
@@ -333,11 +331,9 @@ impl InsertableEpisode {
             self.episode,
             self.seasonid
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await?
         .last_insert_rowid();
-
-        tx.commit().await?;
 
         Ok(result)
     }
@@ -367,23 +363,19 @@ impl UpdateEpisode {
     /// Method updates the rows of a episode.
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `&` - diesel &ection reference to postgres
     /// * `id` - id of the episode we wish to update.
     pub async fn update(
         &self,
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         id: i64,
     ) -> Result<usize, DatabaseError> {
-        let tx = conn.begin().await?;
+        self.media.update(&mut *conn, id).await?;
 
-        self.media.update(conn, id).await?;
-
-        crate::opt_update!(conn, tx,
+        crate::opt_update!(conn,
             "UPDATE episode SET seasonid = ? WHERE id = ?" => (self.seasonid, id),
             "UPDATE episode SET episode_ = ? WHERE id = ?" => (self.episode, id)
         );
-
-        tx.commit().await?;
 
         Ok(1)
     }

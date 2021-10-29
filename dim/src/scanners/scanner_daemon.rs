@@ -60,7 +60,15 @@ impl FsWatcher {
     }
 
     pub async fn start_daemon(&self) -> Result<(), FsWatcherError> {
-        let library = Library::get_one(&self.conn, self.library_id).await?;
+        let mut tx = match self.conn.read().begin().await {
+            Ok(x) => x,
+            Err(e) => {
+                error!(self.logger, "Failed to open a transaction."; "reason" => format!("{:?}", e));
+                return Ok(());
+            }
+        };
+
+        let library = Library::get_one(&mut tx, self.library_id).await?;
 
         let (tx, mut rx) = mpsc::channel();
         let mut watcher = <RecommendedWatcher as Watcher>::new(tx, Duration::from_secs(1))?;
@@ -142,10 +150,18 @@ impl FsWatcher {
             }
         };
 
-        if let Some(media_file) = MediaFile::get_by_file(&self.conn, path).await.ok() {
-            let media = Media::get_of_mediafile(&self.conn, media_file.id).await;
+        let mut tx = match self.conn.write().begin().await {
+            Ok(x) => x,
+            Err(e) => {
+                error!(self.logger, "Failed to create transaction."; "reason" => format!("{:?}", e));
+                return;
+            }
+        };
 
-            if let Err(e) = MediaFile::delete(&self.conn, media_file.id).await {
+        if let Some(media_file) = MediaFile::get_by_file(&mut tx, path).await.ok() {
+            let media = Media::get_of_mediafile(&mut tx, media_file.id).await;
+
+            if let Err(e) = MediaFile::delete(&mut tx, media_file.id).await {
                 error!(self.logger, "Failed to remove mediafile"; "reason" => format!("{:?}", e));
                 return;
             }
@@ -153,14 +169,18 @@ impl FsWatcher {
             // if we have a media with no mediafiles we want to purge it as it is a ghost media
             // entry.
             if let Ok(media) = media {
-                if let Ok(media_files) = MediaFile::get_of_media(&self.conn, media.id).await {
+                if let Ok(media_files) = MediaFile::get_of_media(&mut tx, media.id).await {
                     if media_files.is_empty() {
-                        if let Err(e) = Media::delete(&self.conn, media.id).await {
+                        if let Err(e) = Media::delete(&mut tx, media.id).await {
                             error!(self.logger, "Failed to delete ghost media {:?}", e);
                             return;
                         }
                     }
                 }
+            }
+
+            if let Err(e) = tx.commit().await {
+                error!(self.logger, "Failed to commit transaction."; "reason" => format!("{:?}", e));
             }
         }
     }
@@ -189,13 +209,21 @@ impl FsWatcher {
             }
         };
 
-        if let Some(media_file) = MediaFile::get_by_file(&self.conn, from).await.ok() {
+        let mut tx = match self.conn.write().begin().await {
+            Ok(x) => x,
+            Err(e) => {
+                error!(self.logger, "Failed to create transaction."; "reason" => format!("{:?}", e));
+                return;
+            }
+        };
+
+        if let Some(media_file) = MediaFile::get_by_file(&mut tx, from).await.ok() {
             let update_query = UpdateMediaFile {
                 target_file: Some(to.into()),
                 ..Default::default()
             };
 
-            if let Err(_e) = update_query.update(&self.conn, media_file.id).await {
+            if let Err(_e) = update_query.update(&mut tx, media_file.id).await {
                 error!(
                     self.logger,
                     "Failed to update target file";
@@ -203,6 +231,10 @@ impl FsWatcher {
                     "to" => format!("{:?}", to),
                     "mediafile_id" => media_file.id
                 );
+            }
+
+            if let Err(e) = tx.commit().await {
+                error!(self.logger, "Failed to commit transaction."; "reason" => format!("{:?}", e));
             }
         }
     }

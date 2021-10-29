@@ -14,7 +14,6 @@ use events::Message;
 use events::PushEventType;
 
 use std::collections::HashMap;
-use std::convert::Infallible;
 use std::path::Path;
 
 use slog::Logger;
@@ -46,7 +45,11 @@ pub mod filters {
             .and(warp::get())
             .and(with_db(conn))
             .and(auth::with_auth())
-            .and_then(super::library_get)
+            .and_then(|conn, auth| async move {
+                super::library_get(conn, auth)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
     }
 
     pub fn library_post(
@@ -142,9 +145,13 @@ pub mod filters {
 /// * `conn` - database connection
 /// * `_log` - logger
 /// * `_user` - Authentication middleware
-pub async fn library_get(conn: DbConnection, _user: Auth) -> Result<impl warp::Reply, Infallible> {
+pub async fn library_get(
+    conn: DbConnection,
+    _user: Auth,
+) -> Result<impl warp::Reply, errors::DimError> {
+    let mut tx = conn.read().begin().await?;
     Ok(reply::json(&{
-        let mut x = Library::get_all(&conn).await;
+        let mut x = Library::get_all(&mut tx).await;
         x.sort_by(|a, b| a.name.cmp(&b.name));
         x
     }))
@@ -166,7 +173,9 @@ pub async fn library_post(
     event_tx: EventTx,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let id = new_library.insert(&conn).await?;
+    let mut tx = conn.write().begin().await?;
+    let id = new_library.insert(&mut tx).await?;
+    tx.commit().await?;
     let tx_clone = event_tx.clone();
     let log_clone = log.clone();
 
@@ -193,6 +202,7 @@ pub async fn library_post(
         event_type: PushEventType::EventNewLibrary,
     };
 
+
     let _ = event_tx.send(serde_json::to_string(&event).unwrap());
 
     Ok(StatusCode::CREATED)
@@ -215,9 +225,11 @@ pub async fn library_delete(
     conn: DbConnection,
     event_tx: EventTx,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    Media::delete_by_lib_id(&conn, id).await?;
-    MediaFile::delete_by_lib_id(&conn, id).await?;
-    Library::delete(&conn, id).await?;
+    let mut tx = conn.write().begin().await?;
+    Library::delete(&mut tx, id).await?;
+    Media::delete_by_lib_id(&mut tx, id).await?;
+    MediaFile::delete_by_lib_id(&mut tx, id).await?;
+    tx.commit().await?;
 
     let event = Message {
         id,
@@ -241,7 +253,8 @@ pub async fn get_self(
     id: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    Ok(reply::json(&Library::get_one(&conn, id).await?))
+    let mut tx = conn.read().begin().await?;
+    Ok(reply::json(&Library::get_one(&mut tx, id).await?))
 }
 
 /// Method mapped to `GET /api/v1/library/<id>/media` returns all the movies/tv shows that belong
@@ -257,7 +270,8 @@ pub async fn get_all_library(
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut result = HashMap::new();
-    let lib = Library::get_one(&conn, id).await?;
+    let mut tx = conn.read().begin().await?;
+    let lib = Library::get_one(&mut tx, id).await?;
 
     #[derive(Serialize)]
     struct Record {
@@ -273,7 +287,7 @@ pub async fn get_all_library(
         WHERE library_id = ? AND NOT media_type = "episode""#,
         id
     )
-    .fetch_all(&conn)
+    .fetch_all(&mut tx)
     .await
     .map_err(|_| errors::DimError::NotFoundError)?;
 
@@ -298,6 +312,7 @@ pub async fn get_all_unmatched_media(
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut result = HashMap::new();
+    let mut tx = conn.read().begin().await?;
 
     #[derive(Serialize)]
     struct Record {
@@ -313,7 +328,7 @@ pub async fn get_all_unmatched_media(
         WHERE library_id = ? AND media_id IS NULL"#,
         id
     )
-    .fetch_all(&conn)
+    .fetch_all(&mut tx)
     .await
     .map_err(|_| errors::DimError::NotFoundError)?
     .into_iter()

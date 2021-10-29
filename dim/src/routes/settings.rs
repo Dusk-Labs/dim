@@ -191,8 +191,9 @@ pub async fn get_user_settings(
     db: DbConnection,
     user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
+    let mut tx = db.read().begin().await?;
     Ok(reply::json(
-        &User::get(&db, &user.0.claims.get_user()).await?.prefs,
+        &User::get(&mut tx, &user.0.claims.get_user()).await?.prefs,
     ))
 }
 
@@ -201,11 +202,16 @@ pub async fn post_user_settings(
     user: Auth,
     new_settings: UserSettings,
 ) -> Result<impl warp::Reply, errors::DimError> {
+    let mut tx = db.write().begin().await?;
     let update_user = UpdateableUser {
         prefs: Some(new_settings.clone()),
     };
 
-    update_user.update(&db, &user.0.claims.get_user()).await?;
+    update_user
+        .update(&mut tx, &user.0.claims.get_user())
+        .await?;
+
+    tx.commit().await?;
 
     Ok(reply::json(&new_settings))
 }
