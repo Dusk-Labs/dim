@@ -13,6 +13,7 @@
   .username {
     display: grid;
     grid-template-columns: [padding] 1fr [username] 3fr [icon] 1fr;
+    column-gap: 7px;
     justify-content: center;
     align-items: center;
 
@@ -100,6 +101,7 @@
       align-items: center;
       padding: 1em;
       width: 100%;
+      user-select: none;
 
       &:hover {
         background: var(--tertiaryColor);
@@ -151,6 +153,11 @@
           transform: rotate(180deg);
         }
       }
+    }
+
+    .dropDownContent {
+      left: -1em;
+      right: -1em;
     }
   }
 }
