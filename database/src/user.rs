@@ -69,6 +69,9 @@ pub struct UserSettings {
     /// Whether hovercards are hidden or not
     #[serde(default)]
     show_hovercards: bool,
+    /// Whether to use Shaka Player over Dash.js
+    #[serde(default)]
+    _enable_shaka: bool,
 }
 
 impl Default for UserSettings {
@@ -84,6 +87,7 @@ impl Default for UserSettings {
             external_args: HashMap::new(),
             show_hovercards: true,
             default_video_quality: DefaultVideoQuality::DirectPlay,
+            _enable_shaka: false,
         }
     }
 }
