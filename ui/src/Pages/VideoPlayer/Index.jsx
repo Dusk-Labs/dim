@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { MediaPlayer, Debug } from "dashjs";
 
-import { setTracks, setGID, setManifestState, updateVideo, incIdleCount, clearVideoData } from "../../actions/video";
+import { setTracks, setGID, setManifestState, updateVideo, incIdleCount } from "../../actions/video";
 import { VideoPlayerContext } from "./Context";
 import VideoEvents from "./Events";
 import VideoMediaData from "./MediaData";
@@ -15,20 +14,23 @@ import ErrorBox from "./ErrorBox";
 import ContinueProgress from "./ContinueProgress";
 import VideoSubtitles from "./Subtitles";
 
+import BackendDash from "./BackendDash";
+import BackendShaka from "./BackendShaka";
+
+import ShakaEvents from "./ShakaEvents";
+
 import "./Index.scss";
 
 function VideoPlayer() {
   const params = useParams();
   const dispatch = useDispatch();
 
-  const { error, manifest, player, audioTracks, videoTracks, video, auth, media } = useSelector(store => ({
+  const { error, manifest, player, video, auth, media } = useSelector(store => ({
     media: store.media,
     auth: store.auth,
     video: store.video,
     player: store.video.player,
     manifest: store.video.manifest,
-    videoTracks: store.video.tracks.video,
-    audioTracks: store.video.tracks.audio,
     error: store.video.error
   }));
 
@@ -84,88 +86,9 @@ function VideoPlayer() {
     }
   }, [media, video.mediaID]);
 
-  useEffect(() => {
-    if (!video.gid || !manifest.virtual.loaded) return;
-
-    console.log("[video] loading manifest");
-
-    dispatch(setManifestState({
-      loading: true,
-      loaded: false
-    }));
-
-    const includes = `${videoTracks.list.map(track => track.id).join(",")},${audioTracks.list.map(track => track.id).join(",")}`;
-    const url = `/api/v1/stream/${video.gid}/manifest.mpd?start_num=0&should_kill=false&includes=${includes}`;
-    const mediaPlayer = MediaPlayer().create();
-
-    // even with these settings, high bitrate movies fail.
-    // The only solution is to have a constant bitrate and cosistent segments.
-    // Thus transcoding is the only solution.
-    let settings = {
-      debug: {
-        logLevel: Debug.LOG_LEVEL_DEBUG
-      },
-      streaming: {
-        /*
-        stableBufferTime: 20,
-        bufferToKeep: 10,
-        bufferTimeAtTopQuality: 20,
-        bufferTimeAtTopQualityLongForm: 20,
-        useAppendWindow: true,
-        bufferPruningInterval: 10,
-        smallGapLimit: 1000,
-        */
-        abr: {
-          autoSwitchBitrate: {
-            video: false
-          }
-        }
-      }
-    };
-
-    mediaPlayer.updateSettings(settings);
-    mediaPlayer.extend("RequestModifier", function () {
-      return {
-        modifyRequestHeader: function (xhr) {
-          xhr.setRequestHeader("Authorization", auth.token);
-          return xhr;
-        },
-        modifyRequestURL: function (url) {
-          return url;
-        }
-      };
-    });
-
-    const getInitialTrack = (trackArr) => {
-      const trackList = trackArr[0].type === "video" ? videoTracks.list : audioTracks.list;
-      const defaultTrack = trackList.filter(track => track.is_default)[0];
-      const initialTracks = trackArr.filter(x => x.id === defaultTrack.set_id);
-      console.log(`[${trackArr[0].type}] setting initial track to`, initialTracks);
-      return initialTracks;
-    };
-
-    mediaPlayer.initialize(videoRef.current, url, true);
-    mediaPlayer.setCustomInitialTrackSelectionFunction(getInitialTrack);
-
-    dispatch(updateVideo({
-      player: mediaPlayer
-    }));
-
-    return () => {
-      dispatch(clearVideoData());
-      mediaPlayer.destroy();
-
-      if (!video.gid) return;
-
-      (async () => {
-        await fetch(`/api/v1/stream/${video.gid}/state/kill`);
-        sessionStorage.clear();
-      })();
-    };
-  }, [audioTracks.list, auth.token, dispatch, manifest.virtual.loaded, video.gid, videoTracks.list]);
-
   const seekTo = useCallback(newTime => {
-    player.seek(newTime);
+    //player.seek(newTime);
+    player.getMediaElement().currentTime = newTime;
 
     dispatch(updateVideo({
       seeking: false,
@@ -184,13 +107,14 @@ function VideoPlayer() {
     overlay: overlay.current,
     seekTo
   };
+  //<VideoEvents/>
 
   return (
     <VideoPlayerContext.Provider value={initialValue}>
       <div className="videoPlayer" ref={videoPlayer}>
-        <VideoEvents/>
+        <ShakaEvents videoRef={videoRef}/>
         <VideoMediaData/>
-        <video ref={videoRef}/>
+        <BackendShaka videoRef={videoRef}/>
         <VideoSubtitles/>
         <div className="overlay" ref={overlay}>
           {(!error && (manifest.loaded && video.canPlay)) && <Menus/>}

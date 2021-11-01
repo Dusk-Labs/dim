@@ -16,6 +16,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
+    "shaka-player": "^3.2.1",
     "typescript": "^4.4.4",
     "web-vitals": "^1.0.1"
   },

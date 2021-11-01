@@ -108,7 +108,8 @@ function VideoActionVolume() {
 
     const newVolume = currentVolume / 100;
 
-    player.setVolume(newVolume);
+    // FIXME: Make this compatible with dashjs?
+    player.getMediaElement().volume = newVolume;
 
     volRef.current.style.width = `${currentVolume}%`;
     volSliderRef.current.setAttribute("data-currentVolume", currentVolume);
@@ -117,16 +118,16 @@ function VideoActionVolume() {
   useEffect(() => {
     if (!player) return;
 
-    const prefVideoVolume = localStorage.getItem("videoVolume");
+    const prefVideoVolume = parseInt(localStorage.getItem("videoVolume")) / 100;
 
     if (prefVideoVolume) {
       setCurrentVolume(prefVideoVolume);
-      player.setVolume(prefVideoVolume / 100);
+      player.getMediaElement().volume = prefVideoVolume;
     }
 
     if (!prefVideoVolume) {
       setCurrentVolume(100);
-      player.setVolume(prefVideoVolume / 100);
+      player.getMediaElement().volume = prefVideoVolume;
     }
   }, [player]);
 

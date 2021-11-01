@@ -19,7 +19,7 @@ function VideoActionPlayPause() {
       idleCount: 0
     }));
 
-    player.play();
+    player.getMediaElement().play();
   }, [dispatch, player]);
 
   const pause = useCallback(() => {
@@ -27,7 +27,7 @@ function VideoActionPlayPause() {
       idleCount: 0
     }));
 
-    player.pause();
+    player.getMediaElement().pause();
   }, [dispatch, player]);
 
   const handleKeyDown = useCallback(e => {

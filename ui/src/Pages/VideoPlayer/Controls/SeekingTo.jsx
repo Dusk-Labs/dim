@@ -18,7 +18,7 @@ function SeekingTo(props) {
   const handleMousemove = useCallback(e => {
     const rect = e.target.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
-    const videoDuration = player.duration();
+    const videoDuration = player.getMediaElement !== undefined ? player.getMediaElement().duration : player.duration();
     const newTime = Math.floor(percent * videoDuration);
 
     seekingToDiv.current.style.left = `${e.layerX}px`;
