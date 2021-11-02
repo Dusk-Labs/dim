@@ -17,8 +17,6 @@ use std::collections::HashMap;
 use std::convert::Infallible;
 use std::path::Path;
 
-use slog::Logger;
-
 use warp::http::StatusCode;
 use warp::reply;
 
@@ -51,7 +49,6 @@ pub mod filters {
 
     pub fn library_post(
         conn: DbConnection,
-        logger: slog::Logger,
         event_tx: EventTx,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "library")
@@ -59,15 +56,13 @@ pub mod filters {
             .and(warp::body::json::<InsertableLibrary>())
             .and(auth::with_auth())
             .and(with_state::<EventTx>(event_tx))
-            .and(with_state::<slog::Logger>(logger))
             .and(with_state::<DbConnection>(conn))
             .and_then(
                 |new_library: InsertableLibrary,
                  user: Auth,
                  event_tx: EventTx,
-                 logger: slog::Logger,
                  conn: DbConnection| async move {
-                    super::library_post(conn, new_library, logger, event_tx, user)
+                    super::library_post(conn, new_library, event_tx, user)
                         .await
                         .map_err(|e| reject::custom(e))
                 },
@@ -162,25 +157,21 @@ pub async fn library_get(conn: DbConnection, _user: Auth) -> Result<impl warp::R
 pub async fn library_post(
     conn: DbConnection,
     new_library: InsertableLibrary,
-    log: Logger,
     event_tx: EventTx,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let id = new_library.insert(&conn).await?;
     let tx_clone = event_tx.clone();
-    let log_clone = log.clone();
 
     tokio::spawn(async move {
-        let _ = scanners::start(id, log_clone, tx_clone).await;
+        let _ = scanners::start(id, tx_clone).await;
     });
 
     let media_type = new_library.media_type;
     let tx_clone = event_tx.clone();
-    let log_clone = log.clone();
 
     tokio::spawn(async move {
-        let watcher =
-            scanners::scanner_daemon::FsWatcher::new(log_clone, id, media_type, tx_clone).await;
+        let watcher = scanners::scanner_daemon::FsWatcher::new(id, media_type, tx_clone).await;
 
         watcher
             .start_daemon()

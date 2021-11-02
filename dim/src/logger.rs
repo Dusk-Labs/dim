@@ -1,18 +1,13 @@
-use slog::info;
-use slog::o;
-
 use warp::filters::log::Info;
 
+use tracing::info;
+
 #[derive(Clone)]
-pub struct RequestLogger {
-    logger: slog::Logger,
-}
+pub struct RequestLogger {}
 
 impl RequestLogger {
-    pub fn new(logger: slog::Logger) -> Self {
-        Self {
-            logger: logger.new(o!("mod" => "warp")),
-        }
+    pub fn new() -> Self {
+        Self {}
     }
 }
 
@@ -25,13 +20,16 @@ impl RequestLogger {
         };
 
         info!(
-            self.logger,
-            "{}", info.method();
-            "route" => info.path().to_string(),
-            "status" => info.status().to_string(),
-            "ip" => info.remote_addr().map(|x| x.to_string()).unwrap_or("???.???.???.???".into()),
-            "duration" => duration,
-            "duration_tag" => tag,
+            "{} {} {} {} {} {}",
+            info.method(),
+            route = info.path().to_string(),
+            status = info.status().to_string(),
+            ip = info
+                .remote_addr()
+                .map(|x| x.to_string())
+                .unwrap_or("???.???.???.???".into()),
+            duration = duration,
+            duration_tag = tag,
         );
     }
 }

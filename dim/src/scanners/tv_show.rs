@@ -16,20 +16,17 @@ use chrono::prelude::Utc;
 use chrono::Datelike;
 use chrono::NaiveDate;
 
-use slog::debug;
-use slog::error;
-use slog::warn;
-use slog::Logger;
-
 use events::Message;
 use events::PushEventType;
+use tracing::debug;
+use tracing::error;
+use tracing::warn;
 
 use crate::core::EventTx;
 use crate::fetcher::insert_into_queue;
 
 pub struct TvShowMatcher<'a> {
     pub conn: &'a DbConnection,
-    pub log: &'a Logger,
     pub event_tx: &'a EventTx,
 }
 
@@ -50,11 +47,11 @@ impl<'a> TvShowMatcher<'a> {
         let backdrop_path = result.backdrop_path.clone();
 
         if let Some(poster_path) = poster_path.as_ref() {
-            let _ = insert_into_queue(self.log, poster_path.clone(), 3).await;
+            let _ = insert_into_queue(poster_path.clone(), 3).await;
         }
 
         if let Some(backdrop_path) = backdrop_path.as_ref() {
-            let _ = insert_into_queue(self.log, backdrop_path.clone(), 3).await;
+            let _ = insert_into_queue(backdrop_path.clone(), 3).await;
         }
 
         let poster = match poster_path {
@@ -75,11 +72,11 @@ impl<'a> TvShowMatcher<'a> {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            self.log,
-                            "Failed to insert poster into db";
-                            "reason" => e.to_string(),
-                            "orphan_id" => orphan.id
+                            "Failed to insert poster into db {}/{}",
+                            reason = e.to_string(),
+                            orphan_id = orphan.id
                         );
+
                         None
                     }
                 }
@@ -105,10 +102,9 @@ impl<'a> TvShowMatcher<'a> {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            self.log,
-                            "Failed to insert backdrop into db";
-                            "reason" => e.to_string(),
-                            "orphan_id" => orphan.id
+                            "Failed to insert backdrop into db {}/{}",
+                            reason = e.to_string(),
+                            orphan_id = orphan.id
                         );
                         None
                     }
@@ -131,10 +127,9 @@ impl<'a> TvShowMatcher<'a> {
 
         if let Err(e) = self.insert(orphan, media, result).await {
             warn!(
-                self.log,
-                "Failed to insert new media";
-                "id" => orphan.id,
-                "reason" => e.to_string(),
+                "Failed to insert new media {}/{}",
+                id = orphan.id,
+                reason = e.to_string(),
             );
         }
     }
@@ -170,7 +165,7 @@ impl<'a> TvShowMatcher<'a> {
         let poster_file = season.and_then(|x| x.poster_path.clone());
 
         if let Some(x) = poster_file.as_ref() {
-            let _ = insert_into_queue(self.log, x.clone(), 2).await;
+            let _ = insert_into_queue(x.clone(), 2).await;
         }
 
         let season_poster = match poster_file {
@@ -190,10 +185,9 @@ impl<'a> TvShowMatcher<'a> {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            self.log,
-                            "Failed to insert season poster into db";
-                            "reason" => e.to_string(),
-                            "orphan_id" => orphan.id
+                            "Failed to insert season poster into db {}/{}",
+                            reason = e.to_string(),
+                            orphan_id = orphan.id
                         );
                         None
                     }
@@ -211,7 +205,10 @@ impl<'a> TvShowMatcher<'a> {
         let seasonid = match insertable_season.insert(&self.conn, media_id).await {
             Ok(x) => x,
             Err(e) => {
-                warn!(self.log, "Failed to insert season into the database."; "reason" => e.to_string());
+                warn!(
+                    "Failed to insert season into the database. {}",
+                    reason = e.to_string()
+                );
                 return Err(e.into());
             }
         };
@@ -228,7 +225,7 @@ impl<'a> TvShowMatcher<'a> {
         let still = search_ep.as_ref().and_then(|x| x.still.clone());
 
         if let Some(x) = still.as_ref() {
-            let _ = insert_into_queue(self.log, x.clone(), 1).await;
+            let _ = insert_into_queue(x.clone(), 1).await;
         }
 
         let backdrop = match still {
@@ -249,10 +246,9 @@ impl<'a> TvShowMatcher<'a> {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            self.log,
-                            "Failed to insert still into db";
-                            "reason" => e.to_string(),
-                            "orphan_id" => orphan.id
+                            "Failed to insert still into db {}/{}",
+                            reason = e.to_string(),
+                            orphan_id = orphan.id
                         );
                         None
                     }
@@ -262,11 +258,10 @@ impl<'a> TvShowMatcher<'a> {
         };
 
         debug!(
-            self.log,
-            "Inserting new episode";
-            "seasonid" => seasonid,
-            "episode" => orphan.episode.unwrap_or(0),
-            "target_file" => &orphan.target_file,
+            "Inserting new episode {}/{}/{}",
+            seasonid = seasonid,
+            episode = orphan.episode.unwrap_or(0),
+            target_file = &orphan.target_file,
         );
 
         let episode = InsertableEpisode {
@@ -293,11 +288,10 @@ impl<'a> TvShowMatcher<'a> {
         let raw_ep_id = episode.media.insert_blind(&self.conn).await?;
         if let Err(e) = InsertableMovie::insert(&self.conn, raw_ep_id).await {
             error!(
-                self.log,
-                "Failed to turn episode into a streamable movie";
-                "error" => format!("{:?}", e),
-                "episode_id" => raw_ep_id,
-                "file" => &orphan.target_file,
+                "Failed to turn episode into a streamable movie {}/{}/{}",
+                error = format!("{:?}", e),
+                episode_id = raw_ep_id,
+                file = &orphan.target_file,
             );
         }
 

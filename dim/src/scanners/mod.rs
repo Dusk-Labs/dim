@@ -7,10 +7,10 @@ pub mod tv_show;
 use database::get_conn;
 use database::library::Library;
 use database::library::MediaType;
+use tracing::info;
+use tracing::instrument;
 
 use crate::core::EventTx;
-
-use slog::info;
 
 use once_cell::sync::OnceCell;
 use walkdir::WalkDir;
@@ -61,19 +61,18 @@ pub(super) static METADATA_EXTRACTOR: OnceCell<base::MetadataExtractor> = OnceCe
 pub(super) static METADATA_MATCHER: OnceCell<base::MetadataMatcher> = OnceCell::new();
 pub(super) static SUPPORTED_EXTS: &[&str] = &["mp4", "mkv", "avi", "webm"];
 
-pub fn get_extractor(log: &slog::Logger, _tx: &EventTx) -> &'static base::MetadataExtractor {
+pub fn get_extractor(_tx: &EventTx) -> &'static base::MetadataExtractor {
     let mut handle = xtra::spawn::Tokio::Global;
 
-    METADATA_EXTRACTOR
-        .get_or_init(|| base::MetadataExtractor::cluster(&mut handle, 4, log.clone()).1)
+    METADATA_EXTRACTOR.get_or_init(|| base::MetadataExtractor::cluster(&mut handle, 4).1)
 }
 
-pub fn get_matcher(log: &slog::Logger, tx: &EventTx) -> &'static base::MetadataMatcher {
+pub fn get_matcher(tx: &EventTx) -> &'static base::MetadataMatcher {
     let mut handle = xtra::spawn::Tokio::Global;
 
     METADATA_MATCHER.get_or_init(|| {
         let conn = database::try_get_conn().expect("Failed to grab a connection");
-        base::MetadataMatcher::cluster(&mut handle, 6, log.clone(), conn.clone(), tx.clone()).1
+        base::MetadataMatcher::cluster(&mut handle, 6, conn.clone(), tx.clone()).1
     })
 }
 
@@ -81,14 +80,19 @@ pub fn get_matcher_unchecked() -> &'static base::MetadataMatcher {
     METADATA_MATCHER.get().unwrap()
 }
 
-pub async fn start_custom(
+#[instrument(skip(paths))]
+pub async fn start_custom<I, T>(
     library_id: i64,
-    log: slog::Logger,
     tx: EventTx,
-    paths: impl Iterator<Item = impl AsRef<Path>>,
+    paths: I,
     media_type: MediaType,
-) -> Result<(), self::base::ScannerError> {
-    info!(log, "Scanning library"; "mod" => "scanner", "library_id" => library_id);
+) -> Result<(), self::base::ScannerError>
+where
+    I: Iterator<Item = T>,
+    T: AsRef<Path>,
+{
+    info!(library_id = library_id, "Scanning library");
+
     tx.send(
         events::Message {
             id: library_id,
@@ -100,8 +104,8 @@ pub async fn start_custom(
 
     let _conn = get_conn().await.expect("Failed to grab the conn pool");
 
-    let extractor = get_extractor(&log, &tx);
-    let matcher = get_matcher(&log, &tx);
+    let extractor = get_extractor(&tx);
+    let matcher = get_matcher(&tx);
 
     let mut files = Vec::with_capacity(2048);
     for path in paths {
@@ -132,11 +136,10 @@ pub async fn start_custom(
     let total_files = files.len();
 
     info!(
-        log,
-        "Walked library directory";
-        "mod" => "scanner",
-        "library_id" => library_id,
-        "files" => total_files,
+        "Walked library directory {}/{}/{}",
+        module = "scanner",
+        library_id = library_id,
+        files = total_files,
     );
 
     let mut futures = Vec::new();
@@ -159,13 +162,14 @@ pub async fn start_custom(
     }
 
     futures::future::join_all(futures).await;
+
     info!(
-        log,
-        "Finished scanning library";
-        "library_id" => library_id,
-        "files" => total_files,
-        "duration" => now.elapsed().as_secs(),
+        "Finished scanning library {}/{}/{}",
+        library_id = library_id,
+        files = total_files,
+        duration = now.elapsed().as_secs(),
     );
+
     tx.send(
         events::Message {
             id: library_id,
@@ -178,19 +182,9 @@ pub async fn start_custom(
     Ok(())
 }
 
-pub async fn start(
-    library_id: i64,
-    log: slog::Logger,
-    tx: EventTx,
-) -> Result<(), self::base::ScannerError> {
+pub async fn start(library_id: i64, tx: EventTx) -> Result<(), self::base::ScannerError> {
     let conn = get_conn().await.expect("Failed to grab the conn pool");
     let lib = Library::get_one(&conn, library_id).await?;
-    start_custom(
-        library_id,
-        log,
-        tx,
-        lib.locations.into_iter(),
-        lib.media_type,
-    )
-    .await
+
+    start_custom(library_id, tx, lib.locations.into_iter(), lib.media_type).await
 }

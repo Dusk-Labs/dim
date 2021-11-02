@@ -7,11 +7,9 @@ use crate::websocket;
 
 use once_cell::sync::OnceCell;
 
-use slog::info;
-use slog::Logger;
-
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::sync::mpsc::UnboundedSender;
+use tracing::{info, instrument};
 
 use warp::http::status::StatusCode;
 use warp::Filter;
@@ -32,25 +30,25 @@ pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
 /// * `log` - Logger to which to log shit
 /// * `tx` - this is the websocket channel to which we can send websocket events to which get
 /// dispatched to clients.
-pub async fn run_scanners(log: Logger, tx: EventTx) {
-    if let Ok(conn) = database::get_conn_logged(&log).await {
+#[instrument]
+pub async fn run_scanners(tx: EventTx) {
+    if let Ok(conn) = database::get_conn_logged().await {
         for lib in database::library::Library::get_all(&conn).await {
-            slog::info!(log, "Starting scanner for {} with id: {}", lib.name, lib.id);
-            let log_clone = log.clone();
+            info!("Starting scanner for {} with id: {}", lib.name, lib.id);
+
             let library_id = lib.id;
             let tx_clone = tx.clone();
 
-            tokio::spawn(scanners::start(library_id, log_clone.clone(), tx_clone));
+            tokio::spawn(scanners::start(library_id, tx_clone));
 
-            let log_clone = log.clone();
             let library_id = lib.id;
             let tx_clone = tx.clone();
             let media_type = lib.media_type;
+
             tokio::spawn(async move {
-                let watcher = scanners::scanner_daemon::FsWatcher::new(
-                    log_clone, library_id, media_type, tx_clone,
-                )
-                .await;
+                let watcher =
+                    scanners::scanner_daemon::FsWatcher::new(library_id, media_type, tx_clone)
+                        .await;
 
                 watcher
                     .start_daemon()
@@ -61,8 +59,8 @@ pub async fn run_scanners(log: Logger, tx: EventTx) {
     }
 }
 
+#[instrument(skip(stream_manager))]
 pub async fn warp_core(
-    logger: slog::Logger,
     event_tx: EventTx,
     stream_manager: StateManager,
     rt: tokio::runtime::Handle,
@@ -75,7 +73,7 @@ pub async fn warp_core(
         .await
         .expect("Failed to grab a handle to the connection pool.");
 
-    let request_logger = RequestLogger::new(logger.clone());
+    let request_logger = RequestLogger::new();
 
     let api_routes = balanced_or_tree![
         /* NOTE: v1 REST API routes start HERE */
@@ -96,7 +94,7 @@ pub async fn warp_core(
         routes::general::filters::get_directory_structure(),
         /* library routes */
         routes::library::filters::library_get(conn.clone()),
-        routes::library::filters::library_post(conn.clone(), logger.clone(), event_tx.clone()),
+        routes::library::filters::library_post(conn.clone(), event_tx.clone()),
         routes::library::filters::library_delete(conn.clone(), event_tx.clone()),
         routes::library::filters::library_get_self(conn.clone()),
         routes::library::filters::get_all_of_library(conn.clone()),
@@ -120,7 +118,7 @@ pub async fn warp_core(
         routes::tv::filters::delete_episode_by_id(conn.clone()),
         /* mediafile routes */
         routes::mediafile::filters::get_mediafile_info(conn.clone()),
-        routes::mediafile::filters::rematch_mediafile(conn.clone(), logger.clone()),
+        routes::mediafile::filters::rematch_mediafile(conn.clone()),
         /* settings routes */
         routes::settings::filters::get_user_settings(conn.clone()),
         routes::settings::filters::post_user_settings(conn.clone()),
@@ -130,8 +128,7 @@ pub async fn warp_core(
         routes::stream::filters::return_virtual_manifest(
             conn.clone(),
             state.clone(),
-            stream_tracking.clone(),
-            logger.clone()
+            stream_tracking.clone()
         ),
         routes::stream::filters::return_manifest(
             conn.clone(),
@@ -167,7 +164,7 @@ pub async fn warp_core(
             .recover(routes::global_filters::handle_rejection),
         /* static routes */
         routes::statik::filters::dist_static(),
-        routes::statik::filters::get_image(conn.clone(), logger.clone()),
+        routes::statik::filters::get_image(conn.clone()),
         routes::statik::filters::react_routes(),
     ]
     .recover(routes::global_filters::handle_rejection)
@@ -182,7 +179,7 @@ pub async fn warp_core(
         }
     }
 
-    info!(logger, "Webserver is listening on 0.0.0.0:{}", port);
+    info!("Webserver is listening on 0.0.0.0:{}", port);
 
     tokio::select! {
         _ = warp::serve(routes).run(([0, 0, 0, 0], port)) => {},

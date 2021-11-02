@@ -1,6 +1,10 @@
 use err_derive::Error;
 use std::path::Path;
 use std::path::PathBuf;
+use tracing::debug;
+use tracing::error;
+use tracing::info;
+use tracing::warn;
 
 use database::library::MediaType;
 use database::mediafile::InsertableMediaFile;
@@ -18,12 +22,6 @@ use crate::streaming::FFPROBE_BIN;
 use super::ApiMedia;
 
 use torrent_name_parser::Metadata;
-
-use slog::debug;
-use slog::error;
-use slog::info;
-use slog::o;
-use slog::warn;
 
 use serde::Serialize;
 
@@ -68,15 +66,13 @@ impl From<database::DatabaseError> for ScannerError {
 #[actor]
 pub struct MetadataExtractor {
     pub conn: DbConnection,
-    pub logger: slog::Logger,
 }
 
 #[actor]
 impl MetadataExtractor {
-    pub fn new(logger: slog::Logger) -> Self {
+    pub fn new() -> Self {
         Self {
             conn: database::try_get_conn().unwrap().clone(),
-            logger: logger.new(o!("actor" => "MetadataExtractor")),
         }
     }
 
@@ -92,11 +88,8 @@ impl MetadataExtractor {
         let _file_name = if let Some(file_name) = file.file_name().and_then(|x| x.to_str()) {
             file_name
         } else {
-            warn!(
-                self.logger,
-                "Received non-unicode filename";
-                "file" => target_file,
-            );
+            warn!("Received non-unicode filename {}", file = target_file);
+
             return Err(ScannerError::UnknownError);
         };
 
@@ -105,11 +98,11 @@ impl MetadataExtractor {
 
         if let Ok(_media_file) = res {
             debug!(
-                self.logger,
-                "File already exists in the db";
-                "file" => file.to_string_lossy().to_string(),
-                "library_id" => library_id,
+                "File already exists in the db {}/{}",
+                file = file.to_string_lossy().to_string(),
+                library_id = library_id,
             );
+
             return Err(ScannerError::UnknownError);
         }
 
@@ -137,7 +130,7 @@ impl MetadataExtractor {
         let metadata = match spawn_blocking(meta_from_string).await {
             Ok(x) => x?,
             Err(e) => {
-                error!(self.logger, "Metadata::from possibly panic'd"; "e" => format!("{:?}", e));
+                error!("Metadata::from possibly panicked {}", e = e.to_string());
                 return Err(ScannerError::UnknownError);
             }
         };
@@ -146,9 +139,8 @@ impl MetadataExtractor {
             data
         } else {
             error!(
-                self.logger,
-                "Couldnt extract media information with ffprobe";
-                "file" => file.to_string_lossy().to_string(),
+                "Couldnt extract media information with ffprobe {}",
+                file = file.to_string_lossy().to_string(),
             );
             return Err(ScannerError::FFProbeError);
         };
@@ -181,14 +173,13 @@ impl MetadataExtractor {
         assert!(file_id == id.id);
 
         info!(
-            self.logger,
-            "Scanned file";
-            "file" => &target_file,
-            "library_id" => library_id,
-            "id" => file_id,
-            "2nd_pass_id" => id.id,
-            "season" => metadata.season().unwrap_or(0),
-            "episode" => metadata.episode().unwrap_or(0),
+            "Scanned file {}/{}/{}/{}/{}/{}",
+            file = &target_file,
+            library_id = library_id,
+            id = file_id,
+            second_pass_id = id.id,
+            season = metadata.season().unwrap_or(0),
+            episode = metadata.episode().unwrap_or(0),
         );
 
         Ok(id)
@@ -199,20 +190,18 @@ impl MetadataExtractor {
 pub struct MetadataMatcher {
     pub movie_tmdb: Tmdb,
     pub tv_tmdb: Tmdb,
-    pub log: slog::Logger,
     pub conn: DbConnection,
     pub event_tx: EventTx,
 }
 
 #[actor]
 impl MetadataMatcher {
-    pub fn new(log: slog::Logger, conn: DbConnection, event_tx: EventTx) -> Self {
+    pub fn new(conn: DbConnection, event_tx: EventTx) -> Self {
         Self {
             conn,
             event_tx,
             movie_tmdb: Tmdb::new("38c372f5bc572c8aadde7a802638534e".into(), MediaType::Movie),
             tv_tmdb: Tmdb::new("38c372f5bc572c8aadde7a802638534e".into(), MediaType::Tv),
-            log: log.new(o!("actor" => "MetadataMatcher")),
         }
     }
 
@@ -225,14 +214,8 @@ impl MetadataMatcher {
         {
             Ok(v) => v,
             Err(e) => {
-                error!(
-                    self.log,
-                    "Could not match movie to tmdb";
-                    "reason" => e.to_string(),
-                    "raw_name" => media.raw_name.clone(),
-                    "raw_year" => media.raw_year,
-                    "target_file" => media.target_file.clone(),
-                );
+                error!("Could not match movie to tmdb {}", reason = e.to_string());
+
                 return Err(ScannerError::UnknownError);
             }
         };
@@ -248,7 +231,6 @@ impl MetadataMatcher {
     ) -> Result<(), ScannerError> {
         let matcher = MovieMatcher {
             conn: &self.conn,
-            log: &self.log,
             event_tx: &self.event_tx,
         };
 
@@ -317,13 +299,7 @@ impl MetadataMatcher {
         let result = match result {
             Ok(v) => v,
             Err(e) => {
-                error!(
-                    self.log,
-                    "Could not match tv show to tmdb";
-                    "reason" => e.to_string(),
-                    "raw_name" => media.raw_name.clone(),
-                    "target_file" => media.target_file.clone(),
-                );
+                error!("Could not match tv show to tmdb {}", reason = e.to_string(),);
                 return Err(ScannerError::UnknownError);
             }
         };
@@ -415,7 +391,6 @@ impl MetadataMatcher {
 
         let matcher = TvShowMatcher {
             conn: &self.conn,
-            log: &self.log,
             event_tx: &self.event_tx,
         };
 

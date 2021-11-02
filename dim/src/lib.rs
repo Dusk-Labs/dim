@@ -23,16 +23,6 @@
 //! root dir.
 use chrono::Utc;
 
-use slog::o;
-use slog::Drain;
-use slog::Duplicate;
-use slog::Logger;
-
-use slog_async::Async;
-use slog_json::Json as slog_json_default;
-use slog_term::FullFormat;
-use slog_term::TermDecorator;
-
 use std::fs::create_dir_all;
 use std::fs::File;
 
@@ -63,38 +53,39 @@ pub use routes::settings::set_global_settings;
 pub use routes::settings::GlobalSettings;
 
 /// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.
-pub fn build_logger(_debug: bool) -> slog::Logger {
-    let date_now = Utc::now();
+pub fn build_logger(_debug: bool) -> () {
+    todo!();
+    // let date_now = Utc::now();
 
-    let decorator = TermDecorator::new().build();
-    let drain = FullFormat::new(decorator)
-        .use_original_order()
-        .build()
-        .fuse();
+    // let decorator = TermDecorator::new().build();
+    // let drain = FullFormat::new(decorator)
+    //     .use_original_order()
+    //     .build()
+    //     .fuse();
 
-    let drain = Async::new(drain)
-        .chan_size(2048)
-        .overflow_strategy(slog_async::OverflowStrategy::Block)
-        .build()
-        .fuse();
+    // let drain = Async::new(drain)
+    //     .chan_size(2048)
+    //     .overflow_strategy(slog_async::OverflowStrategy::Block)
+    //     .build()
+    //     .fuse();
 
-    let _ = create_dir_all("logs");
+    // let _ = create_dir_all("logs");
 
-    cfg_if::cfg_if! {
-        if #[cfg(target_os = "windows")] {
-            let file = File::create("./logs/dim-log.log")
-                .expect("Couldnt open log file");
-        } else {
-            let file = File::create(format!("./logs/dim-log-{}.log", date_now.to_rfc3339()))
-                .expect("Couldnt open log file");
-        }
-    }
+    // cfg_if::cfg_if! {
+    //     if #[cfg(target_os = "windows")] {
+    //         let file = File::create("./logs/dim-log.log")
+    //             .expect("Couldnt open log file");
+    //     } else {
+    //         let file = File::create(format!("./logs/dim-log-{}.log", date_now.to_rfc3339()))
+    //             .expect("Couldnt open log file");
+    //     }
+    // }
 
-    let json_drain = Async::new(slog_json_default::default(file).fuse())
-        .chan_size(2048)
-        .overflow_strategy(slog_async::OverflowStrategy::Block)
-        .build()
-        .fuse();
+    // let json_drain = Async::new(slog_json_default::default(file).fuse())
+    //     .chan_size(2048)
+    //     .overflow_strategy(slog_async::OverflowStrategy::Block)
+    //     .build()
+    //     .fuse();
 
-    Logger::root(Duplicate::new(drain, json_drain).fuse(), o!())
+    // Logger::root(Duplicate::new(drain, json_drain).fuse(), o!())
 }

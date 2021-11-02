@@ -1,10 +1,9 @@
-use slog::error;
-use slog::info;
-
 use std::fs::create_dir_all;
 use std::path::PathBuf;
 use std::time::Duration;
 
+use tracing::error;
+use tracing::info;
 use xtra::spawn::Tokio;
 
 use dim::build_logger;
@@ -65,12 +64,12 @@ fn main() {
             .into_iter()
             .fold(false, |failed, item| match item {
                 Ok(stdout) => {
-                    info!(logger, "{}", stdout);
+                    info!("{}", stdout);
                     failed
                 }
 
                 Err(program) => {
-                    error!(logger, "Could not find: {}", program);
+                    error!("Could not find: {}", program);
                     true
                 }
             });
@@ -80,10 +79,10 @@ fn main() {
         }
     }
 
-    nightfall::profiles::profiles_init(logger.clone(), crate::streaming::FFMPEG_BIN.to_string());
+    nightfall::profiles::profiles_init(crate::streaming::FFMPEG_BIN.to_string());
 
     let async_main = async move {
-        dim::fetcher::tmdb_poster_fetcher(logger.clone()).await;
+        dim::fetcher::tmdb_poster_fetcher().await;
 
         let (event_tx, event_rx) = tokio::sync::mpsc::unbounded_channel();
 
@@ -91,7 +90,6 @@ fn main() {
             &mut Tokio::Global,
             global_settings.cache_dir.clone(),
             crate::streaming::FFMPEG_BIN.to_string(),
-            logger.clone(),
         );
 
         let stream_manager_clone = stream_manager.clone();
@@ -108,27 +106,15 @@ fn main() {
         });
 
         if !global_settings.quiet_boot {
-            info!(logger, "Transposing scanners from the netherworld...");
-            core::run_scanners(logger.clone(), event_tx.clone()).await;
+            info!("Transposing scanners from the netherworld...");
+            core::run_scanners(event_tx.clone()).await;
         }
 
-        info!(
-            logger,
-            "Summoning Dim v{}...",
-            structopt::clap::crate_version!()
-        );
+        info!("Summoning Dim v{}...", structopt::clap::crate_version!());
 
         let rt = tokio::runtime::Handle::current();
 
-        core::warp_core(
-            logger,
-            event_tx,
-            stream_manager,
-            rt,
-            global_settings.port,
-            event_rx,
-        )
-        .await;
+        core::warp_core(event_tx, stream_manager, rt, global_settings.port, event_rx).await;
     };
 
     tokio::runtime::Runtime::new()

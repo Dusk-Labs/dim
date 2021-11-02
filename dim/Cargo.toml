@@ -16,24 +16,21 @@ postgres = ["database/postgres"]
 sqlite = ["database/sqlite"]
 
 [dependencies]
-serde = { version = "^1.0.125", default-features = false, features = ["derive", "std"] }
+serde = { version = "^1.0.125", default-features = false, features = [
+    "derive",
+    "std",
+] }
 serde_derive = "^1.0.125"
 serde_json = "^1.0.64"
 
 database = { path = "../database", default-features = false, optional = true }
 events = { path = "../events" }
 auth = { path = "../auth" }
-nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.11-rc2" }
-#nightfall = { path = "../../nightfall" }
+nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.11-rc3" }
 
 lazy_static = "1.4.0"
 walkdir = "2.3.1"
 rand = "0.7.3"
-
-slog = "2.5.2"
-slog-term = "2.5.0"
-slog-json = "2.3.0"
-slog-async = "2.5.0"
 
 chrono = "0.4.11"
 err-derive = "^0.3.0"
@@ -61,6 +58,9 @@ sqlx = "=0.5.5"
 priority-queue = "1.2.0"
 xmlwriter = "0.1.0"
 percent-encoding = "2.1.0"
+
+tracing-log = "0.1.2"
+tracing = "0.1.29"
 
 [build-dependencies]
 fs_extra = "1.1.0"

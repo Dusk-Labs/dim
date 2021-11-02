@@ -13,18 +13,15 @@ use chrono::prelude::Utc;
 use chrono::Datelike;
 use chrono::NaiveDate;
 
-use slog::warn;
-use slog::Logger;
-
 use events::Message;
 use events::PushEventType;
+use tracing::warn;
 
 use crate::core::EventTx;
 use crate::fetcher::insert_into_queue;
 
 pub struct MovieMatcher<'a> {
     pub conn: &'a DbConnection,
-    pub log: &'a Logger,
     pub event_tx: &'a EventTx,
 }
 
@@ -47,11 +44,11 @@ impl<'a> MovieMatcher<'a> {
         let backdrop_path = result.backdrop_path.clone();
 
         if let Some(poster_path) = poster_path.as_ref() {
-            let _ = insert_into_queue(self.log, poster_path.clone(), 3);
+            let _ = insert_into_queue(poster_path.clone(), 3);
         }
 
         if let Some(backdrop_path) = backdrop_path.as_ref() {
-            let _ = insert_into_queue(self.log, backdrop_path.clone(), 3);
+            let _ = insert_into_queue(backdrop_path.clone(), 3);
         }
 
         let poster = match poster_path {
@@ -73,10 +70,9 @@ impl<'a> MovieMatcher<'a> {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            self.log,
-                            "Failed to insert poster into db";
-                            "reason" => e.to_string(),
-                            "orphan_id" => orphan.id
+                            "Failed to insert poster into db {}/{}",
+                            reason = e.to_string(),
+                            orphan_id = orphan.id
                         );
                         None
                     }
@@ -104,10 +100,9 @@ impl<'a> MovieMatcher<'a> {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            self.log,
-                            "Failed to insert backdrop into db";
-                            "reason" => e.to_string(),
-                            "orphan_id" => orphan.id
+                            "Failed to insert backdrop into db {}/{}",
+                            reason = e.to_string(),
+                            orphan_id = orphan.id
                         );
                         None
                     }
@@ -131,10 +126,9 @@ impl<'a> MovieMatcher<'a> {
 
         if let Err(e) = self.insert(orphan, media, result).await {
             warn!(
-                self.log,
-                "Failed to insert new media";
-                "id" => orphan.id,
-                "reason" => e.to_string(),
+                "Failed to insert new media {}/{}",
+                id = orphan.id,
+                reason = e.to_string(),
             );
         }
     }
