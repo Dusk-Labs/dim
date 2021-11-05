@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 
 import ProfileImage from "./Image";
+import Username from "./Username";
 import CircleIcon from "../../../assets/Icons/Circle";
 
 import "./Index.scss";
@@ -42,12 +43,14 @@ function Profile(props) {
     return (
       <div className="profile">
         <div className="icon">
-          <ProfileImage src={picture}/>
+          <ProfileImage src={picture} />
         </div>
         <div className="info">
-          <h4>{username}</h4>
+
+          <Username username={username || "eray_chumak"}/>
+
           {props.hoursSpentWatching &&
-            <h5>Spent {spentWatching || 0}h watching</h5>
+          <h5>Spent {spentWatching || 0}h watching</h5>
           }
         </div>
       </div>
