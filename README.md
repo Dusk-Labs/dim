@@ -15,6 +15,7 @@ Dim is a self-hosted media manager. With minimal setup, Dim will organize and be
   * libtheora
   * libvorbis
   * libvorbisenc
+  * libtheora0
 
   You can then obtain binaries from the release tab in github:
   1. Unpack with `unzip ./release-linux.zip && tar -xvzf ./release.tar.gz`
