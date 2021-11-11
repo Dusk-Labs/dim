@@ -6,9 +6,9 @@ use tracing::error;
 use tracing::info;
 use xtra::spawn::Tokio;
 
-use dim::build_logger;
 use dim::core;
 use dim::routes::settings::GlobalSettings;
+use dim::setup_logging;
 use dim::streaming;
 
 use structopt::StructOpt;
@@ -57,7 +57,7 @@ fn main() {
         .set(global_settings.metadata_dir.clone())
         .expect("Failed to set METADATA_PATH");
 
-    let logger = build_logger(global_settings.verbose);
+    setup_logging(global_settings.verbose);
 
     {
         let failed = streaming::ffcheck()

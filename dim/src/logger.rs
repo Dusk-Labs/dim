@@ -20,16 +20,16 @@ impl RequestLogger {
         };
 
         info!(
-            "{} {} {} {} {} {}",
-            info.method(),
-            route = info.path().to_string(),
-            status = info.status().to_string(),
-            ip = info
+            route = ?info.path(),
+            status = ?info.status(),
+            ip = ?info
                 .remote_addr()
                 .map(|x| x.to_string())
                 .unwrap_or("???.???.???.???".into()),
-            duration = duration,
-            duration_tag = tag,
+            duration = ?duration,
+            duration_tag = ?tag,
+            "{}",
+            info.method(),
         );
     }
 }

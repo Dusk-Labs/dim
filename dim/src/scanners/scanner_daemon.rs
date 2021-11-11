@@ -140,7 +140,7 @@ impl FsWatcher {
             let media = Media::get_of_mediafile(&self.conn, media_file.id).await;
 
             if let Err(e) = MediaFile::delete(&self.conn, media_file.id).await {
-                error!("Failed to remove mediafile {}", reason = format!("{:?}", e));
+                error!(reason = ?e, "Failed to remove mediafile {}", e);
                 return;
             }
 
@@ -161,9 +161,9 @@ impl FsWatcher {
 
     async fn handle_rename(&self, from: PathBuf, to: PathBuf) {
         debug!(
-            "Received handle rename {}/{}",
-            from = format!("{:?}", from),
-            to = format!("{:?}", to),
+            from = ?from,
+            to = ?to,
+            "Received handle rename",
         );
 
         let from = match from.to_str() {
@@ -196,10 +196,10 @@ impl FsWatcher {
 
             if let Err(_e) = update_query.update(&self.conn, media_file.id).await {
                 error!(
-                    "Failed to update target file {}/{}/{}",
-                    from = format!("{:?}", from),
-                    to = format!("{:?}", to),
-                    mediafile_id = media_file.id
+                    from = ?from,
+                    to = ?to,
+                    mediafile_id = media_file.id,
+                    "Failed to update target file",
                 );
             }
         }

@@ -136,8 +136,8 @@ where
     let total_files = files.len();
 
     info!(
-        "Walked library directory {}/{}/{}",
         module = "scanner",
+        "Walked library directory library_id={} total_files={}",
         library_id = library_id,
         files = total_files,
     );
@@ -164,10 +164,10 @@ where
     futures::future::join_all(futures).await;
 
     info!(
-        "Finished scanning library {}/{}/{}",
         library_id = library_id,
         files = total_files,
         duration = now.elapsed().as_secs(),
+        "Finished scanning library",
     );
 
     tx.send(

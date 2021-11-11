@@ -302,19 +302,10 @@ pub async fn return_virtual_manifest(
 
     ms.truncate(4);
 
-    let should_stream_default = try_create_dstream(
-        &log,
-        &info,
-        &media,
-        &stream_tracking,
-        &gid,
-        &state,
-        &user_prefs,
-    )
-    .await?;
+    let should_stream_default =
+        try_create_dstream(&info, &media, &stream_tracking, &gid, &state, &user_prefs).await?;
 
     create_video(
-        &log,
         &info,
         &media,
         &stream_tracking,
@@ -324,8 +315,8 @@ pub async fn return_virtual_manifest(
         should_stream_default,
     )
     .await?;
-    create_audio(&log, &info, &media, &stream_tracking, &gid, &state).await?;
-    create_subtitles(&log, &info, &media, &stream_tracking, &gid, &state).await?;
+    create_audio(&info, &media, &stream_tracking, &gid, &state).await?;
+    create_subtitles(&info, &media, &stream_tracking, &gid, &state).await?;
 
     stream_tracking.generate_sids(&gid).await;
 
@@ -336,7 +327,6 @@ pub async fn return_virtual_manifest(
 }
 
 pub async fn try_create_dstream(
-    log: &slog::Logger,
     info: &FFPWrapper,
     media: &MediaFile,
     stream_tracking: &StreamTracking,
@@ -362,7 +352,7 @@ pub async fn try_create_dstream(
     };
 
     let dp_profile_chain =
-        get_profile_for_with_type(&log, StreamType::Video, ProfileType::Transmux, &ctx);
+        get_profile_for_with_type(StreamType::Video, ProfileType::Transmux, &ctx);
 
     // Should secondary (transcoded) streams default.
     let should_stream_default = dp_profile_chain.is_empty()
@@ -426,7 +416,6 @@ pub async fn try_create_dstream(
 }
 
 pub async fn create_video(
-    log: &slog::Logger,
     info: &FFPWrapper,
     media: &MediaFile,
     stream_tracking: &StreamTracking,
@@ -493,7 +482,7 @@ pub async fn create_video(
         // TODO: This code will not work correctly if there are similar resolutions with different
         // brates.
         let should_be_default = should_stream_default
-            && matches!(prefs.default_video_quality, DefaultVideoQuality::Resolution(res, brate) if res == quality.height);
+            && matches!(prefs.default_video_quality, DefaultVideoQuality::Resolution(res, _) if res == quality.height);
 
         let chunk_path = format!("{}/data/$Number$.m4s", video.clone());
         let init_seg = Some(format!("{}/data/init.mp4", video.clone()));
@@ -517,7 +506,6 @@ pub async fn create_video(
 }
 
 pub async fn create_audio(
-    log: &slog::Logger,
     info: &FFPWrapper,
     media: &MediaFile,
     stream_tracking: &StreamTracking,
@@ -573,7 +561,6 @@ pub async fn create_audio(
 }
 
 pub async fn create_subtitles(
-    log: &slog::Logger,
     info: &FFPWrapper,
     media: &MediaFile,
     stream_tracking: &StreamTracking,

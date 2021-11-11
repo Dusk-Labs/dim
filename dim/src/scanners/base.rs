@@ -98,9 +98,9 @@ impl MetadataExtractor {
 
         if let Ok(_media_file) = res {
             debug!(
-                "File already exists in the db {}/{}",
-                file = file.to_string_lossy().to_string(),
+                file = ?file.to_string_lossy(),
                 library_id = library_id,
+                "File already exists in the db",
             );
 
             return Err(ScannerError::UnknownError);
@@ -130,7 +130,7 @@ impl MetadataExtractor {
         let metadata = match spawn_blocking(meta_from_string).await {
             Ok(x) => x?,
             Err(e) => {
-                error!("Metadata::from possibly panicked {}", e = e.to_string());
+                error!(e = ?e, "Metadata::from possibly panicked");
                 return Err(ScannerError::UnknownError);
             }
         };
@@ -139,8 +139,8 @@ impl MetadataExtractor {
             data
         } else {
             error!(
-                "Couldnt extract media information with ffprobe {}",
-                file = file.to_string_lossy().to_string(),
+                file = ?file.to_string_lossy(),
+                "Couldnt extract media information with ffprobe",
             );
             return Err(ScannerError::FFProbeError);
         };
@@ -173,8 +173,7 @@ impl MetadataExtractor {
         assert!(file_id == id.id);
 
         info!(
-            "Scanned file {}/{}/{}/{}/{}/{}",
-            file = &target_file,
+            file = ?&target_file,
             library_id = library_id,
             id = file_id,
             second_pass_id = id.id,
@@ -214,7 +213,7 @@ impl MetadataMatcher {
         {
             Ok(v) => v,
             Err(e) => {
-                error!("Could not match movie to tmdb {}", reason = e.to_string());
+                error!(reason = ?e, "Could not match movie to tmdb");
 
                 return Err(ScannerError::UnknownError);
             }
@@ -299,7 +298,7 @@ impl MetadataMatcher {
         let result = match result {
             Ok(v) => v,
             Err(e) => {
-                error!("Could not match tv show to tmdb {}", reason = e.to_string(),);
+                error!(reason = ?e, "Could not match tv show to tmdb");
                 return Err(ScannerError::UnknownError);
             }
         };

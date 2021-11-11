@@ -258,10 +258,10 @@ impl<'a> TvShowMatcher<'a> {
         };
 
         debug!(
-            "Inserting new episode {}/{}/{}",
             seasonid = seasonid,
             episode = orphan.episode.unwrap_or(0),
-            target_file = &orphan.target_file,
+            target_file = ?&orphan.target_file,
+            "Inserting new episode",
         );
 
         let episode = InsertableEpisode {
@@ -288,10 +288,10 @@ impl<'a> TvShowMatcher<'a> {
         let raw_ep_id = episode.media.insert_blind(&self.conn).await?;
         if let Err(e) = InsertableMovie::insert(&self.conn, raw_ep_id).await {
             error!(
-                "Failed to turn episode into a streamable movie {}/{}/{}",
-                error = format!("{:?}", e),
+                error = ?e,
                 episode_id = raw_ep_id,
-                file = &orphan.target_file,
+                file = ?&orphan.target_file,
+                "Failed to turn episode into a streamable movie",
             );
         }
 
