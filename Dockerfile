@@ -3,6 +3,7 @@ WORKDIR /ui
 COPY ui/package*.json .
 RUN yarn install
 COPY ui .
+ENV NODE_OPTIONS=--openssl-legacy-provider
 RUN yarn run build
 
 FROM rust:bullseye AS dim
