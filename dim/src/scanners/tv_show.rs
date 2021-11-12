@@ -72,9 +72,9 @@ impl<'a> TvShowMatcher<'a> {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            "Failed to insert poster into db {}/{}",
-                            reason = e.to_string(),
-                            orphan_id = orphan.id
+                            reason = ?e,
+                            orphan_id = orphan.id,
+                            "Failed to insert poster into db",
                         );
 
                         None
@@ -102,9 +102,9 @@ impl<'a> TvShowMatcher<'a> {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            "Failed to insert backdrop into db {}/{}",
-                            reason = e.to_string(),
-                            orphan_id = orphan.id
+                            reason = ?e,
+                            orphan_id = orphan.id,
+                            "Failed to insert backdrop into db",
                         );
                         None
                     }
@@ -127,9 +127,9 @@ impl<'a> TvShowMatcher<'a> {
 
         if let Err(e) = self.insert(orphan, media, result).await {
             warn!(
-                "Failed to insert new media {}/{}",
                 id = orphan.id,
-                reason = e.to_string(),
+                reason = ?e,
+                "Failed to insert new media"
             );
         }
     }
@@ -185,10 +185,11 @@ impl<'a> TvShowMatcher<'a> {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            "Failed to insert season poster into db {}/{}",
-                            reason = e.to_string(),
-                            orphan_id = orphan.id
+                            reason = ?e,
+                            orphan_id = orphan.id,
+                            "Failed to insert season poster into db"
                         );
+
                         None
                     }
                 }
@@ -246,10 +247,11 @@ impl<'a> TvShowMatcher<'a> {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            "Failed to insert still into db {}/{}",
-                            reason = e.to_string(),
-                            orphan_id = orphan.id
+                            reason = ?e,
+                            orphan_id = orphan.id,
+                            "Failed to insert still into db",
                         );
+
                         None
                     }
                 }

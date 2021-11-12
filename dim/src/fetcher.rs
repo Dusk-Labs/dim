@@ -80,7 +80,7 @@ async fn process_queue() {
                     lock.push(url, priority);
                 }
                 Err(e) => {
-                    error!("Failed to cache {} locally, e={:?}", url, e);
+                    error!(e = ?e, "Failed to cache URL locally: {}", url);
                     lock.push(url, priority);
                 }
             }

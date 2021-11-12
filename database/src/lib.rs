@@ -158,6 +158,7 @@ async fn internal_get_conn() -> sqlx::Result<DbConnection> {
 
 #[cfg(feature = "postgres")]
 #[async_recursion::async_recursion]
+#[tracing::instrument]
 async fn internal_get_conn_custom(main: &str) -> sqlx::Result<DbConnection> {
     let pool = sqlx::Pool::connect(main).await;
 
@@ -167,9 +168,8 @@ async fn internal_get_conn_custom(main: &str) -> sqlx::Result<DbConnection> {
 
     let pool = sqlx::Pool::connect("postgres://postgres:dimpostgres@127.0.0.1/").await;
 
-    if let Some(log) = log {
-        warn!("Database dim seems to not exist, creating...standby...");
-    }
+    warn!("Database dim seems to not exist, creating...standby...");
+
     let _ = create_database(&pool?);
 
     Ok(internal_get_conn(log).await?)

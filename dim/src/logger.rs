@@ -3,7 +3,7 @@ use warp::filters::log::Info;
 use tracing::info;
 
 #[derive(Clone)]
-pub struct RequestLogger {}
+pub struct RequestLogger;
 
 impl RequestLogger {
     pub fn new() -> Self {
