@@ -58,6 +58,10 @@ pub use routes::settings::GlobalSettings;
 pub fn setup_logging(_debug: bool) {
     let _ = create_dir_all("logs");
 
+    if let Err(_) = std::env::var("RUST_LOG") {
+        std::env::set_var("RUST_LOG", "info");
+    }
+
     let log_appender = tracing_appender::rolling::daily("./logs", "dim-log.log");
     let (non_blocking_file, _guard) = tracing_appender::non_blocking(log_appender);
 
