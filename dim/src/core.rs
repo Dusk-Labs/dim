@@ -59,7 +59,7 @@ pub async fn run_scanners(tx: EventTx) {
     }
 }
 
-#[instrument(skip(stream_manager))]
+#[instrument(skip(stream_manager, event_tx, rt, event_rx))]
 pub async fn warp_core(
     event_tx: EventTx,
     stream_manager: StateManager,
