@@ -7,7 +7,7 @@ pub struct RequestLogger;
 
 impl RequestLogger {
     pub fn new() -> Self {
-        Self {}
+        Self
     }
 }
 
