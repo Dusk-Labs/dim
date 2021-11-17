@@ -80,7 +80,7 @@ pub fn get_matcher_unchecked() -> &'static base::MetadataMatcher {
     METADATA_MATCHER.get().unwrap()
 }
 
-#[instrument(skip(paths))]
+#[instrument(skip(tx, paths))]
 pub async fn start_custom<I, T>(
     library_id: i64,
     tx: EventTx,
