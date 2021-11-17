@@ -30,7 +30,7 @@ pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
 /// * `log` - Logger to which to log shit
 /// * `tx` - this is the websocket channel to which we can send websocket events to which get
 /// dispatched to clients.
-#[instrument]
+#[instrument(skip_all)]
 pub async fn run_scanners(tx: EventTx) {
     if let Ok(conn) = database::get_conn_logged().await {
         for lib in database::library::Library::get_all(&conn).await {
