@@ -9,6 +9,7 @@ import Search from "./Search";
 import Libraries from "./Libraries";
 import Toggle from "./Toggle";
 import General from "./General";
+import System from "./System";
 
 import "./Index.scss";
 
@@ -29,8 +30,9 @@ function Sidebar() {
           <div className="separator"/>
           <Search/>
         </section>
-        <Libraries/>
         <General/>
+        <Libraries/>
+        <System />
       </div>
       <Toggle sidebar={divContainer}/>
     </nav>
