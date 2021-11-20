@@ -1,14 +1,6 @@
 {
   "name": "dim",
   "dependencies": {
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
-    "@types/jest": "^27.0.2",
-    "@types/node": "^16.11.1",
-    "@types/react": "^17.0.30",
-    "@types/react-dom": "^17.0.9",
-    "@types/react-redux": "^7.1.19",
     "dashjs": "=4.1.0",
     "http-proxy-middleware": "^2.0.1",
     "libass-wasm": "^4.0.0",
@@ -45,5 +37,16 @@
       "last 1 safari version"
     ]
   },
-  "license": "SEE LICENSE IN LICENSE.md"
+  "license": "SEE LICENSE IN LICENSE.md",
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@types/jest": "^27.0.2",
+    "@types/node": "^16.11.1",
+    "@types/react-dom": "^17.0.9",
+    "@types/react-redux": "^7.1.19",
+    "@types/react-router-dom": "^5.3.2",
+    "@types/react": "^17.0.30"
+  }
 }
