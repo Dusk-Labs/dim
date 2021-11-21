@@ -26,7 +26,9 @@ serde_json = "^1.0.64"
 database = { path = "../database", default-features = false, optional = true }
 events = { path = "../events" }
 auth = { path = "../auth" }
-nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.11-rc3" }
+
+nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.11" }
+#nightfall = { path = "../../nightfall" }
 
 lazy_static = "1.4.0"
 walkdir = "2.3.1"
