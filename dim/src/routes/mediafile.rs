@@ -34,7 +34,6 @@ pub mod filters {
 
     pub fn rematch_mediafile(
         conn: DbConnection,
-        log: slog::Logger,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         #[derive(Deserialize)]
         struct RouteArgs {
@@ -46,18 +45,17 @@ pub mod filters {
             .and(warp::patch())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
-            .and(with_state::<slog::Logger>(log))
             .and(warp::query::query::<RouteArgs>())
             .and_then(
                 |id: i64,
                  _auth: Auth,
                  conn: DbConnection,
-                 log: slog::Logger,
+
                  RouteArgs {
                      tmdb_id,
                      media_type,
                  }: RouteArgs| async move {
-                    super::rematch_mediafile(conn, log, id, tmdb_id, media_type)
+                    super::rematch_mediafile(conn, id, tmdb_id, media_type)
                         .await
                         .map_err(|e| reject::custom(e))
                 },
@@ -99,7 +97,6 @@ pub async fn get_mediafile_info(
 /// * `tmdb_id` - the tmdb id of the proper metadata we want to fetch for the media
 pub async fn rematch_mediafile(
     conn: DbConnection,
-    _log: slog::Logger,
     id: i64,
     tmdb_id: i32,
     media_type: String,
