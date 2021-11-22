@@ -1,4 +1,4 @@
-use crate::get_&_memory;
+use crate::get_conn_memory;
 use crate::library;
 use crate::mediafile;
 
@@ -42,30 +42,32 @@ pub async fn insert_many_mediafile(conn: &mut crate::Transaction<'_>, n: usize) 
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_by_lib() {
-    let & = get_&_memory().await.unwrap();
-    let id = create_test_library(&&).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let id = create_test_library(&mut tx).await;
 
-    let result = mediafile::MediaFile::get_by_lib(&&, id).await.unwrap();
+    let result = mediafile::MediaFile::get_by_lib(&mut tx, id).await.unwrap();
     assert!(result.is_empty());
 
-    let _mfile_id = insert_mediafile(&&).await;
+    let _mfile_id = insert_mediafile(&mut tx).await;
 
-    let result = mediafile::MediaFile::get_by_lib(&&, id).await.unwrap();
+    let result = mediafile::MediaFile::get_by_lib(&mut tx, id).await.unwrap();
     assert_eq!(result.len(), 1);
 
-    insert_many_mediafile(&&, 9).await;
+    insert_many_mediafile(&mut tx, 9).await;
 
-    let result = mediafile::MediaFile::get_by_lib(&&, id).await.unwrap();
+    let result = mediafile::MediaFile::get_by_lib(&mut tx, id).await.unwrap();
     assert_eq!(result.len(), 10);
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_by_lib_null_media() {
-    let & = get_&_memory().await.unwrap();
-    let id = create_test_library(&&).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let id = create_test_library(&mut tx).await;
 
-    let _mfile_id = insert_mediafile(&&).await;
-    let result = mediafile::MediaFile::get_by_lib_null_media(&&, id)
+    let _mfile_id = insert_mediafile(&mut tx).await;
+    let result = mediafile::MediaFile::get_by_lib_null_media(&mut tx, id)
         .await
         .unwrap();
 
@@ -76,12 +78,13 @@ async fn test_get_by_lib_null_media() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_one() {
-    let & = get_&_memory().await.unwrap();
-    let id = create_test_library(&&).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let id = create_test_library(&mut tx).await;
 
-    let mfile_id = insert_mediafile(&&).await;
+    let mfile_id = insert_mediafile(&mut tx).await;
 
-    let result = mediafile::MediaFile::get_one(&&, mfile_id)
+    let result = mediafile::MediaFile::get_one(&mut tx, mfile_id)
         .await
         .unwrap();
 
@@ -90,22 +93,24 @@ async fn test_get_one() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_exists_by_file() {
-    let & = get_&_memory().await.unwrap();
-    let _ = create_test_library(&&).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let _ = create_test_library(&mut tx).await;
 
-    assert!(!mediafile::MediaFile::exists_by_file(&&, "/dev/null").await);
+    assert!(!mediafile::MediaFile::exists_by_file(&mut tx, "/dev/null").await);
 
-    let _ = insert_mediafile(&&).await;
-    assert!(mediafile::MediaFile::exists_by_file(&&, "/dev/null").await);
+    let _ = insert_mediafile(&mut tx).await;
+    assert!(mediafile::MediaFile::exists_by_file(&mut tx, "/dev/null").await);
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_by_file() {
-    let & = get_&_memory().await.unwrap();
-    let _ = create_test_library(&&).await;
-    let _ = insert_mediafile(&&).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let _ = create_test_library(&mut tx).await;
+    let _ = insert_mediafile(&mut tx).await;
 
-    let result = mediafile::MediaFile::get_by_file(&&, "/dev/null")
+    let result = mediafile::MediaFile::get_by_file(&mut tx, "/dev/null")
         .await
         .unwrap();
     assert_eq!(result.target_file, "/dev/null".to_string());
@@ -113,15 +118,16 @@ async fn test_get_by_file() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_deletes() {
-    let & = get_&_memory().await.unwrap();
-    let lib_id = create_test_library(&&).await;
-    let id = insert_mediafile(&&).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let lib_id = create_test_library(&mut tx).await;
+    let id = insert_mediafile(&mut tx).await;
 
-    let rows = mediafile::MediaFile::delete(&&, id).await.unwrap();
+    let rows = mediafile::MediaFile::delete(&mut tx, id).await.unwrap();
     assert_eq!(rows, 1);
 
-    insert_many_mediafile(&&, 10).await;
-    let rows = mediafile::MediaFile::delete_by_lib_id(&&, lib_id)
+    insert_many_mediafile(&mut tx, 10).await;
+    let rows = mediafile::MediaFile::delete_by_lib_id(&mut tx, lib_id)
         .await
         .unwrap();
     assert_eq!(rows, 10);
@@ -129,9 +135,10 @@ async fn test_deletes() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_update() {
-    let & = get_&_memory().await.unwrap();
-    let _ = create_test_library(&&).await;
-    let id = insert_mediafile(&&).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let _ = create_test_library(&mut tx).await;
+    let id = insert_mediafile(&mut tx).await;
 
     let update = mediafile::UpdateMediaFile {
         raw_name: Some("test2".into()),
@@ -139,21 +146,22 @@ async fn test_update() {
         ..Default::default()
     };
 
-    update.update(&&, id).await.unwrap();
+    update.update(&mut tx, id).await.unwrap();
 
-    let mfile = mediafile::MediaFile::get_one(&&, id).await.unwrap();
+    let mfile = mediafile::MediaFile::get_one(&mut tx, id).await.unwrap();
     assert_eq!(mfile.raw_name, "test2".to_string());
     assert_eq!(mfile.duration, Some(3));
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_of_media() {
-    let & = get_&_memory().await.unwrap();
-    let _ = create_test_library(&&).await;
-    let media_id = super::media_tests::insert_media(&&).await;
-    let mfile = insert_mediafile_with_mediaid(&&, media_id).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let _ = create_test_library(&mut tx).await;
+    let media_id = super::media_tests::insert_media(&mut tx).await;
+    let mfile = insert_mediafile_with_mediaid(&mut tx, media_id).await;
 
-    let result = mediafile::MediaFile::get_of_media(&&, media_id)
+    let result = mediafile::MediaFile::get_of_media(&mut tx, media_id)
         .await
         .unwrap();
     assert_eq!(result.len(), 1);

@@ -1,5 +1,5 @@
 use crate::genre;
-use crate::get_&_memory;
+use crate::get_conn_memory;
 use crate::library;
 use crate::media;
 
@@ -11,10 +11,11 @@ pub async fn insert_genre(conn: &mut crate::Transaction<'_>, name: String) -> i6
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_by_name() {
-    let ref & = get_&_memory().await.unwrap();
-    let id = insert_genre(&, "Test".into()).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let id = insert_genre(&mut tx, "Test".into()).await;
 
-    let result = genre::Genre::get_by_name(&, "Test".into())
+    let result = genre::Genre::get_by_name(&mut tx, "Test".into())
         .await
         .unwrap();
     assert_eq!(result.id, id);
@@ -23,10 +24,11 @@ async fn test_get_by_name() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_by_media() {
-    let ref & = get_&_memory().await.unwrap();
-    let _ = create_test_library(&mut *conn).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let _ = create_test_library(&mut tx).await;
 
-    let id = insert_genre(&, "Test".into()).await;
+    let id = insert_genre(&mut tx, "Test".into()).await;
 
     let media = media::InsertableMedia {
         library_id: 1,
@@ -40,13 +42,13 @@ async fn test_get_by_media() {
         media_type: library::MediaType::Movie,
     };
 
-    let media_id = media.insert(&mut *conn).await.unwrap();
+    let media_id = media.insert(&mut tx).await.unwrap();
 
-    genre::InsertableGenreMedia::insert_pair(id, media_id, &)
+    genre::InsertableGenreMedia::insert_pair(id, media_id, &mut tx)
         .await
         .unwrap();
 
-    let genres = genre::Genre::get_by_media(&, media_id).await.unwrap();
+    let genres = genre::Genre::get_by_media(&mut tx, media_id).await.unwrap();
     assert_eq!(
         genres,
         &[genre::Genre {
@@ -58,22 +60,24 @@ async fn test_get_by_media() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_by_id() {
-    let ref & = get_&_memory().await.unwrap();
-    let id = insert_genre(&, "Test".into()).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let id = insert_genre(&mut tx, "Test".into()).await;
 
-    let result = genre::Genre::get_by_id(&, id).await.unwrap();
+    let result = genre::Genre::get_by_id(&mut tx, id).await.unwrap();
     assert_eq!(result.id, id);
     assert_eq!(result.name, "Test".to_string());
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_delete() {
-    let ref & = get_&_memory().await.unwrap();
-    let id = insert_genre(&, "Test".into()).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let id = insert_genre(&mut tx, "Test".into()).await;
 
-    let rows = genre::Genre::delete(&, id).await.unwrap();
+    let rows = genre::Genre::delete(&mut tx, id).await.unwrap();
     assert_eq!(rows, 1);
 
-    let result = genre::Genre::get_by_id(&, id).await;
+    let result = genre::Genre::get_by_id(&mut tx, id).await;
     assert!(result.is_err());
 }

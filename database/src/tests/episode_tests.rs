@@ -1,5 +1,5 @@
 use crate::episode;
-use crate::get_&_memory;
+use crate::get_conn_memory;
 use crate::media;
 use crate::season;
 use crate::tv;
@@ -12,16 +12,17 @@ use std::sync::atomic::Ordering;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_insert_get_and_delete() {
-    let ref & = get_&_memory().await.unwrap();
-    let _lib = create_test_library(&mut *conn).await;
-    let tv = insert_media(&mut *conn).await;
-    tv::TVShow::insert(&, tv).await.unwrap();
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let _lib = create_test_library(&mut tx).await;
+    let tv = insert_media(&mut tx).await;
+    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
     let season = season::InsertableSeason {
         season_number: 1,
         ..Default::default()
     }
-    .insert(&, tv)
+    .insert(&mut tx, tv)
     .await
     .unwrap();
 
@@ -34,36 +35,37 @@ async fn test_insert_get_and_delete() {
         seasonid: season,
         episode: 2,
     }
-    .insert(&mut *conn)
+    .insert(&mut tx)
     .await
     .unwrap();
 
-    let result = episode::Episode::get(&, tv, 1, 2).await.unwrap();
+    let result = episode::Episode::get(&mut tx, tv, 1, 2).await.unwrap();
     assert_eq!(result.media.name, "TestEpisode".to_string());
 
-    let rows = episode::Episode::delete(&, _episode).await.unwrap();
+    let rows = episode::Episode::delete(&mut tx, _episode).await.unwrap();
     assert_eq!(rows, 1);
 
-    let result = episode::Episode::get(&, tv, 1, 2).await;
+    let result = episode::Episode::get(&mut tx, tv, 1, 2).await;
     assert!(result.is_err());
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_all_of_season() {
-    let ref & = get_&_memory().await.unwrap();
-    let _lib = create_test_library(&mut *conn).await;
-    let tv = insert_media(&mut *conn).await;
-    tv::TVShow::insert(&, tv).await.unwrap();
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let _lib = create_test_library(&mut tx).await;
+    let tv = insert_media(&mut tx).await;
+    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
     let season = season::InsertableSeason {
         season_number: 1,
         ..Default::default()
     }
-    .insert(&, tv)
+    .insert(&mut tx, tv)
     .await
     .unwrap();
 
-    let result = episode::Episode::get_all_of_season(&, season)
+    let result = episode::Episode::get_all_of_season(&mut tx, season)
         .await
         .unwrap();
     assert_eq!(result.len(), 0);
@@ -78,12 +80,12 @@ async fn test_get_all_of_season() {
             seasonid: season,
             episode: i,
         }
-        .insert(&mut *conn)
+        .insert(&mut tx)
         .await
         .unwrap();
     }
 
-    let result = episode::Episode::get_all_of_season(&, season)
+    let result = episode::Episode::get_all_of_season(&mut tx, season)
         .await
         .unwrap();
     assert_eq!(result.len(), 5);
@@ -91,20 +93,21 @@ async fn test_get_all_of_season() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_first_of_season() {
-    let ref & = get_&_memory().await.unwrap();
-    let _lib = create_test_library(&mut *conn).await;
-    let tv = insert_media(&mut *conn).await;
-    tv::TVShow::insert(&, tv).await.unwrap();
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let _lib = create_test_library(&mut tx).await;
+    let tv = insert_media(&mut tx).await;
+    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
     let season = season::InsertableSeason {
         season_number: 1,
         ..Default::default()
     }
-    .insert(&, tv)
+    .insert(&mut tx, tv)
     .await
     .unwrap();
 
-    let result = episode::Episode::get_first_for_season(&, season).await;
+    let result = episode::Episode::get_first_for_season(&mut tx, season).await;
     assert!(result.is_err());
 
     for i in 3..=5 {
@@ -117,12 +120,12 @@ async fn test_get_first_of_season() {
             seasonid: season,
             episode: i,
         }
-        .insert(&mut *conn)
+        .insert(&mut tx)
         .await
         .unwrap();
     }
 
-    let result = episode::Episode::get_first_for_season(&, season)
+    let result = episode::Episode::get_first_for_season(&mut tx, season)
         .await
         .unwrap();
     assert_eq!(result.episode, 3);
@@ -137,12 +140,12 @@ async fn test_get_first_of_season() {
             seasonid: season,
             episode: i,
         }
-        .insert(&mut *conn)
+        .insert(&mut tx)
         .await
         .unwrap();
     }
 
-    let result = episode::Episode::get_first_for_season(&, season)
+    let result = episode::Episode::get_first_for_season(&mut tx, season)
         .await
         .unwrap();
     assert_eq!(result.episode, 1);
@@ -150,12 +153,13 @@ async fn test_get_first_of_season() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_all_of_tv() {
-    let ref & = get_&_memory().await.unwrap();
-    let _lib = create_test_library(&mut *conn).await;
-    let tv = insert_media(&mut *conn).await;
-    tv::TVShow::insert(&, tv).await.unwrap();
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let _lib = create_test_library(&mut tx).await;
+    let tv = insert_media(&mut tx).await;
+    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
-    let result = episode::Episode::get_all_of_tv(&, tv).await.unwrap();
+    let result = episode::Episode::get_all_of_tv(&mut tx, tv).await.unwrap();
     assert!(result.is_empty());
 
     for i in 1..=3 {
@@ -163,7 +167,7 @@ async fn test_get_all_of_tv() {
             season_number: i,
             ..Default::default()
         }
-        .insert(&, tv)
+        .insert(&mut tx, tv)
         .await
         .unwrap();
 
@@ -178,7 +182,7 @@ async fn test_get_all_of_tv() {
                 seasonid: season,
                 episode: i,
             }
-            .insert(&mut *conn)
+            .insert(&mut tx)
             .await
             .unwrap();
 
@@ -186,22 +190,23 @@ async fn test_get_all_of_tv() {
         }
     }
 
-    let result = episode::Episode::get_all_of_tv(&, tv).await.unwrap();
+    let result = episode::Episode::get_all_of_tv(&mut tx, tv).await.unwrap();
     assert_eq!(result.len(), 36);
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_update() {
-    let ref & = get_&_memory().await.unwrap();
-    let _lib = create_test_library(&mut *conn).await;
-    let tv = insert_media(&mut *conn).await;
-    tv::TVShow::insert(&, tv).await.unwrap();
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let _lib = create_test_library(&mut tx).await;
+    let tv = insert_media(&mut tx).await;
+    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
     let season = season::InsertableSeason {
         season_number: 1,
         ..Default::default()
     }
-    .insert(&, tv)
+    .insert(&mut tx, tv)
     .await
     .unwrap();
 
@@ -214,7 +219,7 @@ async fn test_update() {
         seasonid: season,
         episode: 2,
     }
-    .insert(&mut *conn)
+    .insert(&mut tx)
     .await
     .unwrap();
 
@@ -222,12 +227,12 @@ async fn test_update() {
         episode: Some(3),
         ..Default::default()
     }
-    .update(&, _episode)
+    .update(&mut tx, _episode)
     .await
     .unwrap();
 
     assert_eq!(rows, 1);
 
-    let result = episode::Episode::get(&, tv, season, 3).await.unwrap();
+    let result = episode::Episode::get(&mut tx, tv, season, 3).await.unwrap();
     assert_eq!(result.id, _episode);
 }

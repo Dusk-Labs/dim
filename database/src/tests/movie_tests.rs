@@ -1,14 +1,15 @@
 use super::library_tests::create_test_library;
-use crate::get_&_memory;
+use crate::get_conn_memory;
 use crate::movie;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_insert() {
-    let ref & = get_&_memory().await.unwrap();
-    let _library = create_test_library(&mut *conn).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let _library = create_test_library(&mut tx).await;
 
-    let media_id = super::media_tests::insert_media(&mut *conn).await;
-    movie::InsertableMovie::insert(&, media_id)
+    let media_id = super::media_tests::insert_media(&mut tx).await;
+    movie::InsertableMovie::insert(&mut tx, media_id)
         .await
         .unwrap();
 }
