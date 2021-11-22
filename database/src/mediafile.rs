@@ -53,7 +53,7 @@ impl MediaFile {
     /// Method returns all mediafiles associated with a library.
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `lib` - reference to a Library object that we will match against
     pub async fn get_by_lib(
         conn: &mut crate::Transaction<'_>,
@@ -72,7 +72,7 @@ impl MediaFile {
     /// associated with a media
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `lib` - reference to a Library object that we will match against
     pub async fn get_by_lib_null_media(
         conn: &mut crate::Transaction<'_>,
@@ -90,7 +90,7 @@ impl MediaFile {
     /// Method returns all mediafiles associated with a Media object.
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `lib` - reference to a Library object that we will match against
     pub async fn get_of_media(
         conn: &mut crate::Transaction<'_>,
@@ -110,7 +110,7 @@ impl MediaFile {
     /// Method returns all metadata of a mediafile based on the id supplied.
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `_id` - id of the mediafile object we are targetting
     pub async fn get_one(conn: &mut crate::Transaction<'_>, id: i64) -> Result<Self, DatabaseError> {
         Ok(
@@ -124,7 +124,7 @@ impl MediaFile {
     /// a bool.
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `file` - string slice containing our filepath
     pub async fn exists_by_file(conn: &mut crate::Transaction<'_>, file: &str) -> bool {
         sqlx::query!("SELECT id FROM mediafile WHERE target_file = ?", file)
@@ -166,7 +166,7 @@ impl MediaFile {
     /// Method deletes mediafile matching the id supplied
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `_id` - id of the mediafile entry we want to delete
     pub async fn delete(conn: &mut crate::Transaction<'_>, id: i64) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM mediafile WHERE id = ?", id)
@@ -220,7 +220,7 @@ impl InsertableMediaFile {
     /// Method inserts a new mediafile into the database.
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
+    /// * `conn` - mutable reference to a sqlx transaction.
     pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
         let id = sqlx::query!(
             r#"
@@ -280,7 +280,7 @@ impl UpdateMediaFile {
     /// based on its id.
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `_id` - id of the mediafile row we are targetting
     pub async fn update(
         &self,

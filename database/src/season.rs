@@ -21,7 +21,7 @@ impl Season {
     /// Method returns all of the seasons that are linked to a tv show based on a tvshow id
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `tv_id` - id of the tv show we'd like to discriminate against.
     pub async fn get_all(
         conn: &mut crate::Transaction<'_>,
@@ -39,7 +39,7 @@ impl Season {
     /// Method returns the season based on the season number belonging to a tv show.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `tv_id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - season number we'd like to fetch.
     pub async fn get(
@@ -62,7 +62,7 @@ impl Season {
     /// Method deletes a season entry that belongs to a tv show.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `tv_id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - season number we'd like to fetch.
     pub async fn delete(
@@ -93,7 +93,7 @@ impl Season {
     /// Method will return the oldest season for a tv show that is available.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `tv_id` - id of the tv show.
     pub async fn get_first(conn: &mut crate::Transaction<'_>, tv_id: i64) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -137,7 +137,7 @@ impl InsertableSeason {
     /// Method inserts a new season and links it to a tv show based on the id specified.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - id of the tv show we'd like to link this season to
     pub async fn insert(&self, conn: &mut crate::Transaction<'_>, id: i64) -> Result<i64, DatabaseError> {
         let result = sqlx::query!(
@@ -185,7 +185,7 @@ impl UpdateSeason {
     /// Method updates a seasons entry based on tv show id and season number.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - Season number we'd like to update.
     pub async fn update(self, conn: &mut crate::Transaction<'_>, id: i64) -> Result<usize, DatabaseError> {

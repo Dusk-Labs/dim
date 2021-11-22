@@ -90,7 +90,7 @@ impl Library {
     /// This method will also fetch the indexed locations for this library.
     ///
     /// # Arguments
-    /// * `&` - [diesel &ection](mut crate::Transaction<'_>)
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `lib_id` - a integer that is the id of the library we are trying to query
     pub async fn get_one(conn: &mut crate::Transaction<'_>, lib_id: i64) -> Result<Self, DatabaseError> {
         let library = sqlx::query!(
@@ -120,7 +120,7 @@ impl Library {
     /// Method filters the database for a library with the id supplied and deletes it.
     ///
     /// # Arguments
-    /// * `&` - [diesel &ection](mut crate::Transaction<'_>)
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `lib_id` - a integer that is the id of the library we are trying to query
     pub async fn delete(
         conn: &mut crate::Transaction<'_>,
@@ -145,7 +145,7 @@ impl InsertableLibrary {
     /// Method inserts a InsertableLibrary object into the database (makes a new library).
     ///
     /// # Arguments
-    /// * `&` - [diesel &ection](mut crate::Transaction<'_>)
+    /// * `conn` - mutable reference to a sqlx transaction.
     pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
         let lib_id = sqlx::query!(
             r#"INSERT INTO library (name, media_type) VALUES ($1, $2)"#,

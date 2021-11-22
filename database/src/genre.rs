@@ -23,7 +23,7 @@ impl Genre {
     /// Method returns the entry of a genre if exists based on its name.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `query` - genre name
     pub async fn get_by_name(
         conn: &mut crate::Transaction<'_>,
@@ -42,7 +42,7 @@ impl Genre {
     /// Method returns all of the episodes belonging to a tv show.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `media` - reference to a media object which should be a tv show.
     pub async fn get_by_media(
         conn: &mut crate::Transaction<'_>,
@@ -62,7 +62,7 @@ impl Genre {
     /// Method returns a genre based on genre_id and media_id
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `genre_id` - id of a genre
     /// * `media_id` - id of a media object
     pub async fn get_by_id(
@@ -82,7 +82,7 @@ impl Genre {
     /// Method removes a genre from the genre table based on its id
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - genre id
     pub async fn delete(conn: &mut crate::Transaction<'_>, id: i64) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM genre WHERE id = ?", id)
@@ -103,7 +103,7 @@ impl InsertableGenre {
     /// Method inserts a new genre into the table otherwise returns the id of a existing entry
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
         let name = self.name.clone().to_uppercase();
 
@@ -138,7 +138,7 @@ impl InsertableGenreMedia {
     /// Method inserts a new entry into the intermediary genre table linking a genre to a media
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     pub async fn insert(&self, conn: &mut crate::Transaction<'_>) {
         let _ = sqlx::query!(
             "INSERT INTO genre_media (genre_id, media_id) VALUES ($1, $2)",
@@ -154,7 +154,7 @@ impl InsertableGenreMedia {
     /// # Arguments
     /// * `genre_id` - id of the genre we are trying to link to a media object.
     /// * `media_id` - id of the media object we are trying to link to a media.
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     pub async fn insert_pair(
         genre_id: i64,
         media_id: i64,

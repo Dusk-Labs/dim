@@ -50,8 +50,8 @@ impl Media {
     /// function.
     ///
     /// # Arguments
-    /// * `&` - postgres &ection instance
-    /// * `library` - a [`Library`](Library) instance
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `library_id` - a [`Library`](Library) id.
     pub async fn get_all(
         conn: &mut crate::Transaction<'_>,
         library_id: i64,
@@ -68,7 +68,7 @@ impl Media {
     /// Method returns a media object based on its id
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `req_id` - id of a media that we'd like to match against.
     pub async fn get(conn: &mut crate::Transaction<'_>, id: i64) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -83,8 +83,8 @@ impl Media {
     /// Method to get a entry in a library based on name and library
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
-    /// * `library` - reference to a library object
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `library_id` - a library id.
     /// * `name` - string slice reference containing the name we would like to filter by.
     pub async fn get_by_name_and_lib(
         conn: &mut crate::Transaction<'_>,
@@ -219,7 +219,7 @@ impl Media {
     /// Method deletes a media object based on its id.
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - id of a media object we want to delete
     pub async fn delete(conn: &mut crate::Transaction<'_>, id: i64) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM _tblmedia WHERE id = ?", id)
@@ -269,7 +269,7 @@ impl InsertableMedia {
     /// Method used to insert a new media object.
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
+    /// * `conn` - mutable reference to a sqlx transaction.
     pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
         if let Some(record) = sqlx::query!(r#"SELECT id FROM media where name = ?"#, self.name)
             .fetch_optional(&mut *conn)
@@ -339,7 +339,7 @@ impl UpdateMedia {
     /// this object as a discriminator.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `_id` - id of the media object we want to update
     pub async fn update(
         &self,

@@ -78,7 +78,7 @@ impl Episode {
     /// Method returns all of the episodes belonging to a tv show.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - a mutable reference to a sqlx transaction.
     /// * `media` - reference to a media object which should be a tv show.
     pub async fn get_all_of_tv(
         conn: &mut crate::Transaction<'_>,
@@ -111,7 +111,7 @@ impl Episode {
     /// Method returns all of the episodes belonging to a season.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `media` - reference to a season object/entry.
     pub async fn get_all_of_season(
         conn: &mut crate::Transaction<'_>,
@@ -139,7 +139,7 @@ impl Episode {
     /// Method returns a episodes discriminated by episode number, season number and tv show id
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - The id of a tv show we target
     /// * `season_num` - The season we are targetting
     /// * `ep_num` - Episode we are targetting

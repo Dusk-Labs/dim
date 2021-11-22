@@ -10,7 +10,7 @@ impl InsertableMovie {
     /// to the field id.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - id of the media that should be a movie
     pub async fn insert(conn: &mut crate::Transaction<'_>, id: i64) -> Result<i64, DatabaseError> {
         Ok(sqlx::query!("INSERT INTO movie (id) VALUES ($1)", id)
