@@ -109,10 +109,10 @@ impl User {
     ///
     /// # Arguments
     ///
-    /// * `conn` - postgres connection
-    pub async fn get_all(conn: &crate::DbConnection) -> Result<Vec<Self>, DatabaseError> {
+    /// * `&` - postgres &ection
+    pub async fn get_all(conn: &mut crate::Transaction<'_>) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query!("SELECT * FROM users")
-            .fetch_all(conn)
+            .fetch_all(&mut *conn)
             .await?
             .into_iter()
             .map(|user| Self {
@@ -125,13 +125,16 @@ impl User {
             .collect())
     }
 
-    pub async fn get(conn: &crate::DbConnection, username: &str) -> Result<Self, DatabaseError> {
+    pub async fn get(
+        conn: &mut crate::Transaction<'_>,
+        username: &str,
+    ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query!(
             "SELECT * from users
                 WHERE username = ?",
             username
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await
         .map(|u| Self {
             username: u.username.unwrap(),
@@ -145,11 +148,11 @@ impl User {
     /// Method gets one entry from the table users based on the username supplied and password.
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
+    /// * `&` - postgres &ection
     /// * `uname` - username we wish to target and delete
     /// * `pw_hash` - hash of the password for the user we are trying to access
     pub async fn get_one(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         uname: String,
         pw: String,
     ) -> Result<Self, DatabaseError> {
@@ -159,7 +162,7 @@ impl User {
             uname,
             hash,
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?;
 
         Ok(Self {
@@ -175,11 +178,14 @@ impl User {
     /// NOTE: Return should always be 1
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
+    /// * `&` - postgres &ection
     /// * `uname` - username we wish to target and delete
-    pub async fn delete(conn: &crate::DbConnection, uname: String) -> Result<usize, DatabaseError> {
+    pub async fn delete(
+        conn: &mut crate::Transaction<'_>,
+        uname: String,
+    ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM users WHERE username = ?", uname)
-            .execute(conn)
+            .execute(&mut *conn)
             .await?
             .rows_affected() as usize)
     }
@@ -187,11 +193,11 @@ impl User {
     /// Method resets the password for a user to a new password.
     ///
     /// # Arguments
-    /// * `conn` - db connection
+    /// * `&` - db &ection
     /// * `password` - new password.
     pub async fn set_password(
         &self,
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         password: String,
     ) -> Result<usize, DatabaseError> {
         let hash = hash(self.username.clone(), password);
@@ -201,13 +207,13 @@ impl User {
             hash,
             self.username
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await?
         .rows_affected() as usize)
     }
 
     pub async fn set_username(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         old_username: String,
         new_username: String,
     ) -> Result<usize, DatabaseError> {
@@ -216,13 +222,13 @@ impl User {
             new_username,
             old_username
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await?
         .rows_affected() as usize)
     }
 
     pub async fn set_picture(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         username: String,
         asset_id: i64,
     ) -> Result<usize, DatabaseError> {
@@ -231,7 +237,7 @@ impl User {
             asset_id,
             username
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await?
         .rows_affected() as usize)
     }
@@ -252,8 +258,8 @@ impl InsertableUser {
     ///
     /// # Arguments
     /// * `self` - instance of InsertableUser which gets consumed
-    /// * `conn` - postgres connection
-    pub async fn insert(self, conn: &crate::DbConnection) -> Result<String, DatabaseError> {
+    /// * `&` - postgres &ection
+    pub async fn insert(self, conn: &mut crate::Transaction<'_>) -> Result<String, DatabaseError> {
         let Self {
             username,
             password,
@@ -274,7 +280,7 @@ impl InsertableUser {
             claimed_invite,
             roles
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await?;
 
         Ok(username)
@@ -289,7 +295,7 @@ pub struct UpdateableUser {
 impl UpdateableUser {
     pub async fn update(
         &self,
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         user: &str,
     ) -> Result<usize, DatabaseError> {
         if let Some(prefs) = &self.prefs {
@@ -299,7 +305,7 @@ impl UpdateableUser {
                 prefs,
                 user
             )
-            .execute(conn)
+            .execute(&mut *conn)
             .await?
             .rows_affected() as usize);
         }
@@ -319,7 +325,7 @@ impl Login {
     /// Will return whether the token is valid and hasnt been claimed yet.
     pub async fn invite_token_valid(
         &self,
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
     ) -> Result<bool, DatabaseError> {
         let tok = match &self.invite_token {
             None => return Ok(false),
@@ -334,18 +340,18 @@ impl Login {
                           AND id = ?",
             tok
         )
-        .fetch_optional(conn)
+        .fetch_optional(&mut *conn)
         .await?
         .is_some())
     }
 
     pub async fn invalidate_token(
         &self,
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
     ) -> Result<usize, DatabaseError> {
         if let Some(tok) = &self.invite_token {
             Ok(sqlx::query!("DELETE FROM invites WHERE id = ?", tok)
-                .execute(conn)
+                .execute(&mut *conn)
                 .await?
                 .rows_affected() as usize)
         } else {
@@ -353,7 +359,7 @@ impl Login {
         }
     }
 
-    pub async fn new_invite(conn: &crate::DbConnection) -> Result<String, DatabaseError> {
+    pub async fn new_invite(conn: &mut crate::Transaction<'_>) -> Result<String, DatabaseError> {
         let ts = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap()
@@ -364,15 +370,17 @@ impl Login {
             token,
             ts
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await?;
 
         Ok(token)
     }
 
-    pub async fn get_all_invites(conn: &crate::DbConnection) -> Result<Vec<String>, DatabaseError> {
+    pub async fn get_all_invites(
+        conn: &mut crate::Transaction<'_>,
+    ) -> Result<Vec<String>, DatabaseError> {
         Ok(sqlx::query!("SELECT id from invites")
-            .fetch_all(conn)
+            .fetch_all(&mut *conn)
             .await?
             .into_iter()
             .map(|t| t.id)
@@ -380,7 +388,7 @@ impl Login {
     }
 
     pub async fn delete_token(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         token: String,
     ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!(
@@ -390,7 +398,7 @@ impl Login {
                 ) AND id = ?",
             token
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await?
         .rows_affected() as usize)
     }

@@ -23,10 +23,10 @@ impl Genre {
     /// Method returns the entry of a genre if exists based on its name.
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `query` - genre name
     pub async fn get_by_name(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         query: String,
     ) -> Result<Self, DatabaseError> {
         let query = query.to_uppercase();
@@ -35,17 +35,17 @@ impl Genre {
             "SELECT * FROM genre WHERE UPPER(genre.name) LIKE ?",
             query
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?)
     }
 
     /// Method returns all of the episodes belonging to a tv show.
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `media` - reference to a media object which should be a tv show.
     pub async fn get_by_media(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         media_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -55,18 +55,18 @@ impl Genre {
                 WHERE genre_media.media_id = ?"#,
             media_id
         )
-        .fetch_all(conn)
+        .fetch_all(&mut *conn)
         .await?)
     }
 
     /// Method returns a genre based on genre_id and media_id
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `genre_id` - id of a genre
     /// * `media_id` - id of a media object
     pub async fn get_by_id(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         genre_id: i64,
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -75,18 +75,21 @@ impl Genre {
             WHERE id = ?",
             genre_id
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?)
     }
 
     /// Method removes a genre from the genre table based on its id
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - genre id
-    pub async fn delete(conn: &crate::DbConnection, id: i64) -> Result<usize, DatabaseError> {
+    pub async fn delete(
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM genre WHERE id = ?", id)
-            .execute(conn)
+            .execute(&mut *conn)
             .await?
             .rows_affected() as usize)
     }
@@ -103,10 +106,8 @@ impl InsertableGenre {
     /// Method inserts a new genre into the table otherwise returns the id of a existing entry
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
-    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
-        let tx = conn.begin().await.unwrap();
-
+    /// * `conn` - mutable reference to a sqlx transaction.
+    pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
         let name = self.name.clone().to_uppercase();
 
         if let Some(record) = sqlx::query!(
@@ -114,18 +115,16 @@ impl InsertableGenre {
             WHERE UPPER(genre.name) LIKE ?",
             name
         )
-        .fetch_optional(conn)
+        .fetch_optional(&mut *conn)
         .await?
         {
             return Ok(record.id);
         }
 
         let id = sqlx::query!(r#"INSERT INTO genre (name) VALUES ($1)"#, self.name)
-            .execute(conn)
+            .execute(&mut *conn)
             .await?
             .last_insert_rowid();
-
-        tx.commit().await?;
 
         Ok(id)
     }
@@ -142,14 +141,14 @@ impl InsertableGenreMedia {
     /// Method inserts a new entry into the intermediary genre table linking a genre to a media
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
-    pub async fn insert(&self, conn: &crate::DbConnection) {
+    /// * `conn` - mutable reference to a sqlx transaction.
+    pub async fn insert(&self, conn: &mut crate::Transaction<'_>) {
         let _ = sqlx::query!(
             "INSERT INTO genre_media (genre_id, media_id) VALUES ($1, $2)",
             self.genre_id,
             self.media_id
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await;
     }
 
@@ -158,14 +157,12 @@ impl InsertableGenreMedia {
     /// # Arguments
     /// * `genre_id` - id of the genre we are trying to link to a media object.
     /// * `media_id` - id of the media object we are trying to link to a media.
-    /// * `conn` - diesel connection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     pub async fn insert_pair(
         genre_id: i64,
         media_id: i64,
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
     ) -> Result<i64, DatabaseError> {
-        let tx = conn.begin().await?;
-
         if let Some(r) = sqlx::query!(
             "SELECT genre.id FROM genre
             JOIN genre_media
@@ -174,7 +171,7 @@ impl InsertableGenreMedia {
             media_id,
             genre_id
         )
-        .fetch_optional(conn)
+        .fetch_optional(&mut *conn)
         .await?
         {
             return Ok(r.id);
@@ -186,11 +183,9 @@ impl InsertableGenreMedia {
             genre_id,
             media_id
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await?
         .last_insert_rowid();
-
-        tx.commit().await?;
 
         Ok(id)
     }

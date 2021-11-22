@@ -21,10 +21,10 @@ impl Season {
     /// Method returns all of the seasons that are linked to a tv show based on a tvshow id
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `tv_id` - id of the tv show we'd like to discriminate against.
     pub async fn get_all(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         tv_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -32,18 +32,18 @@ impl Season {
             r#"SELECT id as "id!", season_number, tvshowid, added, poster as "poster?" FROM season WHERE tvshowid = ?"#,
             tv_id
         )
-        .fetch_all(conn)
+        .fetch_all(&mut *conn)
         .await?)
     }
 
     /// Method returns the season based on the season number belonging to a tv show.
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `tv_id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - season number we'd like to fetch.
     pub async fn get(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         tv_id: i64,
         season_num: i64,
     ) -> Result<Season, DatabaseError> {
@@ -55,18 +55,18 @@ impl Season {
             tv_id,
             season_num
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?)
     }
 
     /// Method deletes a season entry that belongs to a tv show.
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `tv_id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - season number we'd like to fetch.
     pub async fn delete(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         tv_id: i64,
         season_num: i64,
     ) -> Result<usize, DatabaseError> {
@@ -75,17 +75,17 @@ impl Season {
             tv_id,
             season_num
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await?
         .rows_affected() as usize)
     }
 
     pub async fn delete_by_id(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         season_id: i64,
     ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM season where id = ?", season_id)
-            .execute(conn)
+            .execute(&mut *conn)
             .await?
             .rows_affected() as usize)
     }
@@ -93,9 +93,12 @@ impl Season {
     /// Method will return the oldest season for a tv show that is available.
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `tv_id` - id of the tv show.
-    pub async fn get_first(conn: &crate::DbConnection, tv_id: i64) -> Result<Self, DatabaseError> {
+    pub async fn get_first(
+        conn: &mut crate::Transaction<'_>,
+        tv_id: i64,
+    ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
             r#"SELECT id as "id!", season_number, tvshowid, added, poster as "poster?"
@@ -104,12 +107,12 @@ impl Season {
             ORDER BY season_number ASC"#,
             tv_id,
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?)
     }
 
     pub async fn get_by_id(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         season_id: i64,
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -118,7 +121,7 @@ impl Season {
             FROM season WHERE id = ?"#,
             season_id,
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?)
     }
 }
@@ -137,17 +140,19 @@ impl InsertableSeason {
     /// Method inserts a new season and links it to a tv show based on the id specified.
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - id of the tv show we'd like to link this season to
-    pub async fn insert(&self, conn: &crate::DbConnection, id: i64) -> Result<i64, DatabaseError> {
-        let tx = conn.begin().await?;
-
+    pub async fn insert(
+        &self,
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<i64, DatabaseError> {
         let result = sqlx::query!(
             r#"SELECT id as "id!" FROM season WHERE season_number = ? AND tvshowid = ?"#,
             self.season_number,
             id
         )
-        .fetch_optional(conn)
+        .fetch_optional(&mut *conn)
         .await?;
 
         if let Some(season) = result {
@@ -165,11 +170,9 @@ impl InsertableSeason {
             self.poster,
             id
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?
         .id;
-
-        tx.commit().await?;
 
         Ok(id)
     }
@@ -189,20 +192,20 @@ impl UpdateSeason {
     /// Method updates a seasons entry based on tv show id and season number.
     ///
     /// # Arguments
-    /// * `conn` - diesel connection reference to postgres
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - Season number we'd like to update.
-    pub async fn update(self, conn: &crate::DbConnection, id: i64) -> Result<usize, DatabaseError> {
-        let tx = conn.begin().await?;
-
-        opt_update!(conn, tx,
+    pub async fn update(
+        self,
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<usize, DatabaseError> {
+        opt_update!(conn,
             "UPDATE _tblseason SET season_number = $1 WHERE id = ?2" => (self.season_number, id),
             "UPDATE _tblseason SET tvshowid = $1 WHERE id = ?2" => (self.tvshowid, id),
             "UPDATE _tblseason SET added = $1 WHERE id = ?2" => (self.added, id),
             "UPDATE _tblseason SET poster = $1 WHERE id = ?2" => (self.poster, id)
         );
-
-        tx.commit().await?;
 
         Ok(1)
     }

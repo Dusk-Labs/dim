@@ -33,28 +33,31 @@ pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
 #[instrument(skip_all)]
 pub async fn run_scanners(tx: EventTx) {
     if let Ok(conn) = database::get_conn_logged().await {
-        for lib in database::library::Library::get_all(&conn).await {
-            info!("Starting scanner for {} with id: {}", lib.name, lib.id);
+        if let Ok(mut db_tx) = conn.read().begin().await {
+            for lib in database::library::Library::get_all(&mut db_tx).await {
+                info!("Starting scanner for {} with id: {}", lib.name, lib.id);
 
-            let library_id = lib.id;
-            let tx_clone = tx.clone();
+                let library_id = lib.id;
+                let tx_clone = tx.clone();
 
-            tokio::spawn(scanners::start(library_id, tx_clone));
+                tokio::spawn(scanners::start(library_id, tx_clone));
 
-            let library_id = lib.id;
-            let tx_clone = tx.clone();
-            let media_type = lib.media_type;
+                let library_id = lib.id;
+                let tx_clone = tx.clone();
+                let media_type = lib.media_type;
 
-            tokio::spawn(async move {
-                let watcher =
-                    scanners::scanner_daemon::FsWatcher::new(library_id, media_type, tx_clone)
+                tokio::spawn(async move {
+                    let watcher = scanners::scanner_daemon::FsWatcher::new(
+                        library_id, media_type, tx_clone,
+                    )
                         .await;
 
-                watcher
-                    .start_daemon()
-                    .await
-                    .expect("Something went wrong with the fs-watcher");
-            });
+                    watcher
+                        .start_daemon()
+                        .await
+                        .expect("Something went wrong with the fs-watcher");
+                    });
+            }
         }
     }
 }

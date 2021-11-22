@@ -13,6 +13,8 @@ use http::StatusCode;
 pub enum DimError {
     #[error(display = "A database error occured")]
     DatabaseError,
+    #[error(display = "A database error occured")]
+    RawDatabaseError(String),
     #[error(display = "Some function returned none")]
     NoneError,
     #[error(display = "Some unknown error has occured")]
@@ -41,6 +43,12 @@ pub enum DimError {
     UnsupportedFile,
 }
 
+impl From<sqlx::Error> for DimError {
+    fn from(e: sqlx::Error) -> Self {
+        Self::RawDatabaseError(format!("{:?}", e))
+    }
+}
+
 impl warp::reject::Reject for DimError {}
 
 impl warp::Reply for DimError {
@@ -49,6 +57,7 @@ impl warp::Reply for DimError {
             Self::NoneError | Self::NotFoundError => StatusCode::NOT_FOUND,
             Self::StreamingError(_)
             | Self::DatabaseError
+            | Self::RawDatabaseError(_)
             | Self::UnknownError
             | Self::IOError
             | Self::InternalServerError
@@ -80,6 +89,8 @@ pub enum AuthError {
     FailedAuth,
     #[error(display = "A database error occured")]
     DatabaseError,
+    #[error(display = "A database error occured")]
+    RawDatabaseError(String),
     #[error(display = "No invite token was supplied, when required")]
     NoTokenError,
     #[error(display = "Admin role required to access this route")]
@@ -92,13 +103,19 @@ pub enum AuthError {
     UserDoesntExist,
 }
 
+impl From<sqlx::Error> for AuthError {
+    fn from(e: sqlx::Error) -> Self {
+        Self::RawDatabaseError(format!("{:?}", e))
+    }
+}
+
 impl warp::reject::Reject for AuthError {}
 
 impl warp::Reply for AuthError {
     fn into_response(self) -> warp::reply::Response {
         let status = match self {
             Self::NoTokenError | Self::UsernameTaken => StatusCode::OK,
-            Self::DatabaseError => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::DatabaseError | Self::RawDatabaseError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::Unauthorized | Self::UserDoesntExist => StatusCode::UNAUTHORIZED,
             Self::WrongPassword | Self::FailedAuth => StatusCode::FORBIDDEN,
         };
@@ -118,6 +135,8 @@ impl warp::Reply for AuthError {
 
 #[derive(Clone, Debug, Error, Serialize)]
 pub enum StreamingErrors {
+    #[error(display = "A database error occured")]
+    DatabaseError(String),
     #[error(display = "Failed to start process")]
     ProcFailed,
     #[error(display = "The video profile requested doesnt exist")]
@@ -138,6 +157,12 @@ pub enum StreamingErrors {
     FFProbeCtxFailed,
     #[error(display = "Could not parse the gid")]
     GidParseError,
+}
+
+impl From<sqlx::Error> for StreamingErrors {
+    fn from(e: sqlx::Error) -> Self {
+        Self::DatabaseError(format!("{:?}", e))
+    }
 }
 
 impl warp::reject::Reject for StreamingErrors {}
