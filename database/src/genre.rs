@@ -84,7 +84,10 @@ impl Genre {
     /// # Arguments
     /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - genre id
-    pub async fn delete(conn: &mut crate::Transaction<'_>, id: i64) -> Result<usize, DatabaseError> {
+    pub async fn delete(
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM genre WHERE id = ?", id)
             .execute(&mut *conn)
             .await?

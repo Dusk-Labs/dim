@@ -125,7 +125,10 @@ impl User {
             .collect())
     }
 
-    pub async fn get(conn: &mut crate::Transaction<'_>, username: &str) -> Result<Self, DatabaseError> {
+    pub async fn get(
+        conn: &mut crate::Transaction<'_>,
+        username: &str,
+    ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query!(
             "SELECT * from users
                 WHERE username = ?",
@@ -177,7 +180,10 @@ impl User {
     /// # Arguments
     /// * `&` - postgres &ection
     /// * `uname` - username we wish to target and delete
-    pub async fn delete(conn: &mut crate::Transaction<'_>, uname: String) -> Result<usize, DatabaseError> {
+    pub async fn delete(
+        conn: &mut crate::Transaction<'_>,
+        uname: String,
+    ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM users WHERE username = ?", uname)
             .execute(&mut *conn)
             .await?
@@ -370,7 +376,9 @@ impl Login {
         Ok(token)
     }
 
-    pub async fn get_all_invites(conn: &mut crate::Transaction<'_>) -> Result<Vec<String>, DatabaseError> {
+    pub async fn get_all_invites(
+        conn: &mut crate::Transaction<'_>,
+    ) -> Result<Vec<String>, DatabaseError> {
         Ok(sqlx::query!("SELECT id from invites")
             .fetch_all(&mut *conn)
             .await?

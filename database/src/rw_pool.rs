@@ -1,5 +1,5 @@
-use sqlx::Sqlite;
 use sqlx::Pool;
+use sqlx::Sqlite;
 
 #[derive(Clone)]
 pub struct SqlitePool {
@@ -9,10 +9,7 @@ pub struct SqlitePool {
 
 impl SqlitePool {
     pub fn new(writer: Pool<Sqlite>, reader: Pool<Sqlite>) -> Self {
-        Self {
-            writer,
-            reader
-        }
+        Self { writer, reader }
     }
 
     pub fn read(&self) -> Pool<Sqlite> {

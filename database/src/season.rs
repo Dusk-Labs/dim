@@ -95,7 +95,10 @@ impl Season {
     /// # Arguments
     /// * `conn` - mutable reference to a sqlx transaction.
     /// * `tv_id` - id of the tv show.
-    pub async fn get_first(conn: &mut crate::Transaction<'_>, tv_id: i64) -> Result<Self, DatabaseError> {
+    pub async fn get_first(
+        conn: &mut crate::Transaction<'_>,
+        tv_id: i64,
+    ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
             r#"SELECT id as "id!", season_number, tvshowid, added, poster as "poster?"
@@ -139,7 +142,11 @@ impl InsertableSeason {
     /// # Arguments
     /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - id of the tv show we'd like to link this season to
-    pub async fn insert(&self, conn: &mut crate::Transaction<'_>, id: i64) -> Result<i64, DatabaseError> {
+    pub async fn insert(
+        &self,
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<i64, DatabaseError> {
         let result = sqlx::query!(
             r#"SELECT id as "id!" FROM season WHERE season_number = ? AND tvshowid = ?"#,
             self.season_number,
@@ -188,7 +195,11 @@ impl UpdateSeason {
     /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - id of the tv show we'd like to discriminate against.
     /// * `season_num` - Season number we'd like to update.
-    pub async fn update(self, conn: &mut crate::Transaction<'_>, id: i64) -> Result<usize, DatabaseError> {
+    pub async fn update(
+        self,
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<usize, DatabaseError> {
         opt_update!(conn,
             "UPDATE _tblseason SET season_number = $1 WHERE id = ?2" => (self.season_number, id),
             "UPDATE _tblseason SET tvshowid = $1 WHERE id = ?2" => (self.tvshowid, id),

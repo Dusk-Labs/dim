@@ -6,7 +6,10 @@ use crate::media;
 use super::library_tests::create_test_library;
 
 pub async fn insert_genre(conn: &mut crate::Transaction<'_>, name: String) -> i64 {
-    genre::InsertableGenre { name }.insert(&mut *conn).await.unwrap()
+    genre::InsertableGenre { name }
+        .insert(&mut *conn)
+        .await
+        .unwrap()
 }
 
 #[tokio::test(flavor = "multi_thread")]

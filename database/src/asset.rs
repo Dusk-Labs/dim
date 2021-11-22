@@ -10,7 +10,10 @@ pub struct Asset {
 }
 
 impl Asset {
-    pub async fn get_by_id(conn: &mut crate::Transaction<'_>, id: i64) -> Result<Self, DatabaseError> {
+    pub async fn get_by_id(
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<Self, DatabaseError> {
         Ok(
             sqlx::query_as!(Asset, "SELECT * FROM assets WHERE id = ?", id)
                 .fetch_one(&mut *conn)

@@ -18,14 +18,14 @@ pub mod media;
 pub mod mediafile;
 pub mod movie;
 pub mod progress;
+#[cfg(feature = "sqlite")]
+pub mod rw_pool;
 pub mod season;
 #[cfg(test)]
 pub mod tests;
 pub mod tv;
 pub mod user;
 pub mod utils;
-#[cfg(feature = "sqlite")]
-pub mod rw_pool;
 
 pub use crate::error::DatabaseError;
 

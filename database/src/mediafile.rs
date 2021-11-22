@@ -112,7 +112,10 @@ impl MediaFile {
     /// # Arguments
     /// * `conn` - mutable reference to a sqlx transaction.
     /// * `_id` - id of the mediafile object we are targetting
-    pub async fn get_one(conn: &mut crate::Transaction<'_>, id: i64) -> Result<Self, DatabaseError> {
+    pub async fn get_one(
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<Self, DatabaseError> {
         Ok(
             sqlx::query_as!(MediaFile, "SELECT * FROM mediafile WHERE id = ?", id)
                 .fetch_one(&mut *conn)
@@ -168,7 +171,10 @@ impl MediaFile {
     /// # Arguments
     /// * `conn` - mutable reference to a sqlx transaction.
     /// * `_id` - id of the mediafile entry we want to delete
-    pub async fn delete(conn: &mut crate::Transaction<'_>, id: i64) -> Result<usize, DatabaseError> {
+    pub async fn delete(
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM mediafile WHERE id = ?", id)
             .execute(&mut *conn)
             .await?

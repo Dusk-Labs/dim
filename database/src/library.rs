@@ -92,7 +92,10 @@ impl Library {
     /// # Arguments
     /// * `conn` - mutable reference to a sqlx transaction.
     /// * `lib_id` - a integer that is the id of the library we are trying to query
-    pub async fn get_one(conn: &mut crate::Transaction<'_>, lib_id: i64) -> Result<Self, DatabaseError> {
+    pub async fn get_one(
+        conn: &mut crate::Transaction<'_>,
+        lib_id: i64,
+    ) -> Result<Self, DatabaseError> {
         let library = sqlx::query!(
             r#"SELECT id, name, media_type as "media_type: MediaType" FROM library
             WHERE id = ?"#,

@@ -54,7 +54,9 @@ async fn test_insert_and_get_methods() {
     let result = dbg!(season::Season::get_by_id(&mut tx, _season).await.unwrap());
     assert_eq!(result.season_number, 1);
 
-    let rows = dbg!(season::Season::delete_by_id(&mut tx, _season).await.unwrap());
+    let rows = dbg!(season::Season::delete_by_id(&mut tx, _season)
+        .await
+        .unwrap());
     assert_eq!(rows, 1);
 
     let result = season::Season::get(&mut tx, 1, 1).await;

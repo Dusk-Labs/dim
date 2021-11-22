@@ -15,7 +15,10 @@ pub async fn insert_mediafile(conn: &mut crate::Transaction<'_>) -> i64 {
     mfile.insert(&mut *conn).await.unwrap()
 }
 
-pub async fn insert_mediafile_with_mediaid(conn: &mut crate::Transaction<'_>, media_id: i64) -> i64 {
+pub async fn insert_mediafile_with_mediaid(
+    conn: &mut crate::Transaction<'_>,
+    media_id: i64,
+) -> i64 {
     let mfile = mediafile::InsertableMediaFile {
         library_id: 1,
         target_file: "/dev/null".into(),

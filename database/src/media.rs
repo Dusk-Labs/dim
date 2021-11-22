@@ -221,7 +221,10 @@ impl Media {
     /// # Arguments
     /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - id of a media object we want to delete
-    pub async fn delete(conn: &mut crate::Transaction<'_>, id: i64) -> Result<usize, DatabaseError> {
+    pub async fn delete(
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM _tblmedia WHERE id = ?", id)
             .execute(&mut *conn)
             .await?
@@ -302,7 +305,10 @@ impl InsertableMedia {
     /// Method blindly inserts `self` into the database without checking whether a similar entry exists.
     /// This is especially useful for tv shows as they usually have similar metadata with key differences
     /// which are not indexed in the database.
-    pub async fn insert_blind(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
+    pub async fn insert_blind(
+        &self,
+        conn: &mut crate::Transaction<'_>,
+    ) -> Result<i64, DatabaseError> {
         Ok(sqlx::query!(
             r#"INSERT INTO _tblmedia (library_id, name, description, rating, year, added, poster, backdrop, media_type)
             VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)"#,
