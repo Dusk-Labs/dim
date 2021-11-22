@@ -1,12 +1,13 @@
 use cfg_if::cfg_if;
 
 use once_cell::sync::OnceCell;
-use slog::Logger;
 
 use crate::utils::ffpath;
 use std::str::FromStr;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
+
+use tracing::{info, instrument};
 
 pub mod asset;
 pub mod episode;
@@ -70,7 +71,7 @@ pub async fn get_conn() -> sqlx::Result<crate::DbConnection> {
     let conn = if let Some(conn) = __GLOBAL.get() {
         conn
     } else {
-        let conn = internal_get_conn(None).await?;
+        let conn = internal_get_conn().await?;
         let _ = __GLOBAL.set(conn);
         __GLOBAL.get().unwrap()
     };
@@ -137,17 +138,18 @@ pub async fn get_conn_devel() -> sqlx::Result<crate::DbConnection> {
 ///
 /// # Arguments
 /// * `log` - a Slog logger instance
-pub async fn get_conn_logged(log: &Logger) -> sqlx::Result<DbConnection> {
+#[instrument]
+pub async fn get_conn_logged() -> sqlx::Result<DbConnection> {
     // This is the URL for the database inside a docker container
     let conn = if let Some(conn) = __GLOBAL.get() {
         conn
     } else {
-        let conn = internal_get_conn(Some(log)).await?;
+        let conn = internal_get_conn().await?;
         let _ = __GLOBAL.set(conn);
         __GLOBAL.get().unwrap()
     };
 
-    slog::info!(log, "Creating new database connection");
+    info!("Creating new database connection");
 
     if !MIGRATIONS_FLAG.load(Ordering::SeqCst) && dbg!(run_migrations(&conn).await).is_ok() {
         MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
@@ -156,11 +158,10 @@ pub async fn get_conn_logged(log: &Logger) -> sqlx::Result<DbConnection> {
     Ok(conn.clone())
 }
 
-async fn internal_get_conn(_log: Option<&Logger>) -> sqlx::Result<DbConnection> {
+async fn internal_get_conn() -> sqlx::Result<DbConnection> {
     cfg_if! {
         if #[cfg(feature = "postgres")] {
             internal_get_conn_custom(
-                _log,
                 "postgres://postgres:dimpostgres@127.0.0.1/dim"
             ).await
         } else {
@@ -185,10 +186,8 @@ async fn internal_get_conn(_log: Option<&Logger>) -> sqlx::Result<DbConnection> 
 
 #[cfg(feature = "postgres")]
 #[async_recursion::async_recursion]
-async fn internal_get_conn_custom(
-    log: Option<&'async_recursion Logger>,
-    main: &str,
-) -> sqlx::Result<DbConnection> {
+#[tracing::instrument]
+async fn internal_get_conn_custom(main: &str) -> sqlx::Result<DbConnection> {
     let pool = sqlx::Pool::connect(main).await;
 
     if pool.is_ok() {
@@ -197,12 +196,8 @@ async fn internal_get_conn_custom(
 
     let pool = sqlx::Pool::connect("postgres://postgres:dimpostgres@127.0.0.1/").await;
 
-    if let Some(log) = log {
-        slog::warn!(
-            log,
-            "Database dim seems to not exist, creating...standby..."
-        );
-    }
+    warn!("Database dim seems to not exist, creating...standby...");
+
     let _ = create_database(&pool?);
 
     Ok(internal_get_conn(log).await?)

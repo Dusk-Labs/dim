@@ -58,7 +58,6 @@ pub mod filters {
         conn: DbConnection,
         state: StateManager,
         stream_tracking: StreamTracking,
-        log: slog::Logger,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         #[derive(Deserialize)]
         struct QueryArgs {
@@ -72,28 +71,18 @@ pub mod filters {
             .and(with_state::<DbConnection>(conn))
             .and(with_state::<StateManager>(state))
             .and(with_state::<StreamTracking>(stream_tracking))
-            .and(with_state::<slog::Logger>(log))
             .and_then(
                 |id: i64,
                  QueryArgs { gid }: QueryArgs,
                  auth: Auth,
                  conn: DbConnection,
                  state: StateManager,
-                 stream_tracking: StreamTracking,
-                 log: slog::Logger| async move {
+                 stream_tracking: StreamTracking| async move {
                     let gid = gid.and_then(|x| Uuid::parse_str(x.as_str()).ok());
 
                     warp_unwrap!(
-                        super::return_virtual_manifest(
-                            state,
-                            stream_tracking,
-                            auth,
-                            conn,
-                            log,
-                            id,
-                            gid
-                        )
-                        .await
+                        super::return_virtual_manifest(state, stream_tracking, auth, conn, id, gid)
+                            .await
                     )
                 },
             )
@@ -276,7 +265,6 @@ pub async fn return_virtual_manifest(
     stream_tracking: StreamTracking,
     auth: Auth,
     conn: DbConnection,
-    log: slog::Logger,
     id: i64,
     gid: Option<Uuid>,
 ) -> Result<impl warp::Reply, errors::StreamingErrors> {
@@ -316,19 +304,10 @@ pub async fn return_virtual_manifest(
 
     ms.truncate(4);
 
-    let should_stream_default = try_create_dstream(
-        &log,
-        &info,
-        &media,
-        &stream_tracking,
-        &gid,
-        &state,
-        &user_prefs,
-    )
-    .await?;
+    let should_stream_default =
+        try_create_dstream(&info, &media, &stream_tracking, &gid, &state, &user_prefs).await?;
 
     create_video(
-        &log,
         &info,
         &media,
         &stream_tracking,
@@ -338,8 +317,8 @@ pub async fn return_virtual_manifest(
         should_stream_default,
     )
     .await?;
-    create_audio(&log, &info, &media, &stream_tracking, &gid, &state).await?;
-    create_subtitles(&log, &info, &media, &stream_tracking, &gid, &state).await?;
+    create_audio(&info, &media, &stream_tracking, &gid, &state).await?;
+    create_subtitles(&info, &media, &stream_tracking, &gid, &state).await?;
 
     stream_tracking.generate_sids(&gid).await;
 
@@ -350,7 +329,6 @@ pub async fn return_virtual_manifest(
 }
 
 pub async fn try_create_dstream(
-    log: &slog::Logger,
     info: &FFPWrapper,
     media: &MediaFile,
     stream_tracking: &StreamTracking,
@@ -376,7 +354,7 @@ pub async fn try_create_dstream(
     };
 
     let dp_profile_chain =
-        get_profile_for_with_type(&log, StreamType::Video, ProfileType::Transmux, &ctx);
+        get_profile_for_with_type(StreamType::Video, ProfileType::Transmux, &ctx);
 
     // Should secondary (transcoded) streams default.
     let should_stream_default = dp_profile_chain.is_empty()
@@ -440,7 +418,6 @@ pub async fn try_create_dstream(
 }
 
 pub async fn create_video(
-    log: &slog::Logger,
     info: &FFPWrapper,
     media: &MediaFile,
     stream_tracking: &StreamTracking,
@@ -483,7 +460,7 @@ pub async fn create_video(
         };
 
         // FIXME: remove this panic
-        let profile_chain = get_profile_for(&log, StreamType::Video, &ctx);
+        let profile_chain = get_profile_for(StreamType::Video, &ctx);
         debug_assert!(!profile_chain.is_empty());
 
         let video = state.create(profile_chain, ctx).await?;
@@ -507,7 +484,7 @@ pub async fn create_video(
         // TODO: This code will not work correctly if there are similar resolutions with different
         // brates.
         let should_be_default = should_stream_default
-            && matches!(prefs.default_video_quality, DefaultVideoQuality::Resolution(res, brate) if res == quality.height);
+            && matches!(prefs.default_video_quality, DefaultVideoQuality::Resolution(res, _) if res == quality.height);
 
         let chunk_path = format!("{}/data/$Number$.m4s", video.clone());
         let init_seg = Some(format!("{}/data/init.mp4", video.clone()));
@@ -531,7 +508,6 @@ pub async fn create_video(
 }
 
 pub async fn create_audio(
-    log: &slog::Logger,
     info: &FFPWrapper,
     media: &MediaFile,
     stream_tracking: &StreamTracking,
@@ -559,7 +535,7 @@ pub async fn create_audio(
             ..Default::default()
         };
 
-        let profile = get_profile_for(&log, StreamType::Audio, &ctx);
+        let profile = get_profile_for(StreamType::Audio, &ctx);
         let audio = state.create(profile, ctx).await?;
 
         let bitrate_kbps = bitrate / 1000;
@@ -587,7 +563,6 @@ pub async fn create_audio(
 }
 
 pub async fn create_subtitles(
-    log: &slog::Logger,
     info: &FFPWrapper,
     media: &MediaFile,
     stream_tracking: &StreamTracking,
@@ -620,7 +595,7 @@ pub async fn create_subtitles(
         let mime = "text/vtt";
         let codec = "vtt";
 
-        let profile_chain = get_profile_for(&log, StreamType::Subtitle, &ctx);
+        let profile_chain = get_profile_for(StreamType::Subtitle, &ctx);
         let subtitle = state.create(profile_chain, ctx).await?;
 
         let chunk_path = format!("{}/data/stream.vtt", subtitle.clone());

@@ -16,7 +16,10 @@ serde = { version = "^1", features = ["derive"] }
 serde_derive = "^1"
 serde_json = "^1"
 lazy_static = "^1"
-slog = "^2"
+
+tracing-log = "0.1.2"
+tracing = "0.1.29"
+
 ring = "^0.16.11"
 base64 = "0.13.0"
 uuid = { version = "0.8.1", features = ["v4"] }

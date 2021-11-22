@@ -13,10 +13,6 @@ use database::mediafile::MediaFile;
 use database::mediafile::UpdateMediaFile;
 use database::DbConnection;
 
-use slog::debug;
-use slog::error;
-use slog::warn;
-
 use notify::DebouncedEvent;
 use notify::RecommendedWatcher;
 use notify::RecursiveMode;
@@ -24,6 +20,9 @@ use notify::Watcher;
 
 use err_derive::Error;
 use tokio::task::spawn_blocking;
+use tracing::debug;
+use tracing::error;
+use tracing::warn;
 
 #[derive(Debug, Error)]
 pub enum FsWatcherError {
@@ -37,22 +36,15 @@ pub struct FsWatcher {
     media_type: MediaType,
     library_id: i64,
     tx: EventTx,
-    logger: slog::Logger,
     conn: DbConnection,
 }
 
 impl FsWatcher {
-    pub async fn new(
-        logger: slog::Logger,
-        library_id: i64,
-        media_type: MediaType,
-        tx: EventTx,
-    ) -> Self {
+    pub async fn new(library_id: i64, media_type: MediaType, tx: EventTx) -> Self {
         Self {
             library_id,
             media_type,
             tx,
-            logger,
             conn: get_conn()
                 .await
                 .expect("Failed to grab the connection pool."),
@@ -63,7 +55,7 @@ impl FsWatcher {
         let mut tx = match self.conn.read().begin().await {
             Ok(x) => x,
             Err(e) => {
-                error!(self.logger, "Failed to open a transaction."; "reason" => format!("{:?}", e));
+                error!(reason = ?e, "Failed to open a transaction.");
                 return Ok(());
             }
         };
@@ -93,14 +85,14 @@ impl FsWatcher {
                 Ok(DebouncedEvent::Create(path)) => self.handle_create(path).await,
                 Ok(DebouncedEvent::Rename(from, to)) => self.handle_rename(from, to).await,
                 Ok(DebouncedEvent::Remove(path)) => self.handle_remove(path).await,
-                Ok(event) => debug!(self.logger, "Tried to handle unmatched event {:?}", event),
-                Err(e) => error!(self.logger, "Received error: {:?}", e),
+                Ok(event) => debug!("Tried to handle unmatched event {:?}", event),
+                Err(e) => error!("Received error: {:?}", e),
             }
         }
     }
 
     async fn handle_create(&self, path: PathBuf) {
-        debug!(self.logger, "Received handle_create event type: {:?}", path);
+        debug!("Received handle_create event type: {:?}", path);
 
         if path.is_file()
             && path
@@ -108,8 +100,8 @@ impl FsWatcher {
                 .and_then(|e| e.to_str())
                 .map_or(false, |e| super::SUPPORTED_EXTS.contains(&e))
         {
-            let extractor = super::get_extractor(&self.logger, &self.tx);
-            let matcher = super::get_matcher(&self.logger, &self.tx);
+            let extractor = super::get_extractor(&&self.tx);
+            let matcher = super::get_matcher(&&self.tx);
 
             if let Ok(mfile) = extractor
                 .mount_file(path.clone(), self.library_id, self.media_type)
@@ -129,7 +121,6 @@ impl FsWatcher {
             if let Some(x) = path.to_str() {
                 let _ = super::start_custom(
                     self.library_id,
-                    self.logger.clone(),
                     self.tx.clone(),
                     IntoIter::new([x]),
                     self.media_type,
@@ -140,12 +131,15 @@ impl FsWatcher {
     }
 
     async fn handle_remove(&self, path: PathBuf) {
-        debug!(self.logger, "Received handle remove {:?}", path);
+        debug!("Received handle remove {:?}", path);
 
         let path = match path.to_str() {
             Some(x) => x,
             None => {
-                warn!(self.logger, "Received path thats not unicode"; "path" => format!("{:?}", path));
+                warn!(
+                    "Received path thats not unicode {}",
+                    path = format!("{:?}", path)
+                );
                 return;
             }
         };
@@ -153,7 +147,7 @@ impl FsWatcher {
         let mut tx = match self.conn.write().begin().await {
             Ok(x) => x,
             Err(e) => {
-                error!(self.logger, "Failed to create transaction."; "reason" => format!("{:?}", e));
+                error!(reason = ?e, "Failed to create transaction.");
                 return;
             }
         };
@@ -162,7 +156,7 @@ impl FsWatcher {
             let media = Media::get_of_mediafile(&mut tx, media_file.id).await;
 
             if let Err(e) = MediaFile::delete(&mut tx, media_file.id).await {
-                error!(self.logger, "Failed to remove mediafile"; "reason" => format!("{:?}", e));
+                error!(reason = ?e, "Failed to remove mediafile");
                 return;
             }
 
@@ -172,7 +166,7 @@ impl FsWatcher {
                 if let Ok(media_files) = MediaFile::get_of_media(&mut tx, media.id).await {
                     if media_files.is_empty() {
                         if let Err(e) = Media::delete(&mut tx, media.id).await {
-                            error!(self.logger, "Failed to delete ghost media {:?}", e);
+                            error!(reason = ?e, "Failed to delete ghost media");
                             return;
                         }
                     }
@@ -180,23 +174,25 @@ impl FsWatcher {
             }
 
             if let Err(e) = tx.commit().await {
-                error!(self.logger, "Failed to commit transaction."; "reason" => format!("{:?}", e));
+                error!(reason = ?e, "Failed to commit transaction.");
             }
         }
     }
 
     async fn handle_rename(&self, from: PathBuf, to: PathBuf) {
         debug!(
-            self.logger,
-            "Received handle rename";
-            "from" => format!("{:?}", from),
-            "to" => format!("{:?}", to),
+            from = ?from,
+            to = ?to,
+            "Received handle rename",
         );
 
         let from = match from.to_str() {
             Some(x) => x,
             None => {
-                warn!(self.logger, "Received path thats not unicode"; "path" => format!("{:?}", from));
+                warn!(
+                    "Received path thats not unicode {}",
+                    path = format!("{:?}", from)
+                );
                 return;
             }
         };
@@ -204,7 +200,10 @@ impl FsWatcher {
         let to = match to.to_str() {
             Some(x) => x,
             None => {
-                warn!(self.logger, "Received path thats not unicode"; "path" => format!("{:?}", to));
+                warn!(
+                    "Received path thats not unicode {}",
+                    path = format!("{:?}", to)
+                );
                 return;
             }
         };
@@ -212,7 +211,7 @@ impl FsWatcher {
         let mut tx = match self.conn.write().begin().await {
             Ok(x) => x,
             Err(e) => {
-                error!(self.logger, "Failed to create transaction."; "reason" => format!("{:?}", e));
+                error!(reason = ?e, "Failed to create transaction.");
                 return;
             }
         };
@@ -225,16 +224,15 @@ impl FsWatcher {
 
             if let Err(_e) = update_query.update(&mut tx, media_file.id).await {
                 error!(
-                    self.logger,
-                    "Failed to update target file";
-                    "from" => format!("{:?}", from),
-                    "to" => format!("{:?}", to),
-                    "mediafile_id" => media_file.id
+                    from = ?from,
+                    to = ?to,
+                    mediafile_id = media_file.id,
+                    "Failed to update target file",
                 );
             }
 
             if let Err(e) = tx.commit().await {
-                error!(self.logger, "Failed to commit transaction."; "reason" => format!("{:?}", e));
+                error!(reason = ?e, "Failed to commit transaction.");
             }
         }
     }
