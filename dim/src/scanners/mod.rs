@@ -7,6 +7,7 @@ pub mod tv_show;
 use database::get_conn;
 use database::library::Library;
 use database::library::MediaType;
+
 use tracing::info;
 use tracing::instrument;
 
@@ -21,7 +22,6 @@ use std::time::Instant;
 
 use serde::Deserialize;
 use serde::Serialize;
-
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ApiMedia {
     pub id: u64,
@@ -184,7 +184,13 @@ where
 
 pub async fn start(library_id: i64, tx: EventTx) -> Result<(), self::base::ScannerError> {
     let conn = get_conn().await.expect("Failed to grab the conn pool");
-    let lib = Library::get_one(&conn, library_id).await?;
+    let mut db_tx = conn
+        .read()
+        .begin()
+        .await
+        .map_err(|e| self::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
+
+    let lib = Library::get_one(&mut db_tx, library_id).await?;
 
     start_custom(library_id, tx, lib.locations.into_iter(), lib.media_type).await
 }

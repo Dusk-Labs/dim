@@ -275,14 +275,16 @@ pub async fn return_virtual_manifest(
         })));
     }
 
-    let user_prefs = User::get(&conn, auth.0.claims.get_user_ref())
+    let mut tx = conn.read().begin().await?;
+
+    let user_prefs = User::get(&mut tx, auth.0.claims.get_user_ref())
         .await
         .map(|x| x.prefs)
         .unwrap_or_default();
 
     let gid = uuid::Uuid::new_v4();
 
-    let media = MediaFile::get_one(&conn, id)
+    let media = MediaFile::get_one(&mut tx, id)
         .await
         .map_err(|e| errors::StreamingErrors::NoMediaFileFound(e.to_string()))?;
 

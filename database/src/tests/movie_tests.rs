@@ -4,11 +4,12 @@ use crate::movie;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_insert() {
-    let ref conn = get_conn_memory().await.unwrap();
-    let _library = create_test_library(conn).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let _library = create_test_library(&mut tx).await;
 
-    let media_id = super::media_tests::insert_media(conn).await;
-    movie::InsertableMovie::insert(conn, media_id)
+    let media_id = super::media_tests::insert_media(&mut tx).await;
+    movie::InsertableMovie::insert(&mut tx, media_id)
         .await
         .unwrap();
 }

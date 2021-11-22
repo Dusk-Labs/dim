@@ -65,18 +65,15 @@ pub async fn dashboard(
     user: Auth,
     _rt: tokio::runtime::Handle,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let _tx = conn
-        .begin()
-        .await
-        .map_err(|_| errors::DimError::DatabaseError)?;
+    let mut tx = conn.read().begin().await?;
 
     let mut top_rated = Vec::new();
-    for media in Media::get_top_rated(&conn, 10).await? {
+    for media in Media::get_top_rated(&mut tx, 10).await? {
         let item = match sqlx::query!(
             "SELECT name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?",
             media
-        ).fetch_one(&conn).await {
+        ).fetch_one(&mut tx).await {
             Ok(x) => x,
             Err(_) => continue,
         };
@@ -89,12 +86,12 @@ pub async fn dashboard(
     }
 
     let mut recently_added = Vec::new();
-    for media in Media::get_recently_added(&conn, 10).await? {
+    for media in Media::get_recently_added(&mut tx, 10).await? {
         let item = match sqlx::query!(
             "SELECT name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?",
             media
-        ).fetch_one(&conn).await {
+        ).fetch_one(&mut tx).await {
             Ok(x) => x,
             Err(_) => continue,
         };
@@ -107,12 +104,12 @@ pub async fn dashboard(
     }
 
     let mut continue_watching = Vec::new();
-    for media in Progress::get_continue_watching(&conn, user.0.claims.get_user(), 10).await? {
+    for media in Progress::get_continue_watching(&mut tx, user.0.claims.get_user(), 10).await? {
         let item = match sqlx::query!(
             "SELECT name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?",
             media
-        ).fetch_one(&conn).await {
+        ).fetch_one(&mut tx).await {
             Ok(x) => x,
             Err(_) => continue,
         };
@@ -140,13 +137,12 @@ pub async fn dashboard(
 }
 
 pub async fn banners(conn: DbConnection, user: Auth) -> Result<impl warp::Reply, errors::DimError> {
-    // NOTE (val): previous diesel implementation also checked whether `get_top_duration` return `Ok(_)`
-    // and filtered out entries that didnt. Im not sure why i did that
+    let mut tx = conn.read().begin().await?;
     let mut banners = Vec::new();
-    for media in Media::get_random_with(&conn, 10).await? {
+    for media in Media::get_random_with(&mut tx, 10).await? {
         if let Ok(x) = match media.media_type {
-            MediaType::Tv => banner_for_show(&conn, &user, &media).await,
-            MediaType::Movie => banner_for_movie(&conn, &user, &media).await,
+            MediaType::Tv => banner_for_show(&mut tx, &user, &media).await,
+            MediaType::Movie => banner_for_movie(&mut tx, &user, &media).await,
             _ => unreachable!(),
         } {
             banners.push(x);
@@ -157,19 +153,19 @@ pub async fn banners(conn: DbConnection, user: Auth) -> Result<impl warp::Reply,
 }
 
 async fn banner_for_movie(
-    conn: &DbConnection,
+    conn: &mut database::Transaction<'_>,
     user: &Auth,
     media: &Media,
 ) -> Result<Value, errors::DimError> {
-    let progress = Progress::get_for_media_user(conn, user.0.claims.get_user(), media.id)
+    let progress = Progress::get_for_media_user(&mut *conn, user.0.claims.get_user(), media.id)
         .await
         .map(|x| x.delta)
         .unwrap_or(0);
 
-    let mediafiles = MediaFile::get_of_media(conn, media.id).await?;
-    let media_duration = MediaFile::get_largest_duration(conn, media.id).await?;
+    let mediafiles = MediaFile::get_of_media(&mut *conn, media.id).await?;
+    let media_duration = MediaFile::get_largest_duration(&mut *conn, media.id).await?;
 
-    let genres = Genre::get_by_media(conn, media.id)
+    let genres = Genre::get_by_media(&mut *conn, media.id)
         .await
         .map(|x| x.into_iter().map(|x| x.name).collect::<Vec<_>>())
         .unwrap_or_default();
@@ -203,44 +199,46 @@ async fn banner_for_movie(
 }
 
 async fn banner_for_show(
-    conn: &DbConnection,
+    conn: &mut database::Transaction<'_>,
     user: &Auth,
     media: &Media,
 ) -> Result<Value, errors::DimError> {
     let episode = if let Ok(Some(ep)) =
-        Episode::get_last_watched_episode(conn, media.id, user.0.claims.get_user()).await
+        Episode::get_last_watched_episode(&mut *conn, media.id, user.0.claims.get_user()).await
     {
         let (delta, duration) =
-            Progress::get_progress_for_media(conn, ep.id, user.0.claims.get_user())
+            Progress::get_progress_for_media(&mut *conn, ep.id, user.0.claims.get_user())
                 .await
                 .unwrap_or((0, 1));
 
         if (delta as f64 / duration as f64) > 0.90 {
-            ep.get_next_episode(conn, media.id).await.unwrap_or(ep)
+            ep.get_next_episode(&mut *conn, media.id)
+                .await
+                .unwrap_or(ep)
         } else {
             ep
         }
     } else {
-        Episode::get_first_for_show(conn, media.id).await?
+        Episode::get_first_for_show(&mut *conn, media.id).await?
     };
 
-    let genres = Genre::get_by_media(conn, media.id)
+    let genres = Genre::get_by_media(&mut *conn, media.id)
         .await
         .unwrap_or_default()
         .into_iter()
         .map(|x| x.name)
         .collect::<Vec<_>>();
 
-    let progress = Progress::get_for_media_user(conn, user.0.claims.get_user(), episode.id)
+    let progress = Progress::get_for_media_user(&mut *conn, user.0.claims.get_user(), episode.id)
         .await
         .map(|x| x.delta)
         .unwrap_or(0);
 
-    let duration = MediaFile::get_largest_duration(conn, episode.id)
+    let duration = MediaFile::get_largest_duration(&mut *conn, episode.id)
         .await
         .unwrap_or(0);
 
-    let mediafiles = MediaFile::get_of_media(conn, episode.id).await?;
+    let mediafiles = MediaFile::get_of_media(&mut *conn, episode.id).await?;
 
     let caption = if progress > 0 {
         "CONTINUE WATCHING"
@@ -259,7 +257,7 @@ async fn banner_for_show(
         "delta": progress,
         "banner_caption": caption,
         "episode": episode.episode,
-        "season": episode.get_season_number(conn).await.unwrap_or(0),
+        "season": episode.get_season_number(&mut *conn).await.unwrap_or(0),
         "versions": mediafiles.iter().map(|x| json!({
             "id": x.id,
             "file": x.target_file,

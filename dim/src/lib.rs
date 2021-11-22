@@ -2,12 +2,9 @@
 //! It uses Diesel as the ORM and rocket for the http/s server
 //!
 //! The project is split up into several crates:
-//! * [`auth`](auth) - Holds all the auth stuff that we might need
 //! * [`database`](database) - Holds all the database models including some frequently used db operations
-//! * [`events`](events) - Holds the events that we can dispatch over a websocket connection
 //! * [`routes`](routes) - All of the routes that we expose over http are stored in there
 //! * [`scanners`](scanners) - The filesystem scanner and daemon code is located here
-//! * [`streaming`](streamer) - All streaming code is located here, including some wrappers around ffprobe and
 //! ffmpeg that is used by several parts of dim
 //!
 //! # Building
@@ -21,12 +18,11 @@
 //! # Testing
 //! To test run `make test` in the root, or `cargo test` in the root of each module including the
 //! root dir.
-use cfg_if::cfg_if;
-use chrono::Utc;
-use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
 
+use tracing_subscriber::fmt;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::EnvFilter;
 use std::fs::create_dir_all;
-use std::fs::File;
 
 /// Module contains our core initialization logic.
 pub mod core;

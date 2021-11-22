@@ -58,9 +58,9 @@ impl Library {
     ///
     /// This method will not return the locations indexed for this library, if you need those you
     /// must query for them separately.
-    pub async fn get_all(conn: &crate::DbConnection) -> Vec<Self> {
+    pub async fn get_all(conn: &mut crate::Transaction<'_>) -> Vec<Self> {
         sqlx::query!(r#"SELECT id, name, media_type as "media_type: MediaType" FROM library"#)
-            .fetch_all(conn)
+            .fetch_all(&mut *conn)
             .await
             .unwrap_or_default()
             .into_iter()
@@ -74,7 +74,7 @@ impl Library {
     }
 
     pub async fn get_locations(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         id: i64,
     ) -> Result<Vec<String>, DatabaseError> {
         Ok(sqlx::query_scalar!(
@@ -82,7 +82,7 @@ impl Library {
             WHERE library_id = ?",
             id
         )
-        .fetch_all(conn)
+        .fetch_all(&mut *conn)
         .await?)
     }
 
@@ -90,18 +90,18 @@ impl Library {
     /// This method will also fetch the indexed locations for this library.
     ///
     /// # Arguments
-    /// * `conn` - [diesel connection](crate::DbConnection)
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `lib_id` - a integer that is the id of the library we are trying to query
-    pub async fn get_one(conn: &crate::DbConnection, lib_id: i64) -> Result<Self, DatabaseError> {
-        // NOTE: Create a transaction so we immediately lock the database.
-        let _tx = conn.begin().await?;
-
+    pub async fn get_one(
+        conn: &mut crate::Transaction<'_>,
+        lib_id: i64,
+    ) -> Result<Self, DatabaseError> {
         let library = sqlx::query!(
             r#"SELECT id, name, media_type as "media_type: MediaType" FROM library
             WHERE id = ?"#,
             lib_id
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?;
 
         let locations = sqlx::query_scalar!(
@@ -109,7 +109,7 @@ impl Library {
             WHERE library_id = ?"#,
             lib_id
         )
-        .fetch_all(conn)
+        .fetch_all(&mut *conn)
         .await?;
 
         Ok(Self {
@@ -123,14 +123,14 @@ impl Library {
     /// Method filters the database for a library with the id supplied and deletes it.
     ///
     /// # Arguments
-    /// * `conn` - [diesel connection](crate::DbConnection)
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `lib_id` - a integer that is the id of the library we are trying to query
     pub async fn delete(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         id_to_del: i64,
     ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM library WHERE id = ?", id_to_del)
-            .execute(conn)
+            .execute(&mut *conn)
             .await?
             .rows_affected() as usize)
     }
@@ -148,15 +148,14 @@ impl InsertableLibrary {
     /// Method inserts a InsertableLibrary object into the database (makes a new library).
     ///
     /// # Arguments
-    /// * `conn` - [diesel connection](crate::DbConnection)
-    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
-        let tx = conn.begin().await?;
+    /// * `conn` - mutable reference to a sqlx transaction.
+    pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
         let lib_id = sqlx::query!(
             r#"INSERT INTO library (name, media_type) VALUES ($1, $2)"#,
             self.name,
             self.media_type
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await?
         .last_insert_rowid();
 
@@ -167,11 +166,9 @@ impl InsertableLibrary {
                 location,
                 lib_id
             )
-            .execute(conn)
+            .execute(&mut *conn)
             .await?;
         }
-
-        tx.commit().await?;
 
         Ok(lib_id)
     }

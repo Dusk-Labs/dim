@@ -13,12 +13,13 @@ use std::time::SystemTime;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_set_and_get_for_media_user() {
-    let ref conn = get_conn_memory().await.unwrap();
-    let library = create_test_library(conn).await;
-    let user = insert_user(conn).await;
-    let media = insert_media(conn).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let library = create_test_library(&mut tx).await;
+    let user = insert_user(&mut tx).await;
+    let media = insert_media(&mut tx).await;
 
-    let result = progress::Progress::get_for_media_user(conn, user.clone(), media)
+    let result = progress::Progress::get_for_media_user(&mut tx, user.clone(), media)
         .await
         .unwrap();
     assert_eq!(result.delta, 0);
@@ -29,12 +30,12 @@ async fn test_set_and_get_for_media_user() {
         .unwrap()
         .as_secs() as i64;
 
-    let rows = progress::Progress::set(conn, 100, user.clone(), media)
+    let rows = progress::Progress::set(&mut tx, 100, user.clone(), media)
         .await
         .unwrap();
     assert_eq!(rows, 1);
 
-    let result = progress::Progress::get_for_media_user(conn, user.clone(), media)
+    let result = progress::Progress::get_for_media_user(&mut tx, user.clone(), media)
         .await
         .unwrap();
     assert_eq!(result.delta, 100);
@@ -43,25 +44,26 @@ async fn test_set_and_get_for_media_user() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_total_time_spent_watching() {
-    let ref conn = get_conn_memory().await.unwrap();
-    let library = create_test_library(conn).await;
-    let user = insert_user(conn).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let library = create_test_library(&mut tx).await;
+    let user = insert_user(&mut tx).await;
 
-    let result = progress::Progress::get_total_time_spent_watching(conn, user.clone())
+    let result = progress::Progress::get_total_time_spent_watching(&mut tx, user.clone())
         .await
         .unwrap();
     assert_eq!(result, 0);
 
-    super::media_tests::insert_many(conn, 10).await;
+    super::media_tests::insert_many(&mut tx, 10).await;
 
     for i in 1..=5 {
-        let rows = progress::Progress::set(conn, 100, user.clone(), i)
+        let rows = progress::Progress::set(&mut tx, 100, user.clone(), i)
             .await
             .unwrap();
         assert_eq!(rows, 1);
     }
 
-    let result = progress::Progress::get_total_time_spent_watching(conn, user.clone())
+    let result = progress::Progress::get_total_time_spent_watching(&mut tx, user.clone())
         .await
         .unwrap();
     assert_eq!(result, 500);
@@ -69,14 +71,15 @@ async fn test_get_total_time_spent_watching() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_total_for_tv() {
-    let ref conn = get_conn_memory().await.unwrap();
-    let library = create_test_library(conn).await;
-    let user = insert_user(conn).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let library = create_test_library(&mut tx).await;
+    let user = insert_user(&mut tx).await;
 
-    let tv = insert_media(conn).await;
-    tv::TVShow::insert(conn, tv).await.unwrap();
+    let tv = insert_media(&mut tx).await;
+    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
-    let result = progress::Progress::get_total_for_tv(conn, user.clone(), tv)
+    let result = progress::Progress::get_total_for_tv(&mut tx, user.clone(), tv)
         .await
         .unwrap();
     assert_eq!(result, 0);
@@ -85,7 +88,7 @@ async fn test_get_total_for_tv() {
         season_number: 1,
         ..Default::default()
     }
-    .insert(conn, tv)
+    .insert(&mut tx, tv)
     .await
     .unwrap();
 
@@ -99,16 +102,16 @@ async fn test_get_total_for_tv() {
             seasonid: season,
             episode: i,
         }
-        .insert(conn)
+        .insert(&mut tx)
         .await
         .unwrap();
 
-        progress::Progress::set(conn, 100, user.clone(), episode)
+        progress::Progress::set(&mut tx, 100, user.clone(), episode)
             .await
             .unwrap();
     }
 
-    let result = progress::Progress::get_total_for_tv(conn, user.clone(), tv)
+    let result = progress::Progress::get_total_for_tv(&mut tx, user.clone(), tv)
         .await
         .unwrap();
     assert_eq!(result, 12 * 100);
@@ -116,19 +119,20 @@ async fn test_get_total_for_tv() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_continue_watching() {
-    let ref conn = get_conn_memory().await.unwrap();
-    let library = create_test_library(conn).await;
-    let user = insert_user(conn).await;
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let library = create_test_library(&mut tx).await;
+    let user = insert_user(&mut tx).await;
 
-    super::media_tests::insert_many(conn, 2).await;
-    tv::TVShow::insert(conn, 1).await.unwrap();
-    tv::TVShow::insert(conn, 2).await.unwrap();
+    super::media_tests::insert_many(&mut tx, 2).await;
+    tv::TVShow::insert(&mut tx, 1).await.unwrap();
+    tv::TVShow::insert(&mut tx, 2).await.unwrap();
 
     let season1 = season::InsertableSeason {
         season_number: 1,
         ..Default::default()
     }
-    .insert(conn, 1)
+    .insert(&mut tx, 1)
     .await
     .unwrap();
 
@@ -136,7 +140,7 @@ async fn test_get_continue_watching() {
         season_number: 1,
         ..Default::default()
     }
-    .insert(conn, 2)
+    .insert(&mut tx, 2)
     .await
     .unwrap();
 
@@ -149,7 +153,7 @@ async fn test_get_continue_watching() {
         seasonid: season1,
         episode: 1,
     }
-    .insert(conn)
+    .insert(&mut tx)
     .await
     .unwrap();
 
@@ -162,27 +166,27 @@ async fn test_get_continue_watching() {
         seasonid: season2,
         episode: 1,
     }
-    .insert(conn)
+    .insert(&mut tx)
     .await
     .unwrap();
 
-    progress::Progress::set(conn, 100, user.clone(), episode1)
+    progress::Progress::set(&mut tx, 100, user.clone(), episode1)
         .await
         .unwrap();
 
-    let result = progress::Progress::get_continue_watching(conn, user.clone(), 2)
+    let result = progress::Progress::get_continue_watching(&mut tx, user.clone(), 2)
         .await
         .unwrap();
     assert_eq!(result.len(), 1);
-    assert_eq!(result[0].id, 1);
+    assert_eq!(result[0], 1);
 
-    progress::Progress::set(conn, 100, user.clone(), episode2)
+    progress::Progress::set(&mut tx, 100, user.clone(), episode2)
         .await
         .unwrap();
 
-    let result = progress::Progress::get_continue_watching(conn, user.clone(), 2)
+    let result = progress::Progress::get_continue_watching(&mut tx, user.clone(), 2)
         .await
         .unwrap();
     assert_eq!(result.len(), 2);
-    assert_eq!(result[0].id, 2);
+    assert_eq!(result[0], 2);
 }

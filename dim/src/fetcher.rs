@@ -4,7 +4,7 @@ use priority_queue::PriorityQueue;
 use tokio::sync::Mutex;
 
 use tracing::trace;
-use tracing::{debug, error, instrument, span, Level};
+use tracing::{debug, error, instrument};
 
 use std::collections::HashSet;
 use std::fs::File;
