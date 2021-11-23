@@ -1,7 +1,7 @@
 use sqlx::Pool;
 use sqlx::Sqlite;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct SqlitePool {
     writer: Pool<Sqlite>,
     reader: Pool<Sqlite>,

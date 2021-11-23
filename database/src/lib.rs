@@ -110,15 +110,15 @@ pub async fn get_conn_devel() -> sqlx::Result<crate::DbConnection> {
                 "postgres://postgres:dimpostgres@127.0.0.1/dim_devel",
             ).await?;
         } else {
-            let rd_only = sqlx::pool::PoolOptions::new()
-                .connect_with(sqlx::sqlite::SqliteConnectOptions::new()
-                    .read_only(true)
-                    .create_if_missing(true)
-                    .filename("./dim_dev.db")).await?;
-
             let rw_only = sqlx::pool::PoolOptions::new()
                 .max_connections(1)
                 .connect_with(sqlx::sqlite::SqliteConnectOptions::new()
+                    .create_if_missing(true)
+                    .filename("./dim_dev.db")).await?;
+
+            let rd_only = sqlx::pool::PoolOptions::new()
+                .connect_with(sqlx::sqlite::SqliteConnectOptions::new()
+                    .read_only(true)
                     .create_if_missing(true)
                     .filename("./dim_dev.db")).await?;
 
@@ -165,18 +165,18 @@ async fn internal_get_conn() -> sqlx::Result<DbConnection> {
                 "postgres://postgres:dimpostgres@127.0.0.1/dim"
             ).await
         } else {
-            let rd_only = sqlx::pool::PoolOptions::new()
-                .connect_with(sqlx::sqlite::SqliteConnectOptions::from_str(ffpath("config/dim.db"))?
-                    .read_only(true)
-                    .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
-                    .create_if_missing(true)
-                    ).await?;
-
             let rw_only = sqlx::pool::PoolOptions::new()
                 .max_connections(1)
                 .connect_with(sqlx::sqlite::SqliteConnectOptions::from_str(ffpath("config/dim.db"))?
                     .create_if_missing(true)
                     .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
+                    ).await?;
+
+            let rd_only = sqlx::pool::PoolOptions::new()
+                .connect_with(sqlx::sqlite::SqliteConnectOptions::from_str(ffpath("config/dim.db"))?
+                    .read_only(true)
+                    .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
+                    .create_if_missing(true)
                     ).await?;
 
             Ok(rw_pool::SqlitePool::new(rw_only, rd_only))
