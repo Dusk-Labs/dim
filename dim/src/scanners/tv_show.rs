@@ -16,26 +16,31 @@ use chrono::prelude::Utc;
 use chrono::Datelike;
 use chrono::NaiveDate;
 
-use slog::debug;
-use slog::error;
-use slog::warn;
-use slog::Logger;
-
 use events::Message;
 use events::PushEventType;
+use tracing::debug;
+use tracing::error;
+use tracing::warn;
 
 use crate::core::EventTx;
 use crate::fetcher::insert_into_queue;
 
 pub struct TvShowMatcher<'a> {
     pub conn: &'a DbConnection,
-    pub log: &'a Logger,
     pub event_tx: &'a EventTx,
 }
 
 impl<'a> TvShowMatcher<'a> {
     pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
         let name = result.title.clone();
+
+        let mut tx = match self.conn.write().begin().await {
+            Ok(x) => x,
+            Err(e) => {
+                error!(reason = ?e, "Failed to create transaction.");
+                return;
+            }
+        };
 
         let year: Option<i64> = result
             .release_date
@@ -50,11 +55,11 @@ impl<'a> TvShowMatcher<'a> {
         let backdrop_path = result.backdrop_path.clone();
 
         if let Some(poster_path) = poster_path.as_ref() {
-            let _ = insert_into_queue(self.log, poster_path.clone(), 3).await;
+            let _ = insert_into_queue(poster_path.clone(), 3).await;
         }
 
         if let Some(backdrop_path) = backdrop_path.as_ref() {
-            let _ = insert_into_queue(self.log, backdrop_path.clone(), 3).await;
+            let _ = insert_into_queue(backdrop_path.clone(), 3).await;
         }
 
         let poster = match poster_path {
@@ -68,18 +73,18 @@ impl<'a> TvShowMatcher<'a> {
                         .unwrap_or_default(),
                     file_ext: "jpg".into(),
                 }
-                .insert(self.conn)
+                .insert(&mut tx)
                 .await;
 
                 match asset {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            self.log,
-                            "Failed to insert poster into db";
-                            "reason" => e.to_string(),
-                            "orphan_id" => orphan.id
+                            reason = ?e,
+                            orphan_id = orphan.id,
+                            "Failed to insert poster into db",
                         );
+
                         None
                     }
                 }
@@ -98,17 +103,16 @@ impl<'a> TvShowMatcher<'a> {
                         .unwrap_or_default(),
                     file_ext: "jpg".into(),
                 }
-                .insert(self.conn)
+                .insert(&mut tx)
                 .await;
 
                 match asset {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            self.log,
-                            "Failed to insert backdrop into db";
-                            "reason" => e.to_string(),
-                            "orphan_id" => orphan.id
+                            reason = ?e,
+                            orphan_id = orphan.id,
+                            "Failed to insert backdrop into db",
                         );
                         None
                     }
@@ -116,6 +120,11 @@ impl<'a> TvShowMatcher<'a> {
             }
             None => None,
         };
+
+        if let Err(e) = tx.commit().await {
+            error!(reason = ?e, "Failed to commit transaction.");
+            return;
+        }
 
         let media = InsertableMedia {
             name,
@@ -131,10 +140,9 @@ impl<'a> TvShowMatcher<'a> {
 
         if let Err(e) = self.insert(orphan, media, result).await {
             warn!(
-                self.log,
-                "Failed to insert new media";
-                "id" => orphan.id,
-                "reason" => e.to_string(),
+                id = orphan.id,
+                reason = ?e,
+                "Failed to insert new media"
             );
         }
     }
@@ -145,16 +153,20 @@ impl<'a> TvShowMatcher<'a> {
         media: InsertableMedia,
         result: super::ApiMedia,
     ) -> Result<(), super::base::ScannerError> {
-        let media_id = media.insert(&self.conn).await?;
-        let _ = TVShow::insert(&self.conn, media_id).await;
-
-        self.push_event(media_id, media.library_id).await;
+        let mut tx = self
+            .conn
+            .write()
+            .begin()
+            .await
+            .map_err(|e| super::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
+        let media_id = media.insert(&mut tx).await?;
+        let _ = TVShow::insert(&mut tx, media_id).await;
 
         for name in result.genres {
             let genre = InsertableGenre { name };
 
-            if let Ok(x) = genre.insert(&self.conn).await {
-                let _ = InsertableGenreMedia::insert_pair(x, media_id, &self.conn).await;
+            if let Ok(x) = genre.insert(&mut tx).await {
+                let _ = InsertableGenreMedia::insert_pair(x, media_id, &mut tx).await;
             }
         }
 
@@ -170,7 +182,7 @@ impl<'a> TvShowMatcher<'a> {
         let poster_file = season.and_then(|x| x.poster_path.clone());
 
         if let Some(x) = poster_file.as_ref() {
-            let _ = insert_into_queue(self.log, x.clone(), 2).await;
+            let _ = insert_into_queue(x.clone(), 2).await;
         }
 
         let season_poster = match poster_file {
@@ -183,18 +195,18 @@ impl<'a> TvShowMatcher<'a> {
                         .unwrap_or_default(),
                     file_ext: "jpg".into(),
                 }
-                .insert(self.conn)
+                .insert(&mut tx)
                 .await;
 
                 match asset {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            self.log,
-                            "Failed to insert season poster into db";
-                            "reason" => e.to_string(),
-                            "orphan_id" => orphan.id
+                            reason = ?e,
+                            orphan_id = orphan.id,
+                            "Failed to insert season poster into db"
                         );
+
                         None
                     }
                 }
@@ -208,10 +220,13 @@ impl<'a> TvShowMatcher<'a> {
             poster: season_poster,
         };
 
-        let seasonid = match insertable_season.insert(&self.conn, media_id).await {
+        let seasonid = match insertable_season.insert(&mut tx, media_id).await {
             Ok(x) => x,
             Err(e) => {
-                warn!(self.log, "Failed to insert season into the database."; "reason" => e.to_string());
+                warn!(
+                    "Failed to insert season into the database. {}",
+                    reason = e.to_string()
+                );
                 return Err(e.into());
             }
         };
@@ -228,7 +243,7 @@ impl<'a> TvShowMatcher<'a> {
         let still = search_ep.as_ref().and_then(|x| x.still.clone());
 
         if let Some(x) = still.as_ref() {
-            let _ = insert_into_queue(self.log, x.clone(), 1).await;
+            let _ = insert_into_queue(x.clone(), 1).await;
         }
 
         let backdrop = match still {
@@ -242,18 +257,18 @@ impl<'a> TvShowMatcher<'a> {
                         .unwrap_or_default(),
                     file_ext: "jpg".into(),
                 }
-                .insert(self.conn)
+                .insert(&mut tx)
                 .await;
 
                 match asset {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            self.log,
-                            "Failed to insert still into db";
-                            "reason" => e.to_string(),
-                            "orphan_id" => orphan.id
+                            reason = ?e,
+                            orphan_id = orphan.id,
+                            "Failed to insert still into db",
                         );
+
                         None
                     }
                 }
@@ -262,11 +277,10 @@ impl<'a> TvShowMatcher<'a> {
         };
 
         debug!(
-            self.log,
-            "Inserting new episode";
-            "seasonid" => seasonid,
-            "episode" => orphan.episode.unwrap_or(0),
-            "target_file" => &orphan.target_file,
+            seasonid = seasonid,
+            episode = orphan.episode.unwrap_or(0),
+            target_file = ?&orphan.target_file,
+            "Inserting new episode",
         );
 
         let episode = InsertableEpisode {
@@ -290,25 +304,28 @@ impl<'a> TvShowMatcher<'a> {
         };
 
         // manually insert the underlying `media` into the table and convert it into a streamable movie/ep
-        let raw_ep_id = episode.media.insert_blind(&self.conn).await?;
-        if let Err(e) = InsertableMovie::insert(&self.conn, raw_ep_id).await {
+        let raw_ep_id = episode.media.insert_blind(&mut tx).await?;
+        if let Err(e) = InsertableMovie::insert(&mut tx, raw_ep_id).await {
             error!(
-                self.log,
-                "Failed to turn episode into a streamable movie";
-                "error" => format!("{:?}", e),
-                "episode_id" => raw_ep_id,
-                "file" => &orphan.target_file,
+                error = ?e,
+                episode_id = raw_ep_id,
+                file = ?&orphan.target_file,
+                "Failed to turn episode into a streamable movie",
             );
         }
 
-        let episode_id = episode.insert(&self.conn).await?;
+        let episode_id = episode.insert(&mut tx).await?;
 
         let updated_mediafile = UpdateMediaFile {
             media_id: Some(episode_id),
             ..Default::default()
         };
 
-        updated_mediafile.update(&self.conn, orphan.id).await?;
+        updated_mediafile.update(&mut tx, orphan.id).await?;
+        tx.commit()
+            .await
+            .map_err(|e| super::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
+        self.push_event(media_id, media.library_id).await;
 
         Ok(())
     }

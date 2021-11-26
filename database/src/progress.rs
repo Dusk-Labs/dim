@@ -16,7 +16,7 @@ pub struct Progress {
 
 impl Progress {
     pub async fn set(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         delta: i64,
         uid: String,
         mid: i64,
@@ -34,13 +34,13 @@ impl Progress {
             uid,
             timestamp
         )
-        .execute(conn)
+        .execute(&mut *conn)
         .await?
         .rows_affected() as usize)
     }
 
     pub async fn get_for_media_user(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         uid: String,
         mid: i64,
     ) -> Result<Self, DieselError> {
@@ -52,7 +52,7 @@ impl Progress {
             uid,
             mid
         )
-        .fetch_optional(conn)
+        .fetch_optional(&mut *conn)
         .await?
         .unwrap_or(Self {
             media_id: mid,
@@ -62,7 +62,7 @@ impl Progress {
     }
 
     pub async fn get_total_time_spent_watching(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         uid: String,
     ) -> Result<i32, DieselError> {
         Ok(sqlx::query!(
@@ -70,14 +70,14 @@ impl Progress {
                 WHERE progress.user_id = ?",
             uid
         )
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?
         .total
         .unwrap_or_default())
     }
 
     pub async fn get_total_for_media(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         media: &Media,
         uid: String,
     ) -> Result<i64, DieselError> {
@@ -90,7 +90,7 @@ impl Progress {
     }
 
     pub async fn get_progress_for_media(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         id: i64,
         uid: String,
     ) -> Result<(i64, i64), DieselError> {
@@ -111,14 +111,14 @@ impl Progress {
         )
         .bind(uid)
         .bind(id)
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?;
 
         Ok((record.delta, record.duration))
     }
 
     pub async fn get_total_for_tv(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         uid: String,
         tv_id: i64,
     ) -> Result<i32, DieselError> {
@@ -139,13 +139,13 @@ impl Progress {
         )
         .bind(tv_id)
         .bind(uid)
-        .fetch_one(conn)
+        .fetch_one(&mut *conn)
         .await?
         .total)
     }
 
     pub async fn get_continue_watching(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         uid: String,
         count: i64,
     ) -> Result<Vec<i64>, DieselError> {
@@ -166,7 +166,7 @@ impl Progress {
         )
         .bind(uid)
         .bind(count)
-        .fetch_all(conn)
+        .fetch_all(&mut *conn)
         .await?)
     }
 }

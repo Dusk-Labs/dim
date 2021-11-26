@@ -50,10 +50,10 @@ impl Media {
     /// function.
     ///
     /// # Arguments
-    /// * `conn` - postgres connection instance
-    /// * `library` - a [`Library`](Library) instance
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `library_id` - a [`Library`](Library) id.
     pub async fn get_all(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         library_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -61,33 +61,33 @@ impl Media {
                 r#"SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE library_id = ? AND NOT media_type = "episode""#,
                 library_id
             )
-            .fetch_all(conn)
+            .fetch_all(&mut *conn)
             .await?)
     }
 
     /// Method returns a media object based on its id
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `req_id` - id of a media that we'd like to match against.
-    pub async fn get(conn: &crate::DbConnection, id: i64) -> Result<Self, DatabaseError> {
+    pub async fn get(conn: &mut crate::Transaction<'_>, id: i64) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
                 r#"SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE id = ?"#,
                 id
             )
-            .fetch_one(conn)
+            .fetch_one(&mut *conn)
             .await?)
     }
 
     /// Method to get a entry in a library based on name and library
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
-    /// * `library` - reference to a library object
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `library_id` - a library id.
     /// * `name` - string slice reference containing the name we would like to filter by.
     pub async fn get_by_name_and_lib(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         library_id: i64,
         name: &str,
     ) -> Result<Self, DatabaseError> {
@@ -97,12 +97,12 @@ impl Media {
                 library_id,
                 name,
             )
-            .fetch_one(conn)
+            .fetch_one(&mut *conn)
             .await?)
     }
 
     pub async fn get_of_mediafile(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         mediafile_id: i64,
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -112,12 +112,12 @@ impl Media {
                 INNER JOIN mediafile ON mediafile.media_id = media.id
                 WHERE mediafile.id = ?"#,
                 mediafile_id
-            ).fetch_one(conn).await?)
+            ).fetch_one(&mut *conn).await?)
     }
 
     /// Method returns the top rated medias
     pub async fn get_top_rated(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         limit: i64,
     ) -> Result<Vec<i64>, DatabaseError> {
         Ok(sqlx::query_scalar!(
@@ -128,13 +128,13 @@ impl Media {
                 LIMIT ?"#,
             limit
         )
-        .fetch_all(conn)
+        .fetch_all(&mut *conn)
         .await?)
     }
 
     /// Method returns the recently added medias
     pub async fn get_recently_added(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         limit: i64,
     ) -> Result<Vec<i64>, DatabaseError> {
         Ok(sqlx::query_scalar!(
@@ -145,12 +145,12 @@ impl Media {
                 LIMIT ?"#,
             limit
         )
-        .fetch_all(conn)
+        .fetch_all(&mut *conn)
         .await?)
     }
 
     pub async fn get_random_with(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         limit: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -163,11 +163,11 @@ impl Media {
                 LIMIT ?
                 "#,
                 limit
-        ).fetch_all(conn).await?)
+        ).fetch_all(&mut *conn).await?)
     }
 
     pub async fn get_search(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         query: &str,
         limit: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
@@ -182,11 +182,11 @@ impl Media {
                 "#,
                 query,
                 limit
-        ).fetch_all(conn).await?)
+        ).fetch_all(&mut *conn).await?)
     }
 
     pub async fn get_of_genre(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         genre_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -198,11 +198,11 @@ impl Media {
                 AND genre_media.genre_id = ?
                 "#,
                 genre_id,
-        ).fetch_all(conn).await?)
+        ).fetch_all(&mut *conn).await?)
     }
 
     pub async fn get_of_year(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         year: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
@@ -213,17 +213,20 @@ impl Media {
                 AND year = ?
                 "#,
                 year,
-        ).fetch_all(conn).await?)
+        ).fetch_all(&mut *conn).await?)
     }
 
     /// Method deletes a media object based on its id.
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `id` - id of a media object we want to delete
-    pub async fn delete(conn: &crate::DbConnection, id: i64) -> Result<usize, DatabaseError> {
+    pub async fn delete(
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM _tblmedia WHERE id = ?", id)
-            .execute(conn)
+            .execute(&mut *conn)
             .await?
             .rows_affected() as usize)
     }
@@ -231,12 +234,12 @@ impl Media {
     /// This function exists because for some reason `CASCADE DELETE` doesnt work with a sqlite
     /// backend. Thus we must manually delete entries when deleting a library.
     pub async fn delete_by_lib_id(
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         library_id: i64,
     ) -> Result<usize, DatabaseError> {
         Ok(
             sqlx::query!("DELETE FROM _tblmedia WHERE library_id = ?", library_id)
-                .execute(conn)
+                .execute(&mut *conn)
                 .await?
                 .rows_affected() as usize,
         )
@@ -269,12 +272,10 @@ impl InsertableMedia {
     /// Method used to insert a new media object.
     ///
     /// # Arguments
-    /// * `conn` - postgres connection
-    pub async fn insert(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
-        let tx = conn.begin().await?;
-
+    /// * `conn` - mutable reference to a sqlx transaction.
+    pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
         if let Some(record) = sqlx::query!(r#"SELECT id FROM media where name = ?"#, self.name)
-            .fetch_optional(conn)
+            .fetch_optional(&mut *conn)
             .await?
         {
             return Ok(record.id);
@@ -296,16 +297,18 @@ impl InsertableMedia {
             self.poster,
             self.backdrop,
             self.media_type
-        ).fetch_one(conn).await?.id;
+        ).fetch_one(&mut *conn).await?.id;
 
-        tx.commit().await?;
         Ok(id)
     }
 
     /// Method blindly inserts `self` into the database without checking whether a similar entry exists.
     /// This is especially useful for tv shows as they usually have similar metadata with key differences
     /// which are not indexed in the database.
-    pub async fn insert_blind(&self, conn: &crate::DbConnection) -> Result<i64, DatabaseError> {
+    pub async fn insert_blind(
+        &self,
+        conn: &mut crate::Transaction<'_>,
+    ) -> Result<i64, DatabaseError> {
         Ok(sqlx::query!(
             r#"INSERT INTO _tblmedia (library_id, name, description, rating, year, added, poster, backdrop, media_type)
             VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)"#,
@@ -318,7 +321,7 @@ impl InsertableMedia {
             self.poster,
             self.backdrop,
             self.media_type
-        ).execute(conn).await?.last_insert_rowid())
+        ).execute(&mut *conn).await?.last_insert_rowid())
     }
 }
 
@@ -342,16 +345,14 @@ impl UpdateMedia {
     /// this object as a discriminator.
     ///
     /// # Arguments
-    /// * `conn` - diesel connection
+    /// * `conn` - mutable reference to a sqlx transaction.
     /// * `_id` - id of the media object we want to update
     pub async fn update(
         &self,
-        conn: &crate::DbConnection,
+        conn: &mut crate::Transaction<'_>,
         id: i64,
     ) -> Result<usize, DatabaseError> {
-        let tx = conn.begin().await?;
-
-        crate::opt_update!(conn, tx,
+        crate::opt_update!(conn,
             "UPDATE _tblmedia SET name = ? WHERE id = ?" => (self.name, id),
             "UPDATE _tblmedia SET description = ? WHERE id = ?" => (self.description, id),
             "UPDATE _tblmedia SET rating = ? WHERE id = ?" => (self.rating, id),
@@ -362,7 +363,6 @@ impl UpdateMedia {
             "UPDATE _tblmedia SET media_type = ? WHERE id = ?" => (self.media_type, id)
         );
 
-        tx.commit().await?;
         Ok(1)
     }
 }

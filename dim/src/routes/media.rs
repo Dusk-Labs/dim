@@ -3,7 +3,6 @@ use crate::errors;
 use crate::json;
 
 use auth::Wrapper as Auth;
-use std::convert::Infallible;
 
 use database::episode::Episode;
 use database::genre::Genre;
@@ -63,7 +62,11 @@ pub mod filters {
             .and(warp::body::json::<UpdateMedia>())
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
-            .and_then(super::update_media_by_id)
+            .and_then(|id, body, auth, conn| async move {
+                super::update_media_by_id(id, body, auth, conn)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
     }
 
     pub fn delete_media_by_id(
@@ -162,16 +165,17 @@ pub async fn get_media_by_id(
     id: i64,
     user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let media = Media::get(&conn, id).await?;
+    let mut tx = conn.read().begin().await?;
+    let media = Media::get(&mut tx, id).await?;
 
     let media_id = match media.media_type {
         MediaType::Movie | MediaType::Episode => id,
-        MediaType::Tv => Episode::get_first_for_show(&conn, id).await?.id,
+        MediaType::Tv => Episode::get_first_for_show(&mut tx, id).await?.id,
     };
 
     // TODO: at some point we want to issue a warning to the UI that none of the mediafiles with
     // this media have a duration (maybe because of corruption).
-    let duration = match MediaFile::get_of_media(&conn, media_id).await {
+    let duration = match MediaFile::get_of_media(&mut tx, media_id).await {
         Ok(x) => x
             .iter()
             .filter_map(|x| x.duration)
@@ -181,7 +185,7 @@ pub async fn get_media_by_id(
         Err(_) => 0,
     };
 
-    let genres = Genre::get_by_media(&conn, id)
+    let genres = Genre::get_by_media(&mut tx, id)
         .await?
         .into_iter()
         .map(|x| x.name)
@@ -189,24 +193,24 @@ pub async fn get_media_by_id(
 
     let progress = match media.media_type {
         MediaType::Episode | MediaType::Movie => {
-            Progress::get_for_media_user(&conn, user.0.claims.get_user(), id)
+            Progress::get_for_media_user(&mut tx, user.0.claims.get_user(), id)
                 .await
                 .map(|x| json!({"progress": x.delta}))
                 .ok()
         }
         MediaType::Tv => {
             if let Ok(Some(ep)) =
-                Episode::get_last_watched_episode(&conn, id, user.0.claims.get_user()).await
+                Episode::get_last_watched_episode(&mut tx, id, user.0.claims.get_user()).await
             {
                 let (delta, duration) =
-                    Progress::get_progress_for_media(&conn, ep.id, user.0.claims.get_user())
+                    Progress::get_progress_for_media(&mut tx, ep.id, user.0.claims.get_user())
                         .await
                         .unwrap_or((0, 1));
 
                 if (delta as f64 / duration as f64) > 0.90 {
-                    if let Ok(next_episode) = ep.get_next_episode(&conn, id).await {
+                    if let Ok(next_episode) = ep.get_next_episode(&mut tx, id).await {
                         let (delta, _duration) = Progress::get_progress_for_media(
-                            &conn,
+                            &mut tx,
                             ep.id,
                             user.0.claims.get_user(),
                         )
@@ -215,7 +219,7 @@ pub async fn get_media_by_id(
 
                         Some(json!({
                             "progress": delta,
-                            "season": next_episode.get_season_number(&conn).await.unwrap_or(0),
+                            "season": next_episode.get_season_number(&mut tx).await.unwrap_or(0),
                             "episode": next_episode.episode,
                             "play_btn_id": next_episode.id,
                         }))
@@ -225,16 +229,16 @@ pub async fn get_media_by_id(
                 } else {
                     Some(json!({
                         "progress": delta,
-                        "season": ep.get_season_number(&conn).await.unwrap_or(0),
+                        "season": ep.get_season_number(&mut tx).await.unwrap_or(0),
                         "episode": ep.episode,
                         "play_btn_id": ep.id,
                     }))
                 }
             } else {
-                let ep = Episode::get_first_for_show(&conn, id).await?;
+                let ep = Episode::get_first_for_show(&mut tx, id).await?;
                 Some(json!({
                     "progress": 0,
-                    "season": ep.get_season_number(&conn).await.unwrap_or(0),
+                    "season": ep.get_season_number(&mut tx).await.unwrap_or(0),
                     "episode": ep.episode,
                     "play_btn_id": ep.id,
                 }))
@@ -244,7 +248,7 @@ pub async fn get_media_by_id(
 
     let season_episode_tag = match media.media_type {
         MediaType::Episode => {
-            let result = Episode::get_season_episode_by_id(&conn, id).await?;
+            let result = Episode::get_season_episode_by_id(&mut tx, id).await?;
             Some(json!({
                 "season": result.0,
                 "episode": result.1,
@@ -276,7 +280,8 @@ pub async fn get_media_files(
     conn: DbConnection,
     id: i64,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mediafiles = MediaFile::get_of_media(&conn, id).await?;
+    let mut tx = conn.read().begin().await?;
+    let mediafiles = MediaFile::get_of_media(&mut tx, id).await?;
     Ok(reply::json(&mediafiles))
 }
 
@@ -293,12 +298,15 @@ pub async fn update_media_by_id(
     data: UpdateMedia,
     _user: Auth,
     conn: DbConnection,
-) -> Result<impl warp::Reply, Infallible> {
-    let status = if data.update(&conn, id).await.is_ok() {
+) -> Result<impl warp::Reply, errors::DimError> {
+    let mut tx = conn.write().begin().await?;
+    let status = if data.update(&mut tx, id).await.is_ok() {
         StatusCode::NO_CONTENT
     } else {
         StatusCode::NOT_MODIFIED
     };
+
+    tx.commit().await?;
 
     Ok(status)
 }
@@ -315,7 +323,9 @@ pub async fn delete_media_by_id(
     id: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    Media::delete(&conn, id).await?;
+    let mut tx = conn.write().begin().await?;
+    Media::delete(&mut tx, id).await?;
+    tx.commit().await?;
     Ok(StatusCode::OK)
 }
 
@@ -367,6 +377,8 @@ pub async fn map_progress(
     offset: i64,
     user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    Progress::set(&conn, offset, user.0.claims.get_user(), id).await?;
+    let mut tx = conn.write().begin().await?;
+    Progress::set(&mut tx, offset, user.0.claims.get_user(), id).await?;
+    tx.commit().await?;
     Ok(StatusCode::OK)
 }

@@ -13,24 +13,31 @@ use chrono::prelude::Utc;
 use chrono::Datelike;
 use chrono::NaiveDate;
 
-use slog::warn;
-use slog::Logger;
-
 use events::Message;
 use events::PushEventType;
+
+use tracing::warn;
+use tracing::error;
 
 use crate::core::EventTx;
 use crate::fetcher::insert_into_queue;
 
 pub struct MovieMatcher<'a> {
     pub conn: &'a DbConnection,
-    pub log: &'a Logger,
     pub event_tx: &'a EventTx,
 }
 
 impl<'a> MovieMatcher<'a> {
     pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
         let name = result.title.clone();
+
+        let mut tx = match self.conn.write().begin().await {
+            Ok(x) => x,
+            Err(e) => {
+                error!(reason = ?e, "Failed to create transaction.");
+                return;
+            }
+        };
 
         let year: Option<i64> = result
             .release_date
@@ -47,11 +54,11 @@ impl<'a> MovieMatcher<'a> {
         let backdrop_path = result.backdrop_path.clone();
 
         if let Some(poster_path) = poster_path.as_ref() {
-            let _ = insert_into_queue(self.log, poster_path.clone(), 3);
+            let _ = insert_into_queue(poster_path.clone(), 3);
         }
 
         if let Some(backdrop_path) = backdrop_path.as_ref() {
-            let _ = insert_into_queue(self.log, backdrop_path.clone(), 3);
+            let _ = insert_into_queue(backdrop_path.clone(), 3);
         }
 
         let poster = match poster_path {
@@ -66,17 +73,16 @@ impl<'a> MovieMatcher<'a> {
                     file_ext: "jpg".into(),
                     ..Default::default()
                 }
-                .insert(self.conn)
+                .insert(&mut tx)
                 .await;
 
                 match asset {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            self.log,
-                            "Failed to insert poster into db";
-                            "reason" => e.to_string(),
-                            "orphan_id" => orphan.id
+                            reason = ?e,
+                            orphan_id = orphan.id,
+                            "Failed to insert poster into db",
                         );
                         None
                     }
@@ -97,17 +103,16 @@ impl<'a> MovieMatcher<'a> {
                     file_ext: "jpg".into(),
                     ..Default::default()
                 }
-                .insert(self.conn)
+                .insert(&mut tx)
                 .await;
 
                 match asset {
                     Ok(x) => Some(x.id),
                     Err(e) => {
                         warn!(
-                            self.log,
-                            "Failed to insert backdrop into db";
-                            "reason" => e.to_string(),
-                            "orphan_id" => orphan.id
+                            reason = ?e,
+                            orphan_id = orphan.id,
+                            "Failed to insert backdrop into db",
                         );
                         None
                     }
@@ -115,6 +120,11 @@ impl<'a> MovieMatcher<'a> {
             }
             None => None,
         };
+
+        if let Err(e) = tx.commit().await {
+            error!(reason = ?e, "Failed to commit transaction.");
+            return;
+        }
 
         let media = InsertableMedia {
             library_id: orphan.library_id,
@@ -131,10 +141,9 @@ impl<'a> MovieMatcher<'a> {
 
         if let Err(e) = self.insert(orphan, media, result).await {
             warn!(
-                self.log,
-                "Failed to insert new media";
-                "id" => orphan.id,
-                "reason" => e.to_string(),
+                reason = ?e,
+                orphan_id = orphan.id,
+                "Failed to insert new media",
             );
         }
     }
@@ -145,15 +154,21 @@ impl<'a> MovieMatcher<'a> {
         media: InsertableMedia,
         result: super::ApiMedia,
     ) -> Result<(), super::base::ScannerError> {
-        let media_id = media.insert(&self.conn).await?;
+        let mut tx = self
+            .conn
+            .write()
+            .begin()
+            .await
+            .map_err(|e| super::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
+        let media_id = media.insert(&mut tx).await?;
         // the reason we ignore the result here is that in some cases this can fail. Specifically when there are multiple mediafiles for a movie.
-        let _ = InsertableMovie::insert(&self.conn, media_id).await;
+        let _ = InsertableMovie::insert(&mut tx, media_id).await;
 
         for name in result.genres {
             let genre = InsertableGenre { name };
 
-            if let Ok(x) = genre.insert(&self.conn).await {
-                let _ = InsertableGenreMedia::insert_pair(x, media_id, &self.conn).await;
+            if let Ok(x) = genre.insert(&mut tx).await {
+                let _ = InsertableGenreMedia::insert_pair(x, media_id, &mut tx).await;
             }
         }
 
@@ -162,7 +177,10 @@ impl<'a> MovieMatcher<'a> {
             ..Default::default()
         };
 
-        updated_mediafile.update(&self.conn, orphan.id).await?;
+        updated_mediafile.update(&mut tx, orphan.id).await?;
+        tx.commit()
+            .await
+            .map_err(|e| super::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
 
         self.push_event(media_id, media.library_id).await;
 

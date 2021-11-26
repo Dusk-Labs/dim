@@ -76,7 +76,7 @@ fn mount(out_dir: String) {
     }
 }
 
-fn invoke_scanner(root: String, log: slog::Logger, tx: dim::core::EventTx) {
+fn invoke_scanner(root: String, tx: dim::core::EventTx) {
     use database::get_conn_devel;
     use database::library::InsertableLibrary;
     use database::library::Library;

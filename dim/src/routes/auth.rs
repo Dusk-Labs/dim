@@ -18,7 +18,6 @@ use warp::reply;
 use http::StatusCode;
 
 use futures::TryStreamExt;
-use std::convert::Infallible;
 use uuid::Uuid;
 
 pub mod filters {
@@ -53,7 +52,11 @@ pub mod filters {
             .and(warp::get())
             .and(auth::with_auth())
             .and(with_db(conn))
-            .and_then(super::whoami)
+            .and_then(|auth: auth::Wrapper, conn: DbConnection| async move {
+                super::whoami(auth, conn)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
     }
 
     pub fn admin_exists(
@@ -220,7 +223,8 @@ pub async fn login(
     new_login: Login,
     conn: DbConnection,
 ) -> Result<impl warp::Reply, errors::AuthError> {
-    let user = User::get(&conn, &new_login.username)
+    let mut tx = conn.read().begin().await?;
+    let user = User::get(&mut tx, &new_login.username)
         .await
         .map_err(|_| errors::AuthError::UserDoesntExist)?;
 
@@ -239,12 +243,13 @@ pub async fn login(
     Err(errors::AuthError::WrongPassword)
 }
 
-pub async fn whoami(user: Auth, conn: DbConnection) -> Result<impl warp::Reply, Infallible> {
+pub async fn whoami(user: Auth, conn: DbConnection) -> Result<impl warp::Reply, errors::DimError> {
     let username = user.0.claims.get_user();
+    let mut tx = conn.read().begin().await?;
 
     Ok(reply::json(&json!({
-        "picture": Asset::get_of_user(&conn, &username).await.ok().map(|x| format!("/images/{}", x.local_path)),
-        "spentWatching": Progress::get_total_time_spent_watching(&conn, username.clone())
+        "picture": Asset::get_of_user(&mut tx, &username).await.ok().map(|x| format!("/images/{}", x.local_path)),
+        "spentWatching": Progress::get_total_time_spent_watching(&mut tx, username.clone())
             .await
             .unwrap_or(0) / 3600,
         "username": username,
@@ -253,8 +258,9 @@ pub async fn whoami(user: Auth, conn: DbConnection) -> Result<impl warp::Reply, 
 }
 
 pub async fn admin_exists(conn: DbConnection) -> Result<impl warp::Reply, errors::DimError> {
+    let mut tx = conn.read().begin().await?;
     Ok(reply::json(&json!({
-        "exists": !User::get_all(&conn).await?.is_empty()
+        "exists": !User::get_all(&mut tx).await?.is_empty()
     })))
 }
 
@@ -262,11 +268,12 @@ pub async fn register(
     new_user: Login,
     conn: DbConnection,
 ) -> Result<impl warp::Reply, errors::AuthError> {
-    let users_empty = User::get_all(&conn).await?.is_empty();
+    let mut tx = conn.write().begin().await?;
+    let users_empty = User::get_all(&mut tx).await?.is_empty();
 
     if !users_empty
         && (new_user.invite_token.is_none()
-            || !new_user.invite_token_valid(&conn).await.unwrap_or(false))
+            || !new_user.invite_token_valid(&mut tx).await.unwrap_or(false))
     {
         return Err(errors::AuthError::NoTokenError);
     }
@@ -278,7 +285,7 @@ pub async fn register(
     };
 
     let claimed_invite = if users_empty {
-        Login::new_invite(&conn).await?
+        Login::new_invite(&mut tx).await?
     } else {
         new_user
             .invite_token
@@ -292,8 +299,10 @@ pub async fn register(
         claimed_invite,
         prefs: Default::default(),
     }
-    .insert(&conn)
+    .insert(&mut tx)
     .await?;
+
+    tx.commit().await?;
 
     Ok(reply::json(&json!({ "username": res })))
 }
@@ -302,6 +311,7 @@ pub async fn get_all_invites(
     conn: DbConnection,
     user: Auth,
 ) -> Result<impl warp::Reply, errors::AuthError> {
+    let mut tx = conn.read().begin().await?;
     if user.0.claims.has_role("owner") {
         #[derive(serde::Serialize)]
         struct Row {
@@ -318,7 +328,7 @@ pub async fn get_all_invites(
                 WHERE invites.id NOT IN (SELECT users.claimed_invite FROM users)
                 ORDER BY created ASC"#
         )
-        .fetch_all(&conn)
+        .fetch_all(&mut tx)
         .await
         .unwrap_or_default();
 
@@ -329,7 +339,7 @@ pub async fn get_all_invites(
             FROM  invites
             INNER JOIN users ON users.claimed_invite = invites.id"#
             )
-            .fetch_all(&conn)
+            .fetch_all(&mut tx)
             .await
             .unwrap_or_default(),
         );
@@ -348,9 +358,13 @@ pub async fn generate_invite(
         return Err(errors::AuthError::Unauthorized);
     }
 
-    Ok(reply::json(&json!({
-        "token": Login::new_invite(&conn).await?
-    })))
+    let mut tx = conn.write().begin().await?;
+
+    let token = Login::new_invite(&mut tx).await?;
+
+    tx.commit().await?;
+
+    Ok(reply::json(&json!({ "token": token })))
 }
 
 pub async fn delete_invite(
@@ -362,7 +376,9 @@ pub async fn delete_invite(
         return Err(errors::AuthError::Unauthorized);
     }
 
-    Login::delete_token(&conn, token).await?;
+    let mut tx = conn.write().begin().await?;
+    Login::delete_token(&mut tx, token).await?;
+    tx.commit().await?;
 
     Ok(StatusCode::OK)
 }
@@ -373,10 +389,13 @@ pub async fn user_change_password(
     old_password: String,
     new_password: String,
 ) -> Result<impl warp::Reply, errors::AuthError> {
-    let user = User::get_one(&conn, user.0.claims.get_user(), old_password)
+    let mut tx = conn.write().begin().await?;
+    let user = User::get_one(&mut tx, user.0.claims.get_user(), old_password)
         .await
         .map_err(|_| errors::AuthError::WrongPassword)?;
-    user.set_password(&conn, new_password).await?;
+    user.set_password(&mut tx, new_password).await?;
+
+    tx.commit().await?;
 
     Ok(StatusCode::OK)
 }
@@ -386,11 +405,14 @@ pub async fn user_delete_self(
     user: Auth,
     password: String,
 ) -> Result<impl warp::Reply, errors::AuthError> {
-    let _ = User::get_one(&conn, user.0.claims.get_user(), password)
+    let mut tx = conn.write().begin().await?;
+    let _ = User::get_one(&mut tx, user.0.claims.get_user(), password)
         .await
         .map_err(|_| errors::AuthError::WrongPassword)?;
 
-    User::delete(&conn, user.0.claims.get_user()).await?;
+    User::delete(&mut tx, user.0.claims.get_user()).await?;
+
+    tx.commit().await?;
 
     Ok(StatusCode::OK)
 }
@@ -400,11 +422,13 @@ pub async fn user_change_username(
     user: Auth,
     new_username: String,
 ) -> Result<impl warp::Reply, errors::AuthError> {
-    if User::get(&conn, &new_username).await.is_ok() {
+    let mut tx = conn.write().begin().await?;
+    if User::get(&mut tx, &new_username).await.is_ok() {
         return Err(errors::AuthError::UsernameTaken);
     }
 
-    User::set_username(&conn, user.0.claims.get_user(), new_username).await?;
+    User::set_username(&mut tx, user.0.claims.get_user(), new_username).await?;
+    tx.commit().await?;
 
     Ok(StatusCode::OK)
 }
@@ -419,19 +443,21 @@ pub async fn user_upload_avatar(
         .await
         .map_err(|_e| errors::DimError::UploadFailed)?;
 
+    let mut tx = conn.write().begin().await?;
     let asset = if let Some(p) = parts.into_iter().filter(|x| x.name() == "file").next() {
-        process_part(&conn, p).await
+        process_part(&mut tx, p).await
     } else {
         Err(errors::DimError::UploadFailed)
     };
 
-    User::set_picture(&conn, user.0.claims.get_user(), asset?.id).await?;
+    User::set_picture(&mut tx, user.0.claims.get_user(), asset?.id).await?;
+    tx.commit().await?;
 
     Ok(StatusCode::OK)
 }
 
 pub async fn process_part(
-    conn: &DbConnection,
+    conn: &mut database::Transaction<'_>,
     p: warp::multipart::Part,
 ) -> Result<Asset, errors::DimError> {
     if p.name() != "file" {
@@ -469,6 +495,6 @@ pub async fn process_part(
         file_ext: file_ext.into(),
         ..Default::default()
     }
-    .insert(&conn)
+    .insert(conn)
     .await?)
 }

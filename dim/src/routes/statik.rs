@@ -7,6 +7,7 @@ use warp::Reply;
 use std::path::Path;
 use std::path::PathBuf;
 
+use crate::errors;
 use crate::fetcher::bump_priority;
 
 pub mod filters {
@@ -14,6 +15,7 @@ pub mod filters {
     use rust_embed::RustEmbed;
     use serde::Deserialize;
     use std::path::PathBuf;
+    use warp::reject;
     use warp::Filter;
 
     pub fn react_routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
@@ -23,7 +25,6 @@ pub mod filters {
 
     pub fn get_image(
         conn: database::DbConnection,
-        log: slog::Logger,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         #[derive(Deserialize)]
         struct QueryArgs {
@@ -39,10 +40,11 @@ pub mod filters {
             .and(warp::query::query::<QueryArgs>())
             .and(with_state(metadata_path.clone()))
             .and(with_state(conn))
-            .and(with_state(log))
             .and_then(
-                |x, QueryArgs { w, h }: QueryArgs, meta_path, conn, log| async move {
-                    super::get_image(x, w, h, meta_path, conn, log).await
+                |x, QueryArgs { w, h }: QueryArgs, meta_path, conn| async move {
+                    super::get_image(x, w, h, meta_path, conn)
+                        .await
+                        .map_err(|e| reject::custom(e))
                 },
             )
     }
@@ -114,8 +116,7 @@ pub async fn get_image(
     _resize_h: Option<u32>,
     meta_path: String,
     conn: database::DbConnection,
-    log: slog::Logger,
-) -> Result<impl warp::Reply, warp::Rejection> {
+) -> Result<impl warp::Reply, errors::DimError> {
     let mut file_path = PathBuf::from(&meta_path);
     file_path.push(path.as_str());
 
@@ -130,9 +131,10 @@ pub async fn get_image(
     };
     */
 
+    let mut tx = conn.read().begin().await?;
     if !Path::new(&file_path).exists() {
-        if let Ok(x) = dbg!(asset::Asset::get_url_by_file(&conn, &url_path).await) {
-            bump_priority(&log, x, 5).await;
+        if let Ok(x) = asset::Asset::get_url_by_file(&mut tx, &url_path).await {
+            bump_priority(x, 5).await;
         }
     }
 
@@ -143,8 +145,8 @@ pub async fn get_image(
             .status(StatusCode::OK)
             .header("ContentType", "image/jpeg")
             .body(data)
-            .map_err(|_| warp::reject::not_found());
+            .map_err(|_| errors::DimError::NotFoundError);
     }
 
-    Err(warp::reject::not_found())
+    Err(errors::DimError::NotFoundError)
 }

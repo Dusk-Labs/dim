@@ -15,6 +15,7 @@ Dim is a self-hosted media manager. With minimal setup, Dim will organize and be
   * libtheora
   * libvorbis
   * libvorbisenc
+  * libtheora0
 
   You can then obtain binaries from the release tab in github:
   1. Unpack with `unzip ./release-linux.zip && tar -xvzf ./release.tar.gz`
@@ -26,6 +27,9 @@ Dim is a self-hosted media manager. With minimal setup, Dim will organize and be
 
 ### With hardware acceleration
   * `docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media --device=/dev/dri/renderD128 ghcr.io/Dusk-Labs/dim`
+
+### Using Docker Compose
+ * Refer to [docker-compose-template.yaml](https://github.com/Dusk-Labs/dim/blob/master/docker-compose-template.yml)
 
 ## Running from source
 ### Dependencies
