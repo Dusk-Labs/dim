@@ -325,6 +325,7 @@ impl<'a> TvShowMatcher<'a> {
         tx.commit()
             .await
             .map_err(|e| super::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
+
         self.push_event(media_id, media.library_id).await;
 
         Ok(())

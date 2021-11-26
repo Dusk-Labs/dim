@@ -223,7 +223,7 @@ impl MetadataMatcher {
         {
             Ok(v) => v,
             Err(e) => {
-                error!(reason = ?e, "Could not match movie to tmdb");
+                error!(media = ?media, reason = ?e, "Could not match movie to tmdb");
 
                 return Err(ScannerError::UnknownError);
             }
@@ -319,7 +319,7 @@ impl MetadataMatcher {
         let result = match result {
             Ok(v) => v,
             Err(e) => {
-                error!(reason = ?e, "Could not match tv show to tmdb");
+                error!(media = ?media, reason = ?e, "Could not match tv show to tmdb");
                 return Err(ScannerError::UnknownError);
             }
         };
