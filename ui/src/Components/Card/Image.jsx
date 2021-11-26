@@ -8,7 +8,6 @@ const CardImage = (props) => {
 
   const handleIntersection = useCallback((entries, observer) => {
     entries.forEach(entry => {
-      console.log(entry.target, entry.isIntersecting);
       if (entry.isIntersecting) {
         setObserved(true);
         observer.disconnect();
