@@ -459,8 +459,18 @@ pub async fn create_video(
             ..Default::default()
         };
 
-        // FIXME: remove this panic
+        let global_prefs = super::settings::get_global_settings();
+
         let profile_chain = get_profile_for(StreamType::Video, &ctx);
+        let profile_chain= if !global_prefs.enable_hwaccel {
+            profile_chain
+                .into_iter()
+                .filter(|x| x.profile_type() != ProfileType::HardwareTranscode)
+                .collect::<Vec<_>>()
+        } else {
+            profile_chain
+        };
+
         debug_assert!(!profile_chain.is_empty());
 
         let video = state.create(profile_chain, ctx).await?;
