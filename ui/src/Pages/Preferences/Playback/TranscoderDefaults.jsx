@@ -15,7 +15,7 @@ function TranscoderDefaults() {
 
   const handleToggle = useCallback((state) => {
     dispatch(updateGlobalSettings({
-      enable_hwaccel: !state
+      enable_hwaccel: state
     }));
   }, [dispatch]);
 
