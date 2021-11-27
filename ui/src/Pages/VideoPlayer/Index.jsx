@@ -115,6 +115,9 @@ function VideoPlayer() {
         bufferPruningInterval: 10,
         smallGapLimit: 1000,
         */
+        gaps: {
+          enableSeekFix: true
+        },
         abr: {
           autoSwitchBitrate: {
             video: false
