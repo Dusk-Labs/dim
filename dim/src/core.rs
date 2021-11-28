@@ -47,16 +47,15 @@ pub async fn run_scanners(tx: EventTx) {
                 let media_type = lib.media_type;
 
                 tokio::spawn(async move {
-                    let watcher = scanners::scanner_daemon::FsWatcher::new(
-                        library_id, media_type, tx_clone,
-                    )
-                        .await;
+                    let watcher =
+                        scanners::scanner_daemon::FsWatcher::new(library_id, media_type, tx_clone)
+                            .await;
 
                     watcher
                         .start_daemon()
                         .await
                         .expect("Something went wrong with the fs-watcher");
-                    });
+                });
             }
         }
     }

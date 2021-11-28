@@ -17,12 +17,24 @@ WORKDIR /dim
 COPY . .
 COPY --from=web /ui/build ui/build
 ARG DATABASE_URL="sqlite://dim_dev.db"
-RUN cargo build --release
+
+# Sometimes we may need to quickly build a test image
+ARG RUST_BUILD=release
+RUN if [ "$RUST_BUILD" = "debug" ]; then \
+        cargo build && \
+        mv ./target/debug/dim ./target/dim \
+    ; fi
+
+RUN if [ "$RUST_BUILD" = "release" ]; then \
+        cargo build --release \
+        mv ./target/release/dim ./target/dim \
+    ; fi
 
 FROM debian:bullseye AS ffmpeg
 ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /static
-ARG TARGETARCH
+
+ARG TARGETARCH=amd64
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
     apt-get update && \
     apt-get install -y wget unzip && \
@@ -57,10 +69,13 @@ RUN apt-get update && apt-get install -y \
     libvorbis0a \
     libvorbisenc2 \
     && rm -rf /var/lib/apt/lists/*
-COPY --from=dim /dim/target/release/dim /opt/dim/dim
+COPY --from=dim /dim/target/dim /opt/dim/dim
 COPY --from=ffmpeg /static/ffmpeg /opt/dim/utils/ffmpeg
 COPY --from=ffmpeg /static/ffprobe /opt/dim/utils/ffprobe
 
 EXPOSE 8000
 VOLUME ["/opt/dim/config"]
-CMD ["/opt/dim/dim"]
+
+ENV RUST_LOG=info
+WORKDIR /opt/dim
+CMD ["./dim"]

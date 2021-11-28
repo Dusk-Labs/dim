@@ -19,10 +19,10 @@
 //! To test run `make test` in the root, or `cargo test` in the root of each module including the
 //! root dir.
 
+use std::fs::create_dir_all;
 use tracing_subscriber::fmt;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::EnvFilter;
-use std::fs::create_dir_all;
 
 /// Module contains our core initialization logic.
 pub mod core;
