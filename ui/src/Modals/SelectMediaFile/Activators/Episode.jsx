@@ -34,8 +34,8 @@ function SelectMediaFileEpisode(props) {
     epRef.current.addEventListener("mouseenter", handleMouseEnter);
 
     return (() => {
-      if (epRef.current)
-        epRef.current.removeEventListener("mouseenter", handleMouseEnter);
+      // eslint-disable-next-line
+      epRef.current && epRef.current.removeEventListener("mouseenter", handleMouseEnter);
     });
   }, [currentID, dispatch, handleMouseEnter, epRef]);
 
