@@ -23,10 +23,10 @@ Dim is a self-hosted media manager. With minimal setup, Dim will organize and be
   3. Then you can access the Dim web UI through your browser with `http://0.0.0.0:8000` (assuming it's running locally.)
 
 ## Running with docker
-  * `docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media ghcr.io/Dusk-Labs/dim` 
+  * `docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media:ro ghcr.io/Dusk-Labs/dim:dev` 
 
 ### With hardware acceleration
-  * `docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media --device=/dev/dri/renderD128 ghcr.io/Dusk-Labs/dim`
+  * `docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media:ro --device=/dev/dri/renderD128 ghcr.io/Dusk-Labs/dim:dev`
 
 ### Using Docker Compose
  * Refer to [docker-compose-template.yaml](https://github.com/Dusk-Labs/dim/blob/master/docker-compose-template.yml)
