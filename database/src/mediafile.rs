@@ -114,6 +114,23 @@ impl MediaFile {
         .await?)
     }
 
+    pub async fn get_of_show(
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<Vec<Self>, DatabaseError> {
+        Ok(sqlx::query_as!(
+            MediaFile,
+            "SELECT mediafile.* FROM _tblseason
+                INNER JOIN episode ON _tblseason.id = episode.seasonid
+                INNER JOIN mediafile ON mediafile.media_id = episode.id
+                WHERE _tblseason.tvshowid = ?
+                GROUP BY episode.id",
+            id
+        )
+        .fetch_all(&mut *conn)
+        .await?)
+    }
+
     /// Method returns all metadata of a mediafile based on the id supplied.
     ///
     /// # Arguments
