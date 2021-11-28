@@ -30,7 +30,23 @@ pub enum TmdbError {
     #[error(display = "The json returned could not be deserialized")]
     DeserializationError,
     #[error(display = "No results are found")]
-    NoResults,
+    NoResults {
+        query: String,
+        year: Option<i32>,
+    },
+    #[error(display = "No seasons found for the id supplied")]
+    NoSeasonsFound {
+        id: u64,
+    },
+    #[error(display = "No episodes found for the id supplied")]
+    NoEpisodesFound {
+        id: u64,
+        season: u64,
+    },
+    #[error(display = "Could not find genre with supplied id")]
+    NoGenreFound {
+        id: u64
+    }
 }
 
 #[derive(Clone)]
@@ -58,12 +74,15 @@ impl Tmdb {
         title: String,
         year: Option<i32>,
     ) -> Result<super::ApiMedia, TmdbError> {
-        self.search_by_name(title, year, None)
+        self.search_by_name(title.clone(), year, None)
             .await?
             .first()
             .cloned()
             .map(Into::into)
-            .ok_or(TmdbError::NoResults)
+            .ok_or(TmdbError::NoResults {
+                query: title,
+                year
+            })
     }
 
     pub async fn search_by_id(&mut self, id: i32) -> Result<Media, TmdbError> {
@@ -235,7 +254,9 @@ impl Tmdb {
             .await
             .map_err(|_| TmdbError::DeserializationError)?
             .seasons
-            .ok_or(TmdbError::NoResults)
+            .ok_or(TmdbError::NoSeasonsFound {
+                id,
+            })
     }
 
     pub async fn get_episodes_for(
@@ -263,7 +284,9 @@ impl Tmdb {
             .await
             .map_err(|_| TmdbError::DeserializationError)?
             .episodes
-            .ok_or(TmdbError::NoResults)
+            .ok_or(TmdbError::NoEpisodesFound {
+                id, season
+            })
     }
 
     pub async fn get_genre_detail(&mut self, genre_id: u64) -> Result<Genre, TmdbError> {
@@ -312,7 +335,7 @@ impl Tmdb {
             .iter()
             .find(|x| x.id == genre_id)
             .cloned()
-            .ok_or(TmdbError::NoResults)
+            .ok_or(TmdbError::NoGenreFound { id: genre_id })
     }
 }
 /*
