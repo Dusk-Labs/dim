@@ -158,12 +158,28 @@ impl FFPWrapper {
         }
     }
 
+    pub fn get_primary_channels(&self) -> Option<i64> {
+        self.get_primary("audio")?.channels
+    }
+
+    pub fn get_audio_lang(&self) -> Option<String> {
+        self.get_primary("audio")?.get_language()
+    }
+
+    pub fn get_video_lang(&self) -> Option<String> {
+        self.get_primary("video")?.get_language()
+    }
+
     pub fn get_container_bitrate(&self) -> Option<u64> {
         self.ffpstream.as_ref()?.format.bit_rate.parse::<u64>().ok()
     }
 
     pub fn get_video_codec(&self) -> Option<String> {
         Some(self.find_by_type("video").first()?.codec_name.clone())
+    }
+
+    pub fn get_video_profile(&self) -> Option<String> {
+        self.find_by_type("video").first()?.profile.clone()
     }
 
     pub fn get_height(&self) -> Option<i64> {

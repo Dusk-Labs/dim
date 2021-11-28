@@ -246,6 +246,35 @@ pub async fn get_media_by_id(
         }
     };
 
+    let quality_tags = match media.media_type {
+        MediaType::Episode | MediaType::Movie => MediaFile::get_of_media(&mut tx, media.id)
+            .await?
+            .first()
+            .map(|x| {
+                let video_tag = format!(
+                    "{} ({})",
+                    x.quality
+                        .as_ref()
+                        .map(|x| format!("{}p", x))
+                        .unwrap_or("Unknown".into()),
+                    crate::utils::codec_pretty(x.codec.as_deref().unwrap_or("Unknown"))
+                );
+
+                let audio_lang = x.audio_language.as_deref().unwrap_or("Unknown");
+                let audio_codec =
+                    crate::utils::codec_pretty(x.audio.as_deref().unwrap_or("Unknown"));
+                let audio_ch = crate::utils::channels_pretty(x.channels.unwrap_or(2));
+
+                let audio_tag = format!("{} ({} {})", audio_lang, audio_codec, audio_ch);
+
+                json!({
+                    "video": video_tag,
+                    "audio": audio_tag,
+                })
+            }),
+        _ => None,
+    };
+
     let season_episode_tag = match media.media_type {
         MediaType::Episode => {
             let result = Episode::get_season_episode_by_id(&mut tx, id).await?;
@@ -272,7 +301,8 @@ pub async fn get_media_by_id(
         "genres": genres,
         "duration": duration,
         ..?season_episode_tag,
-        ..?progress
+        ..?progress,
+        ..?quality_tags
     })))
 }
 

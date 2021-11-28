@@ -71,6 +71,7 @@ tracing-subscriber = { version = "0.3.1", features = [
     "json",
 ] }
 tracing-appender = "0.2.0"
+isolang = "1.0.0"
 
 [build-dependencies]
 fs_extra = "1.1.0"
