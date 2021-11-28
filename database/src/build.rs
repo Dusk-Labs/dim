@@ -33,14 +33,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let pool = sqlx::sqlite::SqlitePoolOptions::new()
         .connect_with(
             sqlx::sqlite::SqliteConnectOptions::from_str(db_path.to_string_lossy().as_ref())?
-            .create_if_missing(true),
+                .create_if_missing(true),
         )
         .await?;
 
-    sqlx::migrate!().run(&pool).await.map_err(|e| {
+    let _ = sqlx::migrate!().run(&pool).await.map_err(|e| {
         println!("cargo:error=Migration failed: {:?}", e);
         e
-    })?;
+    });
 
     println!(
         "cargo:warning=Built database {}.",
