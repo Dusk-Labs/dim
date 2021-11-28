@@ -15,6 +15,8 @@ use database::progress::Progress;
 use warp::http::status::StatusCode;
 use warp::reply;
 
+use std::collections::HashMap;
+
 pub mod filters {
     use warp::reject;
     use warp::Filter;
@@ -246,33 +248,41 @@ pub async fn get_media_by_id(
         }
     };
 
+    fn mediafile_tags(x: &MediaFile) -> serde_json::Value {
+        let video_tag = format!(
+            "{} ({})",
+            x.quality
+            .as_ref()
+            .map(|x| format!("{}p", x))
+            .unwrap_or("Unknown".into()),
+            crate::utils::codec_pretty(x.codec.as_deref().unwrap_or("Unknown"))
+        );
+
+        let audio_lang = x.audio_language.as_deref().unwrap_or("Unknown");
+        let audio_codec =
+            crate::utils::codec_pretty(x.audio.as_deref().unwrap_or("Unknown"));
+        let audio_ch = crate::utils::channels_pretty(x.channels.unwrap_or(2));
+
+        let audio_tag = format!("{} ({} {})", audio_lang, audio_codec, audio_ch);
+
+        json!({
+            "video": video_tag,
+            "audio": audio_tag,
+        })
+    }
+
     let quality_tags = match media.media_type {
-        MediaType::Episode | MediaType::Movie => MediaFile::get_of_media(&mut tx, media.id)
+        MediaType::Episode | MediaType::Movie => json!({
+                media.id.to_string(): MediaFile::get_of_media(&mut tx, media.id)
+                    .await?
+                    .first()
+                    .map(mediafile_tags)
+        }),
+        MediaType::Tv => json!(MediaFile::get_of_show(&mut tx, media.id)
             .await?
-            .first()
-            .map(|x| {
-                let video_tag = format!(
-                    "{} ({})",
-                    x.quality
-                        .as_ref()
-                        .map(|x| format!("{}p", x))
-                        .unwrap_or("Unknown".into()),
-                    crate::utils::codec_pretty(x.codec.as_deref().unwrap_or("Unknown"))
-                );
-
-                let audio_lang = x.audio_language.as_deref().unwrap_or("Unknown");
-                let audio_codec =
-                    crate::utils::codec_pretty(x.audio.as_deref().unwrap_or("Unknown"));
-                let audio_ch = crate::utils::channels_pretty(x.channels.unwrap_or(2));
-
-                let audio_tag = format!("{} ({} {})", audio_lang, audio_codec, audio_ch);
-
-                json!({
-                    "video": video_tag,
-                    "audio": audio_tag,
-                })
-            }),
-        _ => None,
+            .iter()
+            .map(|x| (x.media_id.unwrap(), mediafile_tags(x)))
+            .collect::<HashMap<_, _>>())
     };
 
     let season_episode_tag = match media.media_type {
@@ -300,9 +310,9 @@ pub async fn get_media_by_id(
         "media_type": media.media_type,
         "genres": genres,
         "duration": duration,
+        "tags": quality_tags,
         ..?season_episode_tag,
-        ..?progress,
-        ..?quality_tags
+        ..?progress
     })))
 }
 
