@@ -59,7 +59,7 @@ impl Library {
     /// This method will not return the locations indexed for this library, if you need those you
     /// must query for them separately.
     pub async fn get_all(conn: &mut crate::Transaction<'_>) -> Vec<Self> {
-        sqlx::query!(r#"SELECT id, name, media_type as "media_type: MediaType" FROM library"#)
+        sqlx::query!(r#"SELECT id, name, media_type as "media_type: MediaType" FROM library WHERE NOT hidden"#)
             .fetch_all(&mut *conn)
             .await
             .unwrap_or_default()
@@ -133,6 +133,18 @@ impl Library {
             .execute(&mut *conn)
             .await?
             .rows_affected() as usize)
+    }
+
+    pub async fn mark_hidden(
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<usize, DatabaseError> {
+        Ok(
+            sqlx::query!("UPDATE library SET hidden = 1 WHERE id = ?", id)
+                .execute(&mut *conn)
+                .await?
+                .rows_affected() as usize,
+        )
     }
 }
 

@@ -46,9 +46,10 @@ const UnmatchedMedia = (props) => {
   }, [selectedFiles, currentFolder, query, tmdbResults, mediaType, tmdbID]);
 
   useEffect(() => {
-    setMediaType(
-      libraries.filter(lib => lib.id === parseInt(params.id))[0].media_type
-    );
+    const [library] = libraries.filter(lib => lib.id === parseInt(params.id));
+
+    if(library !== undefined)
+      setMediaType(library.mediaType);
   }, [libraries, params.id]);
 
   useEffect(() => {

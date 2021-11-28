@@ -26,7 +26,7 @@ RUN if [ "$RUST_BUILD" = "debug" ]; then \
     ; fi
 
 RUN if [ "$RUST_BUILD" = "release" ]; then \
-        cargo build --release \
+        cargo build --release && \
         mv ./target/release/dim ./target/dim \
     ; fi
 

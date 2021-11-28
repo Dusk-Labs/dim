@@ -21,6 +21,10 @@ use warp::reply;
 
 use serde::Serialize;
 
+use tracing::error;
+use tracing::info;
+use tracing::instrument;
+
 pub mod filters {
     use warp::reject;
     use warp::Filter;
@@ -209,17 +213,38 @@ pub async fn library_post(
 /// * `event_tx` - channel over which to dispatch events
 /// * `_user` - Auth middleware
 // NOTE: Should we only allow the owner to add/remove libraries?
+#[instrument(err, skip(conn, event_tx, _user), fields(auth.user = _user.user_ref()))]
 pub async fn library_delete(
     id: i64,
     _user: Auth,
     conn: DbConnection,
     event_tx: EventTx,
 ) -> Result<impl warp::Reply, errors::DimError> {
+    // First we mark the library as scheduled for deletion which will make the library and all its
+    // content hidden. This is necessary because huge libraries take a long time to delete.
     let mut tx = conn.write().begin().await?;
-    Library::delete(&mut tx, id).await?;
-    Media::delete_by_lib_id(&mut tx, id).await?;
-    MediaFile::delete_by_lib_id(&mut tx, id).await?;
+    if Library::mark_hidden(&mut tx, id).await? < 1 {
+        return Err(errors::DimError::LibraryNotFound);
+    }
     tx.commit().await?;
+
+    let delete_lib_fut = async move {
+        let inner = async {
+            let mut tx = conn.write().begin().await?;
+            Library::delete(&mut tx, id).await?;
+            Media::delete_by_lib_id(&mut tx, id).await?;
+            MediaFile::delete_by_lib_id(&mut tx, id).await?;
+            tx.commit().await?;
+
+            Ok::<_, database::error::DatabaseError>(())
+        };
+
+        if let Err(e) = inner.await {
+            error!(reason = ?e, "Failed to delete library and its content.");
+        } else {
+            info!("Deleted library");
+        }
+    };
 
     let event = Message {
         id,
@@ -227,6 +252,8 @@ pub async fn library_delete(
     };
 
     let _ = event_tx.send(serde_json::to_string(&event).unwrap());
+
+    tokio::spawn(delete_lib_fut);
 
     Ok(StatusCode::NO_CONTENT)
 }

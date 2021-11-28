@@ -156,9 +156,11 @@ impl Progress {
             JOIN season on season.tvshowid = tv_show.id
             JOIN episode on episode.seasonid = season.id
             JOIN progress on progress.media_id = episode.id
+            JOIN library on library.id = _tblmedia.library_id
 
             WHERE NOT progress.populated = 0
             AND progress.user_id = ?
+            AND NOT library.hidden
 
             GROUP BY _tblmedia.id
             ORDER BY progress.populated DESC
