@@ -123,7 +123,8 @@ impl Media {
         Ok(sqlx::query_scalar!(
             r#"SELECT _tblmedia.id
                 FROM _tblmedia
-                WHERE NOT media_type = "episode"
+                JOIN library ON library.id = _tblmedia.library_id
+                WHERE NOT _tblmedia.media_type = "episode" AND NOT library.hidden
                 ORDER BY rating DESC
                 LIMIT ?"#,
             limit
@@ -140,7 +141,8 @@ impl Media {
         Ok(sqlx::query_scalar!(
             r#"SELECT _tblmedia.id
                 FROM _tblmedia
-                WHERE NOT media_type = "episode"
+                JOIN library ON library.id = _tblmedia.library_id
+                WHERE NOT _tblmedia.media_type = "episode" AND NOT library.hidden
                 ORDER BY added DESC
                 LIMIT ?"#,
             limit
@@ -155,10 +157,11 @@ impl Media {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path as "poster_path?", backdrop_path as "backdrop_path?", media_type as "media_type: _"
+                r#"SELECT media.id, media.library_id, media.name, description, rating, year, added, poster_path as "poster_path?", backdrop_path as "backdrop_path?", media.media_type as "media_type: _"
                 FROM media
-                WHERE NOT media_type = "episode"
-                GROUP BY id
+                JOIN library ON media.library_id = library.id
+                WHERE NOT media.media_type = "episode" AND NOT library.hidden
+                GROUP BY media.id
                 ORDER BY RANDOM()
                 LIMIT ?
                 "#,
@@ -174,10 +177,11 @@ impl Media {
         let query = format!("%{}%", query);
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                r#"SELECT media.id, media.library_id, media.name, description, rating, year, added, poster_path, backdrop_path, media.media_type as "media_type: _"
                 FROM media
-                WHERE NOT media_type = "episode"
-                AND UPPER(name) LIKE ?
+                JOIN library ON library.id = media.library_id
+                WHERE NOT media.media_type = "episode" AND NOT library.hidden
+                AND UPPER(media.name) LIKE ?
                 LIMIT ?
                 "#,
                 query,
@@ -191,10 +195,11 @@ impl Media {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                r#"SELECT media.id, media.library_id, media.name, description, rating, year, added, poster_path, backdrop_path, media.media_type as "media_type: _"
                 FROM media
                 INNER JOIN genre_media ON genre_media.media_id = media.id
-                WHERE NOT media_type = "episode"
+                JOIN library ON library.id = media.library_id
+                WHERE NOT media.media_type = "episode" AND NOT library.hidden
                 AND genre_media.genre_id = ?
                 "#,
                 genre_id,
@@ -207,9 +212,10 @@ impl Media {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                r#"SELECT media.id, media.library_id, media.name, description, rating, year, added, poster_path, backdrop_path, media.media_type as "media_type: _"
                 FROM media
-                WHERE NOT media_type = "episode"
+                JOIN library ON library.id = media.library_id
+                WHERE NOT media.media_type = "episode" AND NOT library.hidden
                 AND year = ?
                 "#,
                 year,

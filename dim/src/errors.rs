@@ -41,6 +41,8 @@ pub enum DimError {
     MissingFieldInBody { description: String },
     #[error(display = "Unsupported file type.")]
     UnsupportedFile,
+    #[error(display = "Library does not exist.")]
+    LibraryNotFound,
 }
 
 impl From<sqlx::Error> for DimError {
@@ -54,7 +56,7 @@ impl warp::reject::Reject for DimError {}
 impl warp::Reply for DimError {
     fn into_response(self) -> warp::reply::Response {
         let status = match self {
-            Self::NoneError | Self::NotFoundError => StatusCode::NOT_FOUND,
+            Self::LibraryNotFound | Self::NoneError | Self::NotFoundError => StatusCode::NOT_FOUND,
             Self::StreamingError(_)
             | Self::DatabaseError
             | Self::RawDatabaseError(_)

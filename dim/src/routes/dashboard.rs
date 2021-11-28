@@ -70,7 +70,7 @@ pub async fn dashboard(
     let mut top_rated = Vec::new();
     for media in Media::get_top_rated(&mut tx, 10).await? {
         let item = match sqlx::query!(
-            "SELECT name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
+            "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?",
             media
         ).fetch_one(&mut tx).await {
@@ -88,7 +88,7 @@ pub async fn dashboard(
     let mut recently_added = Vec::new();
     for media in Media::get_recently_added(&mut tx, 10).await? {
         let item = match sqlx::query!(
-            "SELECT name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
+            "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?",
             media
         ).fetch_one(&mut tx).await {
@@ -106,7 +106,7 @@ pub async fn dashboard(
     let mut continue_watching = Vec::new();
     for media in Progress::get_continue_watching(&mut tx, user.0.claims.get_user(), 10).await? {
         let item = match sqlx::query!(
-            "SELECT name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
+            "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?",
             media
         ).fetch_one(&mut tx).await {
