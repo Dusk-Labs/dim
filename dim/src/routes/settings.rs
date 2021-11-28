@@ -37,6 +37,7 @@ pub struct GlobalSettings {
 
     pub verbose: bool,
     pub secret_key: Option<[u8; 16]>,
+    pub enable_hwaccel: bool,
 }
 
 impl Default for GlobalSettings {
@@ -60,6 +61,7 @@ impl Default for GlobalSettings {
             disable_auth: false,
             verbose: false,
             secret_key: None,
+            enable_hwaccel: true,
         }
     }
 }
@@ -145,10 +147,6 @@ pub mod filters {
         warp::path!("api" / "v1" / "user" / "settings")
             .and(warp::post())
             .and(warp::body::json::<UserSettings>())
-            .map(|x| {
-                println!("got a post to user/settings");
-                x
-            })
             .and(auth::with_auth())
             .and(with_state::<DbConnection>(conn))
             .and_then(
