@@ -139,10 +139,12 @@ impl Library {
         conn: &mut crate::Transaction<'_>,
         id: i64,
     ) -> Result<usize, DatabaseError> {
-        Ok(sqlx::query!("UPDATE library SET hidden = 1 WHERE id = ?", id)
-            .execute(&mut *conn)
-            .await?
-            .rows_affected() as usize)
+        Ok(
+            sqlx::query!("UPDATE library SET hidden = 1 WHERE id = ?", id)
+                .execute(&mut *conn)
+                .await?
+                .rows_affected() as usize,
+        )
     }
 }
 

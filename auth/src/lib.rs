@@ -59,6 +59,16 @@ pub struct UserRolesToken {
 #[derive(Debug)]
 pub struct Wrapper(pub TokenData<UserRolesToken>);
 
+impl Wrapper {
+    pub fn get_user(&self) -> String {
+        self.0.claims.get_user()
+    }
+
+    pub fn user_ref(&self) -> &str {
+        self.0.claims.user_ref()
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum JWTError {
     Missing,
@@ -106,6 +116,10 @@ impl UserRolesToken {
             .iter()
             .map(|x| x.to_ascii_lowercase())
             .collect::<Vec<_>>()
+    }
+
+    pub fn user_ref(&self) -> &str {
+        self.user.as_ref()
     }
 }
 
