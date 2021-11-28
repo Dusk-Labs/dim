@@ -25,30 +25,30 @@ async fn main() -> Result<(), Box<dyn Error>> {
     db_path.pop();
     db_path.push(&db_file);
 
-    if !Path::new(&db_path).exists() {
-        println!(
-            "cargo:warning=Generating {:?} from latest migrations.",
-            db_file
-        );
+    println!(
+        "cargo:warning=Generating {:?} from latest migrations.",
+        db_file
+    );
 
-        let pool = sqlx::sqlite::SqlitePoolOptions::new()
-            .connect_with(
-                sqlx::sqlite::SqliteConnectOptions::from_str(db_path.to_string_lossy().as_ref())?
-                    .create_if_missing(true),
-            )
-            .await?;
+    let pool = sqlx::sqlite::SqlitePoolOptions::new()
+        .connect_with(
+            sqlx::sqlite::SqliteConnectOptions::from_str(db_path.to_string_lossy().as_ref())?
+            .create_if_missing(true),
+        )
+        .await?;
 
-        sqlx::migrate!().run(&pool).await.map_err(|e| {
-            println!("cargo:error=Migration failed: {:?}", e);
-            e
-        })?;
-        println!(
-            "cargo:warning=Built database {}.",
-            db_path.to_string_lossy().as_ref()
-        );
-    }
+    sqlx::migrate!().run(&pool).await.map_err(|e| {
+        println!("cargo:error=Migration failed: {:?}", e);
+        e
+    })?;
 
-    println!("cargo:rerun-if-changed=ui/build");
-    println!("cargo:rerun-if-changed=build.rs");
+    println!(
+        "cargo:warning=Built database {}.",
+        db_path.to_string_lossy().as_ref()
+    );
+
+    println!("cargo:rerun-if-changed=database/src/build.rs");
+    println!("cargo:rerun-if-changed=database/migrations");
+
     Ok(())
 }
