@@ -47,6 +47,13 @@ pub struct MediaFile {
     /// Flag which tells us if the file is corrupted or not. ie if ffprobe cant open the file and
     /// reports no metadata this flag will be set.
     pub corrupt: Option<bool>,
+
+    /// Audio channels count
+    pub channels: Option<i64>,
+    /// avc_profile
+    pub profile: Option<String>,
+    /// Primary audio language
+    pub audio_language: Option<String>
 }
 
 impl MediaFile {
@@ -213,6 +220,10 @@ pub struct InsertableMediaFile {
     pub original_resolution: Option<String>,
     pub duration: Option<i64>,
 
+    pub channels: Option<i64>,
+    pub profile: Option<String>,
+    pub audio_language: Option<String>,
+
     /***
      * Options specific to tv show scanner hence Option<T>
      ***/
@@ -231,8 +242,8 @@ impl InsertableMediaFile {
         let id = sqlx::query!(
             r#"
             INSERT INTO mediafile (media_id, library_id, target_file, raw_name, raw_year, quality,
-            codec, container, audio, original_resolution, duration, episode, season, corrupt)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+            codec, container, audio, original_resolution, duration, episode, season, corrupt, channels, profile, audio_language)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
         "#,
             self.media_id,
             self.library_id,
@@ -247,7 +258,10 @@ impl InsertableMediaFile {
             self.duration,
             self.episode,
             self.season,
-            self.corrupt
+            self.corrupt,
+            self.channels,
+            self.profile,
+            self.audio_language
         )
         .execute(&mut *conn)
         .await?
@@ -271,6 +285,9 @@ pub struct UpdateMediaFile {
     pub audio: Option<String>,
     pub original_resolution: Option<String>,
     pub duration: Option<i64>,
+    pub channels: Option<i64>,
+    pub profile: Option<String>,
+    pub audio_language: Option<String>,
 
     /***
      * Options specific to tv show scanner hence Option<T>
@@ -306,7 +323,10 @@ impl UpdateMediaFile {
             "UPDATE mediafile SET duration = ? WHERE id = ?" => (self.duration, id),
             "UPDATE mediafile SET episode = ? WHERE id = ?" => (self.episode, id),
             "UPDATE mediafile SET season = ? WHERE id = ?" => (self.season, id),
-            "UPDATE mediafile SET corrupt = ? WHERE id = ?" => (self.corrupt, id)
+            "UPDATE mediafile SET corrupt = ? WHERE id = ?" => (self.corrupt, id),
+            "UPDATE mediafile SET channels = ? WHERE id = ?" => (self.channels, id),
+            "UPDATE mediafile SET profile = ? WHERE id = ?" => (self.profile, id),
+            "UPDATE mediafile SET audio_language = ? WHERE id = ?" => (self.audio_language, id)
         );
 
         Ok(1)
