@@ -115,9 +115,11 @@ function VideoPlayer() {
         bufferPruningInterval: 10,
         smallGapLimit: 1000,
         */
+        /* FIXME: Disabling temporarily because the code for this function is unsound
         gaps: {
           enableSeekFix: true
         },
+        */
         abr: {
           autoSwitchBitrate: {
             video: false
