@@ -1,6 +1,6 @@
 use std::env;
 use std::error::Error;
-use std::path::Path;
+use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 
@@ -30,6 +30,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         db_file
     );
 
+    let _ = fs::remove_file(db_path.to_string_lossy().as_ref());
     let pool = sqlx::sqlite::SqlitePoolOptions::new()
         .connect_with(
             sqlx::sqlite::SqliteConnectOptions::from_str(db_path.to_string_lossy().as_ref())?
@@ -37,10 +38,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         )
         .await?;
 
-    let _ = sqlx::migrate!().run(&pool).await.map_err(|e| {
+    sqlx::migrate!().run(&pool).await.map_err(|e| {
         println!("cargo:error=Migration failed: {:?}", e);
         e
-    });
+    })?;
 
     println!(
         "cargo:warning=Built database {}.",
