@@ -53,7 +53,7 @@ pub struct MediaFile {
     /// avc_profile
     pub profile: Option<String>,
     /// Primary audio language
-    pub audio_language: Option<String>
+    pub audio_language: Option<String>,
 }
 
 impl MediaFile {

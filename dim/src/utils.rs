@@ -474,11 +474,7 @@ pub fn ffpath(bin: impl AsRef<str>) -> &'static str {
 pub fn codec_pretty(codec: &str) -> String {
     match codec {
         "h264" => "H.264".into(),
-        "hevc" => "HEVC".into(),
-        "eac3" => "EAC3".into(),
-        "ac3" => "AC3".into(),
-        "aac" => "AAC".into(),
-        x => x.into(),
+        x => x.to_uppercase(),
     }
 }
 

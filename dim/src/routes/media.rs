@@ -252,15 +252,14 @@ pub async fn get_media_by_id(
         let video_tag = format!(
             "{} ({})",
             x.quality
-            .as_ref()
-            .map(|x| format!("{}p", x))
-            .unwrap_or("Unknown".into()),
+                .as_ref()
+                .map(|x| format!("{}p", x))
+                .unwrap_or("Unknown".into()),
             crate::utils::codec_pretty(x.codec.as_deref().unwrap_or("Unknown"))
         );
 
         let audio_lang = x.audio_language.as_deref().unwrap_or("Unknown");
-        let audio_codec =
-            crate::utils::codec_pretty(x.audio.as_deref().unwrap_or("Unknown"));
+        let audio_codec = crate::utils::codec_pretty(x.audio.as_deref().unwrap_or("Unknown"));
         let audio_ch = crate::utils::channels_pretty(x.channels.unwrap_or(2));
 
         let audio_tag = format!("{} ({} {})", audio_lang, audio_codec, audio_ch);
@@ -282,7 +281,7 @@ pub async fn get_media_by_id(
             .await?
             .iter()
             .map(|x| (x.media_id.unwrap(), mediafile_tags(x)))
-            .collect::<HashMap<_, _>>())
+            .collect::<HashMap<_, _>>()),
     };
 
     let season_episode_tag = match media.media_type {
