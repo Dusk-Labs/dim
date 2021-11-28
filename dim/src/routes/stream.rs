@@ -494,7 +494,7 @@ pub async fn create_video(
         // TODO: This code will not work correctly if there are similar resolutions with different
         // brates.
         let should_be_default = should_stream_default
-            && matches!(prefs.default_video_quality, DefaultVideoQuality::Resolution(res, _) if res == quality.height);
+            || matches!(prefs.default_video_quality, DefaultVideoQuality::Resolution(res, _) if res == quality.height);
 
         let chunk_path = format!("{}/data/$Number$.m4s", video.clone());
         let init_seg = Some(format!("{}/data/init.mp4", video.clone()));
