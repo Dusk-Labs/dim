@@ -462,7 +462,7 @@ pub async fn create_video(
         let global_prefs = super::settings::get_global_settings();
 
         let profile_chain = get_profile_for(StreamType::Video, &ctx);
-        let profile_chain= if !global_prefs.enable_hwaccel {
+        let profile_chain = if !global_prefs.enable_hwaccel {
             profile_chain
                 .into_iter()
                 .filter(|x| x.profile_type() != ProfileType::HardwareTranscode)
