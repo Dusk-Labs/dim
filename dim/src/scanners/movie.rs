@@ -16,8 +16,8 @@ use chrono::NaiveDate;
 use events::Message;
 use events::PushEventType;
 
-use tracing::warn;
 use tracing::error;
+use tracing::warn;
 
 use crate::core::EventTx;
 use crate::fetcher::insert_into_queue;

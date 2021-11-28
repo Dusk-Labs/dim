@@ -193,7 +193,6 @@ pub async fn library_post(
         event_type: PushEventType::EventNewLibrary,
     };
 
-
     let _ = event_tx.send(serde_json::to_string(&event).unwrap());
 
     Ok(StatusCode::CREATED)

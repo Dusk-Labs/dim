@@ -18,8 +18,9 @@ use notify::RecommendedWatcher;
 use notify::RecursiveMode;
 use notify::Watcher;
 
+use tokio::sync::mpsc::UnboundedReceiver;
+
 use err_derive::Error;
-use tokio::task::spawn_blocking;
 use tracing::debug;
 use tracing::error;
 use tracing::warn;
@@ -62,33 +63,20 @@ impl FsWatcher {
 
         let library = Library::get_one(&mut tx, self.library_id).await?;
 
-        let (tx, mut rx) = mpsc::channel();
-        let mut watcher = <RecommendedWatcher as Watcher>::new(tx, Duration::from_secs(1))?;
+        let (mut rx, _watcher) = async_watch(library.locations.iter())?;
 
-        for location in &library.locations {
-            watcher.watch(location.as_str(), RecursiveMode::Recursive)?;
-        }
-
-        loop {
-            // NOTE: God forgive me
-            let (_rx, result) = spawn_blocking(move || {
-                let rx = rx;
-                let res = rx.recv();
-                (rx, res)
-            })
-            .await
-            .unwrap();
-
-            rx = _rx;
-
-            match result {
-                Ok(DebouncedEvent::Create(path)) => self.handle_create(path).await,
-                Ok(DebouncedEvent::Rename(from, to)) => self.handle_rename(from, to).await,
-                Ok(DebouncedEvent::Remove(path)) => self.handle_remove(path).await,
-                Ok(event) => debug!("Tried to handle unmatched event {:?}", event),
-                Err(e) => error!("Received error: {:?}", e),
+        while let Some(e) = rx.recv().await {
+            match e {
+                DebouncedEvent::Create(path) => self.handle_create(path).await,
+                DebouncedEvent::Rename(from, to) => self.handle_rename(from, to).await,
+                DebouncedEvent::Remove(path) => self.handle_remove(path).await,
+                event => debug!("Tried to handle unmatched event {:?}", event),
             }
         }
+
+        warn!(library_id = self.library_id, "Scanning daemon finished.");
+
+        Ok(())
     }
 
     async fn handle_create(&self, path: PathBuf) {
@@ -236,4 +224,29 @@ impl FsWatcher {
             }
         }
     }
+}
+
+// FIXME(val): This code is pretty cursed. We should replace this with native async when notify==5.0.0
+// comes out.
+pub fn async_watch(
+    paths: impl Iterator<Item = impl AsRef<str>>,
+) -> Result<(UnboundedReceiver<DebouncedEvent>, RecommendedWatcher), FsWatcherError> {
+    let (tx, rx) = mpsc::channel();
+    let mut watcher = <RecommendedWatcher as Watcher>::new(tx, Duration::from_secs(5))?;
+
+    for path in paths {
+        watcher.watch(path.as_ref(), RecursiveMode::Recursive)?;
+    }
+
+    let (async_tx, async_rx) = tokio::sync::mpsc::unbounded_channel();
+
+    std::thread::spawn(move || {
+        while let Ok(x) = rx.recv() {
+            if let Err(_) = async_tx.send(x) {
+                break;
+            }
+        }
+    });
+
+    Ok((async_rx, watcher))
 }
