@@ -21,6 +21,8 @@ use warp::reply;
 
 use serde::Serialize;
 
+use tracing::error;
+
 pub mod filters {
     use warp::reject;
     use warp::Filter;
@@ -215,11 +217,27 @@ pub async fn library_delete(
     conn: DbConnection,
     event_tx: EventTx,
 ) -> Result<impl warp::Reply, errors::DimError> {
+    // First we mark the library as scheduled for deletion which will make the library and all its
+    // content hidden. This is necessary because huge libraries take a long time to delete.
     let mut tx = conn.write().begin().await?;
-    Library::delete(&mut tx, id).await?;
-    Media::delete_by_lib_id(&mut tx, id).await?;
-    MediaFile::delete_by_lib_id(&mut tx, id).await?;
+    Library::mark_hidden(&mut tx, id).await?;
     tx.commit().await?;
+
+    let delete_lib_fut = async move {
+        let inner = async { 
+            let mut tx = conn.write().begin().await?;
+            Library::delete(&mut tx, id).await?;
+            Media::delete_by_lib_id(&mut tx, id).await?;
+            MediaFile::delete_by_lib_id(&mut tx, id).await?;
+            tx.commit().await?;
+
+            Ok::<_, database::error::DatabaseError>(())
+        };
+
+        if let Err(e) = inner.await {
+            error!(reason = ?e, "Failed to delete library and its content.");
+        }
+    };
 
     let event = Message {
         id,
@@ -227,6 +245,8 @@ pub async fn library_delete(
     };
 
     let _ = event_tx.send(serde_json::to_string(&event).unwrap());
+
+    tokio::spawn(delete_lib_fut);
 
     Ok(StatusCode::NO_CONTENT)
 }
