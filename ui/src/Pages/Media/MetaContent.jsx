@@ -63,7 +63,9 @@ function MetaContent() {
       seasons,
       progress,
       season,
-      episode
+      episode,
+      audio,
+      video
     } = media[id].info.data;
 
     const length = {
@@ -88,8 +90,12 @@ function MetaContent() {
         <p className="description">{description}</p>
         <div className="meta-info">
           <div className="info">
-            <h4>Type</h4>
-            <p>{media_type}</p>
+            <h4>Video</h4>
+            <p>{video}</p>
+          </div>
+          <div className="info">
+            <h4>Audio</h4>
+            <p>{audio}</p>
           </div>
           {!seasons && (
             <div className="info">
