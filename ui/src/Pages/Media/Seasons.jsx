@@ -8,7 +8,8 @@ import MediaEpisodes from "./Episodes";
 
 import "./Seasons.scss";
 
-function MediaSeasons() {
+function MediaSeasons(props) {
+  const { setActiveId } = props;
   const dispatch = useDispatch();
 
   const {media} = useSelector(store => ({
@@ -53,7 +54,7 @@ function MediaSeasons() {
           </div>
         </section>
         {(season !== undefined && prevID === id) && (
-          <MediaEpisodes seasonID={season}/>
+          <MediaEpisodes seasonID={season} setActiveId={setActiveId}/>
         )}
       </div>
     );

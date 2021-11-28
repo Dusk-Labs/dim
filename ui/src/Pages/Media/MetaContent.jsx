@@ -12,7 +12,8 @@ import CardImage from "./CardImage";
 
 import "./MetaContent.scss";
 
-function MetaContent() {
+function MetaContent(props) {
+  const { activeId } = props;
   const dispatch = useDispatch();
   const history = useHistory();
 
@@ -64,8 +65,7 @@ function MetaContent() {
       progress,
       season,
       episode,
-      audio,
-      video
+      tags
     } = media[id].info.data;
 
     const length = {
@@ -73,6 +73,8 @@ function MetaContent() {
       mm: ("0" + Math.floor((duration % 3600) / 60)).slice(-2),
       ss: ("0" + Math.floor((duration % 3600) % 60)).slice(-2)
     };
+
+    const { video, audio } = tags[activeId] || {};
 
     metaContent = (
       <div className="metaContent">

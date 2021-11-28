@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 
 import Banner from "./Banner";
@@ -14,15 +15,17 @@ function Media() {
 
   const { id } = useParams();
 
+  const [activeId, setActiveId] = useState(id);
+
   return (
     <div className="mediaPage">
       <Banner/>
       <div className="mediaContent">
         <div>
-          <MetaContent/>
+          <MetaContent activeId={activeId}/>
         </div>
         {media[id]?.info.data.media_type === "tv" && (
-          <Seasons/>
+          <Seasons setActiveId={setActiveId}/>
         )}
       </div>
     </div>
