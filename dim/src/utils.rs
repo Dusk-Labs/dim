@@ -470,3 +470,19 @@ pub fn ffpath(bin: impl AsRef<str>) -> &'static str {
 pub fn ffpath(bin: impl AsRef<str>) -> &'static str {
     Box::leak(bin.as_ref().to_string().into_boxed_str())
 }
+
+pub fn codec_pretty(codec: &str) -> String {
+    match codec {
+        "h264" => "H.264".into(),
+        x => x.to_uppercase(),
+    }
+}
+
+pub fn channels_pretty(ch: i64) -> String {
+    match ch {
+        2 | 3 => "2.1".into(),
+        6 => "5.1".into(),
+        8 => "7.1".into(),
+        _ => ch.to_string(),
+    }
+}

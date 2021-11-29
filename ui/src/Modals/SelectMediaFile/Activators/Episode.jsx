@@ -14,7 +14,7 @@ function SelectMediaFileEpisode(props) {
   const epRef = useRef(null);
 
   const { setClicked, currentID } = useContext(SelectMediaFileContext);
-  const { number, thumbnail } = props;
+  const { number, thumbnail, onHover } = props;
 
   const handleClick = useCallback(() => {
     if (!currentID) return;
@@ -25,13 +25,19 @@ function SelectMediaFileEpisode(props) {
 
   const handleMouseEnter = useCallback(() => {
     dispatch(fetchMediaInfo(currentID));
-  }, [currentID, dispatch]);
+    onHover();
+  }, [currentID, dispatch, onHover]);
 
   useEffect(() => {
     if (!currentID) return;
 
     epRef.current.addEventListener("mouseenter", handleMouseEnter);
-  }, [currentID, dispatch, handleMouseEnter]);
+
+    return (() => {
+      // eslint-disable-next-line
+      epRef.current && epRef.current.removeEventListener("mouseenter", handleMouseEnter);
+    });
+  }, [currentID, dispatch, handleMouseEnter, epRef]);
 
   let progressPercentage = 0;
 
