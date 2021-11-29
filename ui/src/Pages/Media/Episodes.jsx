@@ -6,6 +6,7 @@ import SelectMediaFileEpisode from "../../Modals/SelectMediaFile/Activators/Epis
 import SelectMediaFile from "../../Modals/SelectMediaFile/Index";
 
 function MediaEpisodes(props) {
+  const { setActiveId } = props;
   const dispatch = useDispatch();
 
   const {media} = useSelector(store => ({
@@ -23,9 +24,14 @@ function MediaEpisodes(props) {
     dispatch(fetchMediaEpisodes(id, props.seasonID));
   }, [dispatch, id, props.seasonID]);
 
-  if (!media[id]?.episodes) return null;
+  const { episodes } = media[id] || {};
 
-  const { episodes } = media[id];
+  useEffect(() => {
+    if (episodes && episodes[0])
+      setActiveId(episodes[0].id);
+  }, [id, setActiveId, episodes]);
+
+  if (!episodes) return null;
 
   return (
     <section>
@@ -37,7 +43,7 @@ function MediaEpisodes(props) {
         <div className="episodes" ref={episodesDiv}>
           {episodes.map((ep, i) => (
             <SelectMediaFile key={i} title={`Episode ${ep.episode}`} mediaID={ep.id}>
-              <SelectMediaFileEpisode number={ep.episode} thumbnail={ep.thumbnail_url}/>
+              <SelectMediaFileEpisode number={ep.episode} thumbnail={ep.thumbnail_url} onHover={() => setActiveId(ep.id)}/>
             </SelectMediaFile>
           ))}
         </div>

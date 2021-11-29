@@ -170,6 +170,14 @@ impl MetadataExtractor {
             original_resolution: Default::default(),
             duration: ffprobe_data.get_duration().map(|x| x as i64),
             corrupt: ffprobe_data.is_corrupt(),
+            channels: ffprobe_data.get_primary_channels(),
+            profile: ffprobe_data.get_video_profile(),
+            audio_language: ffprobe_data
+                .get_audio_lang()
+                .or(ffprobe_data.get_video_lang())
+                .as_deref()
+                .and_then(isolang::Language::from_639_3)
+                .map(|x| x.to_name().to_string()),
         };
 
         let file_id = media_file.insert(&mut tx).await?;
