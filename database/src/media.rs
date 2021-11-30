@@ -222,6 +222,18 @@ impl Media {
         ).fetch_all(&mut *conn).await?)
     }
 
+    pub async fn decouple_mediafiles(
+        conn: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<Vec<i64>, DatabaseError> {
+        Ok(sqlx::query_scalar!(
+            r#"UPDATE mediafile SET media_id = NULL WHERE media_id = ? RETURNING id AS "id: i64""#,
+            id
+        )
+        .fetch_all(&mut *conn)
+        .await?)
+    }
+
     /// Method deletes a media object based on its id.
     ///
     /// # Arguments
@@ -304,6 +316,41 @@ impl InsertableMedia {
             self.backdrop,
             self.media_type
         ).fetch_one(&mut *conn).await?.id;
+
+        Ok(id)
+    }
+
+    /// Method used to insert a new media object with a specific id.
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `id` - Unused ID to use for this media object.
+    pub async fn insert_with_id(&self, conn: &mut crate::Transaction<'_>, id: i64) -> Result<i64, DatabaseError> {
+        if let Some(record) = sqlx::query!(r#"SELECT id FROM media where name = ?"#, self.name)
+            .fetch_optional(&mut *conn)
+            .await?
+        {
+            return Ok(record.id);
+        }
+
+        let id = sqlx::query!(
+            r#"INSERT INTO _tblmedia (id, library_id, name, description, rating, year, added, poster, backdrop, media_type)
+            VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10)
+            ON CONFLICT DO UPDATE
+            SET name = $2
+            RETURNING _tblmedia.id as "id!: i64"
+            "#,
+            id,
+            self.library_id,
+            self.name,
+            self.description,
+            self.rating,
+            self.year,
+            self.added,
+            self.poster,
+            self.backdrop,
+            self.media_type
+        ).execute(&mut *conn).await?;
 
         Ok(id)
     }
