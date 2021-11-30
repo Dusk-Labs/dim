@@ -21,8 +21,8 @@ use std::process::Command;
 ///
 /// # Example
 ///
-/// ```
-/// use streamer::ffcheck;
+/// ```ignore
+/// use streaming::ffcheck;
 ///
 /// for result in ffcheck() {
 ///     match result {
