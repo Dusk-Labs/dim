@@ -337,7 +337,7 @@ impl InsertableMedia {
             return Ok(record.id);
         }
 
-        let id = sqlx::query!(
+        sqlx::query!(
             r#"INSERT INTO _tblmedia (id, library_id, name, description, rating, year, added, poster, backdrop, media_type)
             VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10)
             "#,
@@ -351,7 +351,7 @@ impl InsertableMedia {
             self.poster,
             self.backdrop,
             self.media_type
-        ).execute(&mut *conn).await?.last_insert_rowid();
+        ).execute(&mut *conn).await?;
 
         Ok(id)
     }
