@@ -236,3 +236,41 @@ async fn test_update() {
     let result = episode::Episode::get(&mut tx, tv, season, 3).await.unwrap();
     assert_eq!(result.id, _episode);
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn test_get_next_episode() {
+    let conn = get_conn_memory().await.unwrap().write();
+    let mut tx = conn.begin().await.unwrap();
+    let _lib = create_test_library(&mut tx).await;
+    let tv = insert_media(&mut tx).await;
+    tv::TVShow::insert(&mut tx, tv).await.unwrap();
+
+    let season = season::InsertableSeason {
+        season_number: 1,
+        ..Default::default()
+    }
+    .insert(&mut tx, tv)
+    .await
+    .unwrap();
+
+    for i in 1..=5 {
+        let _episode = episode::InsertableEpisode {
+            media: media::InsertableMedia {
+                library_id: _lib,
+                name: format!("TestEpisode{}", i),
+                ..Default::default()
+            },
+            seasonid: season,
+            episode: i,
+        }
+        .insert(&mut tx)
+        .await
+        .unwrap();
+    }
+
+    let first_ep = episode::Episode::get_first_for_season(&mut tx, season)
+        .await
+        .unwrap();
+    let second_ep = first_ep.get_next_episode(&mut tx).await.unwrap();
+    assert_eq!(second_ep.episode, 2);
+}

@@ -237,11 +237,16 @@ impl Episode {
             WHERE season.tvshowid = (
                 SELECT _tblseason.tvshowid FROM _tblseason
                 WHERE _tblseason.id = ?
-            ) AND episode.episode_ > ? AND season.season_number >= ?
+            ) AND ((
+                episode.episode_ > ? AND
+                season.season_number = ?
+            ) OR season.season_number > ?)
+
             ORDER BY season.season_number, episode.episode_
             LIMIT 1"#,
             self.seasonid,
             self.episode,
+            season_number,
             season_number
         )
         .fetch_one(&mut *conn)
