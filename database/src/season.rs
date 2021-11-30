@@ -84,10 +84,12 @@ impl Season {
         conn: &mut crate::Transaction<'_>,
         season_id: i64,
     ) -> Result<usize, DatabaseError> {
-        Ok(sqlx::query!("DELETE FROM season where id = ?", season_id)
-            .execute(&mut *conn)
-            .await?
-            .rows_affected() as usize)
+        Ok(
+            sqlx::query!("DELETE FROM _tblseason where id = ?", season_id)
+                .execute(&mut *conn)
+                .await?
+                .rows_affected() as usize,
+        )
     }
 
     /// Method will return the oldest season for a tv show that is available.
