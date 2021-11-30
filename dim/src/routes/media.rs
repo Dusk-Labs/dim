@@ -209,25 +209,22 @@ pub async fn get_media_by_id(
                         .await
                         .unwrap_or((0, 1));
 
-                if (delta as f64 / duration as f64) > 0.90 {
-                    if let Ok(next_episode) = ep.get_next_episode(&mut tx, id).await {
-                        let (delta, _duration) = Progress::get_progress_for_media(
-                            &mut tx,
-                            ep.id,
-                            user.0.claims.get_user(),
-                        )
-                        .await
-                        .unwrap_or((0, 1));
+                // NOTE: When we get to the last episode of a tv show we want to return the last
+                // episode even if the client finished watching it.
+                let next_episode = ep.get_next_episode(&mut tx).await;
+                if (delta as f64 / duration as f64) > 0.90 && next_episode.is_ok() {
+                    let next_episode = next_episode.unwrap();
+                    let (delta, _duration) =
+                        Progress::get_progress_for_media(&mut tx, ep.id, user.0.claims.get_user())
+                            .await
+                            .unwrap_or((0, 1));
 
-                        Some(json!({
-                            "progress": delta,
-                            "season": next_episode.get_season_number(&mut tx).await.unwrap_or(0),
-                            "episode": next_episode.episode,
-                            "play_btn_id": next_episode.id,
-                        }))
-                    } else {
-                        None
-                    }
+                    Some(json!({
+                        "progress": delta,
+                        "season": next_episode.get_season_number(&mut tx).await.unwrap_or(0),
+                        "episode": next_episode.episode,
+                        "play_btn_id": next_episode.id,
+                    }))
                 } else {
                     Some(json!({
                         "progress": delta,
@@ -295,6 +292,15 @@ pub async fn get_media_by_id(
         _ => None,
     };
 
+    let next_episode_id = match Episode::get_by_id(&mut tx, id).await {
+        Ok(x) => x
+            .get_next_episode(&mut tx)
+            .await
+            .ok()
+            .map(|x| json!({"next_episode_id": x.id})),
+        Err(_) => None,
+    };
+
     // FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
     Ok(reply::json(&json!({
         "id": media.id,
@@ -310,6 +316,7 @@ pub async fn get_media_by_id(
         "genres": genres,
         "duration": duration,
         "tags": quality_tags,
+        ..?next_episode_id,
         ..?season_episode_tag,
         ..?progress
     })))

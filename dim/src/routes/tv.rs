@@ -219,7 +219,7 @@ pub async fn get_season_episodes(
         LEFT JOIN assets ON assets.id = _tblmedia.backdrop
         WHERE episode.seasonid = ?"#,
         season_id
-    ).fetch_all(&mut tx).await.map_err(|_| errors::DimError::DatabaseError)?;
+    ).fetch_all(&mut tx).await?;
 
     Ok(reply::json(&result))
 }
