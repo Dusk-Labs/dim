@@ -60,7 +60,7 @@ impl<'a> MovieMatcher<'a> {
         result: super::ApiMedia,
         orphan: &'a MediaFile,
         tx: &mut database::Transaction<'_>,
-        reuse_media_id: Option<i64>,
+        reuse_media_id: Option<i64>
     ) -> Result<i64, super::base::ScannerError> {
         let name = result.title.clone();
 

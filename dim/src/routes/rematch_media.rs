@@ -2,10 +2,12 @@ use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors::*;
 use crate::scanners::base::patch_tv_metadata;
-use crate::scanners::movie::MovieMatcher;
 use crate::scanners::tmdb::MediaType as ExternalMediaType;
 use crate::scanners::tmdb::Tmdb;
 use crate::scanners::tv_show::TvShowMatcher;
+use crate::scanners::movie::MovieMatcher;
+
+use auth::Wrapper as Auth;
 
 use database::library::MediaType;
 use database::media::Media;
