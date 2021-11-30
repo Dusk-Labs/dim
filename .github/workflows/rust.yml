@@ -31,7 +31,11 @@ jobs:
               toolchain: stable
               override: true
               components: cargo
-        - run: sqlite3 ./dim_dev.db -init ./database/migrations/20210619211347_dim.sql
+        - name: Test Dim
+          uses: actions-rs/cargo@v1
+          with:
+            command: test
+            args: --tests
         - name: Build Dim
           uses: actions-rs/cargo@v1
           with:

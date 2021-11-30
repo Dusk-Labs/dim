@@ -132,6 +132,8 @@ impl UserRolesToken {
 /// ```
 /// use auth::{jwt_generate, jwt_check};
 ///
+/// auth::set_jwt_key(auth::generate_key());
+///
 /// let token_1 = jwt_generate("test".into(), vec!["owner".into()]);
 /// let check_token = jwt_check(token_1).unwrap();
 /// ```
@@ -160,6 +162,8 @@ pub fn jwt_generate(user: String, roles: Vec<String>) -> String {
 /// # Example
 /// ```
 /// use auth::{jwt_generate, jwt_check};
+///
+/// auth::set_jwt_key(auth::generate_key());
 ///
 /// let token_1 = jwt_generate("test".into(), vec!["owner".into()]);
 /// let check_token = jwt_check(token_1).unwrap();
