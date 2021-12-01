@@ -39,7 +39,7 @@ impl<'a> MovieMatcher<'a> {
             }
         };
 
-        let media_id = match self.inner_match(result, orphan, &mut tx).await {
+        let media_id = match self.inner_match(result, orphan, &mut tx, None).await {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to match media");
@@ -179,7 +179,7 @@ impl<'a> MovieMatcher<'a> {
         reuse_media_id: Option<i64>,
     ) -> Result<i64, super::base::ScannerError> {
         let media_id = if let Some(id) = reuse_media_id {
-            media.insert_with_id(&mut *tx, id).await?;
+            media.insert_with_id(&mut *tx, id).await?
         } else {
             media.insert(&mut *tx).await?
         };

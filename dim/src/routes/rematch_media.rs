@@ -45,6 +45,8 @@ pub async fn rematch_media(
         MediaType::Tv => unimplemented!(),
     };
 
+    Media::delete(&mut tx, id).await?;
+
     for orphan in orphans {
         let orphan = MediaFile::get_one(&mut tx, orphan).await?;
         match target_type {
@@ -54,7 +56,7 @@ pub async fn rematch_media(
                     event_tx: &event_tx,
                 };
 
-                matcher.inner_match(result.clone().into(), &orphan, &mut tx).await?;
+                matcher.inner_match(result.clone().into(), &orphan, &mut tx, Some(id)).await?;
             }
             _ => {}
         }
