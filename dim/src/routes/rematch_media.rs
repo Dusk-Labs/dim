@@ -134,9 +134,7 @@ pub async fn rematch_media(
                     event_tx: &event_tx,
                 };
 
-                matcher
-                    .inner_match(result.clone(), &orphan, &mut tx, Some(id))
-                    .await?;
+                matcher.inner_match(result.clone().into(), &orphan, &mut tx, Some(id)).await?;
             }
             MediaType::Tv => {
                 let matcher = TvShowMatcher {
