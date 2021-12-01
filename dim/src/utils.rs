@@ -486,3 +486,10 @@ pub fn channels_pretty(ch: i64) -> String {
         _ => ch.to_string(),
     }
 }
+
+pub fn lang_from_iso639(tag: &str) -> Option<&'static str> {
+    dia_i18n::iso_639::LANG_CODES
+        .iter()
+        .find(|x| x.v2b() == tag)
+        .map(|x| x.name())
+}
