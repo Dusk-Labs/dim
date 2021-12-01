@@ -14,6 +14,7 @@ import VideoControls from "./Controls/Index";
 import ErrorBox from "./ErrorBox";
 import ContinueProgress from "./ContinueProgress";
 import VideoSubtitles from "./Subtitles";
+import NextVideo from "./NextVideo/Index";
 
 import "./Index.scss";
 
@@ -190,6 +191,8 @@ function VideoPlayer() {
     seekTo
   };
 
+  const nextEpisodeId = media[video.mediaID]?.info?.data.next_episode_id;
+
   return (
     <VideoPlayerContext.Provider value={initialValue}>
       <div className="videoPlayer" ref={videoPlayer}>
@@ -198,6 +201,7 @@ function VideoPlayer() {
         <video ref={videoRef}/>
         <VideoSubtitles/>
         <div className="overlay" ref={overlay}>
+          {(!error && (manifest.loaded && video.canPlay) && nextEpisodeId) && <NextVideo id={nextEpisodeId}/>}
           {(!error && (manifest.loaded && video.canPlay)) && <Menus/>}
           {(!error && (manifest.loaded && video.canPlay)) && <VideoControls/>}
           {(!error & (manifest.loading || !video.canPlay) || video.waiting) && <RingLoad/>}
