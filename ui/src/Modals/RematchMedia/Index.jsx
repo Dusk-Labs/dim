@@ -30,6 +30,8 @@ function RematchMediaModal(props) {
   const [tmdbResults, setTmdbResults] = useState([]);
   const [mediaType, setMediaType] = useState("movie");
   const [tmdbID, setTmdbID] = useState();
+  // FIXME: Display error somewhere
+  // eslint-disable-next-line
   const [error, setError] = useState("");
   const [matching, setMatching] = useState(false);
 
