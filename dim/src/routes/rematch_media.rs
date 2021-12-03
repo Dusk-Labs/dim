@@ -4,6 +4,7 @@ use crate::errors::*;
 use crate::scanners::tmdb::MediaType as ExternalMediaType;
 use crate::scanners::tmdb::Tmdb;
 use crate::scanners::movie::MovieMatcher;
+use crate::scanners::tv_show::TvShowMatcher;
 
 use database::library::MediaType;
 use database::media::Media;
@@ -79,9 +80,19 @@ pub async fn rematch_media(
 
     let target = Media::get(&mut tx, id).await?;
 
+    use database::episode::Episode;
+
     let orphans = match target.media_type {
         MediaType::Movie | MediaType::Episode => Media::decouple_mediafiles(&mut tx, id).await?,
-        MediaType::Tv => unimplemented!(),
+        MediaType::Tv => {
+            let mut orphans = vec![];
+            for episode in Episode::get_all_of_tv(&mut tx, id).await? {
+                orphans.append(&mut Media::decouple_mediafiles(&mut tx, episode.id).await?);
+                Episode::delete(&mut tx, id).await?;
+            }
+
+            orphans
+        },
     };
 
     Media::delete(&mut tx, id).await?;
@@ -97,6 +108,15 @@ pub async fn rematch_media(
 
                 matcher.inner_match(result.clone().into(), &orphan, &mut tx, Some(id)).await?;
             }
+            MediaType::Tv => {
+                let matcher = TvShowMatcher {
+                    conn: &conn,
+                    event_tx: &event_tx,
+                };
+
+                matcher.inner_match(result.clone().into(), &orphan, &mut tx, Some(id)).await?;
+            }
+
             _ => {}
         }
     }

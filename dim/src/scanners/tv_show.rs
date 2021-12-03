@@ -32,8 +32,7 @@ pub struct TvShowMatcher<'a> {
 
 impl<'a> TvShowMatcher<'a> {
     pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
-        let name = result.title.clone();
-
+        let library_id = orphan.library_id;
         let mut tx = match self.conn.write().begin().await {
             Ok(x) => x,
             Err(e) => {
@@ -41,6 +40,31 @@ impl<'a> TvShowMatcher<'a> {
                 return;
             }
         };
+
+        let media_id = match self.inner_match(result, orphan, &mut tx, None).await {
+            Ok(x) => x,
+            Err(e) => {
+                error!(reason = ?e, "Failed to match media");
+                return;
+            }
+        };
+
+        if let Err(e) = tx.commit().await {
+            error!(reason = ?e, "Failed to commit transaction.");
+            return;
+        }
+
+        self.push_event(media_id, library_id).await;
+    }
+
+    pub async fn inner_match(
+        &self,
+        result: super::ApiMedia,
+        orphan: &'a MediaFile,
+        tx: &mut database::Transaction<'_>,
+        reuse_media_id: Option<i64>
+    ) -> Result<i64, super::base::ScannerError> {
+        let name = result.title.clone();
 
         let year: Option<i64> = result
             .release_date
@@ -73,7 +97,7 @@ impl<'a> TvShowMatcher<'a> {
                         .unwrap_or_default(),
                     file_ext: "jpg".into(),
                 }
-                .insert(&mut tx)
+                .insert(&mut *tx)
                 .await;
 
                 match asset {
@@ -103,7 +127,7 @@ impl<'a> TvShowMatcher<'a> {
                         .unwrap_or_default(),
                     file_ext: "jpg".into(),
                 }
-                .insert(&mut tx)
+                .insert(&mut *tx)
                 .await;
 
                 match asset {
@@ -121,11 +145,6 @@ impl<'a> TvShowMatcher<'a> {
             None => None,
         };
 
-        if let Err(e) = tx.commit().await {
-            error!(reason = ?e, "Failed to commit transaction.");
-            return;
-        }
-
         let media = InsertableMedia {
             name,
             year,
@@ -138,35 +157,38 @@ impl<'a> TvShowMatcher<'a> {
             media_type: MediaType::Tv,
         };
 
-        if let Err(e) = self.insert(orphan, media, result).await {
-            warn!(
-                id = orphan.id,
-                reason = ?e,
-                "Failed to insert new media"
-            );
-        }
+        let media_id = self
+            .inner_insert(orphan, media, result, &mut *tx, reuse_media_id)
+            .await
+            .map_err(|e| {
+                error!(reason = ?e, orphan_id = orphan.id, "Failed to insert new media.");
+                e
+            })?;
+
+        Ok(media_id)
     }
 
-    async fn insert(
+    async fn inner_insert(
         &self,
         orphan: &MediaFile,
         media: InsertableMedia,
         result: super::ApiMedia,
-    ) -> Result<(), super::base::ScannerError> {
-        let mut tx = self
-            .conn
-            .write()
-            .begin()
-            .await
-            .map_err(|e| super::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
-        let media_id = media.insert(&mut tx).await?;
-        let _ = TVShow::insert(&mut tx, media_id).await;
+        tx: &mut database::Transaction<'_>,
+        reuse_media_id: Option<i64>,
+    ) -> Result<i64, super::base::ScannerError> {
+        let media_id = if let Some(id) = reuse_media_id {
+            media.insert_with_id(&mut *tx, id).await?
+        } else {
+            media.insert(&mut *tx).await?
+        };
+
+        let _ = TVShow::insert(&mut *tx, media_id).await;
 
         for name in result.genres {
             let genre = InsertableGenre { name };
 
-            if let Ok(x) = genre.insert(&mut tx).await {
-                let _ = InsertableGenreMedia::insert_pair(x, media_id, &mut tx).await;
+            if let Ok(x) = genre.insert(&mut *tx).await {
+                let _ = InsertableGenreMedia::insert_pair(x, media_id, &mut *tx).await;
             }
         }
 
@@ -195,7 +217,7 @@ impl<'a> TvShowMatcher<'a> {
                         .unwrap_or_default(),
                     file_ext: "jpg".into(),
                 }
-                .insert(&mut tx)
+                .insert(&mut *tx)
                 .await;
 
                 match asset {
@@ -220,7 +242,7 @@ impl<'a> TvShowMatcher<'a> {
             poster: season_poster,
         };
 
-        let seasonid = match insertable_season.insert(&mut tx, media_id).await {
+        let seasonid = match insertable_season.insert(&mut *tx, media_id).await {
             Ok(x) => x,
             Err(e) => {
                 warn!(
@@ -257,7 +279,7 @@ impl<'a> TvShowMatcher<'a> {
                         .unwrap_or_default(),
                     file_ext: "jpg".into(),
                 }
-                .insert(&mut tx)
+                .insert(&mut *tx)
                 .await;
 
                 match asset {
@@ -304,8 +326,8 @@ impl<'a> TvShowMatcher<'a> {
         };
 
         // manually insert the underlying `media` into the table and convert it into a streamable movie/ep
-        let raw_ep_id = episode.media.insert_blind(&mut tx).await?;
-        if let Err(e) = InsertableMovie::insert(&mut tx, raw_ep_id).await {
+        let raw_ep_id = episode.media.insert_blind(&mut *tx).await?;
+        if let Err(e) = InsertableMovie::insert(&mut *tx, raw_ep_id).await {
             error!(
                 error = ?e,
                 episode_id = raw_ep_id,
@@ -314,21 +336,16 @@ impl<'a> TvShowMatcher<'a> {
             );
         }
 
-        let episode_id = episode.insert(&mut tx).await?;
+        let episode_id = episode.insert(&mut *tx).await?;
 
         let updated_mediafile = UpdateMediaFile {
             media_id: Some(episode_id),
             ..Default::default()
         };
 
-        updated_mediafile.update(&mut tx, orphan.id).await?;
-        tx.commit()
-            .await
-            .map_err(|e| super::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
+        updated_mediafile.update(&mut *tx, orphan.id).await?;
 
-        self.push_event(media_id, media.library_id).await;
-
-        Ok(())
+        Ok(media_id)
     }
 
     async fn push_event(&self, id: i64, lib_id: i64) {
