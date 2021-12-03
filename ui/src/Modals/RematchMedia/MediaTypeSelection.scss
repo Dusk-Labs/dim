@@ -1,0 +1,72 @@
+.mediaTypeSelection {
+  position: relative;
+  grid-area: mediaTypeSelection;
+  overflow: hidden;
+
+  h4 {
+    color: var(--secondaryTextColor);
+  }
+
+  .openSelection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    padding: .5em;
+    background: var(--modalSecondaryColor);
+    border-radius: 10px;
+
+    svg:first-child {
+      margin-right: .5em;
+    }
+  }
+
+  .types {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    border-radius: 5px;
+    margin: .5em 0 0 0;
+    display: flex;
+    gap: .5em;
+
+    .type {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--modalSecondaryColor);
+      padding: .5em;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .2s ease-in-out;
+
+      &:not(.disabled):hover {
+        background: var(--modalTertiaryColor);
+      }
+
+      &.disabled {
+        opacity: .5;
+        cursor: not-allowed;
+      }
+
+      p {
+        margin: 0 .5em;
+      }
+
+      svg {
+        fill: var(--primaryTextColor);
+      }
+
+      .select {
+        height: 12px;
+        border-radius: 10px;
+        width: 12px;
+        border: solid .1em var(--primaryTextColor);
+        transition: background .2s ease-in-out;
+
+        &.true {
+          background: var(--accentColor);
+        }
+      }
+    }
+  }
+}

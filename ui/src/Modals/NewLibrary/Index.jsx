@@ -83,7 +83,7 @@ function NewLibraryModal(props) {
         media_type: mediaType
       };
 
-      await dispatch(newLibrary(data));
+      dispatch(newLibrary(data));
 
       close();
     }
