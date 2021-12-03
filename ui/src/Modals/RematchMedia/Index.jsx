@@ -6,8 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchMediaInfo } from "../../actions/media";
 import { NOTIFICATIONS_ADD } from "../../actions/types";
 import MediaTypeSelection from "./MediaTypeSelection";
-import DirSelection from "./DirSelection";
-import Field from "../../Pages/Auth/Field";
 import Button from "../../Components/Misc/Button";
 
 import Search from "./Search";
@@ -32,6 +30,8 @@ function RematchMediaModal(props) {
   const [tmdbResults, setTmdbResults] = useState([]);
   const [mediaType, setMediaType] = useState("movie");
   const [tmdbID, setTmdbID] = useState();
+  // FIXME: Display error somewhere
+  // eslint-disable-next-line
   const [error, setError] = useState("");
   const [matching, setMatching] = useState(false);
 
