@@ -6,6 +6,7 @@ use crate::scanners::tmdb::MediaType as ExternalMediaType;
 use crate::scanners::tmdb::Tmdb;
 use crate::scanners::tv_show::TvShowMatcher;
 use crate::scanners::movie::MovieMatcher;
+use crate::scanners::tv_show::TvShowMatcher;
 
 use database::library::MediaType;
 use database::media::Media;
