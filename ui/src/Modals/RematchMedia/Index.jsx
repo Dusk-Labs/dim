@@ -106,11 +106,11 @@ function RematchMediaModal(props) {
         <Modal
           isOpen={visible}
           className="modalBox"
-          id="modalNewLibrary"
+          id="modalRematchMedia"
           onRequestClose={close}
           overlayClassName="popupOverlay"
         >
-          <div className="modalNewLibrary">
+          <div className="modalRematchMedia">
             <div className="heading">
               <h3>Rematch</h3>
               <div className="separator"/>

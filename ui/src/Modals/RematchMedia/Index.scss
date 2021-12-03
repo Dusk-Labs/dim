@@ -1,4 +1,4 @@
-.modalNewLibrary {
+.modalRematchMedia {
   scrollbar-width: thin;
   color: var(--primaryTextColor);
   overflow-y: auto;
@@ -92,11 +92,7 @@
 }
 
 @media only screen and (min-width: 650px) {
-  #modalNewLibrary {
+  #modalRematchMedia {
     max-width: 600px;
-  }
-
-  .openNewLibrary {
-    opacity: 0;
   }
 }
