@@ -1,9 +1,10 @@
 use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors::*;
+use crate::scanners::base::patch_tv_metadata;
+use crate::scanners::movie::MovieMatcher;
 use crate::scanners::tmdb::MediaType as ExternalMediaType;
 use crate::scanners::tmdb::Tmdb;
-use crate::scanners::movie::MovieMatcher;
 use crate::scanners::tv_show::TvShowMatcher;
 
 use database::library::MediaType;
@@ -15,9 +16,9 @@ use http::status::StatusCode;
 const API_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
 
 pub mod filters {
-    use auth::Wrapper as Auth;
-    use crate::routes::global_filters::with_state;
     use crate::core::EventTx;
+    use crate::routes::global_filters::with_state;
+    use auth::Wrapper as Auth;
     use database::DbConnection;
     use serde::Deserialize;
 
@@ -41,17 +42,19 @@ pub mod filters {
             .and(with_state(event_tx))
             .and(auth::with_auth())
             .and_then(
-                |id, RouteArgs {
-                    external_id,
-                    media_type
-                }: RouteArgs,
-                conn: DbConnection,
-                event_tx: EventTx,
-                _: Auth| async move {
+                |id,
+                 RouteArgs {
+                     external_id,
+                     media_type,
+                 }: RouteArgs,
+                 conn: DbConnection,
+                 event_tx: EventTx,
+                 _: Auth| async move {
                     super::rematch_media(conn, event_tx, id, external_id, media_type)
                         .await
                         .map_err(|e| reject::custom(e))
-                })
+                },
+            )
     }
 }
 
@@ -92,13 +95,13 @@ pub async fn rematch_media(
             }
 
             orphans
-        },
+        }
     };
 
     Media::delete(&mut tx, id).await?;
 
     for orphan in orphans {
-        let orphan = MediaFile::get_one(&mut tx, orphan).await?;
+        let mut orphan = MediaFile::get_one(&mut tx, orphan).await?;
         match target_type {
             MediaType::Movie => {
                 let matcher = MovieMatcher {
@@ -106,7 +109,9 @@ pub async fn rematch_media(
                     event_tx: &event_tx,
                 };
 
-                matcher.inner_match(result.clone().into(), &orphan, &mut tx, Some(id)).await?;
+                matcher
+                    .inner_match(result.clone().into(), &orphan, &mut tx, Some(id))
+                    .await?;
             }
             MediaType::Tv => {
                 let matcher = TvShowMatcher {
@@ -114,7 +119,10 @@ pub async fn rematch_media(
                     event_tx: &event_tx,
                 };
 
-                matcher.inner_match(result.clone().into(), &orphan, &mut tx, Some(id)).await?;
+                patch_tv_metadata(&mut orphan, &mut tx).await?;
+                matcher
+                    .inner_match(result.clone().into(), &orphan, &mut tx, Some(id))
+                    .await?;
             }
 
             _ => {}

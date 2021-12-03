@@ -37,7 +37,7 @@ rand = "0.7.3"
 chrono = "0.4.11"
 err-derive = "^0.3.0"
 rust-embed = "^5.9.0"
-torrent-name-parser = "0.6.1"
+torrent-name-parser = "0.6.3"
 reqwest = { version = "0.11.0", features = [
     "json",
     "default-tls",
