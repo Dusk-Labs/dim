@@ -201,11 +201,11 @@ function VideoPlayer() {
         <video ref={videoRef}/>
         <VideoSubtitles/>
         <div className="overlay" ref={overlay}>
-          {(!error && (manifest.loaded && video.canPlay) && nextEpisodeId) && <NextVideo id={nextEpisodeId}/>}
           {(!error && (manifest.loaded && video.canPlay)) && <Menus/>}
+          {(!error && (manifest.loaded && video.canPlay) && nextEpisodeId) && <NextVideo id={nextEpisodeId}/>}
           {(!error && (manifest.loaded && video.canPlay)) && <VideoControls/>}
           {(!error & (manifest.loading || !video.canPlay) || video.waiting) && <RingLoad/>}
-          {((!error && (manifest.loaded && video.canPlay)) && media[video.mediaID]?.info.data.progress > 0) && (
+          {((!error && (manifest.loaded && video.canPlay)) && media[video.mediaID]?.info?.data.progress > 0) && (
             <ContinueProgress/>
           )}
           {error && <ErrorBox/>}

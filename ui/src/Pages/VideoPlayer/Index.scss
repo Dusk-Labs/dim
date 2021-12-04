@@ -23,7 +23,7 @@
     display: grid;
     gap: 1em;
     align-items: flex-end;
-    grid-template-rows: 1fr auto;
+    grid-template-rows: 1fr 1fr auto;
     grid-template-areas:
       "menus"
       "next_ep"
