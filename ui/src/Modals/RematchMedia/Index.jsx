@@ -40,6 +40,7 @@ function RematchMediaModal(props) {
     setTmdbResults([]);
     setError();
     setQuery();
+    setMatching(false);
   }, []);
 
   // prevent scrolling behind Modal
@@ -51,11 +52,12 @@ function RematchMediaModal(props) {
 
   const close = useCallback(() => {
     setVisible(false);
+    clearData();
 
     if (props.cleanUp) {
       props.cleanUp();
     }
-  }, [props]);
+  }, [props, clearData]);
 
   const open = useCallback(() => {
     setVisible(true);
@@ -122,12 +124,13 @@ function RematchMediaModal(props) {
             <div className="search-section">
               <Search/>
             </div>
+            {error && <p className="err">Error: {error}</p>}
             <div className="options">
               <Button
                 type="secondary"
                 onClick={close}
               >Nevermind</Button>
-              <Button onClick={rematch}>
+              <Button onClick={rematch} disabled={matching || false}>
                 Match
               </Button>
             </div>
