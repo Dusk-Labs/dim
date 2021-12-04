@@ -9,7 +9,7 @@ import { RematchContext } from "./Context";
 
 import "./Search.scss";
 
-const SelectUnmatchedMediaSearch = () => {
+const SelectRematchSearch = () => {
   const { token } = useSelector(store => ({
     token: store.auth.token
   }));
@@ -68,7 +68,7 @@ const SelectUnmatchedMediaSearch = () => {
       <div className="searchField">
         <input
           onKeyDown={handleKeyDown}
-          value={query}
+          value={query ? query : ""}
           onChange={e => setQuery(e.target.value)}
         />
         <button onClick={search}>
@@ -114,4 +114,4 @@ const SelectUnmatchedMediaSearch = () => {
   );
 };
 
-export default SelectUnmatchedMediaSearch;
+export default SelectRematchSearch;

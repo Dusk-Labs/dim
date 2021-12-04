@@ -68,7 +68,7 @@ const SelectUnmatchedMediaSearch = () => {
       <div className="searchField">
         <input
           onKeyDown={handleKeyDown}
-          value={query}
+          value={query ? query : ""}
           onChange={e => setQuery(e.target.value)}
         />
         <button onClick={search}>
