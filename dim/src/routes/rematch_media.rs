@@ -133,7 +133,7 @@ pub async fn rematch_media(
                 };
 
                 matcher
-                    .inner_match(result.clone().into(), &orphan, &mut tx, Some(id))
+                    .inner_match(result.clone(), &orphan, &mut tx, Some(id))
                     .await?;
             }
             MediaType::Tv => {
