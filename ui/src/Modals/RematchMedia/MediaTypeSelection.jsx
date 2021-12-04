@@ -2,7 +2,6 @@ import { useCallback } from "react";
 
 import FilmIcon from "../../assets/Icons/Film";
 import TvIcon from "../../assets/Icons/TvIcon";
-// import PhotoVideoIcon from "../../assets/Icons/PhotoVideo";
 
 import "./MediaTypeSelection.scss";
 
@@ -21,12 +20,6 @@ function MediaTypeSelection(props) {
     }
   }, [mediaType, setMediaType]);
 
-  // const selectMixed = useCallback(() => {
-  //   if (mediaType !== "mixed") {
-  //     setMediaType("mixed");
-  //   }
-  // }, []);
-
   return (
     <div className="mediaTypeSelection">
       <h4>Choose a type</h4>
@@ -41,11 +34,6 @@ function MediaTypeSelection(props) {
           <p>Shows</p>
           <div className={`select ${props.mediaType === "tv"}`}/>
         </div>
-        {/* <div className="type disabled" onClick={selectMixed}>
-          <PhotoVideoIcon/>
-          <p>Mixed</p>
-          <div className={`select ${props.mediaType === "mixed"}`}/>
-        </div> */}
       </div>
     </div>
   );
