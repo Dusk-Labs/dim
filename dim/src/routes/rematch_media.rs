@@ -73,10 +73,33 @@ pub async fn rematch_media(
     };
 
     let mut tmdb = Tmdb::new(API_KEY.into(), target_type);
-    let result = tmdb
+    let mut result: crate::scanners::ApiMedia = tmdb
         .search_by_id(external_id)
         .await
-        .map_err(|_| DimError::NotFoundError)?;
+        .map_err(|_| DimError::NotFoundError)?
+        .into();
+
+    if let ExternalMediaType::Tv = target_type {
+        let mut seasons: Vec<crate::scanners::ApiSeason> = tmdb
+            .get_seasons_for(result.id)
+            .await
+            .unwrap_or_default()
+            .into_iter()
+            .map(Into::into)
+            .collect();
+
+        for season in seasons.iter_mut() {
+            season.episodes = tmdb
+                .get_episodes_for(result.id, season.season_number)
+                .await
+                .unwrap_or_default()
+                .into_iter()
+                .map(Into::into)
+                .collect();
+        }
+
+        result.seasons = seasons;
+    }
 
     // second decouple the media and its mediafiles.
     let mut tx = conn.write().begin().await?;
@@ -110,7 +133,7 @@ pub async fn rematch_media(
                 };
 
                 matcher
-                    .inner_match(result.clone().into(), &orphan, &mut tx, Some(id))
+                    .inner_match(result.clone(), &orphan, &mut tx, Some(id))
                     .await?;
             }
             MediaType::Tv => {
@@ -121,7 +144,7 @@ pub async fn rematch_media(
 
                 patch_tv_metadata(&mut orphan, &mut tx).await?;
                 matcher
-                    .inner_match(result.clone().into(), &orphan, &mut tx, Some(id))
+                    .inner_match(result.clone(), &orphan, &mut tx, Some(id))
                     .await?;
             }
 
