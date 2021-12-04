@@ -533,6 +533,7 @@ pub async fn create_audio(
             .as_ref()
             .and_then(|x| x.parse::<u64>().ok())
             .unwrap_or(120_000);
+
         let ctx = ProfileContext {
             file: media.target_file.clone(),
             input_ctx: stream.clone().into(),
@@ -548,12 +549,15 @@ pub async fn create_audio(
         let profile = get_profile_for(StreamType::Audio, &ctx);
         let audio = state.create(profile, ctx).await?;
 
-        let bitrate_kbps = bitrate / 1000;
-        let label = format!(
-            "{} (aac:2.1ch @ {}kbps)",
-            stream.get_language().unwrap_or_default(),
-            bitrate_kbps
-        );
+        let audio_lang = stream.get_language()
+            .as_deref()
+            .and_then(crate::utils::lang_from_iso639)
+            .unwrap_or("Unknown");
+
+        let audio_codec = crate::utils::codec_pretty(stream.get_codec());
+        let audio_ch = crate::utils::channels_pretty(stream.channels.unwrap_or(2));
+
+        let label = format!("{} ({} {})", audio_lang, audio_codec, audio_ch);
 
         let chunk_path = format!("{}/data/$Number$.m4s", audio.clone());
         let init_seg = Some(format!("{}/data/init.mp4", audio.clone()));
@@ -605,6 +609,14 @@ pub async fn create_subtitles(
         let mime = "text/vtt";
         let codec = "vtt";
 
+        let lang = stream.get_language()
+            .as_deref()
+            .and_then(crate::utils::lang_from_iso639)
+            .unwrap_or("Unknown")
+            .to_string();
+
+        let title = stream.get_title().unwrap_or(lang.clone());
+
         let profile_chain = get_profile_for(StreamType::Subtitle, &ctx);
         let subtitle = state.create(profile_chain, ctx).await?;
 
@@ -618,17 +630,12 @@ pub async fn create_subtitles(
                 .set_label(
                     stream
                         .get_title()
-                        .or(stream.get_language())
-                        .unwrap_or_default(),
+                        .unwrap_or(lang.clone()),
                 )
                 .set_lang(stream.get_language());
 
-        let virtual_manifest = if let Some(title) = stream.get_title().or(stream.get_language()) {
-            let title = title.replace("&", "and"); // dash.js seems to note like when there are `&` within titles.
-            virtual_manifest.set_args([("title".to_string(), title)])
-        } else {
-            virtual_manifest
-        };
+        let title = title.replace("&", "and"); // dash.js seems to note like when there are `&` within titles.
+        let virtual_manifest = virtual_manifest.set_args([("title".to_string(), title)]);
 
         stream_tracking.insert(&gid, virtual_manifest).await;
     }

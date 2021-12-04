@@ -176,8 +176,8 @@ impl MetadataExtractor {
                 .get_audio_lang()
                 .or(ffprobe_data.get_video_lang())
                 .as_deref()
-                .and_then(isolang::Language::from_639_3)
-                .map(|x| x.to_name().to_string()),
+                .and_then(crate::utils::lang_from_iso639)
+                .map(ToString::to_string),
         };
 
         let file_id = media_file.insert(&mut tx).await?;
