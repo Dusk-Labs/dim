@@ -394,6 +394,10 @@ pub async fn patch_tv_metadata(
     media: &mut MediaFile,
     tx: &mut database::Transaction<'_>,
 ) -> Result<(), ScannerError> {
+    // This function is somewhat of a hack. `torrent-name-parser` parses shows and movie names
+    // well, but it fails to parse anime filenames sometimes, and when it fails it outputs random
+    // data, thus here we run a 2nd pass metadata parse with anitomy, and if anitomy parses
+    // everything well we use its episode and season.
     let path = Path::new(&media.target_file);
     let filename = path
         .file_name()
@@ -409,39 +413,31 @@ pub async fn patch_tv_metadata(
     .await
     .unwrap()
     {
-        Ok(v) | Err(v) => v,
+        Ok(v) => v,
+        Err(_) => {
+            debug!(media = ?media, "patch_tv_metadata exited early");
+            return Ok(())
+        },
     };
 
-    if media.episode.is_none() {
-        // NOTE: In some cases our base matcher extracts the correct title from the filename but incorrect episode and season numbers.
-        let anitomy_episode = els
+    if let Some(episode) = els
             .get(ElementCategory::EpisodeNumber)
-            .and_then(|x| x.parse::<i64>().ok())
-            .or(media.episode);
+            .and_then(|x| x.parse::<i64>().ok()) {
 
-        let updated_mediafile = UpdateMediaFile {
-            episode: anitomy_episode.map(|x| x as i64),
-            ..Default::default()
-        };
-
-        let _ = updated_mediafile.update(&mut *tx, media.id).await;
-        media.episode = anitomy_episode.map(|x| x as i64);
-    }
-
-    if media.season.is_none() {
-        // NOTE: Some releases dont include season number, so we just assume its the first one.
-        let anitomy_season = els
+        let season = els
             .get(ElementCategory::AnimeSeason)
-            .and_then(|x| x.parse::<i32>().ok())
+            .and_then(|x| x.parse::<i64>().ok())
             .or(Some(1));
 
         let updated_mediafile = UpdateMediaFile {
-            season: anitomy_season.map(|x| x as i64),
+            episode: Some(episode),
+            season,
             ..Default::default()
         };
 
         let _ = updated_mediafile.update(&mut *tx, media.id).await;
-        media.season = anitomy_season.map(|x| x as i64);
+        media.episode = Some(episode);
+        media.season = season;
     }
 
     Ok(())
