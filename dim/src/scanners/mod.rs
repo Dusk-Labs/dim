@@ -80,6 +80,37 @@ pub fn get_matcher_unchecked() -> &'static base::MetadataMatcher {
     METADATA_MATCHER.get().unwrap()
 }
 
+#[doc(hidden)]
+pub async fn get_subfiles(paths: impl Iterator<Item = impl AsRef<Path>>) -> Result<Vec<PathBuf>, self::base::ScannerError> {
+    let mut files = Vec::with_capacity(2048);
+    for path in paths {
+        let mut subfiles: Vec<PathBuf> = WalkDir::new(path)
+            // we want to follow all symlinks in case of complex dir structures
+            .follow_links(true)
+            .into_iter()
+            .filter_map(Result::ok)
+            // ignore all hidden files.
+            .filter(|f| {
+                !f.path()
+                    .iter()
+                    .any(|s| s.to_str().map(|x| x.starts_with('.')).unwrap_or(false))
+            })
+            // check whether `f` has a supported extension
+            .filter(|f| {
+                f.path()
+                    .extension()
+                    .and_then(|e| e.to_str())
+                    .map_or(false, |e| SUPPORTED_EXTS.contains(&e))
+            })
+            .map(|f| f.into_path())
+            .collect();
+
+        files.append(&mut subfiles);
+    }
+
+    Ok(files)
+}
+
 #[instrument(skip(tx, paths))]
 pub async fn start_custom<I, T>(
     library_id: i64,
@@ -107,31 +138,7 @@ where
     let extractor = get_extractor(&tx);
     let matcher = get_matcher(&tx);
 
-    let mut files = Vec::with_capacity(2048);
-    for path in paths {
-        let mut subfiles: Vec<PathBuf> = WalkDir::new(path)
-            // we want to follow all symlinks in case of complex dir structures
-            .follow_links(true)
-            .into_iter()
-            .filter_map(Result::ok)
-            // ignore all hidden files.
-            .filter(|f| {
-                !f.path()
-                    .iter()
-                    .any(|s| s.to_str().map(|x| x.starts_with('.')).unwrap_or(false))
-            })
-            // check whether `f` has a supported extension
-            .filter(|f| {
-                f.path()
-                    .extension()
-                    .and_then(|e| e.to_str())
-                    .map_or(false, |e| SUPPORTED_EXTS.contains(&e))
-            })
-            .map(|f| f.into_path())
-            .collect();
-
-        files.append(&mut subfiles);
-    }
+    let files = get_subfiles(paths).await?;
 
     let total_files = files.len();
 
@@ -142,8 +149,8 @@ where
         files = total_files,
     );
 
-    let mut futures = Vec::new();
     let now = Instant::now();
+    let mut futures = Vec::new();
 
     for file in files {
         futures.push(async move {

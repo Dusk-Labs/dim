@@ -87,6 +87,11 @@ pub async fn get_conn() -> sqlx::Result<crate::DbConnection> {
     Ok(conn.clone())
 }
 
+#[doc(hidden)]
+pub fn set_conn(conn: crate::DbConnection) {
+    __GLOBAL.set(conn).unwrap();
+}
+
 pub fn try_get_conn() -> Option<&'static crate::DbConnection> {
     __GLOBAL.get()
 }
@@ -102,6 +107,7 @@ pub async fn get_conn_memory() -> sqlx::Result<crate::DbConnection> {
 
 /// Function returns a connection to the development table of dim. This is mainly used for unit
 /// tests.
+#[doc(hidden)]
 pub async fn get_conn_devel() -> sqlx::Result<crate::DbConnection> {
     cfg_if! {
         if #[cfg(feature = "postgres")] {

@@ -292,7 +292,7 @@ impl InsertableMedia {
     /// # Arguments
     /// * `conn` - mutable reference to a sqlx transaction.
     pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
-        if let Some(record) = sqlx::query!(r#"SELECT id FROM media where name = ?"#, self.name)
+        if let Some(record) = sqlx::query!(r#"SELECT id FROM _tblmedia where name = ?"#, self.name)
             .fetch_optional(&mut *conn)
             .await?
         {

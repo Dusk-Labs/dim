@@ -5,6 +5,11 @@ build = "src/build.rs"
 authors = ["Valerian G. <valerian@dusklabs.io>"]
 edition = "2018"
 
+[[bench]]
+name = "scanner"
+path = "../benches/scanner.rs"
+harness = false
+
 [features]
 default = ["sqlite"]
 null_auth = ["auth/null_auth"]
@@ -75,6 +80,9 @@ dia-i18n = "0.9.0"
 
 [build-dependencies]
 fs_extra = "1.1.0"
+
+[dev-dependencies]
+criterion = "0.3.5"
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.20.0"
