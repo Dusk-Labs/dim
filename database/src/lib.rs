@@ -172,6 +172,7 @@ async fn internal_get_conn() -> sqlx::Result<DbConnection> {
             ).await
         } else {
             let rw_only = sqlx::pool::PoolOptions::new()
+                .min_connections(1)
                 .max_connections(1)
                 .connect_with(sqlx::sqlite::SqliteConnectOptions::from_str(ffpath("config/dim.db"))?
                     .create_if_missing(true)

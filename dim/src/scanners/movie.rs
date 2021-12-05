@@ -16,6 +16,7 @@ use chrono::NaiveDate;
 use events::Message;
 use events::PushEventType;
 
+use tracing::instrument;
 use tracing::error;
 use tracing::warn;
 
@@ -28,10 +29,11 @@ pub struct MovieMatcher<'a> {
 }
 
 impl<'a> MovieMatcher<'a> {
+    #[instrument(skip(self, result), fields(result.id = %result.id, result.name = %result.title))]
     pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
         let library_id = orphan.library_id;
 
-        let mut tx = match self.conn.write().begin().await {
+        let mut tx = match self.conn.write().await {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to create transaction.");

@@ -200,7 +200,7 @@ pub async fn post_user_settings(
     user: Auth,
     new_settings: UserSettings,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = db.write().begin().await?;
+    let mut tx = db.write().await?;
     let update_user = UpdateableUser {
         prefs: Some(new_settings.clone()),
     };

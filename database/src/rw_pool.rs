@@ -1,6 +1,11 @@
 use sqlx::Pool;
 use sqlx::Sqlite;
 
+use tracing::info_span;
+use tracing::Instrument;
+
+use std::future::Future;
+
 #[derive(Debug, Clone)]
 pub struct SqlitePool {
     writer: Pool<Sqlite>,
@@ -16,8 +21,13 @@ impl SqlitePool {
         self.reader.clone()
     }
 
-    pub fn write(&self) -> Pool<Sqlite> {
-        self.writer.clone()
+    pub async fn write(&self) -> Result<crate::Transaction<'_>, sqlx::Error> {
+        let mut tx = self.writer.begin().instrument(info_span!("TxBegin")).await?;
+
+        sqlx::query("END").execute(&mut tx).await?;
+        sqlx::query("BEGIN EXCLUSIVE").execute(&mut tx).await?;
+
+        Ok(tx)
     }
 
     pub fn read_ref(&self) -> &Pool<Sqlite> {

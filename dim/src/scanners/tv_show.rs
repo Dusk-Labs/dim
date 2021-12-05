@@ -18,9 +18,13 @@ use chrono::NaiveDate;
 
 use events::Message;
 use events::PushEventType;
+
 use tracing::debug;
 use tracing::error;
+use tracing::instrument;
 use tracing::warn;
+use tracing::debug_span;
+use tracing::Instrument;
 
 use crate::core::EventTx;
 use crate::fetcher::insert_into_queue;
@@ -31,9 +35,10 @@ pub struct TvShowMatcher<'a> {
 }
 
 impl<'a> TvShowMatcher<'a> {
+    #[instrument(skip(self, result, orphan), fields(result.id = %result.id, result.name = %result.title, orphan.id = %orphan.id))]
     pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
         let library_id = orphan.library_id;
-        let mut tx = match self.conn.write().begin().await {
+        let mut tx = match self.conn.write().instrument(debug_span!("TxBegin")).await {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to create transaction.");
@@ -49,7 +54,7 @@ impl<'a> TvShowMatcher<'a> {
             }
         };
 
-        if let Err(e) = tx.commit().await {
+        if let Err(e) = tx.commit().instrument(debug_span!("TxCommit")).await {
             error!(reason = ?e, "Failed to commit transaction.");
             return;
         }
@@ -57,6 +62,7 @@ impl<'a> TvShowMatcher<'a> {
         self.push_event(media_id, library_id).await;
     }
 
+    #[instrument(skip(self, result, orphan, tx, reuse_media_id))]
     pub async fn inner_match(
         &self,
         result: super::ApiMedia,
@@ -168,6 +174,7 @@ impl<'a> TvShowMatcher<'a> {
         Ok(media_id)
     }
 
+    #[instrument(skip(self, result, orphan, tx, reuse_media_id))]
     async fn inner_insert(
         &self,
         orphan: &MediaFile,
@@ -343,7 +350,7 @@ impl<'a> TvShowMatcher<'a> {
             ..Default::default()
         };
 
-        updated_mediafile.update(&mut *tx, orphan.id).await?;
+        updated_mediafile.update(&mut *tx, orphan.id).instrument(debug_span!("UpdateMediafile")).await?;
 
         Ok(media_id)
     }

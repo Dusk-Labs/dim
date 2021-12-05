@@ -53,15 +53,17 @@ impl FsWatcher {
     }
 
     pub async fn start_daemon(&self) -> Result<(), FsWatcherError> {
-        let mut tx = match self.conn.read().begin().await {
-            Ok(x) => x,
-            Err(e) => {
-                error!(reason = ?e, "Failed to open a transaction.");
-                return Ok(());
-            }
-        };
+        let library = {
+            let mut tx = match self.conn.read().begin().await {
+                Ok(x) => x,
+                Err(e) => {
+                    error!(reason = ?e, "Failed to open a transaction.");
+                    return Ok(());
+                }
+            };
 
-        let library = Library::get_one(&mut tx, self.library_id).await?;
+            Library::get_one(&mut tx, self.library_id).await?
+        };
 
         let (mut rx, _watcher) = async_watch(library.locations.iter())?;
 
@@ -132,7 +134,7 @@ impl FsWatcher {
             }
         };
 
-        let mut tx = match self.conn.write().begin().await {
+        let mut tx = match self.conn.write().await {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to create transaction.");
@@ -196,7 +198,7 @@ impl FsWatcher {
             }
         };
 
-        let mut tx = match self.conn.write().begin().await {
+        let mut tx = match self.conn.write().await {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to create transaction.");

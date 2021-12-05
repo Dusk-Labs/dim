@@ -17,10 +17,12 @@ use once_cell::sync::Lazy;
 
 static PROCESSING_QUEUE: Lazy<Mutex<PriorityQueue<String, usize>>> =
     Lazy::new(|| Mutex::new(Default::default()));
+
 static POSTER_CACHE: Lazy<Mutex<HashSet<String>>> = Lazy::new(|| Mutex::new(Default::default()));
 
 #[instrument]
 pub async fn insert_into_queue(poster: String, priority: usize) {
+    return;
     let mut cache_lock = POSTER_CACHE.lock().await;
 
     if !cache_lock.contains(&poster) {

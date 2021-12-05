@@ -170,7 +170,7 @@ pub async fn patch_season_by_id(
     data: UpdateSeason,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.write().begin().await?;
+    let mut tx = conn.write().await?;
     data.update(&mut tx, id).await?;
     tx.commit().await?;
     Ok(StatusCode::NO_CONTENT)
@@ -187,7 +187,7 @@ pub async fn delete_season_by_id(
     id: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.write().begin().await?;
+    let mut tx = conn.write().await?;
     Season::delete_by_id(&mut tx, id).await?;
     tx.commit().await?;
     Ok(StatusCode::OK)
@@ -240,7 +240,7 @@ pub async fn patch_episode_by_id(
     episode: UpdateEpisode,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.write().begin().await?;
+    let mut tx = conn.write().await?;
     episode.update(&mut tx, id).await?;
     tx.commit().await?;
     Ok(StatusCode::NO_CONTENT)
@@ -256,7 +256,7 @@ pub async fn delete_episode_by_id(
     id: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.write().begin().await?;
+    let mut tx = conn.write().await?;
     Episode::delete(&mut tx, id).await?;
     tx.commit().await?;
     Ok(StatusCode::OK)

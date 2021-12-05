@@ -291,7 +291,7 @@ pub async fn return_virtual_manifest(
     let target_file = media.target_file.clone();
     let info = spawn_blocking(move || {
         FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
-            .get_meta(&std::path::PathBuf::from(target_file))
+            .get_meta(target_file)
     })
     .await
     .unwrap()
@@ -549,7 +549,8 @@ pub async fn create_audio(
         let profile = get_profile_for(StreamType::Audio, &ctx);
         let audio = state.create(profile, ctx).await?;
 
-        let audio_lang = stream.get_language()
+        let audio_lang = stream
+            .get_language()
             .as_deref()
             .and_then(crate::utils::lang_from_iso639)
             .unwrap_or("Unknown");
@@ -609,7 +610,8 @@ pub async fn create_subtitles(
         let mime = "text/vtt";
         let codec = "vtt";
 
-        let lang = stream.get_language()
+        let lang = stream
+            .get_language()
             .as_deref()
             .and_then(crate::utils::lang_from_iso639)
             .unwrap_or("Unknown")
@@ -627,11 +629,7 @@ pub async fn create_subtitles(
                 .set_codecs(codec)
                 .set_bandwidth(1024)
                 .set_is_default(is_default)
-                .set_label(
-                    stream
-                        .get_title()
-                        .unwrap_or(lang.clone()),
-                )
+                .set_label(stream.get_title().unwrap_or(lang.clone()))
                 .set_lang(stream.get_language());
 
         let title = title.replace("&", "and"); // dash.js seems to note like when there are `&` within titles.

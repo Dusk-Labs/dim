@@ -65,7 +65,11 @@ pub fn setup_logging(_debug: bool) {
 
     let subscriber = tracing_subscriber::registry()
         .with(EnvFilter::from_default_env())
-        .with(fmt::layer().with_writer(std::io::stdout))
+        .with(
+            fmt::layer()
+                .with_span_events(fmt::format::FmtSpan::CLOSE | fmt::format::FmtSpan::NEW)
+                .with_writer(std::io::stdout),
+        )
         .with(fmt::layer().json().with_writer(non_blocking_file));
 
     let _ = tracing::subscriber::set_global_default(subscriber);

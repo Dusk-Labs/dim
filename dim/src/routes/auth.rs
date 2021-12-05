@@ -268,7 +268,9 @@ pub async fn register(
     new_user: Login,
     conn: DbConnection,
 ) -> Result<impl warp::Reply, errors::AuthError> {
-    let mut tx = conn.write().begin().await?;
+    // FIXME: Return INTERNAL SERVER ERROR maybe with a traceback?
+    let mut tx = conn.write().await?;
+    /// NOTE: I doubt this method can faily all the time, we should map server error here too.
     let users_empty = User::get_all(&mut tx).await?.is_empty();
 
     if !users_empty
@@ -285,6 +287,7 @@ pub async fn register(
     };
 
     let claimed_invite = if users_empty {
+        // NOTE: Double check what we are returning here.
         Login::new_invite(&mut tx).await?
     } else {
         new_user
@@ -302,6 +305,7 @@ pub async fn register(
     .insert(&mut tx)
     .await?;
 
+    // FIXME: Return internal server error.
     tx.commit().await?;
 
     Ok(reply::json(&json!({ "username": res })))
@@ -358,7 +362,7 @@ pub async fn generate_invite(
         return Err(errors::AuthError::Unauthorized);
     }
 
-    let mut tx = conn.write().begin().await?;
+    let mut tx = conn.write().await?;
 
     let token = Login::new_invite(&mut tx).await?;
 
@@ -376,7 +380,7 @@ pub async fn delete_invite(
         return Err(errors::AuthError::Unauthorized);
     }
 
-    let mut tx = conn.write().begin().await?;
+    let mut tx = conn.write().await?;
     Login::delete_token(&mut tx, token).await?;
     tx.commit().await?;
 
@@ -389,7 +393,7 @@ pub async fn user_change_password(
     old_password: String,
     new_password: String,
 ) -> Result<impl warp::Reply, errors::AuthError> {
-    let mut tx = conn.write().begin().await?;
+    let mut tx = conn.write().await?;
     let user = User::get_one(&mut tx, user.0.claims.get_user(), old_password)
         .await
         .map_err(|_| errors::AuthError::WrongPassword)?;
@@ -405,7 +409,7 @@ pub async fn user_delete_self(
     user: Auth,
     password: String,
 ) -> Result<impl warp::Reply, errors::AuthError> {
-    let mut tx = conn.write().begin().await?;
+    let mut tx = conn.write().await?;
     let _ = User::get_one(&mut tx, user.0.claims.get_user(), password)
         .await
         .map_err(|_| errors::AuthError::WrongPassword)?;
@@ -422,7 +426,7 @@ pub async fn user_change_username(
     user: Auth,
     new_username: String,
 ) -> Result<impl warp::Reply, errors::AuthError> {
-    let mut tx = conn.write().begin().await?;
+    let mut tx = conn.write().await?;
     if User::get(&mut tx, &new_username).await.is_ok() {
         return Err(errors::AuthError::UsernameTaken);
     }
@@ -443,7 +447,7 @@ pub async fn user_upload_avatar(
         .await
         .map_err(|_e| errors::DimError::UploadFailed)?;
 
-    let mut tx = conn.write().begin().await?;
+    let mut tx = conn.write().await?;
     let asset = if let Some(p) = parts.into_iter().filter(|x| x.name() == "file").next() {
         process_part(&mut tx, p).await
     } else {

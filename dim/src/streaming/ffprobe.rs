@@ -122,9 +122,10 @@ impl FFProbeCtx {
         }
     }
 
-    pub fn get_meta(&self, file: &Path) -> Result<FFPWrapper, std::io::Error> {
+    #[tracing::instrument(skip(self, file))]
+    pub fn get_meta(&self, file: impl ToString) -> Result<FFPWrapper, std::io::Error> {
         let probe = Command::new(self.ffprobe_bin.clone())
-            .arg(file.to_str().unwrap())
+            .arg(file.to_string())
             .arg("-v")
             .arg("quiet")
             .arg("-print_format")

@@ -10,6 +10,8 @@ use database::library::MediaType;
 
 use tracing::info;
 use tracing::instrument;
+use tracing::Instrument;
+use tracing::debug_span;
 
 use crate::core::EventTx;
 
@@ -22,6 +24,7 @@ use std::time::Instant;
 
 use serde::Deserialize;
 use serde::Serialize;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ApiMedia {
     pub id: u64,
@@ -81,7 +84,9 @@ pub fn get_matcher_unchecked() -> &'static base::MetadataMatcher {
 }
 
 #[doc(hidden)]
-pub async fn get_subfiles(paths: impl Iterator<Item = impl AsRef<Path>>) -> Result<Vec<PathBuf>, self::base::ScannerError> {
+pub async fn get_subfiles(
+    paths: impl Iterator<Item = impl AsRef<Path>>,
+) -> Result<Vec<PathBuf>, self::base::ScannerError> {
     let mut files = Vec::with_capacity(2048);
     for path in paths {
         let mut subfiles: Vec<PathBuf> = WalkDir::new(path)
@@ -133,8 +138,6 @@ where
     )
     .unwrap();
 
-    let _conn = get_conn().await.expect("Failed to grab the conn pool");
-
     let extractor = get_extractor(&tx);
     let matcher = get_matcher(&tx);
 
@@ -143,10 +146,9 @@ where
     let total_files = files.len();
 
     info!(
-        module = "scanner",
-        "Walked library directory library_id={} total_files={}",
         library_id = library_id,
         files = total_files,
+        "Walked library directory",
     );
 
     let now = Instant::now();
@@ -154,13 +156,13 @@ where
 
     for file in files {
         futures.push(async move {
-            if let Ok(mfile) = extractor.mount_file(file, library_id, media_type).await {
+            if let Ok(mfile) = extractor.mount_file(file.clone(), library_id, media_type).await {
                 match media_type {
                     MediaType::Movie => {
                         let _ = matcher.match_movie(mfile).await;
                     }
                     MediaType::Tv => {
-                        let _ = matcher.match_tv(mfile).await;
+           //             let _ = matcher.match_tv(mfile).await;
                     }
                     _ => unreachable!(),
                 }
@@ -190,14 +192,16 @@ where
 }
 
 pub async fn start(library_id: i64, tx: EventTx) -> Result<(), self::base::ScannerError> {
-    let conn = get_conn().await.expect("Failed to grab the conn pool");
-    let mut db_tx = conn
-        .read()
-        .begin()
-        .await
-        .map_err(|e| self::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
+    let lib = {
+        let conn = get_conn().await.expect("Failed to grab the conn pool");
+        let mut tx = conn
+            .read()
+            .begin()
+            .await
+            .map_err(|e| self::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
 
-    let lib = Library::get_one(&mut db_tx, library_id).await?;
+        Library::get_one(&mut tx, library_id).await?
+    };
 
     start_custom(library_id, tx, lib.locations.into_iter(), lib.media_type).await
 }

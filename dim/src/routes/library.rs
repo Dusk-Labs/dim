@@ -171,7 +171,7 @@ pub async fn library_post(
     event_tx: EventTx,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.write().begin().await?;
+    let mut tx = conn.write().await?;
     let id = new_library.insert(&mut tx).await?;
     tx.commit().await?;
     let tx_clone = event_tx.clone();
@@ -222,7 +222,7 @@ pub async fn library_delete(
 ) -> Result<impl warp::Reply, errors::DimError> {
     // First we mark the library as scheduled for deletion which will make the library and all its
     // content hidden. This is necessary because huge libraries take a long time to delete.
-    let mut tx = conn.write().begin().await?;
+    let mut tx = conn.write().await?;
     if Library::mark_hidden(&mut tx, id).await? < 1 {
         return Err(errors::DimError::LibraryNotFound);
     }
@@ -230,7 +230,7 @@ pub async fn library_delete(
 
     let delete_lib_fut = async move {
         let inner = async {
-            let mut tx = conn.write().begin().await?;
+            let mut tx = conn.write().await?;
             Library::delete(&mut tx, id).await?;
             Media::delete_by_lib_id(&mut tx, id).await?;
             MediaFile::delete_by_lib_id(&mut tx, id).await?;
