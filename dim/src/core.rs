@@ -40,12 +40,13 @@ pub async fn run_scanners(tx: EventTx) {
                 let library_id = lib.id;
                 let tx_clone = tx.clone();
 
-                tokio::spawn(scanners::start(library_id, tx_clone));
+                // tokio::spawn(scanners::start(library_id, tx_clone));
 
                 let library_id = lib.id;
                 let tx_clone = tx.clone();
                 let media_type = lib.media_type;
 
+                /*
                 tokio::spawn(async move {
                     let watcher =
                         scanners::scanner_daemon::FsWatcher::new(library_id, media_type, tx_clone)
@@ -56,6 +57,7 @@ pub async fn run_scanners(tx: EventTx) {
                         .await
                         .expect("Something went wrong with the fs-watcher");
                 });
+                */
             }
         }
     }
@@ -167,7 +169,7 @@ pub async fn warp_core(
             .recover(routes::global_filters::handle_rejection),
         /* static routes */
         routes::statik::filters::dist_static(),
-        routes::statik::filters::get_image(conn.clone()),
+        /* routes::statik::filters::get_image(conn.clone()), */
         routes::statik::filters::react_routes(),
     ]
     .recover(routes::global_filters::handle_rejection)

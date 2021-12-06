@@ -7,6 +7,7 @@ use std::str::FromStr;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
+use sqlx::ConnectOptions;
 use tracing::{info, instrument};
 
 pub mod asset;
@@ -28,6 +29,8 @@ pub mod user;
 pub mod utils;
 
 pub use crate::error::DatabaseError;
+/// Ugly hack because of a shitty deadlock in `Pool`
+pub use crate::rw_pool::write_tx;
 
 #[cfg(all(feature = "sqlite", feature = "postgres"))]
 compile_error!("Features sqlite and postgres are mutually exclusive");
@@ -62,7 +65,8 @@ cfg_if! {
 /// # Arguments
 /// * `conn` - diesel connection
 async fn run_migrations(conn: &crate::DbConnection) -> Result<(), sqlx::migrate::MigrateError> {
-    MIGRATOR.run(conn.write_ref()).await
+    let mut lock = conn.writer().lock_owned().await;
+    MIGRATOR.run(&mut *lock).await
 }
 
 /// Function which returns a Result<T, E> where T is a new connection session or E is a connection
@@ -99,10 +103,14 @@ pub fn try_get_conn() -> Option<&'static crate::DbConnection> {
 #[cfg(all(feature = "sqlite", test))]
 pub async fn get_conn_memory() -> sqlx::Result<crate::DbConnection> {
     let pool = sqlx::Pool::connect(":memory:").await?;
-    let pool = rw_pool::SqlitePool::new(pool.clone(), pool);
+    todo!()
+    /*
+    let rw = pool.acquire().await?.leak();
+    let pool = rw_pool::SqlitePool::new(rw, pool);
     let _ = run_migrations(&pool).await?;
 
     Ok(pool)
+    */
 }
 
 /// Function returns a connection to the development table of dim. This is mainly used for unit
@@ -116,11 +124,11 @@ pub async fn get_conn_devel() -> sqlx::Result<crate::DbConnection> {
                 "postgres://postgres:dimpostgres@127.0.0.1/dim_devel",
             ).await?;
         } else {
-            let rw_only = sqlx::pool::PoolOptions::new()
-                .max_connections(1)
-                .connect_with(sqlx::sqlite::SqliteConnectOptions::new()
+            let rw_only = sqlx::sqlite::SqliteConnectOptions::new()
                     .create_if_missing(true)
-                    .filename("./dim_dev.db")).await?;
+                    .filename("./dim_dev.db")
+                    .connect()
+                    .await?;
 
             let rd_only = sqlx::pool::PoolOptions::new()
                 .connect_with(sqlx::sqlite::SqliteConnectOptions::new()
@@ -171,13 +179,11 @@ async fn internal_get_conn() -> sqlx::Result<DbConnection> {
                 "postgres://postgres:dimpostgres@127.0.0.1/dim"
             ).await
         } else {
-            let rw_only = sqlx::pool::PoolOptions::new()
-                .min_connections(1)
-                .max_connections(1)
-                .connect_with(sqlx::sqlite::SqliteConnectOptions::from_str(ffpath("config/dim.db"))?
+            let rw_only = sqlx::sqlite::SqliteConnectOptions::new()
                     .create_if_missing(true)
-                    .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
-                    ).await?;
+                    .filename(ffpath("config/dim.db"))
+                    .connect()
+                    .await?;
 
             let rd_only = sqlx::pool::PoolOptions::new()
                 .connect_with(sqlx::sqlite::SqliteConnectOptions::from_str(ffpath("config/dim.db"))?

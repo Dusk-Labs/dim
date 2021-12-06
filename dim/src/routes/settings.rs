@@ -200,7 +200,8 @@ pub async fn post_user_settings(
     user: Auth,
     new_settings: UserSettings,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = db.write().await?;
+    let mut lock = db.writer().lock_owned().await;
+    let mut tx = database::write_tx(&mut lock).await?;
     let update_user = UpdateableUser {
         prefs: Some(new_settings.clone()),
     };
@@ -210,6 +211,7 @@ pub async fn post_user_settings(
         .await?;
 
     tx.commit().await?;
+    drop(lock);
 
     Ok(reply::json(&new_settings))
 }

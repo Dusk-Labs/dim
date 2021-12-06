@@ -190,9 +190,8 @@ impl MetadataExtractor {
         };
 
         let mediafile = {
-            let mut tx = self
-                .conn
-                .write()
+            let mut lock = self.conn.writer().lock_owned().await;
+            let mut tx = database::write_tx(&mut lock)
                 .await
                 .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
@@ -206,6 +205,7 @@ impl MetadataExtractor {
                 .instrument(debug_span!("TxCommit"))
                 .await
                 .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
+            drop(lock);
 
             mediafile
         };
@@ -318,9 +318,8 @@ impl MetadataMatcher {
                     .and_then(|x| x.parse::<i64>().ok())
                     .or(Some(1));
 
-                let mut tx = self
-                    .conn
-                    .write()
+                let mut lock = self.conn.writer().lock_owned().await;
+                let mut tx = database::write_tx(&mut lock)
                     .await
                     .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
@@ -364,9 +363,8 @@ impl MetadataMatcher {
         let mut media = media;
         let mut result = result;
 
-        let mut tx = self
-            .conn
-            .write()
+        let mut lock = self.conn.writer().lock_owned().await;
+        let mut tx = database::write_tx(&mut lock)
             .await
             .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
@@ -375,6 +373,7 @@ impl MetadataMatcher {
         tx.commit()
             .await
             .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
+        drop(lock);
 
         let mut seasons: Vec<super::ApiSeason> = self
             .tv_tmdb

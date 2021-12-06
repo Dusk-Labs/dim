@@ -338,7 +338,8 @@ pub async fn update_media_by_id(
     _user: Auth,
     conn: DbConnection,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.write().await?;
+    let mut lock = conn.writer().lock_owned().await;
+    let mut tx = database::write_tx(&mut lock).await?;
     let status = if data.update(&mut tx, id).await.is_ok() {
         StatusCode::NO_CONTENT
     } else {
@@ -362,7 +363,8 @@ pub async fn delete_media_by_id(
     id: i64,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.write().await?;
+    let mut lock = conn.writer().lock_owned().await;
+    let mut tx = database::write_tx(&mut lock).await?;
     Media::delete(&mut tx, id).await?;
     tx.commit().await?;
     Ok(StatusCode::OK)
@@ -416,7 +418,8 @@ pub async fn map_progress(
     offset: i64,
     user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.write().await?;
+    let mut lock = conn.writer().lock_owned().await;
+    let mut tx = database::write_tx(&mut lock).await?;
     Progress::set(&mut tx, offset, user.0.claims.get_user(), id).await?;
     tx.commit().await?;
     Ok(StatusCode::OK)

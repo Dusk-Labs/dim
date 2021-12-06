@@ -33,7 +33,8 @@ impl<'a> MovieMatcher<'a> {
     pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
         let library_id = orphan.library_id;
 
-        let mut tx = match self.conn.write().await {
+        let mut lock = self.conn.writer().lock_owned().await;
+        let mut tx = match database::write_tx(&mut lock).await {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to create transaction.");
@@ -53,6 +54,7 @@ impl<'a> MovieMatcher<'a> {
             error!(reason = ?e, "Failed to commit transaction.");
             return;
         }
+        drop(lock);
 
         self.push_event(media_id, library_id).await;
     }

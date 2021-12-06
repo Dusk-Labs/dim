@@ -4,11 +4,11 @@ pub mod general;
 pub mod library;
 pub mod media;
 pub mod mediafile;
-pub mod rematch_media;
 pub mod settings;
 pub mod statik;
-pub mod stream;
 pub mod tv;
+pub mod rematch_media;
+pub mod stream;
 
 pub mod global_filters {
     use crate::errors;

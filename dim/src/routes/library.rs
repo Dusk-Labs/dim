@@ -171,18 +171,30 @@ pub async fn library_post(
     event_tx: EventTx,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.write().await?;
+    let mut lock = conn.writer().lock_owned().await;
+    let mut tx = database::write_tx(&mut lock).await?;
     let id = new_library.insert(&mut tx).await?;
     tx.commit().await?;
+    drop(lock);
+
     let tx_clone = event_tx.clone();
 
-    tokio::spawn(async move {
-        let _ = scanners::start(id, tx_clone).await;
+    std::thread::spawn(move || {
+        let rt = tokio::runtime::Builder::new_multi_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+
+        let local = tokio::task::LocalSet::new();
+        local.spawn_local(scanners::start(id, tx_clone));
+
+        rt.block_on(local);
     });
 
     let media_type = new_library.media_type;
     let tx_clone = event_tx.clone();
 
+    /*
     tokio::spawn(async move {
         let watcher = scanners::scanner_daemon::FsWatcher::new(id, media_type, tx_clone).await;
 
@@ -191,6 +203,7 @@ pub async fn library_post(
             .await
             .expect("Something went wrong with the fs-watcher");
     });
+    */
 
     let event = Message {
         id,
@@ -222,19 +235,23 @@ pub async fn library_delete(
 ) -> Result<impl warp::Reply, errors::DimError> {
     // First we mark the library as scheduled for deletion which will make the library and all its
     // content hidden. This is necessary because huge libraries take a long time to delete.
-    let mut tx = conn.write().await?;
+    let mut lock = conn.writer().lock_owned().await;
+    let mut tx = database::write_tx(&mut lock).await?;
     if Library::mark_hidden(&mut tx, id).await? < 1 {
         return Err(errors::DimError::LibraryNotFound);
     }
     tx.commit().await?;
+    drop(lock);
 
     let delete_lib_fut = async move {
         let inner = async {
-            let mut tx = conn.write().await?;
+            let mut lock = conn.writer().lock_owned().await;
+            let mut tx = database::write_tx(&mut lock).await?;
             Library::delete(&mut tx, id).await?;
             Media::delete_by_lib_id(&mut tx, id).await?;
             MediaFile::delete_by_lib_id(&mut tx, id).await?;
             tx.commit().await?;
+            drop(lock);
 
             Ok::<_, database::error::DatabaseError>(())
         };
