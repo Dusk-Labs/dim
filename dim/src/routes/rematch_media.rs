@@ -102,7 +102,8 @@ pub async fn rematch_media(
     }
 
     // second decouple the media and its mediafiles.
-    let mut tx = conn.write().await?;
+    let mut lock = conn.writer().lock_owned().await;
+    let mut tx = database::write_tx(&mut lock).await?;
 
     let target = Media::get(&mut tx, id).await?;
 

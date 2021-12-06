@@ -1,6 +1,6 @@
 pub mod base;
 pub mod movie;
-//pub mod scanner_daemon;
+pub mod scanner_daemon;
 pub mod tmdb;
 pub mod tv_show;
 

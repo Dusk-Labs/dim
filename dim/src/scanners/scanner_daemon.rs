@@ -134,7 +134,8 @@ impl FsWatcher {
             }
         };
 
-        let mut tx = match self.conn.write().await {
+        let mut lock = self.conn.writer().lock_owned().await;
+        let mut tx = match database::write_tx(&mut lock).await {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to create transaction.");
@@ -198,7 +199,8 @@ impl FsWatcher {
             }
         };
 
-        let mut tx = match self.conn.write().await {
+        let mut lock = self.conn.writer().lock_owned().await;
+        let mut tx = match database::write_tx(&mut lock).await {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to create transaction.");

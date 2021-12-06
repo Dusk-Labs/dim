@@ -177,33 +177,31 @@ pub async fn library_post(
     tx.commit().await?;
     drop(lock);
 
+    let media_type = new_library.media_type;
     let tx_clone = event_tx.clone();
 
+    // NOTE(val): This is the ugly hack to get around spawning a !Send future without having to
+    // await it.
+    //
+    // The underlying cause to the future being !Send is some weird interaction between
+    // `async_trait` (likely in the actors from `dim/src/scanners/base.rs`) and `sqlx`.
     std::thread::spawn(move || {
         let rt = tokio::runtime::Builder::new_multi_thread()
             .enable_all()
             .build()
             .unwrap();
 
+        let tx_tx_clone = tx_clone.clone();
         let local = tokio::task::LocalSet::new();
         local.spawn_local(scanners::start(id, tx_clone));
 
+        local.spawn_local(async move {
+            let watcher = scanners::scanner_daemon::FsWatcher::new(id, media_type, tx_tx_clone).await;
+            watcher.start_daemon().await.expect("Scanner daemon crashed.");
+        });
+
         rt.block_on(local);
     });
-
-    let media_type = new_library.media_type;
-    let tx_clone = event_tx.clone();
-
-    /*
-    tokio::spawn(async move {
-        let watcher = scanners::scanner_daemon::FsWatcher::new(id, media_type, tx_clone).await;
-
-        watcher
-            .start_daemon()
-            .await
-            .expect("Something went wrong with the fs-watcher");
-    });
-    */
 
     let event = Message {
         id,
