@@ -179,7 +179,7 @@ impl<'a> TvShowMatcher<'a> {
         Ok(media_id)
     }
 
-    #[instrument(skip(self, result, orphan, tx, reuse_media_id))]
+    #[instrument(skip(self, result, orphan, tx, reuse_media_id), level = "debug")]
     async fn inner_insert(
         &self,
         orphan: &MediaFile,
