@@ -8,11 +8,12 @@ use database::get_conn;
 use database::library::Library;
 use database::library::MediaType;
 
+use tracing::debug_span;
 use tracing::info;
 use tracing::instrument;
 use tracing::Instrument;
-use tracing::debug_span;
 
+use crate::core::DbConnection;
 use crate::core::EventTx;
 
 use once_cell::sync::OnceCell;
@@ -156,13 +157,16 @@ where
 
     for file in files {
         futures.push(async move {
-            if let Ok(mfile) = extractor.mount_file(file.clone(), library_id, media_type).await {
+            if let Ok(mfile) = extractor
+                .mount_file(file.clone(), library_id, media_type)
+                .await
+            {
                 match media_type {
                     MediaType::Movie => {
                         let _ = matcher.match_movie(mfile).await;
                     }
                     MediaType::Tv => {
-           //             let _ = matcher.match_tv(mfile).await;
+                        //             let _ = matcher.match_tv(mfile).await;
                     }
                     _ => unreachable!(),
                 }
@@ -191,17 +195,18 @@ where
     Ok(())
 }
 
-pub async fn start(library_id: i64, tx: EventTx) -> Result<(), self::base::ScannerError> {
-    let lib = {
-        let conn = get_conn().await.expect("Failed to grab the conn pool");
-        let mut tx = conn
-            .read()
-            .begin()
-            .await
-            .map_err(|e| self::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
+pub async fn start(
+    conn: DbConnection,
+    id: i64,
+    tx: EventTx,
+) -> Result<(), self::base::ScannerError> {
+    let mut tx_ = conn
+        .read()
+        .begin()
+        .await
+        .map_err(|e| self::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
 
-        Library::get_one(&mut tx, library_id).await?
-    };
+    let lib = Library::get_one(&mut tx_, id).await?;
 
-    start_custom(library_id, tx, lib.locations.into_iter(), lib.media_type).await
+    start_custom(id, tx, lib.locations.into_iter(), lib.media_type).await
 }
