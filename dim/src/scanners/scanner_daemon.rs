@@ -41,14 +41,17 @@ pub struct FsWatcher {
 }
 
 impl FsWatcher {
-    pub async fn new(library_id: i64, media_type: MediaType, tx: EventTx) -> Self {
+    pub async fn new(
+        conn: DbConnection,
+        library_id: i64,
+        media_type: MediaType,
+        tx: EventTx,
+    ) -> Self {
         Self {
             library_id,
             media_type,
             tx,
-            conn: get_conn()
-                .await
-                .expect("Failed to grab the connection pool."),
+            conn,
         }
     }
 

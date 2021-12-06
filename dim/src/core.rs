@@ -34,35 +34,28 @@ pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
 pub async fn run_scanners(tx: EventTx) {
     if let Ok(conn) = database::get_conn_logged().await {
         if let Ok(mut db_tx) = conn.read().begin().await {
-            for lib in database::library::Library::get_all(&mut db_tx).await {
+            let mut libs = database::library::Library::get_all(&mut db_tx).await;
+
+            for lib in libs.drain(..) {
                 info!("Starting scanner for {} with id: {}", lib.name, lib.id);
 
                 let library_id = lib.id;
                 let tx_clone = tx.clone();
                 let media_type = lib.media_type;
+                let watcher = scanners::scanner_daemon::FsWatcher::new(
+                    conn.clone(),
+                    library_id,
+                    media_type,
+                    tx_clone.clone(),
+                )
+                .await;
 
-                std::thread::spawn(move || {
-                    let rt = tokio::runtime::Builder::new_current_thread()
-                        .enable_all()
-                        .build()
-                        .unwrap();
-
-                    let tx_tx_clone = tx_clone.clone();
-                    let local = tokio::task::LocalSet::new();
-
-                    local.spawn_local(scanners::start(library_id, tx_clone));
-                    local.spawn_local(async move {
-                        let watcher =
-                            scanners::scanner_daemon::FsWatcher::new(library_id, media_type, tx_tx_clone)
-                            .await;
-
-                        watcher
-                            .start_daemon()
-                            .await
-                            .expect("Something went wrong with the fs-watcher");
-                        });
-
-                    rt.block_on(local);
+                tokio::spawn(scanners::start(conn.clone(), library_id, tx_clone.clone()));
+                tokio::spawn(async move {
+                    watcher
+                        .start_daemon()
+                        .await
+                        .expect("Something went wrong with the fs-watcher");
                 });
             }
         }
