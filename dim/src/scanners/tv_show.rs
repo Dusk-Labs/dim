@@ -20,10 +20,10 @@ use events::Message;
 use events::PushEventType;
 
 use tracing::debug;
+use tracing::debug_span;
 use tracing::error;
 use tracing::instrument;
 use tracing::warn;
-use tracing::debug_span;
 use tracing::Instrument;
 
 use crate::core::EventTx;
@@ -39,7 +39,10 @@ impl<'a> TvShowMatcher<'a> {
     pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
         let library_id = orphan.library_id;
         let mut lock = self.conn.writer().lock_owned().await;
-        let mut tx = match database::write_tx(&mut lock).instrument(debug_span!("TxBegin")).await {
+        let mut tx = match database::write_tx(&mut lock)
+            .instrument(debug_span!("TxBegin"))
+            .await
+        {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to create transaction.");
@@ -352,7 +355,10 @@ impl<'a> TvShowMatcher<'a> {
             ..Default::default()
         };
 
-        updated_mediafile.update(&mut *tx, orphan.id).instrument(debug_span!("UpdateMediafile")).await?;
+        updated_mediafile
+            .update(&mut *tx, orphan.id)
+            .instrument(debug_span!("UpdateMediafile"))
+            .await?;
 
         Ok(media_id)
     }

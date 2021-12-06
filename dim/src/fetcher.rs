@@ -1,101 +1,71 @@
 use crate::core::*;
 
-use priority_queue::PriorityQueue;
-use tokio::sync::Mutex;
+use tokio::sync::mpsc::unbounded_channel;
+use tokio::sync::mpsc::UnboundedReceiver;
+use tokio::sync::mpsc::UnboundedSender;
 
-use tracing::trace;
 use tracing::{debug, error, instrument};
 
-use std::collections::HashSet;
 use std::fs::File;
 use std::io::copy;
 use std::io::Cursor;
 use std::path::PathBuf;
-use std::time::Duration;
 
-use once_cell::sync::Lazy;
-
-static PROCESSING_QUEUE: Lazy<Mutex<PriorityQueue<String, usize>>> =
-    Lazy::new(|| Mutex::new(Default::default()));
-
-static POSTER_CACHE: Lazy<Mutex<HashSet<String>>> = Lazy::new(|| Mutex::new(Default::default()));
+use once_cell::sync::OnceCell;
 
 #[instrument]
 pub async fn insert_into_queue(poster: String, priority: usize) {
-    return;
-    let mut cache_lock = POSTER_CACHE.lock().await;
+    // FIXME: We might want to figure out a way to make this a const generic param.
+    const PARTITIONS: usize = 5;
+    static SENDER_PARTITIONS: OnceCell<[UnboundedSender<(String, usize)>; PARTITIONS]> =
+        OnceCell::new();
 
-    if !cache_lock.contains(&poster) {
-        debug!("Inserting {:?} into queue", poster);
+    let partitions = SENDER_PARTITIONS.get_or_init(|| {
+        [(); PARTITIONS].map(|_| {
+            let (tx, rx) = unbounded_channel();
+            tokio::spawn(process_queue(rx));
 
-        {
-            let mut lock = PROCESSING_QUEUE.lock().await;
-            lock.push(poster.clone(), priority);
-        }
-        cache_lock.insert(poster);
-    }
+            tx
+        })
+    });
+
+    partitions[priority % PARTITIONS]
+        .send((poster.clone(), priority))
+        .expect("Failed to send poster request");
 }
 
 #[instrument]
-pub async fn bump_priority(poster: String, priority: usize) {
-    debug!("Bumping priority of {:?} to {}", &poster, priority);
-    let mut lock = PROCESSING_QUEUE.lock().await;
-    lock.push_increase(poster, priority);
-}
+async fn process_queue(mut rx: UnboundedReceiver<(String, usize)>) {
+    while let Some((url, priority)) = rx.recv().await {
+        debug!("Trying to cache {}", url);
 
-#[instrument]
-async fn process_queue() {
-    loop {
-        let mut lock = PROCESSING_QUEUE.lock().await;
-        if lock.is_empty() {
-            tokio::time::sleep(Duration::from_millis(100)).await;
-            continue;
-        }
+        match reqwest::get(url.as_str()).await {
+            Ok(resp) => {
+                if let Some(fname) = resp.url().path_segments().and_then(|segs| segs.last()) {
+                    let meta_path = METADATA_PATH.get().unwrap();
+                    let mut out_path = PathBuf::from(meta_path);
+                    out_path.push(fname);
 
-        if let Some((url, priority)) = lock.pop() {
-            debug!("Trying to cache {}", url);
+                    debug!("Caching {} -> {:?}", url, out_path);
 
-            match reqwest::get(url.as_str()).await {
-                Ok(resp) => {
-                    if let Some(fname) = resp.url().path_segments().and_then(|segs| segs.last()) {
-                        let meta_path = METADATA_PATH.get().unwrap();
-                        let mut out_path = PathBuf::from(meta_path);
-                        out_path.push(fname);
-
-                        debug!("Caching {} -> {:?}", url, out_path);
-
-                        if let Ok(mut file) = File::create(out_path) {
-                            if let Ok(bytes) = resp.bytes().await {
-                                let mut content = Cursor::new(bytes);
-                                if copy(&mut content, &mut file).is_ok() {
-                                    continue;
-                                }
+                    if let Ok(mut file) = File::create(out_path) {
+                        if let Ok(bytes) = resp.bytes().await {
+                            let mut content = Cursor::new(bytes);
+                            if copy(&mut content, &mut file).is_ok() {
+                                continue;
                             }
                         }
                     }
-
-                    error!(
-                        "Failed to cache {} locally, appending back into queue",
-                        &url
-                    );
-
-                    lock.push(url, priority);
                 }
-                Err(e) => {
-                    error!(e = ?e, "Failed to cache URL locally: {}", url);
-                    lock.push(url, priority);
-                }
+
+                error!(
+                    "Failed to cache {} locally, appending back into queue",
+                    &url
+                );
+            }
+            Err(e) => {
+                error!(e = ?e, "Failed to cache URL locally: {}", url);
             }
         }
-
-        tokio::task::yield_now().await;
     }
-}
-
-/// Function creates a task that fetches and caches posters from various sources.
-#[instrument]
-pub async fn tmdb_poster_fetcher() {
-    trace!("Spawning poster fetcher task...");
-
-    tokio::spawn(process_queue());
 }

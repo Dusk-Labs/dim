@@ -3,13 +3,13 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use tracing::debug;
+use tracing::debug_span;
 use tracing::error;
 use tracing::info;
-use tracing::warn;
-use tracing::instrument;
-use tracing::Instrument;
 use tracing::info_span;
-use tracing::debug_span;
+use tracing::instrument;
+use tracing::warn;
+use tracing::Instrument;
 
 use database::library::MediaType;
 use database::mediafile::InsertableMediaFile;
@@ -140,7 +140,10 @@ impl MetadataExtractor {
         let meta_from_string =
             move || Metadata::from(&clone).map_err(|_| ScannerError::FilenameParserError);
 
-        let metadata = match spawn_blocking(meta_from_string).instrument(debug_span!("ParseFilename")).await {
+        let metadata = match spawn_blocking(meta_from_string)
+            .instrument(debug_span!("ParseFilename"))
+            .await
+        {
             Ok(x) => x?,
             Err(e) => {
                 error!(e = ?e, "Metadata::from possibly panicked");
@@ -149,7 +152,8 @@ impl MetadataExtractor {
         };
 
         let file_clone = file.clone();
-        let ffprobe_data = move || FFProbeCtx::new(&FFPROBE_BIN).get_meta(file_clone.to_str().unwrap());
+        let ffprobe_data =
+            move || FFProbeCtx::new(&FFPROBE_BIN).get_meta(file_clone.to_str().unwrap());
         let ffprobe_data = if let Ok(Ok(data)) = spawn_blocking(ffprobe_data).await {
             data
         } else {
@@ -195,9 +199,14 @@ impl MetadataExtractor {
                 .await
                 .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
-            let file_id = media_file.insert(&mut tx).instrument(debug_span!("media_file_insert")).await?;
+            let file_id = media_file
+                .insert(&mut tx)
+                .instrument(debug_span!("media_file_insert"))
+                .await?;
 
-            let mediafile = MediaFile::get_one(&mut tx, file_id).instrument(debug_span!("media_file_select")).await?;
+            let mediafile = MediaFile::get_one(&mut tx, file_id)
+                .instrument(debug_span!("media_file_select"))
+                .await?;
 
             assert!(file_id == mediafile.id);
 
@@ -340,7 +349,6 @@ impl MetadataMatcher {
                 media.season = anitomy_season.map(|x| x as i64);
             }
         }
-
 
         let result = match result {
             Ok(v) => v,

@@ -8,7 +8,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use crate::errors;
-use crate::fetcher::bump_priority;
+use crate::fetcher::insert_into_queue;
 
 pub mod filters {
     use super::super::global_filters::with_state;
@@ -134,7 +134,7 @@ pub async fn get_image(
     let mut tx = conn.read().begin().await?;
     if !Path::new(&file_path).exists() {
         if let Ok(x) = asset::Asset::get_url_by_file(&mut tx, &url_path).await {
-            bump_priority(x, 5).await;
+            insert_into_queue(x, 5).await;
         }
     }
 
