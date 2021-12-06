@@ -166,7 +166,7 @@ where
                         let _ = matcher.match_movie(mfile).await;
                     }
                     MediaType::Tv => {
-                        //             let _ = matcher.match_tv(mfile).await;
+                        let _ = matcher.match_tv(mfile).await;
                     }
                     _ => unreachable!(),
                 }

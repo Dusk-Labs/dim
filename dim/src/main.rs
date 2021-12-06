@@ -84,7 +84,7 @@ fn main() {
     nightfall::profiles::profiles_init(crate::streaming::FFMPEG_BIN.to_string());
 
     let async_main = async move {
-        // dim::fetcher::tmdb_poster_fetcher().await;
+        dim::fetcher::tmdb_poster_fetcher().await;
 
         let (event_tx, event_rx) = tokio::sync::mpsc::unbounded_channel();
 
@@ -94,7 +94,6 @@ fn main() {
             crate::streaming::FFMPEG_BIN.to_string(),
         );
 
-        /*
         let stream_manager_clone = stream_manager.clone();
 
         // GC the stream manager every 100ms
@@ -112,7 +111,6 @@ fn main() {
             info!("Transposing scanners from the netherworld...");
             core::run_scanners(event_tx.clone()).await;
         }
-        */
 
         info!("Summoning Dim v{}...", structopt::clap::crate_version!());
 
