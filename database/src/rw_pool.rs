@@ -5,9 +5,9 @@ use sqlx::SqliteConnection;
 use tracing::info_span;
 use tracing::Instrument;
 
+use std::sync::Arc;
 use tokio::sync::Mutex;
 use tokio::sync::OwnedMutexGuard;
-use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct SqlitePool {
@@ -17,7 +17,10 @@ pub struct SqlitePool {
 
 impl SqlitePool {
     pub fn new(writer: SqliteConnection, reader: Pool<Sqlite>) -> Self {
-        Self { writer: Arc::new(Mutex::new(writer)), reader }
+        Self {
+            writer: Arc::new(Mutex::new(writer)),
+            reader,
+        }
     }
 
     pub fn read(&self) -> Pool<Sqlite> {
@@ -33,7 +36,9 @@ impl SqlitePool {
     }
 }
 
-pub async fn write_tx(lock: &mut OwnedMutexGuard<SqliteConnection>) -> Result<crate::Transaction<'_>, sqlx::Error> {
+pub async fn write_tx(
+    lock: &mut OwnedMutexGuard<SqliteConnection>,
+) -> Result<crate::Transaction<'_>, sqlx::Error> {
     use sqlx::Connection;
 
     let mut tx = lock.begin().instrument(info_span!("TxBegin")).await?;

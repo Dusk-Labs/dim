@@ -168,7 +168,7 @@ pub async fn warp_core(
             .recover(routes::global_filters::handle_rejection),
         /* static routes */
         routes::statik::filters::dist_static(),
-        /* routes::statik::filters::get_image(conn.clone()), */
+        routes::statik::filters::get_image(conn.clone()),
         routes::statik::filters::react_routes(),
     ]
     .recover(routes::global_filters::handle_rejection)

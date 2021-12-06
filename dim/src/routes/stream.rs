@@ -290,8 +290,7 @@ pub async fn return_virtual_manifest(
 
     let target_file = media.target_file.clone();
     let info = spawn_blocking(move || {
-        FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
-            .get_meta(target_file)
+        FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref()).get_meta(target_file)
     })
     .await
     .unwrap()
