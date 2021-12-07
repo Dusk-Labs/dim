@@ -10,6 +10,8 @@ import SelectMediaFile from "../../Modals/SelectMediaFile/Index";
 import SelectMediaFilePlayButton from "../../Modals/SelectMediaFile/Activators/PlayButton";
 import CardImage from "./CardImage";
 
+import Dropdown from "./Dropdown";
+
 import "./MetaContent.scss";
 
 function MetaContent(props) {
@@ -79,7 +81,10 @@ function MetaContent(props) {
     metaContent = (
       <div className="metaContent">
         <CardImage src={media[id]?.info.data.poster_path}/>
-        <h1>{name}</h1>
+        <div className="title">
+          <h1>{name}</h1>
+          <Dropdown/>
+        </div>
         <div className="genres">
           <Link to={`/search?year=${year}`}>{year}</Link>
           {genres.length > 0 && (

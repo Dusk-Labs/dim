@@ -72,6 +72,7 @@ impl From<Stream> for nightfall::profiles::InputCtx {
                 .and_then(|x| x.bps_eng?.parse::<u64>().ok())
                 .unwrap_or_default(),
             bframes: stream.has_b_frames,
+            audio_channels: stream.channels.unwrap_or(2) as u64,
             ..Default::default()
         }
     }

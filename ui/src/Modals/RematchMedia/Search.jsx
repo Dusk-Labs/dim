@@ -1,20 +1,20 @@
 import { useCallback, useContext, useState } from "react";
 import { useSelector } from "react-redux";
-import DimLogo from "../../../assets/DimLogo";
-import SearchIcon from "../../../assets/Icons/Search";
-import CheckIcon from "../../../assets/Icons/Check";
-import ImageLoad from "../../../Components/ImageLoad";
+import DimLogo from "../../assets/DimLogo";
+import SearchIcon from "../../assets/Icons/Search";
+import CheckIcon from "../../assets/Icons/Check";
+import ImageLoad from "../../Components/ImageLoad";
 
-import { SelectUnmatchedContext } from "./Context";
+import { RematchContext } from "./Context";
 
 import "./Search.scss";
 
-const SelectUnmatchedMediaSearch = () => {
+const SelectRematchSearch = () => {
   const { token } = useSelector(store => ({
     token: store.auth.token
   }));
 
-  const { mediaType, query, setQuery, tmdbID, setTmdbID, tmdbResults, setTmdbResults} = useContext(SelectUnmatchedContext);
+  const { mediaType, query, setQuery, tmdbID, setTmdbID, tmdbResults, setTmdbResults} = useContext(RematchContext);
 
   const [fetched, setFetched] = useState(false);
 
@@ -64,7 +64,7 @@ const SelectUnmatchedMediaSearch = () => {
 
   return (
     <div className="selectUnmatchedMediaSearch">
-      <p className="desc">Search for a {mediaType === "movie" ? "movie" : "show"} to match your selected files with:</p>
+      <p className="desc">Search for a {mediaType === "movie" ? "movie" : "show"} to match to:</p>
       <div className="searchField">
         <input
           onKeyDown={handleKeyDown}
@@ -114,4 +114,4 @@ const SelectUnmatchedMediaSearch = () => {
   );
 };
 
-export default SelectUnmatchedMediaSearch;
+export default SelectRematchSearch;

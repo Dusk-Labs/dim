@@ -1,0 +1,98 @@
+.modalRematchMedia {
+  scrollbar-width: thin;
+  color: var(--primaryTextColor);
+  overflow-y: auto;
+  padding: 20px;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  grid-template-areas:
+    "heading"
+    "mediaTypeSelection"
+    "fields"
+    "options";
+  gap: 1em;
+
+  .heading {
+    grid-area: heading;
+    font-family: "Roboto Bold", Arial;
+
+    h3 {
+      margin-bottom: .5em;
+    }
+  }
+
+  h4 {
+    color: var(--secondaryTextColor);
+  }
+
+  .fields {
+    display: grid;
+    align-items: center;
+    gap: 1em;
+
+    label {
+      .name {
+        display: flex;
+        align-items: center;
+        color: var(--secondaryTextColor);
+      }
+
+      .horizontal-err {
+        padding: 2px 5px;
+        font-size: .8em;
+        margin-left: 5px;
+        background: #ee4740;
+      }
+
+      svg {
+        font-size: 0.8em;
+      }
+
+      .name > p {
+        margin-right: 5px;
+        font-family: "Roboto Condensed Regular", Arial;
+      }
+
+      input {
+        font-size: 1em;
+        font-family: "Roboto Regular", Arial;
+        transition: background 0.3s ease-in-out;
+        margin-top: .5em;
+        background: var(--modalSecondaryColor);
+        outline: none;
+        border: none;
+        border-radius: 5px;
+        padding: 1em;
+        color: var(--primaryTextColor);
+        width: 100%;
+        height: 40px;
+        overflow: hidden;
+        white-space: nowrap;
+
+        &:focus,
+        &:hover {
+          background: var(--modalTertiaryColor);
+        }
+      }
+    }
+  }
+
+  .options {
+    grid-area: options;
+    align-self: flex-end;
+    display: grid;
+    justify-content: flex-end;
+    grid-template-columns: auto auto;
+    gap: 1em;
+
+    .page-controls svg {
+      margin: 0;
+    }
+  }
+}
+
+@media only screen and (min-width: 650px) {
+  #modalRematchMedia {
+    max-width: 600px;
+  }
+}
