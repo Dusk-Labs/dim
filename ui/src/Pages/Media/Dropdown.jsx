@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useParams } from "react-router";
 
 import EditIcon from "../../assets/Icons/Edit";
 
@@ -9,11 +7,7 @@ import RematchMediaModal from "../../Modals/RematchMedia/Index";
 import "./Dropdown.scss";
 
 function Dropdown() {
-  const dispatch = useDispatch();
-
   const dropdownRef = useRef(null);
-  const params = useParams();
-
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const handleClick = useCallback((e) => {
