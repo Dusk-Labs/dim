@@ -38,7 +38,7 @@ function Dropdown() {
     } else {
       setDropdownVisible(false);
     }
-  }, [dispatch, dropdownVisible, params.id]);
+  }, [dropdownVisible]);
 
   return (
     <div className="dropdown" ref={dropdownRef}>
