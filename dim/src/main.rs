@@ -75,6 +75,8 @@ fn main() {
             });
 
         if failed {
+            // FIXME: I think in some cases we exit so fast that the error above is not printed out
+            // or just partially printed out.
             std::process::exit(1);
         }
     }

@@ -47,8 +47,13 @@
     }
   }
 
-  h1 {
-    font-family: "Roboto Bold", Arial;
+  .title {
+    display: flex;
+    justify-content: space-between;
+
+    h1 {
+      font-family: "Roboto Bold", Arial;
+    }
   }
 
   h4 {
