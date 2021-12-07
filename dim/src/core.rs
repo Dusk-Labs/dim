@@ -174,13 +174,8 @@ pub async fn warp_core(
     .with(warp::filters::log::custom(move |x| {
         request_logger.on_response(x);
     }))
-    .with(warp::cors().allow_any_origin());
-
-    cfg_if::cfg_if! {
-        if #[cfg(debug_assertions)] {
-            let routes = routes.boxed();
-        }
-    }
+    .with(warp::cors().allow_any_origin())
+    .boxed();
 
     info!("Webserver is listening on 0.0.0.0:{}", port);
 
