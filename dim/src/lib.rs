@@ -40,6 +40,8 @@ pub mod scanners;
 pub mod stream_tracking;
 /// Contains all the logic needed for streaming and on-the-fly transcoding.
 pub mod streaming;
+#[cfg(test)]
+mod tests;
 /// Various utilities
 pub mod utils;
 /// Websocket related logic.

@@ -18,7 +18,7 @@ const Delete = (props) => {
   const removeLib = useCallback(async () => {
     if (del_library.deleting) return;
 
-    await dispatch(delLibrary(props.id));
+    dispatch(delLibrary(props.id));
 
     // redirect to dashboard when removed
     history.push("/");
