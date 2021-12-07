@@ -352,7 +352,7 @@ impl InsertableMedia {
             self.poster,
             self.backdrop,
             self.media_type
-        ).execute(&mut *conn).await?.last_insert_rowid();
+        ).execute(&mut *conn).await?;
 
         Ok(id)
     }

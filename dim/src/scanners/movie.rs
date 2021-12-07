@@ -54,7 +54,6 @@ impl<'a> MovieMatcher<'a> {
             error!(reason = ?e, "Failed to commit transaction.");
             return;
         }
-        drop(lock);
 
         self.push_event(media_id, library_id).await;
     }
