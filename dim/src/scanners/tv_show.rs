@@ -67,7 +67,6 @@ impl<'a> TvShowMatcher<'a> {
         self.push_event(media_id, library_id).await;
     }
 
-    #[instrument(skip(self, result, orphan, tx, reuse_media_id))]
     pub async fn inner_match(
         &self,
         result: super::ApiMedia,
