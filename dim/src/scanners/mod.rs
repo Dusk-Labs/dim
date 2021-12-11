@@ -207,3 +207,9 @@ pub async fn start(
 
     start_custom(id, tx, lib.locations.into_iter(), lib.media_type).await
 }
+
+/// Function formats the path where assets are stored.
+pub fn format_path(x: Option<String>) -> String {
+    x.map(|x| format!("images/{}", x.trim_start_matches('/')))
+        .unwrap_or_default()
+}

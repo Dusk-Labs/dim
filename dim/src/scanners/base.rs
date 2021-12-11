@@ -74,6 +74,7 @@ pub struct MetadataExtractor {
 
 #[actor]
 impl MetadataExtractor {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self {
             conn: database::try_get_conn().unwrap().clone(),
@@ -186,7 +187,7 @@ impl MetadataExtractor {
             profile: ffprobe_data.get_video_profile(),
             audio_language: ffprobe_data
                 .get_audio_lang()
-                .or(ffprobe_data.get_video_lang())
+                .or_else(|| ffprobe_data.get_video_lang())
                 .as_deref()
                 .and_then(crate::utils::lang_from_iso639)
                 .map(ToString::to_string),

@@ -91,8 +91,8 @@ impl FsWatcher {
                 .and_then(|e| e.to_str())
                 .map_or(false, |e| super::SUPPORTED_EXTS.contains(&e))
         {
-            let extractor = super::get_extractor(&&self.tx);
-            let matcher = super::get_matcher(&&self.tx);
+            let extractor = super::get_extractor(&self.tx);
+            let matcher = super::get_matcher(&self.tx);
 
             if let Ok(mfile) = extractor
                 .mount_file(path.clone(), self.library_id, self.media_type)
@@ -144,7 +144,7 @@ impl FsWatcher {
             }
         };
 
-        if let Some(media_file) = MediaFile::get_by_file(&mut tx, path).await.ok() {
+        if let Ok(media_file) = MediaFile::get_by_file(&mut tx, path).await {
             let media = Media::get_of_mediafile(&mut tx, media_file.id).await;
 
             if let Err(e) = MediaFile::delete(&mut tx, media_file.id).await {
@@ -209,7 +209,7 @@ impl FsWatcher {
             }
         };
 
-        if let Some(media_file) = MediaFile::get_by_file(&mut tx, from).await.ok() {
+        if let Ok(media_file) = MediaFile::get_by_file(&mut tx, from).await {
             let update_query = UpdateMediaFile {
                 target_file: Some(to.into()),
                 ..Default::default()
@@ -247,7 +247,7 @@ pub fn async_watch(
 
     std::thread::spawn(move || {
         while let Ok(x) = rx.recv() {
-            if let Err(_) = async_tx.send(x) {
+            if async_tx.send(x).is_err() {
                 break;
             }
         }

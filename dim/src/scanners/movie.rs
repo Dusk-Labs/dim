@@ -20,6 +20,7 @@ use tracing::error;
 use tracing::instrument;
 use tracing::warn;
 
+use super::format_path;
 use crate::core::EventTx;
 use crate::fetcher::insert_into_queue;
 
@@ -70,8 +71,7 @@ impl<'a> MovieMatcher<'a> {
         let year: Option<i64> = result
             .release_date
             .as_ref()
-            .clone()
-            .map(|st| st.clone())
+            .cloned()
             .map(|x| NaiveDate::parse_from_str(x.as_str(), "%Y-%m-%d"))
             .map(Result::ok)
             .unwrap_or(None)
@@ -93,13 +93,8 @@ impl<'a> MovieMatcher<'a> {
             Some(path) => {
                 let asset = InsertableAsset {
                     remote_url: Some(path),
-                    local_path: result
-                        .poster_file
-                        .clone()
-                        .map(|x| format!("images/{}", x.trim_start_matches("/")))
-                        .unwrap_or_default(),
+                    local_path: format_path(result.poster_file.clone()),
                     file_ext: "jpg".into(),
-                    ..Default::default()
                 }
                 .insert(&mut *tx)
                 .await;
@@ -123,13 +118,8 @@ impl<'a> MovieMatcher<'a> {
             Some(path) => {
                 let asset = InsertableAsset {
                     remote_url: Some(path),
-                    local_path: result
-                        .backdrop_file
-                        .clone()
-                        .map(|x| format!("images/{}", x.trim_start_matches("/")))
-                        .unwrap_or_default(),
+                    local_path: format_path(result.backdrop_file.clone()),
                     file_ext: "jpg".into(),
-                    ..Default::default()
                 }
                 .insert(&mut *tx)
                 .await;

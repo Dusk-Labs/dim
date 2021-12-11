@@ -26,6 +26,7 @@ use tracing::instrument;
 use tracing::warn;
 use tracing::Instrument;
 
+use super::format_path;
 use crate::core::EventTx;
 use crate::fetcher::insert_into_queue;
 
@@ -99,11 +100,7 @@ impl<'a> TvShowMatcher<'a> {
             Some(path) => {
                 let asset = InsertableAsset {
                     remote_url: Some(path),
-                    local_path: result
-                        .poster_file
-                        .clone()
-                        .map(|x| format!("images/{}", x.trim_start_matches("/")))
-                        .unwrap_or_default(),
+                    local_path: format_path(result.poster_file.clone()),
                     file_ext: "jpg".into(),
                 }
                 .insert(&mut *tx)
@@ -129,11 +126,7 @@ impl<'a> TvShowMatcher<'a> {
             Some(path) => {
                 let asset = InsertableAsset {
                     remote_url: Some(path),
-                    local_path: result
-                        .backdrop_file
-                        .clone()
-                        .map(|x| format!("images/{}", x.trim_start_matches("/")))
-                        .unwrap_or_default(),
+                    local_path: format_path(result.backdrop_file.clone()),
                     file_ext: "jpg".into(),
                 }
                 .insert(&mut *tx)
@@ -221,10 +214,7 @@ impl<'a> TvShowMatcher<'a> {
             Some(path) => {
                 let asset = InsertableAsset {
                     remote_url: Some(path),
-                    local_path: season
-                        .and_then(|x| x.poster_file.clone())
-                        .map(|x| format!("images/{}", x.trim_start_matches("/")))
-                        .unwrap_or_default(),
+                    local_path: format_path(season.and_then(|x| x.poster_file.clone())),
                     file_ext: "jpg".into(),
                 }
                 .insert(&mut *tx)
@@ -282,11 +272,7 @@ impl<'a> TvShowMatcher<'a> {
             Some(path) => {
                 let asset = InsertableAsset {
                     remote_url: Some(path),
-                    local_path: search_ep
-                        .and_then(|x| x.still_file.clone())
-                        .clone()
-                        .map(|x| format!("images/{}", x.trim_start_matches("/")))
-                        .unwrap_or_default(),
+                    local_path: format_path(search_ep.and_then(|x| x.still_file.clone()).clone()),
                     file_ext: "jpg".into(),
                 }
                 .insert(&mut *tx)

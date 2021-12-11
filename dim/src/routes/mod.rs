@@ -38,7 +38,7 @@ pub mod global_filters {
             return Ok(e.clone().into_response());
         } else if let Some(e) = err.find::<errors::DimError>() {
             return Ok(e.clone().into_response());
-        } else if let Some(_) = err.find::<auth::JWTError>() {
+        } else if err.find::<auth::JWTError>().is_some() {
             return Ok(errors::DimError::AuthRequired.into_response());
         } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
             return Ok(errors::DimError::MissingFieldInBody {

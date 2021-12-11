@@ -73,11 +73,12 @@ impl Tmdb {
     }
 
     pub async fn search_by_id(&mut self, id: i32) -> Result<Media, TmdbError> {
-        let mut args: Vec<(String, String)> = Vec::new();
-        args.push(("api_key".into(), self.api_key.clone()));
-        args.push(("language".into(), "en-US".into()));
+        let args = vec![
+        ("api_key".to_string(), self.api_key.clone()),
+        ("language".to_string(), "en-US".into()),
+        ];
 
-        let url = format!("{}/{}/{}", self.base, self.media_type.to_string(), id);
+        let url = format!("{}/{}/{}", self.base, self.media_type, id);
         let req = self
             .client
             .get(url)
@@ -123,7 +124,6 @@ impl Tmdb {
             genre_ids: None,
             genres: result
                 .genres
-                .clone()
                 .into_iter()
                 .map(|x| x.name)
                 .collect::<Vec<String>>(),
@@ -159,18 +159,19 @@ impl Tmdb {
             return Err(TmdbError::ReachedMaxTries);
         }
 
-        let mut args: Vec<(String, String)> = Vec::new();
-        args.push(("api_key".into(), self.api_key.clone()));
-        args.push(("language".into(), "en-US".into()));
-        args.push(("query".into(), title.clone()));
-        args.push(("page".into(), "1".into()));
-        args.push(("include_adult".into(), "false".into()));
+        let mut args: Vec<(String, String)> = vec![
+            ("api_key".to_string(), self.api_key.clone()),
+            ("language".to_string(), "en-US".into()),
+            ("query".to_string(), title.clone()),
+            ("page".to_string(), "1".into()),
+            ("include_adult".to_string(), "false".into()),
+        ];
 
         if let Some(year) = year {
             args.push(("year".into(), year.to_string()));
         }
 
-        let url = format!("{}/search/{}", self.base, self.media_type.to_string(),);
+        let url = format!("{}/search/{}", self.base, self.media_type);
 
         let req = self
             .client
@@ -203,10 +204,10 @@ impl Tmdb {
                         api_key: self.api_key.clone(),
                         client: client.build().unwrap(),
                         base: self.base.clone(),
-                        media_type: self.media_type.clone(),
+                        media_type: self.media_type,
                     };
 
-                    async move { this.get_genre_detail(x).await.ok().map(|x| x.name.clone()) }
+                    async move { this.get_genre_detail(x).await.ok().map(|x| x.name) }
                 })
                 .collect::<Vec<String>>()
                 .await;
@@ -222,8 +223,7 @@ impl Tmdb {
     }
 
     pub async fn get_seasons_for(&mut self, id: u64) -> Result<Vec<Season>, TmdbError> {
-        let mut args: Vec<(String, String)> = Vec::new();
-        args.push(("api_key".into(), self.api_key.clone()));
+        let args = vec![("api_key".to_string(), self.api_key.clone())];
 
         let req = self
             .client
@@ -250,8 +250,7 @@ impl Tmdb {
         id: u64,
         season: u64,
     ) -> Result<Vec<Episode>, TmdbError> {
-        let mut args: Vec<(String, String)> = Vec::new();
-        args.push(("api_key".into(), self.api_key.clone()));
+        let args = vec![("api_key".to_string(), self.api_key.clone())];
 
         let req = self
             .client
@@ -287,8 +286,7 @@ impl Tmdb {
             }
         }
 
-        let mut args: Vec<(String, String)> = Vec::new();
-        args.push(("api_key".into(), self.api_key.clone()));
+        let args = vec![("api_key".to_string(), self.api_key.clone())];
 
         let url = format!("{}/genre/{}/list", self.base.clone(), self.media_type);
         let req = self
@@ -312,7 +310,7 @@ impl Tmdb {
 
         {
             let mut lock = (*__CACHE).write().await;
-            lock.insert(self.media_type.clone(), genres.clone());
+            lock.insert(self.media_type, genres.clone());
         }
 
         genres

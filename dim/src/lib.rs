@@ -56,7 +56,7 @@ pub use routes::settings::GlobalSettings;
 pub fn setup_logging(_debug: bool) {
     let _ = create_dir_all("logs");
 
-    if let Err(_) = std::env::var("RUST_LOG") {
+    if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "info");
     }
 
