@@ -21,7 +21,7 @@ where
     Track {
         addr: A,
         sink: SplitSink<WebSocket, Message>,
-        auth: auth::Wrapper,
+        auth: Box<auth::Wrapper>,
     },
 
     Forget {
@@ -157,7 +157,7 @@ pub fn event_socket(
                                     let _ = i_tx.send(CtrlEvent::Track {
                                         addr,
                                         sink: ws_tx,
-                                        auth: auth::Wrapper(token_data),
+                                        auth: Box::new(auth::Wrapper(token_data)),
                                     });
 
                                     let _ = i_tx.send(CtrlEvent::SendTo {

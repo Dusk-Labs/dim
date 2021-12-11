@@ -241,7 +241,6 @@ impl Episode {
                 episode.episode_ > ? AND
                 season.season_number = ?
             ) OR season.season_number > ?)
-
             ORDER BY season.season_number, episode.episode_
             LIMIT 1"#,
             self.seasonid,

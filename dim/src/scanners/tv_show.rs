@@ -18,10 +18,15 @@ use chrono::NaiveDate;
 
 use events::Message;
 use events::PushEventType;
-use tracing::debug;
-use tracing::error;
-use tracing::warn;
 
+use tracing::debug;
+use tracing::debug_span;
+use tracing::error;
+use tracing::instrument;
+use tracing::warn;
+use tracing::Instrument;
+
+use super::format_path;
 use crate::core::EventTx;
 use crate::fetcher::insert_into_queue;
 
@@ -31,9 +36,13 @@ pub struct TvShowMatcher<'a> {
 }
 
 impl<'a> TvShowMatcher<'a> {
+    #[instrument(skip(self, result, orphan), fields(result.id = %result.id, result.name = %result.title, orphan.id = %orphan.id))]
     pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
         let library_id = orphan.library_id;
-        let mut tx = match self.conn.write().begin().await {
+        let mut lock = self.conn.writer().lock_owned().await;
+        let mut tx = match database::write_tx(&mut lock)
+            .await
+        {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to create transaction.");
@@ -49,7 +58,7 @@ impl<'a> TvShowMatcher<'a> {
             }
         };
 
-        if let Err(e) = tx.commit().await {
+        if let Err(e) = tx.commit().instrument(debug_span!("TxCommit")).await {
             error!(reason = ?e, "Failed to commit transaction.");
             return;
         }
@@ -90,11 +99,7 @@ impl<'a> TvShowMatcher<'a> {
             Some(path) => {
                 let asset = InsertableAsset {
                     remote_url: Some(path),
-                    local_path: result
-                        .poster_file
-                        .clone()
-                        .map(|x| format!("images/{}", x.trim_start_matches("/")))
-                        .unwrap_or_default(),
+                    local_path: format_path(result.poster_file.clone()),
                     file_ext: "jpg".into(),
                 }
                 .insert(&mut *tx)
@@ -120,11 +125,7 @@ impl<'a> TvShowMatcher<'a> {
             Some(path) => {
                 let asset = InsertableAsset {
                     remote_url: Some(path),
-                    local_path: result
-                        .backdrop_file
-                        .clone()
-                        .map(|x| format!("images/{}", x.trim_start_matches("/")))
-                        .unwrap_or_default(),
+                    local_path: format_path(result.backdrop_file.clone()),
                     file_ext: "jpg".into(),
                 }
                 .insert(&mut *tx)
@@ -168,6 +169,7 @@ impl<'a> TvShowMatcher<'a> {
         Ok(media_id)
     }
 
+    #[instrument(skip(self, result, orphan, tx, reuse_media_id), level = "debug")]
     async fn inner_insert(
         &self,
         orphan: &MediaFile,
@@ -211,10 +213,7 @@ impl<'a> TvShowMatcher<'a> {
             Some(path) => {
                 let asset = InsertableAsset {
                     remote_url: Some(path),
-                    local_path: season
-                        .and_then(|x| x.poster_file.clone())
-                        .map(|x| format!("images/{}", x.trim_start_matches("/")))
-                        .unwrap_or_default(),
+                    local_path: format_path(season.and_then(|x| x.poster_file.clone())),
                     file_ext: "jpg".into(),
                 }
                 .insert(&mut *tx)
@@ -272,11 +271,7 @@ impl<'a> TvShowMatcher<'a> {
             Some(path) => {
                 let asset = InsertableAsset {
                     remote_url: Some(path),
-                    local_path: search_ep
-                        .and_then(|x| x.still_file.clone())
-                        .clone()
-                        .map(|x| format!("images/{}", x.trim_start_matches("/")))
-                        .unwrap_or_default(),
+                    local_path: format_path(search_ep.and_then(|x| x.still_file.clone()).clone()),
                     file_ext: "jpg".into(),
                 }
                 .insert(&mut *tx)
@@ -343,7 +338,10 @@ impl<'a> TvShowMatcher<'a> {
             ..Default::default()
         };
 
-        updated_mediafile.update(&mut *tx, orphan.id).await?;
+        updated_mediafile
+            .update(&mut *tx, orphan.id)
+            .instrument(debug_span!("UpdateMediafile"))
+            .await?;
 
         Ok(media_id)
     }

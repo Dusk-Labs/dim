@@ -1,10 +1,14 @@
 use err_derive::Error;
 use std::path::Path;
 use std::path::PathBuf;
+
 use tracing::debug;
+use tracing::debug_span;
 use tracing::error;
 use tracing::info;
+use tracing::instrument;
 use tracing::warn;
+use tracing::Instrument;
 
 use database::library::MediaType;
 use database::mediafile::InsertableMediaFile;
@@ -70,6 +74,7 @@ pub struct MetadataExtractor {
 
 #[actor]
 impl MetadataExtractor {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self {
             conn: database::try_get_conn().unwrap().clone(),
@@ -77,6 +82,7 @@ impl MetadataExtractor {
     }
 
     #[handler]
+    #[instrument(skip(self, library_id, _media_type))]
     pub async fn mount_file(
         &mut self,
         file: PathBuf,
@@ -84,12 +90,6 @@ impl MetadataExtractor {
         _media_type: MediaType,
     ) -> Result<MediaFile, ScannerError> {
         let target_file = file.to_str().unwrap().to_owned();
-        let mut tx = self
-            .conn
-            .write()
-            .begin()
-            .await
-            .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
         let _file_name = if let Some(file_name) = file.file_name().and_then(|x| x.to_str()) {
             file_name
@@ -100,7 +100,16 @@ impl MetadataExtractor {
         };
 
         let target_file_clone = target_file.clone();
-        let res = MediaFile::get_by_file(&mut tx, &target_file_clone).await;
+        let res = {
+            let mut tx = self
+                .conn
+                .read()
+                .begin()
+                .await
+                .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
+
+            MediaFile::get_by_file(&mut tx, &target_file_clone).await
+        };
 
         if let Ok(_media_file) = res {
             debug!(
@@ -111,8 +120,6 @@ impl MetadataExtractor {
 
             return Err(ScannerError::UnknownError);
         }
-
-        let ctx = FFProbeCtx::new(&FFPROBE_BIN);
 
         // we clone so that we can strip the extension.
         let mut file_name_clone = file.to_owned();
@@ -133,7 +140,10 @@ impl MetadataExtractor {
         let meta_from_string =
             move || Metadata::from(&clone).map_err(|_| ScannerError::FilenameParserError);
 
-        let metadata = match spawn_blocking(meta_from_string).await {
+        let metadata = match spawn_blocking(meta_from_string)
+            .instrument(debug_span!("ParseFilename"))
+            .await
+        {
             Ok(x) => x?,
             Err(e) => {
                 error!(e = ?e, "Metadata::from possibly panicked");
@@ -141,7 +151,10 @@ impl MetadataExtractor {
             }
         };
 
-        let ffprobe_data = if let Ok(data) = ctx.get_meta(&file) {
+        let file_clone = file.clone();
+        let ffprobe_data =
+            move || FFProbeCtx::new(&FFPROBE_BIN).get_meta(file_clone.to_str().unwrap());
+        let ffprobe_data = if let Ok(Ok(data)) = spawn_blocking(ffprobe_data).await {
             data
         } else {
             error!(
@@ -174,32 +187,47 @@ impl MetadataExtractor {
             profile: ffprobe_data.get_video_profile(),
             audio_language: ffprobe_data
                 .get_audio_lang()
-                .or(ffprobe_data.get_video_lang())
+                .or_else(|| ffprobe_data.get_video_lang())
                 .as_deref()
                 .and_then(crate::utils::lang_from_iso639)
                 .map(ToString::to_string),
         };
 
-        let file_id = media_file.insert(&mut tx).await?;
+        let mediafile = {
+            let mut lock = self.conn.writer().lock_owned().await;
+            let mut tx = database::write_tx(&mut lock)
+                .await
+                .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
-        let id = MediaFile::get_one(&mut tx, file_id).await?;
+            let file_id = media_file
+                .insert(&mut tx)
+                .instrument(debug_span!("media_file_insert"))
+                .await?;
 
-        assert!(file_id == id.id);
+            let mediafile = MediaFile::get_one(&mut tx, file_id)
+                .instrument(debug_span!("media_file_select"))
+                .await?;
 
-        tx.commit()
-            .await
-            .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
+            assert!(file_id == mediafile.id);
+
+            tx.commit()
+                .instrument(debug_span!("TxCommit"))
+                .await
+                .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
+            drop(lock);
+
+            mediafile
+        };
 
         info!(
             file = ?&target_file,
             library_id = library_id,
-            id = file_id,
-            second_pass_id = id.id,
+            id = mediafile.id,
             season = metadata.season().unwrap_or(0),
             episode = metadata.episode().unwrap_or(0),
         );
 
-        Ok(id)
+        Ok(mediafile)
     }
 }
 
@@ -282,13 +310,6 @@ impl MetadataMatcher {
             .search(media.raw_name.clone(), media.raw_year.map(|x| x as i32))
             .await;
 
-        let mut tx = self
-            .conn
-            .write()
-            .begin()
-            .await
-            .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
-
         if let Some(x) = els.get(ElementCategory::AnimeTitle) {
             if result.is_err() {
                 // NOTE: If we got here then we assume that the file uses common anime release naming schemes.
@@ -306,6 +327,11 @@ impl MetadataMatcher {
                     .and_then(|x| x.parse::<i64>().ok())
                     .or(Some(1));
 
+                let mut lock = self.conn.writer().lock_owned().await;
+                let mut tx = database::write_tx(&mut lock)
+                    .await
+                    .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
+
                 let update_mediafile = UpdateMediaFile {
                     episode: anitomy_episode.map(|x| x as i64),
                     season: anitomy_season.map(|x| x as i64),
@@ -315,14 +341,14 @@ impl MetadataMatcher {
 
                 let _ = update_mediafile.update(&mut tx, media.id).await;
 
+                tx.commit()
+                    .await
+                    .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
+
                 media.episode = anitomy_episode.map(|x| x as i64);
                 media.season = anitomy_season.map(|x| x as i64);
             }
         }
-
-        tx.commit()
-            .await
-            .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
         let result = match result {
             Ok(v) => v,
@@ -345,10 +371,8 @@ impl MetadataMatcher {
         let mut media = media;
         let mut result = result;
 
-        let mut tx = self
-            .conn
-            .write()
-            .begin()
+        let mut lock = self.conn.writer().lock_owned().await;
+        let mut tx = database::write_tx(&mut lock)
             .await
             .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
@@ -357,6 +381,7 @@ impl MetadataMatcher {
         tx.commit()
             .await
             .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
+        drop(lock);
 
         let mut seasons: Vec<super::ApiSeason> = self
             .tv_tmdb
@@ -390,6 +415,7 @@ impl MetadataMatcher {
     }
 }
 
+#[instrument(skip(media, tx))]
 pub async fn patch_tv_metadata(
     media: &mut MediaFile,
     tx: &mut database::Transaction<'_>,
@@ -416,14 +442,14 @@ pub async fn patch_tv_metadata(
         Ok(v) => v,
         Err(_) => {
             debug!(media = ?media, "patch_tv_metadata exited early");
-            return Ok(())
-        },
+            return Ok(());
+        }
     };
 
     if let Some(episode) = els
-            .get(ElementCategory::EpisodeNumber)
-            .and_then(|x| x.parse::<i64>().ok()) {
-
+        .get(ElementCategory::EpisodeNumber)
+        .and_then(|x| x.parse::<i64>().ok())
+    {
         let season = els
             .get(ElementCategory::AnimeSeason)
             .and_then(|x| x.parse::<i64>().ok())

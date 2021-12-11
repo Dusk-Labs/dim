@@ -2,6 +2,7 @@ use crate::get_conn_memory;
 use crate::library;
 use crate::media;
 use crate::mediafile;
+use crate::write_tx;
 
 use super::library_tests::create_test_library;
 use super::mediafile_tests::insert_mediafile_with_mediaid;
@@ -42,8 +43,8 @@ pub async fn insert_many(conn: &mut crate::Transaction<'_>, n: usize) {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let _ = create_test_library(&mut tx).await;
 
     let media_id = insert_media(&mut tx).await;
@@ -54,8 +55,8 @@ async fn test_get() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_all() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let library_id = create_test_library(&mut tx).await;
 
     let result = media::Media::get_all(&mut tx, library_id).await.unwrap();
@@ -68,8 +69,8 @@ async fn test_get_all() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_by_name_and_lib() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let library_id = create_test_library(&mut tx).await;
 
     let result = media::Media::get_by_name_and_lib(&mut tx, library_id, "TestMedia9").await;
@@ -85,8 +86,8 @@ async fn test_get_by_name_and_lib() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_of_mediafile() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let _ = create_test_library(&mut tx).await;
 
     let result = media::Media::get_of_mediafile(&mut tx, 1).await;
@@ -102,8 +103,8 @@ async fn test_get_of_mediafile() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_delete() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let _ = create_test_library(&mut tx).await;
     let media_id = insert_media(&mut tx).await;
 
@@ -116,8 +117,8 @@ async fn test_delete() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_delete_by_lib() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let library_id = create_test_library(&mut tx).await;
     insert_many(&mut tx, 10).await;
 
@@ -135,8 +136,8 @@ async fn test_delete_by_lib() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_blind_insert() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let library_id = create_test_library(&mut tx).await;
 
     let media = media::InsertableMedia {
@@ -160,8 +161,8 @@ async fn test_blind_insert() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_update() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let library_id = create_test_library(&mut tx).await;
 
     let media = media::InsertableMedia {

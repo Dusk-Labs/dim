@@ -2,9 +2,9 @@ use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors::*;
 use crate::scanners::base::patch_tv_metadata;
-use crate::scanners::movie::MovieMatcher;
 use crate::scanners::tmdb::MediaType as ExternalMediaType;
 use crate::scanners::tmdb::Tmdb;
+use crate::scanners::movie::MovieMatcher;
 use crate::scanners::tv_show::TvShowMatcher;
 
 use database::library::MediaType;
@@ -102,7 +102,8 @@ pub async fn rematch_media(
     }
 
     // second decouple the media and its mediafiles.
-    let mut tx = conn.write().begin().await?;
+    let mut lock = conn.writer().lock_owned().await;
+    let mut tx = database::write_tx(&mut lock).await?;
 
     let target = Media::get(&mut tx, id).await?;
 

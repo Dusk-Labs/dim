@@ -4,13 +4,13 @@ pub mod scanner_daemon;
 pub mod tmdb;
 pub mod tv_show;
 
-use database::get_conn;
 use database::library::Library;
 use database::library::MediaType;
 
 use tracing::info;
 use tracing::instrument;
 
+use crate::core::DbConnection;
 use crate::core::EventTx;
 
 use once_cell::sync::OnceCell;
@@ -22,6 +22,7 @@ use std::time::Instant;
 
 use serde::Deserialize;
 use serde::Serialize;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ApiMedia {
     pub id: u64,
@@ -80,33 +81,10 @@ pub fn get_matcher_unchecked() -> &'static base::MetadataMatcher {
     METADATA_MATCHER.get().unwrap()
 }
 
-#[instrument(skip(tx, paths))]
-pub async fn start_custom<I, T>(
-    library_id: i64,
-    tx: EventTx,
-    paths: I,
-    media_type: MediaType,
-) -> Result<(), self::base::ScannerError>
-where
-    I: Iterator<Item = T>,
-    T: AsRef<Path>,
-{
-    info!(library_id = library_id, "Scanning library");
-
-    tx.send(
-        events::Message {
-            id: library_id,
-            event_type: events::PushEventType::EventStartedScanning,
-        }
-        .to_string(),
-    )
-    .unwrap();
-
-    let _conn = get_conn().await.expect("Failed to grab the conn pool");
-
-    let extractor = get_extractor(&tx);
-    let matcher = get_matcher(&tx);
-
+#[doc(hidden)]
+pub async fn get_subfiles(
+    paths: impl Iterator<Item = impl AsRef<Path>>,
+) -> Result<Vec<PathBuf>, self::base::ScannerError> {
     let mut files = Vec::with_capacity(2048);
     for path in paths {
         let mut subfiles: Vec<PathBuf> = WalkDir::new(path)
@@ -133,21 +111,53 @@ where
         files.append(&mut subfiles);
     }
 
+    Ok(files)
+}
+
+#[instrument(skip(tx, paths))]
+pub async fn start_custom<I, T>(
+    library_id: i64,
+    tx: EventTx,
+    paths: I,
+    media_type: MediaType,
+) -> Result<(), self::base::ScannerError>
+where
+    I: Iterator<Item = T>,
+    T: AsRef<Path>,
+{
+    info!(library_id = library_id, "Scanning library");
+
+    tx.send(
+        events::Message {
+            id: library_id,
+            event_type: events::PushEventType::EventStartedScanning,
+        }
+        .to_string(),
+    )
+    .unwrap();
+
+    let extractor = get_extractor(&tx);
+    let matcher = get_matcher(&tx);
+
+    let files = get_subfiles(paths).await?;
+
     let total_files = files.len();
 
     info!(
-        module = "scanner",
-        "Walked library directory library_id={} total_files={}",
         library_id = library_id,
         files = total_files,
+        "Walked library directory",
     );
 
-    let mut futures = Vec::new();
     let now = Instant::now();
+    let mut futures = Vec::new();
 
     for file in files {
         futures.push(async move {
-            if let Ok(mfile) = extractor.mount_file(file, library_id, media_type).await {
+            if let Ok(mfile) = extractor
+                .mount_file(file.clone(), library_id, media_type)
+                .await
+            {
                 match media_type {
                     MediaType::Movie => {
                         let _ = matcher.match_movie(mfile).await;
@@ -182,15 +192,24 @@ where
     Ok(())
 }
 
-pub async fn start(library_id: i64, tx: EventTx) -> Result<(), self::base::ScannerError> {
-    let conn = get_conn().await.expect("Failed to grab the conn pool");
-    let mut db_tx = conn
+pub async fn start(
+    conn: DbConnection,
+    id: i64,
+    tx: EventTx,
+) -> Result<(), self::base::ScannerError> {
+    let mut tx_ = conn
         .read()
         .begin()
         .await
         .map_err(|e| self::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
 
-    let lib = Library::get_one(&mut db_tx, library_id).await?;
+    let lib = Library::get_one(&mut tx_, id).await?;
 
-    start_custom(library_id, tx, lib.locations.into_iter(), lib.media_type).await
+    start_custom(id, tx, lib.locations.into_iter(), lib.media_type).await
+}
+
+/// Function formats the path where assets are stored.
+pub fn format_path(x: Option<String>) -> String {
+    x.map(|x| format!("images/{}", x.trim_start_matches('/')))
+        .unwrap_or_default()
 }

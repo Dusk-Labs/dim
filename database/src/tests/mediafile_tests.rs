@@ -1,6 +1,7 @@
 use crate::get_conn_memory;
 use crate::library;
 use crate::mediafile;
+use crate::write_tx;
 
 use super::library_tests::create_test_library;
 
@@ -45,8 +46,8 @@ pub async fn insert_many_mediafile(conn: &mut crate::Transaction<'_>, n: usize) 
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_by_lib() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let id = create_test_library(&mut tx).await;
 
     let result = mediafile::MediaFile::get_by_lib(&mut tx, id).await.unwrap();
@@ -65,8 +66,8 @@ async fn test_get_by_lib() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_by_lib_null_media() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let id = create_test_library(&mut tx).await;
 
     let _mfile_id = insert_mediafile(&mut tx).await;
@@ -81,8 +82,8 @@ async fn test_get_by_lib_null_media() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_one() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let id = create_test_library(&mut tx).await;
 
     let mfile_id = insert_mediafile(&mut tx).await;
@@ -96,8 +97,8 @@ async fn test_get_one() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_exists_by_file() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let _ = create_test_library(&mut tx).await;
 
     assert!(!mediafile::MediaFile::exists_by_file(&mut tx, "/dev/null").await);
@@ -108,8 +109,8 @@ async fn test_exists_by_file() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_by_file() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let _ = create_test_library(&mut tx).await;
     let _ = insert_mediafile(&mut tx).await;
 
@@ -121,8 +122,8 @@ async fn test_get_by_file() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_deletes() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let lib_id = create_test_library(&mut tx).await;
     let id = insert_mediafile(&mut tx).await;
 
@@ -138,8 +139,8 @@ async fn test_deletes() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_update() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let _ = create_test_library(&mut tx).await;
     let id = insert_mediafile(&mut tx).await;
 
@@ -158,8 +159,8 @@ async fn test_update() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_of_media() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let _ = create_test_library(&mut tx).await;
     let media_id = super::media_tests::insert_media(&mut tx).await;
     let mfile = insert_mediafile_with_mediaid(&mut tx, media_id).await;
