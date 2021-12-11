@@ -5,7 +5,6 @@ import { useSelector } from "react-redux";
 import Banner from "./Banner";
 import MetaContent from "./MetaContent";
 import Seasons from "./Seasons";
-import Dropdown from "./Dropdown";
 
 import "./Index.scss";
 
