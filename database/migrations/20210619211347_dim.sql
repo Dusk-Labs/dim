@@ -53,7 +53,6 @@ BEGIN
 END;
 
 CREATE UNIQUE INDEX media_idx ON _tblmedia(library_id, name, media_type) WHERE NOT _tblmedia.media_type = "episode";
-CREATE INDEX media_excl_ep_idx ON _tblmedia(name) WHERE NOT _tblmedia.media_type = "episode";
 
 CREATE TABLE movie (
     id INTEGER,

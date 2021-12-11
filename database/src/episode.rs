@@ -227,7 +227,6 @@ impl Episode {
     pub async fn get_next_episode(
         &self,
         conn: &mut crate::Transaction<'_>,
-        tv_id: i64,
     ) -> Result<Episode, DatabaseError> {
         let season_number = self.get_season_number(&mut *conn).await?;
 
@@ -235,11 +234,18 @@ impl Episode {
             EpisodeWrapper,
             r#"SELECT episode.id as "id!", episode.seasonid, episode.episode_ FROM episode
             INNER JOIN season ON season.id = episode.seasonid
-            WHERE season.tvshowid = ? AND episode.episode_ > ? AND season.season_number >= ?
+            WHERE season.tvshowid = (
+                SELECT _tblseason.tvshowid FROM _tblseason
+                WHERE _tblseason.id = ?
+            ) AND ((
+                episode.episode_ > ? AND
+                season.season_number = ?
+            ) OR season.season_number > ?)
             ORDER BY season.season_number, episode.episode_
             LIMIT 1"#,
-            tv_id,
+            self.seasonid,
             self.episode,
+            season_number,
             season_number
         )
         .fetch_one(&mut *conn)

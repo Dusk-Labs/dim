@@ -1,11 +1,9 @@
 use crate::core::EventTx;
 
-use std::array::IntoIter;
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::time::Duration;
 
-use database::get_conn;
 use database::library::Library;
 use database::library::MediaType;
 use database::media::Media;
@@ -41,27 +39,32 @@ pub struct FsWatcher {
 }
 
 impl FsWatcher {
-    pub async fn new(library_id: i64, media_type: MediaType, tx: EventTx) -> Self {
+    pub async fn new(
+        conn: DbConnection,
+        library_id: i64,
+        media_type: MediaType,
+        tx: EventTx,
+    ) -> Self {
         Self {
             library_id,
             media_type,
             tx,
-            conn: get_conn()
-                .await
-                .expect("Failed to grab the connection pool."),
+            conn,
         }
     }
 
     pub async fn start_daemon(&self) -> Result<(), FsWatcherError> {
-        let mut tx = match self.conn.read().begin().await {
-            Ok(x) => x,
-            Err(e) => {
-                error!(reason = ?e, "Failed to open a transaction.");
-                return Ok(());
-            }
-        };
+        let library = {
+            let mut tx = match self.conn.read().begin().await {
+                Ok(x) => x,
+                Err(e) => {
+                    error!(reason = ?e, "Failed to open a transaction.");
+                    return Ok(());
+                }
+            };
 
-        let library = Library::get_one(&mut tx, self.library_id).await?;
+            Library::get_one(&mut tx, self.library_id).await?
+        };
 
         let (mut rx, _watcher) = async_watch(library.locations.iter())?;
 
@@ -88,8 +91,8 @@ impl FsWatcher {
                 .and_then(|e| e.to_str())
                 .map_or(false, |e| super::SUPPORTED_EXTS.contains(&e))
         {
-            let extractor = super::get_extractor(&&self.tx);
-            let matcher = super::get_matcher(&&self.tx);
+            let extractor = super::get_extractor(&self.tx);
+            let matcher = super::get_matcher(&self.tx);
 
             if let Ok(mfile) = extractor
                 .mount_file(path.clone(), self.library_id, self.media_type)
@@ -110,7 +113,7 @@ impl FsWatcher {
                 let _ = super::start_custom(
                     self.library_id,
                     self.tx.clone(),
-                    IntoIter::new([x]),
+                    IntoIterator::into_iter([x]),
                     self.media_type,
                 )
                 .await;
@@ -132,7 +135,8 @@ impl FsWatcher {
             }
         };
 
-        let mut tx = match self.conn.write().begin().await {
+        let mut lock = self.conn.writer().lock_owned().await;
+        let mut tx = match database::write_tx(&mut lock).await {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to create transaction.");
@@ -140,7 +144,7 @@ impl FsWatcher {
             }
         };
 
-        if let Some(media_file) = MediaFile::get_by_file(&mut tx, path).await.ok() {
+        if let Ok(media_file) = MediaFile::get_by_file(&mut tx, path).await {
             let media = Media::get_of_mediafile(&mut tx, media_file.id).await;
 
             if let Err(e) = MediaFile::delete(&mut tx, media_file.id).await {
@@ -196,7 +200,8 @@ impl FsWatcher {
             }
         };
 
-        let mut tx = match self.conn.write().begin().await {
+        let mut lock = self.conn.writer().lock_owned().await;
+        let mut tx = match database::write_tx(&mut lock).await {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to create transaction.");
@@ -204,7 +209,7 @@ impl FsWatcher {
             }
         };
 
-        if let Some(media_file) = MediaFile::get_by_file(&mut tx, from).await.ok() {
+        if let Ok(media_file) = MediaFile::get_by_file(&mut tx, from).await {
             let update_query = UpdateMediaFile {
                 target_file: Some(to.into()),
                 ..Default::default()
@@ -242,7 +247,7 @@ pub fn async_watch(
 
     std::thread::spawn(move || {
         while let Ok(x) = rx.recv() {
-            if let Err(_) = async_tx.send(x) {
+            if async_tx.send(x).is_err() {
                 break;
             }
         }

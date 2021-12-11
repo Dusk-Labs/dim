@@ -291,8 +291,9 @@ impl InsertableMedia {
     ///
     /// # Arguments
     /// * `conn` - mutable reference to a sqlx transaction.
+    #[tracing::instrument(skip(self, conn), fields(self.name = %self.name, self.library_id = %self.library_id))]
     pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
-        if let Some(record) = sqlx::query!(r#"SELECT id FROM media where name = ?"#, self.name)
+        if let Some(record) = sqlx::query!(r#"SELECT id FROM _tblmedia where name = ?"#, self.name)
             .fetch_optional(&mut *conn)
             .await?
         {
@@ -330,14 +331,14 @@ impl InsertableMedia {
         conn: &mut crate::Transaction<'_>,
         id: i64,
     ) -> Result<i64, DatabaseError> {
-        if let Some(record) = sqlx::query!(r#"SELECT id FROM media where name = ?"#, self.name)
+        if let Some(record) = sqlx::query!(r#"SELECT id FROM _tblmedia where name = ?"#, self.name)
             .fetch_optional(&mut *conn)
             .await?
         {
             return Ok(record.id);
         }
 
-        let id = sqlx::query!(
+        sqlx::query!(
             r#"INSERT INTO _tblmedia (id, library_id, name, description, rating, year, added, poster, backdrop, media_type)
             VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10)
             "#,
@@ -351,7 +352,7 @@ impl InsertableMedia {
             self.poster,
             self.backdrop,
             self.media_type
-        ).execute(&mut *conn).await?.last_insert_rowid();
+        ).execute(&mut *conn).await?;
 
         Ok(id)
     }
