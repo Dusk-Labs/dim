@@ -4,6 +4,7 @@ use crate::media;
 use crate::progress;
 use crate::season;
 use crate::tv;
+use crate::write_tx;
 
 use super::library_tests::create_test_library;
 use super::media_tests::insert_media;
@@ -13,8 +14,8 @@ use std::time::SystemTime;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_set_and_get_for_media_user() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let library = create_test_library(&mut tx).await;
     let user = insert_user(&mut tx).await;
     let media = insert_media(&mut tx).await;
@@ -44,8 +45,8 @@ async fn test_set_and_get_for_media_user() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_total_time_spent_watching() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let library = create_test_library(&mut tx).await;
     let user = insert_user(&mut tx).await;
 
@@ -71,8 +72,8 @@ async fn test_get_total_time_spent_watching() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_total_for_tv() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let library = create_test_library(&mut tx).await;
     let user = insert_user(&mut tx).await;
 
@@ -119,8 +120,8 @@ async fn test_get_total_for_tv() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_continue_watching() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let library = create_test_library(&mut tx).await;
     let user = insert_user(&mut tx).await;
 

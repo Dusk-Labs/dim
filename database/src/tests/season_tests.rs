@@ -1,6 +1,7 @@
 use crate::get_conn_memory;
 use crate::season;
 use crate::tv;
+use crate::write_tx;
 
 use super::library_tests::create_test_library;
 use super::media_tests::insert_media;
@@ -8,8 +9,8 @@ use super::tv_tests::insert_tv;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_insert_and_get_methods() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
 
     let _lib = create_test_library(&mut tx).await;
 
@@ -65,8 +66,8 @@ async fn test_insert_and_get_methods() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_update() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let _lib = create_test_library(&mut tx).await;
     let tv = insert_tv(&mut tx).await;
 

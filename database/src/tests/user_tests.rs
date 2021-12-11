@@ -1,6 +1,7 @@
 use crate::get_conn_memory;
 use crate::user;
 use crate::user::Login;
+use crate::write_tx;
 
 pub async fn insert_user(conn: &mut crate::Transaction<'_>) -> String {
     let invite = Login::new_invite(&mut *conn).await.unwrap();
@@ -32,8 +33,8 @@ pub async fn insert_many(conn: &mut crate::Transaction<'_>, n: usize) {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_one() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
 
     let result = user::User::get_one(&mut tx, "test".into(), "test".into()).await;
     assert!(result.is_err());
@@ -48,8 +49,8 @@ async fn test_get_one() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_all() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
 
     let result = user::User::get_all(&mut tx).await.unwrap();
     assert!(result.is_empty());
@@ -62,8 +63,8 @@ async fn test_get_all() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_delete() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let uname = insert_user(&mut tx).await;
     let result = user::User::get_one(&mut tx, uname.clone(), "test".into())
         .await
@@ -79,8 +80,8 @@ async fn test_delete() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_invites() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
 
     let result = user::Login::get_all_invites(&mut tx).await.unwrap();
     assert!(result.is_empty());
