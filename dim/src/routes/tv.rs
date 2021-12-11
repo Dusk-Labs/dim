@@ -89,7 +89,7 @@ pub mod filters {
             .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
                 super::get_season_episodes(conn, id, auth)
                     .await
-                    .map_err(|e| reject::custom(e))
+                        .map_err(reject::custom)
             })
     }
 
@@ -105,7 +105,7 @@ pub mod filters {
                 |id: i64, data: UpdateEpisode, auth: Auth, conn: DbConnection| async move {
                     super::patch_episode_by_id(conn, id, data, auth)
                         .await
-                        .map_err(|e| reject::custom(e))
+                        .map_err(reject::custom)
                 },
             )
     }
@@ -120,7 +120,7 @@ pub mod filters {
             .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
                 super::delete_episode_by_id(conn, id, auth)
                     .await
-                    .map_err(|e| reject::custom(e))
+                    .map_err(reject::custom)
             })
     }
 }

@@ -2,7 +2,7 @@ use sqlx::Pool;
 use sqlx::Sqlite;
 use sqlx::SqliteConnection;
 
-use tracing::info_span;
+use tracing::debug_span;
 use tracing::Instrument;
 
 use std::sync::Arc;
@@ -41,7 +41,7 @@ pub async fn write_tx(
 ) -> Result<crate::Transaction<'_>, sqlx::Error> {
     use sqlx::Connection;
 
-    let mut tx = lock.begin().instrument(info_span!("TxBegin")).await?;
+    let mut tx = lock.begin().instrument(debug_span!("TxBegin")).await?;
 
     sqlx::query("END").execute(&mut tx).await?;
     sqlx::query("BEGIN EXCLUSIVE").execute(&mut tx).await?;

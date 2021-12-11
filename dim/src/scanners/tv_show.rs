@@ -41,7 +41,6 @@ impl<'a> TvShowMatcher<'a> {
         let library_id = orphan.library_id;
         let mut lock = self.conn.writer().lock_owned().await;
         let mut tx = match database::write_tx(&mut lock)
-            .instrument(debug_span!("TxBegin"))
             .await
         {
             Ok(x) => x,
