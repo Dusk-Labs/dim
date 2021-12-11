@@ -36,7 +36,7 @@ pub async fn insert_into_queue(poster: String, priority: usize) {
 
 #[instrument]
 async fn process_queue(mut rx: UnboundedReceiver<(String, usize)>) {
-    while let Some((url, priority)) = rx.recv().await {
+    while let Some((url, _priority)) = rx.recv().await {
         debug!("Trying to cache {}", url);
 
         match reqwest::get(url.as_str()).await {

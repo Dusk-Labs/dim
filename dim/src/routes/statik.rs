@@ -12,6 +12,7 @@ use crate::fetcher::insert_into_queue;
 
 pub mod filters {
     use super::super::global_filters::with_state;
+    #[allow(unused_imports)]
     use rust_embed::RustEmbed;
     use serde::Deserialize;
     use std::path::PathBuf;

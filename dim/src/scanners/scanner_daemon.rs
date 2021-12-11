@@ -1,11 +1,9 @@
 use crate::core::EventTx;
 
-use std::array::IntoIter;
 use std::path::PathBuf;
 use std::sync::mpsc;
 use std::time::Duration;
 
-use database::get_conn;
 use database::library::Library;
 use database::library::MediaType;
 use database::media::Media;
@@ -115,7 +113,7 @@ impl FsWatcher {
                 let _ = super::start_custom(
                     self.library_id,
                     self.tx.clone(),
-                    IntoIter::new([x]),
+                    IntoIterator::into_iter([x]),
                     self.media_type,
                 )
                 .await;

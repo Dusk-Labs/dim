@@ -102,6 +102,7 @@ impl Tmdb {
 
         #[derive(Deserialize, Clone, Debug)]
         struct GenrePair {
+            #[allow(dead_code)]
             pub id: u64,
             pub name: String,
         }

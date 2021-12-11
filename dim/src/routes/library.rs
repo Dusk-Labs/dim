@@ -177,7 +177,6 @@ pub async fn library_post(
     tx.commit().await?;
     drop(lock);
 
-    let media_type = new_library.media_type;
     let tx_clone = event_tx.clone();
 
     // NOTE: We might need to spawn the scanner daemon here too.

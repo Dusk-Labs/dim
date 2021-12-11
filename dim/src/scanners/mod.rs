@@ -4,14 +4,11 @@ pub mod scanner_daemon;
 pub mod tmdb;
 pub mod tv_show;
 
-use database::get_conn;
 use database::library::Library;
 use database::library::MediaType;
 
-use tracing::debug_span;
 use tracing::info;
 use tracing::instrument;
-use tracing::Instrument;
 
 use crate::core::DbConnection;
 use crate::core::EventTx;

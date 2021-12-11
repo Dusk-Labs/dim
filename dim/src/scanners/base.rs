@@ -6,7 +6,6 @@ use tracing::debug;
 use tracing::debug_span;
 use tracing::error;
 use tracing::info;
-use tracing::info_span;
 use tracing::instrument;
 use tracing::warn;
 use tracing::Instrument;
