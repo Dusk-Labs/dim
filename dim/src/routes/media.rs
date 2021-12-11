@@ -210,7 +210,7 @@ pub async fn get_media_by_id(
                         .unwrap_or((0, 1));
 
                 if (delta as f64 / duration as f64) > 0.90 {
-                    if let Ok(next_episode) = ep.get_next_episode(&mut tx, id).await {
+                    if let Ok(next_episode) = ep.get_next_episode(&mut tx).await {
                         let (delta, _duration) = Progress::get_progress_for_media(
                             &mut tx,
                             ep.id,
