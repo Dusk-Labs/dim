@@ -103,14 +103,12 @@ pub fn try_get_conn() -> Option<&'static crate::DbConnection> {
 #[cfg(all(feature = "sqlite", test))]
 pub async fn get_conn_memory() -> sqlx::Result<crate::DbConnection> {
     let pool = sqlx::Pool::connect(":memory:").await?;
-    todo!()
-    /*
-    let rw = pool.acquire().await?.leak();
+    let connection: sqlx::pool::PoolConnection<sqlx::Sqlite> = pool.acquire().await?;
+    let rw = connection.release();
     let pool = rw_pool::SqlitePool::new(rw, pool);
     let _ = run_migrations(&pool).await?;
 
     Ok(pool)
-    */
 }
 
 /// Function returns a connection to the development table of dim. This is mainly used for unit
