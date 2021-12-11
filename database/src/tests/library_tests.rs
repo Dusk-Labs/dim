@@ -1,5 +1,7 @@
 use crate::get_conn_memory;
 use crate::library;
+use crate::write_tx;
+
 use std::sync::atomic::AtomicU64;
 use std::sync::atomic::Ordering;
 
@@ -17,16 +19,16 @@ pub async fn create_test_library(conn: &mut crate::Transaction<'_>) -> i64 {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_insert() {
-    let conn = get_conn_memory().await.unwrap().read();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let id = create_test_library(&mut tx).await;
     assert_eq!(id, 1);
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_one() {
-    let conn = get_conn_memory().await.unwrap().read();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let id = create_test_library(&mut tx).await;
 
     let result = library::Library::get_one(&mut tx, id).await.unwrap();
@@ -36,8 +38,8 @@ async fn test_get_one() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_all() {
-    let conn = get_conn_memory().await.unwrap().read();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     for _ in 0..10 {
         create_test_library(&mut tx).await;
     }
@@ -49,8 +51,8 @@ async fn test_get_all() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_delete() {
-    let conn = get_conn_memory().await.unwrap().read();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let id = create_test_library(&mut tx).await;
 
     library::Library::get_one(&mut tx, id).await.unwrap();

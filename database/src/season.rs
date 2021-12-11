@@ -150,7 +150,7 @@ impl InsertableSeason {
         id: i64,
     ) -> Result<i64, DatabaseError> {
         let result = sqlx::query!(
-            r#"SELECT id as "id!" FROM season WHERE season_number = ? AND tvshowid = ?"#,
+            r#"SELECT id as "id!" FROM _tblseason WHERE season_number = ? AND tvshowid = ?"#,
             self.season_number,
             id
         )

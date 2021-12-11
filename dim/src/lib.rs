@@ -56,7 +56,7 @@ pub use routes::settings::GlobalSettings;
 pub fn setup_logging(_debug: bool) {
     let _ = create_dir_all("logs");
 
-    if let Err(_) = std::env::var("RUST_LOG") {
+    if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "info");
     }
 
@@ -65,7 +65,11 @@ pub fn setup_logging(_debug: bool) {
 
     let subscriber = tracing_subscriber::registry()
         .with(EnvFilter::from_default_env())
-        .with(fmt::layer().with_writer(std::io::stdout))
+        .with(
+            fmt::layer()
+                .with_span_events(fmt::format::FmtSpan::CLOSE | fmt::format::FmtSpan::NEW)
+                .with_writer(std::io::stdout),
+        )
         .with(fmt::layer().json().with_writer(non_blocking_file));
 
     let _ = tracing::subscriber::set_global_default(subscriber);

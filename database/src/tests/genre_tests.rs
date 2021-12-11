@@ -2,6 +2,7 @@ use crate::genre;
 use crate::get_conn_memory;
 use crate::library;
 use crate::media;
+use crate::write_tx;
 
 use super::library_tests::create_test_library;
 
@@ -14,8 +15,8 @@ pub async fn insert_genre(conn: &mut crate::Transaction<'_>, name: String) -> i6
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_by_name() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let id = insert_genre(&mut tx, "Test".into()).await;
 
     let result = genre::Genre::get_by_name(&mut tx, "Test".into())
@@ -27,8 +28,8 @@ async fn test_get_by_name() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_by_media() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let _ = create_test_library(&mut tx).await;
 
     let id = insert_genre(&mut tx, "Test".into()).await;
@@ -63,8 +64,8 @@ async fn test_get_by_media() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_get_by_id() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let id = insert_genre(&mut tx, "Test".into()).await;
 
     let result = genre::Genre::get_by_id(&mut tx, id).await.unwrap();
@@ -74,8 +75,8 @@ async fn test_get_by_id() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_delete() {
-    let conn = get_conn_memory().await.unwrap().write();
-    let mut tx = conn.begin().await.unwrap();
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
     let id = insert_genre(&mut tx, "Test".into()).await;
 
     let rows = genre::Genre::delete(&mut tx, id).await.unwrap();

@@ -212,7 +212,7 @@ async fn banner_for_show(
                 .unwrap_or((0, 1));
 
         if (delta as f64 / duration as f64) > 0.90 {
-            ep.get_next_episode(&mut *conn, media.id)
+            ep.get_next_episode(&mut *conn)
                 .await
                 .unwrap_or(ep)
         } else {

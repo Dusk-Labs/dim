@@ -84,8 +84,6 @@ fn main() {
     nightfall::profiles::profiles_init(crate::streaming::FFMPEG_BIN.to_string());
 
     let async_main = async move {
-        dim::fetcher::tmdb_poster_fetcher().await;
-
         let (event_tx, event_rx) = tokio::sync::mpsc::unbounded_channel();
 
         let stream_manager = nightfall::StateManager::new(
