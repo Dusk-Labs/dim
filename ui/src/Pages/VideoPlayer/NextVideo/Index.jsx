@@ -21,7 +21,7 @@ function NextVideo(props) {
 
   useEffect(() => {
     dispatch(fetchMediaInfo(id));
-  }, [dispatch]);
+  }, [dispatch, id]);
 
   return (
     <div className={`nextVideoOverlay ${visibile}`}>

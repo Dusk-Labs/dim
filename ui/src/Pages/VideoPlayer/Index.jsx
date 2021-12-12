@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useParams } from "react-router";
-import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { MediaPlayer, Debug } from "dashjs";
 
@@ -21,7 +20,6 @@ import "./Index.scss";
 
 function VideoPlayer() {
   const params = useParams();
-  const history = useHistory();
   const dispatch = useDispatch();
 
   const { error, manifest, player, audioTracks, videoTracks, video, auth, media } = useSelector(store => ({
@@ -54,8 +52,7 @@ function VideoPlayer() {
 
   useEffect(() => {
     dispatch(setGID(null));
-    console.log(history);
-  }, [params.fileID, history]);
+  }, [params.fileID, dispatch]);
 
   useEffect(() => {
     if (video.gid) return;
