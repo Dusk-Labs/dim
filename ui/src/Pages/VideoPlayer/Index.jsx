@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useParams } from "react-router";
+import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { MediaPlayer, Debug } from "dashjs";
 
@@ -20,6 +21,7 @@ import "./Index.scss";
 
 function VideoPlayer() {
   const params = useParams();
+  const history = useHistory();
   const dispatch = useDispatch();
 
   const { error, manifest, player, audioTracks, videoTracks, video, auth, media } = useSelector(store => ({
@@ -38,6 +40,22 @@ function VideoPlayer() {
   const videoRef = useRef(null);
 
   const { token } = auth;
+
+  useEffect(() => {
+    if (!video.mediaID) {
+      document.title = "Dim - Video Player";
+      return;
+    }
+
+    if (media[video.mediaID]?.info?.data.name) {
+      document.title = `Dim - Playing '${media[video.mediaID].info.data.name}'`;
+    }
+  }, [media, video.mediaID]);
+
+  useEffect(() => {
+    dispatch(setGID(null));
+    console.log(history);
+  }, [params.fileID, history]);
 
   useEffect(() => {
     if (video.gid) return;
@@ -75,17 +93,6 @@ function VideoPlayer() {
   }, [dispatch, params.fileID, token, video.gid]);
 
   useEffect(() => {
-    if (!video.mediaID) {
-      document.title = "Dim - Video Player";
-      return;
-    }
-
-    if (media[video.mediaID]?.info?.data.name) {
-      document.title = `Dim - Playing '${media[video.mediaID].info.data.name}'`;
-    }
-  }, [media, video.mediaID]);
-
-  useEffect(() => {
     if (!video.gid || !manifest.virtual.loaded) return;
 
     console.log("[video] loading manifest");
@@ -99,23 +106,11 @@ function VideoPlayer() {
     const url = `/api/v1/stream/${video.gid}/manifest.mpd?start_num=0&should_kill=false&includes=${includes}`;
     const mediaPlayer = MediaPlayer().create();
 
-    // even with these settings, high bitrate movies fail.
-    // The only solution is to have a constant bitrate and cosistent segments.
-    // Thus transcoding is the only solution.
     let settings = {
       debug: {
         logLevel: Debug.LOG_LEVEL_DEBUG
       },
       streaming: {
-        /*
-        stableBufferTime: 20,
-        bufferToKeep: 10,
-        bufferTimeAtTopQuality: 20,
-        bufferTimeAtTopQualityLongForm: 20,
-        useAppendWindow: true,
-        bufferPruningInterval: 10,
-        smallGapLimit: 1000,
-        */
         /* FIXME: Disabling temporarily because the code for this function is unsound
         gaps: {
           enableSeekFix: true
