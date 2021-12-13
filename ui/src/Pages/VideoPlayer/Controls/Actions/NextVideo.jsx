@@ -18,7 +18,7 @@ function VideoActionNextVideo() {
   const currentMedia = media[video.mediaID];
 
   useEffect(() => {
-    const videoId = currentMedia?.info?.data?.prev_episode_id;
+    const videoId = currentMedia?.info?.data?.next_episode_id;
     if(!videoId) return;
 
     setEnable(true);
