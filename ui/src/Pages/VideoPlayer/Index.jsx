@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useParams } from "react-router";
+import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { MediaPlayer, Debug } from "dashjs";
 
@@ -21,6 +22,7 @@ import "./Index.scss";
 function VideoPlayer() {
   const params = useParams();
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const { error, manifest, player, audioTracks, videoTracks, video, auth, media } = useSelector(store => ({
     media: store.media,
@@ -50,6 +52,22 @@ function VideoPlayer() {
     }
   }, [media, video.mediaID]);
 
+  // If playback finished, redirect to the next video
+  useEffect(() => {
+    const currentMedia = media[video.mediaID];
+    const nextEpisodeId = currentMedia?.info?.data?.next_episode_id;
+    const nextMedia = nextEpisodeId ? media[nextEpisodeId] : null;
+    const item = nextMedia?.files?.items[0];
+
+    if(!item) return;
+
+    const ts_diff = video.currentTime - currentMedia?.info?.data?.duration;
+    if(video.playback_ended && ts_diff < 10) {
+      history.replace(`/play/${item.id}`, { from: history.location.pathname });
+    }
+  }, [media, video.mediaID, video.currentTime, video.playback_ended, history]);
+
+  // Reset GID if play id changes so that this component loads a new video.
   useEffect(() => {
     dispatch(setGID(null));
   }, [params.fileID, dispatch]);
@@ -184,6 +202,7 @@ function VideoPlayer() {
   };
 
   const nextEpisodeId = media[video.mediaID]?.info?.data.next_episode_id;
+  const showNextVideoAfter = media[video.mediaID]?.info?.data?.chapters?.credits || 0;
 
   return (
     <VideoPlayerContext.Provider value={initialValue}>
@@ -194,7 +213,7 @@ function VideoPlayer() {
         <VideoSubtitles/>
         <div className="overlay" ref={overlay}>
           {(!error && (manifest.loaded && video.canPlay)) && <Menus/>}
-          {(!error && (manifest.loaded && video.canPlay) && nextEpisodeId) && <NextVideo id={nextEpisodeId}/>}
+          {(!error && (manifest.loaded && video.canPlay) && nextEpisodeId) && <NextVideo id={nextEpisodeId} showAfter={showNextVideoAfter}/>}
           {(!error && (manifest.loaded && video.canPlay)) && <VideoControls/>}
           {(!error & (manifest.loading || !video.canPlay) || video.waiting) && <RingLoad/>}
           {((!error && (manifest.loaded && video.canPlay)) && media[video.mediaID]?.info?.data.progress > 0) && (
