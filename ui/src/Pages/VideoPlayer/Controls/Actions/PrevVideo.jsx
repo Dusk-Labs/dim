@@ -17,7 +17,7 @@ function VideoActionPrevVideo() {
   const dispatch = useDispatch();
   const currentMedia = media[video.mediaID];
 
-  const prevEpisodeId = currentMedia.info?.data?.prev_episode_id;
+  const prevEpisodeId = currentMedia?.info?.data?.prev_episode_id;
   const nextMedia = prevEpisodeId ? media[prevEpisodeId] : null;
 
   useEffect(() => {
