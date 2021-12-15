@@ -293,11 +293,28 @@ pub async fn get_media_by_id(
     };
 
     let next_episode_id = match Episode::get_by_id(&mut tx, id).await {
-        Ok(x) => x
-            .get_next_episode(&mut tx)
-            .await
-            .ok()
-            .map(|x| json!({"next_episode_id": x.id})),
+        Ok(x) => {
+            let next_episode = x
+                .get_next_episode(&mut tx)
+                .await
+                .map(|x| json!({"next_episode_id": x.id}))
+                .ok();
+
+            let prev_episode = x
+                .get_prev_episode(&mut tx)
+                .await
+                .map(|x| json!({"prev_episode_id": x.id}))
+                .ok();
+
+            if next_episode.is_some() || prev_episode.is_some() {
+                Some(json!({
+                    ..?next_episode,
+                    ..?prev_episode,
+                }))
+            } else {
+                None
+            }
+        },
         Err(_) => None,
     };
 
