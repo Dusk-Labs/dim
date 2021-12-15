@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { MediaPlayer, Debug } from "dashjs";
 
 import { setTracks, setGID, setManifestState, updateVideo, incIdleCount, clearVideoData } from "../../actions/video";
+import { fetchUserSettings } from "../../actions/settings.js";
 import { VideoPlayerContext } from "./Context";
 import VideoEvents from "./Events";
 import VideoMediaData from "./MediaData";
@@ -24,7 +25,7 @@ function VideoPlayer() {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const { error, manifest, player, audioTracks, videoTracks, video, auth, media } = useSelector(store => ({
+  const { error, manifest, player, audioTracks, videoTracks, video, auth, media, settings } = useSelector(store => ({
     media: store.media,
     auth: store.auth,
     video: store.video,
@@ -32,7 +33,8 @@ function VideoPlayer() {
     manifest: store.video.manifest,
     videoTracks: store.video.tracks.video,
     audioTracks: store.video.tracks.audio,
-    error: store.video.error
+    error: store.video.error,
+    settings: store.settings
   }));
 
   const videoPlayer = useRef(null);
@@ -52,8 +54,18 @@ function VideoPlayer() {
     }
   }, [media, video.mediaID]);
 
+  // FIXME: Not sure where the best place to do this is, but we need userSettings, but sometimes the user navigates to /play directly so we never fetch userSettings
+  useEffect(() => {
+    if(settings.userSettings.fetching || settings.userSettings.fetched)
+      return;
+
+    dispatch(fetchUserSettings());
+  }, [dispatch, settings.userSettings]);
+
   // If playback finished, redirect to the next video
   useEffect(() => {
+    if(!!settings?.userSettings?.data?.enable_autoplay) return;
+
     const currentMedia = media[video.mediaID];
     const nextEpisodeId = currentMedia?.info?.data?.next_episode_id;
     const nextMedia = nextEpisodeId ? media[nextEpisodeId] : null;
@@ -65,7 +77,7 @@ function VideoPlayer() {
     if(video.playback_ended && ts_diff < 10) {
       history.replace(`/play/${item.id}`, { from: history.location.pathname });
     }
-  }, [media, video.mediaID, video.currentTime, video.playback_ended, history]);
+  }, [media, video.mediaID, video.currentTime, video.playback_ended, history, settings, settings.userSettings]);
 
   // Reset GID if play id changes so that this component loads a new video.
   useEffect(() => {
