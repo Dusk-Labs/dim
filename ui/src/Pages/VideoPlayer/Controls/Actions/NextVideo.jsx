@@ -17,28 +17,22 @@ function VideoActionNextVideo() {
   const dispatch = useDispatch();
   const currentMedia = media[video.mediaID];
 
+  const nextEpisodeId = currentMedia.info?.data?.next_episode_id;
+  const nextMedia = nextEpisodeId ? media[nextEpisodeId] : null;
+
   useEffect(() => {
-    const videoId = currentMedia?.info?.data?.next_episode_id;
-    if(!videoId) return;
+    if(!nextEpisodeId) return;
 
     setEnable(true);
-    dispatch(fetchMediaFiles(videoId));
-  }, [dispatch, video.mediaID, currentMedia]);
+    dispatch(fetchMediaFiles(nextEpisodeId));
+  }, [dispatch, nextEpisodeId]);
 
   const nextVideo = useCallback(() => {
-    if(!video.mediaID) return;
+    const item = nextMedia?.files?.items[0];
+    if(!item) return;
 
-    const nextVideoId = media[video.mediaID]?.info?.data.next_episode_id;
-    const item = media[nextVideoId]?.files?.items[0];
-
-    if (item) {
-      if (history.location.state?.from && history.location.state.from.startsWith("/play")) {
-        history.replace(`/play/${item.id}`, { from: history.location.pathname });
-      } else {
-        history.push(`/play/${item.id}`, { from: history.location.pathname });
-      }
-    }
-  }, [history, video.mediaID, media]);
+    history.replace(`/play/${item.id}`, { from: history.location.pathname });
+  }, [history, nextMedia]);
 
   return (
     <button onClick={nextVideo} className={`next_video ${enabled}`} disabled={!enabled}>
