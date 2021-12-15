@@ -7,7 +7,7 @@ import { fetchMediaInfo } from "../../../actions/media";
 import "./Index.scss";
 
 function NextVideo(props) {
-  const { id } = props;
+  const { id, showAfter } = props;
   const dispatch = useDispatch();
   const { video } = useSelector(store => ({
     video: store.video
@@ -16,8 +16,8 @@ function NextVideo(props) {
   const [visibile, setVisible] = useState(true);
 
   useEffect(() => {
-    setVisible(video.idleCount <= 2);
-  }, [video.idleCount, setVisible]);
+    setVisible(video.idleCount <= 2 && video.currentTime >= showAfter);
+  }, [video.idleCount, video.currentTime, setVisible, showAfter]);
 
   useEffect(() => {
     dispatch(fetchMediaInfo(id));
