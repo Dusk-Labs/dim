@@ -1,20 +1,20 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateGlobalSettings } from "../../../actions/settings";
+import { updateUserSettings } from "../../../actions/settings";
 
 import Toggle from "../../../Components/Toggle";
 
-function TranscoderDefaults() {
+function Autoplay() {
   const dispatch = useDispatch();
 
   const enable_autoplay = useSelector(store => {
-    const { data } = store.settings.globalSettings;
+    const { data } = store.settings.userSettings;
 
     return data.enable_autoplay;
   });
 
   const handleToggle = useCallback((state) => {
-    dispatch(updateGlobalSettings({
+    dispatch(updateUserSettings({
       enable_autoplay: state
     }));
   }, [dispatch]);
@@ -31,4 +31,4 @@ function TranscoderDefaults() {
   );
 }
 
-export default TranscoderDefaults;
+export default Autoplay;

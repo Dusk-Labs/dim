@@ -64,7 +64,7 @@ function VideoPlayer() {
 
   // If playback finished, redirect to the next video
   useEffect(() => {
-    if(!!settings?.userSettings?.data?.enable_autoplay) return;
+    if(!settings?.userSettings?.data?.enable_autoplay) return;
 
     const currentMedia = media[video.mediaID];
     const nextEpisodeId = currentMedia?.info?.data?.next_episode_id;
