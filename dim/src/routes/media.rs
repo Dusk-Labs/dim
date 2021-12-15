@@ -292,13 +292,20 @@ pub async fn get_media_by_id(
         _ => None,
     };
 
+    const EPISODE_DONE_THRESH: f64 = 0.9;
+
     let next_episode_id = match Episode::get_by_id(&mut tx, id).await {
         Ok(x) => {
-            let next_episode = x
-                .get_next_episode(&mut tx)
-                .await
-                .map(|x| json!({"next_episode_id": x.id}))
-                .ok();
+            let next_episode = if let Ok(x) = x.get_next_episode(&mut tx).await {
+                Some(json!({
+                    "next_episode_id": x.id,
+                    "chapters": {
+                        "credits": x.media.get_first_duration(&mut tx).await as f64 * EPISODE_DONE_THRESH
+                    }
+                }))
+            } else {
+                None
+            };
 
             let prev_episode = x
                 .get_prev_episode(&mut tx)
