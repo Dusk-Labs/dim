@@ -47,8 +47,7 @@ pub async fn run_scanners(tx: EventTx) {
                     library_id,
                     media_type,
                     tx_clone.clone(),
-                )
-                .await;
+                );
 
                 tokio::spawn(scanners::start(conn.clone(), library_id, tx_clone.clone()));
                 tokio::spawn(async move {

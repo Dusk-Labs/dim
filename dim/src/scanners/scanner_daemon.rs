@@ -39,7 +39,7 @@ pub struct FsWatcher {
 }
 
 impl FsWatcher {
-    pub async fn new(
+    pub fn new(
         conn: DbConnection,
         library_id: i64,
         media_type: MediaType,
