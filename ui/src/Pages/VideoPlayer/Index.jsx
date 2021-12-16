@@ -13,7 +13,8 @@ import Menus from "./Menus/Index";
 import VideoControls from "./Controls/Index";
 import ErrorBox from "./ErrorBox";
 import ContinueProgress from "./ContinueProgress";
-import VideoSubtitles from "./Subtitles";
+import VttSubtitles from "./VttSubtitles";
+import SsaSubtitles from "./SsaSubtitles";
 
 import "./Index.scss";
 
@@ -41,8 +42,9 @@ function VideoPlayer() {
   useEffect(() => {
     if (video.gid) return;
 
+    // FIXME: Remove hardcoded `force_ass`
     const host = (
-      `/api/v1/stream/${params.fileID}/manifest`
+      `/api/v1/stream/${params.fileID}/manifest?force_ass=true`
     );
 
     (async () => {
@@ -59,7 +61,7 @@ function VideoPlayer() {
 
       const tVideos = payload.tracks.filter(track => track.content_type === "video");
       const tAudios = payload.tracks.filter(track => track.content_type === "audio");
-      const tSubtitles = payload.tracks.filter(track => track.content_type === "subtitle").filter(track => track.codecs === "vtt");
+      const tSubtitles = payload.tracks.filter(track => track.content_type === "subtitle");
 
       dispatch(setTracks({
         video: tVideos,
@@ -196,7 +198,8 @@ function VideoPlayer() {
         <VideoEvents/>
         <VideoMediaData/>
         <video ref={videoRef}/>
-        <VideoSubtitles/>
+        <VttSubtitles/>
+        <SsaSubtitles/>
         <div className="overlay" ref={overlay}>
           {(!error && (manifest.loaded && video.canPlay)) && <Menus/>}
           {(!error && (manifest.loaded && video.canPlay)) && <VideoControls/>}

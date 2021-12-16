@@ -18,6 +18,7 @@ function VideoSubtitles() {
     tracks: store.video.tracks.subtitle.list,
     ready: store.video.tracks.subtitle.ready
   }));
+  const isVtt = tracks[current]?.chunk_path?.endsWith("vtt");
 
   const { videoRef } = useContext(VideoPlayerContext);
 
@@ -59,7 +60,7 @@ function VideoSubtitles() {
     to simply clear text track cues and append new ones
   */
   useEffect(() => {
-    if (!videoRef.current || !video.textTrackEnabled) return;
+    if (!videoRef.current || !video.textTrackEnabled || !isVtt) return;
 
     console.log("[Subtitles] track changed");
 
@@ -77,7 +78,7 @@ function VideoSubtitles() {
 
     console.log("[Subtitles] created and appended new track");
     videoRef.current.appendChild(newTrack);
-  }, [video.textTrackEnabled, videoRef, current]);
+  }, [video.textTrackEnabled, videoRef, current, isVtt]);
 
   // clear current cue if track changed
   useEffect(() => {
@@ -87,7 +88,7 @@ function VideoSubtitles() {
   }, [dispatch, current]);
 
   useEffect(() => {
-    if (!video.textTrackEnabled || !videoRef.current || current === -1 || video.prevSubs === current) return;
+    if (!isVtt || !video.textTrackEnabled || !videoRef.current || current === -1 || video.prevSubs === current) return;
 
     let prev = 0;
 
@@ -128,19 +129,13 @@ function VideoSubtitles() {
       console.log("[Subtitles] component unmounted, clearing fetching interval");
       clearInterval(intervalID);
     };
-  }, [current, dispatch, tracks, video.prevSubs, video.textTrackEnabled, videoRef]);
+  }, [current, dispatch, tracks, video.prevSubs, video.textTrackEnabled, videoRef, isVtt]);
 
   useEffect(() => {
-    if (!ready || !player) return;
-
-    console.log("[Subtitles] ready to show subtitles", current);
-  }, [current, player, ready]);
-
-  useEffect(() => {
-    if (videoRef.current) return;
+    if (videoRef.current || !isVtt) return;
     console.log("[Subtitles] setting player text status to", video.textTrackEnabled);
     videoRef.current.textTracks[0].mode = video.textTrackEnabled ? "showing" : "hidden";
-  }, [video.textTrackEnabled, videoRef]);
+  }, [video.textTrackEnabled, videoRef, isVtt]);
 
   useEffect(() => {
     window.addEventListener("resize", updateBlackBarHeight);
@@ -153,7 +148,7 @@ function VideoSubtitles() {
   }, [video.canPlay, updateBlackBarHeight]);
 
   useEffect(() => {
-    if (!videoRef.current || !video.canPlay || !ready) return;
+    if (!videoRef.current || !video.canPlay || !ready || !isVtt) return;
 
     console.log("[Subtitles] html video tracks", videoRef.current.textTracks);
 
@@ -162,7 +157,7 @@ function VideoSubtitles() {
     if (track) {
       track.addEventListener("cuechange", handleCueChange);
     }
-  }, [handleCueChange, ready, video.canPlay, videoRef]);
+  }, [handleCueChange, ready, video.canPlay, videoRef, isVtt]);
 
   return (
     <div className={`videoSubtitles show-${video.textTrackEnabled && show}`}>
