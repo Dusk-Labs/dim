@@ -1,21 +1,20 @@
-import { useCallback, useEffect, useState, useContext, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState, useContext } from "react";
+import { useSelector } from "react-redux";
 
 import { VideoPlayerContext } from "./Context";
-import { updateTrack, updateVideo } from "../../actions/video";
 
 import SubtitleOctopus from "libass-wasm/dist/js/subtitles-octopus";
 
 import "./Subtitles.scss";
 
 function VideoSubtitles() {
-  const { video, player, subtitle } = useSelector(store => ({
+  const { video, subtitle } = useSelector(store => ({
     video: store.video,
-    player: store.video.player,
     subtitle: store.video.tracks.subtitle
   }));
 
-  const isAss = subtitle.list[subtitle.current]?.chunk_path?.endsWith("ass");
+  const isAssEnabled = localStorage.getItem("enable_ssa") === "true";
+  const isAss = isAssEnabled && subtitle.list[subtitle.current]?.chunk_path?.endsWith("ass");
   const [octopus, setOctopus] = useState();
   const { videoRef } = useContext(VideoPlayerContext);
 

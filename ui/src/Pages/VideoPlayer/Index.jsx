@@ -42,9 +42,9 @@ function VideoPlayer() {
   useEffect(() => {
     if (video.gid) return;
 
-    // FIXME: Remove hardcoded `force_ass`
+    const force_ass = localStorage.getItem("enable_ssa") === "true";
     const host = (
-      `/api/v1/stream/${params.fileID}/manifest?force_ass=true`
+      `/api/v1/stream/${params.fileID}/manifest?force_ass=${force_ass}`
     );
 
     (async () => {
