@@ -9,8 +9,6 @@ import SubtitleOctopus from "libass-wasm/dist/js/subtitles-octopus";
 import "./Subtitles.scss";
 
 function VideoSubtitles() {
-  const dispatch = useDispatch();
-
   const { video, player, subtitle } = useSelector(store => ({
     video: store.video,
     player: store.video.player,
@@ -32,12 +30,21 @@ function VideoSubtitles() {
     };
 
     setOctopus(new SubtitleOctopus(options));
-  }, [video, dispatch, videoRef, subtitle, isAss, setOctopus]);
 
-  return (
-    <>
-    </>
-  );
+    return () => {
+      console.log("[subtitle] disposing of octopus ctx");
+      if(octopus) octopus.dispose();
+    };
+  }, [video, videoRef, subtitle, isAss, setOctopus, octopus]);
+
+  useEffect(() => {
+    if (!octopus || !video.textTrackEnabled || video.prevSubs === subtitle.current || !isAss || !videoRef) return;
+
+    const chunk_path = `//${window.location.host}/api/v1/stream/${subtitle.list[subtitle.current].chunk_path}`;
+    octopus.setTrackByUrl(chunk_path);
+  }, [octopus, video.textTrackEnabled, video.prevSubs, subtitle, isAss]);
+
+  return null;
 }
 
 export default VideoSubtitles;
