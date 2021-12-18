@@ -73,8 +73,9 @@
     padding: 1em;
     border-radius: 5px;
     background: transparent;
+    pointer-events: initial;
 
-    &:hover svg, &:focus svg {
+    &:not(.false):hover svg, &:not(.false):focus svg {
       fill: var(--accentColor);
     }
 
@@ -99,6 +100,14 @@
 
       svg {
         fill: var(--primaryTextColor);
+      }
+    }
+
+    &.false {
+      pointer-events: none;
+
+      svg {
+        fill: #555;
       }
     }
   }

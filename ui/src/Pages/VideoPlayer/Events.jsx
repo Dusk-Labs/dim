@@ -71,9 +71,13 @@ function VideoEvents() {
     }));
   }, [dispatch]);
 
-  const ePlayBackEnded = useCallback(e => {
-    console.log("[VIDEO] playback ended", e);
-  }, []);
+  const ePlayBackEnded = useCallback(() => {
+    console.log("[VIDEO] playback ended");
+
+    dispatch(updateVideo({
+      playback_ended: true
+    }));
+  }, [dispatch]);
 
   const eError = useCallback(e => {
     // segment not available

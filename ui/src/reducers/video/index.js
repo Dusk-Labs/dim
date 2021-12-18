@@ -66,7 +66,8 @@ const initialState = {
   currentTime: 0,
   duration: 0,
   currentCue: [],
-  idleCount: 0
+  idleCount: 0,
+  playback_ended: false
 };
 
 export default function videoReducer(state = initialState, action) {

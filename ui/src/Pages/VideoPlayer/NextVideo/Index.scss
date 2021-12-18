@@ -1,0 +1,26 @@
+.nextVideoOverlay {
+  display: flex;
+  grid-area: next_ep;
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  justify-content: flex-end;
+  transition: opacity 100ms ease-in-out;
+
+  &.true {
+    opacity: 1;
+  }
+
+  &.false {
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  .nextVideoBtn {
+    display: flex;
+    height: 40px;
+    width: 130px;
+    background-color: #ccc;
+    justify-content: center;
+  }
+}

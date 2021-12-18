@@ -23,9 +23,10 @@
     display: grid;
     gap: 1em;
     align-items: flex-end;
-    grid-template-rows: 1fr auto;
+    grid-template-rows: 1fr 1fr auto;
     grid-template-areas:
       "menus"
+      "next_ep"
       "controls";
     transition: background 200ms ease-in-out;
 
@@ -126,7 +127,7 @@
     .overlay {
       grid-template-rows: 1fr auto;
       grid-template-columns: 200px 1fr 200px;
-      grid-template-areas: ". menus ." ". controls .";
+      grid-template-areas: ". menus ." " . next_ep ." ". controls .";
     }
   }
 }

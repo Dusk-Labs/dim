@@ -9,6 +9,9 @@ import Subtitles from "./Subtitles";
 import Fullscreen from "./Fullscreen";
 import VideoActionSettings from "./Settings";
 
+import NextVideo from "./NextVideo";
+import PrevVideo from "./PrevVideo";
+
 import { VideoPlayerContext } from "../../Context";
 import { updateVideo } from "../../../../actions/video";
 
@@ -59,9 +62,11 @@ function VideoActions(props) {
         <Volume/>
       </section>
       <section className="middle">
+        <PrevVideo/>
         <SeekBack/>
         <PlayPause/>
         <SeekForward/>
+        <NextVideo/>
       </section>
       <section className="right">
         <VideoActionSettings/>

@@ -152,8 +152,7 @@ impl Progress {
         Ok(sqlx::query_scalar(
             r#"SELECT _tblmedia.id  FROM _tblmedia
 
-            JOIN tv_show on tv_show.id = _tblmedia.id
-            JOIN season on season.tvshowid = tv_show.id
+            JOIN season on season.tvshowid = _tblmedia.id
             JOIN episode on episode.seasonid = season.id
             JOIN progress on progress.media_id = episode.id
             JOIN library on library.id = _tblmedia.library_id

@@ -11,8 +11,8 @@ use http::StatusCode;
 #[derive(Clone, Debug, Error, Serialize)]
 #[serde(tag = "error")]
 pub enum DimError {
-    #[error(display = "A database error occured")]
-    DatabaseError,
+    #[error(display = "A database error occured: {}", description)]
+    DatabaseError { description: String },
     #[error(display = "A database error occured")]
     RawDatabaseError(String),
     #[error(display = "Some function returned none")]
@@ -58,7 +58,7 @@ impl warp::Reply for DimError {
         let status = match self {
             Self::LibraryNotFound | Self::NoneError | Self::NotFoundError => StatusCode::NOT_FOUND,
             Self::StreamingError(_)
-            | Self::DatabaseError
+            | Self::DatabaseError { .. }
             | Self::RawDatabaseError(_)
             | Self::UnknownError
             | Self::IOError
@@ -198,8 +198,10 @@ impl From<std::io::Error> for StreamingErrors {
 
 use database::DatabaseError;
 impl From<DatabaseError> for DimError {
-    fn from(_: DatabaseError) -> Self {
-        Self::DatabaseError
+    fn from(e: DatabaseError) -> Self {
+        Self::DatabaseError {
+            description: format!("{:?}", e),
+        }
     }
 }
 
