@@ -37,7 +37,7 @@ function VideoSubtitles() {
   }, [video, videoRef, subtitle, isAss, setOctopus, octopus]);
 
   useEffect(() => {
-    if (!octopus || !video.textTrackEnabled || video.prevSubs === subtitle.current || !isAss || !videoRef) return;
+    if (!octopus || !video.textTrackEnabled || video.prevSubs === subtitle.current || !isAss) return;
 
     const chunk_path = `//${window.location.host}/api/v1/stream/${subtitle.list[subtitle.current].chunk_path}`;
     octopus.setTrackByUrl(chunk_path);

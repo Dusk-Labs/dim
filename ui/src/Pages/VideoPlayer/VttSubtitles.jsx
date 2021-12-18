@@ -11,9 +11,8 @@ import "./Subtitles.scss";
 function VideoSubtitles() {
   const dispatch = useDispatch();
 
-  const { video, player, current, tracks, ready } = useSelector(store => ({
+  const { video, current, tracks, ready } = useSelector(store => ({
     video: store.video,
-    player: store.video.player,
     current: store.video.tracks.subtitle.current,
     tracks: store.video.tracks.subtitle.list,
     ready: store.video.tracks.subtitle.ready
