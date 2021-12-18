@@ -62,6 +62,8 @@ pub mod filters {
         #[derive(Deserialize)]
         struct QueryArgs {
             gid: Option<String>,
+            #[serde(default)]
+            force_ass: bool,
         }
 
         warp::path!("api" / "v1" / "stream" / i64 / "manifest")
@@ -73,7 +75,7 @@ pub mod filters {
             .and(with_state::<StreamTracking>(stream_tracking))
             .and_then(
                 |id: i64,
-                 QueryArgs { gid }: QueryArgs,
+                 QueryArgs { gid, force_ass }: QueryArgs,
                  auth: Auth,
                  conn: DbConnection,
                  state: StateManager,
@@ -81,7 +83,7 @@ pub mod filters {
                     let gid = gid.and_then(|x| Uuid::parse_str(x.as_str()).ok());
 
                     warp_unwrap!(
-                        super::return_virtual_manifest(state, stream_tracking, auth, conn, id, gid)
+                        super::return_virtual_manifest(state, stream_tracking, auth, conn, id, gid, force_ass)
                             .await
                     )
                 },
@@ -189,6 +191,19 @@ pub mod filters {
             })
     }
 
+    pub fn get_subtitle_ass(
+        state: StateManager,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "stream" / String / "data" / "stream.ass")
+            .and(warp::get())
+            .and(with_state::<StateManager>(state))
+            .and_then(|id: String, state: StateManager| async move {
+                super::get_subtitle_ass(state, id)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
     pub fn should_client_hard_seek(
         state: StateManager,
         stream_tracking: StreamTracking,
@@ -267,6 +282,7 @@ pub async fn return_virtual_manifest(
     conn: DbConnection,
     id: i64,
     gid: Option<Uuid>,
+    force_ass: bool,
 ) -> Result<impl warp::Reply, errors::StreamingErrors> {
     if let Some(gid) = gid {
         return Ok(reply::json(&json!({
@@ -317,7 +333,7 @@ pub async fn return_virtual_manifest(
     )
     .await?;
     create_audio(&info, &media, &stream_tracking, &gid, &state).await?;
-    create_subtitles(&info, &media, &stream_tracking, &gid, &state).await?;
+    create_subtitles(&info, &media, &stream_tracking, &gid, &state, force_ass).await?;
 
     stream_tracking.generate_sids(&gid).await;
 
@@ -582,18 +598,24 @@ pub async fn create_subtitles(
     stream_tracking: &StreamTracking,
     gid: &Uuid,
     state: &StateManager,
+    force_ass: bool,
 ) -> Result<(), errors::StreamingErrors> {
     let subtitles = info.find_by_type("subtitle");
 
     for stream in subtitles {
         let is_default = info.get_primary("subtitle") == Some(stream);
+        let is_ssa = ["ssa", "ass"].contains(&stream.codec_name.as_str()) && force_ass;
 
         if !["subrip", "ass", "ssa", "srt", "webvtt", "vtt"].contains(&stream.codec_name.as_str()) {
             // FIXME: hdmv_pgs_subtitle are not supported yet.
             continue;
         }
 
-        let output_codec = "webvtt";
+        let (mime, codec, output_codec) = if is_ssa {
+            ("text/ass", "ass", "ass")
+        } else {
+            ("text/vtt", "vtt", "webvtt")
+        };
 
         let ctx = ProfileContext {
             file: media.target_file.clone(),
@@ -605,9 +627,6 @@ pub async fn create_subtitles(
             },
             ..Default::default()
         };
-
-        let mime = "text/vtt";
-        let codec = "vtt";
 
         let lang = stream
             .get_language()
@@ -621,7 +640,12 @@ pub async fn create_subtitles(
         let profile_chain = get_profile_for(StreamType::Subtitle, &ctx);
         let subtitle = state.create(profile_chain, ctx).await?;
 
-        let chunk_path = format!("{}/data/stream.vtt", subtitle.clone());
+        let chunk_path = if is_ssa  {
+            format!("{}/data/stream.ass", subtitle.clone())
+        } else {
+            format!("{}/data/stream.vtt", subtitle.clone())
+        };
+
         let virtual_manifest =
             VirtualManifest::new(subtitle.clone(), chunk_path, None, ContentType::Subtitle)
                 .set_mime(mime)
@@ -799,6 +823,35 @@ pub async fn get_subtitle(
     .await?;
 
     Ok(reply_with_file(path, ("Content-Type", "text/vtt")).await)
+}
+
+/// Method mapped to `/api/v1/stream/<id>/data/stream.ass` attempts to transcode the underlying
+/// stream to ASS.
+///
+/// # Arguments
+/// * `id` - id of the underlying stream (Must be a subtitle stream of non-bitmap format).
+pub async fn get_subtitle_ass(
+    state: StateManager,
+    id: String,
+) -> Result<impl warp::Reply, errors::StreamingErrors> {
+    let path: String = timeout_segment(
+        || async {
+            if state.has_started(id.clone()).await.unwrap_or(false) {
+                if state.is_done(id.clone()).await.unwrap_or(false) {
+                    return state.get_sub(id.clone(), "stream".into()).await;
+                }
+            } else {
+                let _ = state.start(id.clone()).await;
+            }
+
+            Err(NightfallError::ChunkNotDone)
+        },
+        Duration::from_millis(100),
+        200,
+    )
+    .await?;
+
+    Ok(reply_with_file(path, ("Content-Type", "text/ass")).await)
 }
 
 /// Method mapped to `/api/v1/stream/<gid>/state/should_hard_seek/<chunk_num>` returns whether the
