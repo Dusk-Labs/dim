@@ -41,7 +41,7 @@ function SelectMediaFileEpisode(props) {
 
   let progressPercentage = 0;
 
-  if (media[currentID]) {
+  if (media[currentID]?.info?.data) {
     const { progress, duration} = media[currentID].info.data;
 
     progressPercentage = (

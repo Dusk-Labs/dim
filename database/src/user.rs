@@ -69,6 +69,8 @@ pub struct UserSettings {
     /// Whether hovercards are hidden or not
     #[serde(default)]
     show_hovercards: bool,
+    /// Whether to auto play next video
+    enable_autoplay: bool,
 }
 
 impl Default for UserSettings {
@@ -84,6 +86,7 @@ impl Default for UserSettings {
             external_args: HashMap::new(),
             show_hovercards: true,
             default_video_quality: DefaultVideoQuality::DirectPlay,
+            enable_autoplay: true,
         }
     }
 }
