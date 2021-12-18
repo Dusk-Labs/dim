@@ -144,6 +144,7 @@ pub async fn warp_core(
         routes::stream::filters::session_get_stderr(state.clone(), stream_tracking.clone()),
         routes::stream::filters::kill_session(state.clone(), stream_tracking.clone()),
         routes::stream::filters::get_subtitle(state.clone()),
+        routes::stream::filters::get_subtitle_ass(state.clone()),
         routes::stream::filters::get_chunk(state.clone())
             .recover(routes::global_filters::handle_rejection),
         warp::path!("api" / "stream" / ..)
