@@ -64,7 +64,11 @@ const SelectMediaFile = (props) => {
 
     if (items.length === 1) {
       setClicked(false);
-      history.push(`/play/${items[0].id}`);
+      if (history.location.state?.from && history.location.state.from.startsWith("/play")) {
+        history.replace(`/play/${items[0].id}`, { from: history.location.pathname });
+      } else {
+        history.push(`/play/${items[0].id}`, { from: history.location.pathname });
+      }
     } else {
       setClicked(false);
       open();

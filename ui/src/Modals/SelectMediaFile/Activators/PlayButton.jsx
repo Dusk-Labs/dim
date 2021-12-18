@@ -10,7 +10,7 @@ function SelectMediaFilePlayButton(props) {
   const dispatch = useDispatch();
 
   const { setClicked, currentID } = useContext(SelectMediaFileContext);
-  const { progress, seasonep } = props;
+  const { progress, seasonep, label, hideIcon } = props;
 
   const handleClick = useCallback(() => {
     if (!currentID) return;
@@ -25,8 +25,8 @@ function SelectMediaFilePlayButton(props) {
 
   return (
     <Button type="icon" onClick={handleClick}>
-      <p>{progress > 0 ? "Resume" : "Play"} {name}</p>
-      <PlayIcon/>
+      {label ? <p>{label}</p> : <p>{progress > 0 ? "Resume" : "Play"} {name}</p>}
+      { !hideIcon && <PlayIcon/> }
     </Button>
   );
 }

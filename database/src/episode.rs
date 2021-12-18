@@ -256,6 +256,39 @@ impl Episode {
         Ok(record.into_episode(ep))
     }
 
+    /// Function will query for the episode after the episode passed in.
+    pub async fn get_prev_episode(
+        &self,
+        conn: &mut crate::Transaction<'_>,
+    ) -> Result<Episode, DatabaseError> {
+        let season_number = self.get_season_number(&mut *conn).await?;
+
+        let record = sqlx::query_as!(
+            EpisodeWrapper,
+            r#"SELECT episode.id as "id!", episode.seasonid, episode.episode_ FROM episode
+            INNER JOIN season ON season.id = episode.seasonid
+            WHERE season.tvshowid = (
+                SELECT _tblseason.tvshowid FROM _tblseason
+                WHERE _tblseason.id = ?
+            ) AND ((
+                episode.episode_ < ? AND
+                season.season_number = ?
+            ) OR season.season_number < ?)
+            ORDER BY season.season_number DESC, episode.episode_ DESC
+            LIMIT 1"#,
+            self.seasonid,
+            self.episode,
+            season_number,
+            season_number
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+
+        let ep = Media::get(conn, record.id as i64).await?;
+
+        Ok(record.into_episode(ep))
+    }
+
     /// Function will query the last episode that was watched for a show.
     pub async fn get_last_watched_episode(
         conn: &mut crate::Transaction<'_>,
