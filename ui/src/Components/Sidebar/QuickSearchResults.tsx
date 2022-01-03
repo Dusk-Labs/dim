@@ -1,34 +1,32 @@
-import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+
+import { useQuickSearchQuery } from "../../api/v1/search";
 
 import "./QuickSearchResults.scss";
 
-function Search() {
-  const results = useSelector(store => store.search.quick_search);
+interface Props {
+  query: string;
+}
+
+function Search({ query }: Props) {
+  const { data: items, error, isFetching } = useQuickSearchQuery(query);
 
   let resultsSection;
 
-  // SEARCH_START
-  if (!results.fetched && !results.error) {
+  if (isFetching) {
     resultsSection = (
       <div className="state showAfter100ms">
         <p>Loading</p>
       </div>
     );
-  }
-
-  // SEARCH_ERR
-  if (results.fetched && results.error) {
+  } else if (error) {
     resultsSection = (
       <div className="state">
         <p>Cannot load data</p>
       </div>
     );
-  }
-
-  // SEARCH_OK
-  if (results.fetched && !results.error) {
-    const list = results.items.map((
+  } else {
+    const list = (items || []).map((
       { name, id }, i
     ) => (
       <Link to={`/media/${id}`} key={i}>

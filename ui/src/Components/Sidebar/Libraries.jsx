@@ -3,16 +3,15 @@ import { useDispatch, useSelector } from "react-redux";
 
 import NewLibraryModal from "../../Modals/NewLibrary/Index";
 import { handleWsNewLibrary, handleWsDelLibrary, wsScanStart, wsScanStop } from "../../actions/library.js";
+import useWebSocket from "../../hooks/ws";
 
 import Library from "./Library";
 
 function Libraries() {
   const dispatch = useDispatch();
 
-  const { ws, libraries } = useSelector(store => ({
-    libraries: store.library.fetch_libraries,
-    ws: store.ws
-  }));
+  const libraries = useSelector(store => store.library.fetch_libraries);
+  const ws = useWebSocket();
 
   const handleWS = useCallback(async ({data}) => {
     const payload = JSON.parse(data);
@@ -35,11 +34,11 @@ function Libraries() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!ws.conn) return;
+    if (!ws) return;
 
-    ws.conn.addEventListener("message", handleWS);
-    return () => ws.conn.removeEventListener("message", handleWS);
-  }, [handleWS, ws.conn]);
+    ws.addEventListener("message", handleWS);
+    return () => ws.removeEventListener("message", handleWS);
+  }, [handleWS, ws]);
 
   let libs = [];
 
