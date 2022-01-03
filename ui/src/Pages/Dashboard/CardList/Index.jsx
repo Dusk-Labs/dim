@@ -5,7 +5,6 @@ import { useLocation } from "react-router";
 import { fetchCards } from "../../../actions/card.js";
 import Card from "../../../Components/Card/Index";
 import GhostCards from "./Ghost";
-import useWebSocket from "../../../hooks/ws";
 
 import "./Index.scss";
 
@@ -15,8 +14,10 @@ function CardList(props) {
 
   const [throttleEventNewCardID, setThrottleEventNewCardID] = useState(false);
 
-  const cards = useSelector(store => store.card.cards);
-  const ws = useWebSocket();
+  const { ws, cards } = useSelector(store => ({
+    cards: store.card.cards,
+    ws: store.ws
+  }));
 
   const cardList = useRef(null);
 
@@ -40,11 +41,11 @@ function CardList(props) {
   }, [dispatch, path, throttleEventNewCardID]);
 
   useEffect(() => {
-    if (!ws) return;
+    if (!ws.conn) return;
 
-    ws.addEventListener("message", handleWS);
-    return () => ws.removeEventListener("message", handleWS);
-  }, [handleWS, ws]);
+    ws.conn.addEventListener("message", handleWS);
+    return () => ws.conn.removeEventListener("message", handleWS);
+  }, [handleWS, ws.conn]);
 
   useEffect(() => {
     dispatch(fetchCards(path));
