@@ -5,7 +5,6 @@ import { useParams } from "react-router";
 import Card from "../../Components/Card/Index";
 import Dropdown from "./Dropdown";
 import { LibraryContext } from "./Context";
-import useWebSocket from "../../hooks/ws";
 
 import "./Cards.scss";
 
@@ -13,7 +12,6 @@ function Cards(props) {
   const params = useParams();
 
   const { showUnmatched, setShowUnmatched } = useContext(LibraryContext);
-  const ws = useWebSocket();
 
   const [title, setTitle] = useState("");
   const [cards, setCards] = useState([]);
@@ -30,7 +28,10 @@ function Cards(props) {
 
   const [throttleEventNewCardID, setThrottleEventNewCardID] = useState(false);
 
-  const auth = useSelector(store => store.auth);
+  const { auth, ws } = useSelector(store => ({
+    auth: store.auth,
+    ws: store.ws
+  }));
 
   const cardList = useRef(null);
 
@@ -82,11 +83,11 @@ function Cards(props) {
   }, [fetchCards, params.id, throttleEventNewCardID]);
 
   useEffect(() => {
-    if (!ws) return;
+    if (!ws.conn) return;
 
-    ws.addEventListener("message", handleWS);
-    return () => ws.removeEventListener("message", handleWS);
-  }, [handleWS, ws]);
+    ws.conn.addEventListener("message", handleWS);
+    return () => ws.conn.removeEventListener("message", handleWS);
+  }, [handleWS, ws.conn]);
 
   useEffect(() => {
     if (!title) return;
