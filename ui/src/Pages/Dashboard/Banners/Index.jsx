@@ -4,16 +4,15 @@ import { useDispatch, useSelector } from "react-redux";
 import Banner from "./Banner";
 import Crumbs from "./Crumbs";
 import { fetchBanners } from "../../../actions/banner.js";
+import useWebSocket from "../../../hooks/ws";
 
 import "./Index.scss";
 
 function Banners() {
   const dispatch = useDispatch();
 
-  const { ws, banners } = useSelector(store => ({
-    banners: store.banner,
-    ws: store.ws
-  }));
+  const banners = useSelector(store => store.banner);
+  const ws = useWebSocket();
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [currentTimeoutID, setCurrentTimeoutID] = useState();
@@ -67,11 +66,11 @@ function Banners() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!ws.conn) return;
+    if (!ws) return;
 
-    ws.conn.addEventListener("message", handleWS);
-    return () => ws.conn.removeEventListener("message", handleWS);
-  }, [handleWS, ws.conn]);
+    ws.addEventListener("message", handleWS);
+    return () => ws.removeEventListener("message", handleWS);
+  }, [handleWS, ws]);
 
   return (
     <div className="banner-wrapper">
