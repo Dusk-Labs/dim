@@ -15,18 +15,6 @@ export const CHANGE_AVATAR_OK = "CHANGE_AVATAR_OK";
 export const CHANGE_AVATAR_ERR = "CHANGE_AVATAR_ERR";
 
 /*
-    * == SEARCH ACTIONS ==
-*/
-
-export const SEARCH_START = "SEARCH_START";
-export const SEARCH_OK = "SEARCH_OK";
-export const SEARCH_ERR = "SEARCH_ERR";
-
-export const QUICK_SEARCH_START = "QUICK_SEARCH_START";
-export const QUICK_SEARCH_OK = "QUICK_SEARCH_OK";
-export const QUICK_SEARCH_ERR = "QUICK_SEARCH_ERR";
-
-/*
     * == LIBRARY ACTIONS ==
 */
 

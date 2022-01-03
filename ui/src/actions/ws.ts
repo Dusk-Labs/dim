@@ -6,7 +6,7 @@ import {
   NOTIFICATIONS_ADD
 } from "./types";
 
-import type { AppDispatch, RootState } from "../index";
+import type { AppDispatch, RootState } from "../store";
 
 interface OnNewSocket {
   (newSocket: WebSocket): void;
