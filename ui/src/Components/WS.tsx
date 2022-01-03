@@ -1,33 +1,40 @@
-import { useEffect, useState, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { createContext, useEffect, useState, useCallback } from "react";
 import { notificationsAdd } from "../actions/notifications";
 
+import { useAppDispatch, useAppSelector } from "../hooks/store";
 import { wsConnect, wsShowReconnect } from "../actions/ws";
 import DimLogo from "../assets/DimLogo";
 import Bar from "../Components/Load/Bar";
 
 import "./WS.scss";
 
+export const WebSocketContext = createContext<WebSocket | null>(null);
+
 // initialize websocket connection for entire app
-function WS(props) {
-  const dispatch = useDispatch();
+function WS(props: React.PropsWithChildren<{}>) {
+  const dispatch = useAppDispatch();
 
-  const ws = useSelector(state => state.ws);
-  const auth = useSelector(state => state.auth);
+  const ws = useAppSelector(state => state.ws);
+  const auth = useAppSelector(state => state.auth);
 
+  const [conn, setConn] = useState<WebSocket | null>(null);
   const [tryingAgainIn, setTryingAgainIn] = useState(5);
   const [silentConnect, setSilentConnect] = useState(false);
-  const [intervalID, setIntervalID] = useState();
+  const [intervalID, setIntervalID] = useState<number>();
   const [msg, setMsg] = useState("Connection failed");
   const [tries, setTries] = useState(0);
 
+  const onNewSocket = (newSocket: WebSocket) => {
+    setConn(newSocket);
+  };
+
   const retry = useCallback(() => {
-    dispatch(wsConnect());
+    dispatch(wsConnect(onNewSocket));
     setMsg("Connection failed");
     setTries(count => count + 1);
     setTryingAgainIn(5);
     clearInterval(intervalID);
-    setIntervalID();
+    setIntervalID(undefined);
   }, [dispatch, intervalID]);
 
   const handleClose = useCallback((e) => {
@@ -41,17 +48,17 @@ function WS(props) {
 
     setTries(0);
     setSilentConnect(true);
-    dispatch(wsConnect());
+    dispatch(wsConnect(onNewSocket));
   }, [dispatch]);
 
-  const handleOpen = useCallback((e) => {
+  const handleOpen = useCallback(() => {
     if (!silentConnect) return;
     setSilentConnect(false);
   }, [silentConnect]);
 
   useEffect(() => {
     if (ws.error && !intervalID) {
-      const id = setInterval(() => {
+      const id = window.setInterval(() => {
         setTryingAgainIn(state => state - 1);
       }, 1000);
 
@@ -71,36 +78,36 @@ function WS(props) {
   }, [intervalID, retry, tryingAgainIn]);
 
   useEffect(() => {
-    dispatch(wsConnect());
+    dispatch(wsConnect(onNewSocket));
   }, [dispatch]);
 
   useEffect(() => {
-    if (!ws.conn) return;
+    if (!conn) return;
 
-    ws.conn.addEventListener("open", handleOpen);
-    ws.conn.addEventListener("close", handleClose);
+    conn.addEventListener("open", handleOpen);
+    conn.addEventListener("close", handleClose);
 
     return () => {
-      ws.conn.removeEventListener("open", handleOpen);
-      ws.conn.removeEventListener("close", handleClose);
+      conn.removeEventListener("open", handleOpen);
+      conn.removeEventListener("close", handleClose);
     };
-  }, [handleClose, handleOpen, ws.conn]);
+  }, [conn, handleClose, handleOpen]);
 
   useEffect(() => {
-    if (!auth.token || !ws.conn) return;
+    if (!auth.token || !conn) return;
 
     const payload = {
       "type": "authenticate",
       "token": auth.token
     };
 
-    ws.conn.send(JSON.stringify(payload));
-  }, [auth.token, ws.conn]);
+    conn.send(JSON.stringify(payload));
+  }, [auth.token, conn]);
 
   if (!silentConnect && (ws.connecting || ws.error)) {
     return (
       <div className="appLoad showAfter100ms">
-        <DimLogo load/>
+        <DimLogo />
         {ws.error && (
           <div className="error">
             <h2>{msg}</h2>
@@ -119,12 +126,16 @@ function WS(props) {
   }
 
   if ((ws.connected && !ws.error) || silentConnect) {
-    return props.children;
+    return (
+      <WebSocketContext.Provider value={conn}>
+        {props.children}
+      </WebSocketContext.Provider>
+    );
   }
 
   return (
     <div className="appLoad showAfter100ms">
-      <DimLogo load/>
+      <DimLogo />
       <Bar/>
     </div>
   );
