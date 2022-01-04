@@ -1,11 +1,5 @@
 import v1 from "./index";
-
-export interface SearchResult {
-  id: number;
-  library_id: number;
-  name: string;
-  poster_path?: string;
-}
+import { SearchResult } from "./types";
 
 export const search = v1.injectEndpoints({
   endpoints: (build) => ({

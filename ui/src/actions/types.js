@@ -43,14 +43,6 @@ export const SCAN_START = "SCAN_START";
 export const SCAN_STOP = "SCAN_STOP";
 
 /*
-    * == CARD ACTIONS ==
-*/
-
-export const FETCH_CARDS_START = "FETCH_CARDS_START";
-export const FETCH_CARDS_OK = "FETCH_CARDS_OK";
-export const FETCH_CARDS_ERR = "FETCH_CARDS_ERR";
-
-/*
     * == MEDIA ACTIONS ==
 */
 
