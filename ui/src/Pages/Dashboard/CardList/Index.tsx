@@ -11,7 +11,7 @@ import "./Index.scss";
 function CardList() {
   const location = useLocation();
 
-  const { data: items, error, isFetching, refetch } = useGetCardsQuery(undefined);
+  const { data: items, error, isFetching, refetch } = useGetCardsQuery();
 
   const [throttleEventNewCardID, setThrottleEventNewCardID] = useState<
     number | null
@@ -45,9 +45,7 @@ function CardList() {
 
   let card_list;
 
-  if (isFetching) {
-    card_list = <GhostCards />;
-  } else if (error) {
+  if (isFetching || error) {
     card_list = <GhostCards />;
   } else if (items) {
     const sectionsEmpty = Object.values(items).flat().length === 0;

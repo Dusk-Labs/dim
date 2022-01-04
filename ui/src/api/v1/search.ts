@@ -1,5 +1,12 @@
 import v1 from "./index";
-import { SearchResult } from "./types";
+import { Media } from "./types";
+
+/**
+ * The results returned by the search API.
+ */
+export interface SearchResult extends Media {
+  library_id: number;
+}
 
 export const search = v1.injectEndpoints({
   endpoints: (build) => ({

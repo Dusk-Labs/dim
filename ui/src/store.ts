@@ -2,7 +2,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query/react";
 
 import auth from "./reducers/auth";
-import banner from "./reducers/banner";
 import fileBrowser from "./reducers/fileBrowser";
 import library from "./reducers/library";
 import media from "./reducers/media/index";
@@ -20,7 +19,6 @@ export const store = configureStore({
     user,
     library,
     fileBrowser,
-    banner,
     video,
     settings,
     notifications,
