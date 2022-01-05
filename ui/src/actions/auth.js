@@ -15,11 +15,12 @@ import {
   FETCH_INVITES_START,
   FETCH_INVITES_OK,
   FETCH_INVITES_ERR,
-  NOTIFICATIONS_ADD,
   DEL_ACCOUNT_START,
   DEL_ACCOUNT_ERR,
   DEL_ACCOUNT_OK
 } from "./types";
+
+import { addNotification } from "../slices/notifications";
 
 export const authenticate = (username, password) => async (dispatch) => {
   dispatch({ type: AUTH_LOGIN_START });
@@ -152,29 +153,20 @@ export const changePassword = (oldPassword, newPassword) => async (dispatch, get
     const res = await fetch("/api/v1/auth/password", config);
 
     if (res.status !== 200) {
-      dispatch({
-        type: NOTIFICATIONS_ADD,
-        payload: {
-          msg: "Failed to change password."
-        }
-      });
+      dispatch(addNotification({
+        msg: "Failed to change password."
+      }));
 
       return;
     }
 
-    dispatch({
-      type: NOTIFICATIONS_ADD,
-      payload: {
-        msg: "Your password has now been updated."
-      }
-    });
+    dispatch(addNotification({
+      msg: "Your password has now been updated."
+    }));
   } catch(err) {
-    dispatch({
-      type: NOTIFICATIONS_ADD,
-      payload: {
-        msg: "Failed to change password."
-      }
-    });
+    dispatch(addNotification({
+      msg: "Failed to change password."
+    }));
   }
 };
 
@@ -208,12 +200,9 @@ export const delAccount = (password) => async (dispatch, getState) => {
 
     dispatch({ type: DEL_ACCOUNT_OK });
 
-    dispatch({
-      type: NOTIFICATIONS_ADD,
-      payload: {
-        msg: "Your account has been deleted, you have been logged out."
-      }
-    });
+    dispatch(addNotification({
+      msg: "Your account has been deleted, you have been logged out."
+    }));
   } catch(err) {
     dispatch({
       type: DEL_ACCOUNT_ERR,
@@ -276,12 +265,9 @@ export const createNewInvite = () => async (dispatch, getState) => {
       payload
     });
 
-    dispatch({
-      type: NOTIFICATIONS_ADD,
-      payload: {
-        msg: `Successfuly created a new invite token: ${payload.token}.`
-      }
-    });
+    dispatch(addNotification({
+      msg: `Successfuly created a new invite token: ${payload.token}.`
+    }));
   } catch(err) {
     dispatch({
       type: CREATE_NEW_INVITE_ERR,
@@ -304,22 +290,16 @@ export const delInvite = (inviteToken) => async (dispatch, getState) => {
     const res = await fetch(`/api/v1/auth/token/${inviteToken}`, config);
 
     if (res.status !== 200) {
-      dispatch({
-        type: NOTIFICATIONS_ADD,
-        payload: {
-          msg: `Could not delete invite token: ${inviteToken}`
-        }
-      });
+      dispatch(addNotification({
+        msg: `Could not delete invite token: ${inviteToken}`
+      }));
 
       return;
     }
 
-    dispatch({
-      type: NOTIFICATIONS_ADD,
-      payload: {
-        msg: `Successfuly deleted invite token: ${inviteToken}`
-      }
-    });
+    dispatch(addNotification({
+      msg: `Successfuly deleted invite token: ${inviteToken}`
+    }));
   } catch(err) {
     dispatch({
       type: CREATE_NEW_INVITE_ERR,

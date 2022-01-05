@@ -5,10 +5,11 @@ import {
   FETCH_GLOBAL_SETTINGS_START,
   FETCH_GLOBAL_SETTINGS_OK,
   FETCH_GLOBAL_SETTINGS_ERR,
-  NOTIFICATIONS_ADD,
   UPDATE_USER_SETTINGS,
   UPDATE_GLOBAL_SETTINGS
 } from "./types";
+
+import { addNotification } from "../slices/notifications";
 
 export const fetchUserSettings = () => async (dispatch, getState) => {
   const token = getState().auth.token;
@@ -107,12 +108,9 @@ export const updateUserSettings = (data) => async (dispatch, getState) => {
     const res = await fetch("/api/v1/user/settings", config);
 
     if (res.status !== 200) {
-      dispatch({
-        type: NOTIFICATIONS_ADD,
-        payload: {
-          msg: "Failed to save settings."
-        }
-      });
+      dispatch(addNotification({
+        msg: "Failed to save settings."
+      }));
 
       return;
     }
@@ -122,19 +120,13 @@ export const updateUserSettings = (data) => async (dispatch, getState) => {
       payload: newSettings
     });
 
-    dispatch({
-      type: NOTIFICATIONS_ADD,
-      payload: {
-        msg: "Successfuly saved your changes."
-      }
-    });
+    dispatch(addNotification({
+      msg: "Successfuly saved your changes."
+    }));
   } catch(err) {
-    dispatch({
-      type: NOTIFICATIONS_ADD,
-      payload: {
-        msg: "Failed to save settings."
-      }
-    });
+    dispatch(addNotification({
+      msg: "Failed to save settings."
+    }));
   }
 };
 
@@ -162,12 +154,9 @@ export const updateGlobalSettings = (data) => async (dispatch, getState) => {
     const res = await fetch("/api/v1/host/settings", config);
 
     if (res.status !== 200) {
-      dispatch({
-        type: NOTIFICATIONS_ADD,
-        payload: {
-          msg: "Failed to save settings."
-        }
-      });
+      dispatch(addNotification({
+        msg: "Failed to save settings."
+      }));
 
       return;
     }
@@ -177,18 +166,12 @@ export const updateGlobalSettings = (data) => async (dispatch, getState) => {
       payload: newSettings
     });
 
-    dispatch({
-      type: NOTIFICATIONS_ADD,
-      payload: {
-        msg: "Successfuly saved your changes."
-      }
-    });
+    dispatch(addNotification({
+      msg: "Successfuly saved your changes."
+    }));
   } catch(err) {
-    dispatch({
-      type: NOTIFICATIONS_ADD,
-      payload: {
-        msg: "Failed to save settings."
-      }
-    });
+    dispatch(addNotification({
+      msg: "Failed to save settings."
+    }));
   }
 };

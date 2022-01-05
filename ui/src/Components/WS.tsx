@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState, useCallback } from "react";
-import { notificationsAdd } from "../actions/notifications";
 
+import { addNotification } from "../slices/notifications";
 import { useAppDispatch, useAppSelector } from "../hooks/store";
 import { wsConnect, wsShowReconnect } from "../actions/ws";
 import DimLogo from "../assets/DimLogo";
@@ -40,7 +40,7 @@ function WS(props: React.PropsWithChildren<{}>) {
   const handleClose = useCallback((e) => {
     if (e.wasClean) return;
 
-    dispatch(notificationsAdd({
+    dispatch(addNotification({
       msg: "Connection to server lost, some actions might not work."
     }));
 
