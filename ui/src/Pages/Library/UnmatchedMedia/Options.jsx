@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 
 import { fetchLibraryUnmatched } from "../../../actions/library";
+import { addNotification } from "../../../slices/notifications";
 import Button from "../../../Components/Misc/Button";
 import { LibraryContext } from "../Context";
 import { SelectUnmatchedContext } from "./Context";
-import { NOTIFICATIONS_ADD } from "../../../actions/types";
 
 import "./Options.scss";
 
@@ -48,12 +48,9 @@ const SelectUnmatchedMediaOptions = () => {
       }
     }
 
-    dispatch({
-      type: NOTIFICATIONS_ADD,
-      payload: {
-        msg: `Sucessfuly matched ${files.length} ${files.length > 1 ? "files" : "file"}.`
-      }
-    });
+    dispatch(addNotification({
+      msg: `Sucessfuly matched ${files.length} ${files.length > 1 ? "files" : "file"}.`
+    }));
 
     clearData();
     dispatch(fetchLibraryUnmatched(params.id));

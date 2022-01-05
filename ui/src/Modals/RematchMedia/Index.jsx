@@ -4,7 +4,7 @@ import Modal from "react-modal";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchMediaInfo } from "../../actions/media";
-import { NOTIFICATIONS_ADD } from "../../actions/types";
+import { addNotification } from "../../slices/notifications";
 import MediaTypeSelection from "./MediaTypeSelection";
 import Button from "../../Components/Misc/Button";
 
@@ -80,12 +80,9 @@ function RematchMediaModal(props) {
       return;
     }
 
-    dispatch({
-      type: NOTIFICATIONS_ADD,
-      payload: {
-        msg: `Sucessfuly matched ${id}.`
-      }
-    });
+    dispatch(addNotification({
+      msg: `Sucessfuly matched ${id}.`
+    }));
 
     clearData();
     close();

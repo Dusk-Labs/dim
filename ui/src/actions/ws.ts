@@ -2,9 +2,10 @@ import {
   WS_CONNECT_START,
   WS_CONNECTED,
   WS_CONNECT_ERR,
-  WS_SHOW_RECONNECT,
-  NOTIFICATIONS_ADD
+  WS_SHOW_RECONNECT
 } from "./types";
+
+import { addNotification } from "../slices/notifications";
 
 import type { AppDispatch, RootState } from "../store";
 
@@ -35,12 +36,9 @@ export const wsConnect = (onNewSocket: OnNewSocket) => async (
     const { showReconnect } = getState().ws;
 
     if (showReconnect) {
-      dispatch({
-        type: NOTIFICATIONS_ADD,
-        payload: {
-          msg: "Connection to the server has been restored."
-        }
-      });
+      dispatch(addNotification({
+        msg: "Connection to the server has been restored."
+      }));
     }
 
     onNewSocket(ws);
