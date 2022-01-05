@@ -5,7 +5,7 @@ import auth from "./reducers/auth";
 import fileBrowser from "./reducers/fileBrowser";
 import library from "./reducers/library";
 import media from "./reducers/media/index";
-import notifications from "./reducers/notifications";
+import notifications from "./slices/notifications";
 import settings from "./reducers/settings";
 import user from "./reducers/user";
 import video from "./reducers/video/index";
