@@ -1,10 +1,11 @@
 import v1 from "./index";
+import { Media } from "./types";
 
-export interface SearchResult {
-  id: number;
+/**
+ * The results returned by the search API.
+ */
+export interface SearchResult extends Media {
   library_id: number;
-  name: string;
-  poster_path?: string;
 }
 
 export const search = v1.injectEndpoints({

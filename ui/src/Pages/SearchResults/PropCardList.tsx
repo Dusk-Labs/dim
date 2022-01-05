@@ -1,4 +1,4 @@
-import { SearchResult } from "../../api/v1/search";
+import type { SearchResult } from "../../api/v1/search";
 import Card from "../../Components/Card/Index";
 import GhostCards from "./Ghost";
 

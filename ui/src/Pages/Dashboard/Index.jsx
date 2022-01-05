@@ -11,7 +11,7 @@ function Dashboard() {
   return (
     <div className="dashboard">
       <Banners/>
-      <CardList path={"/api/v1/dashboard"}/>
+      <CardList />
     </div>
   );
 }
