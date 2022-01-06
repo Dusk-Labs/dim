@@ -31,7 +31,7 @@ pub struct MovieMatcher<'a> {
 
 impl<'a> MovieMatcher<'a> {
     #[instrument(skip(self, result), fields(result.id = %result.id, result.name = %result.title))]
-    pub async fn match_to_result(&self, result: super::ApiMedia, orphan: &'a MediaFile) {
+    pub async fn match_to_result(&self, result: tmdb_api::ApiMedia, orphan: &'a MediaFile) {
         let library_id = orphan.library_id;
 
         let mut lock = self.conn.writer().lock_owned().await;
@@ -61,7 +61,7 @@ impl<'a> MovieMatcher<'a> {
 
     pub async fn inner_match(
         &self,
-        result: super::ApiMedia,
+        result: tmdb_api::ApiMedia,
         orphan: &'a MediaFile,
         tx: &mut database::Transaction<'_>,
         reuse_media_id: Option<i64>,
@@ -167,7 +167,7 @@ impl<'a> MovieMatcher<'a> {
         &self,
         orphan: &MediaFile,
         media: InsertableMedia,
-        result: super::ApiMedia,
+        result: tmdb_api::ApiMedia,
         tx: &mut database::Transaction<'_>,
         reuse_media_id: Option<i64>,
     ) -> Result<i64, super::base::ScannerError> {

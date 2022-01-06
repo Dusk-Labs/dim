@@ -33,8 +33,8 @@ function RegisterBtn(props) {
       return;
     }
 
-    if (pass.length < 8) {
-      setPassErr("Minimum 8 characters.");
+    if (pass.length < 3) {
+      setPassErr("Minimum 3 characters.");
       return;
     }
 

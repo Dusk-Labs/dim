@@ -1,5 +1,5 @@
 [workspace]
-members = ["dim", "database", "auth", "events"]
+members = ["dim", "database", "auth", "events", "tmdb_api"]
 
 [profile.dev]
 codegen-units = 16

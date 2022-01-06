@@ -1,11 +1,12 @@
 use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors::*;
+
 use crate::scanners::base::patch_tv_metadata;
-use crate::scanners::tmdb::MediaType as ExternalMediaType;
-use crate::scanners::tmdb::Tmdb;
 use crate::scanners::movie::MovieMatcher;
 use crate::scanners::tv_show::TvShowMatcher;
+//use tmdb_api::MediaType as ExternalMediaType;
+use tmdb_api::Tmdb;
 
 use database::library::MediaType;
 use database::media::Media;
@@ -67,20 +68,20 @@ pub async fn rematch_media(
 ) -> Result<impl warp::Reply, DimError> {
     // first fetch the data from tmdb
     let target_type = match media_type.to_lowercase().as_ref() {
-        "movie" => ExternalMediaType::Movie,
-        "tv" => ExternalMediaType::Tv,
+        "movie" => MediaType::Movie,
+        "tv" => MediaType::Tv,
         _ => return Err(DimError::InvalidMediaType),
     };
 
     let mut tmdb = Tmdb::new(API_KEY.into(), target_type);
-    let mut result: crate::scanners::ApiMedia = tmdb
+    let mut result: tmdb_api::ApiMedia = tmdb
         .search_by_id(external_id)
         .await
         .map_err(|_| DimError::NotFoundError)?
         .into();
 
-    if let ExternalMediaType::Tv = target_type {
-        let mut seasons: Vec<crate::scanners::ApiSeason> = tmdb
+    if let MediaType::Tv = target_type {
+        let mut seasons: Vec<tmdb_api::ApiSeason> = tmdb
             .get_seasons_for(result.id)
             .await
             .unwrap_or_default()

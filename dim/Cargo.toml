@@ -26,6 +26,7 @@ serde_json = "^1.0.64"
 database = { path = "../database", default-features = false, optional = true }
 events = { path = "../events" }
 auth = { path = "../auth" }
+tmdb_api = { path = "../tmdb_api" }
 
 nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4", features = ["ssa_transmux"] }
 

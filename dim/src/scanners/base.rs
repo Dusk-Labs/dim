@@ -10,6 +10,8 @@ use tracing::instrument;
 use tracing::warn;
 use tracing::Instrument;
 
+use tmdb_api::Tmdb;
+use tmdb_api::ApiMedia;
 use database::library::MediaType;
 use database::mediafile::InsertableMediaFile;
 use database::mediafile::MediaFile;
@@ -18,12 +20,9 @@ use database::DbConnection;
 
 use crate::core::EventTx;
 use crate::scanners::movie::MovieMatcher;
-use crate::scanners::tmdb::Tmdb;
 use crate::scanners::tv_show::TvShowMatcher;
 use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::FFPROBE_BIN;
-
-use super::ApiMedia;
 
 use torrent_name_parser::Metadata;
 
@@ -383,7 +382,7 @@ impl MetadataMatcher {
             .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
         drop(lock);
 
-        let mut seasons: Vec<super::ApiSeason> = self
+        let mut seasons: Vec<tmdb_api::ApiSeason> = self
             .tv_tmdb
             .get_seasons_for(result.id)
             .await

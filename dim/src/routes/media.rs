@@ -414,7 +414,7 @@ pub async fn tmdb_search(
     media_type: String,
     _user: Auth,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    use crate::scanners::tmdb::Tmdb;
+    use tmdb_api::Tmdb;
 
     let media_type = match media_type.as_ref() {
         "movie" => MediaType::Movie,
@@ -430,7 +430,7 @@ pub async fn tmdb_search(
             .await
             .map_err(|_| errors::DimError::NotFoundError)?
             .into_iter()
-            .map(Into::<crate::scanners::ApiMedia>::into)
+            .map(Into::<tmdb_api::ApiMedia>::into)
             .collect::<Vec<_>>(),
     ))
 }

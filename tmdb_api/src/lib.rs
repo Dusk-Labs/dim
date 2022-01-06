@@ -1,3 +1,7 @@
+
+// The Movie DB (themoviedb.org)
+
+
 pub(crate) use database::library::MediaType;
 use serde::Deserialize;
 use serde::Serialize;
@@ -16,6 +20,40 @@ use futures::StreamExt;
 use tokio::sync::RwLock;
 
 use async_recursion::async_recursion;
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ApiMedia {
+    pub id: u64,
+    pub title: String,
+    pub release_date: Option<String>,
+    pub overview: Option<String>,
+    pub poster_path: Option<String>,
+    pub backdrop_path: Option<String>,
+    pub poster_file: Option<String>,
+    pub backdrop_file: Option<String>,
+    pub genres: Vec<String>,
+    pub rating: Option<i32>,
+    pub seasons: Vec<ApiSeason>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ApiSeason {
+    pub id: u64,
+    pub name: Option<String>,
+    pub poster_path: Option<String>,
+    pub poster_file: Option<String>,
+    pub season_number: u64,
+    pub episodes: Vec<ApiEpisode>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ApiEpisode {
+    pub id: u64,
+    pub name: Option<String>,
+    pub overview: Option<String>,
+    pub episode: Option<u64>,
+    pub still: Option<String>,
+    pub still_file: Option<String>,
+}
 
 static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
 
@@ -63,7 +101,7 @@ impl Tmdb {
         &mut self,
         title: String,
         year: Option<i32>,
-    ) -> Result<super::ApiMedia, TmdbError> {
+    ) -> Result<ApiMedia, TmdbError> {
         self.search_by_name(title.clone(), year, None)
             .await?
             .first()
@@ -371,7 +409,7 @@ pub struct Media {
     pub genres: Vec<String>,
 }
 
-impl From<Media> for super::ApiMedia {
+impl From<Media> for ApiMedia {
     fn from(this: Media) -> Self {
         let backdrop_path = this.backdrop_path.clone().map(|bp| {
             if bp.starts_with('/') {
@@ -417,7 +455,7 @@ pub struct Season {
     pub season_number: Option<u64>,
 }
 
-impl From<Season> for super::ApiSeason {
+impl From<Season> for ApiSeason {
     fn from(this: Season) -> Self {
         Self {
             id: this.id,
@@ -442,7 +480,7 @@ pub struct Episode {
     pub still_path: Option<String>,
 }
 
-impl From<Episode> for super::ApiEpisode {
+impl From<Episode> for ApiEpisode {
     fn from(other: Episode) -> Self {
         Self {
             id: other.id,
@@ -460,92 +498,101 @@ impl From<Episode> for super::ApiEpisode {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::Tmdb;
+   // use database::library::MediaType;
+    pub(crate) use database::library::MediaType;
 
     const API_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
 
-    // #[test]
-    // fn test_search_by_name() {
-    //     let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Movie);
-    //     let result = tmdb
-    //         .search_by_name("Blade Runner 2049".into(), None, None)
-    //         .unwrap();
+     #[tokio::test]
+     async fn test_search_by_name() {
+         let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Movie);
+         let result = tmdb
+             .search_by_name("Blade Runner 2049".into(), None, None)
+             .await
+             .unwrap();
 
-    //     let result = result.first().unwrap();
-    //     assert_eq!(result.title, "Blade Runner 2049");
-    //     assert_eq!(result.release_date, Some("2017-10-04".into()));
+         let result = result.first().unwrap();
+         assert_eq!(result.title, "Blade Runner 2049");
+         assert_eq!(result.release_date, Some("2017-10-04".into()));
 
-    //     let result = tmdb
-    //         .search_by_name("Blade Runner 2049".into(), Some(2017), None)
-    //         .unwrap();
+         let result = tmdb
+             .search_by_name("Blade Runner 2049".into(), Some(2017), None)
+             .await
+             .unwrap();
 
-    //     let result = result.first().unwrap();
-    //     assert_eq!(result.title, "Blade Runner 2049");
-    //     assert_eq!(result.release_date, Some("2017-10-04".into()));
-    //     assert!(result.overview.is_some());
+         let result = result.first().unwrap();
+         assert_eq!(result.title, "Blade Runner 2049");
+         assert_eq!(result.release_date, Some("2017-10-04".into()));
+         assert!(result.overview.is_some());
 
-    //     let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
-    //     let result = tmdb
-    //         .search_by_name("The expanse".into(), None, None)
-    //         .unwrap();
+         let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
+         let result = tmdb
+             .search_by_name("The expanse".into(), None, None)
+             .await
+             .unwrap();
 
-    //     let result = result.first().unwrap();
-    //     assert_eq!(result.title, "The Expanse");
-    //     assert_eq!(result.release_date, Some("2015-12-14".into()));
-    //     assert!(result.overview.is_some());
-    //     assert!(result.poster_path.is_some());
-    // }
+         let result = result.first().unwrap();
+         assert_eq!(result.title, "The Expanse");
+         assert_eq!(result.release_date, Some("2015-12-14".into()));
+         assert!(result.overview.is_some());
+         assert!(result.poster_path.is_some());
+     }
 
-    // #[test]
-    // fn test_get_seasons_for() {
-    //     let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
-    //     let result = tmdb
-    //         .search_by_name("The expanse".into(), None, None)
-    //         .unwrap();
+     #[tokio::test]
+     async fn test_get_seasons_for() {
+         let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
+         let result = tmdb
+             .search_by_name("The expanse".into(), None, None)
+             .await
+             .unwrap();
 
-    //     let result = result.first().unwrap();
-    //     let seasons = tmdb.get_seasons_for(&result).unwrap();
+         let result = result.first().unwrap();
+         let seasons = tmdb.get_seasons_for(result.id).await.unwrap();
 
-    //     assert_eq!(seasons.len(), 6);
+         assert_eq!(seasons.len(), 7);
 
-    //     let season1 = &seasons[1];
-    //     assert_eq!(season1.air_date, Some("2015-12-14".into()));
-    //     assert_eq!(season1.episode_count, Some(10));
-    //     assert_eq!(season1.season_number, Some(1));
-    //     assert_eq!(season1.name, Some("Season 1".into()));
-    //     assert!(season1.overview.is_some());
-    // }
+         let season1 = &seasons[1];
+         assert_eq!(season1.air_date, Some("2015-12-14".into()));
+         assert_eq!(season1.episode_count, Some(10));
+         assert_eq!(season1.season_number, Some(1));
+         assert_eq!(season1.name, Some("Season 1".into()));
+         assert!(season1.overview.is_some());
+     }
 
-    // #[test]
-    // fn test_get_episodes_for() {
-    //     let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
-    //     let result = tmdb
-    //         .search_by_name("The expanse".into(), None, None)
-    //         .unwrap();
+     #[tokio::test]
+     async fn test_get_episodes_for() {
+         let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
+         let result = tmdb
+             .search_by_name("The expanse".into(), None, None)
+             .await
+             .unwrap();
 
-    //     let result = result.first().unwrap();
-    //     let seasons = tmdb.get_seasons_for(&result).unwrap();
+         let result = result.first().unwrap();
+         let seasons = tmdb.get_seasons_for(result.id).await.unwrap();
 
-    //     assert_eq!(seasons.len(), 6);
+         assert_eq!(seasons.len(), 7);
 
-    //     let season1 = &seasons[1];
+         let season1 = &seasons[1];
 
-    //     let result = tmdb
-    //         .get_episodes_for(&result, season1.season_number.unwrap())
-    //         .unwrap();
-    //     assert_eq!(result.len(), 10);
-    // }
+         let result = tmdb
+             .get_episodes_for(result.id, season1.season_number.unwrap())
+             .await
+             .unwrap();
+         assert_eq!(result.len(), 10);
+     }
 
-    // #[test]
-    // fn test_get_genre_detail() {
-    //     let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
-    //     let result = tmdb
-    //         .search_by_name("The expanse".into(), None, None)
-    //         .unwrap();
+     #[tokio::test]
+     async fn test_get_genre_detail() {
+         let mut tmdb = Tmdb::new(API_KEY.to_string(), MediaType::Tv);
+         let result = tmdb
+             .search_by_name("The expanse".into(), None, None)
+             .await
+             .unwrap();
 
-    //     let genres = result.first().unwrap().genre_ids.as_ref().unwrap();
+         let genres = result.first().unwrap().genre_ids.as_ref().unwrap();
 
-    //     let result = tmdb.get_genre_detail(genres[0]).unwrap();
-    //     assert_eq!(result.name, "Drama".to_string());
-    // }
+         let result = tmdb.get_genre_detail(genres[0]).await.unwrap();
+         assert_eq!(result.name, "Drama".to_string());
+     }
 }

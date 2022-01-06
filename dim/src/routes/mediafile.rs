@@ -102,7 +102,7 @@ pub async fn rematch_mediafile(
     tmdb_id: i32,
     media_type: String,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    use crate::scanners::tmdb::Tmdb;
+    use tmdb_api::Tmdb;
     use database::library::MediaType;
 
     let mut tx = conn.read().begin().await?;

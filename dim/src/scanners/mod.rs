@@ -1,7 +1,6 @@
 pub mod base;
 pub mod movie;
 pub mod scanner_daemon;
-pub mod tmdb;
 pub mod tv_show;
 
 use database::library::Library;
@@ -20,9 +19,13 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::time::Instant;
 
+/*
 use serde::Deserialize;
 use serde::Serialize;
 
+ * ApiMedia,ApiSeason moved to tmdb_api
+ *
+ *
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ApiMedia {
     pub id: u64,
@@ -57,6 +60,8 @@ pub struct ApiEpisode {
     pub still: Option<String>,
     pub still_file: Option<String>,
 }
+
+*/
 
 pub(super) static METADATA_EXTRACTOR: OnceCell<base::MetadataExtractor> = OnceCell::new();
 pub(super) static METADATA_MATCHER: OnceCell<base::MetadataMatcher> = OnceCell::new();
