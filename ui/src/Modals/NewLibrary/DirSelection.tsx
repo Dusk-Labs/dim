@@ -1,7 +1,6 @@
-import { useCallback, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useCallback } from "react";
 
-import { fetchDirectories } from "../../actions/fileBrowser.js";
+import { useGetDirectoriesQuery } from "../../api/v1/fileBrowser";
 import FolderIcon from "../../assets/Icons/Folder";
 import ArrowLeftIcon from "../../assets/Icons/ArrowLeft";
 import CheckIcon from "../../assets/Icons/Check";
@@ -9,11 +8,17 @@ import Button from "../../Components/Misc/Button";
 
 import "./DirSelection.scss";
 
-function DirSelection(props) {
-  const dispatch = useDispatch();
-  const fileBrowser = useSelector(store => store.fileBrowser);
+interface Props {
+  current: string;
+  setCurrent: React.Dispatch<React.SetStateAction<string>>;
+  selectedFolders: string[];
+  setSelectedFolders: React.Dispatch<React.SetStateAction<string[]>>;
+}
 
+function DirSelection(props: Props) {
   const { current, setCurrent, selectedFolders, setSelectedFolders } = props;
+
+  const { data: items, error, isFetching } = useGetDirectoriesQuery(current);
 
   const selectFolder = useCallback(path => {
     const alreadySelected = selectedFolders.includes(path);
@@ -37,28 +42,24 @@ function DirSelection(props) {
   }, [selectedFolders, setSelectedFolders]);
 
   const selectAllFolders = useCallback(() => {
-    const unselectedFolders = fileBrowser.items.filter(item => (
+    if (!items) {
+      return;
+    }
+
+    const unselectedFolders = items.filter(item => (
       !selectedFolders.includes(item)
     ));
 
     setSelectedFolders(state => unselectedFolders.concat(state));
-  }, [fileBrowser.items, selectedFolders, setSelectedFolders]);
+  }, [items, selectedFolders, setSelectedFolders]);
 
   const clearSelection = useCallback(() => {
     setSelectedFolders([]);
   }, [setSelectedFolders]);
 
   const select = useCallback(path => {
-    dispatch(fetchDirectories(path));
     setCurrent(path);
-  }, [dispatch, setCurrent]);
-
-  useEffect(() => {
-    const path = "";
-
-    dispatch(fetchDirectories(path));
-    setCurrent(path);
-  }, [dispatch, setCurrent]);
+  }, [setCurrent]);
 
   const goBack = useCallback(() => {
     if (current.length === 0) return;
@@ -71,19 +72,13 @@ function DirSelection(props) {
 
   let dirs;
 
-  // FETCH_DIRECTORIES_ERR
-  if (fileBrowser.fetched && fileBrowser.error) {
+  if (isFetching || error) {
     dirs = (
       <div className="vertical-err">
         <p>Cannot load data</p>
       </div>
     );
-  }
-
-  // FETCH_DIRECTORIES_OK
-  if (fileBrowser.fetched && !fileBrowser.error) {
-    const { items } = fileBrowser;
-
+  } else if (items) {
     if (items.length === 0) {
       dirs = (
         <div className="vertical-err">
@@ -104,7 +99,7 @@ function DirSelection(props) {
             <div className="label" onClick={() => select(dir)}>
               <FolderIcon/>
               <p>
-                {dir.replace(props.current, "").replace("/", "")}
+                {dir.replace(current, "").replace("/", "")}
                 <span className="selectedInsideCount">{count ? ` (${count} folders selected inside)` : ""}</span>
               </p>
             </div>
@@ -117,7 +112,7 @@ function DirSelection(props) {
     }
   }
 
-  const allFoldersInCurrentSelected = fileBrowser.items.every(item => (
+  const allFoldersInCurrentSelected = items && items.every(item => (
     selectedFolders.includes(item)
   ));
 
@@ -144,10 +139,10 @@ function DirSelection(props) {
         </div>
       </div>
       <div className="controls">
-        <Button onClick={goBack} disabled={props.current === ""}>
+        <Button onClick={goBack} disabled={current === ""}>
           <ArrowLeftIcon/>
         </Button>
-        <p className="current">{props.current}</p>
+        <p className="current">{current}</p>
       </div>
     </div>
   );
