@@ -23,7 +23,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "prepare": "cd .. && husky install ui/.husky"
   },
   "browserslist": {
     "production": [
@@ -47,7 +48,11 @@
     "@types/react": "^17.0.30",
     "@types/react-dom": "^17.0.9",
     "@types/react-redux": "^7.1.19",
-    "@types/react-router-dom": "^5.3.2"
+    "@types/react-router-dom": "^5.3.2",
+    "eslint-config-prettier": "^8.3.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.1.5",
+    "prettier": "^2.5.1"
   },
   "proxy": "http://localhost:8000"
 }
