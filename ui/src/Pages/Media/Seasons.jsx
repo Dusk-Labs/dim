@@ -12,8 +12,8 @@ function MediaSeasons(props) {
   const { setActiveId } = props;
   const dispatch = useDispatch();
 
-  const {media} = useSelector(store => ({
-    media: store.media
+  const { media } = useSelector((store) => ({
+    media: store.media,
   }));
 
   const { id } = useParams();
@@ -41,20 +41,20 @@ function MediaSeasons(props) {
         <section>
           <h2>Seasons</h2>
           <div className={`seasons ${season && "selected"}`}>
-            {media[id].seasons.map(({id, season_number, poster}, i) => (
+            {media[id].seasons.map(({ id, season_number, poster }, i) => (
               <div
                 className={`season ${id === season && "active"}`}
                 key={i}
                 onClick={() => setSeason(id)}
               >
-                <CardImage src={poster}/>
+                <CardImage src={poster} />
                 <p>Season {season_number}</p>
               </div>
             ))}
           </div>
         </section>
-        {(season !== undefined && prevID === id) && (
-          <MediaEpisodes seasonID={season} setActiveId={setActiveId}/>
+        {season !== undefined && prevID === id && (
+          <MediaEpisodes seasonID={season} setActiveId={setActiveId} />
         )}
       </div>
     );

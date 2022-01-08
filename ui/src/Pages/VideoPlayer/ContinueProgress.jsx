@@ -6,9 +6,9 @@ import ConfirmationBox from "../../Modals/ConfirmationBox";
 import { VideoPlayerContext } from "./Context";
 
 function ContinueProgress() {
-  const { video, media } = useSelector(store => ({
+  const { video, media } = useSelector((store) => ({
     video: store.video,
-    media: store.media
+    media: store.media,
   }));
 
   const { seekTo } = useContext(VideoPlayerContext);
@@ -16,7 +16,9 @@ function ContinueProgress() {
   return (
     <ConfirmationBox
       title="Resume watching"
-      msg={`You stopped at ${formatHHMMSS(media[video.mediaID]?.info.data.progress | 0)}`}
+      msg={`You stopped at ${formatHHMMSS(
+        media[video.mediaID]?.info.data.progress | 0
+      )}`}
       cancelText="Cancel"
       confirmText="Resume"
       action={() => seekTo(media[video.mediaID]?.info.data.progress)}

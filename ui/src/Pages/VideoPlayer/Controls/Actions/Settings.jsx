@@ -8,19 +8,22 @@ import { toggleShowSettings } from "../../../../actions/video";
 function VideoActionSettings() {
   const dispatch = useDispatch();
 
-  const { video } = useSelector(store => ({
-    video: store.video
+  const { video } = useSelector((store) => ({
+    video: store.video,
   }));
 
   const toggleSettings = useCallback(() => {
     dispatch(toggleShowSettings());
   }, [dispatch]);
 
-  const handleKeyDown = useCallback(e => {
-    if (e.key === "c") {
-      toggleSettings();
-    }
-  }, [toggleSettings]);
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key === "c") {
+        toggleSettings();
+      }
+    },
+    [toggleSettings]
+  );
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -31,8 +34,11 @@ function VideoActionSettings() {
   }, [handleKeyDown]);
 
   return (
-    <button onClick={toggleSettings} className={`settings menuActive-${video.showSettings}`}>
-      <SettingsIcon/>
+    <button
+      onClick={toggleSettings}
+      className={`settings menuActive-${video.showSettings}`}
+    >
+      <SettingsIcon />
     </button>
   );
 }

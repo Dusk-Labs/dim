@@ -12,8 +12,8 @@ import "./Index.scss";
 const SelectMediaFile = (props) => {
   const history = useHistory();
 
-  const { media } = useSelector(store => ({
-    media: store.media
+  const { media } = useSelector((store) => ({
+    media: store.media,
   }));
 
   /*
@@ -36,9 +36,9 @@ const SelectMediaFile = (props) => {
 
   // prevent scrolling behind Modal
   useEffect(() => {
-    (visible && ready)
-      ? document.body.style.overflow = "hidden"
-      : document.body.style.overflow = "unset";
+    visible && ready
+      ? (document.body.style.overflow = "hidden")
+      : (document.body.style.overflow = "unset");
   }, [ready, visible]);
 
   const close = useCallback(() => {
@@ -53,21 +53,24 @@ const SelectMediaFile = (props) => {
   }, []);
 
   useEffect(() => {
-    if (
-      !clicked
-      || !currentID
-      || !media[currentID]
-      || !media[currentID].files
-    ) return;
+    if (!clicked || !currentID || !media[currentID] || !media[currentID].files)
+      return;
 
     const { items } = media[currentID].files;
 
     if (items.length === 1) {
       setClicked(false);
-      if (history.location.state?.from && history.location.state.from.startsWith("/play")) {
-        history.replace(`/play/${items[0].id}`, { from: history.location.pathname });
+      if (
+        history.location.state?.from &&
+        history.location.state.from.startsWith("/play")
+      ) {
+        history.replace(`/play/${items[0].id}`, {
+          from: history.location.pathname,
+        });
       } else {
-        history.push(`/play/${items[0].id}`, { from: history.location.pathname });
+        history.push(`/play/${items[0].id}`, {
+          from: history.location.pathname,
+        });
       }
     } else {
       setClicked(false);
@@ -81,7 +84,7 @@ const SelectMediaFile = (props) => {
     open,
     close,
     currentID,
-    setClicked
+    setClicked,
   };
 
   return (
@@ -101,7 +104,7 @@ const SelectMediaFile = (props) => {
                 <h3>File selector</h3>
                 <p className="desc">No files found for '{title}'</p>
               </div>
-              <div className="separator"/>
+              <div className="separator" />
               <div className="err">
                 <p>Empty</p>
               </div>
@@ -116,12 +119,16 @@ const SelectMediaFile = (props) => {
                 <h3>Multiple files found</h3>
                 <p className="desc">Choose a file to play for '{title}'</p>
               </div>
-              <div className="separator"/>
+              <div className="separator" />
               <div className="fileVersionsWrapper">
                 <div className="fileVersions">
                   {files.map((file, i) => (
-                    <Link to={`/play/${file.id}`} className="fileVersion" key={i}>
-                      <FileVideoIcon/>
+                    <Link
+                      to={`/play/${file.id}`}
+                      className="fileVersion"
+                      key={i}
+                    >
+                      <FileVideoIcon />
                       <p>{file.target_file.split(/\/|\\/g).pop()}</p>
                     </Link>
                   ))}

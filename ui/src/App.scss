@@ -35,7 +35,7 @@
   }
 }
 
-input[type=range] {
+input[type="range"] {
   -webkit-appearance: none;
   background: transparent;
 
@@ -87,7 +87,9 @@ input[type=range] {
   font-weight: normal;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   width: 100%;
 }
@@ -132,12 +134,12 @@ svg {
 */
 .showAfter100ms {
   opacity: 0;
-  animation: appear .3s ease-in-out forwards;
+  animation: appear 0.3s ease-in-out forwards;
   animation-delay: 100ms;
 }
 
 .horizontal-err {
-  animation: appear .4s ease-in-out;
+  animation: appear 0.4s ease-in-out;
   align-items: center;
   display: grid;
   grid-template-columns: auto 1fr;
@@ -152,9 +154,9 @@ svg {
   text-overflow: ellipsis;
 
   svg {
-    animation: shake .5s ease-in-out;
+    animation: shake 0.5s ease-in-out;
     animation-delay: 0.5s;
-    font-size: .8em;
+    font-size: 0.8em;
   }
 }
 
@@ -163,13 +165,13 @@ svg {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  animation: appear .4s ease-in-out;
+  animation: appear 0.4s ease-in-out;
   height: 100%;
   font-family: "Roboto Condensed Regular", Arial;
   text-align: center;
 
   svg {
-    animation: shake .5s ease-in-out;
+    animation: shake 0.5s ease-in-out;
     margin-bottom: 15px;
     color: #f39c12;
     width: 1.5em !important;
@@ -201,14 +203,14 @@ input {
 }
 
 .placeholder {
-  animation: appear .5s ease-in-out;
+  animation: appear 0.5s ease-in-out;
   position: relative;
   height: 100%;
   background: var(--secondaryColor);
   border-radius: 10px;
 
   &-text {
-    transition: width .3s ease-in-out;
+    transition: width 0.3s ease-in-out;
     background: var(--secondaryColor);
     border-radius: 10px;
     height: 30px;
@@ -218,17 +220,17 @@ input {
 
 .spinner {
   transform: translate(-50%, -50%);
-  animation: appear .5s ease-in-out;
+  animation: appear 0.5s ease-in-out;
   position: absolute;
   top: 50%;
   left: 50%;
   height: 40px;
   width: 40px;
-  max-height:40px;
+  max-height: 40px;
   max-width: 40px;
 
   &::after {
-    animation: spinner .6s linear infinite;
+    animation: spinner 0.6s linear infinite;
     content: "";
     position: absolute;
     top: 0;
@@ -237,13 +239,13 @@ input {
     height: 100%;
     width: 100%;
     border: solid 2px #3a3a3a;
-    background: rgba(0, 0, 0, .2);
+    background: rgba(0, 0, 0, 0.2);
     border-top-color: var(--primaryTextColor);
   }
 }
 
 .popupOverlay {
-  animation: appear .3s ease-in-out;
+  animation: appear 0.3s ease-in-out;
   background: #000000aa;
   position: fixed;
   top: 0;

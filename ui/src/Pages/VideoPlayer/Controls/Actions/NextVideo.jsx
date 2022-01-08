@@ -6,9 +6,9 @@ import NextVideoIcon from "../../../../assets/Icons/NextVideo";
 import { fetchMediaFiles } from "../../../../actions/media";
 
 function VideoActionNextVideo() {
-  const { media, video } = useSelector(store => ({
+  const { media, video } = useSelector((store) => ({
     media: store.media,
-    video: store.video
+    video: store.video,
   }));
 
   const [enabled, setEnable] = useState(false);
@@ -21,7 +21,7 @@ function VideoActionNextVideo() {
   const nextMedia = nextEpisodeId ? media[nextEpisodeId] : null;
 
   useEffect(() => {
-    if(!nextEpisodeId) return;
+    if (!nextEpisodeId) return;
 
     setEnable(true);
     dispatch(fetchMediaFiles(nextEpisodeId));
@@ -29,14 +29,18 @@ function VideoActionNextVideo() {
 
   const nextVideo = useCallback(() => {
     const item = nextMedia?.files?.items[0];
-    if(!item) return;
+    if (!item) return;
 
     history.replace(`/play/${item.id}`, { from: history.location.pathname });
   }, [history, nextMedia]);
 
   return (
-    <button onClick={nextVideo} className={`next_video ${enabled}`} disabled={!enabled}>
-      <NextVideoIcon/>
+    <button
+      onClick={nextVideo}
+      className={`next_video ${enabled}`}
+      disabled={!enabled}
+    >
+      <NextVideoIcon />
     </button>
   );
 }

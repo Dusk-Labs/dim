@@ -5,9 +5,9 @@ import { register, authenticate } from "../../actions/auth.js";
 function RegisterBtn(props) {
   const dispatch = useDispatch();
 
-  const { auth, admin_exists } = useSelector(store => ({
+  const { auth, admin_exists } = useSelector((store) => ({
     auth: store.auth,
-    admin_exists: store.auth.admin_exists
+    admin_exists: store.auth.admin_exists,
   }));
 
   const { credentials, error, registering } = props;
@@ -50,13 +50,26 @@ function RegisterBtn(props) {
       await dispatch(register(username, pass));
       dispatch(authenticate(username, pass));
     }
-  }, [admin_exists, dispatch, invite, pass, registering, setInviteErr, setPassErr, setUsernameErr, username]);
+  }, [
+    admin_exists,
+    dispatch,
+    invite,
+    pass,
+    registering,
+    setInviteErr,
+    setPassErr,
+    setUsernameErr,
+    username,
+  ]);
 
-  const onKeyDown = useCallback(e => {
-    if (e.keyCode === 13) {
-      authorize();
-    }
-  }, [authorize]);
+  const onKeyDown = useCallback(
+    (e) => {
+      if (e.keyCode === 13) {
+        authorize();
+      }
+    },
+    [authorize]
+  );
 
   useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
@@ -67,7 +80,9 @@ function RegisterBtn(props) {
   }, [onKeyDown]);
 
   return (
-    <button className={`${auth.registering}`} onClick={authorize}>Register</button>
+    <button className={`${auth.registering}`} onClick={authorize}>
+      Register
+    </button>
   );
 }
 

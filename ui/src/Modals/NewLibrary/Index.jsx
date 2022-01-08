@@ -25,8 +25,8 @@ function NewLibraryModal(props) {
   // prevent scrolling behind Modal
   useEffect(() => {
     visible
-      ? document.body.style.overflow = "hidden"
-      : document.body.style.overflow = "unset";
+      ? (document.body.style.overflow = "hidden")
+      : (document.body.style.overflow = "unset");
   }, [visible]);
 
   const clear = useCallback(() => {
@@ -80,7 +80,7 @@ function NewLibraryModal(props) {
       const data = {
         name,
         locations: selectedFolders,
-        media_type: mediaType
+        media_type: mediaType,
       };
 
       dispatch(newLibrary(data));
@@ -102,7 +102,7 @@ function NewLibraryModal(props) {
         <div className="modalNewLibrary">
           <div className="heading">
             <h3>Create a new library</h3>
-            <div className="separator"/>
+            <div className="separator" />
           </div>
           <div className="fields">
             <Field
@@ -123,13 +123,13 @@ function NewLibraryModal(props) {
             setSelectedFolders={setSelectedFolders}
           />
           <div className="options">
-            <Button
-              type="secondary"
-              onClick={close}
-            >Nevermind</Button>
+            <Button type="secondary" onClick={close}>
+              Nevermind
+            </Button>
             <Button
               disabled={!name || selectedFolders.length === 0}
-              onClick={add}>
+              onClick={add}
+            >
               Add library
             </Button>
           </div>

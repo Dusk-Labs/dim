@@ -16,39 +16,39 @@ import {
   FETCH_INVITES_ERR,
   DEL_ACCOUNT_START,
   DEL_ACCOUNT_OK,
-  DEL_ACCOUNT_ERR
+  DEL_ACCOUNT_ERR,
 } from "../actions/types";
 
 const login = {
   logging_in: false,
   logged_in: false,
-  error: null
+  error: null,
 };
 
 const register = {
   registering: false,
   registered: false,
-  error: null
+  error: null,
 };
 
 const createNewInvite = {
   code: "",
   creating: false,
   created: false,
-  error: null
+  error: null,
 };
 
 const invites = {
   items: [],
   fetching: false,
   fetched: false,
-  error: null
+  error: null,
 };
 
 const deleteAccount = {
   deleted: false,
   deleting: false,
-  error: null
+  error: null,
 };
 
 const initialState = {
@@ -58,11 +58,11 @@ const initialState = {
   register,
   createNewInvite,
   invites,
-  deleteAccount
+  deleteAccount,
 };
 
 export default function authReducer(state = initialState, action) {
-  switch(action.type) {
+  switch (action.type) {
     case AUTH_LOGIN_START:
       return {
         ...state,
@@ -70,8 +70,8 @@ export default function authReducer(state = initialState, action) {
         login: {
           logging_in: true,
           logged_in: false,
-          error: null
-        }
+          error: null,
+        },
       };
     case AUTH_LOGIN_ERR:
       return {
@@ -80,8 +80,8 @@ export default function authReducer(state = initialState, action) {
           ...state.login,
           logging_in: false,
           logged_in: false,
-          error: action.payload
-        }
+          error: action.payload,
+        },
       };
     case AUTH_LOGIN_OK:
       return {
@@ -90,8 +90,8 @@ export default function authReducer(state = initialState, action) {
         login: {
           ...state.login,
           logging_in: false,
-          logged_in: true
-        }
+          logged_in: true,
+        },
       };
     case AUTH_UPDATE_TOKEN:
       return {
@@ -101,8 +101,8 @@ export default function authReducer(state = initialState, action) {
           ...state.login,
           logging_in: false,
           logged_in: true,
-          error: null
-        }
+          error: null,
+        },
       };
     case AUTH_LOGOUT:
       return initialState;
@@ -113,8 +113,8 @@ export default function authReducer(state = initialState, action) {
           ...state.register,
           registering: true,
           registered: false,
-          error: null
-        }
+          error: null,
+        },
       };
     case AUTH_REGISTER_OK:
       return initialState;
@@ -124,13 +124,13 @@ export default function authReducer(state = initialState, action) {
         register: {
           registering: false,
           registered: false,
-          error: action.payload
-        }
+          error: action.payload,
+        },
       };
     case AUTH_CHECK_ADMIN_OK:
       return {
         ...state,
-        admin_exists: action.payload.exists
+        admin_exists: action.payload.exists,
       };
     case CREATE_NEW_INVITE_START:
       return {
@@ -139,8 +139,8 @@ export default function authReducer(state = initialState, action) {
           code: "",
           creating: true,
           created: false,
-          error: null
-        }
+          error: null,
+        },
       };
     case CREATE_NEW_INVITE_ERR:
       return {
@@ -149,8 +149,8 @@ export default function authReducer(state = initialState, action) {
           ...state.createNewInvite,
           creating: false,
           created: false,
-          error: action.payload
-        }
+          error: action.payload,
+        },
       };
     case CREATE_NEW_INVITE_OK:
       return {
@@ -159,8 +159,8 @@ export default function authReducer(state = initialState, action) {
           ...state.createNewInvite,
           creating: false,
           created: true,
-          code: action.payload.token
-        }
+          code: action.payload.token,
+        },
       };
     case FETCH_INVITES_START:
       return {
@@ -169,14 +169,14 @@ export default function authReducer(state = initialState, action) {
           ...state.invites,
           fetching: true,
           fetched: false,
-          error: null
+          error: null,
         },
         createNewInvite: {
           code: "",
           creating: false,
           created: false,
-          error: null
-        }
+          error: null,
+        },
       };
     case FETCH_INVITES_ERR:
       return {
@@ -185,8 +185,8 @@ export default function authReducer(state = initialState, action) {
           ...state.invites,
           fetching: false,
           fetched: false,
-          error: action.payload
-        }
+          error: action.payload,
+        },
       };
     case FETCH_INVITES_OK:
       return {
@@ -195,8 +195,8 @@ export default function authReducer(state = initialState, action) {
           ...state.invites,
           items: action.payload,
           fetching: false,
-          fetched: true
-        }
+          fetched: true,
+        },
       };
     case DEL_ACCOUNT_START:
       return {
@@ -205,8 +205,8 @@ export default function authReducer(state = initialState, action) {
           ...state.deleteAccount,
           deleting: true,
           deleted: false,
-          error: null
-        }
+          error: null,
+        },
       };
     case DEL_ACCOUNT_OK:
       return {
@@ -214,8 +214,8 @@ export default function authReducer(state = initialState, action) {
         deleteAccount: {
           ...state.deleteAccount,
           deleting: false,
-          deleted: true
-        }
+          deleted: true,
+        },
       };
     case DEL_ACCOUNT_ERR:
       return {
@@ -223,8 +223,8 @@ export default function authReducer(state = initialState, action) {
         deleteAccount: {
           ...state.deleteAccount,
           deleting: false,
-          error: action.payload
-        }
+          error: action.payload,
+        },
       };
     default:
       return state;

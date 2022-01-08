@@ -9,9 +9,7 @@ import Seasons from "./Seasons";
 import "./Index.scss";
 
 function Media() {
-  const media = useSelector(store => (
-    store.media
-  ));
+  const media = useSelector((store) => store.media);
 
   const { id } = useParams();
 
@@ -19,13 +17,13 @@ function Media() {
 
   return (
     <div className="mediaPage">
-      <Banner/>
+      <Banner />
       <div className="mediaContent">
         <div>
-          <MetaContent activeId={activeId}/>
+          <MetaContent activeId={activeId} />
         </div>
         {media[id]?.info.data.media_type === "tv" && (
-          <Seasons setActiveId={setActiveId}/>
+          <Seasons setActiveId={setActiveId} />
         )}
       </div>
     </div>

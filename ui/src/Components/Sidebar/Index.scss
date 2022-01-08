@@ -8,11 +8,11 @@
   background: var(--tertiaryColor);
   z-index: 2;
   box-shadow: 0 0 5px 2px #1a1a1add;
-  transition: width .3s ease-in-out, background 100ms ease-in-out;
-  animation: appear .3s ease-in-out;
+  transition: width 0.3s ease-in-out, background 100ms ease-in-out;
+  animation: appear 0.3s ease-in-out;
 
   &.show .toggle {
-    animation: sidebarToggleOff .3s ease-in-out forwards;
+    animation: sidebarToggleOff 0.3s ease-in-out forwards;
   }
 
   &.hide {
@@ -32,14 +32,14 @@
   }
 
   section {
-    transition: .3s ease-in-out;
+    transition: 0.3s ease-in-out;
     transition-property: color, margin;
 
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: .5em;
+      margin-bottom: 0.5em;
     }
 
     &.yourAccount {
@@ -76,10 +76,11 @@
     color: var(--primaryTextColor);
     width: 20px;
     height: 20px;
-    transition: .2s ease-in-out;
+    transition: 0.2s ease-in-out;
     transition-property: background, opacity;
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       background: var(--quinaryColor);
     }
 
@@ -93,7 +94,7 @@
       text-align: center;
       display: grid;
       padding: 1em;
-      gap: .5em;
+      gap: 0.5em;
       border-radius: 10px;
       align-items: center;
       transition: 100ms ease-in-out;
@@ -118,7 +119,8 @@
         cursor: default;
         background: var(--quinaryColor);
 
-        &:focus, &:hover {
+        &:focus,
+        &:hover {
           background: var(--quinaryColor);
         }
 
@@ -200,7 +202,7 @@
       justify-content: left;
       grid-template-columns: 40px 1fr;
       grid-template-areas: "icon name";
-      padding: .8em .5em;
+      padding: 0.8em 0.5em;
 
       &.showLoad-true {
         grid-template-areas: "icon name" "ring ring";
@@ -219,7 +221,6 @@
       svg {
         grid-area: icon;
       }
-
     }
   }
 }

@@ -7,7 +7,7 @@ import Field from "../../Auth/Field";
 
 function General() {
   const dispatch = useDispatch();
-  const settings = useSelector(store => store.settings);
+  const settings = useSelector((store) => store.settings);
 
   const [port, setPort] = useState("");
   const [portErr, setPortErr] = useState("");
@@ -20,11 +20,16 @@ function General() {
     setVerbose(data.verbose);
   }, [settings]);
 
-  const toggleVerbose = useCallback((state) => {
-    dispatch(updateGlobalSettings({
-      verbose: state
-    }));
-  }, [dispatch]);
+  const toggleVerbose = useCallback(
+    (state) => {
+      dispatch(
+        updateGlobalSettings({
+          verbose: state,
+        })
+      );
+    },
+    [dispatch]
+  );
 
   const updatePort = useCallback(() => {
     if (port.length === 0 || port < 1 || port > 65535) {
@@ -32,9 +37,11 @@ function General() {
       return;
     }
 
-    dispatch(updateGlobalSettings({
-      port: parseInt(port)
-    }));
+    dispatch(
+      updateGlobalSettings({
+        port: parseInt(port),
+      })
+    );
   }, [dispatch, port]);
 
   const undoUpdatePort = useCallback(() => {
@@ -61,9 +68,7 @@ function General() {
       </div>
       {parseInt(port) !== settings.globalSettings.data.port && (
         <div className="options">
-          <Button onClick={updatePort}>
-            Update
-          </Button>
+          <Button onClick={updatePort}>Update</Button>
           <Button type="secondary" onClick={undoUpdatePort}>
             Cancel
           </Button>

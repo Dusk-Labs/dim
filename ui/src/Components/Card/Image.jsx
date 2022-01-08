@@ -7,7 +7,7 @@ const CardImage = (props) => {
   const [observed, setObserved] = useState(false);
 
   const handleIntersection = useCallback((entries, observer) => {
-    entries.forEach(entry => {
+    entries.forEach((entry) => {
       if (entry.isIntersecting) {
         setObserved(true);
         observer.disconnect();
@@ -21,7 +21,7 @@ const CardImage = (props) => {
     const options = {
       root: null,
       rootMargin: "0px",
-      threshold: 0
+      threshold: 0,
     };
 
     const observer = new IntersectionObserver(handleIntersection, options);
@@ -32,19 +32,22 @@ const CardImage = (props) => {
     <div className="cardImageWrapper" ref={imageWrapperDiv}>
       {observed && (
         <ImageLoad src={props.src} triggerAnimation="onHideImage">
-          {({imageSrc, loaded, error, setErr}) => (
+          {({ imageSrc, loaded, error, setErr }) => (
             <>
               {loaded && !error && (
-                <img src={imageSrc} alt="cover" onError={() => setErr(true)}/>
+                <img src={imageSrc} alt="cover" onError={() => setErr(true)} />
               )}
               {error && (
                 <div className="placeholder">
-                  <DimLogo/>
+                  <DimLogo />
                 </div>
               )}
               {props.progress !== undefined && (
                 <div className="progress">
-                  <div className="value" style={{width: `${props.progress | 0}%`}}/>
+                  <div
+                    className="value"
+                    style={{ width: `${props.progress | 0}%` }}
+                  />
                 </div>
               )}
             </>

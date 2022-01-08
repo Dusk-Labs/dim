@@ -9,7 +9,7 @@ import { store } from "./store";
 const app = (
   <StrictMode>
     <Provider store={store}>
-      <App/>
+      <App />
     </Provider>
   </StrictMode>
 );

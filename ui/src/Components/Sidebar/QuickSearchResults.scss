@@ -26,7 +26,7 @@
     }
 
     .result-list {
-      margin-top: .5em;
+      margin-top: 0.5em;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -37,11 +37,10 @@
       a {
         padding: 8px 10px;
         border-radius: 10px;
-        transition: background .3s ease-in-out;
+        transition: background 0.3s ease-in-out;
 
         &:hover {
           background: var(--quinaryColor);
-
         }
       }
     }

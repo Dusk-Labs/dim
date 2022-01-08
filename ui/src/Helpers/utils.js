@@ -1,7 +1,6 @@
 // converts to HH:MM:SS format
-export const formatHHMMSS = (secs) => (
-  new Date(secs * 1000).toISOString().substr(11, 8)
-);
+export const formatHHMMSS = (secs) =>
+  new Date(secs * 1000).toISOString().substr(11, 8);
 
 // converts to HH:MM:SS + Date format
 export const formatHHMMSSDate = (timestamp) => {
@@ -13,7 +12,7 @@ export const formatHHMMSSDate = (timestamp) => {
     secs: ("0" + ts.getSeconds()).slice(-2),
     date: ("0" + ts.getDate()).slice(-2),
     month: ("0" + ts.getMonth()).slice(-2),
-    year: ts.getFullYear()
+    year: ts.getFullYear(),
   };
 };
 
@@ -54,7 +53,7 @@ const parseHMS = (str) => {
 
 export const parseVtt = (text) => {
   const cues = [];
-  const segs = text.split("\n\n").filter(seg => seg);
+  const segs = text.split("\n\n").filter((seg) => seg);
 
   if (segs[0] === "WEBVTT") {
     segs.shift();
@@ -68,7 +67,9 @@ export const parseVtt = (text) => {
     try {
       cues.push(new VTTCue(sts, ets, seg.join(" \n")));
     } catch (e) {
-      console.warn(`failed to parse a cue raw_seg=${raw_seg} sts=${sts} ets=${ets}`);
+      console.warn(
+        `failed to parse a cue raw_seg=${raw_seg} sts=${sts} ets=${ets}`
+      );
     }
   }
 

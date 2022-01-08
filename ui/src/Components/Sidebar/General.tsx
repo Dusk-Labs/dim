@@ -9,7 +9,7 @@ const General = () => (
     </header>
     <div className="list">
       <NavLink className="item" to="/" exact>
-        <HomeIcon/>
+        <HomeIcon />
         <p>Dashboard</p>
       </NavLink>
     </div>

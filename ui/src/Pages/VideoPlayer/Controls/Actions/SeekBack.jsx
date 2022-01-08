@@ -8,16 +8,18 @@ import { VideoPlayerContext } from "../../Context";
 function VideoActionSeekBack() {
   const dispatch = useDispatch();
 
-  const { video } = useSelector(store => ({
-    video: store.video
+  const { video } = useSelector((store) => ({
+    video: store.video,
   }));
 
   const { seekTo } = useContext(VideoPlayerContext);
 
   const seekBackward = useCallback(() => {
-    dispatch(updateVideo({
-      idleCount: 0
-    }));
+    dispatch(
+      updateVideo({
+        idleCount: 0,
+      })
+    );
 
     if (video.currentTime - 15 <= 0) {
       seekTo(0);
@@ -26,11 +28,14 @@ function VideoActionSeekBack() {
     }
   }, [dispatch, seekTo, video.currentTime]);
 
-  const handleKeyDown = useCallback(e => {
-    if (e.key === "ArrowLeft") {
-      seekBackward();
-    }
-  }, [seekBackward]);
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key === "ArrowLeft") {
+        seekBackward();
+      }
+    },
+    [seekBackward]
+  );
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -42,7 +47,7 @@ function VideoActionSeekBack() {
 
   return (
     <button onClick={seekBackward} className="backward">
-      <BackwardIcon/>
+      <BackwardIcon />
     </button>
   );
 }

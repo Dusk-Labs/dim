@@ -6,9 +6,9 @@ import { removeNotification } from "../slices/notifications";
 import "./Toast.scss";
 
 type ToastProps = {
-  id: number
-  children: React.ReactNode
-}
+  id: number;
+  children: React.ReactNode;
+};
 
 function Toast(props: ToastProps) {
   const dispatch = useAppDispatch();

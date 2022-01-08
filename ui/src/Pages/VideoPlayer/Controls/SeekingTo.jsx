@@ -5,8 +5,8 @@ import { formatHHMMSS } from "../../../Helpers/utils";
 import "./SeekingTo.scss";
 
 function SeekingTo(props) {
-  const { player } = useSelector(store => ({
-    player: store.video.player
+  const { player } = useSelector((store) => ({
+    player: store.video.player,
   }));
 
   const seekingToDiv = useRef(null);
@@ -15,36 +15,39 @@ function SeekingTo(props) {
 
   const { nameRef, timeRef, seekBar } = props;
 
-  const handleMousemove = useCallback(e => {
-    const rect = e.target.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    const videoDuration = player.duration();
-    const newTime = Math.floor(percent * videoDuration);
+  const handleMousemove = useCallback(
+    (e) => {
+      const rect = e.target.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      const videoDuration = player.duration();
+      const newTime = Math.floor(percent * videoDuration);
 
-    seekingToDiv.current.style.left = `${e.layerX}px`;
+      seekingToDiv.current.style.left = `${e.layerX}px`;
 
-    if (nameRef && timeRef && seekingToDiv.current) {
-      const nameRect = nameRef.getBoundingClientRect();
-      const timeRect = timeRef.getBoundingClientRect();
-      const seekingToRect = seekingToDiv.current.getBoundingClientRect();
+      if (nameRef && timeRef && seekingToDiv.current) {
+        const nameRect = nameRef.getBoundingClientRect();
+        const timeRect = timeRef.getBoundingClientRect();
+        const seekingToRect = seekingToDiv.current.getBoundingClientRect();
 
-      // seekingTo overlapping name from the right side
-      if (seekingToRect.left < (nameRect.right + 15)) {
-        nameRef.style.opacity = 0;
-      } else {
-        nameRef.style.opacity = 1;
+        // seekingTo overlapping name from the right side
+        if (seekingToRect.left < nameRect.right + 15) {
+          nameRef.style.opacity = 0;
+        } else {
+          nameRef.style.opacity = 1;
+        }
+
+        // seekingTo overlapping time from the left side
+        if (seekingToRect.right > timeRect.left - 15) {
+          timeRef.style.opacity = 0;
+        } else {
+          timeRef.style.opacity = 1;
+        }
       }
 
-      // seekingTo overlapping time from the left side
-      if (seekingToRect.right > (timeRect.left - 15)) {
-        timeRef.style.opacity = 0;
-      } else {
-        timeRef.style.opacity = 1;
-      }
-    }
-
-    setSeekingTo(formatHHMMSS(newTime));
-  }, [nameRef, player, timeRef]);
+      setSeekingTo(formatHHMMSS(newTime));
+    },
+    [nameRef, player, timeRef]
+  );
 
   const handleMouseleave = useCallback(() => {
     if (nameRef) {

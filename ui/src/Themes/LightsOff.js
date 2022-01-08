@@ -4,7 +4,7 @@ const LightsOff = {
   accentColor: "#f7931e",
   accentLighterColor: "#dd9745",
   accentTextColor: "#1a1a1a",
-  criticalColor:  "#e91619",
+  criticalColor: "#e91619",
   criticalLighterColor: "#b72426",
   criticalTextColor: "#eee",
   primaryTextColor: "#eee",
@@ -26,7 +26,7 @@ const LightsOff = {
   bannerOverlayShadow: "#151515cc",
   modalPrimaryColor: "#000",
   modalSecondaryColor: "#101010",
-  modalTertiaryColor: "#202020"
+  modalTertiaryColor: "#202020",
 };
 
 export default LightsOff;

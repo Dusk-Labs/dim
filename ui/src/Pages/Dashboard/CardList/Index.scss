@@ -5,12 +5,12 @@
   position: relative;
   pointer-events: none;
   gap: 2em;
-  transition: padding .3s ease-in-out;
-  animation: appear .5s ease-in-out;
+  transition: padding 0.3s ease-in-out;
+  animation: appear 0.5s ease-in-out;
 
   .sectionDesc {
     color: var(--secondaryTextColor);
-    margin: .5em 0 1em 0;
+    margin: 0.5em 0 1em 0;
   }
 
   .sectionHeader {

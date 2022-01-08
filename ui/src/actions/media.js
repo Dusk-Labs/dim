@@ -3,7 +3,7 @@ import {
   FETCH_MEDIA_INFO_ERR,
   FETCH_MEDIA_FILES_OK,
   FETCH_MEDIA_SEASONS_OK,
-  FETCH_MEDIA_EPISODES_OK
+  FETCH_MEDIA_EPISODES_OK,
 } from "./types";
 
 export const fetchMediaInfo = (id) => async (dispatch, getState) => {
@@ -12,8 +12,8 @@ export const fetchMediaInfo = (id) => async (dispatch, getState) => {
   try {
     const config = {
       headers: {
-        "authorization": token
-      }
+        authorization: token,
+      },
     };
 
     const res = await fetch(`/api/v1/media/${id}`, config);
@@ -22,7 +22,7 @@ export const fetchMediaInfo = (id) => async (dispatch, getState) => {
       return dispatch({
         type: FETCH_MEDIA_INFO_ERR,
         id,
-        payload: res.statusText
+        payload: res.statusText,
       });
     }
 
@@ -31,12 +31,12 @@ export const fetchMediaInfo = (id) => async (dispatch, getState) => {
     dispatch({
       type: FETCH_MEDIA_INFO_OK,
       id,
-      payload
+      payload,
     });
-  } catch(err) {
+  } catch (err) {
     dispatch({
       type: FETCH_MEDIA_INFO_ERR,
-      payload: err
+      payload: err,
     });
   }
 };
@@ -47,8 +47,8 @@ export const fetchMediaFiles = (id) => async (dispatch, getState) => {
   try {
     const config = {
       headers: {
-        "authorization": token
-      }
+        authorization: token,
+      },
     };
 
     const res = await fetch(`/api/v1/media/${id}/files`, config);
@@ -60,9 +60,9 @@ export const fetchMediaFiles = (id) => async (dispatch, getState) => {
     dispatch({
       type: FETCH_MEDIA_FILES_OK,
       id,
-      payload: payload
+      payload: payload,
     });
-  } catch(err) {}
+  } catch (err) {}
 };
 
 export const fetchMediaSeasons = (id) => async (dispatch, getState) => {
@@ -71,8 +71,8 @@ export const fetchMediaSeasons = (id) => async (dispatch, getState) => {
   try {
     const config = {
       headers: {
-        "authorization": token
-      }
+        authorization: token,
+      },
     };
 
     const res = await fetch(`/api/v1/tv/${id}/season`, config);
@@ -88,35 +88,36 @@ export const fetchMediaSeasons = (id) => async (dispatch, getState) => {
     dispatch({
       type: FETCH_MEDIA_SEASONS_OK,
       id,
-      payload: seasons
+      payload: seasons,
     });
-  } catch(err) {}
+  } catch (err) {}
 };
 
-export const fetchMediaEpisodes = (id, seasonID) => async (dispatch, getState) => {
-  const token = getState().auth.token;
+export const fetchMediaEpisodes =
+  (id, seasonID) => async (dispatch, getState) => {
+    const token = getState().auth.token;
 
-  try {
-    const config = {
-      headers: {
-        "authorization": token
-      }
-    };
+    try {
+      const config = {
+        headers: {
+          authorization: token,
+        },
+      };
 
-    const res = await fetch(`/api/v1/season/${seasonID}/episodes`, config);
+      const res = await fetch(`/api/v1/season/${seasonID}/episodes`, config);
 
-    if (res.status !== 200) return;
+      if (res.status !== 200) return;
 
-    const payload = await res.json();
+      const payload = await res.json();
 
-    const episodes = payload.sort((a, b) => {
-      return a.episode - b.episode;
-    });
+      const episodes = payload.sort((a, b) => {
+        return a.episode - b.episode;
+      });
 
-    dispatch({
-      type: FETCH_MEDIA_EPISODES_OK,
-      id,
-      payload: episodes
-    });
-  } catch(err) {}
-};
+      dispatch({
+        type: FETCH_MEDIA_EPISODES_OK,
+        id,
+        payload: episodes,
+      });
+    } catch (err) {}
+  };

@@ -3,15 +3,20 @@ import { useState, useCallback, useEffect } from "react";
 import Toggle from "../../../Components/Toggle";
 
 function EnableSsa() {
-  const [enableSsa, setEnableSsa] = useState(localStorage.getItem("enable_ssa") === "true");
+  const [enableSsa, setEnableSsa] = useState(
+    localStorage.getItem("enable_ssa") === "true"
+  );
 
   useEffect(() => {
     localStorage.setItem("enable_ssa", enableSsa);
   }, [enableSsa]);
 
-  const handleToggle = useCallback((state) => {
-    setEnableSsa(state);
-  }, [setEnableSsa]);
+  const handleToggle = useCallback(
+    (state) => {
+      setEnableSsa(state);
+    },
+    [setEnableSsa]
+  );
 
   return (
     <section>

@@ -18,7 +18,7 @@
     font-family: "Roboto Bold", Arial;
 
     h3 {
-      margin-bottom: .5em;
+      margin-bottom: 0.5em;
     }
   }
 
@@ -40,7 +40,7 @@
 
       .horizontal-err {
         padding: 2px 5px;
-        font-size: .8em;
+        font-size: 0.8em;
         margin-left: 5px;
         background: #ee4740;
       }
@@ -58,7 +58,7 @@
         font-size: 1em;
         font-family: "Roboto Regular", Arial;
         transition: background 0.3s ease-in-out;
-        margin-top: .5em;
+        margin-top: 0.5em;
         background: var(--modalSecondaryColor);
         outline: none;
         border: none;

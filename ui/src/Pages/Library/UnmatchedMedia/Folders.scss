@@ -15,7 +15,7 @@
     justify-content: baseline;
     border-radius: 10px;
     flex-direction: column;
-    gap: .5em;
+    gap: 0.5em;
     align-items: center;
     text-align: center;
     transition: background 0.1s ease-in-out;
@@ -41,7 +41,7 @@
         left: 50%;
         transform: translate(-50%, -50%);
         color: var(--primaryColor);
-        font-size: .8em;
+        font-size: 0.8em;
         font-family: "Roboto Bold", Arial;
         position: absolute;
         animation: appear 200ms ease-in-out;

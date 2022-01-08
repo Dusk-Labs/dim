@@ -15,7 +15,7 @@ function Search() {
   const [query, setQuery] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
 
-  const handleClick = useCallback(e => {
+  const handleClick = useCallback((e) => {
     if (searchBox.current) {
       if (searchBox.current.contains(e.target)) {
         setShowResults(true);
@@ -33,28 +33,31 @@ function Search() {
     };
   }, [handleClick]);
 
-  const handleOnChange = useCallback(e => {
+  const handleOnChange = useCallback((e) => {
     setQuery(e.target.value);
     setShowResults(e.target.value.length > 1);
   }, []);
 
-  const onKeyDown = useCallback((e) => {
-    if (query && query.length > 1 && e.keyCode === 13) {
-      history.push({
-        pathname: "/search",
-        search: `?query=${encodeURIComponent(query || "")}`
-      });
+  const onKeyDown = useCallback(
+    (e) => {
+      if (query && query.length > 1 && e.keyCode === 13) {
+        history.push({
+          pathname: "/search",
+          search: `?query=${encodeURIComponent(query || "")}`,
+        });
 
-      setQuery("");
-      setShowResults(false);
-    }
-  }, [history, query]);
+        setQuery("");
+        setShowResults(false);
+      }
+    },
+    [history, query]
+  );
 
   const fullSearch = useCallback(() => {
     if (query && query.length >= 1) {
       history.push({
         pathname: "/search",
-        search: `?query=${encodeURIComponent(query)}`
+        search: `?query=${encodeURIComponent(query)}`,
       });
 
       setQuery("");
@@ -78,7 +81,7 @@ function Search() {
           type="search"
         />
         <button onClick={fullSearch}>
-          <SearchIcon/>
+          <SearchIcon />
         </button>
       </div>
       {query && showResults && <QuickSearchResults query={query} />}

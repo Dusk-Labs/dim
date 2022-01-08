@@ -5,7 +5,7 @@
   padding: 20px;
 
   .separator {
-    margin-top: .5em;
+    margin-top: 0.5em;
   }
 
   h3 {
@@ -24,14 +24,14 @@
     display: grid;
     justify-content: flex-end;
     grid-template-columns: auto auto;
-    gap: .5em;
+    gap: 0.5em;
 
     button {
       font-size: 16px;
       filter: saturate(0.7);
       transition: filter 0.3s ease-in-out;
       font-family: "Roboto Bold", Arial;
-      padding: .5em;
+      padding: 0.5em;
       border-radius: 10px;
       outline: none;
       background: var(--accentColor);
@@ -64,12 +64,12 @@
 
     .horizontal-err {
       padding: 2px 5px;
-      font-size: .8em;
+      font-size: 0.8em;
       margin-left: 5px;
       background: #ee4740;
 
       p {
-        margin: .1em;
+        margin: 0.1em;
       }
     }
 

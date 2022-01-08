@@ -3,7 +3,8 @@
   gap: 2em;
   align-content: flex-start;
 
-  .seasons, .episodes {
+  .seasons,
+  .episodes {
     display: grid;
     width: 100%;
     margin: 1em 0;
@@ -22,7 +23,7 @@
 
     &.selected {
       .season:not(.active) img {
-        opacity: .2;
+        opacity: 0.2;
       }
     }
 
@@ -85,7 +86,7 @@
   }
 
   .desc {
-    margin-top: .5em;
+    margin-top: 0.5em;
     color: var(--secondaryTextColor);
   }
 

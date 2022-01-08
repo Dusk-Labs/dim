@@ -29,7 +29,7 @@ function LogoutBtn() {
         <div className={"buttonLabel"}>
           <p>Logout</p>
         </div>
-        <Logout/>
+        <Logout />
       </button>
     </ConfirmationBox>
   );

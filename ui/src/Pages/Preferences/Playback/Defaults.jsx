@@ -8,17 +8,22 @@ import "./Defaults.scss";
 function Defaults() {
   const dropdownRef = useRef(null);
   const dispatch = useDispatch();
-  const settings = useSelector(store => store.settings);
+  const settings = useSelector((store) => store.settings);
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  const setVideoQuality = useCallback(quality => {
-    dispatch(updateUserSettings({
-      "default_video_quality": quality
-    }));
+  const setVideoQuality = useCallback(
+    (quality) => {
+      dispatch(
+        updateUserSettings({
+          default_video_quality: quality,
+        })
+      );
 
-    setDropdownVisible(false);
-  }, [dispatch]);
+      setDropdownVisible(false);
+    },
+    [dispatch]
+  );
 
   const handleClick = useCallback((e) => {
     if (!dropdownRef.current) return;
@@ -39,7 +44,11 @@ function Defaults() {
   const default_quality = settings.userSettings.data.default_video_quality;
   const isDirectPlay = default_quality === "directplay";
 
-  const availableQualities = [[1080, 10_000_000], [720, 5_000_000], [480, 1_000_000]].filter(([resolution, brate]) => {
+  const availableQualities = [
+    [1080, 10_000_000],
+    [720, 5_000_000],
+    [480, 1_000_000],
+  ].filter(([resolution, brate]) => {
     if (isDirectPlay) return true;
 
     const [selected_res, selected_brate] = default_quality.resolution;
@@ -69,12 +78,16 @@ function Defaults() {
           </div>
           <div className={`dropDownContent visible-${dropdownVisible}`}>
             {!isDirectPlay && (
-              <button onClick={() => setVideoQuality("directplay")}>Direct Play</button>
+              <button onClick={() => setVideoQuality("directplay")}>
+                Direct Play
+              </button>
             )}
             {availableQualities.map(([resolution, brate], i) => (
               <button
                 key={i}
-                onClick={() => setVideoQuality({resolution: [resolution, brate]})}
+                onClick={() =>
+                  setVideoQuality({ resolution: [resolution, brate] })
+                }
               >
                 {`${resolution}p - ${brate / 1_000_000}MB`}
               </button>

@@ -7,7 +7,8 @@
     gap: 1em;
   }
 
-  .fields, .toggles {
+  .fields,
+  .toggles {
     display: grid;
     gap: 1em;
   }
@@ -21,7 +22,7 @@
 
     .horizontal-err {
       padding: 2px 5px;
-      font-size: .8em;
+      font-size: 0.8em;
       margin-left: 5px;
       background: #ee4740;
     }
@@ -38,7 +39,7 @@
     input {
       font-family: "Roboto Regular", Arial;
       transition: background 0.3s ease-in-out;
-      margin-top: .5em;
+      margin-top: 0.5em;
       background: var(--tertiaryColor);
       outline: none;
       border: none;

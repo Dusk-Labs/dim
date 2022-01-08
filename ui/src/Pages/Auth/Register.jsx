@@ -11,7 +11,7 @@ import "./AuthForm.scss";
 
 function Register() {
   const dispatch = useDispatch();
-  const auth = useSelector(store => store.auth);
+  const auth = useSelector((store) => store.auth);
 
   const [username, setUsername] = useState("");
   const [usernameErr, setUsernameErr] = useState("");
@@ -36,12 +36,13 @@ function Register() {
   return (
     <div className="authForm">
       <header>
-        <DimLogo/>
+        <DimLogo />
         <h1>Welcome to Dim</h1>
-        {auth.admin_exists
-          ? <h3>A media manager fueled by dark forces</h3>
-          : <h3>You are making an admin account</h3>
-        }
+        {auth.admin_exists ? (
+          <h3>A media manager fueled by dark forces</h3>
+        ) : (
+          <h3>You are making an admin account</h3>
+        )}
       </header>
       <div className="fields">
         <Field

@@ -9,33 +9,40 @@ import { updateVideo } from "../../../../actions/video";
 function VideoActionPlayPause() {
   const dispatch = useDispatch();
 
-  const { video, player } = useSelector(store => ({
+  const { video, player } = useSelector((store) => ({
     video: store.video,
-    player: store.video.player
+    player: store.video.player,
   }));
 
   const play = useCallback(() => {
-    dispatch(updateVideo({
-      idleCount: 0
-    }));
+    dispatch(
+      updateVideo({
+        idleCount: 0,
+      })
+    );
 
     player.play();
   }, [dispatch, player]);
 
   const pause = useCallback(() => {
-    dispatch(updateVideo({
-      idleCount: 0
-    }));
+    dispatch(
+      updateVideo({
+        idleCount: 0,
+      })
+    );
 
     player.pause();
   }, [dispatch, player]);
 
-  const handleKeyDown = useCallback(e => {
-    if (e.key !== " ") return;
-    if (e.target !== document.body) return;
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key !== " ") return;
+      if (e.target !== document.body) return;
 
-    player.isPaused() ? play() : pause();
-  }, [pause, play, player]);
+      player.isPaused() ? play() : pause();
+    },
+    [pause, play, player]
+  );
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -46,11 +53,8 @@ function VideoActionPlayPause() {
   }, [handleKeyDown]);
 
   return (
-    <button
-      onClick={video.paused ? play : pause}
-      className="playpause"
-    >
-      {video.paused ? <PlayIcon/> : <PauseIcon/>}
+    <button onClick={video.paused ? play : pause} className="playpause">
+      {video.paused ? <PlayIcon /> : <PauseIcon />}
     </button>
   );
 }

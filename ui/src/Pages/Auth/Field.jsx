@@ -4,34 +4,44 @@ import TimesCircleIcon from "../../assets/Icons/TimesCircle";
 import UserIcon from "../../assets/Icons/User";
 import KeyIcon from "../../assets/Icons/Key";
 
-function Field(
-  { name, icon, data, error, type = "text", placeholder = "", autocomplete = "off", maxLength }
-) {
+function Field({
+  name,
+  icon,
+  data,
+  error,
+  type = "text",
+  placeholder = "",
+  autocomplete = "off",
+  maxLength,
+}) {
   const [value, setValue] = data;
   const [err, setErr] = error;
 
   useEffect(() => setErr(""), [setErr, value]);
 
-  const handleOnChange = useCallback((e) => {
-    const newValue = e.target.value;
+  const handleOnChange = useCallback(
+    (e) => {
+      const newValue = e.target.value;
 
-    if (type === "number") {
-      setValue(parseInt(newValue));
-      return;
-    }
+      if (type === "number") {
+        setValue(parseInt(newValue));
+        return;
+      }
 
-    setValue(newValue);
-  }, [setValue, type]);
+      setValue(newValue);
+    },
+    [setValue, type]
+  );
 
   return (
     <label>
       <div className="name">
-        {icon === "user" && <UserIcon/>}
-        {icon === "key" && <KeyIcon/>}
+        {icon === "user" && <UserIcon />}
+        {icon === "key" && <KeyIcon />}
         <p>{name}</p>
         {err && (
           <div className="horizontal-err">
-            <TimesCircleIcon/>
+            <TimesCircleIcon />
             <p>{err}</p>
           </div>
         )}

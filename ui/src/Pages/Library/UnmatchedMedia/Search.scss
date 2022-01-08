@@ -3,7 +3,7 @@
 
   .desc {
     color: var(--secondaryTextColor);
-    margin: .5em 0;
+    margin: 0.5em 0;
   }
 
   .searchField {
@@ -45,7 +45,7 @@
 
     .resultCard {
       display: grid;
-      gap: .5em;
+      gap: 0.5em;
       flex-direction: column;
       text-align: center;
       cursor: pointer;
@@ -56,7 +56,7 @@
       }
 
       &.selected-false {
-        opacity: .2;
+        opacity: 0.2;
       }
 
       .tmdbImageWrapper {
@@ -102,7 +102,7 @@
           background: var(--accentColor);
           fill: var(--accentTextColor);
           width: 32px;
-          padding: .5em;
+          padding: 0.5em;
           border-radius: 10px;
           box-shadow: 0 0 10px var(--primaryColor);
         }
@@ -126,7 +126,7 @@
       }
 
       p {
-        padding: 0 .5em;
+        padding: 0 0.5em;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;

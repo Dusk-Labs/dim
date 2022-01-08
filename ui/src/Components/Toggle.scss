@@ -4,7 +4,7 @@
   }
 
   &.disabled-true {
-    opacity: .5;
+    opacity: 0.5;
 
     .toggle {
       cursor: not-allowed;
@@ -17,7 +17,7 @@
   }
 
   p {
-    margin-bottom: .5em;
+    margin-bottom: 0.5em;
     color: var(--secondaryTextColor);
   }
 

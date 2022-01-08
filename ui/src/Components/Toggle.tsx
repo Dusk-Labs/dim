@@ -2,12 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import "./Toggle.scss";
 
 type ToggleProps = {
-  name: string
-  desc: string
-  state?: boolean
-  disabled?: boolean
-  onToggle?: (...args: any) => any
-}
+  name: string;
+  desc: string;
+  state?: boolean;
+  disabled?: boolean;
+  onToggle?: (...args: any) => any;
+};
 
 function Toggle(props: ToggleProps) {
   const [active, setActive] = useState(false);
@@ -24,18 +24,15 @@ function Toggle(props: ToggleProps) {
       props.onToggle(!active);
     }
 
-    setActive(state => !state);
+    setActive((state) => !state);
   }, [active, props]);
 
   return (
     <div className={`toggleContainer disabled-${props.disabled}`}>
       <p>{props.name}</p>
       {props.desc && <p className="desc">{props.desc}</p>}
-      <div
-        onClick={toggle}
-        className={`toggle active-${active}`}
-      >
-        <div className="ball"/>
+      <div onClick={toggle} className={`toggle active-${active}`}>
+        <div className="ball" />
       </div>
     </div>
   );

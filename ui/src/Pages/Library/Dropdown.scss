@@ -14,7 +14,7 @@
     display: flex;
     transition: background 200ms ease-in-out;
     background: var(--secondaryColor);
-    padding: .5em;
+    padding: 0.5em;
     border-radius: 10px;
     cursor: pointer;
 
@@ -36,7 +36,7 @@
       width: 10px;
       border-radius: 50%;
       background: var(--primaryTextColor);
-      transition: transform .1s ease-in-out;
+      transition: transform 0.1s ease-in-out;
 
       &:not(:first-child) {
         margin-left: 5px;
@@ -68,7 +68,7 @@
 
     &.deleting-true {
       cursor: not-allowed;
-      opacity: .5;
+      opacity: 0.5;
     }
 
     .action {
@@ -100,7 +100,8 @@
         }
       }
 
-      &.rename, &.create {
+      &.rename,
+      &.create {
         cursor: not-allowed;
       }
     }

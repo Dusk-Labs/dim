@@ -10,9 +10,9 @@ import CircleIcon from "../../../assets/Icons/Circle";
 import "./Index.scss";
 
 function VideoControls() {
-  const { video, media } = useSelector(store => ({
+  const { video, media } = useSelector((store) => ({
     video: store.video,
-    media: store.media
+    media: store.media,
   }));
 
   const nameDiv = useRef(null);
@@ -24,7 +24,9 @@ function VideoControls() {
   useEffect(() => {
     if (!overlay) return;
 
-    overlay.style.background = visible ? "linear-gradient(to top, #000, transparent 30%)" : "unset";
+    overlay.style.background = visible
+      ? "linear-gradient(to top, #000, transparent 30%)"
+      : "unset";
   }, [overlay, visible]);
 
   return (
@@ -34,18 +36,22 @@ function VideoControls() {
         {media[video.mediaID]?.info.data.episode && (
           <div className="season-ep">
             <p>S{media[video.mediaID]?.info.data.season}</p>
-            <CircleIcon/>
+            <CircleIcon />
             <p>E{media[video.mediaID]?.info.data.episode}</p>
           </div>
         )}
       </div>
       <div className="time" ref={timeDiv}>
         <p>{formatHHMMSS(video.currentTime)}</p>
-        <CircleIcon/>
+        <CircleIcon />
         <p>{formatHHMMSS(video.duration)}</p>
       </div>
-      <SeekBar seekTo={seekTo} nameRef={nameDiv.current} timeRef={timeDiv.current}/>
-      <Actions setVisible={setVisible} seekTo={seekTo}/>
+      <SeekBar
+        seekTo={seekTo}
+        nameRef={nameDiv.current}
+        timeRef={timeDiv.current}
+      />
+      <Actions setVisible={setVisible} seekTo={seekTo} />
     </div>
   );
 }

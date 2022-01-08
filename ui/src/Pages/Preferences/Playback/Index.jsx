@@ -7,10 +7,10 @@ import "./Index.scss";
 
 const Playback = () => (
   <div className="preferencesPlayback">
-    <Defaults/>
-    <TranscoderDefaults/>
-    <AutoPlay/>
-    <EnableSsa/>
+    <Defaults />
+    <TranscoderDefaults />
+    <AutoPlay />
+    <EnableSsa />
   </div>
 );
 
