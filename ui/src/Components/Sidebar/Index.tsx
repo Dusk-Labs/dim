@@ -26,15 +26,15 @@ function Sidebar() {
     <nav className="sidebar" ref={divContainer}>
       <div className="sectionsWrapper">
         <section className="main-part">
-          <Profile name={true} hoursSpentWatching={true}/>
-          <div className="separator"/>
-          <Search/>
+          <Profile name={true} hoursSpentWatching={true} />
+          <div className="separator" />
+          <Search />
         </section>
-        <General/>
-        <Libraries/>
+        <General />
+        <Libraries />
         <System />
       </div>
-      <Toggle sidebar={divContainer}/>
+      <Toggle sidebar={divContainer} />
     </nav>
   );
 }

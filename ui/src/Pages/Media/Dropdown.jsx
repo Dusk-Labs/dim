@@ -40,13 +40,16 @@ function Dropdown() {
         className={`toggle visible-${dropdownVisible}`}
         onClick={handleToggle}
       >
-        <div/>
-        <div/>
-        <div/>
+        <div />
+        <div />
+        <div />
       </div>
       <div className={`dropDownContent visible-${dropdownVisible}`}>
         <RematchMediaModal>
-          <button>Rematch<EditIcon/></button>
+          <button>
+            Rematch
+            <EditIcon />
+          </button>
         </RematchMediaModal>
       </div>
     </div>

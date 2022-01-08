@@ -30,10 +30,12 @@ function ImageLoad(props) {
     setTryAgain(false);
     setTimeoutID();
 
-    const src = new RegExp("^(?:[a-z]+:)?//").test(props.src) ? props.src : `/${props.src}`;
+    const src = new RegExp("^(?:[a-z]+:)?//").test(props.src)
+      ? props.src
+      : `/${props.src}`;
 
     try {
-      const req = await fetch(src, {signal});
+      const req = await fetch(src, { signal });
       const blob = await req.blob();
 
       setLoaded(true);
@@ -74,7 +76,7 @@ function ImageLoad(props) {
 
   useEffect(() => {
     if (tryAgain && !timeoutID) {
-      setTryAgainCount(state => state - 1);
+      setTryAgainCount((state) => state - 1);
 
       const id = setTimeout(() => {
         fetchImage();
@@ -90,12 +92,15 @@ function ImageLoad(props) {
     };
   }, [fetchImage, timeoutID, tryAgain]);
 
-  const handleAnimationEnd = useCallback((e) => {
-    if (e.animationName !== props.triggerAnimation) return;
+  const handleAnimationEnd = useCallback(
+    (e) => {
+      if (e.animationName !== props.triggerAnimation) return;
 
-    fetchImage();
-    setTryAgainCount(2);
-  }, [fetchImage, props.triggerAnimation]);
+      fetchImage();
+      setTryAgainCount(2);
+    },
+    [fetchImage, props.triggerAnimation]
+  );
 
   useEffect(() => {
     // setShow(true);
@@ -121,7 +126,7 @@ function ImageLoad(props) {
       className={`imageLoad show-${show}`}
       onAnimationEnd={handleAnimationEnd}
     >
-      {props.children({imageSrc, loaded, error, setErr})}
+      {props.children({ imageSrc, loaded, error, setErr })}
     </div>
   );
 }

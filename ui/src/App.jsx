@@ -24,51 +24,49 @@ import "./App.scss";
 const routes = (
   <Switch>
     <NotAuthedOnlyRoute exact path="/login">
-      <Login/>
+      <Login />
     </NotAuthedOnlyRoute>
     <NotAuthedOnlyRoute exact path="/register">
-      <Register/>
+      <Register />
     </NotAuthedOnlyRoute>
     <PrivateRoute exact path="/">
       <MainLayout>
-        <Dashboard/>
+        <Dashboard />
       </MainLayout>
     </PrivateRoute>
     <PrivateRoute exact path="/library/:id">
       <MainLayout>
-        <Library/>
+        <Library />
       </MainLayout>
     </PrivateRoute>
     <PrivateRoute path="/search">
       <MainLayout>
-        <SearchResults/>
+        <SearchResults />
       </MainLayout>
     </PrivateRoute>
     <PrivateRoute exact path="/media/:id">
       <MainLayout>
-        <Media/>
+        <Media />
       </MainLayout>
     </PrivateRoute>
     <PrivateRoute exact path="/preferences">
       <MainLayout>
-        <Preferences/>
+        <Preferences />
       </MainLayout>
     </PrivateRoute>
     <PrivateRoute exact path="/play/:fileID">
-      <VideoPlayer/>
+      <VideoPlayer />
     </PrivateRoute>
   </Switch>
 );
 
 const App = () => (
   <>
-    <ThemeController/>
-    <FaviconController/>
+    <ThemeController />
+    <FaviconController />
     <WS>
-      <BrowserRouter>
-        {routes}
-      </BrowserRouter>
-      <Notifications/>
+      <BrowserRouter>{routes}</BrowserRouter>
+      <Notifications />
     </WS>
   </>
 );

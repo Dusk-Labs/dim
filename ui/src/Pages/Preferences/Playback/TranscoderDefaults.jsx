@@ -7,17 +7,22 @@ import Toggle from "../../../Components/Toggle";
 function TranscoderDefaults() {
   const dispatch = useDispatch();
 
-  const enable_hwaccel = useSelector(store => {
+  const enable_hwaccel = useSelector((store) => {
     const { data } = store.settings.globalSettings;
 
     return data.enable_hwaccel;
   });
 
-  const handleToggle = useCallback((state) => {
-    dispatch(updateGlobalSettings({
-      enable_hwaccel: state
-    }));
-  }, [dispatch]);
+  const handleToggle = useCallback(
+    (state) => {
+      dispatch(
+        updateGlobalSettings({
+          enable_hwaccel: state,
+        })
+      );
+    },
+    [dispatch]
+  );
 
   return (
     <section>

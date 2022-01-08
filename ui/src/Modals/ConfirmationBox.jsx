@@ -7,17 +7,20 @@ import "./ConfirmationBox.scss";
 const ConfirmationBox = (props) => {
   const { action } = props;
 
-  const confirmAction = useCallback(close => {
-    close();
-    action();
-  }, [action]);
+  const confirmAction = useCallback(
+    (close) => {
+      close();
+      action();
+    },
+    [action]
+  );
 
   return (
     <ModalBox activatingComponent={props.children}>
-      {closeModal => (
+      {(closeModal) => (
         <div className="modalConfirmation">
           <h3>{props.title}</h3>
-          <div className="separator"/>
+          <div className="separator" />
           <p>{props.msg}</p>
           <div className="options">
             <button className="cancelBtn" onClick={closeModal}>

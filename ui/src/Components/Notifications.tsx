@@ -5,7 +5,7 @@ import Toast from "./Toast";
 import "./Notifications.scss";
 
 function Notifications() {
-  const notifs = useAppSelector(state => state.notifications);
+  const notifs = useAppSelector((state) => state.notifications);
 
   return (
     <div className="notifications">

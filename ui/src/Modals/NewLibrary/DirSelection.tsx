@@ -20,46 +20,52 @@ function DirSelection(props: Props) {
 
   const { data: items, error, isFetching } = useGetDirectoriesQuery(current);
 
-  const selectFolder = useCallback(path => {
-    const alreadySelected = selectedFolders.includes(path);
+  const selectFolder = useCallback(
+    (path) => {
+      const alreadySelected = selectedFolders.includes(path);
 
-    if (alreadySelected) {
-      const newSelectedFolders = [];
+      if (alreadySelected) {
+        const newSelectedFolders = [];
 
-      for (const name of selectedFolders) {
-        if (name === path) continue;
-        newSelectedFolders.push(name);
+        for (const name of selectedFolders) {
+          if (name === path) continue;
+          newSelectedFolders.push(name);
+        }
+
+        setSelectedFolders(newSelectedFolders);
+
+        return;
       }
 
-      setSelectedFolders(newSelectedFolders);
-
-      return;
-    }
-
-    if (!alreadySelected) {
-      setSelectedFolders(state => [...state, path]);
-    }
-  }, [selectedFolders, setSelectedFolders]);
+      if (!alreadySelected) {
+        setSelectedFolders((state) => [...state, path]);
+      }
+    },
+    [selectedFolders, setSelectedFolders]
+  );
 
   const selectAllFolders = useCallback(() => {
     if (!items) {
       return;
     }
 
-    const unselectedFolders = items.filter(item => (
-      !selectedFolders.includes(item)
-    ));
+    const unselectedFolders = items.filter(
+      (item) => !selectedFolders.includes(item)
+    );
 
-    setSelectedFolders(state => unselectedFolders.concat(state));
+    setSelectedFolders((state) => unselectedFolders.concat(state));
   }, [items, selectedFolders, setSelectedFolders]);
 
   const clearSelection = useCallback(() => {
     setSelectedFolders([]);
   }, [setSelectedFolders]);
 
-  const select = useCallback(path => {
-    setCurrent(path);
-  }, [setCurrent]);
+  const select = useCallback(
+    (path) => {
+      setCurrent(path);
+    },
+    [setCurrent]
+  );
 
   const goBack = useCallback(() => {
     if (current.length === 0) return;
@@ -87,9 +93,9 @@ function DirSelection(props: Props) {
       );
     } else {
       dirs = items.map((dir, i) => {
-        const count = selectedFolders.filter(folder => (
-          folder.includes(dir + "/") && folder !== dir
-        )).length;
+        const count = selectedFolders.filter(
+          (folder) => folder.includes(dir + "/") && folder !== dir
+        ).length;
 
         return (
           <div
@@ -97,14 +103,16 @@ function DirSelection(props: Props) {
             className={`dir selected-${selectedFolders.includes(dir)}`}
           >
             <div className="label" onClick={() => select(dir)}>
-              <FolderIcon/>
+              <FolderIcon />
               <p>
                 {dir.replace(current, "").replace("/", "")}
-                <span className="selectedInsideCount">{count ? ` (${count} folders selected inside)` : ""}</span>
+                <span className="selectedInsideCount">
+                  {count ? ` (${count} folders selected inside)` : ""}
+                </span>
               </p>
             </div>
             <div className="selectBox" onClick={() => selectFolder(dir)}>
-              <CheckIcon/>
+              <CheckIcon />
             </div>
           </div>
         );
@@ -112,9 +120,8 @@ function DirSelection(props: Props) {
     }
   }
 
-  const allFoldersInCurrentSelected = items && items.every(item => (
-    selectedFolders.includes(item)
-  ));
+  const allFoldersInCurrentSelected =
+    items && items.every((item) => selectedFolders.includes(item));
 
   return (
     <div className="dirSelection">
@@ -125,22 +132,24 @@ function DirSelection(props: Props) {
             disabled={selectedFolders.length <= 0}
             type="secondary"
             onClick={clearSelection}
-          >Clear all</Button>
+          >
+            Clear all
+          </Button>
           <Button
             disabled={allFoldersInCurrentSelected}
             type="secondary"
             onClick={selectAllFolders}
-          >Select all</Button>
+          >
+            Select all
+          </Button>
         </div>
       </div>
       <div className="dirs-wrapper">
-        <div className="dirs">
-          {dirs}
-        </div>
+        <div className="dirs">{dirs}</div>
       </div>
       <div className="controls">
         <Button onClick={goBack} disabled={current === ""}>
-          <ArrowLeftIcon/>
+          <ArrowLeftIcon />
         </Button>
         <p className="current">{current}</p>
       </div>

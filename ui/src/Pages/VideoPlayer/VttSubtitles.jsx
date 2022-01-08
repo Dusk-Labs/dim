@@ -11,11 +11,11 @@ import "./Subtitles.scss";
 function VideoSubtitles() {
   const dispatch = useDispatch();
 
-  const { video, current, tracks, ready } = useSelector(store => ({
+  const { video, current, tracks, ready } = useSelector((store) => ({
     video: store.video,
     current: store.video.tracks.subtitle.current,
     tracks: store.video.tracks.subtitle.list,
-    ready: store.video.tracks.subtitle.ready
+    ready: store.video.tracks.subtitle.ready,
   }));
   const isVtt = tracks[current]?.chunk_path?.endsWith("vtt");
 
@@ -34,25 +34,32 @@ function VideoSubtitles() {
     const blackBarHeight = (window.innerHeight - videoHeight) / 2;
 
     if (blackBarHeight > 100) {
-      document.documentElement.style.setProperty("--blackBarHeight", `${blackBarHeight}px`);
+      document.documentElement.style.setProperty(
+        "--blackBarHeight",
+        `${blackBarHeight}px`
+      );
     }
   }, [videoRef]);
 
-  const handleCueChange = useCallback((e) => {
-    if (e.srcElement.activeCues.length > 0) {
+  const handleCueChange = useCallback(
+    (e) => {
+      if (e.srcElement.activeCues.length > 0) {
+        const cue = Object.entries(e.srcElement.activeCues).map(([_, x]) =>
+          x.text.replace(/<[^>]*>?/gm, "").split("\n")
+        );
 
-      const cue = Object.entries(e.srcElement.activeCues).map(([_, x]) => x.text
-        .replace(/<[^>]*>?/gm, "")
-        .split("\n"));
-
-      dispatch(updateVideo({
-        currentCue: cue
-      }));
-      setShow(true);
-    } else {
-      setShow(false);
-    }
-  }, [dispatch]);
+        dispatch(
+          updateVideo({
+            currentCue: cue,
+          })
+        );
+        setShow(true);
+      } else {
+        setShow(false);
+      }
+    },
+    [dispatch]
+  );
 
   /*
     delete and create new text track as there is no API
@@ -81,13 +88,22 @@ function VideoSubtitles() {
 
   // clear current cue if track changed
   useEffect(() => {
-    dispatch(updateVideo({
-      currentCue: []
-    }));
+    dispatch(
+      updateVideo({
+        currentCue: [],
+      })
+    );
   }, [dispatch, current]);
 
   useEffect(() => {
-    if (!isVtt || !video.textTrackEnabled || !videoRef.current || current === -1 || video.prevSubs === current) return;
+    if (
+      !isVtt ||
+      !video.textTrackEnabled ||
+      !videoRef.current ||
+      current === -1 ||
+      video.prevSubs === current
+    )
+      return;
 
     let prev = 0;
 
@@ -107,9 +123,11 @@ function VideoSubtitles() {
 
         clearInterval(intervalID);
 
-        dispatch(updateVideo({
-          prevSubs: current
-        }));
+        dispatch(
+          updateVideo({
+            prevSubs: current,
+          })
+        );
       } else {
         console.log("[Subtitles] fetching again in 1 second", text.length);
         prev = text;
@@ -119,21 +137,38 @@ function VideoSubtitles() {
         videoSubTrack.addCue(cue);
       }
 
-      dispatch(updateTrack("subtitle", {
-        ready: true
-      }));
+      dispatch(
+        updateTrack("subtitle", {
+          ready: true,
+        })
+      );
     }, 1000);
 
     return () => {
-      console.log("[Subtitles] component unmounted, clearing fetching interval");
+      console.log(
+        "[Subtitles] component unmounted, clearing fetching interval"
+      );
       clearInterval(intervalID);
     };
-  }, [current, dispatch, tracks, video.prevSubs, video.textTrackEnabled, videoRef, isVtt]);
+  }, [
+    current,
+    dispatch,
+    tracks,
+    video.prevSubs,
+    video.textTrackEnabled,
+    videoRef,
+    isVtt,
+  ]);
 
   useEffect(() => {
     if (videoRef.current || !isVtt) return;
-    console.log("[Subtitles] setting player text status to", video.textTrackEnabled);
-    videoRef.current.textTracks[0].mode = video.textTrackEnabled ? "showing" : "hidden";
+    console.log(
+      "[Subtitles] setting player text status to",
+      video.textTrackEnabled
+    );
+    videoRef.current.textTracks[0].mode = video.textTrackEnabled
+      ? "showing"
+      : "hidden";
   }, [video.textTrackEnabled, videoRef, isVtt]);
 
   useEffect(() => {
@@ -160,9 +195,9 @@ function VideoSubtitles() {
 
   return (
     <div className={`videoSubtitles show-${video.textTrackEnabled && show}`}>
-      {
-        video.currentCue.map((x, key) => <p key={key}>{x}</p>)
-      }
+      {video.currentCue.map((x, key) => (
+        <p key={key}>{x}</p>
+      ))}
     </div>
   );
 }

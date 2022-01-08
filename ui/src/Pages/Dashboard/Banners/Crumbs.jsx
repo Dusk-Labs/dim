@@ -14,11 +14,7 @@ function Crumbs(props) {
     );
   }
 
-  return (
-    <div className="bannerCrumbs">
-      {crumbs}
-    </div>
-  );
+  return <div className="bannerCrumbs">{crumbs}</div>;
 }
 
 export default Crumbs;

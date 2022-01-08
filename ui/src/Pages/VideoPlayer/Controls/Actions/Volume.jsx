@@ -9,9 +9,9 @@ import { updateVideo } from "../../../../actions/video";
 function VideoActionVolume() {
   const dispatch = useDispatch();
 
-  const { video, player } = useSelector(store => ({
+  const { video, player } = useSelector((store) => ({
     video: store.video,
-    player: store.video.player
+    player: store.video.player,
   }));
 
   const volSliderRef = useRef(null);
@@ -22,9 +22,11 @@ function VideoActionVolume() {
   const [showVolCount, setShowVolCount] = useState(false);
 
   const toggleMute = useCallback(() => {
-    dispatch(updateVideo({
-      idleCount: 0
-    }));
+    dispatch(
+      updateVideo({
+        idleCount: 0,
+      })
+    );
 
     if (currentVolume === 0) {
       player.setMute(false);
@@ -37,19 +39,24 @@ function VideoActionVolume() {
 
       player.setMute(!currentMuteState);
 
-      dispatch(updateVideo({
-        muted: !currentMuteState
-      }));
+      dispatch(
+        updateVideo({
+          muted: !currentMuteState,
+        })
+      );
     }
   }, [currentVolume, dispatch, player]);
 
-  const handleKeyDown = useCallback(e => {
-    if (e.key === "m") {
-      toggleMute();
-    }
-  }, [toggleMute]);
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key === "m") {
+        toggleMute();
+      }
+    },
+    [toggleMute]
+  );
 
-  const handleClick = useCallback(e => {
+  const handleClick = useCallback((e) => {
     const slider = volSliderRef.current.getBoundingClientRect();
     const x = e.clientX - slider.left;
 
@@ -77,27 +84,30 @@ function VideoActionVolume() {
     setDragging(false);
   }, []);
 
-  const handleMouseMove = useCallback((e) => {
-    if (dragging) {
-      const slider = volSliderRef.current.getBoundingClientRect();
-      const x = e.clientX - slider.left;
+  const handleMouseMove = useCallback(
+    (e) => {
+      if (dragging) {
+        const slider = volSliderRef.current.getBoundingClientRect();
+        const x = e.clientX - slider.left;
 
-      let percent = Math.round((x / slider.width) * 100);
+        let percent = Math.round((x / slider.width) * 100);
 
-      if (percent <= 5) {
-        percent = 0;
+        if (percent <= 5) {
+          percent = 0;
+        }
+
+        if (percent >= 95) {
+          percent = 100;
+        }
+
+        volRef.current.style.transition = "";
+
+        setCurrentVolume(percent);
+        setShowVolCount(true);
       }
-
-      if (percent >= 95) {
-        percent = 100;
-      }
-
-      volRef.current.style.transition = "";
-
-      setCurrentVolume(percent);
-      setShowVolCount(true);
-    }
-  }, [dragging]);
+    },
+    [dragging]
+  );
 
   useEffect(() => {
     localStorage.setItem("videoVolume", currentVolume);
@@ -148,16 +158,29 @@ function VideoActionVolume() {
 
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handleClick, handleKeyDown, handleMouseDown, handleMouseMove, handleMouseUp]);
+  }, [
+    handleClick,
+    handleKeyDown,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+  ]);
 
   return (
     <>
       <button onClick={toggleMute} className="volume">
-        {!video.muted && currentVolume > 0 ? <VolumeUpIcon/> : <VolumeMuteIcon/>}
+        {!video.muted && currentVolume > 0 ? (
+          <VolumeUpIcon />
+        ) : (
+          <VolumeMuteIcon />
+        )}
       </button>
       <div className="volSliderWrapper">
-        <div className={`volSlider dragging-${showVolCount}`} ref={volSliderRef}>
-          <div className="vol" ref={volRef}/>
+        <div
+          className={`volSlider dragging-${showVolCount}`}
+          ref={volSliderRef}
+        >
+          <div className="vol" ref={volRef} />
         </div>
       </div>
     </>

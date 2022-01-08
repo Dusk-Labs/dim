@@ -44,7 +44,7 @@
         margin-top: 1em;
 
         &[open] summary ~ * {
-          animation: appear .5s ease-in-out;
+          animation: appear 0.5s ease-in-out;
         }
 
         summary {
@@ -53,8 +53,8 @@
       }
 
       .stderr {
-        margin-top: .5em;
-        padding: .5em;
+        margin-top: 0.5em;
+        padding: 0.5em;
         border-radius: 10px;
         background: var(--tertiaryColor);
       }
@@ -65,7 +65,7 @@
       }
 
       .separator {
-        margin: .5em 0;
+        margin: 0.5em 0;
       }
 
       p {
@@ -88,7 +88,7 @@
         cursor: pointer;
         color: var(--primaryTextColor);
         font-size: 1em;
-        padding: .5em .8em;
+        padding: 0.5em 0.8em;
 
         &:nth-child(1) {
           transition-property: color;
@@ -109,7 +109,6 @@
             filter: saturate(1);
           }
         }
-
       }
     }
   }

@@ -6,30 +6,30 @@ import {
   FETCH_GLOBAL_SETTINGS_OK,
   FETCH_GLOBAL_SETTINGS_ERR,
   UPDATE_GLOBAL_SETTINGS,
-  UPDATE_USER_SETTINGS
+  UPDATE_USER_SETTINGS,
 } from "../actions/types";
 
 const globalSettings = {
   fetching: false,
   fetched: false,
   error: null,
-  data: {}
+  data: {},
 };
 
 const userSettings = {
   fetching: false,
   fetched: false,
   error: null,
-  data: {}
+  data: {},
 };
 
 const initialState = {
   globalSettings,
-  userSettings
+  userSettings,
 };
 
 export default function settingsReducer(state = initialState, action) {
-  switch(action.type) {
+  switch (action.type) {
     case FETCH_USER_SETTINGS_START:
       return {
         ...state,
@@ -37,8 +37,8 @@ export default function settingsReducer(state = initialState, action) {
           fetching: true,
           fetched: false,
           error: null,
-          data: {}
-        }
+          data: {},
+        },
       };
     case FETCH_USER_SETTINGS_OK:
       return {
@@ -47,8 +47,8 @@ export default function settingsReducer(state = initialState, action) {
           ...state.userSettings,
           fetching: false,
           fetched: true,
-          data: action.payload
-        }
+          data: action.payload,
+        },
       };
     case FETCH_USER_SETTINGS_ERR:
       return {
@@ -57,16 +57,16 @@ export default function settingsReducer(state = initialState, action) {
           ...state.userSettings,
           fetching: false,
           fetched: true,
-          error: action.payload
-        }
+          error: action.payload,
+        },
       };
     case UPDATE_USER_SETTINGS:
       return {
         ...state,
         userSettings: {
           ...state.userSettings,
-          data: action.payload
-        }
+          data: action.payload,
+        },
       };
     case FETCH_GLOBAL_SETTINGS_START:
       return {
@@ -75,8 +75,8 @@ export default function settingsReducer(state = initialState, action) {
           fetching: true,
           fetched: false,
           error: null,
-          data: {}
-        }
+          data: {},
+        },
       };
     case FETCH_GLOBAL_SETTINGS_OK:
       return {
@@ -85,8 +85,8 @@ export default function settingsReducer(state = initialState, action) {
           ...state.globalSettings,
           fetching: false,
           fetched: true,
-          data: action.payload
-        }
+          data: action.payload,
+        },
       };
     case FETCH_GLOBAL_SETTINGS_ERR:
       return {
@@ -95,16 +95,16 @@ export default function settingsReducer(state = initialState, action) {
           ...state.globalSettings,
           fetching: false,
           fetched: true,
-          error: action.payload
-        }
+          error: action.payload,
+        },
       };
     case UPDATE_GLOBAL_SETTINGS:
       return {
         ...state,
         globalSettings: {
           ...state.globalSettings,
-          data: action.payload
-        }
+          data: action.payload,
+        },
       };
     default:
       return state;

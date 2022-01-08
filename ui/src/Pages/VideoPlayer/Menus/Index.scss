@@ -19,14 +19,14 @@
     p {
       font-family: "Roboto Regular";
       display: flex;
-      padding: .5em;
+      padding: 0.5em;
       justify-content: space-between;
       border-radius: 5px;
       cursor: pointer;
       color: var(--secondaryTextColor);
 
       svg {
-        width: .5em;
+        width: 0.5em;
       }
 
       &:hover {
@@ -42,21 +42,21 @@
   .menu {
     display: flex;
     flex-direction: column;
-    padding: .5em;
+    padding: 0.5em;
     background: var(--primaryColor);
     width: 50%;
     border-radius: 10px;
 
     .separatorContainer {
-      margin-bottom: .5em;
-      padding: 0 .5em;
+      margin-bottom: 0.5em;
+      padding: 0 0.5em;
     }
 
     .heading {
       display: flex;
       align-items: center;
-      gap: .5em;
-      padding: .5em;
+      gap: 0.5em;
+      padding: 0.5em;
       justify-content: space-between;
 
       button {
@@ -64,7 +64,7 @@
         justify-content: center;
         align-items: center;
         background: var(--tertiaryColor);
-        padding: 0 .5em;
+        padding: 0 0.5em;
         height: 100%;
         border-radius: 5px;
         transition: background 100ms ease-in-out;
@@ -80,7 +80,7 @@
     }
 
     .tracks {
-      padding: 0 .5em;
+      padding: 0 0.5em;
       height: 100%;
       overflow-y: auto;
       scrollbar-width: thin;
@@ -88,7 +88,7 @@
     }
 
     .track {
-      padding: .3em .5em;
+      padding: 0.3em 0.5em;
       border-radius: 10px;
 
       &:not(.active) {

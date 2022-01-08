@@ -6,8 +6,8 @@ import CardImage from "../../../Pages/Media/CardImage";
 import { fetchMediaFiles, fetchMediaInfo } from "../../../actions/media";
 
 function SelectMediaFileEpisode(props) {
-  const {media} = useSelector(store => ({
-    media: store.media
+  const { media } = useSelector((store) => ({
+    media: store.media,
   }));
 
   const dispatch = useDispatch();
@@ -31,27 +31,28 @@ function SelectMediaFileEpisode(props) {
   useEffect(() => {
     if (!currentID) return;
 
-    epRef.current.addEventListener("mouseenter", handleMouseEnter);
+    const current = epRef.current;
 
-    return (() => {
-      // eslint-disable-next-line
-      epRef.current && epRef.current.removeEventListener("mouseenter", handleMouseEnter);
-    });
+    if (current) {
+      current.addEventListener("mouseenter", handleMouseEnter);
+
+      return () => {
+        current.removeEventListener("mouseenter", handleMouseEnter);
+      };
+    }
   }, [currentID, dispatch, handleMouseEnter, epRef]);
 
   let progressPercentage = 0;
 
   if (media[currentID]?.info?.data) {
-    const { progress, duration} = media[currentID].info.data;
+    const { progress, duration } = media[currentID].info.data;
 
-    progressPercentage = (
-      (progress / duration) * 100
-    );
+    progressPercentage = (progress / duration) * 100;
   }
 
   return (
     <div className="episode" onClick={handleClick} ref={epRef}>
-      <CardImage src={thumbnail} progress={progressPercentage}/>
+      <CardImage src={thumbnail} progress={progressPercentage} />
       <p>Episode {number}</p>
     </div>
   );

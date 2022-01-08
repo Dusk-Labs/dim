@@ -8,16 +8,21 @@ import "./Folders.scss";
 
 const SelectUnmatchedMediaFolders = () => {
   const { unmatched } = useContext(LibraryContext);
-  const { selectedFiles, currentFolder, setCurrentFolder } = useContext(SelectUnmatchedContext);
+  const { selectedFiles, currentFolder, setCurrentFolder } = useContext(
+    SelectUnmatchedContext
+  );
 
-  const selectFolder = useCallback((folder) => {
-    if (currentFolder === folder) return;
-    setCurrentFolder(folder);
-  }, [currentFolder, setCurrentFolder]);
+  const selectFolder = useCallback(
+    (folder) => {
+      if (currentFolder === folder) return;
+      setCurrentFolder(folder);
+    },
+    [currentFolder, setCurrentFolder]
+  );
 
   const folders = Object.keys(unmatched.items).map((folder, i) => {
     const files = Object.values(selectedFiles);
-    const count = files.filter(file => file.parent === folder).length;
+    const count = files.filter((file) => file.parent === folder).length;
 
     return (
       <div
@@ -27,7 +32,7 @@ const SelectUnmatchedMediaFolders = () => {
         onClick={() => selectFolder(folder)}
       >
         <div className="folderIcon">
-          <FolderIcon/>
+          <FolderIcon />
           {count > 0 && <p>{count}</p>}
         </div>
         <p>{folder}</p>
@@ -35,11 +40,7 @@ const SelectUnmatchedMediaFolders = () => {
     );
   });
 
-  return (
-    <div className="selectUnmatchedMediaFolders">
-      {folders}
-    </div>
-  );
+  return <div className="selectUnmatchedMediaFolders">{folders}</div>;
 };
 
 export default SelectUnmatchedMediaFolders;

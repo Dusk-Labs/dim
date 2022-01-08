@@ -5,8 +5,8 @@ import "./Index.scss";
 
 const Account = () => (
   <div className="preferencesAccount">
-    <ManagePassword/>
-    <ManageAccount/>
+    <ManagePassword />
+    <ManageAccount />
   </div>
 );
 

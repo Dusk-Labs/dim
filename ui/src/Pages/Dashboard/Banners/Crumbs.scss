@@ -4,7 +4,7 @@
   top: 30px;
   right: 30px;
   z-index: 1;
-  transition: .3s ease-in-out;
+  transition: 0.3s ease-in-out;
   transition-property: top, right;
 
   .crumb {
@@ -13,7 +13,7 @@
     width: 15px;
     border-radius: 50%;
     border: solid 3px var(--bannerPrimaryTextColor);
-    transition: transform .1s ease-in-out;
+    transition: transform 0.1s ease-in-out;
     cursor: pointer;
 
     &:hover {
@@ -21,7 +21,7 @@
     }
 
     &.active {
-      animation: crumbActive .5s ease-out;
+      animation: crumbActive 0.5s ease-out;
       background: var(--bannerPrimaryTextColor);
     }
   }
@@ -32,7 +32,7 @@
     transform: scale(1);
   }
   50% {
-    transform: scale(.5);
+    transform: scale(0.5);
   }
   100% {
     transform: scale(1);

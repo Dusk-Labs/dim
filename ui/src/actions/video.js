@@ -6,27 +6,27 @@ import {
   UPDATE_TRACK,
   UPDATE_VIDEO,
   CLEAR_VIDEO_DATA,
-  SET_SHOW_SETTINGS
+  SET_SHOW_SETTINGS,
 } from "./types";
 
 export const setGID = (gid) => async (dispatch) => {
   dispatch({
     type: SET_GID,
-    gid
+    gid,
   });
 };
 
 export const setManifestState = (state) => async (dispatch) => {
   dispatch({
     type: SET_MANIFEST_STATE,
-    state
+    state,
   });
 };
 
 export const setTracks = (tracks) => async (dispatch) => {
   dispatch({
     type: SET_TRACKS,
-    tracks
+    tracks,
   });
 };
 
@@ -34,14 +34,14 @@ export const updateTrack = (track, data) => async (dispatch) => {
   dispatch({
     type: UPDATE_TRACK,
     track,
-    data
+    data,
   });
 };
 
 export const updateVideo = (data) => async (dispatch) => {
   dispatch({
     type: UPDATE_VIDEO,
-    data
+    data,
   });
 };
 
@@ -50,7 +50,7 @@ export const toggleShowSubSwitcher = () => async (dispatch, getState) => {
 
   dispatch({
     type: SET_SHOW_SUB_SWITCHER,
-    state: !state
+    state: !state,
   });
 };
 
@@ -59,7 +59,7 @@ export const toggleShowSettings = () => async (dispatch, getState) => {
 
   dispatch({
     type: SET_SHOW_SETTINGS,
-    state: !state
+    state: !state,
   });
 };
 
@@ -69,8 +69,8 @@ export const incIdleCount = () => async (dispatch, getState) => {
   dispatch({
     type: UPDATE_VIDEO,
     data: {
-      idleCount: state + 1
-    }
+      idleCount: state + 1,
+    },
   });
 };
 

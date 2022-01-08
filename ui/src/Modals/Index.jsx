@@ -13,8 +13,8 @@ const ModalBox = (props) => {
   // prevent scrolling behind Modal
   useEffect(() => {
     visible
-      ? document.body.style.overflow = "hidden"
-      : document.body.style.overflow = "unset";
+      ? (document.body.style.overflow = "hidden")
+      : (document.body.style.overflow = "unset");
   }, [visible]);
 
   const close = useCallback(() => {
@@ -31,9 +31,8 @@ const ModalBox = (props) => {
 
   return (
     <div className="modalBoxContainer">
-      {props.activatingComponent && (
-        cloneElement(props.activatingComponent, { onClick: () => open() })
-      )}
+      {props.activatingComponent &&
+        cloneElement(props.activatingComponent, { onClick: () => open() })}
       <Modal
         isOpen={visible}
         className="modalBox"

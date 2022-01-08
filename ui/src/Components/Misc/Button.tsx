@@ -3,11 +3,11 @@ import { useCallback } from "react";
 import "./Button.scss";
 
 type ButtonProps = {
-  disabled?: boolean
-  onClick?: (...args: any) => any
-  type?: string
-  children: React.ReactNode
-}
+  disabled?: boolean;
+  onClick?: (...args: any) => any;
+  type?: string;
+  children: React.ReactNode;
+};
 
 function Button(props: ButtonProps) {
   const handleClick = useCallback(() => {
@@ -20,7 +20,9 @@ function Button(props: ButtonProps) {
 
   return (
     <button
-      className={`btn ${props.type || "primary"} ${props.disabled ? "disabled" : ""}`}
+      className={`btn ${props.type || "primary"} ${
+        props.disabled ? "disabled" : ""
+      }`}
       onClick={handleClick}
     >
       {props.children}

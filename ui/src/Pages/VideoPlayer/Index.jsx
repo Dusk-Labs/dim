@@ -4,7 +4,14 @@ import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { MediaPlayer, Debug } from "dashjs";
 
-import { setTracks, setGID, setManifestState, updateVideo, incIdleCount, clearVideoData } from "../../actions/video";
+import {
+  setTracks,
+  setGID,
+  setManifestState,
+  updateVideo,
+  incIdleCount,
+  clearVideoData,
+} from "../../actions/video";
 import { fetchUserSettings } from "../../actions/settings.js";
 import { VideoPlayerContext } from "./Context";
 import VideoEvents from "./Events";
@@ -26,7 +33,17 @@ function VideoPlayer() {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const { error, manifest, player, audioTracks, videoTracks, video, auth, media, settings } = useSelector(store => ({
+  const {
+    error,
+    manifest,
+    player,
+    audioTracks,
+    videoTracks,
+    video,
+    auth,
+    media,
+    settings,
+  } = useSelector((store) => ({
     media: store.media,
     auth: store.auth,
     video: store.video,
@@ -35,7 +52,7 @@ function VideoPlayer() {
     videoTracks: store.video.tracks.video,
     audioTracks: store.video.tracks.audio,
     error: store.video.error,
-    settings: store.settings
+    settings: store.settings,
   }));
 
   const videoPlayer = useRef(null);
@@ -57,28 +74,35 @@ function VideoPlayer() {
 
   // FIXME: Not sure where the best place to do this is, but we need userSettings, but sometimes the user navigates to /play directly so we never fetch userSettings
   useEffect(() => {
-    if(settings.userSettings.fetching || settings.userSettings.fetched)
-      return;
+    if (settings.userSettings.fetching || settings.userSettings.fetched) return;
 
     dispatch(fetchUserSettings());
   }, [dispatch, settings.userSettings]);
 
   // If playback finished, redirect to the next video
   useEffect(() => {
-    if(!settings?.userSettings?.data?.enable_autoplay) return;
+    if (!settings?.userSettings?.data?.enable_autoplay) return;
 
     const currentMedia = media[video.mediaID];
     const nextEpisodeId = currentMedia?.info?.data?.next_episode_id;
     const nextMedia = nextEpisodeId ? media[nextEpisodeId] : null;
     const item = nextMedia?.files?.items[0];
 
-    if(!item) return;
+    if (!item) return;
 
     const ts_diff = video.currentTime - currentMedia?.info?.data?.duration;
-    if(video.playback_ended && ts_diff < 10) {
+    if (video.playback_ended && ts_diff < 10) {
       history.replace(`/play/${item.id}`, { from: history.location.pathname });
     }
-  }, [media, video.mediaID, video.currentTime, video.playback_ended, history, settings, settings.userSettings]);
+  }, [
+    media,
+    video.mediaID,
+    video.currentTime,
+    video.playback_ended,
+    history,
+    settings,
+    settings.userSettings,
+  ]);
 
   // Reset GID if play id changes so that this component loads a new video.
   useEffect(() => {
@@ -89,15 +113,13 @@ function VideoPlayer() {
     if (video.gid) return;
 
     const force_ass = localStorage.getItem("enable_ssa") === "true";
-    const host = (
-      `/api/v1/stream/${params.fileID}/manifest?force_ass=${force_ass}`
-    );
+    const host = `/api/v1/stream/${params.fileID}/manifest?force_ass=${force_ass}`;
 
     (async () => {
       const config = {
         headers: {
-          "authorization": token
-        }
+          authorization: token,
+        },
       };
 
       const res = await fetch(host, config);
@@ -105,19 +127,29 @@ function VideoPlayer() {
 
       dispatch(setGID(payload.gid));
 
-      const tVideos = payload.tracks.filter(track => track.content_type === "video");
-      const tAudios = payload.tracks.filter(track => track.content_type === "audio");
-      const tSubtitles = payload.tracks.filter(track => track.content_type === "subtitle");
+      const tVideos = payload.tracks.filter(
+        (track) => track.content_type === "video"
+      );
+      const tAudios = payload.tracks.filter(
+        (track) => track.content_type === "audio"
+      );
+      const tSubtitles = payload.tracks.filter(
+        (track) => track.content_type === "subtitle"
+      );
 
-      dispatch(setTracks({
-        video: tVideos,
-        audio: tAudios,
-        subtitle: tSubtitles
-      }));
+      dispatch(
+        setTracks({
+          video: tVideos,
+          audio: tAudios,
+          subtitle: tSubtitles,
+        })
+      );
 
-      dispatch(setManifestState({
-        virtual: { loaded: true }
-      }));
+      dispatch(
+        setManifestState({
+          virtual: { loaded: true },
+        })
+      );
     })();
   }, [dispatch, params.fileID, token, video.gid]);
 
@@ -126,18 +158,22 @@ function VideoPlayer() {
 
     console.log("[video] loading manifest");
 
-    dispatch(setManifestState({
-      loading: true,
-      loaded: false
-    }));
+    dispatch(
+      setManifestState({
+        loading: true,
+        loaded: false,
+      })
+    );
 
-    const includes = `${videoTracks.list.map(track => track.id).join(",")},${audioTracks.list.map(track => track.id).join(",")}`;
+    const includes = `${videoTracks.list
+      .map((track) => track.id)
+      .join(",")},${audioTracks.list.map((track) => track.id).join(",")}`;
     const url = `/api/v1/stream/${video.gid}/manifest.mpd?start_num=0&should_kill=false&includes=${includes}`;
     const mediaPlayer = MediaPlayer().create();
 
     let settings = {
       debug: {
-        logLevel: Debug.LOG_LEVEL_DEBUG
+        logLevel: Debug.LOG_LEVEL_DEBUG,
       },
       streaming: {
         /* FIXME: Disabling temporarily because the code for this function is unsound
@@ -147,10 +183,10 @@ function VideoPlayer() {
         */
         abr: {
           autoSwitchBitrate: {
-            video: false
-          }
-        }
-      }
+            video: false,
+          },
+        },
+      },
     };
 
     mediaPlayer.updateSettings(settings);
@@ -162,24 +198,32 @@ function VideoPlayer() {
         },
         modifyRequestURL: function (url) {
           return url;
-        }
+        },
       };
     });
 
     const getInitialTrack = (trackArr) => {
-      const trackList = trackArr[0].type === "video" ? videoTracks.list : audioTracks.list;
-      const defaultTrack = trackList.filter(track => track.is_default)[0];
-      const initialTracks = trackArr.filter(x => x.id === defaultTrack.set_id);
-      console.log(`[${trackArr[0].type}] setting initial track to`, initialTracks);
+      const trackList =
+        trackArr[0].type === "video" ? videoTracks.list : audioTracks.list;
+      const defaultTrack = trackList.filter((track) => track.is_default)[0];
+      const initialTracks = trackArr.filter(
+        (x) => x.id === defaultTrack.set_id
+      );
+      console.log(
+        `[${trackArr[0].type}] setting initial track to`,
+        initialTracks
+      );
       return initialTracks;
     };
 
     mediaPlayer.initialize(videoRef.current, url, true);
     mediaPlayer.setCustomInitialTrackSelectionFunction(getInitialTrack);
 
-    dispatch(updateVideo({
-      player: mediaPlayer
-    }));
+    dispatch(
+      updateVideo({
+        player: mediaPlayer,
+      })
+    );
 
     return () => {
       dispatch(clearVideoData());
@@ -192,16 +236,28 @@ function VideoPlayer() {
         sessionStorage.clear();
       })();
     };
-  }, [audioTracks.list, auth.token, dispatch, manifest.virtual.loaded, video.gid, videoTracks.list]);
+  }, [
+    audioTracks.list,
+    auth.token,
+    dispatch,
+    manifest.virtual.loaded,
+    video.gid,
+    videoTracks.list,
+  ]);
 
-  const seekTo = useCallback(newTime => {
-    player.seek(newTime);
+  const seekTo = useCallback(
+    (newTime) => {
+      player.seek(newTime);
 
-    dispatch(updateVideo({
-      seeking: false,
-      currentTime: newTime
-    }));
-  }, [dispatch, player]);
+      dispatch(
+        updateVideo({
+          seeking: false,
+          currentTime: newTime,
+        })
+      );
+    },
+    [dispatch, player]
+  );
 
   useEffect(() => {
     if (video.showSubSwitcher) return;
@@ -212,29 +268,37 @@ function VideoPlayer() {
     videoRef,
     videoPlayer,
     overlay: overlay.current,
-    seekTo
+    seekTo,
   };
 
   const nextEpisodeId = media[video.mediaID]?.info?.data.next_episode_id;
-  const showNextVideoAfter = media[video.mediaID]?.info?.data?.chapters?.credits || 0;
+  const showNextVideoAfter =
+    media[video.mediaID]?.info?.data?.chapters?.credits || 0;
 
   return (
     <VideoPlayerContext.Provider value={initialValue}>
       <div className="videoPlayer" ref={videoPlayer}>
-        <VideoEvents/>
-        <VideoMediaData/>
-        <video ref={videoRef}/>
-        <VttSubtitles/>
-        <SsaSubtitles/>
+        <VideoEvents />
+        <VideoMediaData />
+        <video ref={videoRef} />
+        <VttSubtitles />
+        <SsaSubtitles />
         <div className="overlay" ref={overlay}>
-          {(!error && (manifest.loaded && video.canPlay)) && <Menus/>}
-          {(!error && (manifest.loaded && video.canPlay) && nextEpisodeId) && <NextVideo id={nextEpisodeId} showAfter={showNextVideoAfter}/>}
-          {(!error && (manifest.loaded && video.canPlay)) && <VideoControls/>}
-          {(!error & (manifest.loading || !video.canPlay) || video.waiting) && <RingLoad/>}
-          {((!error && (manifest.loaded && video.canPlay)) && media[video.mediaID]?.info?.data.progress > 0) && (
-            <ContinueProgress/>
+          {!error && manifest.loaded && video.canPlay && <Menus />}
+          {!error && manifest.loaded && video.canPlay && nextEpisodeId && (
+            <NextVideo id={nextEpisodeId} showAfter={showNextVideoAfter} />
           )}
-          {error && <ErrorBox/>}
+          {!error && manifest.loaded && video.canPlay && <VideoControls />}
+          {(!error & (manifest.loading || !video.canPlay) || video.waiting) && (
+            <RingLoad />
+          )}
+          {!error &&
+            manifest.loaded &&
+            video.canPlay &&
+            media[video.mediaID]?.info?.data.progress > 0 && (
+              <ContinueProgress />
+            )}
+          {error && <ErrorBox />}
         </div>
       </div>
     </VideoPlayerContext.Provider>

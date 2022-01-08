@@ -8,9 +8,7 @@ function GhostCards() {
   useEffect(() => {
     if (!sectionRef.current) return;
 
-    setCount(
-      Math.floor(sectionRef.current.offsetWidth / 230) * 2
-    );
+    setCount(Math.floor(sectionRef.current.offsetWidth / 230) * 2);
   }, []);
 
   const cards = [];
@@ -19,7 +17,7 @@ function GhostCards() {
     cards.push(
       <div key={x} className="card-wrapper">
         <div className="card">
-          <div className="placeholder"/>
+          <div className="placeholder" />
         </div>
       </div>
     );
@@ -27,7 +25,7 @@ function GhostCards() {
 
   return (
     <section className="showAfter100ms" ref={sectionRef}>
-      <div className="placeholderText"/>
+      <div className="placeholderText" />
       <div className="cards">{cards}</div>
     </section>
   );

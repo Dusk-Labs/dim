@@ -6,7 +6,7 @@ import Toggle from "../../../Components/Toggle";
 
 function Sidebar() {
   const dispatch = useDispatch();
-  const settings = useSelector(store => store.settings);
+  const settings = useSelector((store) => store.settings);
 
   const [compactSidebar, setCompactSidebar] = useState(false);
 
@@ -14,11 +14,16 @@ function Sidebar() {
     setCompactSidebar(settings.userSettings.data.is_sidebar_compact);
   }, [settings.userSettings.data.is_sidebar_compact]);
 
-  const handleToggle = useCallback((state) => {
-    dispatch(updateUserSettings({
-      is_sidebar_compact: state
-    }));
-  }, [dispatch]);
+  const handleToggle = useCallback(
+    (state) => {
+      dispatch(
+        updateUserSettings({
+          is_sidebar_compact: state,
+        })
+      );
+    },
+    [dispatch]
+  );
 
   return (
     <section>

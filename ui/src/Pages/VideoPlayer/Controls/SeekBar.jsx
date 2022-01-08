@@ -9,10 +9,10 @@ import { updateVideo } from "../../../actions/video";
 function VideoSeekBar(props) {
   const dispatch = useDispatch();
 
-  const { auth, video, player } = useSelector(store => ({
+  const { auth, video, player } = useSelector((store) => ({
     auth: store.auth,
     video: store.video,
-    player: store.video.player
+    player: store.video.player,
   }));
 
   const seekBar = useRef(null);
@@ -31,13 +31,18 @@ function VideoSeekBar(props) {
       const config = {
         method: "POST",
         headers: {
-          "authorization": token
-        }
+          authorization: token,
+        },
       };
 
       console.log("[VIDEO] saving progress at", video.currentTime);
 
-      await fetch(`/api/v1/media/${video.episode?.id || video.mediaID}/progress?offset=${video.currentTime}`, config);
+      await fetch(
+        `/api/v1/media/${video.episode?.id || video.mediaID}/progress?offset=${
+          video.currentTime
+        }`,
+        config
+      );
     })();
   }, [video.currentTime, token, video.episode?.id, video.mediaID]);
 
@@ -49,32 +54,42 @@ function VideoSeekBar(props) {
 
   // buffer
   useEffect(() => {
-    const position = ((video.currentTime + video.buffer) / video.duration) * 100;
+    const position =
+      ((video.currentTime + video.buffer) / video.duration) * 100;
     bufferBar.current.style.width = `${position}%`;
   }, [video.currentTime, video.duration, video.buffer]);
 
-  const onSeek = useCallback(async (e) => {
-    if(video.seeking) return;
+  const onSeek = useCallback(
+    async (e) => {
+      if (video.seeking) return;
 
-    dispatch(updateVideo({
-      seeking: true
-    }));
+      dispatch(
+        updateVideo({
+          seeking: true,
+        })
+      );
 
-    const rect = e.target.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    const videoDuration = player.duration();
-    const newTime = Math.floor(percent * videoDuration);
+      const rect = e.target.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      const videoDuration = player.duration();
+      const newTime = Math.floor(percent * videoDuration);
 
-    seekTo(newTime);
-  }, [dispatch, player, seekTo, video.seeking]);
+      seekTo(newTime);
+    },
+    [dispatch, player, seekTo, video.seeking]
+  );
 
   return (
     <div className="seekBarContainer">
       <div className="seekBar" onClick={onSeek} ref={seekBar}>
-        <div ref={bufferBar} className="buffer"/>
-        <div ref={seekBarCurrent} className="current"/>
+        <div ref={bufferBar} className="buffer" />
+        <div ref={seekBarCurrent} className="current" />
       </div>
-      <SeekingTo nameRef={props.nameRef} timeRef={props.timeRef} seekBar={seekBar}/>
+      <SeekingTo
+        nameRef={props.nameRef}
+        timeRef={props.timeRef}
+        seekBar={seekBar}
+      />
     </div>
   );
 }

@@ -54,7 +54,7 @@
 
       .horizontal-err {
         padding: 2px 5px;
-        font-size: .8em;
+        font-size: 0.8em;
         margin-left: 5px;
         background: #ee4740;
       }
@@ -99,7 +99,7 @@
       }
 
       &:last-child {
-        margin-top: .5em;
+        margin-top: 0.5em;
       }
     }
 
@@ -112,7 +112,7 @@
       background: var(--accentColor);
       color: var(--primaryTextColor);
       border-radius: 5px;
-      transition: .2s ease-in-out;
+      transition: 0.2s ease-in-out;
       transition-property: background, opacity;
 
       &.false:hover {
@@ -121,7 +121,7 @@
 
       // logging_in/registering
       &.true {
-        opacity: .3;
+        opacity: 0.3;
         cursor: not-allowed;
       }
     }

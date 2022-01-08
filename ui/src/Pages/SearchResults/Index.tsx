@@ -14,7 +14,7 @@ function SearchResults() {
   const {
     data: items,
     error,
-    isFetching
+    isFetching,
   } = useSearchQuery(query ? search : skipToken);
 
   useEffect(() => {

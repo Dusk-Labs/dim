@@ -51,7 +51,11 @@
         height: 100%;
         width: 100%;
         right: 0;
-        background: linear-gradient(to right, transparent 80%, var(--tertiaryColor));
+        background: linear-gradient(
+          to right,
+          transparent 80%,
+          var(--tertiaryColor)
+        );
       }
     }
 
@@ -90,14 +94,14 @@
     align-items: center;
 
     svg {
-      font-size: .4em;
+      font-size: 0.4em;
       margin: 0 1em;
       fill: var(--accentColor);
     }
 
     a {
       color: var(--tertiaryTextColor);
-      transition: color .2s ease-in-out;
+      transition: color 0.2s ease-in-out;
 
       &:hover {
         color: var(--primaryTextColor);
@@ -109,7 +113,7 @@
       justify-content: start;
       grid-template-columns: repeat(3, auto);
       align-items: center;
-      gap: .5em;
+      gap: 0.5em;
     }
   }
 

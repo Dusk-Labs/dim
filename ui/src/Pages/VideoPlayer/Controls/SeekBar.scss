@@ -25,7 +25,8 @@
       height: 20px;
     }
 
-    .buffer, .current {
+    .buffer,
+    .current {
       height: inherit;
       width: 0;
       pointer-events: none;

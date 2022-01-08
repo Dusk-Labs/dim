@@ -7,26 +7,36 @@ import Toggle from "../../../Components/Toggle";
 function Cards() {
   const dispatch = useDispatch();
 
-  const { showHoverCards, showCardNames } = useSelector(store => {
+  const { showHoverCards, showCardNames } = useSelector((store) => {
     const { data } = store.settings.userSettings;
 
     return {
       showHoverCards: data.show_hovercards,
-      showCardNames: data.show_card_names
+      showCardNames: data.show_card_names,
     };
   });
 
-  const handleShowMediaNamesToggle = useCallback((state) => {
-    dispatch(updateUserSettings({
-      show_card_names: state
-    }));
-  }, [dispatch]);
+  const handleShowMediaNamesToggle = useCallback(
+    (state) => {
+      dispatch(
+        updateUserSettings({
+          show_card_names: state,
+        })
+      );
+    },
+    [dispatch]
+  );
 
-  const handleShowHoverCardsToggle = useCallback((state) => {
-    dispatch(updateUserSettings({
-      show_hovercards: state
-    }));
-  }, [dispatch]);
+  const handleShowHoverCardsToggle = useCallback(
+    (state) => {
+      dispatch(
+        updateUserSettings({
+          show_hovercards: state,
+        })
+      );
+    },
+    [dispatch]
+  );
 
   return (
     <section>

@@ -23,7 +23,7 @@
     height: 100%;
     transition: padding 0.3s ease-in-out, background 100ms ease-in-out;
 
-    &::-webkit-search-cancel-button{
+    &::-webkit-search-cancel-button {
       -webkit-appearance: none;
     }
 
@@ -52,7 +52,7 @@
     color: var(--primaryTextColor);
     outline: none;
     transform: translateY(-50%);
-    transition: background 100ms ease-in-out,;
+    transition: background 100ms ease-in-out;
 
     &:focus,
     &:hover {

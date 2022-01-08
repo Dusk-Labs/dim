@@ -7,17 +7,22 @@ import Toggle from "../../../Components/Toggle";
 function Autoplay() {
   const dispatch = useDispatch();
 
-  const enable_autoplay = useSelector(store => {
+  const enable_autoplay = useSelector((store) => {
     const { data } = store.settings.userSettings;
 
     return data.enable_autoplay;
   });
 
-  const handleToggle = useCallback((state) => {
-    dispatch(updateUserSettings({
-      enable_autoplay: state
-    }));
-  }, [dispatch]);
+  const handleToggle = useCallback(
+    (state) => {
+      dispatch(
+        updateUserSettings({
+          enable_autoplay: state,
+        })
+      );
+    },
+    [dispatch]
+  );
 
   return (
     <section>

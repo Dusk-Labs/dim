@@ -44,11 +44,10 @@
       overflow: hidden;
       transition: height 100ms ease-in-out;
 
-
       &::after {
         content: attr(data-currentVolume);
         position: absolute;
-        left: calc(100% + .5em);
+        left: calc(100% + 0.5em);
         top: 50%;
         opacity: 0;
         width: 0;
@@ -65,8 +64,8 @@
     }
   }
 
-
-  button, .filler {
+  button,
+  .filler {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -75,7 +74,8 @@
     background: transparent;
     pointer-events: initial;
 
-    &:not(.false):hover svg, &:not(.false):focus svg {
+    &:not(.false):hover svg,
+    &:not(.false):focus svg {
       fill: var(--accentColor);
     }
 

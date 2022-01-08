@@ -8,16 +8,16 @@ import { fetchUser } from "../actions/user.js";
 function PrivateRoute(props) {
   const dispatch = useDispatch();
 
-  const { auth, user } = useSelector(store => ({
+  const { auth, user } = useSelector((store) => ({
     auth: store.auth,
-    user: store.user
+    user: store.user,
   }));
 
   const history = useHistory();
 
   const tokenInCookie = document?.cookie
     .split("; ")
-    .find(cookie => cookie.startsWith("token="))
+    .find((cookie) => cookie.startsWith("token="))
     ?.split("=")[1];
 
   const { logged_in, error } = auth.login;
@@ -36,9 +36,7 @@ function PrivateRoute(props) {
       // expire cookie token in 7 days
       dateExpires.setTime(dateExpires.getTime() + 604800000);
 
-      document.cookie = (
-        `token=${token};expires=${dateExpires.toGMTString()};samesite=lax;`
-      );
+      document.cookie = `token=${token};expires=${dateExpires.toGMTString()};samesite=lax;`;
     }
 
     if (!token && !tokenInCookie) {
@@ -96,8 +94,12 @@ function PrivateRoute(props) {
   const { exact, path, render, children } = props;
   const userExists = user.fetched && !user.error;
 
-  return (userExists && token && tokenInCookie) && (
-    <Route exact={exact} path={path} render={render} children={children}/>
+  return (
+    userExists &&
+    token &&
+    tokenInCookie && (
+      <Route exact={exact} path={path} render={render} children={children} />
+    )
   );
 }
 

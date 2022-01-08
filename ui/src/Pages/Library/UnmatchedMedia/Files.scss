@@ -19,10 +19,10 @@
       border-radius: 5px;
       border: solid 2px var(--accentColor);
       transition: background 150ms ease-in-out;
-      margin-right: .5em;
+      margin-right: 0.5em;
 
       svg {
-        font-size: .6em;
+        font-size: 0.6em;
         overflow: unset;
         opacity: 0;
         transition: opacity 150ms ease-in-out;
@@ -31,7 +31,7 @@
 
     .file {
       display: flex;
-      padding: .5em 10px;
+      padding: 0.5em 10px;
       cursor: pointer;
 
       &:hover {

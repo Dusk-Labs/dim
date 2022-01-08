@@ -4,7 +4,7 @@ import "./Index.scss";
 
 const Invites = () => (
   <div className="preferencesInvites">
-    <ManageInvites/>
+    <ManageInvites />
   </div>
 );
 

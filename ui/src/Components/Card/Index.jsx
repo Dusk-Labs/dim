@@ -8,8 +8,8 @@ import Image from "./Image";
 import "./Index.scss";
 
 function Card(props) {
-  const { settings } = useSelector(store => ({
-    settings: store.settings.userSettings
+  const { settings } = useSelector((store) => ({
+    settings: store.settings.userSettings,
   }));
 
   const cardWrapper = useRef(null);
@@ -43,12 +43,15 @@ function Card(props) {
       card.current.style.animation = "";
     }
 
-    if (hovering || window.innerWidth < 1400 || !settings.data.show_hovercards) return;
+    if (hovering || window.innerWidth < 1400 || !settings.data.show_hovercards)
+      return;
 
     const rect = card.current.getBoundingClientRect();
 
     const hoverCardWidth = parseInt(
-      getComputedStyle(document.documentElement).getPropertyValue("--hoverCardWidth")
+      getComputedStyle(document.documentElement).getPropertyValue(
+        "--hoverCardWidth"
+      )
     );
 
     const showHoverOnRight = window.innerWidth - rect.right > hoverCardWidth;
@@ -78,9 +81,9 @@ function Card(props) {
     >
       <div id={id} className="card" ref={card}>
         <Link to={`/media/${id}`}>
-          <Image src={poster_path} progress={mediaProgress}/>
+          <Image src={poster_path} progress={mediaProgress} />
           {settings.data.show_card_names && (
-            <p style={{opacity: + !hovering}}>{name}</p>
+            <p style={{ opacity: +!hovering }}>{name}</p>
           )}
         </Link>
       </div>

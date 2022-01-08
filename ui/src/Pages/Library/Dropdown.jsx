@@ -61,23 +61,20 @@ function Dropdown() {
         className={`toggle visible-${dropdownVisible}`}
         onClick={handleToggle}
       >
-        <div/>
-        <div/>
-        <div/>
+        <div />
+        <div />
+        <div />
       </div>
       <div className={`dropDownContent visible-${dropdownVisible}`}>
-        <Delete id={params.id}/>
+        <Delete id={params.id} />
         <button className="rename">
           Rename library
-          <EditIcon/>
+          <EditIcon />
         </button>
         {count > 0 && (
-          <button
-            onClick={manageUnmatchedMedia}
-            disabled={count === 0}
-          >
+          <button onClick={manageUnmatchedMedia} disabled={count === 0}>
             Match {count} files
-            <FileVideoIcon/>
+            <FileVideoIcon />
           </button>
         )}
       </div>

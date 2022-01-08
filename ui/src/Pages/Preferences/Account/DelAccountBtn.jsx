@@ -7,7 +7,7 @@ import { delAccount, logout } from "../../../actions/auth.js";
 import Button from "../../../Components/Misc/Button";
 
 function DelAccountBtn() {
-  const deleteAccount = useSelector(store => store.auth.deleteAccount);
+  const deleteAccount = useSelector((store) => store.auth.deleteAccount);
 
   const [pass, setPass] = useState("");
   const [passErr, setPassErr] = useState("");

@@ -7,19 +7,19 @@ import {
   CHANGE_USERNAME_OK,
   CHANGE_AVATAR_START,
   CHANGE_AVATAR_OK,
-  CHANGE_AVATAR_ERR
+  CHANGE_AVATAR_ERR,
 } from "../actions/types";
 
 const changeUsername = {
   changing: false,
   changed: true,
-  error: null
+  error: null,
 };
 
 const changeAvatar = {
   changing: false,
   changed: true,
-  error: null
+  error: null,
 };
 
 const initialState = {
@@ -28,11 +28,11 @@ const initialState = {
   fetched: false,
   error: null,
   changeUsername,
-  changeAvatar
+  changeAvatar,
 };
 
 export default function userReducer(state = initialState, action) {
-  switch(action.type) {
+  switch (action.type) {
     case FETCH_USER_START:
       return {
         ...state,
@@ -43,27 +43,27 @@ export default function userReducer(state = initialState, action) {
         changeUsername: {
           changing: false,
           changed: false,
-          error: null
+          error: null,
         },
         changeAvatar: {
           changing: false,
           changed: false,
-          error: null
-        }
+          error: null,
+        },
       };
     case FETCH_USER_OK:
       return {
         ...state,
         fetching: false,
         fetched: true,
-        info: action.payload
+        info: action.payload,
       };
     case FETCH_USER_ERR:
       return {
         ...state,
         fetching: false,
         fetched: true,
-        error: action.payload
+        error: action.payload,
       };
     case CHANGE_USERNAME_START:
       return {
@@ -71,8 +71,8 @@ export default function userReducer(state = initialState, action) {
         changeUsername: {
           changing: true,
           changed: false,
-          error: null
-        }
+          error: null,
+        },
       };
     case CHANGE_USERNAME_OK:
       return {
@@ -80,8 +80,8 @@ export default function userReducer(state = initialState, action) {
         changeUsername: {
           ...state.changeUsername,
           changing: false,
-          changed: true
-        }
+          changed: true,
+        },
       };
     case CHANGE_USERNAME_ERR:
       return {
@@ -89,8 +89,8 @@ export default function userReducer(state = initialState, action) {
         changeUsername: {
           ...state.changeUsername,
           changing: false,
-          err: action.payload
-        }
+          err: action.payload,
+        },
       };
     case CHANGE_AVATAR_START:
       return {
@@ -98,8 +98,8 @@ export default function userReducer(state = initialState, action) {
         changeAvatar: {
           changing: true,
           changed: false,
-          error: null
-        }
+          error: null,
+        },
       };
     case CHANGE_AVATAR_OK:
       return {
@@ -107,8 +107,8 @@ export default function userReducer(state = initialState, action) {
         changeAvatar: {
           ...state.changeAvatar,
           changing: false,
-          changed: true
-        }
+          changed: true,
+        },
       };
     case CHANGE_AVATAR_ERR:
       return {
@@ -116,8 +116,8 @@ export default function userReducer(state = initialState, action) {
         changeAvatar: {
           ...state.changeAvatar,
           changing: false,
-          err: action.payload
-        }
+          err: action.payload,
+        },
       };
     default:
       return state;

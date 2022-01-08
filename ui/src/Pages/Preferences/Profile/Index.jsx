@@ -5,8 +5,8 @@ import "./Index.scss";
 
 const Profile = () => (
   <div className="preferencesProfile">
-    <Avatar/>
-    <Username/>
+    <Avatar />
+    <Username />
   </div>
 );
 

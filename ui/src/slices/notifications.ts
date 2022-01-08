@@ -15,7 +15,7 @@ type NotificationState = {
 };
 
 const initialState: NotificationState = {
-  list: []
+  list: [],
 };
 
 export const notifications = createSlice({
@@ -30,8 +30,8 @@ export const notifications = createSlice({
     },
     clearNotifications: (state) => {
       state.list.splice(0, state.list.length);
-    }
-  }
+    },
+  },
 });
 
 export const { addNotification, removeNotification, clearNotifications } =

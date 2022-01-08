@@ -9,9 +9,9 @@ function VideoMediaData() {
   const params = useParams();
   const dispatch = useDispatch();
 
-  const { video, auth } = useSelector(store => ({
+  const { video, auth } = useSelector((store) => ({
     auth: store.auth,
-    video: store.video
+    video: store.video,
   }));
 
   const { token } = auth;
@@ -20,8 +20,8 @@ function VideoMediaData() {
     (async () => {
       const config = {
         headers: {
-          "authorization": token
-        }
+          authorization: token,
+        },
       };
 
       const res = await fetch(`/api/v1/mediafile/${params.fileID}`, config);
@@ -32,9 +32,11 @@ function VideoMediaData() {
 
       const payload = await res.json();
 
-      dispatch(updateVideo({
-        mediaID: payload.media_id
-      }));
+      dispatch(
+        updateVideo({
+          mediaID: payload.media_id,
+        })
+      );
     })();
   }, [dispatch, params.fileID, token]);
 

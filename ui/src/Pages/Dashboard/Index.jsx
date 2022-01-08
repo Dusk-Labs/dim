@@ -10,7 +10,7 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <Banners/>
+      <Banners />
       <CardList />
     </div>
   );

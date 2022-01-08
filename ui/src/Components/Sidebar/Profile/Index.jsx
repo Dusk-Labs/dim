@@ -7,14 +7,14 @@ import CircleIcon from "../../../assets/Icons/Circle";
 import "./Index.scss";
 
 function Profile(props) {
-  const user = useSelector(store => store.user);
+  const user = useSelector((store) => store.user);
 
   // FETCH_USER_START
   if (user.fetching) {
     return (
       <div className="profile">
         <div className="icon loading">
-          <div className="placeholder-icon"/>
+          <div className="placeholder-icon" />
         </div>
       </div>
     );
@@ -26,7 +26,7 @@ function Profile(props) {
       <div className="profile">
         <div className="icon">
           <div className="error-icon">
-            <CircleIcon/>
+            <CircleIcon />
           </div>
         </div>
         <div className="info">
@@ -46,18 +46,17 @@ function Profile(props) {
           <ProfileImage src={picture} />
         </div>
         <div className="info">
+          <Username username={username || "eray_chumak"} />
 
-          <Username username={username || "eray_chumak"}/>
-
-          {props.hoursSpentWatching &&
-          <h5>Spent {spentWatching || 0}h watching</h5>
-          }
+          {props.hoursSpentWatching && (
+            <h5>Spent {spentWatching || 0}h watching</h5>
+          )}
         </div>
       </div>
     );
   }
 
-  return <div className="profile"/>;
+  return <div className="profile" />;
 }
 
 export default Profile;

@@ -7,7 +7,7 @@ import Field from "../../Auth/Field";
 
 function DirectoryPaths() {
   const dispatch = useDispatch();
-  const settings = useSelector(store => store.settings);
+  const settings = useSelector((store) => store.settings);
 
   const [cache, setCache] = useState("");
   const [cacheErr, setCacheErr] = useState("");
@@ -21,9 +21,11 @@ function DirectoryPaths() {
       return;
     }
 
-    dispatch(updateGlobalSettings({
-      cache_dir: cache
-    }));
+    dispatch(
+      updateGlobalSettings({
+        cache_dir: cache,
+      })
+    );
   }, [cache, dispatch]);
 
   const cancelUpdateCache = useCallback(() => {
@@ -36,9 +38,11 @@ function DirectoryPaths() {
       return;
     }
 
-    dispatch(updateGlobalSettings({
-      metadata_dir: metadata
-    }));
+    dispatch(
+      updateGlobalSettings({
+        metadata_dir: metadata,
+      })
+    );
   }, [dispatch, metadata]);
 
   const cancelUpdateMetaData = useCallback(() => {
@@ -63,7 +67,9 @@ function DirectoryPaths() {
       {cache !== settings.globalSettings.data.cache_dir && (
         <div className="options">
           <Button onClick={updateCache}>Update</Button>
-          <Button onClick={cancelUpdateCache} type="secondary">Cancel</Button>
+          <Button onClick={cancelUpdateCache} type="secondary">
+            Cancel
+          </Button>
         </div>
       )}
       <Field
@@ -74,7 +80,9 @@ function DirectoryPaths() {
       {metadata !== settings.globalSettings.data.metadata_dir && (
         <div className="options">
           <Button onClick={updateMetaData}>Update</Button>
-          <Button onClick={cancelUpdateMetaData} type="secondary">Cancel</Button>
+          <Button onClick={cancelUpdateMetaData} type="secondary">
+            Cancel
+          </Button>
         </div>
       )}
     </section>

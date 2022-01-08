@@ -6,9 +6,9 @@ import "./Index.scss";
 
 const PreferencesAdvanced = () => (
   <div className="preferencesAdvanced">
-    <General/>
-    <DirectoryPaths/>
-    <Authentication/>
+    <General />
+    <DirectoryPaths />
+    <Authentication />
   </div>
 );
 

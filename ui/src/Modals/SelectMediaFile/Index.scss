@@ -10,7 +10,7 @@
   }
 
   .desc {
-    margin-top: .5em;
+    margin-top: 0.5em;
     color: var(--secondaryTextColor);
   }
 
@@ -47,7 +47,7 @@
       align-items: center;
       transition: background 0.1s ease-in-out;
       cursor: pointer;
-      padding: .5em 10px;
+      padding: 0.5em 10px;
       color: var(--primaryTextColor);
 
       &:hover {

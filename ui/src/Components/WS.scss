@@ -22,14 +22,14 @@
   }
 
   p {
-    margin-top: .5em;
+    margin-top: 0.5em;
     color: var(--tertiaryTextColor);
   }
 
   button {
     margin-top: 1em;
-    padding: .8em;
-    transition: .2s ease-in-out;
+    padding: 0.8em;
+    transition: 0.2s ease-in-out;
     transition-property: filter, background;
     filter: saturate(0.7);
     font-family: "Roboto Bold", Arial;
@@ -46,7 +46,7 @@
     }
 
     p {
-      padding: .5em .8em;
+      padding: 0.5em 0.8em;
       background: var(--accentColor);
     }
   }

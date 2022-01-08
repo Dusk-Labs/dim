@@ -32,7 +32,8 @@
       pointer-events: none;
       transition: transform 300ms ease-in-out;
 
-      &:hover, &:focus {
+      &:hover,
+      &:focus {
         background: var(--secondaryColor);
       }
 
@@ -46,7 +47,7 @@
       }
 
       div {
-        transition: transform .1s ease-in-out;
+        transition: transform 0.1s ease-in-out;
 
         &:not(:first-child) {
           margin-left: 5px;
@@ -82,7 +83,7 @@
 
     &.deleting-true {
       cursor: not-allowed;
-      opacity: .5;
+      opacity: 0.5;
     }
 
     .action {
@@ -115,7 +116,8 @@
         }
       }
 
-      &.rename, &.create {
+      &.rename,
+      &.create {
         cursor: not-allowed;
       }
     }
@@ -136,7 +138,7 @@
         background: var(--tertiaryColor);
         width: 5px;
         height: 5px;
-        padding: .5em;
+        padding: 0.5em;
         border-radius: 50%;
         cursor: pointer;
 
@@ -161,4 +163,3 @@
     }
   }
 }
-

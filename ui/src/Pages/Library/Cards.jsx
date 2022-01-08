@@ -30,56 +30,61 @@ function Cards(props) {
 
   const [throttleEventNewCardID, setThrottleEventNewCardID] = useState(false);
 
-  const auth = useSelector(store => store.auth);
+  const auth = useSelector((store) => store.auth);
 
   const cardList = useRef(null);
 
-  const fetchCards = useCallback(async (reset = true) => {
-    if (reset) {
-      setNewCards([]);
-      setShowUnmatched(false);
-    }
+  const fetchCards = useCallback(
+    async (reset = true) => {
+      if (reset) {
+        setNewCards([]);
+        setShowUnmatched(false);
+      }
 
-    try {
-      const config = {
-        headers: {
-          "authorization": auth.token
+      try {
+        const config = {
+          headers: {
+            authorization: auth.token,
+          },
+        };
+
+        const res = await fetch(`/api/v1/library/${currentID}/media`, config);
+
+        if (res.status !== 200) {
+          return;
         }
-      };
 
-      const res = await fetch(`/api/v1/library/${currentID}/media`, config);
+        const payload = await res.json();
 
-      if (res.status !== 200) {
-        return;
+        setTitle(Object.keys(payload)[0]);
+        setNewCards(Object.values(payload)[0]);
+        setFetched(true);
+      } catch (err) {}
+    },
+    [auth.token, currentID, setShowUnmatched]
+  );
+
+  const handleWS = useCallback(
+    (e) => {
+      const { type, lib_id } = JSON.parse(e.data);
+
+      if (type === "EventNewCard") {
+        if (lib_id !== parseInt(params.id)) return;
+
+        if (throttleEventNewCardID) {
+          clearTimeout(throttleEventNewCardID);
+          setThrottleEventNewCardID();
+        }
+
+        const id = setTimeout(() => {
+          fetchCards(false);
+        }, 500);
+
+        setThrottleEventNewCardID(id);
       }
-
-      const payload = await res.json();
-
-      setTitle(Object.keys(payload)[0]);
-      setNewCards(Object.values(payload)[0]);
-      setFetched(true);
-
-    } catch(err) {}
-  }, [auth.token, currentID, setShowUnmatched]);
-
-  const handleWS = useCallback((e) => {
-    const { type, lib_id } = JSON.parse(e.data);
-
-    if (type === "EventNewCard") {
-      if (lib_id !== parseInt(params.id)) return;
-
-      if (throttleEventNewCardID) {
-        clearTimeout(throttleEventNewCardID);
-        setThrottleEventNewCardID();
-      }
-
-      const id = setTimeout(() => {
-        fetchCards(false);
-      }, 500);
-
-      setThrottleEventNewCardID(id);
-    }
-  }, [fetchCards, params.id, throttleEventNewCardID]);
+    },
+    [fetchCards, params.id, throttleEventNewCardID]
+  );
 
   useEffect(() => {
     if (!ws) return;
@@ -110,14 +115,17 @@ function Cards(props) {
     fetchCards();
   }, [currentID, fetchCards]);
 
-  const handleTransitionEnd = useCallback((e) => {
-    if (e.target !== cardList.current) return;
-    if (e.propertyName !== "top") return;
+  const handleTransitionEnd = useCallback(
+    (e) => {
+      if (e.target !== cardList.current) return;
+      if (e.propertyName !== "top") return;
 
-    if (!showUnmatched) {
-      document.body.style.overflow = "unset";
-    }
-  }, [showUnmatched]);
+      if (!showUnmatched) {
+        document.body.style.overflow = "unset";
+      }
+    },
+    [showUnmatched]
+  );
 
   useEffect(() => {
     if (!showUnmatched) return;
@@ -131,7 +139,8 @@ function Cards(props) {
 
     cards.addEventListener("transitionend", handleTransitionEnd);
 
-    return () => cards.removeEventListener("transitionend", handleTransitionEnd);
+    return () =>
+      cards.removeEventListener("transitionend", handleTransitionEnd);
   }, [handleTransitionEnd]);
 
   /*
@@ -160,15 +169,18 @@ function Cards(props) {
       <div className="libraryHeader">
         <h2>{title.toLowerCase()}</h2>
         <div className="actions">
-          <Dropdown/>
+          <Dropdown />
         </div>
       </div>
-      {(show && fetched && newCards.length === 0) && (
+      {show && fetched && newCards.length === 0 && (
         <p className="desc">No media has been found</p>
       )}
-      <div className={`cards show-${show && fetched}`} onAnimationEnd={handleEnd}>
+      <div
+        className={`cards show-${show && fetched}`}
+        onAnimationEnd={handleEnd}
+      >
         {cards.map((card, i) => (
-          <Card key={i} data={card}/>
+          <Card key={i} data={card} />
         ))}
       </div>
     </div>

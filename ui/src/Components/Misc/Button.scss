@@ -15,7 +15,7 @@
   }
 
   &.primary {
-    padding: .5em;
+    padding: 0.5em;
     background: var(--accentLighterColor);
 
     svg {
@@ -41,14 +41,14 @@
     background: var(--quinaryColor);
 
     p {
-      padding: .5em .8em;
+      padding: 0.5em 0.8em;
       background: var(--accentLighterColor);
       transition: 200ms ease-in-out;
       transition-property: background, opacity;
     }
 
     svg {
-      font-size: .6em;
+      font-size: 0.6em;
       margin: 0 10px;
       fill: var(--primaryTextColor);
     }
@@ -59,12 +59,12 @@
   }
 
   &.disabled {
-    opacity: .5;
+    opacity: 0.5;
     cursor: not-allowed;
   }
 
   &.critical {
-    padding: .5em;
+    padding: 0.5em;
     background: var(--criticalLighterColor);
     color: var(--criticalTextColor);
 

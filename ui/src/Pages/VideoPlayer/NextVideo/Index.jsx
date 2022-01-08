@@ -9,8 +9,8 @@ import "./Index.scss";
 function NextVideo(props) {
   const { id, showAfter } = props;
   const dispatch = useDispatch();
-  const { video } = useSelector(store => ({
-    video: store.video
+  const { video } = useSelector((store) => ({
+    video: store.video,
   }));
 
   const [visibile, setVisible] = useState(true);
@@ -26,7 +26,7 @@ function NextVideo(props) {
   return (
     <div className={`nextVideoOverlay ${visibile}`}>
       <SelectMediaFile mediaID={id}>
-        <SelectMediaFilePlayButton label="Next Episode" hideIcon={true}/>
+        <SelectMediaFilePlayButton label="Next Episode" hideIcon={true} />
       </SelectMediaFile>
     </div>
   );

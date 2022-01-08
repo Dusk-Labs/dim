@@ -10,16 +10,18 @@ import { updateVideo } from "../../../../actions/video";
 function VideoActionFullscreen() {
   const dispatch = useDispatch();
 
-  const { video } = useSelector(store => ({
-    video: store.video
+  const { video } = useSelector((store) => ({
+    video: store.video,
   }));
 
   const { videoPlayer } = useContext(VideoPlayerContext);
 
   const toggleFullscreen = useCallback(async () => {
-    dispatch(updateVideo({
-      idleCount: 0
-    }));
+    dispatch(
+      updateVideo({
+        idleCount: 0,
+      })
+    );
 
     try {
       if (!video.fullscreen) {
@@ -31,17 +33,22 @@ function VideoActionFullscreen() {
   }, [dispatch, video.fullscreen, videoPlayer]);
 
   const handleFullscreenChange = useCallback(() => {
-    dispatch(updateVideo({
-      fullscreen: document.fullscreenElement,
-      idleCount: 0
-    }));
+    dispatch(
+      updateVideo({
+        fullscreen: document.fullscreenElement,
+        idleCount: 0,
+      })
+    );
   }, [dispatch]);
 
-  const handleKeyDown = useCallback(e => {
-    if (e.key === "f") {
-      toggleFullscreen();
-    }
-  }, [toggleFullscreen]);
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key === "f") {
+        toggleFullscreen();
+      }
+    },
+    [toggleFullscreen]
+  );
 
   useEffect(() => {
     document.addEventListener("fullscreenchange", handleFullscreenChange);
@@ -53,17 +60,18 @@ function VideoActionFullscreen() {
     };
   }, [handleFullscreenChange, handleKeyDown]);
 
-  if (video.fullscreen) return (
-    <button onClick={toggleFullscreen} className="fullscreen">
-      <CompressIcon/>
-    </button>
-  );
-
-  else return (
-    <button onClick={toggleFullscreen} className="fullscreen">
-      <ExpandIcon/>
-    </button>
-  );
+  if (video.fullscreen)
+    return (
+      <button onClick={toggleFullscreen} className="fullscreen">
+        <CompressIcon />
+      </button>
+    );
+  else
+    return (
+      <button onClick={toggleFullscreen} className="fullscreen">
+        <ExpandIcon />
+      </button>
+    );
 }
 
 export default VideoActionFullscreen;
