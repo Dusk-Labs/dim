@@ -24,16 +24,17 @@
     pointer-events: none;
   }
 
-  .name svg, .time svg {
+  .name svg,
+  .time svg {
     fill: var(--accentColor);
-    width: .4em;
+    width: 0.4em;
   }
 
   .name {
     display: grid;
     align-items: flex-end;
     grid-template-columns: auto auto;
-    gap: .5em;
+    gap: 0.5em;
     justify-self: flex-start;
     grid-area: name;
     transition: opacity 100ms ease-in-out;
@@ -42,7 +43,7 @@
       display: grid;
       align-items: center;
       grid-template-columns: auto auto auto;
-      gap: .2em;
+      gap: 0.2em;
     }
   }
 
@@ -50,7 +51,7 @@
     display: grid;
     grid-template-columns: auto auto auto;
     align-items: center;
-    gap: .5em;
+    gap: 0.5em;
     justify-self: flex-end;
     grid-area: time;
     transition: opacity 100ms ease-in-out;

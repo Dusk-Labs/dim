@@ -9,35 +9,40 @@ import "./Files.scss";
 
 const SelectUnmatchedMediaFiles = () => {
   const { unmatched } = useContext(LibraryContext);
-  const { selectedFiles, currentFolder, setSelectedFiles } = useContext(SelectUnmatchedContext);
+  const { selectedFiles, currentFolder, setSelectedFiles } = useContext(
+    SelectUnmatchedContext
+  );
 
-  const selectFile = useCallback((file) => {
-    if (selectedFiles[file.id]) {
-      const newSelectedFiles = {};
+  const selectFile = useCallback(
+    (file) => {
+      if (selectedFiles[file.id]) {
+        const newSelectedFiles = {};
 
-      for (const id in selectedFiles) {
-        if (parseInt(id) === file.id) continue;
-        newSelectedFiles[id] = selectedFiles[id];
+        for (const id in selectedFiles) {
+          if (parseInt(id) === file.id) continue;
+          newSelectedFiles[id] = selectedFiles[id];
+        }
+
+        setSelectedFiles(newSelectedFiles);
+
+        return;
       }
 
-      setSelectedFiles(newSelectedFiles);
-
-      return;
-    }
-
-    setSelectedFiles(state => ({
-      ...state,
-      [file.id]: {
-        id: file.id,
-        name: file.target_file.split(/\/|\\/g).pop(),
-        parent: currentFolder
-      }
-    }));
-  }, [currentFolder, selectedFiles, setSelectedFiles]);
+      setSelectedFiles((state) => ({
+        ...state,
+        [file.id]: {
+          id: file.id,
+          name: file.target_file.split(/\/|\\/g).pop(),
+          parent: currentFolder,
+        },
+      }));
+    },
+    [currentFolder, selectedFiles, setSelectedFiles]
+  );
 
   return (
     <div className="selectUnmatchedMediaFiles">
-      <FileControls/>
+      <FileControls />
       <div className="files">
         {unmatched.items[currentFolder].map((file, i) => (
           <div
@@ -46,7 +51,7 @@ const SelectUnmatchedMediaFiles = () => {
             onClick={() => selectFile(file)}
           >
             <div className="selectBox">
-              <CheckIcon/>
+              <CheckIcon />
             </div>
             <p>{file.target_file.split(/\/|\\/g).pop()}</p>
           </div>

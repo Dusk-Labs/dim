@@ -2,7 +2,7 @@
   .field > p {
     font-family: "Roboto Condensed Regular", Arial;
     color: var(--secondaryTextColor);
-    margin-bottom: .5em;
+    margin-bottom: 0.5em;
   }
 
   .dropdown {
@@ -12,7 +12,7 @@
       display: flex;
       transition: background 200ms ease-in-out;
       background: var(--tertiaryColor);
-      padding: .5em;
+      padding: 0.5em;
       border-radius: 10px;
       cursor: pointer;
 
@@ -34,7 +34,7 @@
         width: 10px;
         border-radius: 50%;
         background: var(--primaryTextColor);
-        transition: transform .1s ease-in-out;
+        transition: transform 0.1s ease-in-out;
 
         &:not(:first-child) {
           margin-left: 5px;
@@ -48,7 +48,7 @@
       flex-direction: column;
       background: var(--tertiaryColor);
       position: absolute;
-      top: calc(100% + .5em);
+      top: calc(100% + 0.5em);
       left: 0;
       right: 0;
       white-space: nowrap;

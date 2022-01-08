@@ -20,8 +20,8 @@ function RematchMediaModal(props) {
 
   const { id } = useParams();
 
-  const { token } = useSelector(store => ({
-    token: store.auth.token
+  const { token } = useSelector((store) => ({
+    token: store.auth.token,
   }));
 
   const [visible, setVisible] = useState(false);
@@ -44,8 +44,8 @@ function RematchMediaModal(props) {
   // prevent scrolling behind Modal
   useEffect(() => {
     visible
-      ? document.body.style.overflow = "hidden"
-      : document.body.style.overflow = "unset";
+      ? (document.body.style.overflow = "hidden")
+      : (document.body.style.overflow = "unset");
   }, [visible]);
 
   const close = useCallback(() => {
@@ -69,31 +69,50 @@ function RematchMediaModal(props) {
     const config = {
       method: "PATCH",
       headers: {
-        "authorization": token
-      }
+        authorization: token,
+      },
     };
 
-    const req = await fetch(`/api/v1/media/${id}/match?external_id=${tmdbID}&media_type=${mediaType}`, config);
+    const req = await fetch(
+      `/api/v1/media/${id}/match?external_id=${tmdbID}&media_type=${mediaType}`,
+      config
+    );
 
     if (req.status !== 200) {
       setError(req.statusText);
       return;
     }
 
-    dispatch(addNotification({
-      msg: `Sucessfuly matched ${id}.`
-    }));
+    dispatch(
+      addNotification({
+        msg: `Sucessfuly matched ${id}.`,
+      })
+    );
 
     clearData();
     close();
     dispatch(fetchMediaInfo(id));
-  }, [clearData, dispatch, mediaType, id, setError, setMatching, tmdbID, token, close]);
+  }, [
+    clearData,
+    dispatch,
+    mediaType,
+    id,
+    setError,
+    setMatching,
+    tmdbID,
+    token,
+    close,
+  ]);
 
   const initialValue = {
-    mediaType, setMediaType,
-    tmdbResults, setTmdbResults,
-    query, setQuery,
-    tmdbID, setTmdbID
+    mediaType,
+    setMediaType,
+    tmdbResults,
+    setTmdbResults,
+    query,
+    setQuery,
+    tmdbID,
+    setTmdbID,
   };
 
   return (
@@ -110,21 +129,20 @@ function RematchMediaModal(props) {
           <div className="modalRematchMedia">
             <div className="heading">
               <h3>Rematch</h3>
-              <div className="separator"/>
+              <div className="separator" />
             </div>
             <MediaTypeSelection
               mediaType={mediaType}
               setMediaType={setMediaType}
             />
             <div className="search-section">
-              <Search/>
+              <Search />
             </div>
             {error && <p className="err">Error: {error}</p>}
             <div className="options">
-              <Button
-                type="secondary"
-                onClick={close}
-              >Nevermind</Button>
+              <Button type="secondary" onClick={close}>
+                Nevermind
+              </Button>
               <Button onClick={rematch} disabled={matching || false}>
                 Match
               </Button>

@@ -4,7 +4,7 @@ import { authenticate } from "../../actions/auth.js";
 
 function LoginBtn(props) {
   const dispatch = useDispatch();
-  const auth = useSelector(store => store.auth);
+  const auth = useSelector((store) => store.auth);
 
   const { credentials, error } = props;
 
@@ -35,13 +35,23 @@ function LoginBtn(props) {
     }
 
     dispatch(authenticate(username, password));
-  }, [auth.logging_in, dispatch, password, setPasswordErr, setUsernameErr, username]);
+  }, [
+    auth.logging_in,
+    dispatch,
+    password,
+    setPasswordErr,
+    setUsernameErr,
+    username,
+  ]);
 
-  const onKeyDown = useCallback(e => {
-    if (e.keyCode === 13) {
-      authorize();
-    }
-  }, [authorize]);
+  const onKeyDown = useCallback(
+    (e) => {
+      if (e.keyCode === 13) {
+        authorize();
+      }
+    },
+    [authorize]
+  );
 
   useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
@@ -52,7 +62,9 @@ function LoginBtn(props) {
   }, [onKeyDown]);
 
   return (
-    <button className={`${auth.logging_in}`} onClick={authorize}>Login</button>
+    <button className={`${auth.logging_in}`} onClick={authorize}>
+      Login
+    </button>
   );
 }
 

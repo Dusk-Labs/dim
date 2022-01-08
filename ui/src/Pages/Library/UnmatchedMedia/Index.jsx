@@ -17,9 +17,7 @@ const UnmatchedMedia = (props) => {
   const params = useParams();
   const { showUnmatched, unmatched } = useContext(LibraryContext);
 
-  const libraries = useSelector(store => (
-    store.library.fetch_libraries.items
-  ));
+  const libraries = useSelector((store) => store.library.fetch_libraries.items);
 
   const [selectedFiles, setSelectedFiles] = useState({});
   const [currentFolder, setCurrentFolder] = useState();
@@ -46,10 +44,9 @@ const UnmatchedMedia = (props) => {
   }, [selectedFiles, currentFolder, query, tmdbResults, mediaType, tmdbID]);
 
   useEffect(() => {
-    const [library] = libraries.filter(lib => lib.id === parseInt(params.id));
+    const [library] = libraries.filter((lib) => lib.id === parseInt(params.id));
 
-    if(library !== undefined)
-      setMediaType(library.mediaType);
+    if (library !== undefined) setMediaType(library.mediaType);
   }, [libraries, params.id]);
 
   useEffect(() => {
@@ -68,15 +65,23 @@ const UnmatchedMedia = (props) => {
 
   const initialValue = {
     setManuallyMatch: props.setManuallyMatch,
-    selectedFiles, setSelectedFiles,
-    currentFolder, setCurrentFolder,
-    mediaType, setMediaType,
-    tmdbResults, setTmdbResults,
-    query, setQuery,
-    tmdbID, setTmdbID,
-    filesMatched, setFilesMatched,
-    matching, setMatching,
-    clearData
+    selectedFiles,
+    setSelectedFiles,
+    currentFolder,
+    setCurrentFolder,
+    mediaType,
+    setMediaType,
+    tmdbResults,
+    setTmdbResults,
+    query,
+    setQuery,
+    tmdbID,
+    setTmdbID,
+    filesMatched,
+    setFilesMatched,
+    matching,
+    setMatching,
+    clearData,
   };
 
   const count = Object.values(unmatched.items).flat().length;
@@ -86,30 +91,44 @@ const UnmatchedMedia = (props) => {
       <div className={`unmatchedMedia show-${showUnmatched}`}>
         {matching && (
           <div className="matchingProgress">
-            <div className="progress" style={{width: `${(filesMatched.length / Object.keys(selectedFiles).length) * 100}%`}}/>
-            {filesMatched.length === Object.keys(selectedFiles).length
-              ? <p>Finished matching</p>
-              : <p>({filesMatched.length}/{Object.keys(selectedFiles).length}) Matching '{filesMatched[filesMatched.length - 1]}'</p>
-            }
+            <div
+              className="progress"
+              style={{
+                width: `${
+                  (filesMatched.length / Object.keys(selectedFiles).length) *
+                  100
+                }%`,
+              }}
+            />
+            {filesMatched.length === Object.keys(selectedFiles).length ? (
+              <p>Finished matching</p>
+            ) : (
+              <p>
+                ({filesMatched.length}/{Object.keys(selectedFiles).length})
+                Matching '{filesMatched[filesMatched.length - 1]}'
+              </p>
+            )}
           </div>
         )}
         <h2>Unmatched</h2>
-        <p className="sectionDesc">Could not find an accurate match for {count} {count === 0 ? "file" : "files"} in this library.</p>
+        <p className="sectionDesc">
+          Could not find an accurate match for {count}{" "}
+          {count === 0 ? "file" : "files"} in this library.
+        </p>
         <div className="selectUnmatchedMedia">
-          {unmatched.fetched && (
-            <Folders/>
-          )}
-          {currentFolder && (
-            <Files/>
-          )}
+          {unmatched.fetched && <Folders />}
+          {currentFolder && <Files />}
           {Object.values(selectedFiles).length > 0 && (
             <div>
-              <MediaTypeSelection mediaType={mediaType} setMediaType={setMediaType}/>
+              <MediaTypeSelection
+                mediaType={mediaType}
+                setMediaType={setMediaType}
+              />
             </div>
           )}
-          {Object.values(selectedFiles).length > 0 && <Search/>}
+          {Object.values(selectedFiles).length > 0 && <Search />}
           {error && <p className="err">Error: {error}</p>}
-          <Options/>
+          <Options />
         </div>
       </div>
     </SelectUnmatchedContext.Provider>

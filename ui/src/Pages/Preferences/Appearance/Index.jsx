@@ -7,8 +7,8 @@ import "./Index.scss";
 function Appearance() {
   return (
     <div className="preferencesAppearance">
-      <Themes/>
-      <Cards/>
+      <Themes />
+      <Cards />
       {/* <Sidebar/> */}
     </div>
   );

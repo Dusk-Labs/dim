@@ -17,7 +17,7 @@ import {
   FETCH_INVITES_ERR,
   DEL_ACCOUNT_START,
   DEL_ACCOUNT_ERR,
-  DEL_ACCOUNT_OK
+  DEL_ACCOUNT_OK,
 } from "./types";
 
 import { addNotification } from "../slices/notifications";
@@ -28,12 +28,12 @@ export const authenticate = (username, password) => async (dispatch) => {
   const config = {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      "username": username,
-      "password": password
-    })
+      username: username,
+      password: password,
+    }),
   };
 
   try {
@@ -42,7 +42,7 @@ export const authenticate = (username, password) => async (dispatch) => {
     if (res.status !== 200) {
       return dispatch({
         type: AUTH_LOGIN_ERR,
-        payload: res.statusText
+        payload: res.statusText,
       });
     }
 
@@ -57,18 +57,18 @@ export const authenticate = (username, password) => async (dispatch) => {
 
     dispatch({
       type: AUTH_LOGIN_OK,
-      payload
+      payload,
     });
-  } catch(err) {
+  } catch (err) {
     if (err.name === "TypeError") {
       dispatch({
         type: AUTH_LOGIN_ERR,
-        payload: "Network Error"
+        payload: "Network Error",
       });
     } else {
       dispatch({
         type: AUTH_LOGIN_ERR,
-        payload: err
+        payload: err,
       });
     }
   }
@@ -90,7 +90,7 @@ export const logout = () => async (dispatch) => {
 export const updateAuthToken = (token) => (dispatch) => {
   dispatch({
     type: AUTH_UPDATE_TOKEN,
-    payload: token
+    payload: token,
   });
 };
 
@@ -100,13 +100,13 @@ export const register = (username, password, invite) => async (dispatch) => {
   const config = {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      "username": username,
-      "password": password,
-      "invite_token": invite
-    })
+      username: username,
+      password: password,
+      invite_token: invite,
+    }),
   };
 
   try {
@@ -116,59 +116,66 @@ export const register = (username, password, invite) => async (dispatch) => {
     if (res.status !== 200) {
       return dispatch({
         type: AUTH_REGISTER_ERR,
-        payload: res.statusText
+        payload: res.statusText,
       });
     } else if (!!payload.error) {
       return dispatch({
         type: AUTH_REGISTER_ERR,
-        payload: payload.error
+        payload: payload.error,
       });
     }
 
     Promise.resolve(dispatch({ type: AUTH_REGISTER_OK }));
-  } catch(err) {
+  } catch (err) {
     dispatch({
       type: AUTH_REGISTER_ERR,
-      payload: err
+      payload: err,
     });
   }
 };
 
-export const changePassword = (oldPassword, newPassword) => async (dispatch, getState) => {
-  const token = getState().auth.token;
+export const changePassword =
+  (oldPassword, newPassword) => async (dispatch, getState) => {
+    const token = getState().auth.token;
 
-  const config = {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      "authorization": token
-    },
-    body: JSON.stringify({
-      "old_password": oldPassword,
-      "new_password": newPassword
-    })
-  };
+    const config = {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: token,
+      },
+      body: JSON.stringify({
+        old_password: oldPassword,
+        new_password: newPassword,
+      }),
+    };
 
-  try {
-    const res = await fetch("/api/v1/auth/password", config);
+    try {
+      const res = await fetch("/api/v1/auth/password", config);
 
-    if (res.status !== 200) {
-      dispatch(addNotification({
-        msg: "Failed to change password."
-      }));
+      if (res.status !== 200) {
+        dispatch(
+          addNotification({
+            msg: "Failed to change password.",
+          })
+        );
 
-      return;
+        return;
+      }
+
+      dispatch(
+        addNotification({
+          msg: "Your password has now been updated.",
+        })
+      );
+    } catch (err) {
+      dispatch(
+        addNotification({
+          msg: "Failed to change password.",
+        })
+      );
     }
-
-    dispatch(addNotification({
-      msg: "Your password has now been updated."
-    }));
-  } catch(err) {
-    dispatch(addNotification({
-      msg: "Failed to change password."
-    }));
-  }
-};
+  };
 
 export const delAccount = (password) => async (dispatch, getState) => {
   dispatch({ type: DEL_ACCOUNT_START });
@@ -179,11 +186,11 @@ export const delAccount = (password) => async (dispatch, getState) => {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": token
+      Authorization: token,
     },
     body: JSON.stringify({
-      "password": password
-    })
+      password: password,
+    }),
   };
 
   try {
@@ -192,7 +199,7 @@ export const delAccount = (password) => async (dispatch, getState) => {
     if (res.status !== 200) {
       dispatch({
         type: DEL_ACCOUNT_ERR,
-        payload: res.statusText
+        payload: res.statusText,
       });
 
       return;
@@ -200,13 +207,15 @@ export const delAccount = (password) => async (dispatch, getState) => {
 
     dispatch({ type: DEL_ACCOUNT_OK });
 
-    dispatch(addNotification({
-      msg: "Your account has been deleted, you have been logged out."
-    }));
-  } catch(err) {
+    dispatch(
+      addNotification({
+        msg: "Your account has been deleted, you have been logged out.",
+      })
+    );
+  } catch (err) {
     dispatch({
       type: DEL_ACCOUNT_ERR,
-      payload: err
+      payload: err,
     });
   }
 };
@@ -218,7 +227,7 @@ export const checkAdminExists = () => async (dispatch) => {
     if (res.status !== 200) {
       return dispatch({
         type: AUTH_CHECK_ADMIN_ERR,
-        payload: res.statusText
+        payload: res.statusText,
       });
     }
 
@@ -226,12 +235,12 @@ export const checkAdminExists = () => async (dispatch) => {
 
     dispatch({
       type: AUTH_CHECK_ADMIN_OK,
-      payload
+      payload,
     });
-  } catch(err) {
+  } catch (err) {
     dispatch({
       type: AUTH_CHECK_ADMIN_ERR,
-      payload: err
+      payload: err,
     });
   }
 };
@@ -244,8 +253,8 @@ export const createNewInvite = () => async (dispatch, getState) => {
   const config = {
     method: "POST",
     headers: {
-      "authorization": token
-    }
+      authorization: token,
+    },
   };
 
   try {
@@ -254,7 +263,7 @@ export const createNewInvite = () => async (dispatch, getState) => {
     if (res.status !== 200) {
       return dispatch({
         type: CREATE_NEW_INVITE_ERR,
-        payload: res.statusText
+        payload: res.statusText,
       });
     }
 
@@ -262,16 +271,18 @@ export const createNewInvite = () => async (dispatch, getState) => {
 
     dispatch({
       type: CREATE_NEW_INVITE_OK,
-      payload
+      payload,
     });
 
-    dispatch(addNotification({
-      msg: `Successfuly created a new invite token: ${payload.token}.`
-    }));
-  } catch(err) {
+    dispatch(
+      addNotification({
+        msg: `Successfuly created a new invite token: ${payload.token}.`,
+      })
+    );
+  } catch (err) {
     dispatch({
       type: CREATE_NEW_INVITE_ERR,
-      payload: err
+      payload: err,
     });
   }
 };
@@ -282,28 +293,32 @@ export const delInvite = (inviteToken) => async (dispatch, getState) => {
   const config = {
     method: "DELETE",
     headers: {
-      "authorization": token
-    }
+      authorization: token,
+    },
   };
 
   try {
     const res = await fetch(`/api/v1/auth/token/${inviteToken}`, config);
 
     if (res.status !== 200) {
-      dispatch(addNotification({
-        msg: `Could not delete invite token: ${inviteToken}`
-      }));
+      dispatch(
+        addNotification({
+          msg: `Could not delete invite token: ${inviteToken}`,
+        })
+      );
 
       return;
     }
 
-    dispatch(addNotification({
-      msg: `Successfuly deleted invite token: ${inviteToken}`
-    }));
-  } catch(err) {
+    dispatch(
+      addNotification({
+        msg: `Successfuly deleted invite token: ${inviteToken}`,
+      })
+    );
+  } catch (err) {
     dispatch({
       type: CREATE_NEW_INVITE_ERR,
-      payload: err
+      payload: err,
     });
   }
 };
@@ -316,8 +331,8 @@ export const fetchInvites = () => async (dispatch, getState) => {
   try {
     const config = {
       headers: {
-        "authorization": token
-      }
+        authorization: token,
+      },
     };
 
     const res = await fetch("/api/v1/auth/invites", config);
@@ -325,7 +340,7 @@ export const fetchInvites = () => async (dispatch, getState) => {
     if (res.status !== 200) {
       return dispatch({
         type: FETCH_INVITES_ERR,
-        payload: res.statusText
+        payload: res.statusText,
       });
     }
 
@@ -333,12 +348,12 @@ export const fetchInvites = () => async (dispatch, getState) => {
 
     dispatch({
       type: FETCH_INVITES_OK,
-      payload
+      payload,
     });
-  } catch(err) {
+  } catch (err) {
     dispatch({
       type: FETCH_INVITES_ERR,
-      payload: err
+      payload: err,
     });
   }
 };

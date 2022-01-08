@@ -1,13 +1,13 @@
 import "./Ring.scss";
 
 type RingProps = {
-  small: boolean
-}
+  small: boolean;
+};
 
 function RingLoad(props: RingProps) {
   return (
     <div className={`ringLoad small-${props.small}`}>
-      <div/>
+      <div />
     </div>
   );
 }

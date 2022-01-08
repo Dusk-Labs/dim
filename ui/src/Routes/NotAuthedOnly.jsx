@@ -6,13 +6,13 @@ import { updateAuthToken } from "../actions/auth.js";
 
 function NotAuthedOnlyRoute(props) {
   const dispatch = useDispatch();
-  const auth = useSelector(store => store.auth);
+  const auth = useSelector((store) => store.auth);
 
   const history = useHistory();
 
   const tokenInCookie = document.cookie
     .split("; ")
-    .find(cookie => cookie.startsWith("token="))
+    .find((cookie) => cookie.startsWith("token="))
     ?.split("=")[1];
 
   const { logged_in, error } = auth.login;
@@ -30,9 +30,7 @@ function NotAuthedOnlyRoute(props) {
       dateExpires.setTime(dateExpires.getTime() + 604800000);
 
       // expire cookie token in 7 days
-      document.cookie = (
-        `token=${token};expires=${dateExpires.toGMTString()};samesite=lax;`
-      );
+      document.cookie = `token=${token};expires=${dateExpires.toGMTString()};samesite=lax;`;
 
       history.push("/");
     }
@@ -73,8 +71,11 @@ function NotAuthedOnlyRoute(props) {
 
   const { exact, path, render, children } = props;
 
-  return (!token && !tokenInCookie) && (
-    <Route exact={exact} path={path} render={render} children={children}/>
+  return (
+    !token &&
+    !tokenInCookie && (
+      <Route exact={exact} path={path} render={render} children={children} />
+    )
   );
 }
 

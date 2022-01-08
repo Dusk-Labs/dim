@@ -16,7 +16,7 @@ import {
   SCAN_STOP,
   FETCH_LIBRARY_UNMATCHED_START,
   FETCH_LIBRARY_UNMATCHED_ERR,
-  FETCH_LIBRARY_UNMATCHED_OK
+  FETCH_LIBRARY_UNMATCHED_OK,
 } from "./types";
 
 export const fetchLibraries = () => async (dispatch, getState) => {
@@ -27,15 +27,15 @@ export const fetchLibraries = () => async (dispatch, getState) => {
   try {
     const config = {
       headers: {
-        "authorization": token
-      }
+        authorization: token,
+      },
     };
     const res = await fetch("/api/v1/library", config);
 
     if (res.status !== 200) {
       return dispatch({
         type: FETCH_LIBRARIES_ERR,
-        payload: res.statusText
+        payload: res.statusText,
       });
     }
 
@@ -43,12 +43,12 @@ export const fetchLibraries = () => async (dispatch, getState) => {
 
     dispatch({
       type: FETCH_LIBRARIES_OK,
-      payload
+      payload,
     });
-  } catch(err) {
+  } catch (err) {
     dispatch({
       type: FETCH_LIBRARIES_ERR,
-      payload: err
+      payload: err,
     });
   }
 };
@@ -61,8 +61,8 @@ export const fetchLibraryUnmatched = (id) => async (dispatch, getState) => {
   try {
     const config = {
       headers: {
-        "authorization": token
-      }
+        authorization: token,
+      },
     };
 
     const res = await fetch(`/api/v1/library/${id}/unmatched`, config);
@@ -70,7 +70,7 @@ export const fetchLibraryUnmatched = (id) => async (dispatch, getState) => {
     if (res.status !== 200) {
       return dispatch({
         type: FETCH_LIBRARY_UNMATCHED_ERR,
-        payload: res.statusText
+        payload: res.statusText,
       });
     }
 
@@ -78,12 +78,12 @@ export const fetchLibraryUnmatched = (id) => async (dispatch, getState) => {
 
     dispatch({
       type: FETCH_LIBRARY_UNMATCHED_OK,
-      payload
+      payload,
     });
-  } catch(err) {
+  } catch (err) {
     dispatch({
       type: FETCH_LIBRARY_UNMATCHED_ERR,
-      payload: err
+      payload: err,
     });
   }
 };
@@ -96,10 +96,10 @@ export const newLibrary = (data) => async (dispatch, getState) => {
   const options = {
     method: "POST",
     headers: {
-      "Authorization": token,
-      "Content-Type": "application/json"
+      Authorization: token,
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   };
 
   try {
@@ -108,15 +108,15 @@ export const newLibrary = (data) => async (dispatch, getState) => {
     if (res.status !== 201) {
       return dispatch({
         type: NEW_LIBRARY_ERR,
-        payload: res.statusText
+        payload: res.statusText,
       });
     }
 
     dispatch({ type: NEW_LIBRARY_OK });
-  } catch(err) {
+  } catch (err) {
     dispatch({
       type: NEW_LIBRARY_ERR,
-      payload: err
+      payload: err,
     });
   }
 };
@@ -128,9 +128,9 @@ export const delLibrary = (id) => async (dispatch, getState) => {
 
   const options = {
     headers: {
-      "authorization": token
+      authorization: token,
     },
-    method: "DELETE"
+    method: "DELETE",
   };
 
   try {
@@ -139,15 +139,15 @@ export const delLibrary = (id) => async (dispatch, getState) => {
     if (res.status !== 204) {
       return dispatch({
         type: DEL_LIBRARY_ERR,
-        payload: res.statusText
+        payload: res.statusText,
       });
     }
 
     dispatch({ type: DEL_LIBRARY_OK });
-  } catch(err) {
+  } catch (err) {
     dispatch({
       type: DEL_LIBRARY_ERR,
-      payload: err
+      payload: err,
     });
   }
 };
@@ -163,7 +163,7 @@ export const fetchLibraryMedia = () => async (dispatch) => {
 export const handleWsDelLibrary = (id) => async (dispatch) => {
   dispatch({
     type: RM_LIBRARY,
-    id
+    id,
   });
 };
 
@@ -172,8 +172,8 @@ export const handleWsNewLibrary = (id) => async (dispatch, getState) => {
 
   const options = {
     headers: {
-      "Authorization": token
-    }
+      Authorization: token,
+    },
   };
 
   try {
@@ -187,21 +187,21 @@ export const handleWsNewLibrary = (id) => async (dispatch, getState) => {
 
     dispatch({
       type: ADD_LIBRARY,
-      payload: info
+      payload: info,
     });
-  } catch(err) {}
+  } catch (err) {}
 };
 
 export const wsScanStart = (id) => async (dispatch) => {
   dispatch({
     type: SCAN_START,
-    id
+    id,
   });
 };
 
 export const wsScanStop = (id) => async (dispatch) => {
   dispatch({
     type: SCAN_STOP,
-    id
+    id,
   });
 };

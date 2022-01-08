@@ -6,7 +6,7 @@ import BarLoad from "../Load/Bar";
 import { useSelector } from "react-redux";
 
 function Library(props) {
-  const scanning = useSelector(store => store.library.scanning);
+  const scanning = useSelector((store) => store.library.scanning);
   const { id, media_type, name } = props;
 
   return (
@@ -14,12 +14,10 @@ function Library(props) {
       to={"/library/" + id}
       className={`item showLoad-${scanning.includes(id)}`}
     >
-      {media_type === "movie" && <FilmIcon/>}
-      {media_type === "tv" && <TvIcon/>}
+      {media_type === "movie" && <FilmIcon />}
+      {media_type === "tv" && <TvIcon />}
       <p>{name}</p>
-      {scanning.includes(id) && (
-        <BarLoad/>
-      )}
+      {scanning.includes(id) && <BarLoad />}
     </NavLink>
   );
 }

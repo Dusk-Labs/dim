@@ -1,6 +1,6 @@
 /*
-    * == USER ACTIONS ==
-*/
+ * == USER ACTIONS ==
+ */
 
 export const FETCH_USER_START = "FETCH_USER_START";
 export const FETCH_USER_OK = "FETCH_USER_OK";
@@ -15,8 +15,8 @@ export const CHANGE_AVATAR_OK = "CHANGE_AVATAR_OK";
 export const CHANGE_AVATAR_ERR = "CHANGE_AVATAR_ERR";
 
 /*
-    * == LIBRARY ACTIONS ==
-*/
+ * == LIBRARY ACTIONS ==
+ */
 
 export const FETCH_LIBRARIES_START = "FETCH_LIBRARIES_START";
 export const FETCH_LIBRARIES_OK = "FETCH_LIBRARIES_OK";
@@ -43,8 +43,8 @@ export const SCAN_START = "SCAN_START";
 export const SCAN_STOP = "SCAN_STOP";
 
 /*
-    * == MEDIA ACTIONS ==
-*/
+ * == MEDIA ACTIONS ==
+ */
 
 export const FETCH_MEDIA_INFO_OK = "FETCH_MEDIA_INFO_OK";
 export const FETCH_MEDIA_INFO_ERR = "FETCH_MEDIA_INFO_ERR";
@@ -54,8 +54,8 @@ export const FETCH_MEDIA_SEASONS_OK = "FETCH_MEDIA_SEASONS_OK";
 export const FETCH_MEDIA_EPISODES_OK = "FETCH_MEDIA_EPISODES_OK";
 
 /*
-    * == VIDEO PLAYER ACTIONS ==
-*/
+ * == VIDEO PLAYER ACTIONS ==
+ */
 
 export const TRANSCODE_START = "TRANSCODE_START";
 export const TRANSCODE_OK = "TRANSCODE_OK";
@@ -66,8 +66,8 @@ export const DEL_TRANSCODE_OK = "DEL_TRANSCODE_OK";
 export const DEL_TRANSCODE_ERR = "DEL_TRANSCODE_ERR";
 
 /*
-    * AUTH ACTIONS
-*/
+ * AUTH ACTIONS
+ */
 
 export const AUTH_LOGIN_START = "AUTH_LOGIN_START";
 export const AUTH_LOGIN_OK = "AUTH_LOGIN_OK";
@@ -96,8 +96,8 @@ export const DEL_ACCOUNT_OK = "DEL_ACCOUNT_OK";
 export const DEL_ACCOUNT_ERR = "DEL_ACCOUNT_ERR";
 
 /*
-    * WS ACTIONS
-*/
+ * WS ACTIONS
+ */
 
 export const WS_CONNECT_START = "WS_CONNECT_START";
 export const WS_CONNECTED = "WS_CONNECTED";
@@ -105,8 +105,8 @@ export const WS_CONNECT_ERR = "WS_CONNECT_ERR";
 export const WS_SHOW_RECONNECT = "WS_SHOW_RECONNECT";
 
 /*
-    * SETTINGS ACTIONS
-*/
+ * SETTINGS ACTIONS
+ */
 
 export const FETCH_USER_SETTINGS_START = "FETCH_USER_SETTINGS_START";
 export const FETCH_USER_SETTINGS_OK = "FETCH_USER_SETTINGS_OK";
@@ -119,8 +119,8 @@ export const FETCH_GLOBAL_SETTINGS_ERR = "FETCH_GLOBAL_SETTINGS_START";
 export const UPDATE_GLOBAL_SETTINGS = "UPDATE_GLOBAL_SETTINGS";
 
 /*
-    * VIDEO ACTIONS
-*/
+ * VIDEO ACTIONS
+ */
 
 export const SET_GID = "SET_GID";
 export const SET_MANIFEST_STATE = "SET_MANIFEST_STATE";

@@ -6,7 +6,7 @@ import Button from "../../../Components/Misc/Button";
 
 function Avatar() {
   const dispatch = useDispatch();
-  const user = useSelector(store => store.user);
+  const user = useSelector((store) => store.user);
 
   const [newAvatar, setNewAvatar] = useState("");
   const [newAvatarObj, setNewAvatarObj] = useState();
@@ -46,9 +46,7 @@ function Avatar() {
 
       setNewAvatarObj(input.files[0]);
 
-      setNewAvatar(
-        URL.createObjectURL(input.files[0])
-      );
+      setNewAvatar(URL.createObjectURL(input.files[0]));
     });
 
     input.click();
@@ -57,12 +55,10 @@ function Avatar() {
   return (
     <section>
       <h2>Avatar</h2>
-      {newAvatar && <img src={newAvatar} alt="New avatar"/>}
+      {newAvatar && <img src={newAvatar} alt="New avatar" />}
       <div className="options">
         {newAvatar && (
-          <Button onClick={updateAvatar}>
-            Save as new avatar
-          </Button>
+          <Button onClick={updateAvatar}>Save as new avatar</Button>
         )}
         {!newAvatar && (
           <Button onClick={uploadNewPic}>
@@ -74,7 +70,7 @@ function Avatar() {
             Clear upload
           </Button>
         )}
-        {(!newAvatar && user.info.picture) && (
+        {!newAvatar && user.info.picture && (
           <Button type="secondary" onClick={removeAvatar}>
             Remove current avatar
           </Button>

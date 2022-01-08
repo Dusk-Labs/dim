@@ -32,14 +32,14 @@ function MediaTypeSelection(props) {
       <h4>Choose a type</h4>
       <div className="types">
         <div className="type" onClick={selectMovie}>
-          <FilmIcon/>
+          <FilmIcon />
           <p>Movies</p>
-          <div className={`select ${props.mediaType === "movie"}`}/>
+          <div className={`select ${props.mediaType === "movie"}`} />
         </div>
         <div className="type" onClick={selectTv}>
-          <TvIcon/>
+          <TvIcon />
           <p>Shows</p>
-          <div className={`select ${props.mediaType === "tv"}`}/>
+          <div className={`select ${props.mediaType === "tv"}`} />
         </div>
         {/* <div className="type disabled" onClick={selectMixed}>
           <PhotoVideoIcon/>

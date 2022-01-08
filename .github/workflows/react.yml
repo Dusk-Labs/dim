@@ -37,6 +37,10 @@ jobs:
             ${{ runner.os }}-
       - name: Setup yarn
         run: yarn
+      - name: Prettier
+        run: yarn run prettier --check --ignore-unknown src
+      - name: ESLint
+        run: yarn run eslint --ext .js,.jsx,.ts,.tsx src
       - name: Build webui
         run: yarn build
       - name: Upload artifacts

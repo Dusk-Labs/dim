@@ -29,12 +29,12 @@ export interface DashboardPoster {
 export const card = v1.injectEndpoints({
   endpoints: (build) => ({
     getBanners: build.query<DashboardPoster[], void>({
-      query: () => "dashboard/banner"
+      query: () => "dashboard/banner",
     }),
     getCards: build.query<DashboardData, void>({
-      query: () => "dashboard"
-    })
-  })
+      query: () => "dashboard",
+    }),
+  }),
 });
 
 export const { useGetBannersQuery, useGetCardsQuery } = card;

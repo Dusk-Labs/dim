@@ -9,9 +9,7 @@ import TrashIcon from "../../../assets/Icons/Trash";
 const Delete = (props) => {
   const dispatch = useDispatch();
 
-  const del_library = useSelector(store => (
-    store.library.del_library
-  ));
+  const del_library = useSelector((store) => store.library.del_library);
 
   const history = useHistory();
 
@@ -37,7 +35,7 @@ const Delete = (props) => {
       >
         <button className={`delete deleting-${deleting}`}>
           Delete library
-          <TrashIcon/>
+          <TrashIcon />
         </button>
       </ConfirmationBox>
     </div>

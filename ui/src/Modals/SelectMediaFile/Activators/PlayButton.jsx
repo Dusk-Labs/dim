@@ -19,14 +19,20 @@ function SelectMediaFilePlayButton(props) {
     setClicked(true);
   }, [currentID, dispatch, setClicked]);
 
-  const name = (
-    seasonep?.season ? `S${seasonep.season} E${seasonep.episode}` : "movie"
-  );
+  const name = seasonep?.season
+    ? `S${seasonep.season} E${seasonep.episode}`
+    : "movie";
 
   return (
     <Button type="icon" onClick={handleClick}>
-      {label ? <p>{label}</p> : <p>{progress > 0 ? "Resume" : "Play"} {name}</p>}
-      { !hideIcon && <PlayIcon/> }
+      {label ? (
+        <p>{label}</p>
+      ) : (
+        <p>
+          {progress > 0 ? "Resume" : "Play"} {name}
+        </p>
+      )}
+      {!hideIcon && <PlayIcon />}
     </Button>
   );
 }

@@ -19,22 +19,25 @@ function CardList() {
 
   const ws = useWebSocket();
 
-  const handleWS = useCallback((e) => {
-    const { type } = JSON.parse(e.data);
+  const handleWS = useCallback(
+    (e) => {
+      const { type } = JSON.parse(e.data);
 
-    if (type === "EventNewCard") {
-      if (throttleEventNewCardID) {
-        clearTimeout(throttleEventNewCardID);
-        setThrottleEventNewCardID(null);
+      if (type === "EventNewCard") {
+        if (throttleEventNewCardID) {
+          clearTimeout(throttleEventNewCardID);
+          setThrottleEventNewCardID(null);
+        }
+
+        const id = window.setTimeout(() => {
+          refetch();
+        }, 500);
+
+        setThrottleEventNewCardID(id);
       }
-
-      const id = window.setTimeout(() => {
-        refetch();
-      }, 500);
-
-      setThrottleEventNewCardID(id);
-    }
-  }, [refetch, throttleEventNewCardID]);
+    },
+    [refetch, throttleEventNewCardID]
+  );
 
   useEffect(() => {
     if (!ws) return;
@@ -91,11 +94,7 @@ function CardList() {
     }
   }
 
-  return (
-    <div className="card_list">
-      {card_list}
-    </div>
-  );
+  return <div className="card_list">{card_list}</div>;
 }
 
 export default CardList;

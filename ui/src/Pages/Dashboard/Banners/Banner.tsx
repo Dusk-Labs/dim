@@ -20,7 +20,7 @@ interface Props {
 
 function Banner({ data, isError, isFetching }: Props) {
   const { libraries } = useAppSelector((store) => ({
-    libraries: store.library.fetch_libraries
+    libraries: store.library.fetch_libraries,
   }));
 
   if (isFetching || isError) {
@@ -74,14 +74,14 @@ function Banner({ data, isError, isFetching }: Props) {
       duration,
       genres,
       season,
-      episode
+      episode,
     } = data;
 
     const progressBarData = {
       season,
       episode,
       duration,
-      delta
+      delta,
     };
 
     return (

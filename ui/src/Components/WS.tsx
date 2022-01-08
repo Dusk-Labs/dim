@@ -14,8 +14,8 @@ export const WebSocketContext = createContext<WebSocket | null>(null);
 function WS(props: React.PropsWithChildren<{}>) {
   const dispatch = useAppDispatch();
 
-  const ws = useAppSelector(state => state.ws);
-  const auth = useAppSelector(state => state.auth);
+  const ws = useAppSelector((state) => state.ws);
+  const auth = useAppSelector((state) => state.auth);
 
   const [conn, setConn] = useState<WebSocket | null>(null);
   const [tryingAgainIn, setTryingAgainIn] = useState(5);
@@ -31,25 +31,30 @@ function WS(props: React.PropsWithChildren<{}>) {
   const retry = useCallback(() => {
     dispatch(wsConnect(onNewSocket));
     setMsg("Connection failed");
-    setTries(count => count + 1);
+    setTries((count) => count + 1);
     setTryingAgainIn(5);
     clearInterval(intervalID);
     setIntervalID(undefined);
   }, [dispatch, intervalID]);
 
-  const handleClose = useCallback((e) => {
-    if (e.wasClean) return;
+  const handleClose = useCallback(
+    (e) => {
+      if (e.wasClean) return;
 
-    dispatch(addNotification({
-      msg: "Connection to server lost, some actions might not work."
-    }));
+      dispatch(
+        addNotification({
+          msg: "Connection to server lost, some actions might not work.",
+        })
+      );
 
-    dispatch(wsShowReconnect());
+      dispatch(wsShowReconnect());
 
-    setTries(0);
-    setSilentConnect(true);
-    dispatch(wsConnect(onNewSocket));
-  }, [dispatch]);
+      setTries(0);
+      setSilentConnect(true);
+      dispatch(wsConnect(onNewSocket));
+    },
+    [dispatch]
+  );
 
   const handleOpen = useCallback(() => {
     if (!silentConnect) return;
@@ -59,7 +64,7 @@ function WS(props: React.PropsWithChildren<{}>) {
   useEffect(() => {
     if (ws.error && !intervalID) {
       const id = window.setInterval(() => {
-        setTryingAgainIn(state => state - 1);
+        setTryingAgainIn((state) => state - 1);
       }, 1000);
 
       setIntervalID(id);
@@ -97,8 +102,8 @@ function WS(props: React.PropsWithChildren<{}>) {
     if (!auth.token || !conn) return;
 
     const payload = {
-      "type": "authenticate",
-      "token": auth.token
+      type: "authenticate",
+      token: auth.token,
     };
 
     conn.send(JSON.stringify(payload));
@@ -118,7 +123,7 @@ function WS(props: React.PropsWithChildren<{}>) {
         {!ws.error && (
           <>
             <h2>Connecting to server</h2>
-            <Bar/>
+            <Bar />
           </>
         )}
       </div>
@@ -136,7 +141,7 @@ function WS(props: React.PropsWithChildren<{}>) {
   return (
     <div className="appLoad showAfter100ms">
       <DimLogo />
-      <Bar/>
+      <Bar />
     </div>
   );
 }

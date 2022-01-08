@@ -5,15 +5,17 @@ import { updateVideo } from "../../actions/video";
 function ErrorBox() {
   const dispatch = useDispatch();
 
-  const { video, error } = useSelector(store => ({
+  const { video, error } = useSelector((store) => ({
     video: store.video,
-    error: store.video.error
+    error: store.video.error,
   }));
 
   const hide = useCallback(() => {
-    dispatch(updateVideo({
-      error: null
-    }));
+    dispatch(
+      updateVideo({
+        error: null,
+      })
+    );
   }, [dispatch]);
 
   const reloadPlayer = () => {
@@ -26,7 +28,7 @@ function ErrorBox() {
   return (
     <div className="errorBox">
       <h2>Error</h2>
-      <div className="separator"/>
+      <div className="separator" />
       <p>{error.msg}</p>
       {error.errors.map((err, i) => (
         <details key={i}>

@@ -13,34 +13,39 @@ function Toggle(props) {
     disabling animation is mainly intended for on-load layout prep changes
     e.g. hiding sidebar by default if not enough space detected.
   */
-  const toggleSidebar = useCallback((withAnimation = true) => {
-    setVisible(state => !state);
+  const toggleSidebar = useCallback(
+    (withAnimation = true) => {
+      setVisible((state) => !state);
 
-    const main = document.querySelectorAll("main")[0];
+      const main = document.querySelectorAll("main")[0];
 
-    if (withAnimation) {
-      main.style.transition = "margin .3s ease-in-out";
+      if (withAnimation) {
+        main.style.transition = "margin .3s ease-in-out";
 
-      visible
-        ? props.sidebar.current.style.animation = "hideSidebar .3s ease-in-out forwards"
-        : props.sidebar.current.style.animation = "showSidebar .3s ease-in-out forwards";
+        visible
+          ? (props.sidebar.current.style.animation =
+              "hideSidebar .3s ease-in-out forwards")
+          : (props.sidebar.current.style.animation =
+              "showSidebar .3s ease-in-out forwards");
 
-      localStorage.setItem("defaultSidebarVisible", !visible);
-    } else {
-      main.style.transition = "";
-      props.sidebar.current.style.animation = "";
+        localStorage.setItem("defaultSidebarVisible", !visible);
+      } else {
+        main.style.transition = "";
+        props.sidebar.current.style.animation = "";
 
-      visible
-        ? props.sidebar.current.style.transform = "translateX(-100%)"
-        : props.sidebar.current.style.transform = "translateX(0)";
-    }
+        visible
+          ? (props.sidebar.current.style.transform = "translateX(-100%)")
+          : (props.sidebar.current.style.transform = "translateX(0)");
+      }
 
-    props.sidebar.current.classList.toggle("hide", visible);
-    props.sidebar.current.classList.toggle("show", !visible);
+      props.sidebar.current.classList.toggle("hide", visible);
+      props.sidebar.current.classList.toggle("show", !visible);
 
-    main.classList.toggle("full", visible);
-    main.classList.toggle("shrunk", !visible);
-  }, [props.sidebar, visible]);
+      main.classList.toggle("full", visible);
+      main.classList.toggle("shrunk", !visible);
+    },
+    [props.sidebar, visible]
+  );
 
   useEffect(() => {
     if (defaultChecked) return;
@@ -62,9 +67,9 @@ function Toggle(props) {
 
   return (
     <section className="sidebarToggleWrapper">
-      <DimLogo/>
+      <DimLogo />
       <div className="toggle" onClick={toggleSidebar}>
-        <AngleLeftIcon/>
+        <AngleLeftIcon />
       </div>
     </section>
   );

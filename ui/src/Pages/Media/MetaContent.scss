@@ -1,6 +1,6 @@
 .metaContentErr {
   .desc {
-    margin: .5em 0 1em 0;
+    margin: 0.5em 0 1em 0;
     color: var(--secondaryTextColor);
   }
 
@@ -12,7 +12,7 @@
 .metaContent {
   display: grid;
   gap: 1em;
-  transition: padding .3s ease-in-out;
+  transition: padding 0.3s ease-in-out;
 
   .horizontal-err {
     margin-bottom: 10px;
@@ -65,7 +65,7 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: .5em 0;
+    gap: 0.5em 0;
 
     // SEPARATOR
     svg {
@@ -76,7 +76,7 @@
 
     a {
       color: var(--secondaryTextColor);
-      transition: color .2s ease-in-out;
+      transition: color 0.2s ease-in-out;
 
       &:hover {
         color: var(--primaryTextColor);

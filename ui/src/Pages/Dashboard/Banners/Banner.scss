@@ -11,7 +11,7 @@
     "genres"
     "info"
     "progressbar";
-  transition: padding .3s ease-in-out;
+  transition: padding 0.3s ease-in-out;
   border-bottom: 4px solid var(--bannerBottomBorderColor);
 
   .placeholder {
@@ -43,13 +43,13 @@
 
     button {
       font-size: 16px;
-      transition: filter .2s ease-in-out;
+      transition: filter 0.2s ease-in-out;
       filter: saturate(0.7);
       font-family: "Roboto Bold", Arial;
       border-radius: 10px;
       background: var(--accentColor);
       color: #2a2a2a;
-      padding: .5em .8em;
+      padding: 0.5em 0.8em;
       animation: appear 500ms ease-in-out;
 
       &:focus,
@@ -86,7 +86,7 @@
 
       img {
         mask-image: linear-gradient(to bottom, #000 80%, transparent 100%);
-        transition: object-position .3s ease-in-out;
+        transition: object-position 0.3s ease-in-out;
         object-fit: cover;
         height: 100%;
         width: 100%;
@@ -100,11 +100,10 @@
         height: 100%;
         width: 100%;
         background: var(--bannerOverlayShadow);
-        transition: background .2s ease-in-out;
+        transition: background 0.2s ease-in-out;
       }
     }
   }
-
 
   // year + genre
   .extras {
@@ -129,7 +128,7 @@
     a:not(:first-child) {
       display: none;
       margin: 0 15px 0 0;
-      transition: color .2s ease-in-out;
+      transition: color 0.2s ease-in-out;
 
       &:hover {
         color: var(--bannerTertiaryTextColor);

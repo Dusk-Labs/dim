@@ -13,9 +13,9 @@ export const v1 = createApi({
       }
 
       return headers;
-    }
+    },
   }),
-  endpoints: () => ({})
+  endpoints: () => ({}),
 });
 
 export default v1;

@@ -6,9 +6,9 @@ import PrevVideoIcon from "../../../../assets/Icons/PrevVideo";
 import { fetchMediaFiles } from "../../../../actions/media";
 
 function VideoActionPrevVideo() {
-  const { media, video } = useSelector(store => ({
+  const { media, video } = useSelector((store) => ({
     media: store.media,
-    video: store.video
+    video: store.video,
   }));
 
   const [enabled, setEnable] = useState(false);
@@ -21,7 +21,7 @@ function VideoActionPrevVideo() {
   const nextMedia = prevEpisodeId ? media[prevEpisodeId] : null;
 
   useEffect(() => {
-    if(!prevEpisodeId) return;
+    if (!prevEpisodeId) return;
 
     setEnable(true);
     dispatch(fetchMediaFiles(prevEpisodeId));
@@ -29,14 +29,18 @@ function VideoActionPrevVideo() {
 
   const nextVideo = useCallback(() => {
     const item = nextMedia?.files?.items[0];
-    if(!item) return;
+    if (!item) return;
 
     history.replace(`/play/${item.id}`, { from: history.location.pathname });
   }, [history, nextMedia]);
 
   return (
-    <button onClick={nextVideo} className={`prev_video ${enabled}`} disabled={!enabled}>
-      <PrevVideoIcon/>
+    <button
+      onClick={nextVideo}
+      className={`prev_video ${enabled}`}
+      disabled={!enabled}
+    >
+      <PrevVideoIcon />
     </button>
   );
 }

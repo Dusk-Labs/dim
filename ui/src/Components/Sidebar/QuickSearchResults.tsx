@@ -26,9 +26,7 @@ function Search({ query }: Props) {
       </div>
     );
   } else {
-    const list = (items || []).map((
-      { name, id }, i
-    ) => (
+    const list = (items || []).map(({ name, id }, i) => (
       <Link to={`/media/${id}`} key={i}>
         {name}
       </Link>
@@ -37,18 +35,12 @@ function Search({ query }: Props) {
     resultsSection = (
       <div className="results">
         <p>Results - {list.length}</p>
-        {list.length > 0 && (
-          <div className="result-list">{list}</div>
-        )}
+        {list.length > 0 && <div className="result-list">{list}</div>}
       </div>
     );
   }
 
-  return (
-    <div className="quickSearchResults">
-      {resultsSection}
-    </div>
-  );
+  return <div className="quickSearchResults">{resultsSection}</div>;
 }
 
 export default Search;

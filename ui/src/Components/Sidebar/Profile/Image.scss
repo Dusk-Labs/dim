@@ -2,21 +2,22 @@
   height: 32px;
   width: 32px;
 
-  img, .placeholder {
+  img,
+  .placeholder {
     height: inherit;
     width: inherit;
     object-fit: cover;
     border-radius: 50%;
     background: var(--accentColor);
-    animation: onShowProfileImage .3s ease-in-out;
+    animation: onShowProfileImage 0.3s ease-in-out;
   }
 
   &.show-true {
-    animation: onShowProfileImage .3s ease-in-out forwards;
+    animation: onShowProfileImage 0.3s ease-in-out forwards;
   }
 
   &.show-false {
-    animation: onHideProfileImage .3s ease-in-out forwards;
+    animation: onHideProfileImage 0.3s ease-in-out forwards;
   }
 }
 

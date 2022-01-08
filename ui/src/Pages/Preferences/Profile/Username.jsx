@@ -6,7 +6,7 @@ import Field from "../../Auth/Field";
 
 function Username() {
   const dispatch = useDispatch();
-  const user = useSelector(store => store.user);
+  const user = useSelector((store) => store.user);
 
   const [newUsername, setNewUsername] = useState("");
   const [newUsernameErr, setNewUsernameErr] = useState("");
@@ -47,9 +47,7 @@ function Username() {
       />
       {user.info.username !== newUsername && (
         <div className="options">
-          <Button onClick={updateUsername}>
-            Update
-          </Button>
+          <Button onClick={updateUsername}>Update</Button>
           <Button type="secondary" onClick={undoChangeUsername}>
             Cancel
           </Button>

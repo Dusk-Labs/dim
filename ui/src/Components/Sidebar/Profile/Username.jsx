@@ -7,7 +7,7 @@ import CaretDown from "../../../assets/Icons/CaretDown";
 import "./Username.scss";
 
 function Username(_props) {
-  const user = useSelector(store => (store?.user || {}));
+  const user = useSelector((store) => store?.user || {});
 
   const dropdownRef = useRef(null);
 
@@ -47,11 +47,11 @@ function Username(_props) {
           className={`toggle visible-${dropdownVisible}`}
           onClick={handleToggle}
         >
-          <CaretDown/>
+          <CaretDown />
         </div>
       </div>
       <div className={`dropDownContent visible-${dropdownVisible}`}>
-        <LogoutBtn/>
+        <LogoutBtn />
       </div>
     </div>
   );

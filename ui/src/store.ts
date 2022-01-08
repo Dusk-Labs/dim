@@ -21,11 +21,11 @@ export const store = configureStore({
     settings,
     notifications,
     media,
-    [v1.reducerPath]: v1.reducer
+    [v1.reducerPath]: v1.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware().concat(v1.middleware);
-  }
+  },
 });
 
 setupListeners(store.dispatch);

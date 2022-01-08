@@ -9,7 +9,7 @@ import LoginBtn from "./LoginBtn";
 import "./AuthForm.scss";
 
 function Login() {
-  const auth = useSelector(store => store.auth);
+  const auth = useSelector((store) => store.auth);
 
   const [username, setUsername] = useState("");
   const [usernameErr, setUsernameErr] = useState("");
@@ -27,7 +27,7 @@ function Login() {
   return (
     <div className="authForm">
       <header>
-        <DimLogo/>
+        <DimLogo />
         <h1>Welcome back</h1>
         <h3>Authenticate and continue to your media</h3>
       </header>

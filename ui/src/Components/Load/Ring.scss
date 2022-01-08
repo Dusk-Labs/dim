@@ -5,7 +5,7 @@
   height: 40px;
 
   &.small-true div {
-    border: .2em dotted var(--accentColor);
+    border: 0.2em dotted var(--accentColor);
   }
 
   div {
@@ -13,7 +13,7 @@
     position: absolute;
     width: inherit;
     height: inherit;
-    border: .3em dotted var(--accentColor);
+    border: 0.3em dotted var(--accentColor);
     border-radius: 50%;
     animation: ringLoad 1.5s cubic-bezier(0.68, -0.6, 0.32, 1.6) infinite;
     border-color: var(--accentColor);

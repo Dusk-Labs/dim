@@ -26,7 +26,7 @@ const Blind = {
   bannerOverlayShadow: "#1a1a1add",
   modalPrimaryColor: "#eee",
   modalSecondaryColor: "#ddd",
-  modalTertiaryColor: "#ccc"
+  modalTertiaryColor: "#ccc",
 };
 
 export default Blind;

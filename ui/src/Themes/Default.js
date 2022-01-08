@@ -4,7 +4,7 @@ const Default = {
   accentColor: "#f7931e",
   accentLighterColor: "#dd9745",
   accentTextColor: "#1a1a1a",
-  criticalColor:  "#e91619",
+  criticalColor: "#e91619",
   criticalLighterColor: "#b72426",
   criticalTextColor: "#fff",
   primaryTextColor: "#fff",
@@ -26,7 +26,7 @@ const Default = {
   bannerOverlayShadow: "#1a1a1add",
   modalPrimaryColor: "#2a2a2a",
   modalSecondaryColor: "#3a3a3a",
-  modalTertiaryColor: "#4a4a4a"
+  modalTertiaryColor: "#4a4a4a",
 };
 
 export default Default;
