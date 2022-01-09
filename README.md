@@ -6,53 +6,87 @@
 Dim is a self-hosted media manager. With minimal setup, Dim will organize and beautify your media collections, letting you access and play them anytime from anywhere.
 
 ## Running from binaries
-### Dependencies
-  * libva2
-  * libva-drm2
-  * libharfbuzz
-  * libfontconfig
-  * libfribidi
-  * libtheora
-  * libvorbis
-  * libvorbisenc
-  * libtheora0
 
-  You can then obtain binaries from the release tab in github:
-  1. Unpack with `unzip ./release-linux.zip && tar -xvzf ./release.tar.gz`
-  2. Run `cd release && ./dim`
-  3. Then you can access the Dim web UI through your browser with `http://0.0.0.0:8000` (assuming it's running locally.)
+### Dependencies
+
+* libva2
+* libva-drm2
+* libharfbuzz
+* libfontconfig
+* libfribidi
+* libtheora
+* libvorbis
+* libvorbisenc
+* libtheora0
+
+You can then obtain binaries from the release tab in github:
+
+1. Unpack with `unzip ./release-linux.zip && tar -xvzf ./release.tar.gz`
+2. Run `cd release && ./dim`
+3. Then you can access the Dim web UI through your browser with `http://0.0.0.0:8000` (assuming it's running locally.)
 
 ## Running with docker
-  * `docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media:ro ghcr.io/Dusk-Labs/dim:dev` 
 
-### With hardware acceleration
-  * `docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media:ro --device=/dev/dri/renderD128 ghcr.io/Dusk-Labs/dim:dev`
+The following command runs dim on port 8000, storing configuration in `$HOME/.config/dim`.
+You may change that path if you'd like to store configuration somewhere else.
+You can mount as many directories containing media as you like by repeating the `-v HOST_PATH:CONTAINER_PATH` option.
+In this example, the path `/media` on the host is made available at the same path inside the Docker container.
+This name "media" is arbitrary and you can choose whatever you like.
 
-### Using Docker Compose
- * Refer to [docker-compose-template.yaml](https://github.com/Dusk-Labs/dim/blob/master/docker-compose-template.yml)
+```
+docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media:ro ghcr.io/dusk-labs/dim:dev
+```
+
+To use hardware acceleration, mount the relevant device:
+
+```
+docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media:ro --device=/dev/dri/renderD128 ghcr.io/dusk-labs/dim:dev
+```
+
+Refer to [docker-compose-template.yaml](https://github.com/Dusk-Labs/dim/blob/master/docker-compose-template.yml) to run dim using Docker Compose.
 
 ## Running from source
-### Dependencies
-  To run from source, you'll first need to install the following dependencies on your system:
-  * sqlite
-  * cargo
-  * rustc (nightly)
-  * yarn, npm
-  * libssl-dev
-  * libva2
-  * libva-dev
-  * libva-drm2
-  * ffmpeg
 
-  You can then clone the repository and build dim with the following commands:
-  1. `git clone https://github.com/Dusk-Labs/dim`
-  2. `yarn --cwd ui/ && yarn --cwd ui/ build`
-  3. `cargo run --release`
+### Dependencies
+
+To run from source, you'll first need to install the following dependencies on your system:
+
+* sqlite
+* cargo
+* rustc (nightly)
+* yarn, npm
+* libssl-dev
+* libva2 (only if you're using Linux)
+* libva-dev (only if you're using Linux)
+* libva-drm2 (only if you're using Linux)
+* ffmpeg
+
+Once the dependencies are installed, clone the repository and build the project:
+
+```
+git clone https://github.com/Dusk-Labs/dim
+yarn --cwd ui/ && yarn --cwd ui/ build
+ln -nfs $(which ffmpeg) utils/ffmpeg && ln -nfs $(which ffprobe) utils/ffprobe
+```
+
+If you're on Linux, run dim with:
+
+```
+cargo run --features vaapi --release
+```
+
+On other platforms where libva isn't available, run dim with:
+
+```
+cargo run --release
+```
 
 ## License
+
 Dim is licensed under the GPLv2 license ([LICENSE.md](LICENSE.md) or http://opensource.org/licenses/GPL-2.0)
 
 ## Screenshots
+
 ![Login_Page](docs/design/login_page.png)
 ![Add_Library Modal](docs/design/add_library.png)
 ![Media_Page](docs/design/media_page.jpg)
