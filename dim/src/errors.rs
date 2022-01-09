@@ -116,7 +116,7 @@ impl warp::reject::Reject for AuthError {}
 impl warp::Reply for AuthError {
     fn into_response(self) -> warp::reply::Response {
         let status = match self {
-            Self::NoTokenError | Self::UsernameTaken => StatusCode::OK,
+            Self::NoTokenError | Self::UsernameTaken => StatusCode::BAD_REQUEST,
             Self::DatabaseError | Self::RawDatabaseError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::Unauthorized | Self::UserDoesntExist => StatusCode::UNAUTHORIZED,
             Self::WrongPassword | Self::FailedAuth => StatusCode::FORBIDDEN,
