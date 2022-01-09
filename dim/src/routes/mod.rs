@@ -34,12 +34,10 @@ pub mod global_filters {
     pub async fn handle_rejection(
         err: warp::reject::Rejection,
     ) -> Result<impl warp::Reply, warp::reject::Rejection> {
-        if let Some(e) = err.find::<errors::AuthError>() {
-            return Ok(e.clone().into_response());
-        } else if let Some(e) = err.find::<errors::DimError>() {
+        if let Some(e) = err.find::<errors::DimError>() {
             return Ok(e.clone().into_response());
         } else if err.find::<auth::JWTError>().is_some() {
-            return Ok(errors::DimError::AuthRequired.into_response());
+            return Ok(errors::DimError::Unauthenticated.into_response());
         } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
             return Ok(errors::DimError::MissingFieldInBody {
                 description: e.source().unwrap().to_string(),
