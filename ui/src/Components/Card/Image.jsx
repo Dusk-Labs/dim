@@ -26,6 +26,7 @@ const CardImage = (props) => {
 
     const observer = new IntersectionObserver(handleIntersection, options);
     observer.observe(imageWrapperDiv.current);
+    return () => observer.disconnect();
   }, [handleIntersection]);
 
   return (
