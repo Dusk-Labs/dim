@@ -54,5 +54,5 @@
     "lint-staged": "^12.1.5",
     "prettier": "^2.5.1"
   },
-  "proxy": "http://localhost:8000"
+  "proxy": "http://127.0.0.1:8000"
 }

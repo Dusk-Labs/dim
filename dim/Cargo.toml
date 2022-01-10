@@ -8,6 +8,7 @@ edition = "2018"
 [features]
 default = ["sqlite"]
 null_auth = ["auth/null_auth"]
+vaapi = ["nightfall/vaapi"]
 
 # the build script usually will enable this if `yarn` is installed.
 # If enabled explicitly, the build script will panic if something went wrong.
@@ -27,7 +28,7 @@ database = { path = "../database", default-features = false, optional = true }
 events = { path = "../events" }
 auth = { path = "../auth" }
 
-nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4", features = ["ssa_transmux"] }
+nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4", default-features = false, features = ["cuda", "ssa_transmux"] }
 
 lazy_static = "1.4.0"
 walkdir = "2.3.1"
