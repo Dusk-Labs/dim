@@ -66,7 +66,7 @@ Once the dependencies are installed, clone the repository and build the project:
 ```
 git clone https://github.com/Dusk-Labs/dim
 yarn --cwd ui/ && yarn --cwd ui/ build
-ln -nfs $(which ffmpeg) utils/ffmpeg && ln -nfs $(which ffprobe) utils/ffprobe
+mkdir utils && ln -nfs $(which ffmpeg) utils/ffmpeg && ln -nfs $(which ffprobe) utils/ffprobe
 ```
 
 If you're on Linux, run dim with:
