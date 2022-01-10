@@ -232,12 +232,11 @@ pub mod filters {
 /// ## Example
 /// ```text
 /// curl -X POST http://127.0.0.1:8000/api/v1/auth/login -H "Content-type: application/json" -d
-/// '{"username": "testuser", "password": "testpassword", "invite_token":
-/// "72390330-b8af-4413-8305-5f8cae1c8f88"}'
+/// '{"username": "testuser", "password": "testpassword"}'
 /// ```
 ///
 /// # Response
-/// If a user is successfully created, this method will return status `200 0K` as well as a
+/// If authentication is successful, this method will return status `200 0K` as well as a
 /// authentication token.
 /// ```
 /// {
@@ -290,6 +289,40 @@ pub async fn admin_exists(conn: DbConnection) -> Result<impl warp::Reply, errors
     })))
 }
 
+/// # POST `/api/v1/auth/register`
+/// Method will create a new user and return it a authentication token if a user has been
+/// successfuly created.
+///
+/// # Request
+/// This method accepts a JSON body that deserializes into [`Login`]. If there are no other users
+/// in the database, this route will give the new user `owner` permissions. Additionally this route
+/// will not require an invite token.
+///
+/// If there is a user in the database, this request will require an invite token and the user will
+/// be given only `user` permissions.
+///
+/// ## Example
+/// ```text
+/// curl -X POST http://127.0.0.1:8000/api/v1/auth/login -H "Content-type: application/json" -d
+/// '{"username": "testuser", "password": "testpassword", "invite_token":
+/// "72390330-b8af-4413-8305-5f8cae1c8f88"}'
+/// ```
+///
+/// # Response
+/// If a user is successfully created, this method will return status `200 0K` as well as the
+/// create user's username.
+/// ```
+/// {
+///   "username": "...."
+/// }
+/// ```
+///
+/// # Errors
+/// * [`NoToken`] - Either the request doesnt contain an invite token, or the invite token is
+/// invalid.
+///
+/// [`NoToken`]: crate::errors::DimError::NoToken
+/// [`Login`]: database::user::login
 pub async fn register(
     new_user: Login,
     conn: DbConnection,
@@ -302,7 +335,7 @@ pub async fn register(
 
     if !users_empty
         && (new_user.invite_token.is_none()
-            || !new_user.invite_token_valid(&mut tx).await.unwrap_or(false))
+            || !new_user.invite_token_valid(&mut tx).await?)
     {
         return Err(errors::DimError::NoToken);
     }
