@@ -26,7 +26,7 @@ pub enum DimError {
     #[error(display = "The requested resource does not exist.")]
     NotFoundError,
     #[error(display = "Authentication is required for this route.")]
-    AuthRequired,
+    Unauthenticated,
     #[error(display = "Invalid media_type supplied, options are [movie, tv].")]
     InvalidMediaType,
     #[error(display = "A error in the streaming library has occured")]
@@ -43,6 +43,12 @@ pub enum DimError {
     UnsupportedFile,
     #[error(display = "Library does not exist.")]
     LibraryNotFound,
+    #[error(display = "Invite token required.")]
+    NoToken,
+    #[error(display = "Invalid credentials.")]
+    InvalidCredentials,
+    #[error(display = "Requested username is not available.")]
+    UsernameNotAvailable,
 }
 
 impl From<sqlx::Error> for DimError {
@@ -65,61 +71,14 @@ impl warp::Reply for DimError {
             | Self::InternalServerError
             | Self::ScannerError(_)
             | Self::UploadFailed => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::AuthRequired | Self::Unauthorized => StatusCode::UNAUTHORIZED,
+            Self::Unauthenticated
+            | Self::Unauthorized
+            | Self::InvalidCredentials
+            | Self::NoToken => StatusCode::UNAUTHORIZED,
+            Self::UsernameNotAvailable => StatusCode::BAD_REQUEST,
             Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {
                 StatusCode::NOT_ACCEPTABLE
             }
-        };
-
-        let resp = json!({
-            "error": json!(&self)["error"],
-            "messsage": self.to_string(),
-        });
-
-        warp::http::Response::builder()
-            .status(status)
-            .header("ContentType", "application/json")
-            .body(serde_json::to_string(&resp).unwrap().into())
-            .unwrap()
-    }
-}
-
-#[derive(Clone, Debug, Error, Serialize)]
-#[serde(tag = "error")]
-pub enum AuthError {
-    #[error(display = "Authentication failed")]
-    FailedAuth,
-    #[error(display = "A database error occured")]
-    DatabaseError,
-    #[error(display = "A database error occured")]
-    RawDatabaseError(String),
-    #[error(display = "No invite token was supplied, when required")]
-    NoTokenError,
-    #[error(display = "Admin role required to access this route")]
-    Unauthorized,
-    #[error(display = "Wrong password")]
-    WrongPassword,
-    #[error(display = "Username Taken")]
-    UsernameTaken,
-    #[error(display = "Requested user doesnt exist.")]
-    UserDoesntExist,
-}
-
-impl From<sqlx::Error> for AuthError {
-    fn from(e: sqlx::Error) -> Self {
-        Self::RawDatabaseError(format!("{:?}", e))
-    }
-}
-
-impl warp::reject::Reject for AuthError {}
-
-impl warp::Reply for AuthError {
-    fn into_response(self) -> warp::reply::Response {
-        let status = match self {
-            Self::NoTokenError | Self::UsernameTaken => StatusCode::OK,
-            Self::DatabaseError | Self::RawDatabaseError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::Unauthorized | Self::UserDoesntExist => StatusCode::UNAUTHORIZED,
-            Self::WrongPassword | Self::FailedAuth => StatusCode::FORBIDDEN,
         };
 
         let resp = json!({
@@ -214,11 +173,5 @@ impl From<()> for DimError {
 impl From<std::io::Error> for DimError {
     fn from(_: std::io::Error) -> Self {
         Self::IOError
-    }
-}
-
-impl From<DatabaseError> for AuthError {
-    fn from(_: DatabaseError) -> Self {
-        Self::DatabaseError
     }
 }
