@@ -222,11 +222,11 @@ pub mod filters {
 pub async fn login(
     new_login: Login,
     conn: DbConnection,
-) -> Result<impl warp::Reply, errors::AuthError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
     let user = User::get(&mut tx, &new_login.username)
         .await
-        .map_err(|_| errors::AuthError::UserDoesntExist)?;
+        .map_err(|_| errors::DimError::InvalidCredentials)?;
 
     if verify(
         user.username.clone(),
@@ -240,7 +240,7 @@ pub async fn login(
         })));
     }
 
-    Err(errors::AuthError::WrongPassword)
+    Err(errors::DimError::InvalidCredentials)
 }
 
 pub async fn whoami(user: Auth, conn: DbConnection) -> Result<impl warp::Reply, errors::DimError> {
@@ -267,7 +267,7 @@ pub async fn admin_exists(conn: DbConnection) -> Result<impl warp::Reply, errors
 pub async fn register(
     new_user: Login,
     conn: DbConnection,
-) -> Result<impl warp::Reply, errors::AuthError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     // FIXME: Return INTERNAL SERVER ERROR maybe with a traceback?
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
@@ -278,7 +278,7 @@ pub async fn register(
         && (new_user.invite_token.is_none()
             || !new_user.invite_token_valid(&mut tx).await.unwrap_or(false))
     {
-        return Err(errors::AuthError::NoTokenError);
+        return Err(errors::DimError::NoToken);
     }
 
     let roles = if !users_empty {
@@ -293,7 +293,7 @@ pub async fn register(
     } else {
         new_user
             .invite_token
-            .ok_or(errors::AuthError::NoTokenError)?
+            .ok_or(errors::DimError::NoToken)?
     };
 
     let res = InsertableUser {
@@ -315,7 +315,7 @@ pub async fn register(
 pub async fn get_all_invites(
     conn: DbConnection,
     user: Auth,
-) -> Result<impl warp::Reply, errors::AuthError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
     if user.0.claims.has_role("owner") {
         #[derive(serde::Serialize)]
@@ -352,15 +352,15 @@ pub async fn get_all_invites(
         return Ok(reply::json(&row));
     }
 
-    Err(errors::AuthError::Unauthorized)
+    Err(errors::DimError::Unauthorized)
 }
 
 pub async fn generate_invite(
     conn: DbConnection,
     user: Auth,
-) -> Result<impl warp::Reply, errors::AuthError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     if !user.0.claims.has_role("owner") {
-        return Err(errors::AuthError::Unauthorized);
+        return Err(errors::DimError::Unauthorized);
     }
 
     let mut lock = conn.writer().lock_owned().await;
@@ -377,9 +377,9 @@ pub async fn delete_invite(
     conn: DbConnection,
     user: Auth,
     token: String,
-) -> Result<impl warp::Reply, errors::AuthError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     if !user.0.claims.has_role("owner") {
-        return Err(errors::AuthError::Unauthorized);
+        return Err(errors::DimError::Unauthorized);
     }
 
     let mut lock = conn.writer().lock_owned().await;
@@ -395,12 +395,12 @@ pub async fn user_change_password(
     user: Auth,
     old_password: String,
     new_password: String,
-) -> Result<impl warp::Reply, errors::AuthError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
     let user = User::get_one(&mut tx, user.0.claims.get_user(), old_password)
         .await
-        .map_err(|_| errors::AuthError::WrongPassword)?;
+        .map_err(|_| errors::DimError::InvalidCredentials)?;
     user.set_password(&mut tx, new_password).await?;
 
     tx.commit().await?;
@@ -412,12 +412,12 @@ pub async fn user_delete_self(
     conn: DbConnection,
     user: Auth,
     password: String,
-) -> Result<impl warp::Reply, errors::AuthError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
     let _ = User::get_one(&mut tx, user.0.claims.get_user(), password)
         .await
-        .map_err(|_| errors::AuthError::WrongPassword)?;
+        .map_err(|_| errors::DimError::InvalidCredentials)?;
 
     User::delete(&mut tx, user.0.claims.get_user()).await?;
 
@@ -430,11 +430,11 @@ pub async fn user_change_username(
     conn: DbConnection,
     user: Auth,
     new_username: String,
-) -> Result<impl warp::Reply, errors::AuthError> {
+) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
     if User::get(&mut tx, &new_username).await.is_ok() {
-        return Err(errors::AuthError::UsernameTaken);
+        return Err(errors::DimError::UsernameNotAvailable);
     }
 
     User::set_username(&mut tx, user.0.claims.get_user(), new_username).await?;
