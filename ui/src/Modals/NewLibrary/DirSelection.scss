@@ -1,10 +1,10 @@
 .dirSelection {
   grid-area: dirSelection;
 
-  .header {
+  .details {
     display: flex;
     gap: 0.5em;
-    margin-bottom: 0.5em;
+    margin-top: 0.5em;
     justify-content: space-between;
     flex-wrap: wrap;
 
@@ -12,6 +12,10 @@
       display: flex;
       gap: 1em;
     }
+  }
+
+  .help {
+    margin-bottom: 0.5em;
   }
 
   .dirs-wrapper {
@@ -39,7 +43,7 @@
 
     .dir {
       display: grid;
-      grid-template-columns: 1fr 20px;
+      grid-template-columns: 25px 1fr;
       gap: 0.5em;
       padding: 0 0.5em;
       align-items: center;
@@ -51,20 +55,12 @@
         background: var(--modalTertiaryColor);
       }
 
-      &.selected-false .selectBox {
-        opacity: 0;
-      }
-
       &.selected-true .selectBox {
         background: var(--accentColor);
 
         svg {
           opacity: 1;
         }
-      }
-
-      &.selected-false:hover .selectBox {
-        opacity: 1;
       }
 
       .label {
@@ -101,7 +97,6 @@
         border-radius: 5px;
         border: solid 2px var(--accentColor);
         transition: background 150ms ease-in-out;
-        margin-right: 0.5em;
 
         svg {
           fill: var(--primaryTextColor);
@@ -115,9 +110,13 @@
   }
 
   .controls {
-    margin-top: 0.5em;
+    margin-bottom: 0.5em;
     display: flex;
     align-items: center;
+
+    .btn.disabled {
+      opacity: 0;
+    }
 
     .current {
       margin-left: 0.5em;

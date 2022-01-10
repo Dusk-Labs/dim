@@ -102,6 +102,9 @@ function DirSelection(props: Props) {
             key={i}
             className={`dir selected-${selectedFolders.includes(dir)}`}
           >
+            <div className="selectBox" onClick={() => selectFolder(dir)}>
+              <CheckIcon />
+            </div>
             <div className="label" onClick={() => select(dir)}>
               <FolderIcon />
               <p>
@@ -110,9 +113,6 @@ function DirSelection(props: Props) {
                   {count ? ` (${count} folders selected inside)` : ""}
                 </span>
               </p>
-            </div>
-            <div className="selectBox" onClick={() => selectFolder(dir)}>
-              <CheckIcon />
             </div>
           </div>
         );
@@ -125,8 +125,23 @@ function DirSelection(props: Props) {
 
   return (
     <div className="dirSelection">
-      <div className="header">
-        <h4>Select folders containing media ({selectedFolders.length})</h4>
+      <div className="help">
+        <p>
+          Check folders containing media to include in the library. Click folder
+          names to list folders inside them.
+        </p>
+      </div>
+      <div className="controls">
+        <Button onClick={goBack} disabled={current === ""}>
+          <ArrowLeftIcon />
+        </Button>
+        <p className="current">Currently viewing: {current || "/"}</p>
+      </div>
+      <div className="dirs-wrapper">
+        <div className="dirs">{dirs}</div>
+      </div>
+      <div className="details">
+        <div>Folders selected: {selectedFolders.length}</div>
         <div className="actions">
           <Button
             disabled={selectedFolders.length <= 0}
@@ -143,15 +158,6 @@ function DirSelection(props: Props) {
             Select all
           </Button>
         </div>
-      </div>
-      <div className="dirs-wrapper">
-        <div className="dirs">{dirs}</div>
-      </div>
-      <div className="controls">
-        <Button onClick={goBack} disabled={current === ""}>
-          <ArrowLeftIcon />
-        </Button>
-        <p className="current">{current}</p>
       </div>
     </div>
   );
