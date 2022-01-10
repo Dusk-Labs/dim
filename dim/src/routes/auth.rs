@@ -342,7 +342,7 @@ pub async fn admin_exists(conn: DbConnection) -> Result<impl warp::Reply, errors
 /// invalid.
 ///
 /// [`NoToken`]: crate::errors::DimError::NoToken
-/// [`Login`]: database::user::login
+/// [`Login`]: database::user::Login
 pub async fn register(
     new_user: Login,
     conn: DbConnection,

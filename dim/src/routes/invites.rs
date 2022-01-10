@@ -1,3 +1,9 @@
+//! This module contains various routes used to deal with invite tokens.
+//!
+//! # What are invite tokens?
+//! Invite tokens are random UUID's that server admins can issue to other users such that they can
+//! register a new account. An invite token can be created and deleted. An invite token is unique
+//! per user and cannot be used twice.
 use crate::core::DbConnection;
 use crate::errors;
 use crate::json;
@@ -7,6 +13,51 @@ use database::user::Login;
 use warp::reply;
 use http::StatusCode;
 
+/// # GET `/api/v1/auth/invites`
+/// Method will retrieve and return all invite tokens in the database.
+///
+/// # Authorization
+/// This route requires a valid authentication token to be supplied. The token must have `owner`
+/// permissions.
+///
+/// # Request
+/// ## Example
+/// ```text
+/// curl -X GET http://127.0.0.1:8000/api/v1/auth/invites -H "Authorization: ...."
+/// ```
+///
+/// # Response
+/// The route will return a response with the following schema
+/// ```
+/// [
+///   {
+///     "id": String,
+///     "created": i64,
+///     "claimed_by": Option<String>,
+///   },
+///   ...
+/// ]
+/// ```
+///
+/// ## Example
+/// ```
+/// [
+///   {
+///     "id": "079a38b4-d39f-4a9e-9a18-964f225b75d3",
+///     "created": 1638708402,
+///     "claimed_by": "admin"
+///   },
+///   {
+///     "id": "844caa7b-f54f-a9ea-4444-555555555555",
+///     "created": 1640000000,
+///   }
+/// ]
+/// ```
+///
+/// # Errors
+/// * [`Unauthorized`] - Returned if the authentication token lacks `owner` permissions
+///
+/// [`Unauthorized`]: crate::errors::DimError::Unauthorized
 pub async fn get_all_invites(
     conn: DbConnection,
     user: Auth,
@@ -22,6 +73,7 @@ pub async fn get_all_invites(
 
         // FIXME: LEFT JOINs cause sqlx::query! to panic, thus we must get tokens in two queries.
         // TODO: Move these into database.
+        // TODO: We silently drop db errors here, we should probably change this.
         let mut row = sqlx::query_as!(
             Row,
             r#"SELECT invites.id, invites.date_added as created, NULL as "claimed_by: _"
@@ -51,6 +103,38 @@ pub async fn get_all_invites(
     Err(errors::DimError::Unauthorized)
 }
 
+/// # POST `/api/v1/auth/new_invite`
+/// Method will generate and return a new invite token.
+///
+/// # Authorization
+/// This route requires a valid authentication token to be supplied. The token must have `owner`
+/// permissions.
+///
+/// # Request
+/// ## Example
+/// ```text
+/// curl -X POST http://127.0.0.1:8000/api/v1/auth/new_invite -H "Authorization: ...."
+/// ```
+///
+/// # Response
+/// The route will return a response with the following schema
+/// ```
+/// {
+///   "token": String,
+/// }
+/// ```
+///
+/// ## Example
+/// ```
+/// {
+///   "token": "844caa7b-f54f-a9ea-4444-555555555555",
+/// }
+/// ```
+///
+/// # Errors
+/// * [`Unauthorized`] - Returned if the authentication token lacks `owner` permissions
+///
+/// [`Unauthorized`]: crate::errors::DimError::Unauthorized
 pub async fn generate_invite(
     conn: DbConnection,
     user: Auth,
@@ -69,6 +153,27 @@ pub async fn generate_invite(
     Ok(reply::json(&json!({ "token": token })))
 }
 
+/// # DELETE `/api/v1/auth/token/:token`
+/// Method will revoke the supplied token.
+///
+/// # Authorization
+/// This route requires a valid authentication token to be supplied. The token must have `owner`
+/// permissions.
+///
+/// # Request
+/// This request takes in a route parameter which is the token we want to delete.
+/// ## Example
+/// ```text
+/// curl -X DELETE http://127.0.0.1:8000/api/v1/auth/token/844caa7b-f54f-a9ea-4444-555555555555 -H "Authorization: ...."
+/// ```
+///
+/// # Response
+/// If the token was successfully deleted, this route will return `200 0K`.
+///
+/// # Errors
+/// * [`Unauthorized`] - Returned if the authentication token lacks `owner` permissions
+///
+/// [`Unauthorized`]: crate::errors::DimError::Unauthorized
 pub async fn delete_invite(
     conn: DbConnection,
     user: Auth,
