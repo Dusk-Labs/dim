@@ -2,9 +2,6 @@ use crate::core::DbConnection;
 use crate::errors;
 use bytes::BufMut;
 
-use database::asset::Asset;
-use database::asset::InsertableAsset;
-use database::progress::Progress;
 use database::user::verify;
 use database::user::InsertableUser;
 use database::user::Login;
@@ -225,6 +222,34 @@ pub mod filters {
     }
 }
 
+/// # POST `/api/v1/auth/login`
+/// Method will log a user in and return a authentication token that can be used to authenticate other
+/// requests.
+///
+/// # Request
+/// This method accepts a JSON body that deserializes into [`Login`].
+///
+/// ## Example
+/// ```text
+/// curl -X POST http://127.0.0.1:8000/api/v1/auth/login -H "Content-type: application/json" -d
+/// '{"username": "testuser", "password": "testpassword", "invite_token":
+/// "72390330-b8af-4413-8305-5f8cae1c8f88"}'
+/// ```
+///
+/// # Response
+/// If a user is successfully created, this method will return status `200 0K` as well as a
+/// authentication token.
+/// ```
+/// {
+///   "token": "...."
+/// }
+/// ```
+///
+/// # Errors
+/// * [`InvalidCredentials`] - The provided username or password is incorrect.
+///
+/// [`InvalidCredentials`]: crate::errors::DimError::InvalidCredentials
+/// [`Login`]: database::user::login
 pub async fn login(
     new_login: Login,
     conn: DbConnection,
