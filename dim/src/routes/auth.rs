@@ -1,3 +1,23 @@
+//! This module contains all docs and APIs related to authentication and user creation.
+//!
+//! # Request Authentication and Authorization
+//! Most API endpoints require a valid JWT authentication token. If no such token is supplied, the
+//! API will return [`Unauthenticated`]. Authentication tokens can be obtained by logging in with
+//! the [`login`] method. Authentication tokens must be passed to the server through a
+//! `Authroization` header.
+//!
+//! ## Example of an authenticated call
+//! ```text
+//! curl -X POST http://127.0.0.1:8000/api/v1/auth/whoami -H "Content-type: application/json" -H
+//! "Authorization: eyJhb....."
+//! ```
+//!
+//! # Token expiration
+//! By default tokens expire after exactly two weeks, once the tokens expire the client must renew
+//! them. At the moment renewing the token is only possible by logging in again.
+//!
+//! [`Unauthenticated`]: crate::errors::DimError::Unauthenticated
+//! [`login`]: fn@login
 use crate::core::DbConnection;
 use crate::errors;
 use bytes::BufMut;
@@ -248,7 +268,7 @@ pub mod filters {
 /// * [`InvalidCredentials`] - The provided username or password is incorrect.
 ///
 /// [`InvalidCredentials`]: crate::errors::DimError::InvalidCredentials
-/// [`Login`]: database::user::login
+/// [`Login`]: database::user::Login
 pub async fn login(
     new_login: Login,
     conn: DbConnection,
