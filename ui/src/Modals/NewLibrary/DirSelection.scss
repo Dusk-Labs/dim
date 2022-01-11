@@ -7,15 +7,6 @@
     margin-top: 0.5em;
     justify-content: space-between;
     flex-wrap: wrap;
-
-    .actions {
-      display: flex;
-      gap: 1em;
-    }
-  }
-
-  .help {
-    margin-bottom: 0.5em;
   }
 
   .dirs-wrapper {
@@ -68,7 +59,7 @@
         width: 100%;
         display: flex;
 
-        // folder icon
+        // folder and right arrow icons
         svg {
           margin-right: 10px;
           fill: var(--tertiaryTextColor);
@@ -76,11 +67,19 @@
 
         // path name
         p {
-          margin: 0;
+          margin: 0 10px 0 0;
           user-select: none;
           overflow-wrap: break-word;
           overflow: hidden;
           word-break: break-all;
+        }
+
+        .arrowRight {
+          opacity: 0;
+        }
+
+        &:hover .arrowRight {
+          opacity: 1;
         }
       }
 
@@ -113,14 +112,27 @@
     margin-bottom: 0.5em;
     display: flex;
     align-items: center;
+    justify-content: space-between;
 
-    .btn.disabled {
-      opacity: 0;
+    .fileNavigation {
+      display: flex;
+      gap: 1em;
+      align-items: center;
+    }
+
+    .btn {
+      svg {
+        margin-right: 0.5em;
+      }
     }
 
     .current {
-      margin-left: 0.5em;
       font-family: "Roboto Condensed Regular", Arial;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1em;
     }
   }
 }

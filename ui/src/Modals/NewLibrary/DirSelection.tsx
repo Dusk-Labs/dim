@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { useGetDirectoriesQuery } from "../../api/v1/fileBrowser";
 import FolderIcon from "../../assets/Icons/Folder";
 import ArrowLeftIcon from "../../assets/Icons/ArrowLeft";
+import ArrowRightIcon from "../../assets/Icons/ArrowRight";
 import CheckIcon from "../../assets/Icons/Check";
 import Button from "../../Components/Misc/Button";
 
@@ -113,6 +114,9 @@ function DirSelection(props: Props) {
                   {count ? ` (${count} folders selected inside)` : ""}
                 </span>
               </p>
+              <div className="arrowRight">
+                <ArrowRightIcon />
+              </div>
             </div>
           </div>
         );
@@ -125,23 +129,13 @@ function DirSelection(props: Props) {
 
   return (
     <div className="dirSelection">
-      <div className="help">
-        <p>
-          Check folders containing media to include in the library. Click folder
-          names to list folders inside them.
-        </p>
-      </div>
       <div className="controls">
-        <Button onClick={goBack} disabled={current === ""}>
-          <ArrowLeftIcon />
-        </Button>
-        <p className="current">Currently viewing: {current || "/"}</p>
-      </div>
-      <div className="dirs-wrapper">
-        <div className="dirs">{dirs}</div>
-      </div>
-      <div className="details">
-        <div>Folders selected: {selectedFolders.length}</div>
+        <div className="fileNavigation">
+          <Button onClick={goBack} disabled={current === ""}>
+            <ArrowLeftIcon /> Back
+          </Button>
+          <p className="current">{current || "/"}</p>
+        </div>
         <div className="actions">
           <Button
             disabled={selectedFolders.length <= 0}
@@ -158,6 +152,12 @@ function DirSelection(props: Props) {
             Select all
           </Button>
         </div>
+      </div>
+      <div className="dirs-wrapper">
+        <div className="dirs">{dirs}</div>
+      </div>
+      <div className="details">
+        <div>Folders selected: {selectedFolders.length}</div>
       </div>
     </div>
   );
