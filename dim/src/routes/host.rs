@@ -1,9 +1,9 @@
 //! This module contains the docs and implementation of various host-related API endpoints.
 use crate::core::DbConnection;
 use crate::errors;
+use crate::json;
 use database::user::User;
 use warp::reply;
-use crate::json;
 
 /// # GET `/api/v1/host/admin_exists`
 /// Method will hint to the client whether an admin has already been created on this server.
@@ -13,7 +13,7 @@ use crate::json;
 ///
 /// ## Example
 /// ```text
-/// curl -X GET http://127.0.0.1:8000/api/v1/host/admin_exists 
+/// curl -X GET http://127.0.0.1:8000/api/v1/host/admin_exists
 /// ```
 ///
 /// # Response

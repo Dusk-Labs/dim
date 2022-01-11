@@ -8,10 +8,11 @@ use crate::core::DbConnection;
 use crate::errors;
 use crate::json;
 
-use auth::Wrapper as Auth;
 use database::user::Login;
-use warp::reply;
+use database::user::User;
+
 use http::StatusCode;
+use warp::reply;
 
 /// # GET `/api/v1/auth/invites`
 /// Method will retrieve and return all invite tokens in the database.
@@ -60,10 +61,10 @@ use http::StatusCode;
 /// [`Unauthorized`]: crate::errors::DimError::Unauthorized
 pub async fn get_all_invites(
     conn: DbConnection,
-    user: Auth,
+    user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
-    if user.0.claims.has_role("owner") {
+    if user.has_role("owner") {
         #[derive(serde::Serialize)]
         struct Row {
             id: String,
@@ -88,7 +89,7 @@ pub async fn get_all_invites(
         row.append(
             &mut sqlx::query_as!(
                 Row,
-                r#"SELECT invites.id, invites.date_added as created, users.username as claimed_by
+                r#"SELECT invites.id, invites.date_added as created, users.username as "claimed_by: Option<String>"
             FROM  invites
             INNER JOIN users ON users.claimed_invite = invites.id"#
             )
@@ -137,9 +138,9 @@ pub async fn get_all_invites(
 /// [`Unauthorized`]: crate::errors::DimError::Unauthorized
 pub async fn generate_invite(
     conn: DbConnection,
-    user: Auth,
+    user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    if !user.0.claims.has_role("owner") {
+    if !user.has_role("owner") {
         return Err(errors::DimError::Unauthorized);
     }
 
@@ -176,10 +177,10 @@ pub async fn generate_invite(
 /// [`Unauthorized`]: crate::errors::DimError::Unauthorized
 pub async fn delete_invite(
     conn: DbConnection,
-    user: Auth,
+    user: User,
     token: String,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    if !user.0.claims.has_role("owner") {
+    if !user.has_role("owner") {
         return Err(errors::DimError::Unauthorized);
     }
 
@@ -193,19 +194,20 @@ pub async fn delete_invite(
 
 #[doc(hidden)]
 pub(crate) mod filters {
-    use database::DbConnection;
-    use warp::Filter;
-    use warp::reject;
+    use super::super::global_filters::with_auth;
     use super::super::global_filters::with_state;
+    use database::DbConnection;
+    use warp::reject;
+    use warp::Filter;
 
     pub fn get_all_invites(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "auth" / "invites")
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state(conn))
-            .and_then(|user: auth::Wrapper, conn: DbConnection| async move {
+            .and_then(|user, conn| async move {
                 super::get_all_invites(conn, user)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -217,9 +219,9 @@ pub(crate) mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "auth" / "new_invite")
             .and(warp::post())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state(conn))
-            .and_then(|user: auth::Wrapper, conn: DbConnection| async move {
+            .and_then(|user, conn| async move {
                 super::generate_invite(conn, user)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -231,14 +233,12 @@ pub(crate) mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "auth" / "token" / String)
             .and(warp::delete())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state(conn))
-            .and_then(
-                |token: String, auth: auth::Wrapper, conn: DbConnection| async move {
-                    super::delete_invite(conn, auth, token)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
+            .and_then(|token: String, auth, conn| async move {
+                super::delete_invite(conn, auth, token)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
     }
 }

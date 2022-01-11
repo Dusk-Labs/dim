@@ -1,6 +1,6 @@
+use database::DatabaseError;
 use displaydoc::Display;
 use thiserror::Error;
-use database::DatabaseError;
 
 use serde::Serialize;
 use serde_json::json;
