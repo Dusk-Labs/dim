@@ -13,8 +13,6 @@ use http::StatusCode;
 pub enum DimError {
     #[error(display = "A database error occured: {}", description)]
     DatabaseError { description: String },
-    #[error(display = "A database error occured")]
-    RawDatabaseError(String),
     #[error(display = "Some function returned none")]
     NoneError,
     #[error(display = "Some unknown error has occured")]
@@ -53,7 +51,7 @@ pub enum DimError {
 
 impl From<sqlx::Error> for DimError {
     fn from(e: sqlx::Error) -> Self {
-        Self::RawDatabaseError(format!("{:?}", e))
+        Self::DatabaseError { description: format!("{:?}", e) }
     }
 }
 
@@ -65,7 +63,6 @@ impl warp::Reply for DimError {
             Self::LibraryNotFound | Self::NoneError | Self::NotFoundError => StatusCode::NOT_FOUND,
             Self::StreamingError(_)
             | Self::DatabaseError { .. }
-            | Self::RawDatabaseError(_)
             | Self::UnknownError
             | Self::IOError
             | Self::InternalServerError
