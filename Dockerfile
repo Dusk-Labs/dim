@@ -1,8 +1,8 @@
 FROM node:bullseye AS web
 WORKDIR /ui
-COPY ui/package*.json .
+COPY ui/package*.json ./
 RUN yarn install
-COPY ui .
+COPY ui ./
 ENV NODE_OPTIONS=--openssl-legacy-provider
 RUN yarn run build
 
@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     libva2 \
     sqlite3
 WORKDIR /dim
-COPY . .
+COPY . ./
 COPY --from=web /ui/build ui/build
 ARG DATABASE_URL="sqlite://dim_dev.db"
 
