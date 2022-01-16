@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import Modal from "react-modal";
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchMediaInfo } from "../../actions/media";
 import { addNotification } from "../../slices/notifications";
 import MediaTypeSelection from "./MediaTypeSelection";
 import Button from "../../Components/Misc/Button";
@@ -91,7 +90,6 @@ function RematchMediaModal(props) {
 
     clearData();
     close();
-    dispatch(fetchMediaInfo(id));
   }, [
     clearData,
     dispatch,

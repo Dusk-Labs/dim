@@ -1,6 +1,8 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { skipToken } from "@reduxjs/toolkit/query/react";
 
+import { useGetMediaQuery } from "../../../api/v1/media";
 import { formatHHMMSS } from "../../../Helpers/utils";
 import { VideoPlayerContext } from "../Context";
 import SeekBar from "./SeekBar";
@@ -10,16 +12,17 @@ import CircleIcon from "../../../assets/Icons/Circle";
 import "./Index.scss";
 
 function VideoControls() {
-  const { video, media } = useSelector((store) => ({
-    video: store.video,
-    media: store.media,
-  }));
+  const video = useSelector((store) => store.video);
 
   const nameDiv = useRef(null);
   const timeDiv = useRef(null);
 
   const { seekTo, overlay } = useContext(VideoPlayerContext);
   const [visible, setVisible] = useState(true);
+
+  const { data: media } = useGetMediaQuery(
+    video.mediaID ? video.mediaID : skipToken
+  );
 
   useEffect(() => {
     if (!overlay) return;
@@ -32,12 +35,12 @@ function VideoControls() {
   return (
     <div className={`videoControls ${visible}`}>
       <div className="name" ref={nameDiv}>
-        <p>{media[video.mediaID]?.info.data.name}</p>
-        {media[video.mediaID]?.info.data.episode && (
+        <p>{media && media.name}</p>
+        {media && media.episode && (
           <div className="season-ep">
-            <p>S{media[video.mediaID]?.info.data.season}</p>
+            <p>S{media && media.season}</p>
             <CircleIcon />
-            <p>E{media[video.mediaID]?.info.data.episode}</p>
+            <p>E{media && media.episode}</p>
           </div>
         )}
       </div>

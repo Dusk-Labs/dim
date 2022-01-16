@@ -1,8 +1,8 @@
-import { useCallback, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useCallback } from "react";
+import { skipToken } from "@reduxjs/toolkit/query/react";
 import { Link } from "react-router-dom";
 
-import { fetchMediaInfo } from "../../actions/media.js";
+import { useGetMediaQuery } from "../../api/v1/media";
 
 import TruncText from "../../Helpers/TruncText";
 import IMDbLogo from "../../assets/IMDB";
@@ -13,12 +13,6 @@ import SelectMediaFilePlayButton from "../../Modals/SelectMediaFile/Activators/P
 import "./HoverCard.scss";
 
 function HoverCard(props) {
-  const dispatch = useDispatch();
-
-  const { media } = useSelector((store) => ({
-    media: store.media,
-  }));
-
   const { setHovering } = props;
 
   const onAnimationEnd = useCallback(
@@ -32,19 +26,9 @@ function HoverCard(props) {
 
   const { id, name } = props.data;
 
-  useEffect(() => {
-    if (!id) return;
+  const { data, isError } = useGetMediaQuery(id ? id : skipToken);
 
-    dispatch(fetchMediaInfo(id));
-  }, [dispatch, id]);
-
-  if (!media[id]) return null;
-
-  const { info } = media[id];
-  const { data, fetched, error } = info;
-
-  // FETCH_MEDIA_INFO_ERR
-  if (fetched && error) {
+  if (isError) {
     return (
       <div
         className={
@@ -67,8 +51,7 @@ function HoverCard(props) {
     );
   }
 
-  // FETCH_MEDIA_INFO_OK
-  if (fetched && !error) {
+  if (data) {
     const {
       duration,
       genres,

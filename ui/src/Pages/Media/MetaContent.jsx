@@ -1,10 +1,11 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link, useParams } from "react-router-dom";
+import { skipToken } from "@reduxjs/toolkit/query/react";
+
+import { useGetMediaQuery } from "../../api/v1/media";
 
 import Button from "../../Components/Misc/Button";
-import { fetchMediaInfo } from "../../actions/media";
 import CircleIcon from "../../assets/Icons/Circle";
 import SelectMediaFile from "../../Modals/SelectMediaFile/Index";
 import SelectMediaFilePlayButton from "../../Modals/SelectMediaFile/Activators/PlayButton";
@@ -16,32 +17,21 @@ import "./MetaContent.scss";
 
 function MetaContent(props) {
   const { activeId } = props;
-  const dispatch = useDispatch();
   const history = useHistory();
-
-  const media = useSelector((store) => store.media);
 
   const { id } = useParams();
 
-  useEffect(() => {
-    dispatch(fetchMediaInfo(id));
-  }, [dispatch, id]);
+  const { data, isError } = useGetMediaQuery(id ? id : skipToken);
 
   useEffect(() => {
-    if (!media[id]?.info) return;
-
-    const { fetched, error, data } = media[id].info;
-
-    // FETCH_MEDIA_INFO_OK
-    if (fetched && !error) {
+    if (data) {
       document.title = `Dim - ${data.name}`;
     }
-  }, [id, media]);
+  }, [data]);
 
   let metaContent = <></>;
 
-  // FETCH_MEDIA_INFO_OK
-  if (media[id]?.info?.fetched && media[id]?.info?.error) {
+  if (isError) {
     metaContent = (
       <div className="metaContentErr">
         <h2>Failed to load media</h2>
@@ -51,8 +41,7 @@ function MetaContent(props) {
     );
   }
 
-  // FETCH_MEDIA_INFO_OK
-  if (media[id]?.info?.fetched && !media[id]?.info?.error) {
+  if (data) {
     const {
       description,
       genres,
@@ -66,7 +55,7 @@ function MetaContent(props) {
       season,
       episode,
       tags,
-    } = media[id].info.data;
+    } = data;
 
     const length = {
       hh: ("0" + Math.floor(duration / 3600)).slice(-2),
@@ -78,7 +67,7 @@ function MetaContent(props) {
 
     metaContent = (
       <div className="metaContent">
-        <CardImage src={media[id]?.info.data.poster_path} />
+        <CardImage src={data.poster_path} />
         <div className="title">
           <h1>{name}</h1>
           <Dropdown />
