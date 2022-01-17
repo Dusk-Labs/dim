@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+
+import { useGetMediaQuery } from "../../api/v1/media";
 
 import Banner from "./Banner";
 import MetaContent from "./MetaContent";
@@ -9,11 +10,11 @@ import Seasons from "./Seasons";
 import "./Index.scss";
 
 function Media() {
-  const media = useSelector((store) => store.media);
-
   const { id } = useParams();
 
   const [activeId, setActiveId] = useState(id);
+
+  const { data: media } = useGetMediaQuery(id);
 
   return (
     <div className="mediaPage">
@@ -22,7 +23,7 @@ function Media() {
         <div>
           <MetaContent activeId={activeId} />
         </div>
-        {media[id]?.info.data.media_type === "tv" && (
+        {media && media.media_type === "tv" && (
           <Seasons setActiveId={setActiveId} />
         )}
       </div>

@@ -1,17 +1,21 @@
 import { useContext } from "react";
 import { useSelector } from "react-redux";
+import { skipToken } from "@reduxjs/toolkit/query/react";
+
+import { useGetMediaQuery } from "../../api/v1/media";
 
 import { formatHHMMSS } from "../../Helpers/utils";
 import ConfirmationBox from "../../Modals/ConfirmationBox";
 import { VideoPlayerContext } from "./Context";
 
 function ContinueProgress() {
-  const { video, media } = useSelector((store) => ({
-    video: store.video,
-    media: store.media,
-  }));
+  const video = useSelector((store) => store.video);
 
   const { seekTo } = useContext(VideoPlayerContext);
+
+  const { data: media } = useGetMediaQuery(
+    video.mediaID ? video.mediaID : skipToken
+  );
 
   return (
     <ConfirmationBox
@@ -21,7 +25,7 @@ function ContinueProgress() {
       )}`}
       cancelText="Cancel"
       confirmText="Resume"
-      action={() => seekTo(media[video.mediaID]?.info.data.progress)}
+      action={() => media && seekTo(media.progress)}
     />
   );
 }
