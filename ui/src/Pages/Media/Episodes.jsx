@@ -1,34 +1,23 @@
 import { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { fetchMediaEpisodes } from "../../actions/media.js";
+
+import { useGetMediaEpisodesQuery } from "../../api/v1/media";
 import SelectMediaFileEpisode from "../../Modals/SelectMediaFile/Activators/Episode";
 import SelectMediaFile from "../../Modals/SelectMediaFile/Index";
 
 function MediaEpisodes(props) {
   const { setActiveId } = props;
-  const dispatch = useDispatch();
-
-  const { media } = useSelector((store) => ({
-    media: store.media,
-  }));
 
   const episodesDiv = useRef(null);
-  const { id } = useParams();
 
   useEffect(() => {
     episodesDiv.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  useEffect(() => {
-    dispatch(fetchMediaEpisodes(id, props.seasonID));
-  }, [dispatch, id, props.seasonID]);
-
-  const { episodes } = media[id] || {};
+  const { data: episodes } = useGetMediaEpisodesQuery(props.seasonID);
 
   useEffect(() => {
     if (episodes && episodes[0]) setActiveId(episodes[0].id);
-  }, [id, setActiveId, episodes]);
+  }, [setActiveId, episodes]);
 
   if (!episodes) return null;
 

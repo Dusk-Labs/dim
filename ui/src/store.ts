@@ -3,7 +3,6 @@ import { setupListeners } from "@reduxjs/toolkit/query/react";
 
 import auth from "./reducers/auth";
 import library from "./reducers/library";
-import media from "./reducers/media/index";
 import notifications from "./slices/notifications";
 import settings from "./reducers/settings";
 import user from "./reducers/user";
@@ -20,7 +19,6 @@ export const store = configureStore({
     video,
     settings,
     notifications,
-    media,
     [v1.reducerPath]: v1.reducer,
   },
   middleware: (getDefaultMiddleware) => {

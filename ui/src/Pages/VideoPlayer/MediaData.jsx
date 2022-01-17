@@ -3,16 +3,12 @@ import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 
 import { updateVideo } from "../../actions/video";
-import { fetchMediaInfo } from "../../actions/media";
 
 function VideoMediaData() {
   const params = useParams();
   const dispatch = useDispatch();
 
-  const { video, auth } = useSelector((store) => ({
-    auth: store.auth,
-    video: store.video,
-  }));
+  const auth = useSelector((store) => store.auth);
 
   const { token } = auth;
 
@@ -39,11 +35,6 @@ function VideoMediaData() {
       );
     })();
   }, [dispatch, params.fileID, token]);
-
-  useEffect(() => {
-    if (!video.mediaID) return;
-    dispatch(fetchMediaInfo(video.mediaID));
-  }, [dispatch, video.mediaID]);
 
   return null;
 }

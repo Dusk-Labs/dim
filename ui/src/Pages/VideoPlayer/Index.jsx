@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useParams } from "react-router";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { skipToken } from "@reduxjs/toolkit/query/react";
 import { MediaPlayer, Debug } from "dashjs";
 
 import {
@@ -13,6 +14,7 @@ import {
   clearVideoData,
 } from "../../actions/video";
 import { fetchUserSettings } from "../../actions/settings.js";
+import { useGetMediaFilesQuery, useGetMediaQuery } from "../../api/v1/media";
 import { VideoPlayerContext } from "./Context";
 import VideoEvents from "./Events";
 import VideoMediaData from "./MediaData";
@@ -41,10 +43,8 @@ function VideoPlayer() {
     videoTracks,
     video,
     auth,
-    media,
     settings,
   } = useSelector((store) => ({
-    media: store.media,
     auth: store.auth,
     video: store.video,
     player: store.video.player,
@@ -61,16 +61,21 @@ function VideoPlayer() {
 
   const { token } = auth;
 
-  useEffect(() => {
-    if (!video.mediaID) {
-      document.title = "Dim - Video Player";
-      return;
-    }
+  const { data: media } = useGetMediaQuery(
+    video.mediaID ? video.mediaID : skipToken
+  );
+  const nextEpisodeId = media && media.next_episode_id;
+  const { data: nextMediaFiles } = useGetMediaFilesQuery(
+    nextEpisodeId ? nextEpisodeId : skipToken
+  );
 
-    if (media[video.mediaID]?.info?.data.name) {
-      document.title = `Dim - Playing '${media[video.mediaID].info.data.name}'`;
+  useEffect(() => {
+    if (media) {
+      document.title = `Dim - Playing '${media.name}'`;
+    } else {
+      document.title = "Dim - Video Player";
     }
-  }, [media, video.mediaID]);
+  }, [media]);
 
   // FIXME: Not sure where the best place to do this is, but we need userSettings, but sometimes the user navigates to /play directly so we never fetch userSettings
   useEffect(() => {
@@ -83,19 +88,17 @@ function VideoPlayer() {
   useEffect(() => {
     if (!settings?.userSettings?.data?.enable_autoplay) return;
 
-    const currentMedia = media[video.mediaID];
-    const nextEpisodeId = currentMedia?.info?.data?.next_episode_id;
-    const nextMedia = nextEpisodeId ? media[nextEpisodeId] : null;
-    const item = nextMedia?.files?.items[0];
+    const item = nextMediaFiles && nextMediaFiles[0];
 
     if (!item) return;
 
-    const ts_diff = video.currentTime - currentMedia?.info?.data?.duration;
+    const ts_diff = video.currentTime - media.duration;
     if (video.playback_ended && ts_diff < 10) {
       history.replace(`/play/${item.id}`, { from: history.location.pathname });
     }
   }, [
     media,
+    nextMediaFiles,
     video.mediaID,
     video.currentTime,
     video.playback_ended,
@@ -275,9 +278,7 @@ function VideoPlayer() {
     seekTo,
   };
 
-  const nextEpisodeId = media[video.mediaID]?.info?.data.next_episode_id;
-  const showNextVideoAfter =
-    media[video.mediaID]?.info?.data?.chapters?.credits || 0;
+  const showNextVideoAfter = (media && media.chapters?.credits) || 0;
 
   return (
     <VideoPlayerContext.Provider value={initialValue}>
@@ -299,9 +300,8 @@ function VideoPlayer() {
           {!error &&
             manifest.loaded &&
             video.canPlay &&
-            media[video.mediaID]?.info?.data.progress > 0 && (
-              <ContinueProgress />
-            )}
+            media &&
+            media.progress > 0 && <ContinueProgress />}
           {error && <ErrorBox />}
         </div>
       </div>

@@ -1,38 +1,42 @@
 import { useCallback, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { skipToken } from "@reduxjs/toolkit/query/react";
 import NextVideoIcon from "../../../../assets/Icons/NextVideo";
 
-import { fetchMediaFiles } from "../../../../actions/media";
+import {
+  useGetMediaFilesQuery,
+  useGetMediaQuery,
+} from "../../../../api/v1/media";
 
 function VideoActionNextVideo() {
-  const { media, video } = useSelector((store) => ({
-    media: store.media,
-    video: store.video,
-  }));
+  const video = useSelector((store) => store.video);
 
   const [enabled, setEnable] = useState(false);
 
   const history = useHistory();
-  const dispatch = useDispatch();
-  const currentMedia = media[video.mediaID];
+  const { data: currentMedia } = useGetMediaQuery(
+    video.mediaID ? video.mediaID : skipToken
+  );
 
-  const nextEpisodeId = currentMedia?.info?.data?.next_episode_id;
-  const nextMedia = nextEpisodeId ? media[nextEpisodeId] : null;
+  const nextEpisodeId = currentMedia.next_episode_id;
+
+  const { data: nextMediaFiles } = useGetMediaFilesQuery(
+    nextEpisodeId ? nextEpisodeId : skipToken
+  );
 
   useEffect(() => {
     if (!nextEpisodeId) return;
 
     setEnable(true);
-    dispatch(fetchMediaFiles(nextEpisodeId));
-  }, [dispatch, nextEpisodeId]);
+  }, [nextEpisodeId]);
 
   const nextVideo = useCallback(() => {
-    const item = nextMedia?.files?.items[0];
+    const item = nextMediaFiles[0];
     if (!item) return;
 
     history.replace(`/play/${item.id}`, { from: history.location.pathname });
-  }, [history, nextMedia]);
+  }, [history, nextMediaFiles]);
 
   return (
     <button
