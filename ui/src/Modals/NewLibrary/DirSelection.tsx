@@ -5,6 +5,7 @@ import FolderIcon from "../../assets/Icons/Folder";
 import ArrowLeftIcon from "../../assets/Icons/ArrowLeft";
 import CheckIcon from "../../assets/Icons/Check";
 import Button from "../../Components/Misc/Button";
+import ChevronRight from "../../assets/Icons/ChevronRight";
 
 import "./DirSelection.scss";
 
@@ -102,17 +103,24 @@ function DirSelection(props: Props) {
             key={i}
             className={`dir selected-${selectedFolders.includes(dir)}`}
           >
+            <div className="selectBox" onClick={() => selectFolder(dir)}>
+              <CheckIcon />
+            </div>
             <div className="label" onClick={() => select(dir)}>
               <FolderIcon />
               <p>
                 {dir.replace(current, "").replace("/", "")}
                 <span className="selectedInsideCount">
-                  {count ? ` (${count} folders selected inside)` : ""}
+                  {count
+                    ? ` ${count} ${
+                        count === 1 ? "folder" : "folders"
+                      } selected inside`
+                    : ""}
                 </span>
               </p>
             </div>
-            <div className="selectBox" onClick={() => selectFolder(dir)}>
-              <CheckIcon />
+            <div className="chevron-hint">
+              <ChevronRight />
             </div>
           </div>
         );

@@ -39,9 +39,9 @@
 
     .dir {
       display: grid;
-      grid-template-columns: 1fr 20px;
-      gap: 0.5em;
-      padding: 0 0.5em;
+      grid-template-columns: 20px 1fr 5px;
+      gap: 0.9em;
+      padding: 0 0.9em;
       align-items: center;
       cursor: pointer;
       min-height: 32px;
@@ -49,10 +49,6 @@
 
       &:hover {
         background: var(--modalTertiaryColor);
-      }
-
-      &.selected-false .selectBox {
-        opacity: 0;
       }
 
       &.selected-true .selectBox {
@@ -63,10 +59,6 @@
         }
       }
 
-      &.selected-false:hover .selectBox {
-        opacity: 1;
-      }
-
       .label {
         padding: 0.5em 0;
         width: 100%;
@@ -75,21 +67,26 @@
         // folder icon
         svg {
           margin-right: 10px;
-          fill: var(--tertiaryTextColor);
+          fill: var(--primaryTextColor);
         }
 
         // path name
         p {
+          display: flex;
+          width: 100%;
           margin: 0;
           user-select: none;
           overflow-wrap: break-word;
           overflow: hidden;
           word-break: break-all;
-        }
-      }
 
-      .selectedInsideCount {
-        color: var(--tertiaryTextColor);
+          .selectedInsideCount {
+            color: var(--tertiaryTextColor);
+            margin-left: auto;
+            align-self: center;
+            font-size: 0.8em;
+          }
+        }
       }
 
       .selectBox {
@@ -102,6 +99,7 @@
         border: solid 2px var(--accentColor);
         transition: background 150ms ease-in-out;
         margin-right: 0.5em;
+        opacity: 1;
 
         svg {
           fill: var(--primaryTextColor);
@@ -109,6 +107,13 @@
           overflow: unset;
           opacity: 0;
           transition: opacity 150ms ease-in-out;
+        }
+      }
+
+      .chevron-hint {
+        svg {
+          font-size: 0.5em;
+          fill: var(--tertiaryTextColor);
         }
       }
     }
