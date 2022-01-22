@@ -35,6 +35,18 @@
     }
   }
 
+  &.contrast {
+    height: 4em;
+    width: 4.2em;
+    border-radius: 10px;
+    background-color: var(--modalTertiaryColor);
+    font-size: 0.5em;
+
+    &:hover {
+      background-color: var(--quinaryColor);
+    }
+  }
+
   &.icon {
     border-radius: 10px;
     overflow: hidden;
