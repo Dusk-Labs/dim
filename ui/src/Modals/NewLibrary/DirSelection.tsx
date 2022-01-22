@@ -2,10 +2,10 @@ import { useCallback } from "react";
 
 import { useGetDirectoriesQuery } from "../../api/v1/fileBrowser";
 import FolderIcon from "../../assets/Icons/Folder";
-import ArrowLeftIcon from "../../assets/Icons/ArrowLeft";
 import CheckIcon from "../../assets/Icons/Check";
 import Button from "../../Components/Misc/Button";
 import ChevronRight from "../../assets/Icons/ChevronRight";
+import ChevronLeft from "../../assets/Icons/ChevronLeft";
 
 import "./DirSelection.scss";
 
@@ -133,8 +133,34 @@ function DirSelection(props: Props) {
 
   return (
     <div className="dirSelection">
+      <div className="controls">
+        <Button
+          onClick={goBack}
+          disabled={current === ""}
+          type="secondary contrast"
+        >
+          <ChevronLeft />
+        </Button>
+        <Button
+          onClick={goBack}
+          disabled={current === ""}
+          type="secondary contrast"
+        >
+          <ChevronRight />
+        </Button>
+        <div className="current-folder-label">
+          <p className="current-label">Currently in:</p>
+          <p className="current">{current?.length === 0 ? "/" : current}</p>
+        </div>
+      </div>
+      <div className="dirs-wrapper">
+        <div className="dirs">{dirs}</div>
+      </div>
       <div className="header">
-        <h4>Select folders containing media ({selectedFolders.length})</h4>
+        <div className="folders-selected-cnt">
+          <h4>Folders selected:</h4>
+          <h4>{selectedFolders.length}</h4>
+        </div>
         <div className="actions">
           <Button
             disabled={selectedFolders.length <= 0}
@@ -151,15 +177,6 @@ function DirSelection(props: Props) {
             Select all
           </Button>
         </div>
-      </div>
-      <div className="dirs-wrapper">
-        <div className="dirs">{dirs}</div>
-      </div>
-      <div className="controls">
-        <Button onClick={goBack} disabled={current === ""}>
-          <ArrowLeftIcon />
-        </Button>
-        <p className="current">{current}</p>
       </div>
     </div>
   );

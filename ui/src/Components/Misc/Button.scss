@@ -42,7 +42,7 @@
     background-color: var(--modalTertiaryColor);
     font-size: 0.5em;
 
-    &:hover {
+    &:not(.disabled):hover {
       background-color: var(--quinaryColor);
     }
   }

@@ -4,7 +4,7 @@
   .header {
     display: flex;
     gap: 0.5em;
-    margin-bottom: 0.5em;
+    margin-top: 0.7em;
     justify-content: space-between;
     flex-wrap: wrap;
 
@@ -120,13 +120,37 @@
   }
 
   .controls {
-    margin-top: 0.5em;
+    margin-bottom: 1em;
     display: flex;
     align-items: center;
+    gap: 0.4em;
 
-    .current {
-      margin-left: 0.5em;
-      font-family: "Roboto Condensed Regular", Arial;
+    .current-folder-label {
+      display: flex;
+      margin-right: 0.6em;
+
+      .current-label {
+        color: #e4e4e4;
+        font-weight: bold;
+      }
+      .current {
+        margin-left: 0.5em;
+        font-family: "Roboto Condensed Regular", Arial;
+        color: #9e9e9e;
+      }
+    }
+  }
+
+  .folders-selected-cnt {
+    display: flex;
+
+    & > h4:nth-of-type(1) {
+      color: #9e9e9e;
+    }
+
+    & > h4:nth-of-type(2) {
+      color: #eaeaea;
+      padding-left: 0.4em;
     }
   }
 }
