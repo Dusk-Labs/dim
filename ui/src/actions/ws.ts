@@ -19,7 +19,13 @@ export const wsConnect =
     dispatch({ type: WS_CONNECT_START });
 
     const webSocketUrl = (() => {
-      const url = new URL("/ws", window.location.href);
+      // NOTE(val): this is needed because webpack fails to proxy traffic through when in dev-mode.
+      //            this line is necessary even when using `proxy` in `package.json` or `http-proxy-middleware`.
+      const base =
+        process.env.NODE_ENV === "development"
+          ? `http://${window.location.hostname}:8000`
+          : window.location.href;
+      const url = new URL("/ws", base);
       url.protocol = url.protocol.replace("http", "ws");
       // Create React App's proxy feature has not worked consistently. This makes WebSocket
       // connections directly to the server instead of proxying through Create React App.
