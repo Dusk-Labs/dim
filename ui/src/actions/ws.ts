@@ -21,6 +21,9 @@ export const wsConnect =
     const webSocketUrl = (() => {
       const url = new URL("/ws", window.location.href);
       url.protocol = url.protocol.replace("http", "ws");
+      if (process.env.NODE_ENV === "development") {
+        url.port = "8000";
+      }
       return url.href;
     })();
 
