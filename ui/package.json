@@ -3,7 +3,6 @@
   "dependencies": {
     "@reduxjs/toolkit": "^1.7.1",
     "dashjs": "=4.1.0",
-    "http-proxy-middleware": "^2.0.1",
     "libass-wasm": "https://github.com/jellyfin/JavascriptSubtitlesOctopus",
     "node-sass": "^6.0.0",
     "react": "^17.0.2",
