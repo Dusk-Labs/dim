@@ -128,15 +128,18 @@
     .current-folder-label {
       display: flex;
       margin-right: 0.6em;
+      align-items: center;
 
       .current-label {
         color: #e4e4e4;
         font-weight: bold;
+        min-width: fit-content;
       }
       .current {
         margin-left: 0.5em;
         font-family: "Roboto Condensed Regular", Arial;
         color: #9e9e9e;
+        word-break: break-word;
       }
     }
   }
