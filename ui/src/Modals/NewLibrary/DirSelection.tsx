@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import { useGetDirectoriesQuery } from "../../api/v1/fileBrowser";
 import FolderIcon from "../../assets/Icons/Folder";
@@ -18,6 +18,7 @@ interface Props {
 
 function DirSelection(props: Props) {
   const { current, setCurrent, selectedFolders, setSelectedFolders } = props;
+  const [forwardHistory, setForwardHistory] = useState<string[]>([]);
 
   const { data: items, error, isFetching } = useGetDirectoriesQuery(current);
 
@@ -63,19 +64,38 @@ function DirSelection(props: Props) {
 
   const select = useCallback(
     (path) => {
+      const history = [...forwardHistory];
+
+      // This truncates our forward history till we get to the item thats equivalent to our current path.
+      while (history.length !== 0) {
+        if (history.pop() === current) break;
+      }
+
+      setForwardHistory(history);
       setCurrent(path);
     },
-    [setCurrent]
+    [current, setCurrent, forwardHistory, setForwardHistory]
   );
 
   const goBack = useCallback(() => {
     if (current.length === 0) return;
 
+    const history = [...forwardHistory];
     const path = current.split("/");
 
+    history.push(current);
     path.pop();
-    select(path.join("/"));
-  }, [current, select]);
+    setCurrent(path.join("/"));
+    setForwardHistory(history);
+  }, [current, setCurrent, forwardHistory, setForwardHistory]);
+
+  const goForward = useCallback(() => {
+    const history = [...forwardHistory];
+    if (history.length === 0) return;
+
+    setCurrent(history.pop()!);
+    setForwardHistory(history);
+  }, [setCurrent, forwardHistory, setForwardHistory]);
 
   let dirs;
 
@@ -142,8 +162,8 @@ function DirSelection(props: Props) {
           <ChevronLeft />
         </Button>
         <Button
-          onClick={goBack}
-          disabled={current === ""}
+          onClick={goForward}
+          disabled={forwardHistory.length === 0}
           type="secondary contrast"
         >
           <ChevronRight />
