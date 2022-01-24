@@ -1,10 +1,11 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import { useGetDirectoriesQuery } from "../../api/v1/fileBrowser";
 import FolderIcon from "../../assets/Icons/Folder";
-import ArrowLeftIcon from "../../assets/Icons/ArrowLeft";
 import CheckIcon from "../../assets/Icons/Check";
 import Button from "../../Components/Misc/Button";
+import ChevronRight from "../../assets/Icons/ChevronRight";
+import ChevronLeft from "../../assets/Icons/ChevronLeft";
 
 import "./DirSelection.scss";
 
@@ -17,6 +18,7 @@ interface Props {
 
 function DirSelection(props: Props) {
   const { current, setCurrent, selectedFolders, setSelectedFolders } = props;
+  const [forwardHistory, setForwardHistory] = useState<string[]>([]);
 
   const { data: items, error, isFetching } = useGetDirectoriesQuery(current);
 
@@ -62,19 +64,38 @@ function DirSelection(props: Props) {
 
   const select = useCallback(
     (path) => {
+      const history = [...forwardHistory];
+
+      // This truncates our forward history till we get to the item thats equivalent to our current path.
+      while (history.length !== 0) {
+        if (history.pop() === current) break;
+      }
+
+      setForwardHistory(history);
       setCurrent(path);
     },
-    [setCurrent]
+    [current, setCurrent, forwardHistory, setForwardHistory]
   );
 
   const goBack = useCallback(() => {
     if (current.length === 0) return;
 
+    const history = [...forwardHistory];
     const path = current.split("/");
 
+    history.push(current);
     path.pop();
-    select(path.join("/"));
-  }, [current, select]);
+    setCurrent(path.join("/"));
+    setForwardHistory(history);
+  }, [current, setCurrent, forwardHistory, setForwardHistory]);
+
+  const goForward = useCallback(() => {
+    const history = [...forwardHistory];
+    if (history.length === 0) return;
+
+    setCurrent(history.pop()!);
+    setForwardHistory(history);
+  }, [setCurrent, forwardHistory, setForwardHistory]);
 
   let dirs;
 
@@ -102,17 +123,24 @@ function DirSelection(props: Props) {
             key={i}
             className={`dir selected-${selectedFolders.includes(dir)}`}
           >
+            <div className="selectBox" onClick={() => selectFolder(dir)}>
+              <CheckIcon />
+            </div>
             <div className="label" onClick={() => select(dir)}>
               <FolderIcon />
               <p>
                 {dir.replace(current, "").replace("/", "")}
                 <span className="selectedInsideCount">
-                  {count ? ` (${count} folders selected inside)` : ""}
+                  {count
+                    ? ` ${count} ${
+                        count === 1 ? "folder" : "folders"
+                      } selected inside`
+                    : ""}
                 </span>
               </p>
             </div>
-            <div className="selectBox" onClick={() => selectFolder(dir)}>
-              <CheckIcon />
+            <div className="chevron-hint">
+              <ChevronRight />
             </div>
           </div>
         );
@@ -125,8 +153,34 @@ function DirSelection(props: Props) {
 
   return (
     <div className="dirSelection">
+      <div className="controls">
+        <Button
+          onClick={goBack}
+          disabled={current === ""}
+          type="secondary contrast"
+        >
+          <ChevronLeft />
+        </Button>
+        <Button
+          onClick={goForward}
+          disabled={forwardHistory.length === 0}
+          type="secondary contrast"
+        >
+          <ChevronRight />
+        </Button>
+        <div className="current-folder-label">
+          <p className="current-label">Currently in:</p>
+          <p className="current">{current?.length === 0 ? "/" : current}</p>
+        </div>
+      </div>
+      <div className="dirs-wrapper">
+        <div className="dirs">{dirs}</div>
+      </div>
       <div className="header">
-        <h4>Select folders containing media ({selectedFolders.length})</h4>
+        <div className="folders-selected-cnt">
+          <h4>Folders selected:</h4>
+          <h4>{selectedFolders.length}</h4>
+        </div>
         <div className="actions">
           <Button
             disabled={selectedFolders.length <= 0}
@@ -143,15 +197,6 @@ function DirSelection(props: Props) {
             Select all
           </Button>
         </div>
-      </div>
-      <div className="dirs-wrapper">
-        <div className="dirs">{dirs}</div>
-      </div>
-      <div className="controls">
-        <Button onClick={goBack} disabled={current === ""}>
-          <ArrowLeftIcon />
-        </Button>
-        <p className="current">{current}</p>
       </div>
     </div>
   );
