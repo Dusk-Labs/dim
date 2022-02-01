@@ -29,7 +29,7 @@ fn main() {
     let config_path = args
         .config
         .map(|x| x.to_string_lossy().to_string())
-        .unwrap_or(dim::utils::ffpath("config/config.toml").to_string());
+        .unwrap_or(dim::utils::ffpath("config/config.toml"));
 
     // initialize global settings.
     dim::init_global_settings(Some(config_path)).expect("Failed to initialize global settings.");
