@@ -1,9 +1,20 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
-function ImageLoad(props) {
+interface Props {
+  children: (args: {
+    imageSrc: string | null;
+    loaded: boolean;
+    error: boolean;
+    setErr: React.Dispatch<React.SetStateAction<boolean>>;
+  }) => React.ReactElement;
+  src: string;
+  triggerAnimation: string;
+}
+
+function ImageLoad(props: Props) {
   const [show, setShow] = useState(false);
-  const [signal, setSignal] = useState();
-  const [timeoutID, setTimeoutID] = useState();
+  const [signal, setSignal] = useState<AbortSignal | null>(null);
+  const [timeoutID, setTimeoutID] = useState<number | null>(null);
 
   const [loaded, setLoaded] = useState(false);
   const [error, setErr] = useState(false);
@@ -11,8 +22,8 @@ function ImageLoad(props) {
   const [tryAgain, setTryAgain] = useState(false);
   const [tryAgainCount, setTryAgainCount] = useState(2);
 
-  const [imageSrc, setImageSrc] = useState();
-  const [currentSrc, setCurrentSrc] = useState();
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [currentSrc, setCurrentSrc] = useState<string | null>(null);
 
   /*
     the difference in time between the imageObject being set and
@@ -26,9 +37,9 @@ function ImageLoad(props) {
 
   const fetchImage = useCallback(async () => {
     setLoaded(false);
-    setImageSrc();
+    setImageSrc(null);
     setTryAgain(false);
-    setTimeoutID();
+    setTimeoutID(null);
 
     const src = new RegExp("^(?:[a-z]+:)?//").test(props.src)
       ? props.src
@@ -78,7 +89,7 @@ function ImageLoad(props) {
     if (tryAgain && !timeoutID) {
       setTryAgainCount((state) => state - 1);
 
-      const id = setTimeout(() => {
+      const id = window.setTimeout(() => {
         fetchImage();
       }, 3000);
 

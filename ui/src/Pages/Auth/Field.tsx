@@ -1,8 +1,19 @@
-import { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import TimesCircleIcon from "../../assets/Icons/TimesCircle";
 import UserIcon from "../../assets/Icons/User";
 import KeyIcon from "../../assets/Icons/Key";
+
+interface Props {
+  name: string;
+  icon: string;
+  data: [string, React.Dispatch<React.SetStateAction<string>>];
+  error: [string, React.Dispatch<React.SetStateAction<string>>];
+  type: string;
+  placeholder: string;
+  autocomplete: string;
+  maxLength?: string;
+}
 
 function Field({
   name,
@@ -13,7 +24,7 @@ function Field({
   placeholder = "",
   autocomplete = "off",
   maxLength,
-}) {
+}: Props) {
   const [value, setValue] = data;
   const [err, setErr] = error;
 
@@ -24,7 +35,7 @@ function Field({
       const newValue = e.target.value;
 
       if (type === "number") {
-        setValue(parseInt(newValue));
+        setValue(parseInt(newValue, 10).toString());
         return;
       }
 
@@ -47,7 +58,7 @@ function Field({
         )}
       </div>
       <input
-        maxLength={maxLength || "524288"}
+        maxLength={parseInt(maxLength ?? "524288", 10)}
         placeholder={placeholder}
         onChange={handleOnChange}
         value={value}
