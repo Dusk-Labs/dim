@@ -109,6 +109,25 @@ function VideoActionVolume() {
     [dragging]
   );
 
+  const handleWheelEvent = useCallback(
+    (e) => {
+      if (e.deltaY > 0) {
+        let newVolume = currentVolume - 5;
+        if (newVolume < 0) {
+          newVolume = 0;
+        }
+        setCurrentVolume(newVolume);
+      } else if (e.deltaY < 0) {
+        let newVolume = currentVolume + 5;
+        if (newVolume > 100) {
+          newVolume = 100;
+        }
+        setCurrentVolume(newVolume);
+      }
+    },
+    [currentVolume]
+  );
+
   useEffect(() => {
     localStorage.setItem("videoVolume", currentVolume);
   }, [currentVolume]);
@@ -149,6 +168,7 @@ function VideoActionVolume() {
     volSlider.addEventListener("mousemove", handleMouseMove);
 
     document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("wheel", handleWheelEvent);
 
     return () => {
       volSlider.removeEventListener("click", handleClick);
@@ -157,6 +177,7 @@ function VideoActionVolume() {
       volSlider.removeEventListener("mousemove", handleMouseMove);
 
       document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("wheel", handleWheelEvent);
     };
   }, [
     handleClick,
@@ -164,6 +185,7 @@ function VideoActionVolume() {
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
+    handleWheelEvent,
   ]);
 
   return (
