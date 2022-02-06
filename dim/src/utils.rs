@@ -458,17 +458,17 @@ pub fn ts_to_xml(t: u64) -> String {
 }
 
 #[cfg(not(debug_assertions))]
-pub fn ffpath(bin: impl AsRef<str>) -> &'static str {
+pub fn ffpath(bin: impl AsRef<str>) -> String {
     let mut path = std::env::current_exe().expect("Failed to grab path to the `dim` binary.");
     path.pop(); // remove the dim bin to get the dir of `dim`
     path.push(bin.as_ref());
 
-    Box::leak(path.to_string_lossy().to_string().into_boxed_str())
+    path.to_string_lossy().to_string()
 }
 
 #[cfg(debug_assertions)]
-pub fn ffpath(bin: impl AsRef<str>) -> &'static str {
-    Box::leak(bin.as_ref().to_string().into_boxed_str())
+pub fn ffpath(bin: impl AsRef<str>) -> String {
+    bin.as_ref().to_string()
 }
 
 pub fn codec_pretty(codec: &str) -> String {
