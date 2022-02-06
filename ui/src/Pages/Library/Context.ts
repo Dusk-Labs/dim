@@ -28,4 +28,13 @@ interface LibraryContext {
 // Intentionally naming the variable the same as the type.
 // See: https://github.com/typescript-eslint/typescript-eslint/issues/2585
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const LibraryContext = createContext<LibraryContext | null>(null);
+export const LibraryContext = createContext<LibraryContext>({
+  setShowUnmatched: () => {},
+  showUnmatched: false,
+  unmatched: {
+    items: {},
+    fetching: false,
+    fetched: false,
+    error: null,
+  },
+});

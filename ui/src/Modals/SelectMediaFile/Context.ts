@@ -1,9 +1,9 @@
-import { createContext } from "react";
+import React, { createContext } from "react";
 
 export interface SelectMediaFileContext {
   open: () => void;
   close: () => void;
-  currentID?: number | null;
+  currentID: number | null;
   setClicked: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
