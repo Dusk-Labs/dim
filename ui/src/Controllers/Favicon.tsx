@@ -5,9 +5,16 @@ function FaviconController() {
     true: white logo (dark mode)
     false: black logo (light mode)
   */
-  const updateLogo = (color) => {
+  const updateLogo = (color: boolean) => {
     const favicon = document.getElementById("favicon");
     const textFavicon = document.getElementById("textFavicon");
+
+    if (
+      !(favicon instanceof HTMLLinkElement) ||
+      !(textFavicon instanceof HTMLLinkElement)
+    ) {
+      return;
+    }
 
     if (color) {
       favicon.href = "/static/logoWhite128.png";
