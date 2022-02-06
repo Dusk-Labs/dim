@@ -1,11 +1,21 @@
 import "./ProgressBar.scss";
-import CircleIcon from "../../../assets/Icons/Circle";
+import CircleIcon from "assets/Icons/Circle";
 
-function ProgressBar(props) {
-  const { season, episode } = props.data;
-  let { delta, duration } = props.data;
+interface ProgressBarData {
+  season: number;
+  episode: number;
+  delta: number;
+  duration: number;
+}
 
-  delta = !delta ? 0 : delta;
+interface Props {
+  data: ProgressBarData;
+}
+
+function ProgressBar(props: Props) {
+  const { delta, season, episode } = props.data;
+  let { duration } = props.data;
+
   duration = Math.round(duration / 60);
 
   const current = Math.round(delta / 60);
