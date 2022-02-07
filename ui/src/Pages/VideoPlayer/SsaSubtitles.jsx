@@ -13,10 +13,10 @@ function VideoSubtitles() {
     subtitle: store.video.tracks.subtitle,
   }));
 
+  const currentSub = subtitle.list[subtitle.current];
+
   const isAssEnabled = localStorage.getItem("enable_ssa") === "true";
-  const isAss =
-    isAssEnabled &&
-    subtitle.list[subtitle.current]?.chunk_path?.endsWith("ass");
+  const isAss = !!(isAssEnabled && currentSub?.chunk_path?.endsWith("ass"));
   const [octopus, setOctopus] = useState();
   const { videoRef } = useContext(VideoPlayerContext);
 
@@ -29,6 +29,8 @@ function VideoSubtitles() {
       !videoRef
     )
       return;
+
+    console.log("[INFO] Loading ASS subtitle");
 
     const chunk_path = `//${window.location.host}/api/v1/stream/${
       subtitle.list[subtitle.current].chunk_path
@@ -61,6 +63,14 @@ function VideoSubtitles() {
     }`;
     octopus.setTrackByUrl(chunk_path);
   }, [octopus, video.textTrackEnabled, video.prevSubs, subtitle, isAss]);
+
+  useEffect(() => {
+    if (octopus && !isAss) {
+      console.log("[subtitle] disposing of octopus ctx");
+      octopus.dispose();
+      setOctopus(null);
+    }
+  }, [octopus, setOctopus, isAss]);
 
   return null;
 }
