@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { VideoPlayerContext } from "../../Context";
 
 import VolumeUpIcon from "../../../../assets/Icons/VolumeUp";
 import VolumeMuteIcon from "../../../../assets/Icons/VolumeMute";
@@ -8,10 +9,10 @@ import { updateVideo } from "../../../../actions/video";
 
 function VideoActionVolume() {
   const dispatch = useDispatch();
+  const { player } = useContext(VideoPlayerContext);
 
-  const { video, player } = useSelector((store) => ({
+  const { video } = useSelector((store) => ({
     video: store.video,
-    player: store.video.player,
   }));
 
   const volSliderRef = useRef(null);

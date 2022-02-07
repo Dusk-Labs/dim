@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import SeekingTo from "./SeekingTo";
+import { VideoPlayerContext } from "../Context";
 
 import "./SeekBar.scss";
 import { updateVideo } from "../../../actions/video";
@@ -9,10 +10,11 @@ import { updateVideo } from "../../../actions/video";
 function VideoSeekBar(props) {
   const dispatch = useDispatch();
 
-  const { auth, video, player } = useSelector((store) => ({
+  const { player } = useContext(VideoPlayerContext);
+
+  const { auth, video } = useSelector((store) => ({
     auth: store.auth,
     video: store.video,
-    player: store.video.player,
   }));
 
   const seekBar = useRef(null);
