@@ -18,9 +18,7 @@ const BannerImage = (props: Props) => (
         error: boolean;
         setErr: Dispatch<SetStateAction<boolean>>;
       }) => {
-        if (error) {
-          return <div className="placeholder" />;
-        } else if (imageSrc != null) {
+        if (imageSrc != null) {
           return (
             <img
               src={imageSrc}
@@ -30,6 +28,8 @@ const BannerImage = (props: Props) => (
             />
           );
         }
+
+        return <div className="placeholder" />;
       }}
     </ImageLoad>
   </div>
