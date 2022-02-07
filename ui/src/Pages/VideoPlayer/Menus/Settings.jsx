@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { updateVideo, updateTrack } from "../../../actions/video";
+
+import { VideoPlayerContext } from "../Context";
 
 import ArrowLeftIcon from "../../../assets/Icons/ArrowLeft";
 import ChevronRightIcon from "../../../assets/Icons/ChevronRight";
@@ -9,8 +11,9 @@ import ChevronRightIcon from "../../../assets/Icons/ChevronRight";
 function VideoMenuSettings() {
   const dispatch = useDispatch();
 
-  const { player, video } = useSelector((store) => ({
-    player: store.video.player,
+  const { player } = useContext(VideoPlayerContext);
+
+  const { video } = useSelector((store) => ({
     video: store.video,
   }));
 

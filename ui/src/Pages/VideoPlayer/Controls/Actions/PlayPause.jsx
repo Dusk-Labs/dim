@@ -1,17 +1,20 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import PlayIcon from "../../../../assets/Icons/Play";
 import PauseIcon from "../../../../assets/Icons/Pause";
+
+import { VideoPlayerContext } from "../../Context";
 
 import { updateVideo } from "../../../../actions/video";
 
 function VideoActionPlayPause() {
   const dispatch = useDispatch();
 
-  const { video, player } = useSelector((store) => ({
+  const { player } = useContext(VideoPlayerContext);
+
+  const { video } = useSelector((store) => ({
     video: store.video,
-    player: store.video.player,
   }));
 
   const play = useCallback(() => {

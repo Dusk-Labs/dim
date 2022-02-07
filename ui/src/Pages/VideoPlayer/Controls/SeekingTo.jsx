@@ -1,13 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useCallback, useEffect, useRef, useState, useContext } from "react";
 import { formatHHMMSS } from "../../../Helpers/utils";
+import { VideoPlayerContext } from "../Context";
 
 import "./SeekingTo.scss";
 
 function SeekingTo(props) {
-  const { player } = useSelector((store) => ({
-    player: store.video.player,
-  }));
+  const { player } = useContext(VideoPlayerContext);
 
   const seekingToDiv = useRef(null);
 

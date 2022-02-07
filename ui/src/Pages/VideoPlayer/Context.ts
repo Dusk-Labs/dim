@@ -5,6 +5,7 @@ interface VideoPlayerContext {
   videoPlayer: React.MutableRefObject<HTMLDivElement | null>;
   overlay: HTMLDivElement | null;
   seekTo: (newTime: number) => void;
+  player: dashjs.MediaPlayerClass;
 }
 
 // Intentionally naming the variable the same as the type.
