@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,26 +34,18 @@ function VideoPlayer() {
   const params = useParams();
   const dispatch = useDispatch();
   const history = useHistory();
+  const [player, setPlayer] = useState();
 
-  const {
-    error,
-    manifest,
-    player,
-    audioTracks,
-    videoTracks,
-    video,
-    auth,
-    settings,
-  } = useSelector((store) => ({
-    auth: store.auth,
-    video: store.video,
-    player: store.video.player,
-    manifest: store.video.manifest,
-    videoTracks: store.video.tracks.video,
-    audioTracks: store.video.tracks.audio,
-    error: store.video.error,
-    settings: store.settings,
-  }));
+  const { error, manifest, audioTracks, videoTracks, video, auth, settings } =
+    useSelector((store) => ({
+      auth: store.auth,
+      video: store.video,
+      manifest: store.video.manifest,
+      videoTracks: store.video.tracks.video,
+      audioTracks: store.video.tracks.audio,
+      error: store.video.error,
+      settings: store.settings,
+    }));
 
   const videoPlayer = useRef(null);
   const overlay = useRef(null);
@@ -226,11 +218,7 @@ function VideoPlayer() {
     mediaPlayer.initialize(videoRef.current, url, true);
     mediaPlayer.setCustomInitialTrackSelectionFunction(getInitialTrack);
 
-    dispatch(
-      updateVideo({
-        player: mediaPlayer,
-      })
-    );
+    setPlayer(mediaPlayer);
 
     return () => {
       dispatch(clearVideoData());
@@ -250,6 +238,7 @@ function VideoPlayer() {
     manifest.virtual.loaded,
     video.gid,
     videoTracks.list,
+    setPlayer,
   ]);
 
   const seekTo = useCallback(
@@ -276,6 +265,7 @@ function VideoPlayer() {
     videoPlayer,
     overlay: overlay.current,
     seekTo,
+    player,
   };
 
   const showNextVideoAfter = (media && media.chapters?.credits) || 0;

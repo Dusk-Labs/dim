@@ -1,6 +1,8 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { MediaPlayer } from "dashjs";
+
+import { VideoPlayerContext } from "./Context";
 
 import {
   setManifestState,
@@ -10,10 +12,10 @@ import {
 
 function VideoEvents() {
   const dispatch = useDispatch();
+  const { player } = useContext(VideoPlayerContext);
 
-  const { video, player } = useSelector((store) => ({
+  const { video } = useSelector((store) => ({
     video: store.video,
-    player: store.video.player,
   }));
 
   const eManifestLoad = useCallback(() => {
