@@ -1,10 +1,18 @@
-import { useCallback } from "react";
+import { PropsWithChildren, useCallback } from "react";
 
 import ModalBox from "./Index";
 
 import "./ConfirmationBox.scss";
 
-const ConfirmationBox = (props) => {
+interface Props {
+  action: () => void;
+  title: string;
+  msg: string;
+  cancelText: string;
+  confirmText: string;
+}
+
+export const ConfirmationBox = (props: PropsWithChildren<Props>) => {
   const { action } = props;
 
   const confirmAction = useCallback(
@@ -17,7 +25,7 @@ const ConfirmationBox = (props) => {
 
   return (
     <ModalBox activatingComponent={props.children}>
-      {(closeModal) => (
+      {(closeModal: () => void) => (
         <div className="modalConfirmation">
           <h3>{props.title}</h3>
           <div className="separator" />
