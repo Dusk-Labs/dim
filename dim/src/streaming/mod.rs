@@ -8,8 +8,9 @@ use crate::utils::ffpath;
 
 lazy_static::lazy_static! {
     pub static ref STREAMING_SESSION: Arc<RwLock<HashMap<String, HashMap<String, String>>>> = Arc::new(RwLock::new(HashMap::new()));
-    pub static ref FFMPEG_BIN: &'static str = Box::leak(ffpath("utils/ffmpeg").into_boxed_str());
-    pub static ref FFPROBE_BIN: &'static str = Box::leak(ffpath("utils/ffprobe").into_boxed_str());
+    pub static ref FF_PATH: (String, String) = find_ff_path();
+    pub static ref FFMPEG_BIN: &'static str = Box::leak(ffpath(FF_PATH.0.as_str()).into_boxed_str());
+    pub static ref FFPROBE_BIN: &'static str = Box::leak(ffpath(FF_PATH.1.as_str()).into_boxed_str());
 }
 
 use std::process::Command;
@@ -47,6 +48,25 @@ pub fn ffcheck() -> Vec<Result<Box<str>, &'static str>> {
     }
 
     results
+}
+
+#[cfg(feature = "system_ff")]
+fn find_ff_path() -> (String, String) {
+    let ffmpeg_bin = which::which("ffmpeg")
+        .expect("Could not find ffmpeg in system!")
+        .display()
+        .to_string();
+    let ffprobe_bin = which::which("ffprobe")
+        .expect("Could not find ffprobe in system!")
+        .display()
+        .to_string();
+
+    (ffmpeg_bin, ffprobe_bin)
+}
+
+#[cfg(not(feature = "system_ff"))]
+fn find_ff_path() -> (String, String) {
+    (String::from("utils/ffmpeg"), String::from("utils/ffprobe"))
 }
 
 #[derive(Clone, Copy)]
