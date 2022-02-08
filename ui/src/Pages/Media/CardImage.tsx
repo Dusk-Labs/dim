@@ -1,12 +1,17 @@
-import ImageLoad from "../../Components/ImageLoad";
-import DimLogo from "../../assets/DimLogo";
+import DimLogo from "assets/DimLogo";
+import ImageLoad, { ImageLoadChildrenParams } from "Components/ImageLoad";
 
-const CardImage = (props) => (
+interface Props {
+  progress?: number;
+  src: string;
+}
+
+export const CardImage = (props: Props) => (
   <div className="mediaCardImage">
     <ImageLoad src={props.src} triggerAnimation="onHideImage">
-      {({ imageSrc, loaded, error, setErr }) => (
+      {({ imageSrc, loaded, error, setErr }: ImageLoadChildrenParams) => (
         <>
-          {loaded && !error && (
+          {loaded && !error && imageSrc != null && (
             <img src={imageSrc} alt="cover" onError={() => setErr(true)} />
           )}
           {error && (

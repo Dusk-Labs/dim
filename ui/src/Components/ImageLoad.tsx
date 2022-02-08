@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 
+export interface ImageLoadChildrenParams {
+  imageSrc: string | null;
+  loaded: boolean;
+  error: boolean;
+  setErr: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
 interface Props {
-  children: (args: {
-    imageSrc: string | null;
-    loaded: boolean;
-    error: boolean;
-    setErr: React.Dispatch<React.SetStateAction<boolean>>;
-  }) => React.ReactElement;
+  children: (params: ImageLoadChildrenParams) => React.ReactElement;
   src: string;
   triggerAnimation: string;
 }
