@@ -1,5 +1,6 @@
 pub mod ffprobe;
 
+use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
@@ -58,19 +59,19 @@ pub fn ffcheck(use_system_ffmpeg: bool) -> Vec<Result<Box<str>, String>> {
 }
 
 fn find_ff_path(use_system_ffmpeg: bool) -> (String, String) {
-    if use_system_ffmpeg {
-        let ffmpeg = which::which("ffmpeg");
-        let ffprobe = which::which("ffprobe");
-        if let Ok(ffmpeg) = ffmpeg {
-            if let Ok(ffprobe) = ffprobe {
-                if let Some(ffmpeg) = ffmpeg.to_str() {
-                    if let Some(ffprobe) = ffprobe.to_str() {
-                        info!("Using system ffmpeg and ffprobe!");
-                        return (ffmpeg.to_string(), ffprobe.to_string());
-                    }
-                }
-            }
+    fn find_system_ff(use_system_ffmpeg: bool) -> Option<(String, String)> {
+        if use_system_ffmpeg {
+            let ffmpeg = which::which("ffmpeg").ok()?.to_str()?.to_string();
+            let ffprobe = which::which("ffprobe").ok()?.to_str()?.to_string();
+            return Some((ffmpeg, ffprobe));
         }
+
+        None
+    }
+
+    if let Some((ffmpeg, ffprobe)) = find_system_ff(use_system_ffmpeg) {
+        info!("Using system ffmpeg and ffprobe!");
+        return (ffmpeg, ffprobe);
     }
     info!("Using non-system ffmpeg and ffprobe!");
 
