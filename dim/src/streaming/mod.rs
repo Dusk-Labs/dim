@@ -6,6 +6,8 @@ use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::sync::RwLock;
 
+use tracing::info;
+
 use crate::utils::ffpath;
 
 lazy_static::lazy_static! {
@@ -63,12 +65,14 @@ fn find_ff_path(use_system_ffmpeg: bool) -> (String, String) {
             if let Ok(ffprobe) = ffprobe {
                 if let Some(ffmpeg) = ffmpeg.to_str() {
                     if let Some(ffprobe) = ffprobe.to_str() {
+                        info!("Using system ffmpeg and ffprobe!");
                         return (ffmpeg.to_string(), ffprobe.to_string());
                     }
                 }
             }
         }
     }
+    info!("Using non-system ffmpeg and ffprobe!");
 
     (String::from("utils/ffmpeg"), String::from("utils/ffprobe"))
 }
