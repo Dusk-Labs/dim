@@ -9,9 +9,9 @@ interface Props {
   icon: string;
   data: [string, React.Dispatch<React.SetStateAction<string>>];
   error: [string, React.Dispatch<React.SetStateAction<string>>];
-  type: string;
-  placeholder: string;
-  autocomplete: string;
+  type?: string;
+  placeholder?: string;
+  autocomplete?: string;
   maxLength?: string;
 }
 

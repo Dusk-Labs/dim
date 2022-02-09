@@ -2,8 +2,12 @@ import { useState, useEffect, useCallback } from "react";
 
 import "./Image.scss";
 
-function ProfileImage(props) {
-  const [currentSrc, setCurrentSrc] = useState();
+interface Props {
+  src: string;
+}
+
+function ProfileImage(props: Props) {
+  const [currentSrc, setCurrentSrc] = useState<string | null>(null);
   const [show, setShow] = useState(false);
 
   const [loaded, setLoaded] = useState(false);
@@ -57,7 +61,7 @@ function ProfileImage(props) {
       className={`profileImage show-${show && loaded}`}
       onAnimationEnd={swapSrc}
     >
-      {!error && loaded && (
+      {!error && loaded && currentSrc && (
         <img src={currentSrc} key={currentSrc} alt="Profile" />
       )}
       {error && loaded && <div className="placeholder" />}

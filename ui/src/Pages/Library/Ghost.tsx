@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 function GhostCards() {
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
 
   const [count, setCount] = useState(0);
 
