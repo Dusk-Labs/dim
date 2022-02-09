@@ -459,15 +459,11 @@ pub fn ts_to_xml(t: u64) -> String {
 
 #[cfg(not(debug_assertions))]
 pub fn ffpath(bin: impl AsRef<str>) -> String {
-    if !cfg!(feature = "system_ff") {
-        let mut path = std::env::current_exe().expect("Failed to grab path to the `dim` binary.");
-        path.pop(); // remove the dim bin to get the dir of `dim`
-        path.push(bin.as_ref());
-    
-        path.to_string_lossy().to_string()
-    } else {
-        bin.as_ref().to_string()
-    }
+    let mut path = std::env::current_exe().expect("Failed to grab path to the `dim` binary.");
+    path.pop(); // remove the dim bin to get the dir of `dim`
+    path.push(bin.as_ref());
+
+    path.to_string_lossy().to_string()
 }
 
 #[cfg(debug_assertions)]

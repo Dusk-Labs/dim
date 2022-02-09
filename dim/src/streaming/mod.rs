@@ -1,6 +1,8 @@
 pub mod ffprobe;
 
 use std::collections::HashMap;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::sync::RwLock;
 
@@ -8,9 +10,10 @@ use crate::utils::ffpath;
 
 lazy_static::lazy_static! {
     pub static ref STREAMING_SESSION: Arc<RwLock<HashMap<String, HashMap<String, String>>>> = Arc::new(RwLock::new(HashMap::new()));
-    pub static ref FF_PATH: (String, String) = find_ff_path();
-    pub static ref FFMPEG_BIN: &'static str = Box::leak(ffpath(FF_PATH.0.as_str()).into_boxed_str());
-    pub static ref FFPROBE_BIN: &'static str = Box::leak(ffpath(FF_PATH.1.as_str()).into_boxed_str());
+    pub static ref USE_SYSTEM_FFMPEG: AtomicBool = AtomicBool::new(false);
+    pub static ref FFPATH: (String, String) = find_ff_path(USE_SYSTEM_FFMPEG.load(Ordering::SeqCst));
+    pub static ref FFMPEG_BIN: &'static str = Box::leak(ffpath(&FFPATH.0).into_boxed_str());
+    pub static ref FFPROBE_BIN: &'static str = Box::leak(ffpath(&FFPATH.1).into_boxed_str());
 }
 
 use std::process::Command;
@@ -32,10 +35,12 @@ use std::process::Command;
 ///     }
 /// }
 /// ```
-pub fn ffcheck() -> Vec<Result<Box<str>, &'static str>> {
-    let mut results = vec![];
 
-    for program in [*FFMPEG_BIN, *FFPROBE_BIN].iter() {
+pub fn ffcheck(use_system_ffmpeg: bool) -> Vec<Result<Box<str>, String>> {
+    let mut results = vec![];
+    USE_SYSTEM_FFMPEG.store(use_system_ffmpeg, Ordering::SeqCst);
+    let (ffmpeg_bin, ffprobe_bin) = find_ff_path(use_system_ffmpeg);
+    for program in [ffmpeg_bin, ffprobe_bin].iter() {
         if let Ok(output) = Command::new(program).arg("-version").output() {
             let stdout = String::from_utf8(output.stdout)
                 .expect("Failed to decode subprocess stdout.")
@@ -43,29 +48,28 @@ pub fn ffcheck() -> Vec<Result<Box<str>, &'static str>> {
 
             results.push(Ok(stdout));
         } else {
-            results.push(Err(*program));
+            results.push(Err(program.to_string()));
         }
     }
 
     results
 }
 
-#[cfg(feature = "system_ff")]
-fn find_ff_path() -> (String, String) {
-    let ffmpeg_bin = which::which("ffmpeg")
-        .expect("Could not find ffmpeg in system!")
-        .display()
-        .to_string();
-    let ffprobe_bin = which::which("ffprobe")
-        .expect("Could not find ffprobe in system!")
-        .display()
-        .to_string();
+fn find_ff_path(use_system_ffmpeg: bool) -> (String, String) {
+    if use_system_ffmpeg {
+        let ffmpeg = which::which("ffmpeg");
+        let ffprobe = which::which("ffprobe");
+        if let Ok(ffmpeg) = ffmpeg {
+            if let Ok(ffprobe) = ffprobe {
+                if let Some(ffmpeg) = ffmpeg.to_str() {
+                    if let Some(ffprobe) = ffprobe.to_str() {
+                        return (ffmpeg.to_string(), ffprobe.to_string());
+                    }
+                }
+            }
+        }
+    }
 
-    (ffmpeg_bin, ffprobe_bin)
-}
-
-#[cfg(not(feature = "system_ff"))]
-fn find_ff_path() -> (String, String) {
     (String::from("utils/ffmpeg"), String::from("utils/ffprobe"))
 }
 

@@ -20,6 +20,8 @@ use structopt::StructOpt;
 struct Args {
     #[structopt(short, long, parse(from_os_str))]
     config: Option<PathBuf>,
+    #[structopt(long)]
+    use_system_ffmpeg: bool,
 }
 
 fn main() {
@@ -60,7 +62,7 @@ fn main() {
     setup_logging(global_settings.verbose);
 
     {
-        let failed = streaming::ffcheck()
+        let failed = streaming::ffcheck(args.use_system_ffmpeg)
             .into_iter()
             .fold(false, |failed, item| match item {
                 Ok(stdout) => {
@@ -89,7 +91,7 @@ fn main() {
         let stream_manager = nightfall::StateManager::new(
             &mut Tokio::Global,
             global_settings.cache_dir.clone(),
-            crate::streaming::FFMPEG_BIN.to_string(),
+            crate::streaming::FFMPEG_BIN.to_string()
         );
 
         let stream_manager_clone = stream_manager.clone();

@@ -20,8 +20,8 @@ use crate::core::EventTx;
 use crate::scanners::movie::MovieMatcher;
 use crate::scanners::tmdb::Tmdb;
 use crate::scanners::tv_show::TvShowMatcher;
-use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::FFPROBE_BIN;
+use crate::streaming::ffprobe::FFProbeCtx;
 
 use super::ApiMedia;
 
