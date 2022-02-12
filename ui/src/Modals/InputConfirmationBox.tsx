@@ -1,11 +1,26 @@
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 
 import ModalBox from "./Index";
-import Field from "../Pages/Auth/Field";
+import Field from "Pages/Auth/Field";
 
 import "./InputConfirmationBox.scss";
 
-const ConfirmationBox = (props) => {
+interface Props {
+  action: () => Promise<boolean>;
+  title: string;
+  msg: string;
+  label: string;
+  icon: string;
+  data: string;
+  setData: React.Dispatch<React.SetStateAction<string>>;
+  err: string;
+  setErr: React.Dispatch<React.SetStateAction<string>>;
+  type: string;
+  cancelText: string;
+  confirmText: string;
+}
+
+export const InputConfirmationBox = (props: React.PropsWithChildren<Props>) => {
   const { action } = props;
 
   const confirmAction = useCallback(
@@ -21,7 +36,7 @@ const ConfirmationBox = (props) => {
 
   return (
     <ModalBox activatingComponent={props.children}>
-      {(closeModal) => (
+      {(closeModal: () => void) => (
         <div className="modalConfirmation">
           <h3>{props.title}</h3>
           <div className="separator" />
@@ -47,4 +62,4 @@ const ConfirmationBox = (props) => {
   );
 };
 
-export default ConfirmationBox;
+export default InputConfirmationBox;
