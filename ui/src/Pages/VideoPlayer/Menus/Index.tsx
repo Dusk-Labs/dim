@@ -1,11 +1,11 @@
-import { useSelector } from "react-redux";
+import { useAppSelector } from "hooks/store";
 import SubSwitcher from "./SubSwitcher";
 import Settings from "./Settings";
 
 import "./Index.scss";
 
 function VideoMenus() {
-  const { video } = useSelector((store) => ({
+  const { video } = useAppSelector((store) => ({
     video: store.video,
   }));
 
