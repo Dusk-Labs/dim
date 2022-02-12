@@ -1,11 +1,12 @@
 import { useCallback, useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { VideoPlayerContext } from "../../Context";
 
 import ExpandIcon from "../../../../assets/Icons/Expand";
 import CompressIcon from "../../../../assets/Icons/Compress";
 
 import { updateVideo } from "../../../../actions/video";
+
+import { VideoPlayerContext } from "Pages/VideoPlayer/Context";
 
 function VideoActionFullscreen() {
   const dispatch = useDispatch();
@@ -24,18 +25,18 @@ function VideoActionFullscreen() {
     );
 
     try {
-      if (!video.fullscreen) {
+      if (!document.fullscreenElement) {
         await videoPlayer.current.requestFullscreen();
       } else {
         await document.exitFullscreen();
       }
     } catch (e) {}
-  }, [dispatch, video.fullscreen, videoPlayer]);
+  }, [dispatch, videoPlayer]);
 
   const handleFullscreenChange = useCallback(() => {
     dispatch(
       updateVideo({
-        fullscreen: document.fullscreenElement,
+        fullscreen: document.fullscreenElement !== null,
         idleCount: 0,
       })
     );
