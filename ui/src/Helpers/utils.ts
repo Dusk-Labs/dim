@@ -1,9 +1,9 @@
 // converts to HH:MM:SS format
-export const formatHHMMSS = (secs) =>
-  new Date(secs * 1000).toISOString().substr(11, 8);
+export const formatHHMMSS = (secs: number) =>
+  new Date(secs * 1000).toISOString().substring(11, 19);
 
 // converts to HH:MM:SS + Date format
-export const formatHHMMSSDate = (timestamp) => {
+export const formatHHMMSSDate = (timestamp: number) => {
   const ts = new Date(timestamp * 1000);
 
   return {
@@ -21,10 +21,10 @@ export const formatHHMMSSDate = (timestamp) => {
   new width/height of an element
 */
 export const calcNewSize = (
-  currentWidth,
-  currentHeight,
-  newWidth = undefined,
-  newHeight = undefined
+  currentWidth: number,
+  currentHeight: number,
+  newWidth?: number,
+  newHeight?: number
 ) => {
   const ratio = currentWidth / currentHeight;
 
@@ -32,26 +32,30 @@ export const calcNewSize = (
     return Math.round(newWidth / ratio);
   }
 
-  if (newWidth !== undefined) {
+  if (newHeight !== undefined) {
     return Math.round(newHeight * ratio);
   }
 };
 
-const parseHMS = (str) => {
+const parseHMS = (str: string) => {
   const p = str.split(":");
 
   let s = 0;
   let m = 1;
 
   while (p.length > 0) {
-    s += m * parseFloat(p.pop(), 10);
-    m *= 60;
+    const segment = p.pop();
+
+    if (segment != null) {
+      s += m * parseFloat(segment);
+      m *= 60;
+    }
   }
 
   return s;
 };
 
-export const parseVtt = (text) => {
+export const parseVtt = (text: string) => {
   const cues = [];
   const segs = text.split("\n\n").filter((seg) => seg);
 
