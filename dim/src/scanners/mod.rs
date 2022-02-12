@@ -120,6 +120,7 @@ pub async fn start_custom<I, T>(
     tx: EventTx,
     paths: I,
     media_type: MediaType,
+    do_update: bool,
 ) -> Result<(), self::base::ScannerError>
 where
     I: Iterator<Item = T>,
@@ -155,7 +156,7 @@ where
     for file in files {
         futures.push(async move {
             if let Ok(mfile) = extractor
-                .mount_file(file.clone(), library_id, media_type)
+                .mount_file(file.clone(), library_id, media_type, do_update)
                 .await
             {
                 match media_type {
@@ -192,6 +193,31 @@ where
     Ok(())
 }
 
+pub async fn start_incremental(
+    conn: DbConnection,
+    id: i64,
+    event_tx: EventTx,
+) -> Result<(), self::base::ScannerError> {
+    let lib = {
+        let mut tx_ = conn
+            .read()
+            .begin()
+            .await
+            .map_err(|e| self::base::ScannerError::DatabaseError(format!("{:?}", e)))?;
+
+        Library::get_one(&mut tx_, id).await?
+    };
+
+    start_custom(
+        id,
+        event_tx,
+        lib.locations.into_iter(),
+        lib.media_type,
+        true,
+    )
+    .await
+}
+
 pub async fn start(
     conn: DbConnection,
     id: i64,
@@ -205,7 +231,7 @@ pub async fn start(
 
     let lib = Library::get_one(&mut tx_, id).await?;
 
-    start_custom(id, tx, lib.locations.into_iter(), lib.media_type).await
+    start_custom(id, tx, lib.locations.into_iter(), lib.media_type, false).await
 }
 
 /// Function formats the path where assets are stored.

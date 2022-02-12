@@ -39,12 +39,7 @@ pub struct FsWatcher {
 }
 
 impl FsWatcher {
-    pub fn new(
-        conn: DbConnection,
-        library_id: i64,
-        media_type: MediaType,
-        tx: EventTx,
-    ) -> Self {
+    pub fn new(conn: DbConnection, library_id: i64, media_type: MediaType, tx: EventTx) -> Self {
         Self {
             library_id,
             media_type,
@@ -95,7 +90,7 @@ impl FsWatcher {
             let matcher = super::get_matcher(&self.tx);
 
             if let Ok(mfile) = extractor
-                .mount_file(path.clone(), self.library_id, self.media_type)
+                .mount_file(path.clone(), self.library_id, self.media_type, false)
                 .await
             {
                 match self.media_type {
@@ -115,6 +110,7 @@ impl FsWatcher {
                     self.tx.clone(),
                     IntoIterator::into_iter([x]),
                     self.media_type,
+                    false,
                 )
                 .await;
             }

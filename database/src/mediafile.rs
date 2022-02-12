@@ -346,17 +346,67 @@ impl UpdateMediaFile {
             "UPDATE mediafile SET audio_language = ? WHERE id = ?" => (self.audio_language, id)
         );
 
-        Ok(1)
+        Ok(id)
     }
 }
 
-impl Into<Media> for MediaFile {
-    fn into(self) -> Media {
-        Media {
-            id: self.id,
-            library_id: self.library_id,
-            name: self.raw_name,
+impl From<MediaFile> for Media {
+    fn from(file: MediaFile) -> Self {
+        let MediaFile {
+            id,
+            library_id,
+            raw_name,
+            ..
+        } = file;
+
+        Self {
+            id,
+            library_id,
+            name: raw_name,
             ..Default::default()
+        }
+    }
+}
+
+impl From<InsertableMediaFile> for UpdateMediaFile {
+    fn from(imf: InsertableMediaFile) -> Self {
+        let InsertableMediaFile {
+            media_id,
+            target_file,
+            raw_name,
+            raw_year,
+            quality,
+            codec,
+            container,
+            audio,
+            original_resolution,
+            duration,
+            channels,
+            profile,
+            audio_language,
+            episode,
+            season,
+            corrupt,
+            ..
+        } = imf;
+
+        Self {
+            media_id,
+            target_file: Some(target_file),
+            raw_name: Some(raw_name),
+            raw_year,
+            quality,
+            codec,
+            container,
+            audio,
+            original_resolution,
+            duration,
+            channels,
+            profile,
+            audio_language,
+            episode,
+            season,
+            corrupt,
         }
     }
 }

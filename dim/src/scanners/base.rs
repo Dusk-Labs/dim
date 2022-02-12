@@ -1,3 +1,4 @@
+use database::media::Media;
 use err_derive::Error;
 use std::path::Path;
 use std::path::PathBuf;
@@ -88,6 +89,7 @@ impl MetadataExtractor {
         file: PathBuf,
         library_id: i64,
         _media_type: MediaType,
+        update_if_exists: bool,
     ) -> Result<MediaFile, ScannerError> {
         let target_file = file.to_str().unwrap().to_owned();
 
@@ -100,7 +102,7 @@ impl MetadataExtractor {
         };
 
         let target_file_clone = target_file.clone();
-        let res = {
+        let mf_id = {
             let mut tx = self
                 .conn
                 .read()
@@ -108,10 +110,15 @@ impl MetadataExtractor {
                 .await
                 .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
-            MediaFile::get_by_file(&mut tx, &target_file_clone).await
+            MediaFile::get_by_file(&mut tx, &target_file_clone)
+                .await
+                .map(|mf| mf.id)
+                .ok()
         };
 
-        if let Ok(_media_file) = res {
+        let already_exists = mf_id.is_some();
+
+        if already_exists && !update_if_exists {
             debug!(
                 file = ?file.to_string_lossy(),
                 library_id = library_id,
@@ -140,7 +147,7 @@ impl MetadataExtractor {
         let meta_from_string =
             move || Metadata::from(&clone).map_err(|_| ScannerError::FilenameParserError);
 
-        let metadata = match spawn_blocking(meta_from_string)
+        let metadata: Metadata = match spawn_blocking(meta_from_string)
             .instrument(debug_span!("ParseFilename"))
             .await
         {
@@ -193,30 +200,11 @@ impl MetadataExtractor {
                 .map(ToString::to_string),
         };
 
-        let mediafile = {
-            let mut lock = self.conn.writer().lock_owned().await;
-            let mut tx = database::write_tx(&mut lock)
-                .await
-                .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
-
-            let file_id = media_file
-                .insert(&mut tx)
-                .instrument(debug_span!("media_file_insert"))
-                .await?;
-
-            let mediafile = MediaFile::get_one(&mut tx, file_id)
-                .instrument(debug_span!("media_file_select"))
-                .await?;
-
-            assert!(file_id == mediafile.id);
-
-            tx.commit()
-                .instrument(debug_span!("TxCommit"))
-                .await
-                .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
-            drop(lock);
-
-            mediafile
+        let mediafile: MediaFile = if already_exists {
+            // `already_exists` is used here iff `update_if_exists` is also true.
+            self.update(media_file).await?
+        } else {
+            self.insert(media_file).await?
         };
 
         info!(
@@ -228,6 +216,70 @@ impl MetadataExtractor {
         );
 
         Ok(mediafile)
+    }
+
+    // NOTE(mental): I tried abstracting this db transaction map pattern in `update` and `insert` but I was getting lifetime errors so I decided to give up and copy over the logic verbatim.
+
+    #[instrument(skip(self, media_file))]
+    async fn update(
+        &self,
+        media_file: InsertableMediaFile,
+        media_file_id: i64,
+    ) -> Result<MediaFile, ScannerError> {
+        let mut lock = self.conn.writer().lock_owned().await;
+        let tx = database::write_tx(&mut lock)
+            .await
+            .map_err(database::DatabaseError::from)
+            .map_err(ScannerError::from)?;
+
+        let media_file: UpdateMediaFile = media_file.into();
+
+        let file_id = media_file
+            .update(&mut tx, media_file_id)
+            .instrument(debug_span!("media_file_update"))
+            .await?;
+
+        let media_file = MediaFile::get_one(&mut tx, file_id)
+            .instrument(debug_span!("media_file_select"))
+            .await?;
+
+        assert!(file_id == media_file_id);
+
+        tx.commit()
+            .instrument(debug_span!("TxCommit"))
+            .await
+            .map_err(database::DatabaseError::from)
+            .map_err(ScannerError::from)?;
+
+        Ok(media_file)
+    }
+
+    #[instrument(skip(self, media_file))]
+    async fn insert(&self, media_file: InsertableMediaFile) -> Result<MediaFile, ScannerError> {
+        let mut lock = self.conn.writer().lock_owned().await;
+        let tx = database::write_tx(&mut lock)
+            .await
+            .map_err(database::DatabaseError::from)
+            .map_err(ScannerError::from)?;
+
+        let file_id = media_file
+            .insert(&mut tx)
+            .instrument(debug_span!("media_file_insert"))
+            .await?;
+
+        let mediafile = MediaFile::get_one(&mut tx, file_id)
+            .instrument(debug_span!("media_file_select"))
+            .await?;
+
+        assert!(file_id == mediafile.id);
+
+        tx.commit()
+            .instrument(debug_span!("TxCommit"))
+            .await
+            .map_err(database::DatabaseError::from)
+            .map_err(ScannerError::from)?;
+
+        Ok(media_file)
     }
 }
 
@@ -251,21 +303,36 @@ impl MetadataMatcher {
     }
 
     #[handler]
-    pub async fn match_movie(&mut self, media: MediaFile) -> Result<(), ScannerError> {
-        let result = match self
-            .movie_tmdb
-            .search(media.raw_name.clone(), media.raw_year.map(|x| x as i32))
-            .await
-        {
+    pub async fn match_movie(&mut self, media_file: MediaFile) -> Result<(), ScannerError> {
+        let (name, year) = match &media_file.media_id {
+            Some(id) => {
+                let mut r_tx = self
+                    .conn
+                    .read()
+                    .begin()
+                    .await
+                    .map_err(database::DatabaseError::from)
+                    .map_err(ScannerError::from)?;
+
+                Media::get(&mut r_tx, *id)
+                    .await
+                    .map(|m| (m.name, m.year))
+                    .unwrap_or_else(|_| (media_file.raw_name.clone(), media_file.raw_year))
+            }
+
+            None => (media_file.raw_name.clone(), media_file.raw_year),
+        };
+
+        let result = match self.movie_tmdb.search(name, year.map(|n| n as i32)).await {
             Ok(v) => v,
             Err(e) => {
-                error!(media = ?media, reason = ?e, "Could not match movie to tmdb");
+                error!(media = ?media_file, reason = ?e, "Could not match movie to tmdb");
 
                 return Err(ScannerError::UnknownError);
             }
         };
 
-        self.match_movie_to_result(media, result).await
+        self.match_movie_to_result(media_file, result).await
     }
 
     #[handler]

@@ -95,6 +95,24 @@ pub mod filters {
             )
     }
 
+    pub fn library_scan(
+        conn: DbConnection,
+        event_tx: EventTx,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "library" / i64 / "scan")
+            .and(warp::post())
+            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn))
+            .and(with_state::<EventTx>(event_tx))
+            .and_then(
+                |id: i64, user: Auth, conn: DbConnection, event_tx: EventTx| async move {
+                    super::scan(conn, id, user, event_tx)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                },
+            )
+    }
+
     pub fn library_get_self(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
@@ -268,6 +286,19 @@ pub async fn get_self(
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
     Ok(reply::json(&Library::get_one(&mut tx, id).await?))
+}
+
+/// # POST `/api/v1/library/<id>/scan`
+/// This method will scan the provided library, updating the metadata for pre-existing media entries.
+///
+pub async fn scan(
+    conn: DbConnection,
+    id: i64,
+    _user: Auth,
+    event_tx: EventTx,
+) -> Result<impl warp::Reply, errors::DimError> {
+    scanners::start(conn, id, event_tx).await?;
+    Ok(reply::json(&())) // TODO: figure out what to return here.
 }
 
 /// Method mapped to `GET /api/v1/library/<id>/media` returns all the movies/tv shows that belong
