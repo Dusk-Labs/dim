@@ -50,6 +50,7 @@
   .title {
     display: flex;
     justify-content: space-between;
+    max-width: 60ch;
 
     h1 {
       font-family: "Roboto Bold", Arial;
