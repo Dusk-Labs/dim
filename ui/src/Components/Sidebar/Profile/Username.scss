@@ -25,6 +25,9 @@
       user-select: none;
       cursor: pointer;
       display: inline;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .toggle {
