@@ -1,5 +1,5 @@
-use database::media::Media;
 use err_derive::Error;
+
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -11,10 +11,14 @@ use tracing::instrument;
 use tracing::warn;
 use tracing::Instrument;
 
+use database::episode::Episode;
 use database::library::MediaType;
+use database::media::Media;
 use database::mediafile::InsertableMediaFile;
 use database::mediafile::MediaFile;
 use database::mediafile::UpdateMediaFile;
+use database::season;
+use database::DatabaseError;
 use database::DbConnection;
 
 use crate::core::EventTx;
@@ -356,9 +360,66 @@ impl MetadataMatcher {
 
     #[handler]
     pub async fn match_tv(&mut self, media: MediaFile) -> Result<(), ScannerError> {
-        let mut media = media;
+        let mut media_file = media;
 
-        let path = Path::new(&media.target_file);
+        {
+            let mut tx = self.conn.read().begin().await.unwrap();
+
+            match Media::get_of_mediafile(&mut tx, media_file.id).await {
+                Ok(media) => {
+                    assert_eq!(media.media_type, MediaType::Episode);
+
+                    let episode = Episode::get_by_id(&mut tx, media.id).await.unwrap();
+                    let season = season::Season::get_by_id(&mut tx, episode.seasonid)
+                        .await
+                        .unwrap();
+
+                    let tv_show = Media::get(&mut tx, season.tvshowid).await.unwrap();
+
+                    let _ = tx.commit().await;
+
+                    let season = Some(episode.seasonid);
+                    let episode = Some(episode.id);
+
+                    {
+                        let mut writer = self.conn.writer().lock_owned().await;
+                        let mut tx = database::write_tx(&mut writer)
+                            .await
+                            .map_err(DatabaseError::from)
+                            .map_err(ScannerError::from)?;
+
+                        let update_mediafile = UpdateMediaFile {
+                            episode,
+                            season,
+                            raw_name: Some(media.name),
+                            ..Default::default()
+                        };
+
+                        let _ = update_mediafile.update(&mut tx, media_file.id).await;
+
+                        tx.commit()
+                            .await
+                            .map_err(DatabaseError::from)
+                            .map_err(ScannerError::from)?;
+                    }
+
+                    media_file.episode = episode;
+                    media_file.season = season;
+
+                    let api_media = self.tv_tmdb.search(tv_show.name, None).await.unwrap();
+
+                    return self.match_tv_to_result(media_file, api_media).await;
+                }
+
+                Err(database::DatabaseError::DatabaseError(sqlx::Error::RowNotFound)) => (),
+                Err(err) => {
+                    error!(err = ?err, "failed to fetch the media file by file name.");
+                    return Err(ScannerError::from(err));
+                }
+            }
+        };
+
+        let path = Path::new(&media_file.target_file);
         let filename = path
             .file_name()
             .and_then(|x| x.to_str())
@@ -381,7 +442,10 @@ impl MetadataMatcher {
 
         let mut result = self
             .tv_tmdb
-            .search(media.raw_name.clone(), media.raw_year.map(|x| x as i32))
+            .search(
+                media_file.raw_name.clone(),
+                media_file.raw_year.map(|x| x as i32),
+            )
             .await;
 
         // if mediafile is linked to episode and mediafile.episode != episode.episode_ or
@@ -412,7 +476,7 @@ impl MetadataMatcher {
                 let anitomy_episode = els
                     .get(ElementCategory::EpisodeNumber)
                     .and_then(|x| x.parse::<i64>().ok())
-                    .or(media.episode);
+                    .or(media_file.episode);
 
                 let anitomy_season = els
                     .get(ElementCategory::AnimeSeason)
@@ -431,26 +495,26 @@ impl MetadataMatcher {
                     ..Default::default()
                 };
 
-                let _ = update_mediafile.update(&mut tx, media.id).await;
+                let _ = update_mediafile.update(&mut tx, media_file.id).await;
 
                 tx.commit()
                     .await
                     .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
-                media.episode = anitomy_episode.map(|x| x as i64);
-                media.season = anitomy_season.map(|x| x as i64);
+                media_file.episode = anitomy_episode.map(|x| x as i64);
+                media_file.season = anitomy_season.map(|x| x as i64);
             }
         }
 
         let result = match result {
             Ok(v) => v,
             Err(e) => {
-                error!(media = ?media, reason = ?e, "Could not match tv show to tmdb");
+                error!(media = ?media_file, reason = ?e, "Could not match tv show to tmdb");
                 return Err(ScannerError::UnknownError);
             }
         };
 
-        self.match_tv_to_result(media, result).await
+        self.match_tv_to_result(media_file, result).await
     }
 
     #[handler]
