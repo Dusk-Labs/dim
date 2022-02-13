@@ -11,63 +11,73 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-        - run: sudo apt-get update
-        - run: sudo apt-get install -y libva-dev libva-drm2 libva2 sqlite3
-        - uses: actions/checkout@v2
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y libva-dev libva-drm2 libva2 sqlite3
+      - uses: actions/checkout@v2
 
-        - name: Download UI artifacts
-          uses: dawidd6/action-download-artifact@v2
-          with:
-            workflow: react.yml
-            workflow_conclusion: success
-            branch: master
-            name: webui
-            path: ui/build
-            repo: ${{github.repository}}
+      - name: Download UI artifacts
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: react.yml
+          workflow_conclusion: success
+          branch: master
+          name: webui
+          path: ui/build
+          repo: ${{github.repository}}
 
-        - uses: actions-rs/toolchain@v1
-          with:
-              profile: minimal
-              toolchain: stable
-              override: true
-              components: cargo
-        - name: Test Dim
-          uses: actions-rs/cargo@v1
-          with:
-            command: test
-            args: --tests
-        - name: Build Dim
-          uses: actions-rs/cargo@v1
-          with:
-              command: build
-              args: --verbose --release
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: cargo
 
-        - name: Download ffmpeg artifacts
-          uses: dawidd6/action-download-artifact@v2
-          with:
-            workflow: main.yml
-            workflow_conclusion: success
-            branch: master
-            event: push
-            name: bins
-            path: utils
-            repo: Dusk-Labs/ffmpeg-static
+      - name: Download ffmpeg artifact
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          repo: "Dusk-Labs/ffmpeg-static"
+          version: "tags/ffmpeg-all-0.0.1"
+          file: "ffmpeg"
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-        - name: Create release dir
-          run: |
-            mkdir release
-            cp target/release/dim release/dim
-            cp -R utils release/utils
-            chmod +x release/dim
-            chmod +x release/utils/ffmpeg
-            chmod +x release/utils/ffprobe
+      - name: Download ffprobe artifact
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          repo: "Dusk-Labs/ffmpeg-static"
+          version: "tags/ffmpeg-all-0.0.1"
+          file: "ffprobe"
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-        - name: Compress release dir
-          run: tar -zcvf release.tar.gz release
+      - name: Create release dir
+        run: |
+          mkdir -p release/utils
+          cp ffmpeg release/utils/ffmpeg
+          cp ffprobe release/utils/ffprobe
+          chmod +x release/utils/ffmpeg
+          chmod +x release/utils/ffprobe
 
-        - name: Save artifacts
-          uses: actions/upload-artifact@v2
-          with:
-            name: release
-            path: release.tar.gz
+      - name: Test Dim
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --tests
+      - name: Build Dim
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --verbose --release
+
+      - name: Copy dim binaries
+        run: |
+          cp target/release/dim release/dim
+          chmod +x release/dim
+
+      - name: Compress release dir
+        run: tar -zcvf release.tar.gz release
+
+      - name: Save artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: release
+          path: release.tar.gz
 
