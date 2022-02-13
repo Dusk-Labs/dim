@@ -376,12 +376,33 @@ impl MetadataMatcher {
             Ok(v) | Err(v) => v,
         };
 
+        // Pull tv show name and year from media table if the mediafile is linked to a tv
+        // show.
+
         let mut result = self
             .tv_tmdb
             .search(media.raw_name.clone(), media.raw_year.map(|x| x as i32))
             .await;
 
+        // if mediafile is linked to episode and mediafile.episode != episode.episode_ or
+        // mediafile.season != episode.season:
+        //     patch mediafile with episode.season and episode.episode.
+
+        // let mfile = Mediafile::by_path(path).unwrap();
+        // if let Ok(ep) = Episode::get_of_mediafile(mediafile.id) {
+        //     if mfile.episode != ep.episode_ || mfile.season != ep.episode {
+        //        UpdateMediaFile {
+        //            episode: ep.episode_,
+        //            season: ep.season_,
+        //            ..Default::default()
+        //        }
+        //        ....commit();
+        //     }
+        // }
+
         if let Some(x) = els.get(ElementCategory::AnimeTitle) {
+            // FIXME: this flow will get triggered during any error (ie network error) which could
+            // be UB.
             if result.is_err() {
                 // NOTE: If we got here then we assume that the file uses common anime release naming schemes.
                 // Thus we prioritise metadata extracted by anitomy.

@@ -77,6 +77,7 @@ where
                 }
 
                 CtrlEvent::SendAll(body) => {
+                    tracing::info!(body = %body, "Sending event");
                     for (addr, (sink, _)) in peers.iter_mut() {
                         let result = sink.send(Message::text(body.clone())).await;
 
