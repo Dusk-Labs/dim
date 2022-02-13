@@ -112,12 +112,12 @@ impl MetadataExtractor {
 
             match MediaFile::get_by_file(&mut tx, &target_file_clone).await {
                 Ok(mf) => Some(mf.id),
-                Err(db) => {
-                    if let database::DatabaseError::DatabaseError(sqlx::Error::RowNotFound) = &db {
+                Err(err) => {
+                    if let database::DatabaseError::DatabaseError(sqlx::Error::RowNotFound) = &err {
                         None
                     } else {
-                        error!(err = ?db, "failed to fetch the media file by file name.");
-                        return Err(ScannerError::from(db));
+                        error!(err = ?err, "failed to fetch the media file by file name.");
+                        return Err(ScannerError::from(err));
                     }
                 }
             }
