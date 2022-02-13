@@ -99,6 +99,7 @@
       align-items: center;
       transition: 100ms ease-in-out;
       transition-property: padding, background, transform;
+      margin-bottom: 0.3em;
 
       &.showLoad-true {
         grid-template-rows: 1fr 1fr 10px;
