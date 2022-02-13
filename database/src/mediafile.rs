@@ -326,7 +326,7 @@ impl UpdateMediaFile {
         &self,
         conn: &mut crate::Transaction<'_>,
         id: i64,
-    ) -> Result<usize, DatabaseError> {
+    ) -> Result<i64, DatabaseError> {
         crate::opt_update!(conn,
             "UPDATE mediafile SET media_id = ? WHERE id = ?" => (self.media_id, id),
             "UPDATE mediafile SET target_file = ? WHERE id = ?" => (self.target_file, id),

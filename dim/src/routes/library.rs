@@ -298,7 +298,7 @@ pub async fn scan(
     event_tx: EventTx,
 ) -> Result<impl warp::Reply, errors::DimError> {
     scanners::start(conn, id, event_tx).await?;
-    Ok(reply::json(&())) // TODO: figure out what to return here.
+    Ok(StatusCode::OK)
 }
 
 /// Method mapped to `GET /api/v1/library/<id>/media` returns all the movies/tv shows that belong

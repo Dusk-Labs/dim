@@ -110,15 +110,20 @@ impl MetadataExtractor {
                 .await
                 .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
-            MediaFile::get_by_file(&mut tx, &target_file_clone)
-                .await
-                .map(|mf| mf.id)
-                .ok()
+            match MediaFile::get_by_file(&mut tx, &target_file_clone).await {
+                Ok(mf) => Some(mf.id),
+                Err(db) => {
+                    if let database::DatabaseError::DatabaseError(sqlx::Error::RowNotFound) = &db {
+                        None
+                    } else {
+                        error!(err = ?db, "failed to fetch the media file by file name.");
+                        return Err(ScannerError::from(db));
+                    }
+                }
+            }
         };
 
-        let already_exists = mf_id.is_some();
-
-        if already_exists && !update_if_exists {
+        if mf_id.is_some() && !update_if_exists {
             debug!(
                 file = ?file.to_string_lossy(),
                 library_id = library_id,
@@ -200,9 +205,8 @@ impl MetadataExtractor {
                 .map(ToString::to_string),
         };
 
-        let mediafile: MediaFile = if already_exists {
-            // `already_exists` is used here iff `update_if_exists` is also true.
-            self.update(media_file).await?
+        let mediafile: MediaFile = if let Some(id) = mf_id {
+            self.update(media_file, id).await?
         } else {
             self.insert(media_file).await?
         };
@@ -227,7 +231,7 @@ impl MetadataExtractor {
         media_file_id: i64,
     ) -> Result<MediaFile, ScannerError> {
         let mut lock = self.conn.writer().lock_owned().await;
-        let tx = database::write_tx(&mut lock)
+        let mut tx = database::write_tx(&mut lock)
             .await
             .map_err(database::DatabaseError::from)
             .map_err(ScannerError::from)?;
@@ -257,7 +261,7 @@ impl MetadataExtractor {
     #[instrument(skip(self, media_file))]
     async fn insert(&self, media_file: InsertableMediaFile) -> Result<MediaFile, ScannerError> {
         let mut lock = self.conn.writer().lock_owned().await;
-        let tx = database::write_tx(&mut lock)
+        let mut tx = database::write_tx(&mut lock)
             .await
             .map_err(database::DatabaseError::from)
             .map_err(ScannerError::from)?;
@@ -267,11 +271,11 @@ impl MetadataExtractor {
             .instrument(debug_span!("media_file_insert"))
             .await?;
 
-        let mediafile = MediaFile::get_one(&mut tx, file_id)
+        let file = MediaFile::get_one(&mut tx, file_id)
             .instrument(debug_span!("media_file_select"))
             .await?;
 
-        assert!(file_id == mediafile.id);
+        assert!(file_id == file.id);
 
         tx.commit()
             .instrument(debug_span!("TxCommit"))
@@ -279,7 +283,7 @@ impl MetadataExtractor {
             .map_err(database::DatabaseError::from)
             .map_err(ScannerError::from)?;
 
-        Ok(media_file)
+        Ok(file)
     }
 }
 

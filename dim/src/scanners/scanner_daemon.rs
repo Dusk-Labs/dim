@@ -90,7 +90,7 @@ impl FsWatcher {
             let matcher = super::get_matcher(&self.tx);
 
             if let Ok(mfile) = extractor
-                .mount_file(path.clone(), self.library_id, self.media_type, false)
+                .mount_file(path.clone(), self.library_id, self.media_type, true)
                 .await
             {
                 match self.media_type {
