@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 
-import { useAppDispatch } from "../../hooks/store";
-import { fetchUserSettings } from "../../actions/settings.js";
-import { fetchLibraries } from "../../actions/library.js";
+import { useAppDispatch } from "hooks/store";
+import { fetchUserSettings } from "actions/settings.js";
+import { fetchLibraries } from "actions/library.js";
 
 import Profile from "./Profile/Index";
 import Search from "./Search";
@@ -26,7 +26,7 @@ function Sidebar() {
     <nav className="sidebar" ref={divContainer}>
       <div className="sectionsWrapper">
         <section className="main-part">
-          <Profile name={true} hoursSpentWatching={true} />
+          <Profile hoursSpentWatching={true} />
           <div className="separator" />
           <Search />
         </section>
