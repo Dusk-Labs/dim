@@ -1,11 +1,12 @@
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { updateVideo } from "../../actions/video";
+
+import { useAppDispatch, useAppSelector } from "hooks/store";
+import { updateVideo } from "actions/video";
 
 function ErrorBox() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const { video, error } = useSelector((store) => ({
+  const { video, error } = useAppSelector((store) => ({
     video: store.video,
     error: store.video.error,
   }));
@@ -30,7 +31,7 @@ function ErrorBox() {
       <h2>Error</h2>
       <div className="separator" />
       <p>{error.msg}</p>
-      {error.errors.map((err, i) => (
+      {error.errors.map((err: string, i: number) => (
         <details key={i}>
           <summary>({++i})</summary>
           <div className="stderr">

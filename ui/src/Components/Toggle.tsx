@@ -3,7 +3,7 @@ import "./Toggle.scss";
 
 type ToggleProps = {
   name: string;
-  desc: string;
+  desc?: string | undefined;
   state?: boolean;
   disabled?: boolean;
   onToggle?: (...args: any) => any;
