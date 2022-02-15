@@ -1,7 +1,7 @@
 .libraryCards {
   padding: 30px;
   z-index: 1;
-  position: absolute;
+  position: relative;
   width: 100%;
   pointer-events: none;
   top: 0;
@@ -14,12 +14,6 @@
   height: 100%;
   overflow-y: auto;
   scrollbar-width: thin;
-
-  &.slip-true {
-    border-top: solid 3px var(--tertiaryColor);
-    top: 85vh;
-    opacity: 0.5;
-  }
 
   .desc {
     color: var(--secondaryTextColor);

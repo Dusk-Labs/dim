@@ -5,6 +5,8 @@ import UnmatchedCard from "./UnmatchedMedia/Index";
 import Cards from "./Cards";
 import { LibraryContext } from "./Context";
 
+import MatchMedia from "./MatchMedia/Index";
+
 import "./Index.scss";
 
 const Library = () => {
@@ -31,8 +33,9 @@ const Library = () => {
   return (
     <LibraryContext.Provider value={initialValue}>
       <div className="library">
+        <MatchMedia />
         {fetched && Object.keys(items).length > 0 && <UnmatchedCard />}
-        <Cards slip={showUnmatched} />
+        <Cards slip={true} />
       </div>
     </LibraryContext.Provider>
   );
