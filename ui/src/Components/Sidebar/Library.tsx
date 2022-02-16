@@ -1,12 +1,18 @@
 import { NavLink } from "react-router-dom";
 
-import FilmIcon from "../../assets/Icons/Film";
-import TvIcon from "../../assets/Icons/TvIcon";
-import BarLoad from "../Load/Bar";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "hooks/store";
+import FilmIcon from "assets/Icons/Film";
+import TvIcon from "assets/Icons/TvIcon";
+import BarLoad from "Components/Load/Bar";
 
-function Library(props) {
-  const scanning = useSelector((store) => store.library.scanning);
+interface Props {
+  id: string;
+  media_type: string;
+  name: string;
+}
+
+function Library(props: Props) {
+  const scanning = useAppSelector((store) => store.library.scanning);
   const { id, media_type, name } = props;
 
   return (

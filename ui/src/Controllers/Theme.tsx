@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 
-import DefaultTheme from "../Themes/Default";
-import BlindTheme from "../Themes/Blind";
-import LightsOff from "../Themes/LightsOff";
+import { useAppSelector } from "hooks/store";
+import DefaultTheme from "Themes/Default";
+import BlindTheme from "Themes/Blind";
+import LightsOff from "Themes/LightsOff";
 
 function ThemeController() {
-  const userSettings = useSelector((store) => store.settings.userSettings);
+  const userSettings = useAppSelector((store) => store.settings.userSettings);
 
   useEffect(() => {
     switch (userSettings.data.theme) {
@@ -14,7 +14,7 @@ function ThemeController() {
         for (const prop in DefaultTheme) {
           document.documentElement.style.setProperty(
             `--${prop}`,
-            `${DefaultTheme[prop]}`
+            `${DefaultTheme[prop as keyof typeof DefaultTheme]}`
           );
         }
         break;
@@ -22,7 +22,7 @@ function ThemeController() {
         for (const prop in BlindTheme) {
           document.documentElement.style.setProperty(
             `--${prop}`,
-            `${BlindTheme[prop]}`
+            `${BlindTheme[prop as keyof typeof BlindTheme]}`
           );
         }
         break;
@@ -30,7 +30,7 @@ function ThemeController() {
         for (const prop in LightsOff) {
           document.documentElement.style.setProperty(
             `--${prop}`,
-            `${LightsOff[prop]}`
+            `${LightsOff[prop as keyof typeof LightsOff]}`
           );
         }
         break;
