@@ -80,10 +80,8 @@ pub struct MetadataExtractor {
 #[actor]
 impl MetadataExtractor {
     #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
-        Self {
-            conn: database::try_get_conn().unwrap().clone(),
-        }
+    pub fn new(conn: database::DbConnection) -> Self {
+        Self { conn }
     }
 
     #[handler]

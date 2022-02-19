@@ -86,8 +86,8 @@ impl FsWatcher {
                 .and_then(|e| e.to_str())
                 .map_or(false, |e| super::SUPPORTED_EXTS.contains(&e))
         {
-            let extractor = super::get_extractor(&self.tx);
-            let matcher = super::get_matcher(&self.tx);
+            let extractor = super::get_extractor(self.conn.clone());
+            let matcher = super::get_matcher(&self.tx, self.conn.clone());
 
             if let Ok(mfile) = extractor
                 .mount_file(path.clone(), self.library_id, self.media_type, true)
@@ -111,6 +111,7 @@ impl FsWatcher {
                     IntoIterator::into_iter([x]),
                     self.media_type,
                     false,
+                    self.conn.clone(),
                 )
                 .await;
             }

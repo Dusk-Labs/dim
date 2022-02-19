@@ -4,6 +4,9 @@ pub mod scanner_daemon;
 pub mod tmdb;
 pub mod tv_show;
 
+#[cfg(test)]
+mod tests;
+
 use database::library::Library;
 use database::library::MediaType;
 
@@ -62,19 +65,17 @@ pub(super) static METADATA_EXTRACTOR: OnceCell<base::MetadataExtractor> = OnceCe
 pub(super) static METADATA_MATCHER: OnceCell<base::MetadataMatcher> = OnceCell::new();
 pub(super) static SUPPORTED_EXTS: &[&str] = &["mp4", "mkv", "avi", "webm"];
 
-pub fn get_extractor(_tx: &EventTx) -> &'static base::MetadataExtractor {
+pub fn get_extractor(conn: database::DbConnection) -> &'static base::MetadataExtractor {
     let mut handle = xtra::spawn::Tokio::Global;
 
-    METADATA_EXTRACTOR.get_or_init(|| base::MetadataExtractor::cluster(&mut handle, 4).1)
+    METADATA_EXTRACTOR.get_or_init(|| base::MetadataExtractor::cluster(&mut handle, 4, conn).1)
 }
 
-pub fn get_matcher(tx: &EventTx) -> &'static base::MetadataMatcher {
+pub fn get_matcher(tx: &EventTx, conn: database::DbConnection) -> &'static base::MetadataMatcher {
     let mut handle = xtra::spawn::Tokio::Global;
 
-    METADATA_MATCHER.get_or_init(|| {
-        let conn = database::try_get_conn().expect("Failed to grab a connection");
-        base::MetadataMatcher::cluster(&mut handle, 6, conn.clone(), tx.clone()).1
-    })
+    METADATA_MATCHER
+        .get_or_init(|| base::MetadataMatcher::cluster(&mut handle, 6, conn, tx.clone()).1)
 }
 
 pub fn get_matcher_unchecked() -> &'static base::MetadataMatcher {
@@ -121,6 +122,7 @@ pub async fn start_custom<I, T>(
     paths: I,
     media_type: MediaType,
     do_update: bool,
+    conn: DbConnection,
 ) -> Result<(), self::base::ScannerError>
 where
     I: Iterator<Item = T>,
@@ -137,8 +139,8 @@ where
     )
     .unwrap();
 
-    let extractor = get_extractor(&tx);
-    let matcher = get_matcher(&tx);
+    let extractor = get_extractor(conn.clone());
+    let matcher = get_matcher(&tx, conn.clone());
 
     let files = get_subfiles(paths).await?;
 
@@ -214,6 +216,7 @@ pub async fn start_incremental(
         lib.locations.into_iter(),
         lib.media_type,
         true,
+        conn.clone(),
     )
     .await
 }
@@ -231,7 +234,15 @@ pub async fn start(
 
     let lib = Library::get_one(&mut tx_, id).await?;
 
-    start_custom(id, tx, lib.locations.into_iter(), lib.media_type, false).await
+    start_custom(
+        id,
+        tx,
+        lib.locations.into_iter(),
+        lib.media_type,
+        false,
+        conn.clone(),
+    )
+    .await
 }
 
 /// Function formats the path where assets are stored.
