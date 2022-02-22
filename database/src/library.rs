@@ -184,4 +184,23 @@ impl InsertableLibrary {
 
         Ok(lib_id)
     }
+
+    pub async fn check_duplicates(
+        &self,
+        conn: &mut crate::Transaction<'_>,
+    ) -> Result<Vec<String>, DatabaseError> {
+        let mut duplicates = Vec::new();
+        for location in &self.locations {
+            let result = sqlx::query!(
+                r#"SELECT count(*) as cnt FROM indexed_paths WHERE location = $1"#,
+                location
+            )
+            .fetch_one(&mut *conn)
+            .await?;
+            if result.cnt > 0 {
+                duplicates.push(location.clone());
+            }
+        }
+        Ok(duplicates)
+    }
 }

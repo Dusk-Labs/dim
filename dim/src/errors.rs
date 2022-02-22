@@ -47,6 +47,8 @@ pub enum DimError {
     InvalidCredentials,
     #[error(display = "Requested username is not available.")]
     UsernameNotAvailable,
+    #[error(display = "Paths are already added to a library")]
+    AlreadyAddedToLibrary { duplicates: Vec<String> },
 }
 
 impl From<sqlx::Error> for DimError {
@@ -72,15 +74,23 @@ impl warp::Reply for DimError {
             | Self::Unauthorized
             | Self::InvalidCredentials
             | Self::NoToken => StatusCode::UNAUTHORIZED,
-            Self::UsernameNotAvailable => StatusCode::BAD_REQUEST,
+            Self::UsernameNotAvailable | Self::AlreadyAddedToLibrary { .. } => {
+                StatusCode::BAD_REQUEST
+            }
             Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {
                 StatusCode::NOT_ACCEPTABLE
             }
         };
 
+        let payload = match self {
+            Self::AlreadyAddedToLibrary { ref duplicates } => json!({ "duplicates": duplicates }),
+            _ => json!(null),
+        };
+
         let resp = json!({
             "error": json!(&self)["error"],
             "messsage": self.to_string(),
+            "payload": payload,
         });
 
         warp::http::Response::builder()

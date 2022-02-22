@@ -174,6 +174,11 @@ pub async fn library_post(
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
+
+    let duplicates = new_library.check_duplicates(&mut tx).await?;
+    if !duplicates.is_empty() {
+        return Err(errors::DimError::AlreadyAddedToLibrary { duplicates });
+    }
     let id = new_library.insert(&mut tx).await?;
     tx.commit().await?;
     drop(lock);
