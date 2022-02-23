@@ -1,6 +1,6 @@
 import { cloneElement, useCallback, useEffect, useState } from "react";
 import Modal from "react-modal";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { newLibrary } from "../../actions/library.js";
 import MediaTypeSelection from "./MediaTypeSelection";
@@ -14,6 +14,7 @@ Modal.setAppElement("body");
 
 function NewLibraryModal(props) {
   const dispatch = useDispatch();
+  const newLibraryState = useSelector((state) => state.library.new_library);
   const [visible, setVisible] = useState(false);
 
   const [current, setCurrent] = useState("");
@@ -71,6 +72,21 @@ function NewLibraryModal(props) {
     }
   }, [name]);
 
+  useEffect(() => {
+    if (!newLibraryState) {
+      return;
+    }
+    if (newLibraryState.creating) {
+      setNameErr("");
+    } else {
+      if (newLibraryState.created) {
+        close();
+      } else {
+        setNameErr(newLibraryState.error);
+      }
+    }
+  }, [newLibraryState, close, dispatch]);
+
   const add = useCallback(async () => {
     if (!name) {
       setNameErr("Label your library");
@@ -84,10 +100,8 @@ function NewLibraryModal(props) {
       };
 
       dispatch(newLibrary(data));
-
-      close();
     }
-  }, [close, dispatch, mediaType, name, selectedFolders]);
+  }, [dispatch, mediaType, name, selectedFolders]);
 
   return (
     <div className="modalBoxContainer">
