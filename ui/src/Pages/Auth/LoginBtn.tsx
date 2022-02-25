@@ -1,10 +1,19 @@
-import { useCallback, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { authenticate } from "../../actions/auth.js";
+import React, { useCallback, useEffect } from "react";
 
-function LoginBtn(props) {
-  const dispatch = useDispatch();
-  const auth = useSelector((store) => store.auth);
+import { useAppDispatch, useAppSelector } from "hooks/store";
+import { authenticate } from "actions/auth.js";
+
+interface Props {
+  credentials: [string, string];
+  error: [
+    React.Dispatch<React.SetStateAction<string>>,
+    React.Dispatch<React.SetStateAction<string>>
+  ];
+}
+
+function LoginBtn(props: Props) {
+  const dispatch = useAppDispatch();
+  const auth = useAppSelector((store) => store.auth);
 
   const { credentials, error } = props;
 
@@ -12,7 +21,7 @@ function LoginBtn(props) {
   const [setUsernameErr, setPasswordErr] = error;
 
   const authorize = useCallback(async () => {
-    if (auth.logging_in) return;
+    if (auth.login.logging_in) return;
 
     const allowedChars = /^[a-zA-Z0-9_.-]*$/;
 
@@ -36,7 +45,7 @@ function LoginBtn(props) {
 
     dispatch(authenticate(username, password));
   }, [
-    auth.logging_in,
+    auth.login.logging_in,
     dispatch,
     password,
     setPasswordErr,
@@ -62,7 +71,7 @@ function LoginBtn(props) {
   }, [onKeyDown]);
 
   return (
-    <button className={`${auth.logging_in}`} onClick={authorize}>
+    <button className={`${auth.login.logging_in}`} onClick={authorize}>
       Login
     </button>
   );

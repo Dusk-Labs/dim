@@ -1,10 +1,20 @@
 import { useCallback, useContext } from "react";
 
-import Button from "../../../Components/Misc/Button";
-import PlayIcon from "../../../assets/Icons/Play";
+import Button from "Components/Misc/Button";
+import PlayIcon from "assets/Icons/Play";
 import { SelectMediaFileContext } from "../Context";
 
-function SelectMediaFilePlayButton(props) {
+interface Props {
+  progress: number;
+  seasonep: {
+    episode: number;
+    season: number;
+  };
+  label?: string;
+  hideIcon?: boolean;
+}
+
+function SelectMediaFilePlayButton(props: Props) {
   const { setClicked, currentID } = useContext(SelectMediaFileContext);
   const { progress, seasonep, label, hideIcon } = props;
 
