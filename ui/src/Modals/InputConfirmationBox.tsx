@@ -18,9 +18,10 @@ interface Props {
   type: string;
   cancelText: string;
   confirmText: string;
+  children?: React.ReactElement;
 }
 
-export const InputConfirmationBox = (props: React.PropsWithChildren<Props>) => {
+export const InputConfirmationBox = (props: Props) => {
   const { action } = props;
 
   const confirmAction = useCallback(

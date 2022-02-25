@@ -1,13 +1,19 @@
-import { cloneElement, useCallback, useEffect, useState } from "react";
+import React, { cloneElement, useCallback, useEffect, useState } from "react";
 import Modal from "react-modal";
 
 import "./Index.scss";
+
+interface Props {
+  activatingComponent?: React.ReactElement;
+  id?: string;
+  children: (close: () => void) => React.ReactNode;
+}
 
 /*
   This contains the core logic for a modal e.g. open/close etc
   This is to only be used by components that intend to be rendered in a modal
 */
-const ModalBox = (props) => {
+const ModalBox = (props: Props) => {
   const [visible, setVisible] = useState(!props.activatingComponent);
 
   // prevent scrolling behind Modal
@@ -19,11 +25,7 @@ const ModalBox = (props) => {
 
   const close = useCallback(() => {
     setVisible(false);
-
-    if (props.cleanUp) {
-      props.cleanUp();
-    }
-  }, [props]);
+  }, []);
 
   const open = useCallback(() => {
     setVisible(true);

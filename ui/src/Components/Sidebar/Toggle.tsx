@@ -1,11 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
-import DimLogo from "../../assets/DimLogo";
-import AngleLeftIcon from "../../assets/Icons/AngleLeft";
+import DimLogo from "assets/DimLogo";
+import AngleLeftIcon from "assets/Icons/AngleLeft";
 
 import "./Toggle.scss";
 
-function Toggle(props) {
+interface Props {
+  sidebar: React.MutableRefObject<HTMLElement | null>;
+}
+
+function Toggle(props: Props) {
   const [defaultChecked, setDefaultChecked] = useState(false);
   const [visible, setVisible] = useState(true);
 
@@ -22,24 +26,35 @@ function Toggle(props) {
       if (withAnimation) {
         main.style.transition = "margin .3s ease-in-out";
 
-        visible
-          ? (props.sidebar.current.style.animation =
-              "hideSidebar .3s ease-in-out forwards")
-          : (props.sidebar.current.style.animation =
-              "showSidebar .3s ease-in-out forwards");
+        if (props.sidebar.current) {
+          if (visible) {
+            props.sidebar.current.style.animation =
+              "hideSidebar .3s ease-in-out forwards";
+          } else {
+            props.sidebar.current.style.animation =
+              "showSidebar .3s ease-in-out forwards";
+          }
+        }
 
-        localStorage.setItem("defaultSidebarVisible", !visible);
+        localStorage.setItem("defaultSidebarVisible", (!visible).toString());
       } else {
         main.style.transition = "";
-        props.sidebar.current.style.animation = "";
 
-        visible
-          ? (props.sidebar.current.style.transform = "translateX(-100%)")
-          : (props.sidebar.current.style.transform = "translateX(0)");
+        if (props.sidebar.current) {
+          props.sidebar.current.style.animation = "";
+
+          if (visible) {
+            props.sidebar.current.style.transform = "translateX(-100%)";
+          } else {
+            props.sidebar.current.style.transform = "translateX(0)";
+          }
+        }
       }
 
-      props.sidebar.current.classList.toggle("hide", visible);
-      props.sidebar.current.classList.toggle("show", !visible);
+      if (props.sidebar.current) {
+        props.sidebar.current.classList.toggle("hide", visible);
+        props.sidebar.current.classList.toggle("show", !visible);
+      }
 
       main.classList.toggle("full", visible);
       main.classList.toggle("shrunk", !visible);
