@@ -1,4 +1,9 @@
 import NestedFileView from "Components/NestedFileView/Index";
+import SimpleSearch from "Components/SimpleSearch";
+import AdvancedSearch from "Components/AdvancedSearch/Index";
+import SearchResult from "./SearchResult";
+
+import AngleUp from "assets/Icons/AngleUp";
 import "./Index.scss";
 
 const MatchMedia = () => {
@@ -126,11 +131,27 @@ const MatchMedia = () => {
       <div className="match-container">
         <div className="match-left">
           <p className="match-head">3 Unmatched files found</p>
-          <p className="match-label">View and select files to match.</p>
+          <div className="match-middle">
+            <p className="match-label">View and select files to match.</p>
+            <SimpleSearch />
+          </div>
 
           <NestedFileView files={files} />
         </div>
-        <div className="match-right"></div>
+        <div className="match-right">
+          <div className="search-head">
+            <AdvancedSearch />
+            <div className="toggle">
+              <AngleUp />
+            </div>
+          </div>
+
+          <div className="search-results">
+            <SearchResult />
+            <SearchResult />
+            <SearchResult />
+          </div>
+        </div>
       </div>
     </div>
   );

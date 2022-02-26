@@ -1,0 +1,62 @@
+.result-card {
+  display: flex;
+  padding: 20px 0;
+  margin: 0 40px;
+  gap: 20px;
+  border-bottom: 2px solid #4b4b4b;
+
+  .left {
+    img {
+      height: 120px;
+    }
+  }
+
+  .right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .top-row {
+      display: flex;
+      align-items: center;
+
+      p {
+        font-size: 16px;
+        justify-content: flex-start;
+        font-family: Roboto Regular;
+        font-style: normal;
+        font-weight: 500;
+      }
+
+      .meta {
+        display: flex;
+        margin-left: auto;
+        gap: 10px;
+
+        p {
+          font-size: 13px;
+          color: #ddd;
+        }
+      }
+    }
+
+    .middle {
+      display: flex;
+      column-gap: 20px;
+      margin-top: 5px;
+
+      p {
+        font-size: 14px;
+        color: #ea963e;
+      }
+    }
+
+    .bottom {
+      .description {
+        max-height: 65px;
+        overflow: hidden;
+        font-size: 16px;
+      }
+    }
+  }
+}
