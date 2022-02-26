@@ -10,7 +10,8 @@ use reqwest::Client;
 use reqwest::ClientBuilder;
 use reqwest::StatusCode;
 
-use err_derive::Error;
+use thiserror::Error;
+use displaydoc::Display;
 use futures::stream;
 use futures::StreamExt;
 use tokio::sync::RwLock;
@@ -19,23 +20,23 @@ use async_recursion::async_recursion;
 
 static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
 
-#[derive(Debug, Error, Serialize)]
+#[derive(Clone, Display, Debug, Error, Serialize)]
 pub enum TmdbError {
-    #[error(display = "The request timeouted")]
+    /// The request timeouted
     Timeout,
-    #[error(display = "Max retry count reached")]
+    /// Max retry count reached
     ReachedMaxTries,
-    #[error(display = "Internal error with reqwest")]
+    /// Internal error with reqwest
     ReqwestError,
-    #[error(display = "The json returned could not be deserialized")]
+    /// The json returned could not be deserialized
     DeserializationError,
-    #[error(display = "No results are found")]
+    /// No results are found: query={query} year={year:?}
     NoResults { query: String, year: Option<i32> },
-    #[error(display = "No seasons found for the id supplied")]
+    /// No seasons found for the id supplied: {id}
     NoSeasonsFound { id: u64 },
-    #[error(display = "No episodes found for the id supplied")]
+    /// No episodes found for the id supplied: id={id} season={season}
     NoEpisodesFound { id: u64, season: u64 },
-    #[error(display = "Could not find genre with supplied id")]
+    /// Could not find genre with supplied id: {id}
     NoGenreFound { id: u64 },
 }
 
@@ -99,6 +100,7 @@ impl Tmdb {
             pub poster_path: Option<String>,
             pub backdrop_path: Option<String>,
             pub genres: Vec<GenrePair>,
+            pub runtime: Option<u64>,
         }
 
         #[derive(Deserialize, Clone, Debug)]
@@ -127,6 +129,7 @@ impl Tmdb {
                 .into_iter()
                 .map(|x| x.name)
                 .collect::<Vec<String>>(),
+            runtime: result.runtime,
         })
     }
 
@@ -369,6 +372,7 @@ pub struct Media {
     pub genre_ids: Option<Vec<u64>>,
     #[serde(skip_deserializing)]
     pub genres: Vec<String>,
+    pub runtime: Option<u64>,
 }
 
 impl From<Media> for super::ApiMedia {
@@ -394,8 +398,9 @@ impl From<Media> for super::ApiMedia {
             backdrop_path,
             backdrop_file: this.backdrop_path,
             genres: this.genres,
-            rating: this.vote_average.map(|x| x as i32),
+            rating: this.vote_average,
             seasons: Vec::new(),
+            duration: this.runtime,
         }
     }
 }

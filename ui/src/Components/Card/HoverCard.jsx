@@ -54,7 +54,6 @@ function HoverCard(props) {
   if (data) {
     const {
       duration,
-      genres,
       rating,
       description,
       year,
@@ -62,7 +61,11 @@ function HoverCard(props) {
       season,
       episode,
       play_btn_id,
+      genres,
     } = data;
+
+    // copy needed so that `Array.splice` doesnt complain.
+    const genresCopy = [...genres];
 
     const length = {
       hh: ("0" + Math.floor(duration / 3600)).slice(-2),
@@ -105,12 +108,12 @@ function HoverCard(props) {
               <p>No description found</p>
             )}
           </section>
-          {year && genres && (
+          {year && genresCopy && (
             <section className="tags">
               <Link to={`/search?year=${year}`}>{year}</Link>
-              {genres.length > 0 && <CircleIcon />}
+              {genresCopy.length > 0 && <CircleIcon />}
               <div className="genres">
-                {genres.map((genre, i) => (
+                {genresCopy.map((genre, i) => (
                   <Link
                     to={`/search?genre=${encodeURIComponent(genre)}`}
                     key={i}

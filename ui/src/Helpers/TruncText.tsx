@@ -6,13 +6,13 @@ interface Props {
 export const TruncText = (props: Props) => {
   const words = props.content.split(" ");
 
-  if (words.length < props.max) {
+  if (words.length <= props.max) {
     return <>{words.join(" ")}</>;
   }
 
-  words.length = props.max;
+  const sliced = words.slice(0, -(words.length - props.max));
 
-  return <>{words.join(" ") + "..."}</>;
+  return <>{sliced.join(" ") + "..."}</>;
 };
 
 export default TruncText;

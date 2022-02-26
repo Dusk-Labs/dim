@@ -61,7 +61,7 @@ impl<'a> TvShowMatcher<'a> {
             return;
         }
 
-        self.push_event(media_id, library_id).await;
+        self.push_event(media_id, library_id, orphan.id).await;
     }
 
     pub async fn inner_match(
@@ -344,11 +344,19 @@ impl<'a> TvShowMatcher<'a> {
         Ok(media_id)
     }
 
-    async fn push_event(&self, id: i64, lib_id: i64) {
+    async fn push_event(&self, id: i64, lib_id: i64, mediafile: i64) {
         use once_cell::sync::Lazy;
         use std::sync::Mutex;
 
         static DUPLICATE_LOG: Lazy<Mutex<Vec<(i64, i64)>>> = Lazy::new(Default::default);
+
+        // Notify that a mediafile was matched.
+        let event = Message {
+            id,
+            event_type: PushEventType::MediafileMatched { mediafile, library_id: lib_id },
+        };
+
+        let _ = self.event_tx.send(serde_json::to_string(&event).unwrap());
 
         {
             let mut lock = DUPLICATE_LOG.lock().unwrap();

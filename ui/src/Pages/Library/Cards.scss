@@ -1,17 +1,12 @@
 .libraryCards {
   padding: 30px;
-  z-index: 1;
-  position: relative;
-  width: 100%;
   pointer-events: none;
-  top: 0;
   opacity: 1;
   transition: 0.3s ease-in-out;
   background: var(--primaryColor);
   transition: padding 300ms ease-in-out, top 300ms ease-in-out,
     opacity 300ms ease-in-out;
   animation: appear 0.5s ease-in-out;
-  height: 100%;
   overflow-y: auto;
   scrollbar-width: thin;
 

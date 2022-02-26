@@ -1,54 +1,65 @@
-use err_derive::Error;
+use thiserror::Error;
+use displaydoc::Display;
 
 use serde::Serialize;
 use serde_json::json;
 
 use crate::scanners::base::ScannerError;
+use crate::routes::mediafile;
 use nightfall::error::NightfallError;
 
 use http::StatusCode;
 
-#[derive(Clone, Debug, Error, Serialize)]
+pub trait ErrorStatusCode {
+    fn status_code(&self) -> StatusCode;
+}
+
+// FIXME: A lot of these errors need to fucking go man.
+#[derive(Clone, Display, Debug, Error, Serialize)]
 #[serde(tag = "error")]
 pub enum DimError {
-    #[error(display = "A database error occured: {}", description)]
+    /// A database error occured: {description}.
     DatabaseError { description: String },
-    #[error(display = "Some function returned none")]
+    /// Some function returned none.
     NoneError,
-    #[error(display = "Some unknown error has occured")]
+    /// Some unknown error has occured.
     UnknownError,
-    #[error(display = "An internal server error has occured. Contact your admin.")]
+    /// Internal server error.
     InternalServerError,
-    #[error(display = "An Io error has occured")]
+    /// Io Error
     IOError,
-    #[error(display = "The requested resource does not exist.")]
+    /// The requested resource does not exist.
     NotFoundError,
-    #[error(display = "Authentication is required for this route.")]
+    /// Authentication is required for this route.
     Unauthenticated,
-    #[error(display = "Invalid media_type supplied, options are [movie, tv].")]
+    /// Invalid Media type supplied.
     InvalidMediaType,
-    #[error(display = "An error in the streaming library has occured")]
-    StreamingError(#[error(source)] StreamingErrors),
-    #[error(display = "You do not have permission to access this route")]
+    /// An error in the streaming module has occured
+    #[error(transparent)]
+    StreamingError(#[from] StreamingErrors),
+    /// User has no permission to access this route.
     Unauthorized,
-    #[error(display = "An error has occured when matching.")]
-    ScannerError(#[error(source)] ScannerError),
-    #[error(display = "Upload failed.")]
+    /// Error has occured when matching.
+    ScannerError(#[from] ScannerError),
+    /// Upload failed.
     UploadFailed,
-    #[error(display = "Failed to deserialize request body ({:?})", description)]
+    /// Failed to deserialize request body: {description:?}.
     MissingFieldInBody { description: String },
-    #[error(display = "Unsupported file type.")]
+    /// Unsupported file type.
     UnsupportedFile,
-    #[error(display = "Library does not exist.")]
+    /// Library does not exist.
     LibraryNotFound,
-    #[error(display = "Invite token required.")]
+    /// Invite token required.
     NoToken,
-    #[error(display = "Invalid credentials.")]
+    /// Invalid credentials.
     InvalidCredentials,
-    #[error(display = "Requested username is not available.")]
+    /// Requested username is not available.
     UsernameNotAvailable,
-    #[error(display = "An error has occured while parsing cookie.")]
-    CookieError(#[error(source)] database::error::AuthError),
+    /// An error has occured while parsing cookies: {0:?}
+    CookieError(#[source] database::error::AuthError),
+    /// Error occured in the `/api/v1/mediafile` routes.
+    #[error(transparent)]
+    MediafileRouteError(#[from] mediafile::Error)
 }
 
 impl From<sqlx::Error> for DimError {
@@ -81,6 +92,7 @@ impl warp::Reply for DimError {
             Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {
                 StatusCode::NOT_ACCEPTABLE
             }
+            Self::MediafileRouteError(ref e) => e.status_code()
         };
 
         let resp = json!({
@@ -96,35 +108,41 @@ impl warp::Reply for DimError {
     }
 }
 
-#[derive(Clone, Debug, Error, Serialize)]
+#[derive(Clone, Display, Debug, Error, Serialize)]
 pub enum StreamingErrors {
-    #[error(display = "A database error occured")]
+    /// A database error occured: {0}
     DatabaseError(String),
-    #[error(display = "Failed to start process")]
+    /// Failed to start process
     ProcFailed,
-    #[error(display = "The video profile requested doesnt exist")]
+    /// The video profile requested doesnt exist
     InvalidProfile,
-    #[error(display = "A error with nightfall has occured")]
-    OtherNightfall(#[source] NightfallError),
-    #[error(display = "It appears that the file is corrupted")]
+    /// A error with nightfall has occured
+    OtherNightfall(NightfallError),
+    /// It appears that the file is corrupted
     FileIsCorrupt,
-    #[error(display = "Invalid request")]
+    /// Invalid request
     InvalidRequest,
-    #[error(display = "Requested session doesnt exist")]
+    /// Requested session doesnt exist
     SessionDoesntExist,
-    #[error(display = "InternalServerError")]
+    /// InternalServerError"
     InternalServerError,
-    #[error(display = "No mediafile found")]
+    /// No mediafile found: {0}
     NoMediaFileFound(String),
-    #[error(display = "Failed to create a ffprobe context")]
+    /// Failed to create a ffprobe context
     FFProbeCtxFailed,
-    #[error(display = "Could not parse the gid")]
+    /// Could not parse the gid
     GidParseError,
 }
 
 impl From<sqlx::Error> for StreamingErrors {
     fn from(e: sqlx::Error) -> Self {
         Self::DatabaseError(format!("{:?}", e))
+    }
+}
+
+impl From<NightfallError> for StreamingErrors {
+    fn from(e: NightfallError) -> Self {
+        Self::OtherNightfall(e)
     }
 }
 

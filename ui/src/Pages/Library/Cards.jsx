@@ -165,7 +165,7 @@ function Cards(props) {
   }, []);
 
   return (
-    <div className={`libraryCards slip-${props.slip}`} ref={cardList}>
+    <div className="libraryCards" ref={cardList}>
       <div className="libraryHeader">
         <h2>{title.toLowerCase()}</h2>
         <div className="actions">

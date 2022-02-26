@@ -1,7 +1,27 @@
 .mediaPage .mediaContent {
   gap: 2em 4em;
   display: grid;
-  padding: 30px;
+
+  & > .meta-content .mediaPageSeason {
+  }
+
+  & > .meta-content {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    padding-left: 30px;
+  }
+
+  & > .mediaPageSeasons {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    padding-right: 30px;
+  }
+
+  & > .match-media {
+    grid-column-start: 1;
+    grid-column-end: 3;
+    padding-bottom: 60px;
+  }
 }
 
 /*
@@ -42,6 +62,17 @@
 @media only screen and (min-width: 1080px) {
   .mediaPage .mediaContent {
     grid-template-columns: auto 1fr;
-    padding: 60px 90px;
+
+    & > .meta-content {
+      padding-top: 60px;
+      padding-bottom: 60px;
+      padding-left: 90px;
+    }
+
+    & > .mediaPageSeasons {
+      padding-top: 60px;
+      padding-bottom: 60px;
+      padding-right: 90px;
+    }
   }
 }

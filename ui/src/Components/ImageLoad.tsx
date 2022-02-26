@@ -9,8 +9,8 @@ export interface ImageLoadChildrenParams {
 
 interface Props {
   children: (params: ImageLoadChildrenParams) => React.ReactElement;
-  src: string;
-  triggerAnimation: string;
+  src?: string;
+  triggerAnimation?: string;
 }
 
 function ImageLoad(props: Props) {
@@ -42,6 +42,11 @@ function ImageLoad(props: Props) {
     setImageSrc(null);
     setTryAgain(false);
     setTimeoutID(null);
+
+    if (!props.src) {
+      setErr(true);
+      return;
+    }
 
     const src = new RegExp("^(?:[a-z]+:)?//").test(props.src)
       ? props.src
@@ -108,18 +113,26 @@ function ImageLoad(props: Props) {
   const handleAnimationEnd = useCallback(
     (e) => {
       if (e.animationName !== props.triggerAnimation) return;
+      if (imageSrc) return;
 
       fetchImage();
       setTryAgainCount(2);
     },
-    [fetchImage, props.triggerAnimation]
+    [fetchImage, props.triggerAnimation, imageSrc]
   );
 
   useEffect(() => {
-    // setShow(true);
     if (props.src === currentSrc) return;
     setShow(false);
   }, [currentSrc, props.src]);
+
+  useEffect(() => {
+    if (props.triggerAnimation) return;
+    if (!props.src) return;
+    if (currentSrc === props.src) return;
+
+    fetchImage();
+  }, [currentSrc, props.src, props.triggerAnimation, fetchImage]);
 
   useEffect(() => {
     const controller = new AbortController();

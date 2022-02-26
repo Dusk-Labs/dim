@@ -40,6 +40,7 @@
           color: #fff;
         }
 
+        &:hover,
         &.is-active {
           svg {
             color: #ffdebd;
@@ -65,6 +66,7 @@
 
 .ReactCollapse--collapse {
   transition: height 200ms;
+  max-width: 100%;
 }
 
 .file-view {
@@ -95,6 +97,7 @@
     border-radius: 4px;
     border: solid 2px var(--accentColor);
     transition: background 150ms ease-in-out;
+    flex-shrink: 0;
 
     svg {
       margin: auto;

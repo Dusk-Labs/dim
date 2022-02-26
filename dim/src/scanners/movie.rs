@@ -56,7 +56,7 @@ impl<'a> MovieMatcher<'a> {
             return;
         }
 
-        self.push_event(media_id, library_id).await;
+        self.push_event(media_id, library_id, orphan.id).await;
     }
 
     pub async fn inner_match(
@@ -197,12 +197,20 @@ impl<'a> MovieMatcher<'a> {
         Ok(media_id)
     }
 
-    async fn push_event(&self, id: i64, lib_id: i64) {
+    async fn push_event(&self, id: i64, lib_id: i64, mediafile: i64) {
         // TODO: verify if this scanner suffers from the same duplicate top-level media insertion
         // bug.
         let event = Message {
             id,
             event_type: PushEventType::EventNewCard { lib_id },
+        };
+
+        let _ = self.event_tx.send(serde_json::to_string(&event).unwrap());
+
+        // Notify that a mediafile was matched.
+        let event = Message {
+            id,
+            event_type: PushEventType::MediafileMatched { mediafile, library_id: lib_id },
         };
 
         let _ = self.event_tx.send(serde_json::to_string(&event).unwrap());

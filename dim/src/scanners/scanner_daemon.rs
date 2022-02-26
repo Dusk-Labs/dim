@@ -18,17 +18,18 @@ use notify::Watcher;
 
 use tokio::sync::mpsc::UnboundedReceiver;
 
-use err_derive::Error;
+use thiserror::Error;
+use displaydoc::Display;
 use tracing::debug;
 use tracing::error;
 use tracing::warn;
 
-#[derive(Debug, Error)]
+#[derive(Display, Debug, Error)]
 pub enum FsWatcherError {
-    #[error(display = "A database error has occured")]
-    DatabaseError(#[source] database::DatabaseError),
-    #[error(display = "A error with notify has occured")]
-    NotifyError(#[source] notify::Error),
+    /// A database error has occured: {0:?}
+    DatabaseError(#[from] database::DatabaseError),
+    /// A error with notify has occured": {0:?}
+    NotifyError(#[from] notify::Error),
 }
 
 pub struct FsWatcher {

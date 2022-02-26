@@ -4,6 +4,9 @@ pub mod scanner_daemon;
 pub mod tmdb;
 pub mod tv_show;
 
+use chrono::Datelike;
+use chrono::NaiveDate;
+
 use database::library::Library;
 use database::library::MediaType;
 
@@ -12,6 +15,8 @@ use tracing::instrument;
 
 use crate::core::DbConnection;
 use crate::core::EventTx;
+use crate::json;
+use crate::utils::secs_to_pretty;
 
 use once_cell::sync::OnceCell;
 use walkdir::WalkDir;
@@ -34,8 +39,37 @@ pub struct ApiMedia {
     pub poster_file: Option<String>,
     pub backdrop_file: Option<String>,
     pub genres: Vec<String>,
-    pub rating: Option<i32>,
+    pub rating: Option<f64>,
     pub seasons: Vec<ApiSeason>,
+    pub duration: Option<u64>,
+}
+
+impl ApiMedia {
+    pub fn year(&self) -> Option<u32> {
+        NaiveDate::parse_from_str(self.release_date.as_ref()?, "%Y-%m-%d")
+            .ok()
+            .map(|x| x.year() as _)
+    }
+
+    pub fn search_response(items: impl Iterator<Item = impl Into<Self>>) -> warp::reply::Json {
+        warp::reply::json(
+            &items
+                .map(Into::into)
+                .map(|x| {
+                    json!({
+                        "id": x.id,
+                        "title": x.title,
+                        "year": x.year(),
+                        "overview": x.overview,
+                        "poster_path": x.poster_path,
+                        "genres": x.genres,
+                        "rating": x.rating,
+                        "duration": x.duration.map(secs_to_pretty),
+                    })
+                })
+                .collect::<Vec<_>>(),
+        )
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

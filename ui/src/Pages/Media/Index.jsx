@@ -7,6 +7,8 @@ import Banner from "./Banner";
 import MetaContent from "./MetaContent";
 import Seasons from "./Seasons";
 
+import MatchMedia from "Pages/Library/MatchMedia/Index";
+
 import "./Index.scss";
 
 function Media() {
@@ -20,7 +22,8 @@ function Media() {
     <div className="mediaPage">
       <Banner />
       <div className="mediaContent">
-        <div>
+        <MatchMedia />
+        <div className="meta-content">
           <MetaContent activeId={activeId} />
         </div>
         {media && media.media_type === "tv" && (

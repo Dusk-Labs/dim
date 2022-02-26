@@ -1,13 +1,24 @@
 .match-media {
-  height: 45vh;
-  min-height: 560px;
   overflow-y: auto;
   scrollbar-width: thin;
-  padding: 60px 90px;
-  opacity: 1;
-  z-index: 1;
-  transition: 300ms ease-in-out;
-  transition-property: padding, opacity;
+  transition: padding 300ms ease-in-out;
+  transition: height 100ms ease-in-out;
+
+  &.open-true {
+    height: 46vh;
+  }
+
+  &.open-false {
+    height: 16vh;
+
+    & .nested-view-container {
+      overflow: hidden !important;
+    }
+
+    & .match-right {
+      background: #3a3a3a !important;
+    }
+  }
 
   .match-container {
     display: flex;
@@ -34,15 +45,28 @@
       color: #aaa;
     }
 
+    .match-middle {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      .simple-searchbox {
+        margin-left: auto;
+        padding-right: 40px;
+      }
+    }
+
     .match-left {
       background: #3a3a3a;
-      width: 100%;
+      width: 50%;
       height: 100%;
       margin: auto;
       border-radius: 20px 0 0 20px;
       position: relative;
       display: flex;
       flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
 
       .match-folders {
         display: flex;
@@ -62,10 +86,66 @@
 
     .match-right {
       background: #3e3e3e;
-      width: 100%;
+      width: 50%;
       height: 100%;
       margin: auto;
       border-radius: 0 20px 20px 0;
+      display: flex;
+      position: relative;
+      flex-grow: 0;
+      flex-shrink: 0;
+      flex-direction: column;
+
+      transition: background-color 100ms ease-in-out;
+
+      .search-head {
+        display: inline-flex;
+        align-self: flex-start;
+        padding: 20px 40px;
+        overflow: hidden;
+        width: 100%;
+        column-gap: 30px;
+        flex-shrink: 0;
+
+        .toggle {
+          display: flex;
+          height: 35px;
+          width: 35px;
+          background: #585858;
+          border-radius: 20px;
+          flex-shrink: 0;
+          align-self: center;
+          transition: all 200ms ease-in-out;
+          cursor: pointer;
+
+          &:hover {
+            background: #666;
+          }
+
+          svg {
+            margin: auto;
+            font-size: 12px;
+          }
+
+          &.invert {
+            transform: rotate(180deg);
+          }
+        }
+      }
+
+      .search-results {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+        overflow: auto;
+        margin-bottom: 20px;
+      }
     }
+  }
+}
+
+@media only screen and (min-width: 1080px) {
+  .match-media {
+    padding: 60px 90px;
   }
 }

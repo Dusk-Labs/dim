@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-import UnmatchedCard from "./UnmatchedMedia/Index";
 import Cards from "./Cards";
 import { LibraryContext } from "./Context";
 
@@ -22,7 +21,7 @@ const Library = () => {
     }
   }, [setShowUnmatched, unmatched.fetched, unmatched.items]);
 
-  const { fetched, items } = unmatched;
+  // const { fetched, items } = unmatched;
 
   const initialValue = {
     showUnmatched,
@@ -34,8 +33,7 @@ const Library = () => {
     <LibraryContext.Provider value={initialValue}>
       <div className="library">
         <MatchMedia />
-        {fetched && Object.keys(items).length > 0 && <UnmatchedCard />}
-        <Cards slip={true} />
+        <Cards />
       </div>
     </LibraryContext.Provider>
   );

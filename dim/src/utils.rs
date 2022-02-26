@@ -269,6 +269,15 @@ macro_rules! json_internal {
         json_internal!(@object $object [$($key)+] (json_internal!($value)) , $($rest)*);
     };
 
+    // Next value is an optional expression followed by comma.
+    (@object $object:ident ($($key:tt)+) (:? $value:expr , $($rest:tt)*) $copy:tt) => {
+        if let Some(x) = $value {
+            json_internal!(@object $object [$($key)+] (json_internal!($value)) , $($rest)*);
+        } else {
+            json_internal!(@object $object () ($($rest)*) ($($rest)*));
+        }
+    };
+
     // Next entry is a key with the spread operator and no value
     (@object $object:ident ($(...$key:expr)+) (, $($rest:tt)*) $copy:tt) => {
         if let Some(map) = ($($key)+).clone().as_object_mut() {
@@ -452,6 +461,23 @@ pub fn ts_to_xml(t: u64) -> String {
 
     if s != 0 {
         tag = format!("{}{}S", tag, s);
+    }
+
+    tag
+}
+
+pub fn secs_to_pretty(t: u64) -> String {
+    let h = t / 3600;
+    let m = t % 3600 / 60;
+
+    let mut tag = String::new();
+
+    if h != 0 {
+        tag = format!("{h}hr");
+    }
+
+    if m != 0 {
+        tag = format!("{tag} {m}m");
     }
 
     tag
