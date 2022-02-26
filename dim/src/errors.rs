@@ -89,7 +89,7 @@ impl warp::Reply for DimError {
 
         let resp = json!({
             "error": json!(&self)["error"],
-            "messsage": self.to_string(),
+            "message": self.to_string(),
             "payload": payload,
         });
 
@@ -145,7 +145,7 @@ impl warp::Reply for StreamingErrors {
 
         let resp = json!({
             "error": json!(&self)["error"],
-            "messsage": self.to_string(),
+            "message": self.to_string(),
         });
 
         warp::http::Response::builder()
