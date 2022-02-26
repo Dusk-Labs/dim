@@ -20,6 +20,7 @@ function NewLibraryModal(props) {
   const [current, setCurrent] = useState("");
   const [name, setName] = useState("");
   const [nameErr, setNameErr] = useState("");
+  const [serverError, setServerError] = useState({});
   const [mediaType, setMediaType] = useState("movie");
   const [selectedFolders, setSelectedFolders] = useState([]);
 
@@ -76,13 +77,20 @@ function NewLibraryModal(props) {
     if (!newLibraryState) {
       return;
     }
+    setServerError({});
     if (newLibraryState.creating) {
       setNameErr("");
     } else {
       if (newLibraryState.created) {
         close();
       } else {
-        setNameErr(newLibraryState.error);
+        if (newLibraryState.error) {
+          if (newLibraryState.error.details) {
+            setServerError(newLibraryState.error.details);
+          } else {
+            setServerError({ message: newLibraryState.error.statusText });
+          }
+        }
       }
     }
   }, [newLibraryState, close, dispatch]);
@@ -119,6 +127,17 @@ function NewLibraryModal(props) {
             <div className="separator" />
           </div>
           <div className="fields">
+            {serverError && serverError.message && (
+              <div className="serverError">{serverError.message}</div>
+            )}
+            {serverError &&
+              serverError.payload &&
+              serverError.payload.duplicates &&
+              serverError.payload.duplicates.length > 0 && (
+                <div className="serverErrorDuplicates">
+                  {serverError.payload.duplicates}
+                </div>
+              )}
             <Field
               name="Name"
               placeholder="Untitled"

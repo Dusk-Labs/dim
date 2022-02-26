@@ -106,9 +106,10 @@ export const newLibrary = (data) => async (dispatch, getState) => {
     const res = await fetch("/api/v1/library", options);
 
     if (res.status !== 201) {
+      const details = await res.json();
       return dispatch({
         type: NEW_LIBRARY_ERR,
-        payload: res.statusText,
+        payload: { statusText: res.statusText, details },
       });
     }
 
