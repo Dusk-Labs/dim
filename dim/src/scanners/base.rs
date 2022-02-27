@@ -1,6 +1,7 @@
 use std::path::Path;
 use std::path::PathBuf;
 
+use database::media::InsertableMedia;
 use tracing::debug;
 use tracing::debug_span;
 use tracing::error;
@@ -107,7 +108,7 @@ impl MetadataExtractor {
         };
 
         let target_file_clone = target_file.clone();
-        let mf_id = {
+        let mf = {
             let mut tx = self
                 .conn
                 .read()
@@ -116,7 +117,7 @@ impl MetadataExtractor {
                 .map_err(|e| ScannerError::DatabaseError(format!("{:?}", e)))?;
 
             match MediaFile::get_by_file(&mut tx, &target_file_clone).await {
-                Ok(mf) => Some(mf.id),
+                Ok(mf) => Some(mf),
                 Err(err) => {
                     if let database::DatabaseError::DatabaseError(sqlx::Error::RowNotFound) = &err {
                         None
@@ -128,7 +129,7 @@ impl MetadataExtractor {
             }
         };
 
-        if mf_id.is_some() && !update_if_exists {
+        if mf.is_some() && !update_if_exists {
             debug!(
                 file = ?file.to_string_lossy(),
                 library_id = library_id,
@@ -219,7 +220,47 @@ impl MetadataExtractor {
                 .map(ToString::to_string),
         };
 
-        let mediafile: MediaFile = if let Some(id) = mf_id {
+        let mediafile: MediaFile = if let Some(MediaFile {
+            id,
+            media_id,
+            library_id,
+            target_file,
+            raw_name,
+            raw_year,
+            quality,
+            codec,
+            container,
+            audio,
+            original_resolution,
+            duration,
+            episode,
+            season,
+            corrupt,
+            channels,
+            profile,
+            audio_language,
+        }) = mf
+        {
+            let media_file = InsertableMediaFile {
+                media_id,
+                library_id,
+                target_file,
+                raw_name: media_file.raw_name,
+                raw_year: raw_year.or(media_file.raw_year),
+                quality: quality.or(media_file.quality),
+                codec: codec.or(media_file.codec),
+                container: container.or(media_file.container),
+                audio: audio.or(media_file.audio),
+                original_resolution: original_resolution.or(media_file.original_resolution),
+                duration: duration.or(media_file.duration),
+                channels: channels.or(media_file.channels),
+                profile: profile.or(media_file.profile),
+                audio_language: audio_language.or(media_file.audio_language),
+                episode: episode.or(media_file.episode),
+                season: season.or(media_file.season),
+                corrupt: corrupt.or(media_file.corrupt),
+            };
+
             self.update(media_file, id).await?
         } else {
             self.insert(media_file).await?
