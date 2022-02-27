@@ -409,65 +409,76 @@ impl MetadataMatcher {
         Ok(())
     }
 
+    async fn match_tv_or_update(
+        &mut self,
+        mut media_file: MediaFile,
+    ) -> Result<Option<MediaFile>, ScannerError> {
+        let mut tx = self.conn.read().begin().await.unwrap();
+
+        match Media::get_of_mediafile(&mut tx, media_file.id).await {
+            Ok(media) => {
+                assert_eq!(media.media_type, MediaType::Episode);
+
+                let episode = Episode::get_by_id(&mut tx, media.id).await.unwrap();
+                let season = season::Season::get_by_id(&mut tx, episode.seasonid)
+                    .await
+                    .unwrap();
+
+                let tv_show = Media::get(&mut tx, season.tvshowid).await.unwrap();
+
+                let _ = tx.commit().await;
+
+                let season = Some(episode.seasonid);
+                let episode = Some(episode.id);
+
+                {
+                    let mut writer = self.conn.writer().lock_owned().await;
+                    let mut tx = database::write_tx(&mut writer)
+                        .await
+                        .map_err(DatabaseError::from)
+                        .map_err(ScannerError::from)?;
+
+                    let update_mediafile = UpdateMediaFile {
+                        episode,
+                        season,
+                        raw_name: Some(media.name),
+                        ..Default::default()
+                    };
+
+                    let _ = update_mediafile.update(&mut tx, media_file.id).await;
+
+                    tx.commit()
+                        .await
+                        .map_err(DatabaseError::from)
+                        .map_err(ScannerError::from)?;
+                }
+
+                media_file.episode = episode;
+                media_file.season = season;
+
+                let api_media = self.tv_tmdb.search(tv_show.name, None).await.unwrap();
+
+                return self
+                    .match_tv_to_result(media_file, api_media)
+                    .await
+                    .map(|_| None);
+            }
+
+            Err(database::DatabaseError::DatabaseError(sqlx::Error::RowNotFound)) => {
+                Ok(Some(media_file))
+            }
+            Err(err) => {
+                error!(err = ?err, "failed to fetch the media file by file name.");
+                return Err(ScannerError::from(err));
+            }
+        }
+    }
+
     #[handler]
     pub async fn match_tv(&mut self, media: MediaFile) -> Result<(), ScannerError> {
-        let mut media_file = media;
-
-        {
-            let mut tx = self.conn.read().begin().await.unwrap();
-
-            match Media::get_of_mediafile(&mut tx, media_file.id).await {
-                Ok(media) => {
-                    assert_eq!(media.media_type, MediaType::Episode);
-
-                    let episode = Episode::get_by_id(&mut tx, media.id).await.unwrap();
-                    let season = season::Season::get_by_id(&mut tx, episode.seasonid)
-                        .await
-                        .unwrap();
-
-                    let tv_show = Media::get(&mut tx, season.tvshowid).await.unwrap();
-
-                    let _ = tx.commit().await;
-
-                    let season = Some(episode.seasonid);
-                    let episode = Some(episode.id);
-
-                    {
-                        let mut writer = self.conn.writer().lock_owned().await;
-                        let mut tx = database::write_tx(&mut writer)
-                            .await
-                            .map_err(DatabaseError::from)
-                            .map_err(ScannerError::from)?;
-
-                        let update_mediafile = UpdateMediaFile {
-                            episode,
-                            season,
-                            raw_name: Some(media.name),
-                            ..Default::default()
-                        };
-
-                        let _ = update_mediafile.update(&mut tx, media_file.id).await;
-
-                        tx.commit()
-                            .await
-                            .map_err(DatabaseError::from)
-                            .map_err(ScannerError::from)?;
-                    }
-
-                    media_file.episode = episode;
-                    media_file.season = season;
-
-                    let api_media = self.tv_tmdb.search(tv_show.name, None).await.unwrap();
-
-                    return self.match_tv_to_result(media_file, api_media).await;
-                }
-
-                Err(database::DatabaseError::DatabaseError(sqlx::Error::RowNotFound)) => (),
-                Err(err) => {
-                    error!(err = ?err, "failed to fetch the media file by file name.");
-                    return Err(ScannerError::from(err));
-                }
-            }
+        let mut media_file = match self.match_tv_or_update(media).await? {
+            None => return Ok(()),
+            Some(f) => f,
         };
 
         let path = Path::new(&media_file.target_file);
