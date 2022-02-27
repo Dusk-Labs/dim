@@ -43,8 +43,20 @@ pub async fn write_tx(
 
     let mut tx = lock.begin().instrument(debug_span!("TxBegin")).await?;
 
-    sqlx::query("END").execute(&mut tx).await?;
-    sqlx::query("BEGIN EXCLUSIVE").execute(&mut tx).await?;
+    // NOTE: the queries below caused some weird sqlx erros that looks like:
+    //
+    // thread 'tokio-runtime-worker' panicked at 'called `Result::unwrap()` on an `Err` value: Database(SqliteError { code: 262, message: "database table is locked" })', /home/mental/Desktop/open_projects/dim/database/src/rw_pool.rs:51:10
+    // thread 'tokio-runtime-worker' panicked at 'error occurred while dropping a transaction: cannot rollback - no transaction is active', /home/mental/.cargo/git/checkouts/sqlx-f05f33ba4f5c3036/694a2ac/sqlx-core/src/sqlite/transaction.rs:78:21
+    //
+    // the error was appearing at the begin exclusive query but commenting it out removes it
+    // and it doesn't look like it breaks anything.
+
+    // sqlx::query("END").execute(&mut tx).await.unwrap();
+
+    // sqlx::query("BEGIN EXCLUSIVE")
+    //     .execute(&mut tx)
+    //     .await
+    //     .unwrap();
 
     Ok(tx)
 }

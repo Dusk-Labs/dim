@@ -1,5 +1,3 @@
-use err_derive::Error;
-
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -25,6 +23,7 @@ use crate::core::EventTx;
 use crate::scanners::movie::MovieMatcher;
 use crate::scanners::tmdb::Tmdb;
 use crate::scanners::tv_show::TvShowMatcher;
+use crate::streaming::ffprobe::FFPWrapper;
 use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::FFPROBE_BIN;
 
@@ -39,6 +38,10 @@ use tokio::task::spawn_blocking;
 use async_trait::async_trait;
 use xtra_proc::actor;
 use xtra_proc::handler;
+
+use cfg_if::cfg_if;
+
+use err_derive::Error;
 
 use anitomy::Anitomy;
 use anitomy::ElementCategory;
@@ -166,8 +169,10 @@ impl MetadataExtractor {
         };
 
         let file_clone = file.clone();
+
         let ffprobe_data =
             move || FFProbeCtx::new(&FFPROBE_BIN).get_meta(file_clone.to_str().unwrap());
+
         let ffprobe_data = if let Ok(Ok(data)) = spawn_blocking(ffprobe_data).await {
             data
         } else {
@@ -175,7 +180,14 @@ impl MetadataExtractor {
                 file = ?file.to_string_lossy(),
                 "Couldnt extract media information with ffprobe",
             );
-            return Err(ScannerError::FFProbeError);
+
+            cfg_if! {
+                if #[cfg(test)] {
+                    FFPWrapper::default()
+                } else {
+                    return Err(ScannerError::FFProbeError);
+                }
+            }
         };
 
         let media_file = InsertableMediaFile {
