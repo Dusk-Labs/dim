@@ -30,3 +30,7 @@ yarn-debug.log*
 yarn-error.log*
 config.toml
 core
+
+
+#MacOS
+**/.DS_Store
