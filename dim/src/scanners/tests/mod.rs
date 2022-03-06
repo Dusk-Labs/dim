@@ -1,11 +1,9 @@
+#![allow(dead_code)]
+
 use std::fs::OpenOptions;
 
-use database::{
-    episode::Episode,
-    get_conn_memory,
-    library::InsertableLibrary,
-    mediafile::{MediaFile, UpdateMediaFile},
-};
+use database::library::InsertableLibrary;
+use database::mediafile::{MediaFile, UpdateMediaFile};
 
 use sqlx::Acquire;
 
@@ -26,7 +24,7 @@ fn create_file(dir: &Path, name: &str) -> PathBuf {
         .open(&path)
         .unwrap();
 
-    path
+    path.canonicalize().unwrap()
 }
 
 struct ScannerMock {
@@ -36,25 +34,30 @@ struct ScannerMock {
     tempdir: TempDir,
     lib_id: i64,
     media_files: Vec<MediaFile>,
+    media_type: MediaType,
 }
 
-async fn test_scanner_insert_impl() -> ScannerMock {
+#[track_caller]
+async fn insert_dummy_media(
+    media_type: MediaType,
+    db: database::DbConnection,
+    name: &str,
+) -> ScannerMock {
     let (ev_tx, _rx) = mpsc::unbounded_channel();
-    let mut db = database::get_conn_memory().await.unwrap();
-    let dir = tempfile::Builder::new().prefix("tmp").tempdir().unwrap();
+    let tempdir = tempfile::Builder::new().prefix("tmp").tempdir().unwrap();
 
     let file_a_name = "abcdef_S1E1.mp4";
-    let file_a = create_file(dir.path(), file_a_name);
+    let file_a = create_file(tempdir.path(), file_a_name);
     let file_a_path = file_a.to_string_lossy().to_string();
 
     let file_b_name = "abcdefasdasd.mp4";
-    let file_b = create_file(dir.path(), file_b_name);
+    let file_b = create_file(tempdir.path(), file_b_name);
     let file_b_path = file_b.to_string_lossy().to_string();
 
     let i_lib = InsertableLibrary {
-        name: format!("abc"),
-        locations: vec![dir.path().to_owned().to_string_lossy().to_string()],
-        media_type: MediaType::Movie,
+        name: format!("{name}"),
+        locations: vec![tempdir.path().to_owned().to_string_lossy().to_string()],
+        media_type,
     };
 
     let lib_id = {
@@ -77,12 +80,15 @@ async fn test_scanner_insert_impl() -> ScannerMock {
 
     assert_eq!(lib.name, i_lib.name);
     assert_eq!(lib.locations, i_lib.locations);
-    assert_eq!(lib.media_type, MediaType::Movie);
+    assert_eq!(lib.media_type, media_type);
 
     let media_file_a = {
         let mut tx = db.read().begin().await.unwrap();
+
         let lib = MediaFile::get_by_file(&mut tx, &file_a_path).await.unwrap();
+
         tx.commit().await.unwrap();
+
         lib
     };
 
@@ -103,34 +109,42 @@ async fn test_scanner_insert_impl() -> ScannerMock {
         dbconn: db,
         lib_id,
         media_files: vec![media_file_a, media_file_b],
-        tempdir: dir,
+        tempdir,
+        media_type,
     }
 }
 
-async fn test_scanner_insert_and_patch_impl() {
+#[track_caller]
+async fn test_scanner_insert_and_patch_impl<F, Fut>(mock_impl: F)
+where
+    F: FnOnce() -> Fut,
+    Fut: core::future::Future<Output = ScannerMock>,
+{
     let ScannerMock {
-        event_rx,
         event_tx,
+        event_rx: _ev_rx,
         dbconn,
-        tempdir,
         media_files,
         lib_id,
-    } = test_scanner_insert_impl().await;
+        tempdir: _tmpdir,
+        ..
+    } = mock_impl().await;
 
     let db = dbconn;
 
-    let without_season = media_files.iter().find(|mf| mf.season.is_none()).unwrap();
-    let with_season = media_files.iter().find(|mf| mf.season.is_some()).unwrap();
+    let without_episode = media_files.iter().find(|mf| mf.episode.is_none()).unwrap();
+
+    let with_episode = media_files.iter().find(|mf| mf.episode.is_some()).unwrap();
 
     {
         let mut update = UpdateMediaFile::default();
-        update.season = Some(123456789);
+        update.episode = Some(123456789);
 
         let writer = db.writer();
         let mut mutex_guard = writer.lock().await;
         let mut tx = mutex_guard.begin().await.unwrap();
 
-        update.update(&mut tx, without_season.id).await.unwrap();
+        update.update(&mut tx, without_episode.id).await.unwrap();
 
         tx.commit().await.unwrap();
     }
@@ -143,7 +157,7 @@ async fn test_scanner_insert_and_patch_impl() {
         let mut mutex_guard = writer.lock().await;
         let mut tx = mutex_guard.begin().await.unwrap();
 
-        update.update(&mut tx, with_season.id).await.unwrap();
+        update.update(&mut tx, with_episode.id).await.unwrap();
 
         tx.commit().await.unwrap();
     }
@@ -154,28 +168,36 @@ async fn test_scanner_insert_and_patch_impl() {
 
     let media_file_a = {
         let mut tx = db.read().begin().await.unwrap();
-        let lib = MediaFile::get_one(&mut tx, without_season.id)
+        let lib = MediaFile::get_one(&mut tx, without_episode.id)
             .await
             .unwrap();
         tx.commit().await.unwrap();
         lib
     };
 
-    assert_eq!(media_file_a.target_file, without_season.target_file);
-    assert_eq!(media_file_a.season, Some(123456789));
+    assert_eq!(media_file_a.target_file, without_episode.target_file);
+    assert_eq!(media_file_a.episode, Some(123456789));
 
     let media_file_b = {
         let mut tx = db.read().begin().await.unwrap();
-        let lib = MediaFile::get_one(&mut tx, with_season.id).await.unwrap();
+        let lib = MediaFile::get_one(&mut tx, with_episode.id).await.unwrap();
         tx.commit().await.unwrap();
         lib
     };
 
-    assert_eq!(media_file_b.target_file, with_season.target_file);
+    assert_eq!(media_file_b.target_file, with_episode.target_file);
     assert_eq!(media_file_b.episode, Some(123456789));
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn test_scanner_insert_and_patch() {
-    test_scanner_insert_and_patch_impl().await;
+    let conn = database::get_conn_memory().await.unwrap();
+
+    test_scanner_insert_and_patch_impl(|| insert_dummy_media(MediaType::Tv, conn.clone(), "abc"))
+        .await;
+
+    test_scanner_insert_and_patch_impl(|| {
+        insert_dummy_media(MediaType::Movie, conn.clone(), "def")
+    })
+    .await;
 }

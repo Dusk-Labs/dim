@@ -225,7 +225,7 @@ impl MetadataExtractor {
             media_id,
             library_id,
             target_file,
-            raw_name,
+            raw_name: _,
             raw_year,
             quality,
             codec,
@@ -510,22 +510,7 @@ impl MetadataMatcher {
             )
             .await;
 
-        // if mediafile is linked to episode and mediafile.episode != episode.episode_ or
-        // mediafile.season != episode.season:
-        //     patch mediafile with episode.season and episode.episode.
-
-        // let mfile = Mediafile::by_path(path).unwrap();
-        // if let Ok(ep) = Episode::get_of_mediafile(mediafile.id) {
-        //     if mfile.episode != ep.episode_ || mfile.season != ep.episode {
-        //        UpdateMediaFile {
-        //            episode: ep.episode_,
-        //            season: ep.season_,
-        //            ..Default::default()
-        //        }
-        //        ....commit();
-        //     }
-        // }
-
+        #[cfg(not(test))]
         if let Some(x) = els.get(ElementCategory::AnimeTitle) {
             // FIXME: this flow will get triggered during any error (ie network error) which could
             // be UB.
