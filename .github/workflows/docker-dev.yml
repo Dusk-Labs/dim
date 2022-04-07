@@ -29,9 +29,8 @@ jobs:
         with:
           push: true
           context: .
-          registry: ghcr.io
           platforms: linux/amd64
-          tags: dusk-labs/dim:dev
+          tags: ghcr.io/dusk-labs/dim:dev
           labels: ${{ steps.meta.outputs.labels }}
           cache-to: type=gha,mode=max
           cache-from: type=gha
