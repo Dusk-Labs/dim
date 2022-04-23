@@ -53,5 +53,8 @@
     "husky": "^7.0.4",
     "lint-staged": "^12.1.5",
     "prettier": "^2.5.1"
+  },
+  "resolutions": {
+    "**/@types/react": "^17.0.30"
   }
 }
