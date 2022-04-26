@@ -26,6 +26,7 @@ pub mod season;
 #[cfg(test)]
 pub mod tests;
 pub mod tv;
+pub mod unmatched;
 pub mod user;
 pub mod utils;
 
