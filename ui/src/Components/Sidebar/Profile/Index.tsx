@@ -1,13 +1,16 @@
-import { useSelector } from "react-redux";
-
+import { useAppSelector } from "hooks/store";
 import ProfileImage from "./Image";
 import Username from "./Username";
-import CircleIcon from "../../../assets/Icons/Circle";
+import CircleIcon from "assets/Icons/Circle";
 
 import "./Index.scss";
 
-function Profile(props) {
-  const user = useSelector((store) => store.user);
+interface Props {
+  hoursSpentWatching: boolean;
+}
+
+function Profile(props: Props) {
+  const user = useAppSelector((store) => store.user);
 
   // FETCH_USER_START
   if (user.fetching) {
@@ -46,7 +49,7 @@ function Profile(props) {
           <ProfileImage src={picture} />
         </div>
         <div className="info">
-          <Username username={username || "eray_chumak"} />
+          <Username username={username || "Unknown User"} />
 
           {props.hoursSpentWatching && (
             <h5>Spent {spentWatching || 0}h watching</h5>

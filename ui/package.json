@@ -2,6 +2,7 @@
   "name": "dim",
   "dependencies": {
     "@reduxjs/toolkit": "^1.7.1",
+    "@types/react-modal": "^3.13.1",
     "dashjs": "=4.1.0",
     "libass-wasm": "https://github.com/jellyfin/JavascriptSubtitlesOctopus",
     "node-sass": "^6.0.0",

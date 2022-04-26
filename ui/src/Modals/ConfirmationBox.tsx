@@ -1,4 +1,4 @@
-import { PropsWithChildren, useCallback } from "react";
+import React, { useCallback } from "react";
 
 import ModalBox from "./Index";
 
@@ -10,9 +10,10 @@ interface Props {
   msg: string;
   cancelText: string;
   confirmText: string;
+  children?: React.ReactElement;
 }
 
-export const ConfirmationBox = (props: PropsWithChildren<Props>) => {
+export const ConfirmationBox = (props: Props) => {
   const { action } = props;
 
   const confirmAction = useCallback(

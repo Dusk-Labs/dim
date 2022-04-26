@@ -28,9 +28,9 @@ jobs:
       - uses: docker/build-push-action@v2
         with:
           push: true
-          registry: ghcr.io
+          context: .
           platforms: linux/amd64
-          tags: dusk-labs/dim:dev
+          tags: ghcr.io/dusk-labs/dim:dev
           labels: ${{ steps.meta.outputs.labels }}
           cache-to: type=gha,mode=max
           cache-from: type=gha
