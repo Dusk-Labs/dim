@@ -1,7 +1,7 @@
-use thiserror::Error;
 use displaydoc::Display;
 use std::path::Path;
 use std::path::PathBuf;
+use thiserror::Error;
 
 use tracing::debug;
 use tracing::debug_span;

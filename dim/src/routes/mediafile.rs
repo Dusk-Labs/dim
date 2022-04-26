@@ -3,27 +3,29 @@ use crate::errors;
 use crate::errors::ErrorStatusCode;
 use crate::scanners::tmdb::Tmdb;
 
-use futures::FutureExt;
 use futures::future;
 use futures::stream::FuturesUnordered;
+use futures::FutureExt;
+
+use database::user::User;
 use database::library::MediaType;
 use database::mediafile::MediaFile;
 
-use database::user::User;
 use serde_json::json;
 use serde::Serialize;
+use serde_json::json;
 
-use warp::reply;
 use warp::reject::Reject;
+use warp::reply;
 
+use http::StatusCode;
 use tracing::info;
 use tracing::warn;
-use http::StatusCode;
 
 #[derive(Clone, Debug, thiserror::Error, Serialize, displaydoc::Display)]
 pub enum Error {
     /// Supplied no mediafiles when rematching.
-    NoMediafiles
+    NoMediafiles,
 }
 
 impl Reject for Error {}
@@ -158,21 +160,22 @@ pub async fn rematch_mediafile(
         .await
         .map_err(|_| errors::DimError::NotFoundError)?;
 
-
     let futures = FuturesUnordered::new();
 
     for mediafile in mediafiles {
         match media_type {
             MediaType::Movie => {
-                futures.push(matcher
-                    .match_movie_to_result(mediafile, result.clone().into())
-                    .boxed()
+                futures.push(
+                    matcher
+                        .match_movie_to_result(mediafile, result.clone().into())
+                        .boxed(),
                 );
             }
             MediaType::Tv => {
-                futures.push(matcher
-                    .match_tv_to_result(mediafile, result.clone().into())
-                    .boxed()
+                futures.push(
+                    matcher
+                        .match_tv_to_result(mediafile, result.clone().into())
+                        .boxed(),
                 );
             }
             _ => unreachable!(),

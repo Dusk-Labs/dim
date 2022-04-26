@@ -18,8 +18,8 @@ use notify::Watcher;
 
 use tokio::sync::mpsc::UnboundedReceiver;
 
-use thiserror::Error;
 use displaydoc::Display;
+use thiserror::Error;
 use tracing::debug;
 use tracing::error;
 use tracing::warn;

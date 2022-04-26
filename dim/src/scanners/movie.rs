@@ -210,7 +210,10 @@ impl<'a> MovieMatcher<'a> {
         // Notify that a mediafile was matched.
         let event = Message {
             id,
-            event_type: PushEventType::MediafileMatched { mediafile, library_id: lib_id },
+            event_type: PushEventType::MediafileMatched {
+                mediafile,
+                library_id: lib_id,
+            },
         };
 
         let _ = self.event_tx.send(serde_json::to_string(&event).unwrap());

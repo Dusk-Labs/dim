@@ -1,11 +1,11 @@
-use thiserror::Error;
 use displaydoc::Display;
+use thiserror::Error;
 
 use serde::Serialize;
 use serde_json::json;
 
-use crate::scanners::base::ScannerError;
 use crate::routes::mediafile;
+use crate::scanners::base::ScannerError;
 use nightfall::error::NightfallError;
 
 use http::StatusCode;
@@ -59,7 +59,7 @@ pub enum DimError {
     CookieError(#[source] database::error::AuthError),
     /// Error occured in the `/api/v1/mediafile` routes.
     #[error(transparent)]
-    MediafileRouteError(#[from] mediafile::Error)
+    MediafileRouteError(#[from] mediafile::Error),
 }
 
 impl From<sqlx::Error> for DimError {
@@ -92,7 +92,7 @@ impl warp::Reply for DimError {
             Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {
                 StatusCode::NOT_ACCEPTABLE
             }
-            Self::MediafileRouteError(ref e) => e.status_code()
+            Self::MediafileRouteError(ref e) => e.status_code(),
         };
 
         let resp = json!({

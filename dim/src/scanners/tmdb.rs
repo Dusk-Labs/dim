@@ -10,10 +10,10 @@ use reqwest::Client;
 use reqwest::ClientBuilder;
 use reqwest::StatusCode;
 
-use thiserror::Error;
 use displaydoc::Display;
 use futures::stream;
 use futures::StreamExt;
+use thiserror::Error;
 use tokio::sync::RwLock;
 
 use async_recursion::async_recursion;
