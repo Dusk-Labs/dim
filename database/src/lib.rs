@@ -11,6 +11,7 @@ use sqlx::ConnectOptions;
 use tracing::{info, instrument};
 
 pub mod asset;
+pub mod compact_mediafile;
 pub mod episode;
 pub mod error;
 pub mod genre;
@@ -26,7 +27,6 @@ pub mod season;
 #[cfg(test)]
 pub mod tests;
 pub mod tv;
-pub mod unmatched;
 pub mod user;
 pub mod utils;
 

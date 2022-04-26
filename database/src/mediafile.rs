@@ -121,6 +121,8 @@ impl MediaFile {
         conn: &mut crate::Transaction<'_>,
         id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
+        // FIXME: I think we can make this query a bit more efficient by adding an index on
+        // mediafile.mediaid, but given how often this is called, this might not be worth it.
         Ok(sqlx::query_as!(
             MediaFile,
             "SELECT mediafile.* FROM _tblseason

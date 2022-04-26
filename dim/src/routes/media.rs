@@ -2,9 +2,11 @@ use crate::core::DbConnection;
 use crate::errors;
 use crate::json;
 use crate::scanners::ApiMedia;
+use crate::tree;
 
 use database::user::User;
 
+use database::compact_mediafile::CompactMediafile;
 use database::episode::Episode;
 use database::genre::Genre;
 use database::library::MediaType;
@@ -17,6 +19,8 @@ use warp::http::status::StatusCode;
 use warp::reply;
 
 use std::collections::HashMap;
+
+use serde::Serialize;
 
 pub mod filters {
     use database::user::User;
@@ -56,6 +60,20 @@ pub mod filters {
                 super::get_media_files(conn, id)
                     .await
                     .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn get_mediafile_tree(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "media" / i64 / "tree")
+            .and(warp::get())
+            .and(with_state::<DbConnection>(conn))
+            .and(auth::with_auth())
+            .and_then(|id, conn, _user| async move {
+                super::get_mediafile_tree(conn, id)
+                    .await
+                    .map_err(reject::custom)
             })
     }
 
@@ -350,8 +368,74 @@ pub async fn get_media_files(
     id: i64,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
-    let mediafiles = MediaFile::get_of_media(&mut tx, id).await?;
+    let media_type = Media::media_mediatype(&mut tx, id).await?;
+
+    let mediafiles = match media_type {
+        MediaType::Tv => MediaFile::get_of_show(&mut tx, id).await?,
+        MediaType::Episode | MediaType::Movie => MediaFile::get_of_media(&mut tx, id).await?,
+    };
+
     Ok(reply::json(&mediafiles))
+}
+
+pub async fn get_mediafile_tree(
+    conn: DbConnection,
+    id: i64,
+) -> Result<impl warp::Reply, errors::DimError> {
+    let mut tx = conn.read().begin().await?;
+    let media_type = Media::media_mediatype(&mut tx, id).await?;
+
+    let mut mediafiles = match media_type {
+        MediaType::Movie | MediaType::Episode => {
+            CompactMediafile::all_for_media(&mut tx, id).await?
+        }
+        MediaType::Tv => CompactMediafile::all_for_tv(&mut tx, id).await?,
+    };
+
+    // we want to pre-sort to ensure our tree is somewhat ordered.
+    mediafiles.sort_by(|a, b| a.target_file.cmp(&b.target_file));
+
+    let count = mediafiles.len();
+
+    #[derive(Serialize)]
+    struct Record {
+        id: i64,
+        name: String,
+        duration: Option<i64>,
+        file: String,
+    }
+
+    let entry = tree::Entry::build_with(
+        mediafiles,
+        |x| {
+            x.target_file
+                .iter()
+                .map(|x| x.to_string_lossy().to_string())
+                .collect()
+        },
+        |k, v| Record {
+            id: v.id,
+            name: v.name,
+            duration: v.duration,
+            file: k.to_string(),
+        },
+    );
+
+    #[derive(Serialize)]
+    struct Response {
+        count: usize,
+        files: Vec<tree::Entry<Record>>,
+    }
+
+    let entries = match entry {
+        tree::Entry::Directory { files, .. } => files,
+        _ => unreachable!(),
+    };
+
+    Ok(reply::json(&Response {
+        files: entries,
+        count,
+    }))
 }
 
 /// Method mapped to `PATCH /api/v1/media/<id>` is used to edit information about a media entry

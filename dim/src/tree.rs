@@ -20,6 +20,30 @@ impl<T> Entry<T> {
         }
     }
 
+    pub fn build_with<U>(
+        values: impl IntoIterator<Item = U>,
+        k: impl Fn(&U) -> Vec<String>,
+        v: impl Fn(&str, U) -> T,
+    ) -> Self {
+        let mut entry = Self::new();
+
+        for value in values.into_iter() {
+            let mut components = k(&value);
+
+            let filename = match components.pop() {
+                Some(x) => x,
+                None => continue,
+            };
+
+            entry.insert(components.iter(), v(filename.as_ref(), value));
+        }
+
+        // remove root-directories with only one folder inside.
+        entry.compress();
+
+        entry
+    }
+
     pub fn insert<'a>(&mut self, mut keys: impl Iterator<Item = impl AsRef<str>>, value: T) {
         if self.is_file() {
             return;
