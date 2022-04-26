@@ -18,9 +18,18 @@
   }
 
   & > .match-media {
+    overflow: hidden;
+    padding: 30px;
     grid-column-start: 1;
     grid-column-end: 3;
-    padding-bottom: 60px;
+
+    &.open-true {
+      height: 41vh;
+    }
+
+    &.open-false {
+      height: 11vh;
+    }
   }
 }
 
@@ -62,6 +71,10 @@
 @media only screen and (min-width: 1080px) {
   .mediaPage .mediaContent {
     grid-template-columns: auto 1fr;
+
+    & > .match-media {
+      padding: 60px 90px 0 90px;
+    }
 
     & > .meta-content {
       padding-top: 60px;

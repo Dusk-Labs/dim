@@ -4,13 +4,7 @@
   transition: padding 300ms ease-in-out;
   transition: height 100ms ease-in-out;
 
-  &.open-true {
-    height: 46vh;
-  }
-
   &.open-false {
-    height: 16vh;
-
     & .nested-view-container {
       overflow: hidden !important;
     }
@@ -141,11 +135,5 @@
         margin-bottom: 20px;
       }
     }
-  }
-}
-
-@media only screen and (min-width: 1080px) {
-  .match-media {
-    padding: 60px 90px;
   }
 }

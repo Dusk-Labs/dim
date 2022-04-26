@@ -1,12 +1,21 @@
 import v1 from "./";
 
-export type UnmatchedMediaFiles = Record<string, Array<UnmatchedMediaFiles>>;
+export interface UnmatchedMediaFiles {
+  count: number;
+  files: Array<UnmatchedMediaFile>;
+}
 
 export interface UnmatchedMediaFile {
-  id: number;
-  name: string;
+  id?: number;
+  name?: string;
+  folder?: string;
   duration?: number;
-  target_file: string;
+  file?: string;
+  files?: Array<UnmatchedMediaFile>;
+
+  // If the type is "directory", only the `files` and `folder` fields will be accessible.
+  // Otherwise, all the other fields will be accessible, with `duration` remaining optional.
+  type: "directory" | "file";
 }
 
 export const media = v1.injectEndpoints({

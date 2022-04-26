@@ -1,27 +1,25 @@
 import { useState, useCallback, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import NestedFileView from "Components/NestedFileView/Index";
 import SimpleSearch from "Components/SimpleSearch";
 import AdvancedSearch from "Components/AdvancedSearch/Index";
 import { SearchResultContext } from "./Context";
 import { SearchResults } from "./Results";
 
-import { useGetUnmatchedMediaFilesQuery } from "api/v1/unmatchedMedia";
 import { useMatchMediafilesQuery } from "api/v1/mediafile";
+import { UnmatchedMediaFiles } from "api/v1/unmatchedMedia";
 
 import AngleUp from "assets/Icons/AngleUp";
 import "./Index.scss";
 
-interface LibraryParams {
-  id?: string | undefined;
+interface MatchMediaProps {
+  data: UnmatchedMediaFiles;
+  refetch: () => any;
 }
 
-const MatchMedia = () => {
-  const { id } = useParams<LibraryParams>();
+const MatchMedia = ({ data, refetch }: MatchMediaProps) => {
   const [current, setCurrent] = useState<number | null>(null);
   const [isOpened, setOpened] = useState<boolean>(true);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
-  const { data, refetch } = useGetUnmatchedMediaFilesQuery(id!);
   // all the states needed to search external provider
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useState<Array<
@@ -134,35 +132,19 @@ const MatchMedia = () => {
     };
   }, [toggleSuggestionsOff]);
 
-  const files = !data
-    ? []
-    : Object.entries(data).map(([key, value]) => {
-        return {
-          name: key,
-          type: "folder",
-          content: value.map((file) => {
-            return {
-              name: file.name,
-              id: file.id,
-              type: "file",
-            };
-          }),
-        };
-      });
-
   // TODO: Display errors if any.
   return (
     <div className={`match-media open-${isOpened}`}>
       <div className="match-container">
         <div className="match-left">
-          <p className="match-head">3 Unmatched files found</p>
+          <p className="match-head">{data.count} Unmatched files found</p>
           <div className="match-middle">
             <p className="match-label">View and select files to match.</p>
             <SimpleSearch />
           </div>
 
           <NestedFileView
-            files={files}
+            files={data.files}
             select={selectFile}
             unselect={unselectFile}
           />

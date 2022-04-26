@@ -1,18 +1,15 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 
 import Card from "../../Components/Card/Index";
 import Dropdown from "./Dropdown";
-import { LibraryContext } from "./Context";
 import useWebSocket from "../../hooks/ws";
 
 import "./Cards.scss";
 
-function Cards(props) {
+function Cards() {
   const params = useParams();
-
-  const { showUnmatched, setShowUnmatched } = useContext(LibraryContext);
   const ws = useWebSocket();
 
   const [title, setTitle] = useState("");
@@ -38,7 +35,6 @@ function Cards(props) {
     async (reset = true) => {
       if (reset) {
         setNewCards([]);
-        setShowUnmatched(false);
       }
 
       try {
@@ -61,7 +57,7 @@ function Cards(props) {
         setFetched(true);
       } catch (err) {}
     },
-    [auth.token, currentID, setShowUnmatched]
+    [auth.token, currentID]
   );
 
   const handleWS = useCallback(
@@ -99,11 +95,6 @@ function Cards(props) {
   }, [title]);
 
   useEffect(() => {
-    if (!cardList.current) return;
-    cardList.current.style["pointer-events"] = showUnmatched ? "none" : "all";
-  }, [showUnmatched]);
-
-  useEffect(() => {
     if (currentID !== params.id) {
       setCurrentID(params.id);
       setShow(false);
@@ -115,22 +106,10 @@ function Cards(props) {
     fetchCards();
   }, [currentID, fetchCards]);
 
-  const handleTransitionEnd = useCallback(
-    (e) => {
-      if (e.target !== cardList.current) return;
-      if (e.propertyName !== "top") return;
-
-      if (!showUnmatched) {
-        document.body.style.overflow = "unset";
-      }
-    },
-    [showUnmatched]
-  );
-
-  useEffect(() => {
-    if (!showUnmatched) return;
-    document.body.style.overflow = "hidden";
-  }, [showUnmatched]);
+  const handleTransitionEnd = useCallback((e) => {
+    if (e.target !== cardList.current) return;
+    if (e.propertyName !== "top") return;
+  }, []);
 
   useEffect(() => {
     if (!cardList.current) return;

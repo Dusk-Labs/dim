@@ -1,4 +1,27 @@
 .library {
   display: flex;
   flex-direction: column;
+
+  & > .match-media {
+    overflow: hidden;
+    padding: 30px;
+    grid-column-start: 1;
+    grid-column-end: 3;
+
+    &.open-true {
+      height: 46vh;
+    }
+
+    &.open-false {
+      height: 16vh;
+    }
+  }
+}
+
+@media only screen and (min-width: 1080px) {
+  .library {
+    & > .match-media {
+      padding: 60px 90px;
+    }
+  }
 }

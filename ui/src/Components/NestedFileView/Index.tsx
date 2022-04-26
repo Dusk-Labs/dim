@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import FolderIcon from "assets/figma_icons/Folder";
 import CheckIcon from "assets/Icons/Check";
 import { Collapse } from "react-collapse";
+import { UnmatchedMediaFile } from "api/v1/unmatchedMedia";
 import "./Index.scss";
 
 export const FolderView = (props: any) => {
@@ -20,7 +21,7 @@ export const FolderView = (props: any) => {
     if (file.type === "file") {
       item = (
         <FileView
-          label={file.name}
+          label={file.file}
           object={file}
           depth={depth + 1}
           select={select}
@@ -31,10 +32,10 @@ export const FolderView = (props: any) => {
     } else {
       item = (
         <FolderView
-          label={file.name}
-          depth={depth + 1}
-          files={file.content || []}
           noBorder
+          label={file.folder}
+          depth={depth + 1}
+          files={file.files || []}
           select={select}
           unselect={unselect}
           key={index}
@@ -96,20 +97,41 @@ const FileView = (props: any) => {
   );
 };
 
-export const NestedFileView = (props: any) => {
-  const { files, select, unselect } = props;
+export interface NestedFileViewProps {
+  files: Array<UnmatchedMediaFile>;
+  select: (id: number) => void;
+  unselect: (id: number) => void;
+}
+
+export const NestedFileView = ({
+  files,
+  select,
+  unselect,
+}: NestedFileViewProps) => {
   let folders = [];
 
   for (const item of files) {
-    folders.push(
-      <FolderView
-        label={item.name}
-        files={item.content}
-        select={select}
-        unselect={unselect}
-        key={item.name}
-      />
-    );
+    if (item.type === "directory") {
+      folders.push(
+        <FolderView
+          label={item.folder}
+          files={item.files}
+          select={select}
+          unselect={unselect}
+          key={item.name}
+        />
+      );
+    } else {
+      folders.push(
+        <FileView
+          label={item.file}
+          depth={0}
+          select={select}
+          unselect={unselect}
+          object={item}
+        />
+      );
+    }
   }
 
   return (
