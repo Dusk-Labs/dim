@@ -42,6 +42,8 @@ pub mod stream_tracking;
 pub mod streaming;
 #[cfg(test)]
 mod tests;
+/// Tree-like structure for representing directories of files.
+pub mod tree;
 /// Various utilities
 pub mod utils;
 /// Websocket related logic.

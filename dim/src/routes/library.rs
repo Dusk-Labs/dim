@@ -3,18 +3,19 @@ use crate::core::EventTx;
 use crate::errors;
 use crate::scanners;
 use crate::scanners::scanner_daemon::FsWatcher;
+use crate::tree;
 
 use database::library::InsertableLibrary;
 use database::library::Library;
 use database::media::Media;
 use database::mediafile::MediaFile;
+use database::unmatched::UnmatchedMediafile;
 
 use database::user::User;
 use events::Message;
 use events::PushEventType;
 
 use std::collections::HashMap;
-use std::path::Path;
 
 use warp::http::StatusCode;
 use warp::reply;
@@ -212,23 +213,25 @@ pub async fn library_delete(
 ) -> Result<impl warp::Reply, errors::DimError> {
     // First we mark the library as scheduled for deletion which will make the library and all its
     // content hidden. This is necessary because huge libraries take a long time to delete.
-    let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
-    if Library::mark_hidden(&mut tx, id).await? < 1 {
-        return Err(errors::DimError::LibraryNotFound);
+    {
+        let mut lock = conn.writer().lock_owned().await;
+        let mut tx = database::write_tx(&mut lock).await?;
+        if Library::mark_hidden(&mut tx, id).await? < 1 {
+            return Err(errors::DimError::LibraryNotFound);
+        }
+        tx.commit().await?;
     }
-    tx.commit().await?;
-    drop(lock);
 
     let delete_lib_fut = async move {
         let inner = async {
             let mut lock = conn.writer().lock_owned().await;
             let mut tx = database::write_tx(&mut lock).await?;
+
             Library::delete(&mut tx, id).await?;
             Media::delete_by_lib_id(&mut tx, id).await?;
             MediaFile::delete_by_lib_id(&mut tx, id).await?;
+
             tx.commit().await?;
-            drop(lock);
 
             Ok::<_, database::error::DatabaseError>(())
         };
@@ -322,7 +325,7 @@ pub async fn get_all_unmatched_media(
     id: i64,
     _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut result = HashMap::new();
+    let mut entry = tree::Entry::new();
     let mut tx = conn.read().begin().await?;
 
     #[derive(Serialize)]
@@ -330,32 +333,57 @@ pub async fn get_all_unmatched_media(
         id: i64,
         name: String,
         duration: Option<i64>,
-        target_file: String,
+        file: String,
     }
 
-    sqlx::query_as!(
-        Record,
-        r#"SELECT id, raw_name as name, duration, target_file FROM mediafile
-        WHERE library_id = ? AND media_id IS NULL"#,
-        id
-    )
-    .fetch_all(&mut tx)
-    .await
-    .map_err(|_| errors::DimError::NotFoundError)?
-    .into_iter()
-    .map(|x| {
-        let mut path = Path::new(&x.target_file).to_path_buf();
-        let file_name = path.file_name().unwrap().to_string_lossy().to_string();
-        path.pop();
+    let mut files = UnmatchedMediafile::all_for_library(&mut tx, id)
+        .await
+        .map_err(|_| errors::DimError::NotFoundError)?;
 
-        let dir = path.file_name();
-        let group = dir
+    let count = files.len();
+
+    // we want to pre-sort to ensure our tree is somewhat ordered.
+    files.sort_by(|a, b| a.target_file.cmp(&b.target_file));
+
+    for file in files {
+        let mut components = file
+            .target_file
+            .iter()
             .map(|x| x.to_string_lossy().to_string())
-            .unwrap_or(file_name);
+            .collect::<Vec<_>>();
 
-        (group, x)
-    })
-    .for_each(|(k, v)| result.entry(k).or_insert(vec![]).push(v));
+        let filename = match components.pop() {
+            Some(x) => x,
+            None => continue,
+        };
 
-    Ok(reply::json(&result))
+        entry.insert(
+            components.iter(),
+            Record {
+                id: file.id,
+                name: file.name,
+                duration: file.duration,
+                file: filename,
+            },
+        );
+    }
+
+    // remove root-directories with only one folder inside.
+    entry.compress();
+
+    #[derive(Serialize)]
+    struct Response {
+        count: usize,
+        files: Vec<tree::Entry<Record>>,
+    }
+
+    let entries = match entry {
+        tree::Entry::Directory { files, .. } => files,
+        _ => unreachable!(),
+    };
+
+    Ok(reply::json(&Response {
+        files: entries,
+        count,
+    }))
 }
