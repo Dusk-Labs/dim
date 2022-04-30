@@ -35,7 +35,7 @@ export const FolderView = (props: FolderViewProps) => {
           depth={depth + 1}
           select={select}
           unselect={unselect}
-          key={index}
+          key={file.file}
         />
       );
     } else {
@@ -47,7 +47,7 @@ export const FolderView = (props: FolderViewProps) => {
           files={file.files || []}
           select={select}
           unselect={unselect}
-          key={index}
+          key={file.folder}
         />
       );
     }
@@ -135,7 +135,7 @@ export const NestedFileView = ({
           files={item.files ?? []}
           select={select}
           unselect={unselect}
-          key={item.name}
+          key={item.folder}
         />
       );
     } else {
@@ -146,6 +146,7 @@ export const NestedFileView = ({
           select={select}
           unselect={unselect}
           object={item}
+          key={item.file}
         />
       );
     }

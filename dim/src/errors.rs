@@ -96,7 +96,7 @@ impl warp::Reply for DimError {
         };
 
         let resp = json!({
-            "error": json!(&self)["error"],
+            "error": json!(&self),
             "messsage": self.to_string(),
         });
 
@@ -132,6 +132,8 @@ pub enum StreamingErrors {
     FFProbeCtxFailed,
     /// Could not parse the gid
     GidParseError,
+    /// The requested file does not exist on disk.
+    FileDoesNotExist
 }
 
 impl From<sqlx::Error> for StreamingErrors {
@@ -152,12 +154,12 @@ impl warp::Reply for StreamingErrors {
     fn into_response(self) -> warp::reply::Response {
         let status = match self {
             Self::OtherNightfall(NightfallError::ChunkNotDone) => StatusCode::PROCESSING,
-            Self::NoMediaFileFound(_) => StatusCode::NOT_FOUND,
+            Self::NoMediaFileFound(_) | Self::FileDoesNotExist => StatusCode::NOT_FOUND,
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         };
 
         let resp = json!({
-            "error": json!(&self)["error"],
+            "error": json!(&self),
             "messsage": self.to_string(),
         });
 

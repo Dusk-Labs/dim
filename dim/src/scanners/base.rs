@@ -153,9 +153,10 @@ impl MetadataExtractor {
         };
 
         let file_clone = file.clone();
-        let ffprobe_data =
-            move || FFProbeCtx::new(&FFPROBE_BIN).get_meta(file_clone.to_str().unwrap());
-        let ffprobe_data = if let Ok(Ok(data)) = spawn_blocking(ffprobe_data).await {
+        let ffprobe_data = if let Ok(data) = FFProbeCtx::new(&FFPROBE_BIN)
+            .get_meta(file_clone.to_str().unwrap())
+            .await
+        {
             data
         } else {
             error!(

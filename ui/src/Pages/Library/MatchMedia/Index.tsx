@@ -42,6 +42,7 @@ const MatchMedia = ({ data, refetch }: MatchMediaProps) => {
 
   useEffect(() => {
     if (matchResult.isFetching) return;
+    if (!startMatch) return;
 
     if (matchResult.error) {
       console.log("matching error: ", matchResult.error);
@@ -60,6 +61,7 @@ const MatchMedia = ({ data, refetch }: MatchMediaProps) => {
     matchResult.error,
     matchResult.isFetching,
     setSelectedFiles,
+    startMatch,
     refetch,
   ]);
 
@@ -113,8 +115,9 @@ const MatchMedia = ({ data, refetch }: MatchMediaProps) => {
 
       setSearchQuery(query);
       setSearchParams(params);
+      toggleSuggestionsOff();
     },
-    [setSearchQuery, setSearchParams]
+    [setSearchQuery, setSearchParams, toggleSuggestionsOff]
   );
 
   // effect needed so that we can hide suggestions when the user clicks outside the container.

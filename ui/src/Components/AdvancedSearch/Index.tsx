@@ -213,7 +213,7 @@ export const AdvancedSearch = (props: Props) => {
               className="advanced-search-input"
               onKeyDown={onKeyDown}
               onInput={onInput}
-              onFocus={toggleSuggestionsOn}
+              onClick={toggleSuggestionsOn}
               contentEditable="true"
               ref={inputRef}
               spellCheck="false"
