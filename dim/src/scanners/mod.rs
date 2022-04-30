@@ -45,12 +45,14 @@ pub struct ApiMedia {
 }
 
 impl ApiMedia {
+    /// Parses a release date string and returns the year.
     pub fn year(&self) -> Option<u32> {
         NaiveDate::parse_from_str(self.release_date.as_ref()?, "%Y-%m-%d")
             .ok()
             .map(|x| x.year() as _)
     }
 
+    /// Converts a collections of `ApiMedia` objects into a REST-API compatible response.
     pub fn search_response(items: impl Iterator<Item = impl Into<Self>>) -> warp::reply::Json {
         warp::reply::json(
             &items

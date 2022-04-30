@@ -4,6 +4,8 @@ use crate::Transaction;
 use std::path::Path;
 use std::path::PathBuf;
 
+/// A compact version of `MediaFile`. Useful in cases where we need to request some basic info for
+/// a lot of mediafiles, and as such a `SELECT *` is not viable.
 #[derive(Clone)]
 pub struct CompactMediafile {
     pub id: i64,
@@ -12,6 +14,8 @@ pub struct CompactMediafile {
     pub target_file: PathBuf,
 }
 
+/// Intermediary record which is later converted into a `CompactMediafile`. This is needed because
+/// sqlx doesnt support deserializing into a `PathBuf`.
 struct Record {
     id: i64,
     name: String,
@@ -38,6 +42,7 @@ impl From<Record> for CompactMediafile {
 }
 
 impl CompactMediafile {
+    /// Method will return all the unmatched mediafiles for a specific library.
     pub async fn unmatched_for_library(
         tx: &mut Transaction<'_>,
         library_id: i64,
@@ -55,6 +60,7 @@ impl CompactMediafile {
         .collect())
     }
 
+    /// Method will return all mediafiles for a media id.
     pub async fn all_for_media(
         tx: &mut Transaction<'_>,
         media_id: i64,
@@ -72,9 +78,10 @@ impl CompactMediafile {
         .collect())
     }
 
+    /// Method will return all mediafiles for a tv show.
     pub async fn all_for_tv(
         tx: &mut Transaction<'_>,
-        tv_id: i64
+        tv_id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
             Record,

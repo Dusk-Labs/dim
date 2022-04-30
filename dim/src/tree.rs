@@ -1,9 +1,11 @@
+/// Module contains a data structure that represents a file-tree.
 use serde::Serialize;
 use std::fmt::Debug;
 
 #[derive(Debug, PartialEq, Eq, Serialize)]
 #[serde(tag = "type")]
 #[serde(rename_all = "lowercase")]
+/// Represents a entry which can either be a directory with more entries, or a singular file.
 pub enum Entry<T> {
     Directory {
         folder: String,
@@ -20,6 +22,8 @@ impl<T> Entry<T> {
         }
     }
 
+    /// Helper which can turn a collection of values into a tree. The caller must supply a closure
+    /// which extracts a key from a value.
     pub fn build_with<U>(
         values: impl IntoIterator<Item = U>,
         k: impl Fn(&U) -> Vec<String>,
@@ -44,6 +48,9 @@ impl<T> Entry<T> {
         entry
     }
 
+    /// Method inserts a value in the current entry by recursively scanning it based on the keys
+    /// supplied. The supplied value will be associated with the last key in the collection of keys
+    /// supplied.
     pub fn insert<'a>(&mut self, mut keys: impl Iterator<Item = impl AsRef<str>>, value: T) {
         if self.is_file() {
             return;
@@ -54,7 +61,7 @@ impl<T> Entry<T> {
         let key = match keys.next() {
             Some(x) => x,
             None => {
-                self.insert_unchecked(Self::File(value));
+                self.insert_inner(Self::File(value));
                 return;
             }
         };
@@ -66,7 +73,7 @@ impl<T> Entry<T> {
 
         // If we get a key, we want to create a new entry in self for this key, or access it and
         // insert `value` recursively.
-        let files = self.files_unchecked();
+        let files = self.files();
         let folder = if let Some(x) = files.iter_mut().find(|x| x.is_dir(key.as_ref())) {
             x
         } else {
@@ -101,20 +108,29 @@ impl<T> Entry<T> {
         }
     }
 
-    fn insert_unchecked(&mut self, value: Self) {
+    /// Insert a new entry into the current entry.
+    ///
+    /// # Panics
+    /// This method will panic if the current entry is not a directory.
+    fn insert_inner(&mut self, value: Self) {
         match self {
             Self::Directory { files, .. } => files.push(value),
-            _ => unreachable!("Entry::insert"),
+            _ => panic!("Attempted to insert a new entry into a entry that isnt a directory"),
         }
     }
 
-    fn files_unchecked(&mut self) -> &mut Vec<Self> {
+    /// Will return a mutable reference to a vec of entries.
+    ///
+    /// # Panics
+    /// This method will panic if the current entry is not a directory.
+    fn files(&mut self) -> &mut Vec<Self> {
         match self {
             Self::Directory { files, .. } => files,
-            _ => unreachable!("Entry::files_unchecked"),
+            _ => panic!("Attempted to get all files of a entry that isnt a directory"),
         }
     }
 
+    /// Method indicates whether the current entry is a directory with the name `k`.
     fn is_dir(&self, k: &str) -> bool {
         match self {
             Self::File(_) => false,
@@ -122,6 +138,7 @@ impl<T> Entry<T> {
         }
     }
 
+    /// Method indicates whether the current entry is a file.
     fn is_file(&self) -> bool {
         match self {
             Self::File(_) => true,

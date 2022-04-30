@@ -378,6 +378,11 @@ pub async fn get_media_files(
     Ok(reply::json(&mediafiles))
 }
 
+/// # GET `/api/v1/media/<id>/tree`
+/// Method mappedReturns a tree of mediafiles for a given media object.
+///
+/// # Authentication
+/// Method requires standard authentication.
 pub async fn get_mediafile_tree(
     conn: DbConnection,
     id: i64,
