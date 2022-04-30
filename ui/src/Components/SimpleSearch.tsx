@@ -2,8 +2,12 @@ import { useState, useCallback } from "react";
 import SearchIcon from "assets/figma_icons/Search";
 import "./SimpleSearch.scss";
 
-export const SimpleSearch = (props: any) => {
-  const { placeholder, onChange } = props;
+export interface SimpleSearchProps {
+  placeholder?: string;
+  onChange?: (query: string) => void;
+}
+
+export const SimpleSearch = ({ placeholder, onChange }: SimpleSearchProps) => {
   const [value, setValue] = useState<string>("");
 
   const changeValue = useCallback(

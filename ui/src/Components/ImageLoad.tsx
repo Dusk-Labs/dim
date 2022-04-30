@@ -113,26 +113,26 @@ function ImageLoad(props: Props) {
   const handleAnimationEnd = useCallback(
     (e) => {
       if (e.animationName !== props.triggerAnimation) return;
-      if (imageSrc) return;
 
       fetchImage();
       setTryAgainCount(2);
     },
-    [fetchImage, props.triggerAnimation, imageSrc]
+    [fetchImage, props.triggerAnimation]
   );
+
+  useEffect(() => {
+    if (props.triggerAnimation) return;
+
+    console.log("Fetching");
+
+    fetchImage();
+    setTryAgainCount(2);
+  }, [fetchImage, props.triggerAnimation]);
 
   useEffect(() => {
     if (props.src === currentSrc) return;
     setShow(false);
   }, [currentSrc, props.src]);
-
-  useEffect(() => {
-    if (props.triggerAnimation) return;
-    if (!props.src) return;
-    if (currentSrc === props.src) return;
-
-    fetchImage();
-  }, [currentSrc, props.src, props.triggerAnimation, fetchImage]);
 
   useEffect(() => {
     const controller = new AbortController();

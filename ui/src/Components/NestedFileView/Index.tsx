@@ -5,7 +5,16 @@ import { Collapse } from "react-collapse";
 import { UnmatchedMediaFile } from "api/v1/unmatchedMedia";
 import "./Index.scss";
 
-export const FolderView = (props: any) => {
+export interface FolderViewProps {
+  files: Array<UnmatchedMediaFile>;
+  noBorder?: boolean;
+  label?: string;
+  select: (id: number) => void;
+  unselect: (id: number) => void;
+  depth?: number;
+}
+
+export const FolderView = (props: FolderViewProps) => {
   const { files, noBorder, label, select, unselect } = props;
   const [isOpen, setOpen] = useState(false);
   const depth = props.depth || 0;
@@ -64,14 +73,22 @@ export const FolderView = (props: any) => {
   );
 };
 
-const FileView = (props: any) => {
+export interface FileViewProps {
+  label?: string;
+  depth?: number;
+  select: (id: number) => void;
+  unselect: (id: number) => void;
+  object: UnmatchedMediaFile;
+}
+
+const FileView = (props: FileViewProps) => {
   const { label, depth, select, unselect, object } = props;
   const [isActive, setActive] = useState(false);
 
   const toggleActive = useCallback(() => {
     setActive(!isActive);
 
-    if (!select || !unselect) return;
+    if (!select || !unselect || !object.id) return;
 
     // at this point `isActive` hasnt changed yet
     if (!isActive) {
@@ -115,7 +132,7 @@ export const NestedFileView = ({
       folders.push(
         <FolderView
           label={item.folder}
-          files={item.files}
+          files={item.files ?? []}
           select={select}
           unselect={unselect}
           key={item.name}
