@@ -27,8 +27,8 @@ export interface TagHook {
   lastTag: () => ISearchTag | null;
 }
 
-export const useSearchTags = (): TagHook => {
-  const [activeTags, setActiveTags] = useState<Array<ISearchTag>>([]);
+export const useSearchTags = (initial: Array<ISearchTag>): TagHook => {
+  const [activeTags, setActiveTags] = useState<Array<ISearchTag>>(initial);
 
   const appendTag = useCallback(
     (tag) => {

@@ -4,6 +4,7 @@ import SimpleSearch from "Components/SimpleSearch";
 import AdvancedSearch from "Components/AdvancedSearch/Index";
 import { SearchResultContext } from "./Context";
 import { SearchResults } from "./Results";
+import { SelectMediatype } from "./MediaTypeSelector";
 
 import { useMatchMediafilesQuery } from "api/v1/mediafile";
 import { UnmatchedMediaFiles } from "api/v1/unmatchedMedia";
@@ -27,7 +28,7 @@ const MatchMedia = ({ data, refetch }: MatchMediaProps) => {
   > | null>(null);
   // contains list of mediafile ids.
   const [selectedFiles, setSelectedFiles] = useState<number[]>([]);
-
+  const [selectedMediatype, setMediatype] = useState<string | null>(null);
   const [startMatch, setStartMatch] = useState<boolean>(false);
   const [externalId, setExternalId] = useState<number | null>(null);
   const [mediaType, setMediaType] = useState<string | null>(null);
@@ -120,6 +121,13 @@ const MatchMedia = ({ data, refetch }: MatchMediaProps) => {
     [setSearchQuery, setSearchParams, toggleSuggestionsOff]
   );
 
+  const selectMediatype = useCallback(
+    (mediatype) => {
+      setMediatype(mediatype);
+    },
+    [setMediatype]
+  );
+
   // effect needed so that we can hide suggestions when the user clicks outside the container.
   useEffect(() => {
     const outsideClickListener = (event: any) => {
@@ -153,14 +161,54 @@ const MatchMedia = ({ data, refetch }: MatchMediaProps) => {
           />
         </div>
         <div className="match-right">
+          <div className="right-head">
+            {!!selectedMediatype && (
+              <AdvancedSearch
+                hideSearchBar={!isOpened}
+                showSuggestions={showSuggestions}
+                toggleSuggestionsOn={toggleSuggestionsOn}
+                toggleSuggestionsOff={toggleSuggestionsOff}
+                onSearch={onSearch}
+                mediatype={selectedMediatype}
+              />
+            )}
+            <div
+              className={`toggle ${!isOpened ? "invert" : ""}`}
+              onClick={toggleOpen}
+            >
+              <AngleUp />
+            </div>
+          </div>
+          <div className="right-content">
+            {!selectedMediatype && (
+              <SelectMediatype
+                isReady={selectedFiles.length > 0}
+                selectMediatype={selectMediatype}
+              />
+            )}
+            {!!selectedMediatype && (
+              <SearchResultContext.Provider
+                value={{
+                  current,
+                  setCurrent: setCurrentCallback,
+                  match: matchSelected,
+                }}
+              >
+                {searchQuery && searchParams ? (
+                  <SearchResults query={searchQuery} params={searchParams} />
+                ) : null}
+              </SearchResultContext.Provider>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/*
+ *
           <div className="search-head">
-            <AdvancedSearch
-              hideSearchBar={!isOpened}
-              showSuggestions={showSuggestions}
-              toggleSuggestionsOn={toggleSuggestionsOn}
-              toggleSuggestionsOff={toggleSuggestionsOff}
-              onSearch={onSearch}
-            />
             <div
               className={`toggle ${!isOpened ? "invert" : ""}`}
               onClick={toggleOpen}
@@ -170,22 +218,6 @@ const MatchMedia = ({ data, refetch }: MatchMediaProps) => {
           </div>
 
           <div className="search-results">
-            <SearchResultContext.Provider
-              value={{
-                current,
-                setCurrent: setCurrentCallback,
-                match: matchSelected,
-              }}
-            >
-              {searchQuery && searchParams ? (
-                <SearchResults query={searchQuery} params={searchParams} />
-              ) : null}
-            </SearchResultContext.Provider>
           </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
+          */
 export default MatchMedia;

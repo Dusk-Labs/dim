@@ -13,7 +13,6 @@ use database::mediafile::MediaFile;
 
 use serde_json::json;
 use serde::Serialize;
-use serde_json::json;
 
 use warp::reject::Reject;
 use warp::reply;

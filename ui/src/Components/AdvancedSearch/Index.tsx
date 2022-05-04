@@ -23,16 +23,23 @@ type Props = {
   toggleSuggestionsOn: () => void;
   toggleSuggestionsOff: () => void;
   onSearch: (query: string, params: Array<ISearchTag>) => void;
+  mediatype: string;
 };
 
 export const AdvancedSearch = (props: Props) => {
-  const { hideSearchBar, showSuggestions, toggleSuggestionsOn, onSearch } =
-    props;
+  const {
+    hideSearchBar,
+    showSuggestions,
+    toggleSuggestionsOn,
+    onSearch,
+    mediatype,
+  } = props;
 
   const [value, setValue] = useState<string>("");
   const inputRef = useRef<HTMLDivElement>(null);
-  const { activeTags, appendTag, setTagValue, popTag, lastTag } =
-    useSearchTags();
+  const { activeTags, appendTag, setTagValue, popTag, lastTag } = useSearchTags(
+    [{ name: "Media", content: mediatype }]
+  );
 
   const mediaHints = [
     { name: "Movies", description: "Search for Movies." },

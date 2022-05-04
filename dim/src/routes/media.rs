@@ -68,8 +68,8 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "media" / i64 / "tree")
             .and(warp::get())
-            .and(with_state::<DbConnection>(conn))
-            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn.clone()))
+            .and(with_auth(conn))
             .and_then(|id, conn, _user| async move {
                 super::get_mediafile_tree(conn, id)
                     .await

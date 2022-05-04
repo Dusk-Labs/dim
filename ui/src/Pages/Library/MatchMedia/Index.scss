@@ -92,7 +92,7 @@
 
       transition: background-color 100ms ease-in-out;
 
-      .search-head {
+      .right-head {
         display: inline-flex;
         align-self: flex-start;
         padding: 20px 40px;
@@ -111,6 +111,7 @@
           align-self: center;
           transition: all 200ms ease-in-out;
           cursor: pointer;
+          margin-left: auto;
 
           &:hover {
             background: #666;
@@ -127,7 +128,7 @@
         }
       }
 
-      .search-results {
+      .right-content {
         display: flex;
         width: 100%;
         flex-direction: column;
