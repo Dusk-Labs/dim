@@ -2,13 +2,10 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use database::media::InsertableMedia;
-use tracing::debug;
-use tracing::debug_span;
-use tracing::error;
-use tracing::info;
+
 use tracing::instrument;
-use tracing::warn;
 use tracing::Instrument;
+use tracing::{debug, debug_span, error, info, warn};
 
 use database::episode::Episode;
 use database::library::MediaType;
@@ -386,7 +383,6 @@ impl MetadataMatcher {
             Ok(v) => v,
             Err(e) => {
                 error!(media = ?media_file, reason = ?e, "Could not match movie to tmdb");
-
                 return Err(ScannerError::UnknownError);
             }
         };
