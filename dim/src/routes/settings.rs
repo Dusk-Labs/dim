@@ -37,7 +37,7 @@ pub struct GlobalSettings {
     pub disable_auth: bool,
 
     pub verbose: bool,
-    pub secret_key: Option<[u8; 16]>,
+    pub secret_key: Option<[u8; 32]>,
     pub enable_hwaccel: bool,
 }
 
@@ -134,7 +134,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "user" / "settings")
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and_then(|auth: Auth, conn: DbConnection| async move {
                 super::get_user_settings(conn, auth)
@@ -149,7 +149,7 @@ pub mod filters {
         warp::path!("api" / "v1" / "user" / "settings")
             .and(warp::post())
             .and(warp::body::json::<UserSettings>())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and_then(
                 |settings: UserSettings, auth: Auth, conn: DbConnection| async move {
@@ -162,10 +162,11 @@ pub mod filters {
     }
 
     pub fn get_global_settings(
+        conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "host" / "settings")
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn))
             .and_then(|auth: Auth| async move {
                 super::http_get_global_settings(auth)
                     .await
@@ -174,11 +175,12 @@ pub mod filters {
     }
 
     pub fn set_global_settings(
+        conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "host" / "settings")
             .and(warp::post())
             .and(warp::body::json::<super::GlobalSettings>())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn))
             .and_then(|settings: super::GlobalSettings, auth: Auth| async move {
                 super::http_set_global_settings(auth, settings)
                     .await
@@ -193,7 +195,7 @@ pub async fn get_user_settings(
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = db.read().begin().await?;
     Ok(reply::json(
-        &User::get(&mut tx, &user.0.claims.get_user()).await?.prefs,
+        &User::get_by_id(&mut tx, user.0.id).await?.prefs,
     ))
 }
 
@@ -208,9 +210,7 @@ pub async fn post_user_settings(
         prefs: Some(new_settings.clone()),
     };
 
-    update_user
-        .update(&mut tx, &user.0.claims.get_user())
-        .await?;
+    update_user.update(&mut tx, user.0.id).await?;
 
     tx.commit().await?;
     drop(lock);
@@ -228,7 +228,7 @@ pub async fn http_set_global_settings(
     user: Auth,
     new_settings: GlobalSettings,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    if user.0.claims.has_role("owner") {
+    if user.0.has_role("owner") {
         set_global_settings(new_settings).unwrap();
         return Ok(reply::json(&get_global_settings()));
     }

@@ -105,7 +105,7 @@ pub fn try_get_conn() -> Option<&'static crate::DbConnection> {
 pub async fn get_conn_memory() -> sqlx::Result<crate::DbConnection> {
     let pool = sqlx::Pool::connect(":memory:").await?;
     let connection: sqlx::pool::PoolConnection<sqlx::Sqlite> = pool.acquire().await?;
-    let rw = connection.release();
+    let rw = connection.detach();
     let pool = rw_pool::SqlitePool::new(rw, pool);
     let _ = run_migrations(&pool).await?;
 

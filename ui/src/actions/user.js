@@ -88,6 +88,7 @@ export const changeUsername = (newUsername) => async (dispatch, getState) => {
         msg: "Your username has now been updated.",
       })
     );
+    window.location.reload();
   } catch (err) {
     dispatch({
       type: CHANGE_USERNAME_ERR,

@@ -35,7 +35,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "dashboard")
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(with_state::<TokioHandle>(rt))
             .and_then(
@@ -52,7 +52,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "dashboard" / "banner")
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and_then(|user: Auth, conn: DbConnection| async move {
                 super::banners(conn, user)
@@ -106,7 +106,7 @@ pub async fn dashboard(
     }
 
     let mut continue_watching = Vec::new();
-    for media in Progress::get_continue_watching(&mut tx, user.0.claims.get_user(), 10).await? {
+    for media in Progress::get_continue_watching(&mut tx, user.0.id, 10).await? {
         let item = match sqlx::query!(
             "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?",
@@ -159,7 +159,7 @@ async fn banner_for_movie(
     user: &Auth,
     media: &Media,
 ) -> Result<Value, errors::DimError> {
-    let progress = Progress::get_for_media_user(&mut *conn, user.0.claims.get_user(), media.id)
+    let progress = Progress::get_for_media_user(&mut *conn, user.0.id, media.id)
         .await
         .map(|x| x.delta)
         .unwrap_or(0);
@@ -206,12 +206,11 @@ async fn banner_for_show(
     media: &Media,
 ) -> Result<Value, errors::DimError> {
     let episode = if let Ok(Some(ep)) =
-        Episode::get_last_watched_episode(&mut *conn, media.id, user.0.claims.get_user()).await
+        Episode::get_last_watched_episode(&mut *conn, media.id, user.0.id).await
     {
-        let (delta, duration) =
-            Progress::get_progress_for_media(&mut *conn, ep.id, user.0.claims.get_user())
-                .await
-                .unwrap_or((0, 1));
+        let (delta, duration) = Progress::get_progress_for_media(&mut *conn, ep.id, user.0.id)
+            .await
+            .unwrap_or((0, 1));
 
         if (delta as f64 / duration as f64) > 0.90 {
             ep.get_next_episode(&mut *conn).await.unwrap_or(ep)
@@ -229,7 +228,7 @@ async fn banner_for_show(
         .map(|x| x.name)
         .collect::<Vec<_>>();
 
-    let progress = Progress::get_for_media_user(&mut *conn, user.0.claims.get_user(), episode.id)
+    let progress = Progress::get_for_media_user(&mut *conn, user.0.id, episode.id)
         .await
         .map(|x| x.delta)
         .unwrap_or(0);

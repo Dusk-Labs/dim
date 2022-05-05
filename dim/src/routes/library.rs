@@ -48,8 +48,8 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "library")
             .and(warp::get())
-            .and(with_db(conn))
-            .and(auth::with_auth())
+            .and(with_db(conn.clone()))
+            .and(auth::with_auth(conn))
             .and_then(|conn, auth| async move {
                 super::library_get(conn, auth)
                     .await
@@ -64,7 +64,7 @@ pub mod filters {
         warp::path!("api" / "v1" / "library")
             .and(warp::post())
             .and(warp::body::json::<InsertableLibrary>())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<EventTx>(event_tx))
             .and(with_state::<DbConnection>(conn))
             .and_then(
@@ -85,7 +85,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "library" / i64)
             .and(warp::delete())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(with_state::<EventTx>(event_tx))
             .and_then(
@@ -102,7 +102,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "library" / i64)
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and_then(|id: i64, user: Auth, conn: DbConnection| async move {
                 super::get_self(conn, id, user)
@@ -116,7 +116,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "library" / i64 / "media")
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and_then(|id: i64, user: Auth, conn: DbConnection| async move {
                 super::get_all_library(conn, id, user)
@@ -130,7 +130,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "library" / i64 / "unmatched")
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and_then(|id: i64, user: Auth, conn: DbConnection| async move {
                 super::get_all_unmatched_media(conn, id, user)
@@ -207,7 +207,7 @@ pub async fn library_post(
 /// * `event_tx` - channel over which to dispatch events
 /// * `_user` - Auth middleware
 // NOTE: Should we only allow the owner to add/remove libraries?
-#[instrument(err, skip(conn, event_tx, _user), fields(auth.user = _user.user_ref()))]
+#[instrument(err, skip(conn, event_tx, _user), fields(auth.user = ?_user.get_user()))]
 pub async fn library_delete(
     id: i64,
     _user: Auth,

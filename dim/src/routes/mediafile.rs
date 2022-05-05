@@ -24,7 +24,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "mediafile" / i64)
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
                 super::get_mediafile_info(conn, id, auth)
@@ -44,7 +44,7 @@ pub mod filters {
 
         warp::path!("api" / "v1" / "mediafile" / i64 / "match")
             .and(warp::patch())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(warp::query::query::<RouteArgs>())
             .and_then(

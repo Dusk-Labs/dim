@@ -93,7 +93,7 @@ pub async fn warp_core(
         auth::filters::user_upload_avatar(conn.clone()),
         /* general routes */
         routes::general::filters::search(conn.clone()),
-        routes::general::filters::get_directory_structure(),
+        routes::general::filters::get_directory_structure(conn.clone()),
         /* library routes */
         routes::library::filters::library_get(conn.clone()),
         routes::library::filters::library_post(conn.clone(), event_tx.clone()),
@@ -109,7 +109,7 @@ pub async fn warp_core(
         routes::media::filters::get_media_files(conn.clone()),
         routes::media::filters::update_media_by_id(conn.clone()),
         routes::media::filters::delete_media_by_id(conn.clone()),
-        routes::media::filters::tmdb_search(),
+        routes::media::filters::tmdb_search(conn.clone()),
         routes::media::filters::map_progress(conn.clone()),
         routes::rematch_media::filters::rematch_media_by_id(conn.clone(), event_tx.clone()),
         /* tv routes */
@@ -125,8 +125,8 @@ pub async fn warp_core(
         /* settings routes */
         routes::settings::filters::get_user_settings(conn.clone()),
         routes::settings::filters::post_user_settings(conn.clone()),
-        routes::settings::filters::get_global_settings(),
-        routes::settings::filters::set_global_settings(),
+        routes::settings::filters::get_global_settings(conn.clone()),
+        routes::settings::filters::set_global_settings(conn.clone()),
         /* stream routes */
         routes::stream::filters::return_virtual_manifest(
             conn.clone(),
@@ -164,7 +164,7 @@ pub async fn warp_core(
         /* NOTE: This is a barrier to 404 any rest api calls that dont match till here */
         routes::global_filters::api_not_found(),
         /* websocket route */
-        websocket::event_socket(tokio::runtime::Handle::current(), event_rx)
+        websocket::event_socket(tokio::runtime::Handle::current(), event_rx, conn.clone())
             .recover(routes::global_filters::handle_rejection),
         /* static routes */
         routes::statik::filters::dist_static(),

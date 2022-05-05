@@ -37,7 +37,7 @@ pub mod global_filters {
     ) -> Result<impl warp::Reply, warp::reject::Rejection> {
         if let Some(e) = err.find::<errors::DimError>() {
             return Ok(e.clone().into_response());
-        } else if err.find::<auth::JWTError>().is_some() {
+        } else if err.find::<auth::AuthError>().is_some() {
             return Ok(errors::DimError::Unauthenticated.into_response());
         } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
             return Ok(errors::DimError::MissingFieldInBody {

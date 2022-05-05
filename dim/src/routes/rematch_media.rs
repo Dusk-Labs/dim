@@ -39,9 +39,9 @@ pub mod filters {
         warp::path!("api" / "v1" / "media" / i64 / "match")
             .and(warp::patch())
             .and(warp::query::query::<RouteArgs>())
-            .and(with_state(conn))
+            .and(with_state(conn.clone()))
             .and(with_state(event_tx))
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn))
             .and_then(
                 |id,
                  RouteArgs {

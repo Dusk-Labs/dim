@@ -16,7 +16,6 @@ use crate::utils::quality_to_label;
 
 use database::mediafile::MediaFile;
 use database::user::DefaultVideoQuality;
-use database::user::User;
 use database::user::UserSettings;
 
 use nightfall::error::NightfallError;
@@ -71,7 +70,7 @@ pub mod filters {
         warp::path!("api" / "v1" / "stream" / i64 / "manifest")
             .and(warp::get())
             .and(warp::query::query::<QueryArgs>())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(with_state::<StateManager>(state))
             .and(with_state::<StreamTracking>(stream_tracking))
@@ -115,7 +114,7 @@ pub mod filters {
         warp::path!("api" / "v1" / "stream" / String / "manifest.mpd")
             .and(warp::get())
             .and(warp::query::query::<QueryArgs>())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(with_state::<StateManager>(state))
             .and(with_state::<StreamTracking>(stream_tracking))
@@ -302,11 +301,7 @@ pub async fn return_virtual_manifest(
     }
 
     let mut tx = conn.read().begin().await?;
-
-    let user_prefs = User::get(&mut tx, auth.0.claims.get_user_ref())
-        .await
-        .map(|x| x.prefs)
-        .unwrap_or_default();
+    let user_prefs = auth.0.prefs;
 
     let gid = uuid::Uuid::new_v4();
 

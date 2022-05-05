@@ -35,8 +35,8 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "media" / i64)
             .and(warp::get())
-            .and(with_state::<DbConnection>(conn))
-            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn.clone()))
+            .and(auth::with_auth(conn))
             .and_then(|id: i64, conn: DbConnection, user: Auth| async move {
                 super::get_media_by_id(conn, id, user)
                     .await
@@ -49,8 +49,8 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "media" / i64 / "files")
             .and(warp::get())
-            .and(with_state::<DbConnection>(conn))
-            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn.clone()))
+            .and(auth::with_auth(conn))
             .and_then(|id: i64, conn: DbConnection, _user: Auth| async move {
                 super::get_media_files(conn, id)
                     .await
@@ -64,7 +64,7 @@ pub mod filters {
         warp::path!("api" / "v1" / "media" / i64)
             .and(warp::patch())
             .and(warp::body::json::<UpdateMedia>())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and_then(|id, body, auth, conn| async move {
                 super::update_media_by_id(id, body, auth, conn)
@@ -78,7 +78,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "media" / i64)
             .and(warp::delete())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
                 super::delete_media_by_id(conn, id, auth)
@@ -87,8 +87,9 @@ pub mod filters {
             })
     }
 
-    pub fn tmdb_search() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
-    {
+    pub fn tmdb_search(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         #[derive(Deserialize)]
         struct RouteArgs {
             query: String,
@@ -99,7 +100,7 @@ pub mod filters {
         warp::path!("api" / "v1" / "media" / "tmdb_search")
             .and(warp::get())
             .and(warp::query::query::<RouteArgs>())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn))
             .and_then(
                 |RouteArgs {
                      query,
@@ -125,8 +126,8 @@ pub mod filters {
         warp::path!("api" / "v1" / "media" / i64 / "progress")
             .and(warp::post())
             .and(warp::query::query::<RouteArgs>())
-            .and(with_state::<DbConnection>(conn))
-            .and(auth::with_auth())
+            .and(with_state::<DbConnection>(conn.clone()))
+            .and(auth::with_auth(conn))
             .and_then(|id: i64, RouteArgs { offset }: RouteArgs, conn: DbConnection, auth: Auth| async move {
                 super::map_progress(conn, id, offset, auth)
                     .await
@@ -197,19 +198,16 @@ pub async fn get_media_by_id(
 
     let progress = match media.media_type {
         MediaType::Episode | MediaType::Movie => {
-            Progress::get_for_media_user(&mut tx, user.0.claims.get_user(), id)
+            Progress::get_for_media_user(&mut tx, user.0.id, id)
                 .await
                 .map(|x| json!({"progress": x.delta}))
                 .ok()
         }
         MediaType::Tv => {
-            if let Ok(Some(ep)) =
-                Episode::get_last_watched_episode(&mut tx, id, user.0.claims.get_user()).await
-            {
-                let (delta, duration) =
-                    Progress::get_progress_for_media(&mut tx, ep.id, user.0.claims.get_user())
-                        .await
-                        .unwrap_or((0, 1));
+            if let Ok(Some(ep)) = Episode::get_last_watched_episode(&mut tx, id, user.0.id).await {
+                let (delta, duration) = Progress::get_progress_for_media(&mut tx, ep.id, user.0.id)
+                    .await
+                    .unwrap_or((0, 1));
 
                 // NOTE: When we get to the last episode of a tv show we want to return the last
                 // episode even if the client finished watching it.
@@ -217,7 +215,7 @@ pub async fn get_media_by_id(
                 if (delta as f64 / duration as f64) > 0.90 && next_episode.is_ok() {
                     let next_episode = next_episode.unwrap();
                     let (delta, _duration) =
-                        Progress::get_progress_for_media(&mut tx, ep.id, user.0.claims.get_user())
+                        Progress::get_progress_for_media(&mut tx, ep.id, user.0.id)
                             .await
                             .unwrap_or((0, 1));
 
@@ -453,7 +451,7 @@ pub async fn map_progress(
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
-    Progress::set(&mut tx, offset, user.0.claims.get_user(), id).await?;
+    Progress::set(&mut tx, offset, user.0.id, id).await?;
     tx.commit().await?;
     Ok(StatusCode::OK)
 }

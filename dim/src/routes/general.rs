@@ -29,10 +29,11 @@ pub mod filters {
     use serde::Deserialize;
 
     pub fn get_directory_structure(
+        conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "filebrowser" / ..)
             .and(warp::path::tail())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn))
             .and_then(|tail: warp::path::Tail, user: Auth| async move {
                 let decoded_path = percent_encoding::percent_decode(tail.as_str().as_bytes())
                     .decode_utf8()
@@ -59,7 +60,7 @@ pub mod filters {
 
         warp::path!("api" / "v1" / "search")
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(auth::with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(warp::query::query::<SearchArgs>())
             .and_then(

@@ -52,7 +52,7 @@ fn main() {
         secret_key
     });
 
-    auth::set_jwt_key(secret_key);
+    auth::set_key(secret_key);
 
     core::METADATA_PATH
         .set(global_settings.metadata_dir.clone())

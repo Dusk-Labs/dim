@@ -132,7 +132,8 @@ CREATE TABLE mediafile (
 );
 
 CREATE TABLE users (
-    username TEXT PRIMARY KEY,
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
     prefs BLOB NOT NULL DEFAULT '{}',
     claimed_invite TEXT NOT NULL UNIQUE,
@@ -145,14 +146,14 @@ CREATE TABLE users (
 
 CREATE TABLE progress (
     id INTEGER NOT NULL,
-    user_id TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
     delta INTEGER NOT NULL,
     media_id INTEGER NOT NULL,
     populated INTEGER NOT NULL,
 
     PRIMARY KEY (id),
     FOREIGN KEY(media_id) REFERENCES _tblmedia (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY(user_id) REFERENCES users(username) ON DELETE CASCADE
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX progress_idx ON progress(user_id, media_id);
