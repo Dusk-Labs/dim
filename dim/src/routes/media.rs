@@ -2,7 +2,7 @@ use crate::core::DbConnection;
 use crate::errors;
 use crate::json;
 
-use auth::Wrapper as Auth;
+use database::auth::Wrapper as Auth;
 
 use database::episode::Episode;
 use database::genre::Genre;
@@ -18,6 +18,8 @@ use warp::reply;
 use std::collections::HashMap;
 
 pub mod filters {
+    use database::auth;
+
     use warp::reject;
     use warp::Filter;
 
@@ -321,7 +323,7 @@ pub async fn get_media_by_id(
             } else {
                 None
             }
-        },
+        }
         Err(_) => None,
     };
 

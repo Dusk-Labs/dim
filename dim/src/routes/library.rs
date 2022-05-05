@@ -5,6 +5,7 @@ use crate::scanners;
 use crate::scanners::scanner_daemon::FsWatcher;
 
 use auth::Wrapper as Auth;
+use database::auth;
 
 use database::library::InsertableLibrary;
 use database::library::Library;
@@ -31,6 +32,7 @@ pub mod filters {
     use warp::Filter;
 
     use super::super::global_filters::with_db;
+    use database::auth;
 
     use auth::Wrapper as Auth;
 

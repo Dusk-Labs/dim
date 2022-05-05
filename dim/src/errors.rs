@@ -51,7 +51,9 @@ pub enum DimError {
 
 impl From<sqlx::Error> for DimError {
     fn from(e: sqlx::Error) -> Self {
-        Self::DatabaseError { description: format!("{:?}", e) }
+        Self::DatabaseError {
+            description: format!("{:?}", e),
+        }
     }
 }
 

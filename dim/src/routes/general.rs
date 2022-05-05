@@ -2,6 +2,7 @@ use crate::core::DbConnection;
 use crate::errors;
 
 use auth::Wrapper as Auth;
+use database::auth;
 use serde::Serialize;
 
 use database::genre::*;
@@ -18,6 +19,7 @@ pub mod filters {
     use database::DbConnection;
 
     use auth::Wrapper as Auth;
+    use database::auth;
 
     use warp::reject;
     use warp::Filter;

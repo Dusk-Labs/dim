@@ -2,9 +2,9 @@ use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors::*;
 use crate::scanners::base::patch_tv_metadata;
+use crate::scanners::movie::MovieMatcher;
 use crate::scanners::tmdb::MediaType as ExternalMediaType;
 use crate::scanners::tmdb::Tmdb;
-use crate::scanners::movie::MovieMatcher;
 use crate::scanners::tv_show::TvShowMatcher;
 
 use database::library::MediaType;
@@ -19,6 +19,7 @@ pub mod filters {
     use crate::core::EventTx;
     use crate::routes::global_filters::with_state;
     use auth::Wrapper as Auth;
+    use database::auth;
     use database::DbConnection;
     use serde::Deserialize;
 

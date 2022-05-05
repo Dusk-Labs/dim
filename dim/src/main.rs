@@ -11,6 +11,7 @@ use dim::routes::settings::GlobalSettings;
 use dim::setup_logging;
 use dim::streaming;
 
+use database::auth;
 use structopt::StructOpt;
 
 #[derive(Debug, structopt::StructOpt)]

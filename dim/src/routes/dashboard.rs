@@ -3,6 +3,7 @@ use crate::errors;
 use crate::json;
 
 use auth::Wrapper as Auth;
+use database::auth;
 
 use database::episode::Episode;
 use database::genre::*;
@@ -26,6 +27,7 @@ pub mod filters {
     use tokio::runtime::Handle as TokioHandle;
 
     use auth::Wrapper as Auth;
+    use database::auth;
 
     pub fn dashboard(
         conn: DbConnection,
@@ -212,9 +214,7 @@ async fn banner_for_show(
                 .unwrap_or((0, 1));
 
         if (delta as f64 / duration as f64) > 0.90 {
-            ep.get_next_episode(&mut *conn)
-                .await
-                .unwrap_or(ep)
+            ep.get_next_episode(&mut *conn).await.unwrap_or(ep)
         } else {
             ep
         }

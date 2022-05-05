@@ -74,8 +74,8 @@ impl Tmdb {
 
     pub async fn search_by_id(&mut self, id: i32) -> Result<Media, TmdbError> {
         let args = vec![
-        ("api_key".to_string(), self.api_key.clone()),
-        ("language".to_string(), "en-US".into()),
+            ("api_key".to_string(), self.api_key.clone()),
+            ("language".to_string(), "en-US".into()),
         ];
 
         let url = format!("{}/{}/{}", self.base, self.media_type, id);

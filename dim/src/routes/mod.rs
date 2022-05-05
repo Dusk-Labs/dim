@@ -12,6 +12,7 @@ pub mod tv;
 
 pub mod global_filters {
     use crate::errors;
+    use database::auth;
     use database::DbConnection;
 
     use std::convert::Infallible;

@@ -11,6 +11,7 @@ use sqlx::ConnectOptions;
 use tracing::{info, instrument};
 
 pub mod asset;
+pub mod auth;
 pub mod episode;
 pub mod error;
 pub mod genre;

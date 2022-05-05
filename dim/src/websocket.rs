@@ -5,6 +5,8 @@ use std::net::SocketAddr;
 use tokio::runtime::Handle;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
+use database::auth;
+
 use warp::filters::ws::Message;
 use warp::filters::ws::WebSocket;
 use warp::Filter;

@@ -1,7 +1,7 @@
 use crate::core::DbConnection;
 use crate::errors;
 
-use auth::Wrapper as Auth;
+use database::auth::Wrapper as Auth;
 use database::mediafile::MediaFile;
 
 use serde_json::json;
@@ -13,7 +13,8 @@ pub mod filters {
     use warp::Filter;
 
     use super::super::global_filters::with_state;
-    use auth::Wrapper as Auth;
+    use database::auth;
+    use database::auth::Wrapper as Auth;
     use database::DbConnection;
 
     use serde::Deserialize;

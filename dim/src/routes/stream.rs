@@ -1,4 +1,5 @@
 use auth::Wrapper as Auth;
+use database::auth;
 
 use crate::core::DbConnection;
 use crate::core::StateManager;
@@ -49,6 +50,7 @@ pub mod filters {
     use crate::warp_unwrap;
 
     use auth::Wrapper as Auth;
+    use database::auth;
     use uuid::Uuid;
 
     use super::super::global_filters::with_state;
@@ -83,8 +85,16 @@ pub mod filters {
                     let gid = gid.and_then(|x| Uuid::parse_str(x.as_str()).ok());
 
                     warp_unwrap!(
-                        super::return_virtual_manifest(state, stream_tracking, auth, conn, id, gid, force_ass)
-                            .await
+                        super::return_virtual_manifest(
+                            state,
+                            stream_tracking,
+                            auth,
+                            conn,
+                            id,
+                            gid,
+                            force_ass
+                        )
+                        .await
                     )
                 },
             )
@@ -640,7 +650,7 @@ pub async fn create_subtitles(
         let profile_chain = get_profile_for(StreamType::Subtitle, &ctx);
         let subtitle = state.create(profile_chain, ctx).await?;
 
-        let chunk_path = if is_ssa  {
+        let chunk_path = if is_ssa {
             format!("{}/data/stream.ass", subtitle.clone())
         } else {
             format!("{}/data/stream.vtt", subtitle.clone())

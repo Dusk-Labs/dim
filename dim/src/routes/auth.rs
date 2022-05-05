@@ -1,7 +1,7 @@
 use crate::core::DbConnection;
 use crate::errors;
-use auth::{jwt_generate, Wrapper as Auth};
 use bytes::BufMut;
+use database::auth::{jwt_generate, Wrapper as Auth};
 
 use database::asset::Asset;
 use database::asset::InsertableAsset;
@@ -27,6 +27,7 @@ pub mod filters {
     use warp::reject;
     use warp::Filter;
 
+    use database::auth;
     use database::user::Login;
 
     use super::super::global_filters::with_db;
@@ -291,9 +292,7 @@ pub async fn register(
         // NOTE: Double check what we are returning here.
         Login::new_invite(&mut tx).await?
     } else {
-        new_user
-            .invite_token
-            .ok_or(errors::DimError::NoToken)?
+        new_user.invite_token.ok_or(errors::DimError::NoToken)?
     };
 
     let res = InsertableUser {

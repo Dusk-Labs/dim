@@ -1,7 +1,7 @@
 use crate::core::DbConnection;
 use crate::errors;
 
-use auth::Wrapper as Auth;
+use database::auth::Wrapper as Auth;
 
 use database::episode::{Episode, UpdateEpisode};
 use database::season::{Season, UpdateSeason};
@@ -10,6 +10,7 @@ use warp::http::status::StatusCode;
 use warp::reply;
 
 pub mod filters {
+    use database::auth;
     use warp::reject;
     use warp::Filter;
     use warp::Rejection;
@@ -89,7 +90,7 @@ pub mod filters {
             .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
                 super::get_season_episodes(conn, id, auth)
                     .await
-                        .map_err(reject::custom)
+                    .map_err(reject::custom)
             })
     }
 

@@ -7,6 +7,7 @@ use database::user::User;
 use database::user::UserSettings;
 
 use auth::Wrapper as Auth;
+use database::auth;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -120,6 +121,7 @@ pub mod filters {
     use database::DbConnection;
 
     use auth::Wrapper as Auth;
+    use database::auth;
 
     use warp::reject;
     use warp::Filter;
