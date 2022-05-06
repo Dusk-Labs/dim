@@ -17,9 +17,9 @@ const API_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
 
 pub mod filters {
     use crate::core::EventTx;
+    use crate::routes::global_filters::with_auth;
     use crate::routes::global_filters::with_state;
-    use auth::Wrapper as Auth;
-    use database::auth;
+    use database::user::User;
     use database::DbConnection;
     use serde::Deserialize;
 
@@ -41,7 +41,7 @@ pub mod filters {
             .and(warp::query::query::<RouteArgs>())
             .and(with_state(conn.clone()))
             .and(with_state(event_tx))
-            .and(auth::with_auth(conn))
+            .and(with_auth(conn))
             .and_then(
                 |id,
                  RouteArgs {
@@ -50,7 +50,7 @@ pub mod filters {
                  }: RouteArgs,
                  conn: DbConnection,
                  event_tx: EventTx,
-                 _: Auth| async move {
+                 _: User| async move {
                     super::rematch_media(conn, event_tx, id, external_id, media_type)
                         .await
                         .map_err(|e| reject::custom(e))

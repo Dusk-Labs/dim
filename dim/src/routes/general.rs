@@ -1,8 +1,7 @@
 use crate::core::DbConnection;
 use crate::errors;
 
-use auth::Wrapper as Auth;
-use database::auth;
+use database::user::User;
 use serde::Serialize;
 
 use database::genre::*;
@@ -18,12 +17,12 @@ use warp::reply;
 pub mod filters {
     use database::DbConnection;
 
-    use auth::Wrapper as Auth;
-    use database::auth;
-
+    use database::user::User;
     use warp::reject;
     use warp::Filter;
     use warp::Rejection;
+
+    use crate::routes::global_filters::with_auth;
 
     use super::super::global_filters::with_state;
     use serde::Deserialize;
@@ -33,8 +32,8 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "filebrowser" / ..)
             .and(warp::path::tail())
-            .and(auth::with_auth(conn))
-            .and_then(|tail: warp::path::Tail, user: Auth| async move {
+            .and(with_auth(conn))
+            .and_then(|tail: warp::path::Tail, user: User| async move {
                 let decoded_path = percent_encoding::percent_decode(tail.as_str().as_bytes())
                     .decode_utf8()
                     .unwrap()
@@ -60,11 +59,11 @@ pub mod filters {
 
         warp::path!("api" / "v1" / "search")
             .and(warp::get())
-            .and(auth::with_auth(conn.clone()))
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(warp::query::query::<SearchArgs>())
             .and_then(
-                |auth: Auth, conn: DbConnection, args: SearchArgs| async move {
+                |auth: User, conn: DbConnection, args: SearchArgs| async move {
                     super::search(
                         conn,
                         args.query,
@@ -108,7 +107,7 @@ pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> io::Result<Vec
 
 pub async fn get_directory_structure(
     path: PathBuf,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     cfg_if::cfg_if! {
         if #[cfg(target_os = "windows")] {
@@ -141,7 +140,7 @@ pub async fn search(
     _library_id: Option<i32>,
     genre: Option<String>,
     _quick: Option<bool>,
-    _user: Auth,
+    _user: User,
 ) -> Result<warp::reply::Json, errors::DimError> {
     let mut tx = conn.read().begin().await?;
     if let Some(query_string) = query {

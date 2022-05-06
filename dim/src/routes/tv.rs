@@ -1,7 +1,7 @@
 use crate::core::DbConnection;
 use crate::errors;
 
-use database::auth::Wrapper as Auth;
+use database::user::User;
 
 use database::episode::{Episode, UpdateEpisode};
 use database::season::{Season, UpdateSeason};
@@ -10,15 +10,15 @@ use warp::http::status::StatusCode;
 use warp::reply;
 
 pub mod filters {
-    use database::auth;
     use warp::reject;
     use warp::Filter;
     use warp::Rejection;
 
+    use super::super::global_filters::with_auth;
     use super::super::global_filters::with_state;
-    use auth::Wrapper as Auth;
     use database::episode::UpdateEpisode;
     use database::season::UpdateSeason;
+    use database::user::User;
     use database::DbConnection;
 
     pub fn get_tv_seasons(
@@ -26,9 +26,9 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "tv" / i64 / "season")
             .and(warp::get())
-            .and(auth::with_auth(conn.clone()))
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
+            .and_then(|id: i64, auth: User, conn: DbConnection| async move {
                 super::get_tv_seasons(conn, id, auth)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -40,9 +40,9 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "season" / i64)
             .and(warp::get())
-            .and(auth::with_auth(conn.clone()))
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
+            .and_then(|id: i64, auth: User, conn: DbConnection| async move {
                 super::get_season_by_id(conn, id, auth)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -55,10 +55,10 @@ pub mod filters {
         warp::path!("api" / "v1" / "season" / i64)
             .and(warp::patch())
             .and(warp::body::json::<UpdateSeason>())
-            .and(auth::with_auth(conn.clone()))
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and_then(
-                |id: i64, data: UpdateSeason, auth: Auth, conn: DbConnection| async move {
+                |id: i64, data: UpdateSeason, auth: User, conn: DbConnection| async move {
                     super::patch_season_by_id(conn, id, data, auth)
                         .await
                         .map_err(|e| reject::custom(e))
@@ -71,9 +71,9 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "season" / i64)
             .and(warp::delete())
-            .and(auth::with_auth(conn.clone()))
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
+            .and_then(|id: i64, auth: User, conn: DbConnection| async move {
                 super::delete_season_by_id(conn, id, auth)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -85,9 +85,9 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "season" / i64 / "episodes")
             .and(warp::get())
-            .and(auth::with_auth(conn.clone()))
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
+            .and_then(|id: i64, auth: User, conn: DbConnection| async move {
                 super::get_season_episodes(conn, id, auth)
                     .await
                     .map_err(reject::custom)
@@ -100,10 +100,10 @@ pub mod filters {
         warp::path!("api" / "v1" / "episode" / i64)
             .and(warp::patch())
             .and(warp::body::json::<UpdateEpisode>())
-            .and(auth::with_auth(conn.clone()))
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and_then(
-                |id: i64, data: UpdateEpisode, auth: Auth, conn: DbConnection| async move {
+                |id: i64, data: UpdateEpisode, auth: User, conn: DbConnection| async move {
                     super::patch_episode_by_id(conn, id, data, auth)
                         .await
                         .map_err(reject::custom)
@@ -116,9 +116,9 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
         warp::path!("api" / "v1" / "episode" / i64)
             .and(warp::delete())
-            .and(auth::with_auth(conn.clone()))
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
+            .and_then(|id: i64, auth: User, conn: DbConnection| async move {
                 super::delete_episode_by_id(conn, id, auth)
                     .await
                     .map_err(reject::custom)
@@ -134,7 +134,7 @@ pub mod filters {
 pub async fn get_tv_seasons(
     conn: DbConnection,
     id: i64,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
     Ok(reply::json(&Season::get_all(&mut tx, id).await?))
@@ -149,7 +149,7 @@ pub async fn get_tv_seasons(
 pub async fn get_season_by_id(
     conn: DbConnection,
     id: i64,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
     Ok(reply::json(&Season::get_by_id(&mut tx, id).await?))
@@ -169,7 +169,7 @@ pub async fn patch_season_by_id(
     conn: DbConnection,
     id: i64,
     data: UpdateSeason,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
@@ -187,7 +187,7 @@ pub async fn patch_season_by_id(
 pub async fn delete_season_by_id(
     conn: DbConnection,
     id: i64,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
@@ -204,7 +204,7 @@ pub async fn delete_season_by_id(
 pub async fn get_season_episodes(
     conn: DbConnection,
     season_id: i64,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
     #[derive(serde::Serialize)]
@@ -241,7 +241,7 @@ pub async fn patch_episode_by_id(
     conn: DbConnection,
     id: i64,
     episode: UpdateEpisode,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
@@ -258,7 +258,7 @@ pub async fn patch_episode_by_id(
 pub async fn delete_episode_by_id(
     conn: DbConnection,
     id: i64,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;

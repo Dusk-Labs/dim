@@ -1,6 +1,3 @@
-use auth::Wrapper as Auth;
-use database::auth;
-
 use crate::core::DbConnection;
 use crate::core::StateManager;
 use crate::errors;
@@ -16,6 +13,7 @@ use crate::utils::quality_to_label;
 
 use database::mediafile::MediaFile;
 use database::user::DefaultVideoQuality;
+use database::user::User;
 use database::user::UserSettings;
 
 use nightfall::error::NightfallError;
@@ -48,10 +46,10 @@ pub mod filters {
     use crate::stream_tracking::StreamTracking;
     use crate::warp_unwrap;
 
-    use auth::Wrapper as Auth;
-    use database::auth;
+    use database::user::User;
     use uuid::Uuid;
 
+    use super::super::global_filters::with_auth;
     use super::super::global_filters::with_state;
     use serde::Deserialize;
 
@@ -70,14 +68,14 @@ pub mod filters {
         warp::path!("api" / "v1" / "stream" / i64 / "manifest")
             .and(warp::get())
             .and(warp::query::query::<QueryArgs>())
-            .and(auth::with_auth(conn.clone()))
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(with_state::<StateManager>(state))
             .and(with_state::<StreamTracking>(stream_tracking))
             .and_then(
                 |id: i64,
                  QueryArgs { gid, force_ass }: QueryArgs,
-                 auth: Auth,
+                 auth: User,
                  conn: DbConnection,
                  state: StateManager,
                  stream_tracking: StreamTracking| async move {
@@ -114,7 +112,7 @@ pub mod filters {
         warp::path!("api" / "v1" / "stream" / String / "manifest.mpd")
             .and(warp::get())
             .and(warp::query::query::<QueryArgs>())
-            .and(auth::with_auth(conn.clone()))
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(with_state::<StateManager>(state))
             .and(with_state::<StreamTracking>(stream_tracking))
@@ -125,7 +123,7 @@ pub mod filters {
                      should_kill,
                      includes,
                  }: QueryArgs,
-                 auth: Auth,
+                 auth: User,
                  conn: DbConnection,
                  state: StateManager,
                  stream_tracking: StreamTracking| async move {
@@ -287,7 +285,7 @@ pub mod filters {
 pub async fn return_virtual_manifest(
     state: StateManager,
     stream_tracking: StreamTracking,
-    auth: Auth,
+    auth: User,
     conn: DbConnection,
     id: i64,
     gid: Option<Uuid>,
@@ -301,7 +299,7 @@ pub async fn return_virtual_manifest(
     }
 
     let mut tx = conn.read().begin().await?;
-    let user_prefs = auth.0.prefs;
+    let user_prefs = auth.prefs;
 
     let gid = uuid::Uuid::new_v4();
 
@@ -680,7 +678,7 @@ pub async fn create_subtitles(
 pub async fn return_manifest(
     state: StateManager,
     stream_tracking: StreamTracking,
-    _auth: Auth,
+    _auth: User,
     _conn: DbConnection,
     gid: Uuid,
     start_num: Option<u64>,

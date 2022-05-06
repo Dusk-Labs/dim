@@ -12,8 +12,12 @@ pub mod tv;
 
 pub mod global_filters {
     use crate::errors;
-    use database::auth;
+    use crate::errors::DimError;
+    use database::user::User;
     use database::DbConnection;
+    use http::header::AUTHORIZATION;
+    use warp::reject;
+    use warp::Rejection;
 
     use std::convert::Infallible;
     use std::error::Error;
@@ -32,13 +36,36 @@ pub mod global_filters {
         warp::any().map(move || state.clone())
     }
 
+    pub fn with_auth(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = (User,), Error = Rejection> + Clone {
+        warp::header(AUTHORIZATION.as_str())
+            .and(warp::any().map(move || conn.clone()))
+            .and_then(|x, c: DbConnection| async move {
+                let mut tx = match c.read().begin().await {
+                    Ok(tx) => tx,
+                    Err(_) => {
+                        return Err(reject::custom(DimError::DatabaseError {
+                            description: String::from("Failed to start transaction"),
+                        }))
+                    }
+                };
+                let id = database::user::Login::verify_cookie(x)
+                    .map_err(|e| reject::custom(DimError::CookieError(e)))?;
+
+                User::get_by_id(&mut tx, id).await.map_err(|_| {
+                    reject::custom(DimError::DatabaseError {
+                        description: String::from("Couldn't find user"),
+                    })
+                })
+            })
+    }
+
     pub async fn handle_rejection(
         err: warp::reject::Rejection,
     ) -> Result<impl warp::Reply, warp::reject::Rejection> {
         if let Some(e) = err.find::<errors::DimError>() {
             return Ok(e.clone().into_response());
-        } else if err.find::<auth::AuthError>().is_some() {
-            return Ok(errors::DimError::Unauthenticated.into_response());
         } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
             return Ok(errors::DimError::MissingFieldInBody {
                 description: e.source().unwrap().to_string(),

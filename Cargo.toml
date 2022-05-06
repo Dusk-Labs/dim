@@ -1,5 +1,5 @@
 [workspace]
-members = ["dim", "database", "events"]
+members = ["dim", "database", "auth", "events"]
 
 [profile.dev]
 codegen-units = 16

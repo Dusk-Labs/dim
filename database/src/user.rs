@@ -3,6 +3,9 @@ use std::collections::HashMap;
 use std::num::NonZeroU32;
 use std::time::SystemTime;
 
+use auth::user_cookie_decode;
+use auth::user_cookie_generate;
+use auth::AuthError;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -134,7 +137,7 @@ pub enum Role {
     User,
 }
 
-#[derive(Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize, sqlx::Type)] // Does this need to be clone?
+#[derive(Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize, sqlx::Type)]
 #[sqlx(transparent)]
 pub struct UserID(pub(crate) i64);
 
@@ -526,6 +529,14 @@ impl Login {
         .execute(&mut *conn)
         .await?
         .rows_affected() as usize)
+    }
+
+    pub fn create_cookie(id: UserID) -> String {
+        user_cookie_generate(id.0)
+    }
+
+    pub fn verify_cookie(cookie: String) -> Result<UserID, AuthError> {
+        Ok(UserID(user_cookie_decode(cookie)?))
     }
 }
 

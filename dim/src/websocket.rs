@@ -5,8 +5,6 @@ use std::net::SocketAddr;
 use tokio::runtime::Handle;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
-use database::auth;
-
 use warp::filters::ws::Message;
 use warp::filters::ws::WebSocket;
 use warp::Filter;
@@ -23,7 +21,7 @@ where
     Track {
         addr: A,
         sink: SplitSink<WebSocket, Message>,
-        auth: Box<auth::Wrapper>,
+        auth: Box<database::user::User>,
     },
 
     Forget {
@@ -158,7 +156,8 @@ pub fn event_socket(
                             if let Ok(ClientActions::Authenticate { token }) =
                                 serde_json::from_slice(x.as_bytes())
                             {
-                                if let Ok(token_data) = auth::user_cookie_decode(token) {
+                                if let Ok(token_data) = database::user::Login::verify_cookie(token)
+                                {
                                     if let Ok(mut tx) = conn.read().begin().await {
                                         if let Ok(u) =
                                             database::user::User::get_by_id(&mut tx, token_data)
@@ -167,7 +166,7 @@ pub fn event_socket(
                                             let _ = i_tx.send(CtrlEvent::Track {
                                                 addr,
                                                 sink: ws_tx,
-                                                auth: Box::new(auth::Wrapper(u)),
+                                                auth: Box::new(u),
                                             });
 
                                             let _ = i_tx.send(CtrlEvent::SendTo {

@@ -27,11 +27,11 @@ pub enum DimError {
     Unauthenticated,
     #[error(display = "Invalid media_type supplied, options are [movie, tv].")]
     InvalidMediaType,
-    #[error(display = "A error in the streaming library has occured")]
+    #[error(display = "An error in the streaming library has occured")]
     StreamingError(#[error(source)] StreamingErrors),
     #[error(display = "You do not have permission to access this route")]
     Unauthorized,
-    #[error(display = "A error has occured when matching.")]
+    #[error(display = "An error has occured when matching.")]
     ScannerError(#[error(source)] ScannerError),
     #[error(display = "Upload failed.")]
     UploadFailed,
@@ -47,6 +47,8 @@ pub enum DimError {
     InvalidCredentials,
     #[error(display = "Requested username is not available.")]
     UsernameNotAvailable,
+    #[error(display = "An error has occured while parsing cookie.")]
+    CookieError(#[error(source)] database::error::AuthError),
 }
 
 impl From<sqlx::Error> for DimError {
@@ -73,6 +75,7 @@ impl warp::Reply for DimError {
             Self::Unauthenticated
             | Self::Unauthorized
             | Self::InvalidCredentials
+            | Self::CookieError(_)
             | Self::NoToken => StatusCode::UNAUTHORIZED,
             Self::UsernameNotAvailable => StatusCode::BAD_REQUEST,
             Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {

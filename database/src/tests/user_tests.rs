@@ -1,3 +1,6 @@
+use auth::generate_key;
+use auth::set_key_fallible;
+
 use crate::get_conn_memory;
 use crate::user;
 use crate::user::Login;
@@ -130,4 +133,29 @@ async fn test_invites() {
     .await
     .unwrap();
     assert_eq!(result, 0);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn test_cookie_encoding() {
+    let _ = set_key_fallible(generate_key());
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
+
+    let user = insert_user(&mut tx).await;
+    let token = Login::create_cookie(user.id);
+    let token2 = Login::create_cookie(user.id);
+    assert_ne!(token, token2);
+    let uid = Login::verify_cookie(token).unwrap();
+    assert_eq!(uid, user.id);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn test_invalid_cookie() {
+    let _ = set_key_fallible(generate_key());
+    let res = Login::verify_cookie(String::new());
+    assert!(res.is_err());
+    let res = Login::verify_cookie(String::from("ansd9uid89as"));
+    assert!(res.is_err());
+    let res = Login::verify_cookie(String::from("bXl1c2VyaWQ="));
+    assert!(res.is_err());
 }

@@ -11,7 +11,6 @@ use sqlx::ConnectOptions;
 use tracing::{info, instrument};
 
 pub mod asset;
-pub mod auth;
 pub mod episode;
 pub mod error;
 pub mod genre;
@@ -29,6 +28,8 @@ pub mod tv;
 pub mod user;
 pub mod utils;
 
+pub use auth::generate_key;
+pub use auth::set_key;
 pub use crate::error::DatabaseError;
 /// Ugly hack because of a shitty deadlock in `Pool`
 pub use crate::rw_pool::write_tx;
