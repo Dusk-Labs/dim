@@ -139,6 +139,7 @@ pub enum Role {
 pub struct UserID(pub(crate) i64);
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
+#[serde(transparent)]
 pub struct Roles(pub Vec<String>);
 
 impl<DB: sqlx::Database> sqlx::Type<DB> for Roles

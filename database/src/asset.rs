@@ -1,4 +1,5 @@
-use crate::{user::UserID, DatabaseError};
+use crate::user::UserID;
+use crate::DatabaseError;
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, Default)]
