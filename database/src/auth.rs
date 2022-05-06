@@ -135,7 +135,7 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn test_cookie_encoding() {
-        set_key(generate_key());
+        let _ = KEY.set(generate_key());
         let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
         let mut tx = write_tx(&mut conn).await.unwrap();
 
@@ -149,7 +149,7 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn test_invalid_cookie() {
-        set_key(generate_key());
+        let _ = KEY.set(generate_key());
         let res = user_cookie_decode(String::new());
         assert!(res.is_err());
         let res = user_cookie_decode(String::from("ansd9uid89as"));
