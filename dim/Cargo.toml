@@ -7,7 +7,6 @@ edition = "2018"
 
 [features]
 default = ["sqlite"]
-null_auth = ["database/null_auth"]
 vaapi = ["nightfall/vaapi"]
 
 # the build script usually will enable this if `yarn` is installed.

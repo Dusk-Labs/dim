@@ -10,7 +10,6 @@ default = ["sqlite"]
 
 postgres = ["sqlx/postgres"]
 sqlite = ["sqlx/sqlite"]
-null_auth = []
 
 [dependencies]
 serde = { version = "^1", features = ["derive"] }

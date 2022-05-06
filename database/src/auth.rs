@@ -1,7 +1,9 @@
-use aes_gcm::{
-    aead::{generic_array::GenericArray, Aead},
-    AeadInPlace, Aes256Gcm, NewAead,
-};
+use aes_gcm::aead::generic_array::GenericArray;
+use aes_gcm::aead::Aead;
+use aes_gcm::AeadInPlace;
+use aes_gcm::Aes256Gcm;
+use aes_gcm::NewAead;
+
 use once_cell::sync::OnceCell;
 use rand::Rng;
 use rand::RngCore;
@@ -15,9 +17,6 @@ use warp::Rejection;
 use crate::user::User;
 use crate::user::UserID;
 use crate::DbConnection;
-
-#[cfg(all(not(debug_assertions), feature = "null_auth"))]
-std::compile_error!("Cannot disable authentication for non-devel environments.");
 
 pub(crate) const NONCE_LEN: usize = 12;
 pub(crate) const TAG_LEN: usize = 16;
@@ -109,29 +108,6 @@ pub fn user_cookie_decode(cookie: String) -> Result<UserID, AuthError> {
     Ok(UserID(i64::from_be_bytes(plaintext.try_into().unwrap())))
 }
 
-#[cfg(feature = "null_auth")]
-pub fn with_auth(
-    conn: DbConnection,
-) -> impl Filter<Extract = (Wrapper,), Error = Rejection> + Clone {
-    warp::any()
-        .map(move || conn.clone())
-        .and_then(|c: DbConnection| async move {
-            let mut tx = match c.read().begin().await {
-                Ok(tx) => tx,
-                Err(_) => return Err(reject::custom(AuthError::DBError)),
-            };
-            let u = match User::get_all(&mut tx).await {
-                Ok(users) => match users.into_iter().find(|u| u.has_role("admin")) {
-                    Some(u) => u,
-                    None => return Err(reject::custom(AuthError::Missing)),
-                },
-                Err(_) => return Err(reject::custom(AuthError::DBError)),
-            };
-            Ok(Wrapper(u))
-        })
-}
-
-#[cfg(not(feature = "null_auth"))]
 pub fn with_auth(
     conn: DbConnection,
 ) -> impl Filter<Extract = (Wrapper,), Error = Rejection> + Clone {
@@ -149,4 +125,36 @@ pub fn with_auth(
                 Err(_) => Err(reject::custom(AuthError::DBQueryError)),
             }
         })
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{get_conn_memory, tests::user_tests::insert_user, write_tx};
+
+    use super::*;
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn test_cookie_encoding() {
+        set_key(generate_key());
+        let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+        let mut tx = write_tx(&mut conn).await.unwrap();
+
+        let user = insert_user(&mut tx).await;
+        let token = user_cookie_generate(user.id);
+        let token2 = user_cookie_generate(user.id);
+        assert_ne!(token, token2);
+        let uid = user_cookie_decode(token).unwrap();
+        assert_eq!(uid, user.id);
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn test_invalid_cookie() {
+        set_key(generate_key());
+        let res = user_cookie_decode(String::new());
+        assert!(res.is_err());
+        let res = user_cookie_decode(String::from("ansd9uid89as"));
+        assert!(res.is_err());
+        let res = user_cookie_decode(String::from("bXl1c2VyaWQ="));
+        assert!(res.is_err());
+    }
 }
