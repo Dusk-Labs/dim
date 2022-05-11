@@ -93,7 +93,7 @@ export const changeUsername =
     } catch (err) {
       dispatch({
         type: CHANGE_USERNAME_ERR,
-        payload: err,
+        payload: JSON.stringify(err),
       });
     }
   };
