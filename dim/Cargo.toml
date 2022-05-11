@@ -4,6 +4,7 @@ version = "0.3.0-rc6"
 build = "src/build.rs"
 authors = ["Valerian G. <valerian@dusklabs.io>"]
 edition = "2018"
+license = "AGPL-3.0-only"
 
 [features]
 default = ["sqlite"]
