@@ -71,7 +71,7 @@ function HoverCard(props) {
     };
 
     if (genres.length > 3) {
-      genres.length = 3;
+      genres.splice(3);
     }
 
     return (
