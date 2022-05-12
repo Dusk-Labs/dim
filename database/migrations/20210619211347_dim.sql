@@ -43,8 +43,8 @@ CREATE TABLE _tblmedia (
 CREATE VIEW media AS
 SELECT _tblmedia.*, pp.local_path as poster_path, bp.local_path as backdrop_path
 FROM _tblmedia
-LEFT OUTER JOIN assets pp ON _tblmedia.poster = pp.id
-LEFT OUTER JOIN assets bp ON _tblmedia.backdrop = bp.id;
+LEFT JOIN assets pp ON _tblmedia.poster = pp.id
+LEFT JOIN assets bp ON _tblmedia.backdrop = bp.id;
 
 CREATE TRIGGER media_delete
 INSTEAD OF DELETE ON media
@@ -53,6 +53,7 @@ BEGIN
 END;
 
 CREATE UNIQUE INDEX media_idx ON _tblmedia(library_id, name, media_type) WHERE NOT _tblmedia.media_type = "episode";
+CREATE INDEX media_excl_ep_idx ON _tblmedia(name) WHERE NOT _tblmedia.media_type = "episode";
 
 CREATE TABLE movie (
     id INTEGER,
@@ -85,7 +86,7 @@ CREATE VIEW season AS
 SELECT _tblseason.id, _tblseason.season_number,
     _tblseason.tvshowid, _tblseason.added, assets.local_path as poster
 FROM _tblseason
-LEFT OUTER JOIN assets ON _tblseason.poster = assets.id;
+JOIN assets ON _tblseason.poster = assets.id;
 
 CREATE TRIGGER season_delete
 INSTEAD OF DELETE ON season
@@ -132,8 +133,7 @@ CREATE TABLE mediafile (
 );
 
 CREATE TABLE users (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
+    username TEXT PRIMARY KEY,
     password TEXT NOT NULL,
     prefs BLOB NOT NULL DEFAULT '{}',
     claimed_invite TEXT NOT NULL UNIQUE,
@@ -146,14 +146,14 @@ CREATE TABLE users (
 
 CREATE TABLE progress (
     id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
+    user_id TEXT NOT NULL,
     delta INTEGER NOT NULL,
     media_id INTEGER NOT NULL,
     populated INTEGER NOT NULL,
 
     PRIMARY KEY (id),
     FOREIGN KEY(media_id) REFERENCES _tblmedia (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY(user_id) REFERENCES users(username) ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX progress_idx ON progress(user_id, media_id);
