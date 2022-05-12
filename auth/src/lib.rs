@@ -13,7 +13,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use time::get_time;
 
-use warp::filters::header::headers_cloned;
+use warp::filters::header::{ header, headers_cloned, optional };
 use warp::http::header::HeaderMap;
 use warp::http::header::AUTHORIZATION;
 use warp::reject;
@@ -78,6 +78,22 @@ pub enum JWTError {
 }
 
 impl warp::reject::Reject for JWTError {}
+
+#[derive(Clone, Debug)]
+pub enum HeaderError {
+    HeaderIsPresent,
+    HeaderIsNotPresent
+}
+
+impl warp::reject::Reject for HeaderError {}
+
+#[derive(Clone, Debug)]
+pub enum CookieError {
+    CookieIsPresent,
+    CookieIsNotPresent
+}
+
+impl warp::reject::Reject for CookieError {}
 
 impl UserRolesToken {
     /// Method returns whether the token is expired or not.
@@ -213,4 +229,28 @@ pub fn with_auth() -> impl Filter<Extract = (Wrapper,), Error = Rejection> + Clo
             }
         }
     })
+}
+
+pub fn without_auth() -> impl Filter<Extract = ((),), Error = Rejection> + Clone {
+    optional(AUTHORIZATION.as_str())
+        .and_then(|auth_header: Option<String>| async move {
+            match auth_header {
+                Some(_) => Err(reject::custom(HeaderError::HeaderIsPresent)),
+                None => Ok(())
+            }
+        })
+}
+
+pub fn without_token_cookie() -> impl Filter<Extract = ((),), Error = Rejection> + Clone {
+    warp::filters::cookie::optional("token")
+        .and_then(|token_cookie: Option<String>| async move {
+            match token_cookie {
+                Some(_) => Err(reject::custom(CookieError::CookieIsPresent)),
+                None => Ok(())
+            }
+        })
+}
+
+pub fn with_forwarded_username_header() -> impl Filter<Extract = (String,), Error = Rejection> + Clone {
+    header("X-Forwarded-User")
 }

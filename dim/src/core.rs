@@ -80,6 +80,7 @@ pub async fn warp_core(
     let api_routes = balanced_or_tree![
         /* NOTE: v1 REST API routes start HERE */
         /* /api/v1/auth and /user routes */
+        auth::filters::headers_login(conn.clone()),
         auth::filters::login(conn.clone()),
         auth::filters::whoami(conn.clone()),
         auth::filters::admin_exists(conn.clone()),

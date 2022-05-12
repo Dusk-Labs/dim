@@ -11,9 +11,13 @@ use database::user::InsertableUser;
 use database::user::Login;
 use database::user::User;
 
+use http::Uri;
+use rand::{Rng, SeedableRng, rngs::{StdRng}, distributions::{Alphanumeric, Uniform, Standard}};
+
 use serde_json::json;
 
 use warp::reply;
+use warp::redirect;
 
 use http::StatusCode;
 
@@ -40,6 +44,19 @@ pub mod filters {
             .and(with_db(conn))
             .and_then(|new_login: Login, conn: DbConnection| async move {
                 super::login(new_login, conn)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn headers_login(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        auth::without_token_cookie()
+            .and(auth::with_forwarded_username_header())
+            .and(with_db(conn))
+            .and_then(|_, username: String, conn: DbConnection| async move {
+                super::headers_login(username, conn)
                     .await
                     .map_err(|e| reject::custom(e))
             })
@@ -241,6 +258,55 @@ pub async fn login(
     }
 
     Err(errors::DimError::InvalidCredentials)
+}
+
+pub async fn headers_login(
+    username: String,
+    conn: DbConnection,
+) -> Result<impl warp::Reply, errors::DimError> {
+    // TODO: Make this a reader lock then request writer lock iff user needs to be created
+    let mut lock = conn.writer().lock_owned().await;
+    let mut tx = database::write_tx(&mut lock).await?;
+
+    let existing_user = 
+        User::get(&mut tx, username.as_str())
+            .await;
+
+    if let Ok(user) = existing_user {
+        return Ok(
+            reply::with_header(
+                redirect::found(Uri::from_static("/")),
+                "Set-Cookie",
+                format!("token={}", jwt_generate(user.username, user.roles))));
+            }
+    else {
+        // Username in X-Forwarded-User doesn't yet exist in database.
+        let rng = StdRng::from_entropy();
+        let password = rng.sample_iter(&Alphanumeric).take(20).collect();
+        let roles = vec!["user".to_string()];
+        let claimed_invite =  Login::new_invite(&mut tx).await?;
+
+        InsertableUser {
+            username: username.clone(),
+            password,
+            roles: roles.clone(),
+            claimed_invite,
+            prefs: Default::default(),
+        }
+        .insert(&mut tx)
+        .await?;
+
+        tx.commit().await?;
+
+        return Ok(
+            reply::with_header(
+                redirect::found(Uri::from_static("/")),
+                "token",
+                jwt_generate(username, roles)
+            )
+        )
+
+    }
 }
 
 pub async fn whoami(user: Auth, conn: DbConnection) -> Result<impl warp::Reply, errors::DimError> {
