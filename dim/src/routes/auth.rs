@@ -260,6 +260,20 @@ pub async fn login(
     Err(errors::DimError::InvalidCredentials)
 }
 
+/// Logs in users with the X-Forwarded-User header
+/// This is used for reverse proxy authentication
+/// 
+/// Sets the token cookie to a valid JWT token
+/// for the user with the username from the X-Forwarded-User
+/// header.
+/// 
+/// If a user with that username doesn't exist,
+/// it will create a new user with that username,
+/// and a random password.
+/// 
+/// # Arguments
+/// * `username` - The username from the X-Forwarded-User header
+/// * `conn` - The database connection
 pub async fn headers_login(
     username: String,
     conn: DbConnection,
