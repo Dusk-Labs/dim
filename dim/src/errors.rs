@@ -47,6 +47,8 @@ pub enum DimError {
     InvalidCredentials,
     #[error(display = "Requested username is not available.")]
     UsernameNotAvailable,
+    #[error(display = "Forward auth is disabled.")]
+    ForwardAuthDisabled,
 }
 
 impl From<sqlx::Error> for DimError {
@@ -71,6 +73,7 @@ impl warp::Reply for DimError {
             Self::Unauthenticated
             | Self::Unauthorized
             | Self::InvalidCredentials
+            | Self::ForwardAuthDisabled
             | Self::NoToken => StatusCode::UNAUTHORIZED,
             Self::UsernameNotAvailable => StatusCode::BAD_REQUEST,
             Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {

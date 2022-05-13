@@ -34,6 +34,7 @@ pub struct GlobalSettings {
     pub quiet_boot: bool,
 
     pub disable_auth: bool,
+    pub forwarded_user_auth: bool,
 
     pub verbose: bool,
     pub secret_key: Option<[u8; 16]>,
@@ -59,6 +60,7 @@ impl Default for GlobalSettings {
             metadata_dir: ffpath("config/metadata"),
             quiet_boot: false,
             disable_auth: false,
+            forwarded_user_auth: false,
             verbose: false,
             secret_key: None,
             enable_hwaccel: true,

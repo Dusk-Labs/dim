@@ -14,8 +14,16 @@ function Authentication() {
       disableAuth: data.disable_auth,
     };
   });
+  
+  const { forwardAuth } = useSelector((store) => {
+    const { data } = store.settings.globalSettings;
 
-  const handleToggle = useCallback(
+    return {
+      disableAuth: data.forwarded_user_auth,
+    };
+  });
+
+  const handleAuthToggle = useCallback(
     (state) => {
       dispatch(
         updateGlobalSettings({
@@ -26,13 +34,29 @@ function Authentication() {
     [dispatch]
   );
 
+  const handleForwardAuthToggle = useCallback(
+    (state) => {
+      dispatch(
+        updateGlobalSettings({
+          forwarded_user_auth: state,
+        })
+      );
+    },
+    [dispatch]
+  );
+
   return (
     <section>
       <h2>Authentication</h2>
       <Toggle
-        onToggle={handleToggle}
+        onToggle={handleAuthToggle}
         state={!disableAuth}
         name="Require a valid auth token for each request to the server."
+      />
+      <Toggle
+        onToggle={handleForwardAuthToggle}
+        state={forwardAuth}
+        name="Login users with the X-Forwarded-User header.  (Only do this if you're behind a reverse proxy that authenticates users.)"
       />
     </section>
   );

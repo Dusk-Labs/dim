@@ -13,6 +13,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use time::get_time;
 
+use warp::filters::any::{ any };
 use warp::filters::header::{ header, headers_cloned, optional };
 use warp::http::header::HeaderMap;
 use warp::http::header::AUTHORIZATION;
@@ -94,6 +95,13 @@ pub enum CookieError {
 }
 
 impl warp::reject::Reject for CookieError {}
+
+#[derive(Clone, Debug)]
+pub enum ForwardAuthError {
+    ForwardAuthDisabled
+}
+
+impl warp::reject::Reject for ForwardAuthError {}
 
 impl UserRolesToken {
     /// Method returns whether the token is expired or not.
@@ -254,3 +262,13 @@ pub fn without_token_cookie() -> impl Filter<Extract = ((),), Error = Rejection>
 pub fn with_forwarded_username_header() -> impl Filter<Extract = (String,), Error = Rejection> + Clone {
     header("X-Forwarded-User")
 }
+
+// pub fn with_forward_auth_enabled(enabled: bool) -> impl Filter<Extract = (), Error = Infallible, Rejection> + Clone {
+//     if enabled {
+//         Box::new(any()) as Box<dyn Filter<Extract = (), Error = Rejection> + Clone>
+//     } else {
+//        Box::new(any().and_then(|| async move {
+//             Err(reject::custom(HeaderError::HeaderIsPresent))
+//         })) as Box<dyn Filter<Extract = (), Error = Rejection> + Clone>
+//     }
+// }

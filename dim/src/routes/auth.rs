@@ -12,9 +12,11 @@ use database::user::Login;
 use database::user::User;
 
 use http::Uri;
-use rand::{Rng, SeedableRng, rngs::{StdRng}, distributions::{Alphanumeric, Uniform, Standard}};
+use rand::{Rng, SeedableRng, rngs::{StdRng}, distributions::{Alphanumeric}};
 
 use serde_json::json;
+
+use super::settings::{get_global_settings};
 
 use warp::reply;
 use warp::redirect;
@@ -28,13 +30,15 @@ pub mod filters {
     use crate::core::DbConnection;
     use serde::Deserialize;
 
+
+    // use warp::filters::any::{any};
     use warp::reject;
     use warp::Filter;
 
     use database::user::Login;
 
     use super::super::global_filters::with_db;
-
+    
     pub fn login(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
@@ -48,6 +52,16 @@ pub mod filters {
                     .map_err(|e| reject::custom(e))
             })
     }
+
+    // pub fn with_forward_auth_enabled() -> impl Filter<Extract = ((),), Error = Rejection> + Clone {
+    //     any()
+    //         .and_then(|| {
+    //             match get_global_settings().forwarded_user_auth {
+    //                 true => Ok(()),
+    //                 false => Err(reject::custom(ForwardAuthError::ForwardAuthDisabled))
+    //             }
+    //         })
+    // }
 
     pub fn headers_login(
         conn: DbConnection,
@@ -260,6 +274,24 @@ pub async fn login(
     Err(errors::DimError::InvalidCredentials)
 }
 
+#[derive(Clone, Debug)]
+pub enum HeadersLoginError {
+    ForwardAuthError(auth::ForwardAuthError),
+    DimError(errors::DimError),
+}
+
+impl warp::reject::Reject for HeadersLoginError {}
+impl<T: Into<errors::DimError>> From<T> for HeadersLoginError {
+    fn from(e: T) -> Self{
+        HeadersLoginError::DimError(e.into())
+    }
+}
+impl From<auth::ForwardAuthError> for HeadersLoginError {
+    fn from(e: auth::ForwardAuthError) -> Self {
+        HeadersLoginError::ForwardAuthError(e)
+    }
+}
+
 /// Logs in users with the X-Forwarded-User header
 /// This is used for reverse proxy authentication
 /// 
@@ -277,49 +309,62 @@ pub async fn login(
 pub async fn headers_login(
     username: String,
     conn: DbConnection,
-) -> Result<impl warp::Reply, errors::DimError> {
-    // TODO: Make this a reader lock then request writer lock iff user needs to be created
-    let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+) -> Result<impl warp::Reply, HeadersLoginError> {
 
-    let existing_user = 
-        User::get(&mut tx, username.as_str())
-            .await;
+    // print the username to the console
+    println!("{}", username);
+    println!("{}", get_global_settings().forwarded_user_auth);
 
-    if let Ok(user) = existing_user {
-        return Ok(
-            reply::with_header(
-                redirect::found(Uri::from_static("/")),
-                "Set-Cookie",
-                format!("token={}", jwt_generate(user.username, user.roles))));
+    if get_global_settings().forwarded_user_auth {
+        // TODO: Make this a reader lock then request writer lock iff user needs to be created
+        let mut lock = conn.writer().lock_owned().await;
+        let mut tx = database::write_tx(&mut lock).await?;
+
+        let existing_user = 
+            User::get(&mut tx, username.as_str())
+                .await;
+
+        if let Ok(user) = existing_user {
+            return Ok(
+                reply::with_header(
+                    redirect::found(Uri::from_static("/")),
+                    "Set-Cookie",
+                    format!("token={}", jwt_generate(user.username, user.roles))));
+                }
+        else {
+            // Username in X-Forwarded-User doesn't yet exist in database.
+            let rng = StdRng::from_entropy();
+            let password = rng.sample_iter(&Alphanumeric).take(20).collect();
+            let roles = vec!["user".to_string()];
+            let claimed_invite =  Login::new_invite(&mut tx).await?;
+
+            InsertableUser {
+                username: username.clone(),
+                password,
+                roles: roles.clone(),
+                claimed_invite,
+                prefs: Default::default(),
             }
-    else {
-        // Username in X-Forwarded-User doesn't yet exist in database.
-        let rng = StdRng::from_entropy();
-        let password = rng.sample_iter(&Alphanumeric).take(20).collect();
-        let roles = vec!["user".to_string()];
-        let claimed_invite =  Login::new_invite(&mut tx).await?;
+            .insert(&mut tx)
+            .await?;
 
-        InsertableUser {
-            username: username.clone(),
-            password,
-            roles: roles.clone(),
-            claimed_invite,
-            prefs: Default::default(),
+            tx.commit().await?;
+
+            return Ok(
+                reply::with_header(
+                    redirect::found(Uri::from_static("/")),
+                    "token",
+                    jwt_generate(username, roles)
+                )
+            )
         }
-        .insert(&mut tx)
-        .await?;
-
-        tx.commit().await?;
-
-        return Ok(
-            reply::with_header(
-                redirect::found(Uri::from_static("/")),
-                "token",
-                jwt_generate(username, roles)
+    }
+    else {
+        Err(
+            HeadersLoginError::ForwardAuthError(
+                auth::ForwardAuthError::ForwardAuthDisabled
             )
         )
-
     }
 }
 
