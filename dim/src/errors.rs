@@ -172,3 +172,23 @@ impl From<std::io::Error> for DimError {
         Self::IOError
     }
 }
+
+
+#[derive(Clone, Debug)]
+pub enum HeadersLoginError {
+    ForwardAuthError(auth::ForwardAuthError),
+    DimError(DimError),
+}
+
+impl warp::reject::Reject for HeadersLoginError {}
+impl<T: Into<DimError>> From<T> for HeadersLoginError {
+    fn from(e: T) -> Self{
+        HeadersLoginError::DimError(e.into())
+    }
+}
+impl From<auth::ForwardAuthError> for HeadersLoginError {
+    fn from(e: auth::ForwardAuthError) -> Self {
+        HeadersLoginError::ForwardAuthError(e)
+    }
+}
+

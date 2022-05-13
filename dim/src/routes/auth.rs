@@ -264,24 +264,6 @@ pub async fn login(
     Err(errors::DimError::InvalidCredentials)
 }
 
-#[derive(Clone, Debug)]
-pub enum HeadersLoginError {
-    ForwardAuthError(auth::ForwardAuthError),
-    DimError(errors::DimError),
-}
-
-impl warp::reject::Reject for HeadersLoginError {}
-impl<T: Into<errors::DimError>> From<T> for HeadersLoginError {
-    fn from(e: T) -> Self{
-        HeadersLoginError::DimError(e.into())
-    }
-}
-impl From<auth::ForwardAuthError> for HeadersLoginError {
-    fn from(e: auth::ForwardAuthError) -> Self {
-        HeadersLoginError::ForwardAuthError(e)
-    }
-}
-
 /// Logs in users with the X-Forwarded-User header
 /// This is used for reverse proxy authentication
 /// 
@@ -299,7 +281,7 @@ impl From<auth::ForwardAuthError> for HeadersLoginError {
 pub async fn headers_login(
     username: String,
     conn: DbConnection,
-) -> Result<impl warp::Reply, HeadersLoginError> {
+) -> Result<impl warp::Reply, errors::HeadersLoginError> {
 
     if get_global_settings().forwarded_user_auth {
         // TODO: Make this a reader lock then request writer lock iff user needs to be created
@@ -347,7 +329,7 @@ pub async fn headers_login(
     }
     else {
         Err(
-            HeadersLoginError::ForwardAuthError(
+            errors::HeadersLoginError::ForwardAuthError(
                 auth::ForwardAuthError::ForwardAuthDisabled
             )
         )
