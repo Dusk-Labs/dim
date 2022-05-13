@@ -53,16 +53,6 @@ pub mod filters {
             })
     }
 
-    // pub fn with_forward_auth_enabled() -> impl Filter<Extract = ((),), Error = Rejection> + Clone {
-    //     any()
-    //         .and_then(|| {
-    //             match get_global_settings().forwarded_user_auth {
-    //                 true => Ok(()),
-    //                 false => Err(reject::custom(ForwardAuthError::ForwardAuthDisabled))
-    //             }
-    //         })
-    // }
-
     pub fn headers_login(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {

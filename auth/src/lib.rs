@@ -262,13 +262,3 @@ pub fn without_token_cookie() -> impl Filter<Extract = ((),), Error = Rejection>
 pub fn with_forwarded_username_header() -> impl Filter<Extract = (String,), Error = Rejection> + Clone {
     header("X-Forwarded-User")
 }
-
-// pub fn with_forward_auth_enabled(enabled: bool) -> impl Filter<Extract = (), Error = Infallible, Rejection> + Clone {
-//     if enabled {
-//         Box::new(any()) as Box<dyn Filter<Extract = (), Error = Rejection> + Clone>
-//     } else {
-//        Box::new(any().and_then(|| async move {
-//             Err(reject::custom(HeaderError::HeaderIsPresent))
-//         })) as Box<dyn Filter<Extract = (), Error = Rejection> + Clone>
-//     }
-// }
