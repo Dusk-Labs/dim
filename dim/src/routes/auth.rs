@@ -311,10 +311,6 @@ pub async fn headers_login(
     conn: DbConnection,
 ) -> Result<impl warp::Reply, HeadersLoginError> {
 
-    // print the username to the console
-    println!("{}", username);
-    println!("{}", get_global_settings().forwarded_user_auth);
-
     if get_global_settings().forwarded_user_auth {
         // TODO: Make this a reader lock then request writer lock iff user needs to be created
         let mut lock = conn.writer().lock_owned().await;
