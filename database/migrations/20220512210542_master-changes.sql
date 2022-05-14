@@ -1,6 +1,5 @@
 DROP INDEX media_excl_ep_idx;
 
-
 -- Recreate media view
 DROP VIEW media;
 
@@ -13,7 +12,6 @@ LEFT OUTER JOIN assets bp ON _tblmedia.backdrop = bp.id;
 CREATE TRIGGER media_delete
 INSTEAD OF DELETE ON media
 BEGIN DELETE FROM _tblmedia WHERE _tblmedia.id = old.id; END;
-
 
 -- Recreate season view
 DROP VIEW season;

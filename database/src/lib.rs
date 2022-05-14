@@ -28,11 +28,11 @@ pub mod tv;
 pub mod user;
 pub mod utils;
 
-pub use auth::generate_key;
-pub use auth::set_key;
 pub use crate::error::DatabaseError;
 /// Ugly hack because of a shitty deadlock in `Pool`
 pub use crate::rw_pool::write_tx;
+pub use auth::generate_key;
+pub use auth::set_key;
 
 #[cfg(all(feature = "sqlite", feature = "postgres"))]
 compile_error!("Features sqlite and postgres are mutually exclusive");

@@ -28,7 +28,6 @@ CREATE TABLE progress (
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-
 INSERT INTO progress (id, user_id, delta, media_id, populated)
 SELECT op.id, u.id, op.delta, op.media_id, op.populated
 FROM old_progress op

@@ -4,12 +4,12 @@ use aes_gcm::AeadInPlace;
 use aes_gcm::Aes256Gcm;
 use aes_gcm::NewAead;
 
+use err_derive::Error;
 use once_cell::sync::OnceCell;
 use rand::Rng;
 use rand::RngCore;
 use serde::Serialize;
 use std::convert::TryInto;
-use err_derive::Error;
 
 const NONCE_LEN: usize = 12;
 const TAG_LEN: usize = 16;
