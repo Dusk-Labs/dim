@@ -1,14 +1,19 @@
+use auth::generate_key;
+use auth::set_key_fallible;
+
 use crate::get_conn_memory;
 use crate::user;
 use crate::user::Login;
+use crate::user::Roles;
+use crate::user::User;
 use crate::write_tx;
 
-pub async fn insert_user(conn: &mut crate::Transaction<'_>) -> String {
+pub async fn insert_user(conn: &mut crate::Transaction<'_>) -> User {
     let invite = Login::new_invite(&mut *conn).await.unwrap();
     let user = user::InsertableUser {
         username: "test".into(),
         password: "test".into(),
-        roles: vec!["User".into()],
+        roles: Roles(vec!["User".into()]),
         prefs: Default::default(),
         claimed_invite: invite,
     };
@@ -22,7 +27,7 @@ pub async fn insert_many(conn: &mut crate::Transaction<'_>, n: usize) {
         let user = user::InsertableUser {
             username: format!("test{}", i),
             password: "test".into(),
-            roles: vec!["User".into()],
+            roles: Roles(vec!["User".into()]),
             prefs: Default::default(),
             claimed_invite: invite,
         };
@@ -36,15 +41,15 @@ async fn test_get_one() {
     let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
     let mut tx = write_tx(&mut conn).await.unwrap();
 
-    let result = user::User::get_one(&mut tx, "test".into(), "test".into()).await;
+    let result = user::User::authenticate(&mut tx, "test".into(), "test".into()).await;
     assert!(result.is_err());
 
     let uname = insert_user(&mut tx).await;
-    let result = user::User::get_one(&mut tx, uname, "test".into())
+    let result = user::User::authenticate(&mut tx, "test".into(), "test".into())
         .await
         .unwrap();
     assert_eq!(result.username, "test".to_string());
-    assert_eq!(&result.roles, &["User".to_string()]);
+    assert_eq!(result.roles, Roles(vec!["User".to_string()]));
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -66,15 +71,15 @@ async fn test_delete() {
     let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
     let mut tx = write_tx(&mut conn).await.unwrap();
     let uname = insert_user(&mut tx).await;
-    let result = user::User::get_one(&mut tx, uname.clone(), "test".into())
+    let result = user::User::authenticate(&mut tx, uname.username.clone(), "test".into())
         .await
         .unwrap();
     assert_eq!(result.username, "test".to_string());
 
-    let rows = user::User::delete(&mut tx, uname.clone()).await.unwrap();
+    let rows = user::User::delete(&mut tx, uname.id).await.unwrap();
     assert_eq!(rows, 1);
 
-    let result = user::User::get_one(&mut tx, uname, "test".into()).await;
+    let result = user::User::authenticate(&mut tx, uname.username, "test".into()).await;
     assert!(result.is_err());
 }
 
@@ -128,4 +133,29 @@ async fn test_invites() {
     .await
     .unwrap();
     assert_eq!(result, 0);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn test_cookie_encoding() {
+    let _ = set_key_fallible(generate_key());
+    let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
+    let mut tx = write_tx(&mut conn).await.unwrap();
+
+    let user = insert_user(&mut tx).await;
+    let token = Login::create_cookie(user.id);
+    let token2 = Login::create_cookie(user.id);
+    assert_ne!(token, token2);
+    let uid = Login::verify_cookie(token).unwrap();
+    assert_eq!(uid, user.id);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn test_invalid_cookie() {
+    let _ = set_key_fallible(generate_key());
+    let res = Login::verify_cookie(String::new());
+    assert!(res.is_err());
+    let res = Login::verify_cookie(String::from("ansd9uid89as"));
+    assert!(res.is_err());
+    let res = Login::verify_cookie(String::from("bXl1c2VyaWQ="));
+    assert!(res.is_err());
 }

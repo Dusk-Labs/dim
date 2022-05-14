@@ -7,7 +7,6 @@ edition = "2018"
 
 [features]
 default = ["sqlite"]
-null_auth = ["auth/null_auth"]
 vaapi = ["nightfall/vaapi"]
 
 # the build script usually will enable this if `yarn` is installed.
@@ -17,31 +16,25 @@ postgres = ["database/postgres"]
 sqlite = ["database/sqlite"]
 
 [dependencies]
-serde = { version = "^1.0.125", default-features = false, features = [
-    "derive",
-    "std",
-] }
-serde_derive = "^1.0.125"
-serde_json = "^1.0.64"
+# git dependencies
+nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4", default-features = false, features = ["cuda", "ssa_transmux"] }
 
+# local dependencies
 database = { path = "../database", default-features = false, optional = true }
 events = { path = "../events" }
-auth = { path = "../auth" }
 
-nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4", default-features = false, features = ["cuda", "ssa_transmux"] }
+serde = { version = "^1.0.125", default-features = false, features = ["derive", "std"] }
+serde_derive = "^1.0.125"
+serde_json = "^1.0.64"
 
 lazy_static = "1.4.0"
 walkdir = "2.3.1"
 rand = "0.7.3"
-
 chrono = "0.4.11"
 err-derive = "^0.3.0"
 rust-embed = "^5.9.0"
 torrent-name-parser = "0.6.3"
-reqwest = { version = "0.11.0", features = [
-    "json",
-    "default-tls",
-], default-features = false }
+reqwest = { version = "0.11.0", features = ["json", "default-tls"], default-features = false }
 notify = "4.0.17"
 cfg-if = "1.0.0"
 once_cell = "1.8.0"
@@ -58,18 +51,12 @@ warp = { version = "0.3.1", features = ["tls", "tokio-rustls"] }
 http = "^0.2.3"
 structopt = "0.3.21"
 toml = "0.5.8"
-sqlx = "=0.5.5"
-
+sqlx = "0.5"
 priority-queue = "1.2.0"
 xmlwriter = "0.1.0"
 percent-encoding = "2.1.0"
-
 tracing = "0.1.29"
-tracing-subscriber = { version = "0.3.1", features = [
-    "fmt",
-    "env-filter",
-    "json",
-] }
+tracing-subscriber = { version = "0.3.1", features = ["fmt", "env-filter", "json"] }
 tracing-appender = "0.2.0"
 dia-i18n = "0.9.0"
 console-subscriber = "0.1.0"

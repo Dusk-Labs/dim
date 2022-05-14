@@ -1,3 +1,5 @@
+pub use auth::AuthError;
+
 use err_derive::Error;
 
 #[derive(Debug, Error)]

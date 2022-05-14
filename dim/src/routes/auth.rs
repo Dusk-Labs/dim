@@ -1,6 +1,5 @@
 use crate::core::DbConnection;
 use crate::errors;
-use auth::{jwt_generate, Wrapper as Auth};
 use bytes::BufMut;
 
 use database::asset::Asset;
@@ -29,6 +28,7 @@ pub mod filters {
 
     use database::user::Login;
 
+    use super::super::global_filters::with_auth;
     use super::super::global_filters::with_db;
 
     pub fn login(
@@ -50,13 +50,15 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "auth" / "whoami")
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_db(conn))
-            .and_then(|auth: auth::Wrapper, conn: DbConnection| async move {
-                super::whoami(auth, conn)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
+            .and_then(
+                |auth: database::user::User, conn: DbConnection| async move {
+                    super::whoami(auth, conn)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                },
+            )
     }
 
     pub fn admin_exists(
@@ -91,13 +93,15 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "auth" / "invites")
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_db(conn))
-            .and_then(|user: auth::Wrapper, conn: DbConnection| async move {
-                super::get_all_invites(conn, user)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
+            .and_then(
+                |user: database::user::User, conn: DbConnection| async move {
+                    super::get_all_invites(conn, user)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                },
+            )
     }
 
     pub fn generate_invite(
@@ -105,13 +109,15 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "auth" / "new_invite")
             .and(warp::post())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_db(conn))
-            .and_then(|user: auth::Wrapper, conn: DbConnection| async move {
-                super::generate_invite(conn, user)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
+            .and_then(
+                |user: database::user::User, conn: DbConnection| async move {
+                    super::generate_invite(conn, user)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                },
+            )
     }
 
     pub fn user_change_password(
@@ -125,11 +131,11 @@ pub mod filters {
 
         warp::path!("api" / "v1" / "auth" / "password")
             .and(warp::patch())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(warp::body::json::<Params>())
             .and(with_db(conn))
             .and_then(
-                |user: auth::Wrapper,
+                |user: database::user::User,
                  Params {
                      old_password,
                      new_password,
@@ -147,10 +153,10 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "auth" / "token" / String)
             .and(warp::delete())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_db(conn))
             .and_then(
-                |token: String, auth: auth::Wrapper, conn: DbConnection| async move {
+                |token: String, auth: database::user::User, conn: DbConnection| async move {
                     super::delete_invite(conn, auth, token)
                         .await
                         .map_err(|e| reject::custom(e))
@@ -168,11 +174,11 @@ pub mod filters {
 
         warp::path!("api" / "v1" / "user" / "delete")
             .and(warp::delete())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(warp::body::json::<Params>())
             .and(with_db(conn))
             .and_then(
-                |auth: auth::Wrapper, Params { password }: Params, conn: DbConnection| async move {
+                |auth: database::user::User, Params { password }: Params, conn: DbConnection| async move {
                     super::user_delete_self(conn, auth, password)
                         .await
                         .map_err(|e| reject::custom(e))
@@ -189,18 +195,18 @@ pub mod filters {
         }
         warp::path!("api" / "v1" / "auth" / "username")
             .and(warp::patch())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(warp::body::json::<Params>())
             .and(with_db(conn))
-            .and_then(|user: auth::Wrapper,
-                Params {
-                    new_username,
-                }: Params,
-                conn: DbConnection| async move {
+            .and_then(
+                |user: database::user::User,
+                 Params { new_username }: Params,
+                 conn: DbConnection| async move {
                     super::user_change_username(conn, user, new_username)
                         .await
                         .map_err(|e| reject::custom(e))
-                })
+                },
+            )
     }
 
     pub fn user_upload_avatar(
@@ -208,7 +214,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "user" / "avatar")
             .and(warp::post())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(warp::multipart::form().max_length(5_000_000))
             .and(with_db(conn))
             .and_then(|user, form, conn| async move {
@@ -227,13 +233,9 @@ pub async fn login(
     let user = User::get(&mut tx, &new_login.username)
         .await
         .map_err(|_| errors::DimError::InvalidCredentials)?;
-
-    if verify(
-        user.username.clone(),
-        user.password.clone(),
-        new_login.password.clone(),
-    ) {
-        let token = jwt_generate(user.username, user.roles.clone());
+    let pass = user.get_pass(&mut tx).await?;
+    if verify(user.username, pass, new_login.password) {
+        let token = database::user::Login::create_cookie(user.id);
 
         return Ok(reply::json(&json!({
             "token": token,
@@ -243,17 +245,16 @@ pub async fn login(
     Err(errors::DimError::InvalidCredentials)
 }
 
-pub async fn whoami(user: Auth, conn: DbConnection) -> Result<impl warp::Reply, errors::DimError> {
-    let username = user.0.claims.get_user();
+pub async fn whoami(user: User, conn: DbConnection) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
 
     Ok(reply::json(&json!({
-        "picture": Asset::get_of_user(&mut tx, &username).await.ok().map(|x| format!("/images/{}", x.local_path)),
-        "spentWatching": Progress::get_total_time_spent_watching(&mut tx, username.clone())
+        "picture": Asset::get_of_user(&mut tx, user.id).await.ok().map(|x| format!("/images/{}", x.local_path)),
+        "spentWatching": Progress::get_total_time_spent_watching(&mut tx, user.id)
             .await
             .unwrap_or(0) / 3600,
-        "username": username,
-        "roles": user.0.claims.clone_roles()
+        "username": user.username,
+        "roles": user.roles()
     })))
 }
 
@@ -281,19 +282,17 @@ pub async fn register(
         return Err(errors::DimError::NoToken);
     }
 
-    let roles = if !users_empty {
+    let roles = database::user::Roles(if !users_empty {
         vec!["user".to_string()]
     } else {
         vec!["owner".to_string()]
-    };
+    });
 
     let claimed_invite = if users_empty {
         // NOTE: Double check what we are returning here.
         Login::new_invite(&mut tx).await?
     } else {
-        new_user
-            .invite_token
-            .ok_or(errors::DimError::NoToken)?
+        new_user.invite_token.ok_or(errors::DimError::NoToken)?
     };
 
     let res = InsertableUser {
@@ -309,15 +308,15 @@ pub async fn register(
     // FIXME: Return internal server error.
     tx.commit().await?;
 
-    Ok(reply::json(&json!({ "username": res })))
+    Ok(reply::json(&json!({ "username": res.username })))
 }
 
 pub async fn get_all_invites(
     conn: DbConnection,
-    user: Auth,
+    user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
-    if user.0.claims.has_role("owner") {
+    if user.has_role("owner") {
         #[derive(serde::Serialize)]
         struct Row {
             id: String,
@@ -340,7 +339,7 @@ pub async fn get_all_invites(
         row.append(
             &mut sqlx::query_as!(
                 Row,
-                r#"SELECT invites.id, invites.date_added as created, users.username as claimed_by
+                r#"SELECT invites.id, invites.date_added as created, users.username as "claimed_by: Option<String>"
             FROM  invites
             INNER JOIN users ON users.claimed_invite = invites.id"#
             )
@@ -357,9 +356,9 @@ pub async fn get_all_invites(
 
 pub async fn generate_invite(
     conn: DbConnection,
-    user: Auth,
+    user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    if !user.0.claims.has_role("owner") {
+    if !user.has_role("owner") {
         return Err(errors::DimError::Unauthorized);
     }
 
@@ -375,10 +374,10 @@ pub async fn generate_invite(
 
 pub async fn delete_invite(
     conn: DbConnection,
-    user: Auth,
+    user: User,
     token: String,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    if !user.0.claims.has_role("owner") {
+    if !user.has_role("owner") {
         return Err(errors::DimError::Unauthorized);
     }
 
@@ -392,13 +391,13 @@ pub async fn delete_invite(
 
 pub async fn user_change_password(
     conn: DbConnection,
-    user: Auth,
+    user: User,
     old_password: String,
     new_password: String,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
-    let user = User::get_one(&mut tx, user.0.claims.get_user(), old_password)
+    let user = User::authenticate(&mut tx, user.username, old_password)
         .await
         .map_err(|_| errors::DimError::InvalidCredentials)?;
     user.set_password(&mut tx, new_password).await?;
@@ -410,16 +409,16 @@ pub async fn user_change_password(
 
 pub async fn user_delete_self(
     conn: DbConnection,
-    user: Auth,
+    user: User,
     password: String,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
-    let _ = User::get_one(&mut tx, user.0.claims.get_user(), password)
+    let _ = User::authenticate(&mut tx, user.username, password)
         .await
         .map_err(|_| errors::DimError::InvalidCredentials)?;
 
-    User::delete(&mut tx, user.0.claims.get_user()).await?;
+    User::delete(&mut tx, user.id).await?;
 
     tx.commit().await?;
 
@@ -428,7 +427,7 @@ pub async fn user_delete_self(
 
 pub async fn user_change_username(
     conn: DbConnection,
-    user: Auth,
+    user: User,
     new_username: String,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
@@ -437,7 +436,7 @@ pub async fn user_change_username(
         return Err(errors::DimError::UsernameNotAvailable);
     }
 
-    User::set_username(&mut tx, user.0.claims.get_user(), new_username).await?;
+    User::set_username(&mut tx, user.username, new_username).await?;
     tx.commit().await?;
 
     Ok(StatusCode::OK)
@@ -445,7 +444,7 @@ pub async fn user_change_username(
 
 pub async fn user_upload_avatar(
     conn: DbConnection,
-    user: Auth,
+    user: User,
     form: warp::multipart::FormData,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let parts: Vec<warp::multipart::Part> = form
@@ -461,7 +460,7 @@ pub async fn user_upload_avatar(
         Err(errors::DimError::UploadFailed)
     };
 
-    User::set_picture(&mut tx, user.0.claims.get_user(), asset?.id).await?;
+    User::set_picture(&mut tx, user.id, asset?.id).await?;
     tx.commit().await?;
 
     Ok(StatusCode::OK)

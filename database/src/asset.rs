@@ -1,3 +1,4 @@
+use crate::user::UserID;
 use crate::DatabaseError;
 use std::path::PathBuf;
 
@@ -23,14 +24,14 @@ impl Asset {
 
     pub async fn get_of_user(
         conn: &mut crate::Transaction<'_>,
-        username: &str,
+        uid: UserID,
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
             Asset,
             r#"SELECT assets.* FROM assets
                 INNER JOIN users ON users.picture = assets.id
-                WHERE users.username = ?"#,
-            username
+                WHERE users.id = ?"#,
+            uid
         )
         .fetch_one(&mut *conn)
         .await?)

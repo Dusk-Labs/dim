@@ -1,19 +1,21 @@
 use crate::core::DbConnection;
 use crate::errors;
 
-use auth::Wrapper as Auth;
 use database::mediafile::MediaFile;
 
+use database::user::User;
 use serde_json::json;
 use warp::http::status::StatusCode;
 use warp::reply;
 
 pub mod filters {
+    use database::user::User;
     use warp::reject;
     use warp::Filter;
 
+    use crate::routes::global_filters::with_auth;
+
     use super::super::global_filters::with_state;
-    use auth::Wrapper as Auth;
     use database::DbConnection;
 
     use serde::Deserialize;
@@ -23,9 +25,9 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "mediafile" / i64)
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
+            .and_then(|id: i64, auth: User, conn: DbConnection| async move {
                 super::get_mediafile_info(conn, id, auth)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -43,12 +45,12 @@ pub mod filters {
 
         warp::path!("api" / "v1" / "mediafile" / i64 / "match")
             .and(warp::patch())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(warp::query::query::<RouteArgs>())
             .and_then(
                 |id: i64,
-                 _auth: Auth,
+                 _auth: User,
                  conn: DbConnection,
 
                  RouteArgs {
@@ -70,7 +72,7 @@ pub mod filters {
 pub async fn get_mediafile_info(
     conn: DbConnection,
     id: i64,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
     let mediafile = MediaFile::get_one(&mut tx, id)

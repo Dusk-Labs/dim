@@ -1,16 +1,17 @@
 use crate::library::MediaType;
 use crate::media::Media;
+use crate::user::UserID;
 use crate::DatabaseError as DieselError;
 
 use serde::Serialize;
 use std::time::SystemTime;
 
-#[derive(Debug, Clone, Serialize, Default)]
+#[derive(Debug, Serialize)]
 pub struct Progress {
     pub id: i64,
     pub delta: i64,
     pub media_id: i64,
-    pub user_id: String,
+    pub user_id: UserID,
     pub populated: i64,
 }
 
@@ -18,7 +19,7 @@ impl Progress {
     pub async fn set(
         conn: &mut crate::Transaction<'_>,
         delta: i64,
-        uid: String,
+        uid: UserID,
         mid: i64,
     ) -> Result<usize, DieselError> {
         let timestamp = SystemTime::now()
@@ -41,29 +42,31 @@ impl Progress {
 
     pub async fn get_for_media_user(
         conn: &mut crate::Transaction<'_>,
-        uid: String,
+        uid: UserID,
         mid: i64,
     ) -> Result<Self, DieselError> {
         Ok(sqlx::query_as!(
             Progress,
-            "SELECT progress.* FROM progress
+            r#"SELECT id, user_id as "user_id: UserID", delta, media_id, populated FROM progress
             WHERE user_id = ?
-            AND media_id = ?",
+            AND media_id = ?"#,
             uid,
             mid
         )
         .fetch_optional(&mut *conn)
         .await?
         .unwrap_or(Self {
+            id: Default::default(),
             media_id: mid,
             user_id: uid,
-            ..Default::default()
+            delta: Default::default(),
+            populated: Default::default(),
         }))
     }
 
     pub async fn get_total_time_spent_watching(
         conn: &mut crate::Transaction<'_>,
-        uid: String,
+        uid: UserID,
     ) -> Result<i32, DieselError> {
         Ok(sqlx::query!(
             "SELECT COALESCE(SUM(progress.delta), 0) as total FROM progress
@@ -79,7 +82,7 @@ impl Progress {
     pub async fn get_total_for_media(
         conn: &mut crate::Transaction<'_>,
         media: &Media,
-        uid: String,
+        uid: UserID,
     ) -> Result<i64, DieselError> {
         match media.media_type {
             MediaType::Tv => Ok(Self::get_total_for_tv(conn, uid, media.id).await? as i64),
@@ -92,7 +95,7 @@ impl Progress {
     pub async fn get_progress_for_media(
         conn: &mut crate::Transaction<'_>,
         id: i64,
-        uid: String,
+        uid: UserID,
     ) -> Result<(i64, i64), DieselError> {
         #[derive(sqlx::FromRow)]
         struct Record {
@@ -119,7 +122,7 @@ impl Progress {
 
     pub async fn get_total_for_tv(
         conn: &mut crate::Transaction<'_>,
-        uid: String,
+        uid: UserID,
         tv_id: i64,
     ) -> Result<i32, DieselError> {
         #[derive(sqlx::FromRow)]
@@ -146,7 +149,7 @@ impl Progress {
 
     pub async fn get_continue_watching(
         conn: &mut crate::Transaction<'_>,
-        uid: String,
+        uid: UserID,
         count: i64,
     ) -> Result<Vec<i64>, DieselError> {
         Ok(sqlx::query_scalar(

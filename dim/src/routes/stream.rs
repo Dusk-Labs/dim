@@ -1,5 +1,3 @@
-use auth::Wrapper as Auth;
-
 use crate::core::DbConnection;
 use crate::core::StateManager;
 use crate::errors;
@@ -48,9 +46,10 @@ pub mod filters {
     use crate::stream_tracking::StreamTracking;
     use crate::warp_unwrap;
 
-    use auth::Wrapper as Auth;
+    use database::user::User;
     use uuid::Uuid;
 
+    use super::super::global_filters::with_auth;
     use super::super::global_filters::with_state;
     use serde::Deserialize;
 
@@ -69,22 +68,30 @@ pub mod filters {
         warp::path!("api" / "v1" / "stream" / i64 / "manifest")
             .and(warp::get())
             .and(warp::query::query::<QueryArgs>())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(with_state::<StateManager>(state))
             .and(with_state::<StreamTracking>(stream_tracking))
             .and_then(
                 |id: i64,
                  QueryArgs { gid, force_ass }: QueryArgs,
-                 auth: Auth,
+                 auth: User,
                  conn: DbConnection,
                  state: StateManager,
                  stream_tracking: StreamTracking| async move {
                     let gid = gid.and_then(|x| Uuid::parse_str(x.as_str()).ok());
 
                     warp_unwrap!(
-                        super::return_virtual_manifest(state, stream_tracking, auth, conn, id, gid, force_ass)
-                            .await
+                        super::return_virtual_manifest(
+                            state,
+                            stream_tracking,
+                            auth,
+                            conn,
+                            id,
+                            gid,
+                            force_ass
+                        )
+                        .await
                     )
                 },
             )
@@ -105,7 +112,7 @@ pub mod filters {
         warp::path!("api" / "v1" / "stream" / String / "manifest.mpd")
             .and(warp::get())
             .and(warp::query::query::<QueryArgs>())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(with_state::<StateManager>(state))
             .and(with_state::<StreamTracking>(stream_tracking))
@@ -116,7 +123,7 @@ pub mod filters {
                      should_kill,
                      includes,
                  }: QueryArgs,
-                 auth: Auth,
+                 auth: User,
                  conn: DbConnection,
                  state: StateManager,
                  stream_tracking: StreamTracking| async move {
@@ -278,7 +285,7 @@ pub mod filters {
 pub async fn return_virtual_manifest(
     state: StateManager,
     stream_tracking: StreamTracking,
-    auth: Auth,
+    auth: User,
     conn: DbConnection,
     id: i64,
     gid: Option<Uuid>,
@@ -292,11 +299,7 @@ pub async fn return_virtual_manifest(
     }
 
     let mut tx = conn.read().begin().await?;
-
-    let user_prefs = User::get(&mut tx, auth.0.claims.get_user_ref())
-        .await
-        .map(|x| x.prefs)
-        .unwrap_or_default();
+    let user_prefs = auth.prefs;
 
     let gid = uuid::Uuid::new_v4();
 
@@ -640,7 +643,7 @@ pub async fn create_subtitles(
         let profile_chain = get_profile_for(StreamType::Subtitle, &ctx);
         let subtitle = state.create(profile_chain, ctx).await?;
 
-        let chunk_path = if is_ssa  {
+        let chunk_path = if is_ssa {
             format!("{}/data/stream.ass", subtitle.clone())
         } else {
             format!("{}/data/stream.vtt", subtitle.clone())
@@ -675,7 +678,7 @@ pub async fn create_subtitles(
 pub async fn return_manifest(
     state: StateManager,
     stream_tracking: StreamTracking,
-    _auth: Auth,
+    _auth: User,
     _conn: DbConnection,
     gid: Uuid,
     start_num: Option<u64>,

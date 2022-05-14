@@ -53,48 +53,50 @@ export const fetchUser = () => async (dispatch, getState) => {
   }
 };
 
-export const changeUsername = (newUsername) => async (dispatch, getState) => {
-  dispatch({ type: CHANGE_USERNAME_START });
+export const changeUsername =
+  (user, newUsername) => async (dispatch, getState) => {
+    dispatch({ type: CHANGE_USERNAME_START });
 
-  const token = getState().auth.token;
+    const token = getState().auth.token;
 
-  const config = {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      authorization: token,
-    },
-    body: JSON.stringify({
-      new_username: newUsername,
-    }),
-  };
+    const config = {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: token,
+      },
+      body: JSON.stringify({
+        new_username: newUsername,
+      }),
+    };
 
-  try {
-    const res = await fetch("/api/v1/auth/username", config);
+    try {
+      const res = await fetch("/api/v1/auth/username", config);
 
-    if (res.status !== 200) {
+      if (res.status !== 200) {
+        dispatch({
+          type: CHANGE_USERNAME_ERR,
+          payload: res.statusText,
+        });
+
+        return;
+      }
+
+      user.info.username = newUsername;
+      dispatch({ type: CHANGE_USERNAME_OK });
+
+      dispatch(
+        addNotification({
+          msg: "Your username has now been updated.",
+        })
+      );
+    } catch (err) {
       dispatch({
         type: CHANGE_USERNAME_ERR,
-        payload: res.statusText,
+        payload: JSON.stringify(err),
       });
-
-      return;
     }
-
-    dispatch({ type: CHANGE_USERNAME_OK });
-
-    dispatch(
-      addNotification({
-        msg: "Your username has now been updated.",
-      })
-    );
-  } catch (err) {
-    dispatch({
-      type: CHANGE_USERNAME_ERR,
-      payload: err,
-    });
-  }
-};
+  };
 
 export const changeAvatar = (file) => async (dispatch, getState) => {
   dispatch({ type: CHANGE_AVATAR_START });

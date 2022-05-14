@@ -31,6 +31,8 @@ pub mod utils;
 pub use crate::error::DatabaseError;
 /// Ugly hack because of a shitty deadlock in `Pool`
 pub use crate::rw_pool::write_tx;
+pub use auth::generate_key;
+pub use auth::set_key;
 
 #[cfg(all(feature = "sqlite", feature = "postgres"))]
 compile_error!("Features sqlite and postgres are mutually exclusive");
@@ -104,7 +106,7 @@ pub fn try_get_conn() -> Option<&'static crate::DbConnection> {
 pub async fn get_conn_memory() -> sqlx::Result<crate::DbConnection> {
     let pool = sqlx::Pool::connect(":memory:").await?;
     let connection: sqlx::pool::PoolConnection<sqlx::Sqlite> = pool.acquire().await?;
-    let rw = connection.release();
+    let rw = connection.detach();
     let pool = rw_pool::SqlitePool::new(rw, pool);
     let _ = run_migrations(&pool).await?;
 

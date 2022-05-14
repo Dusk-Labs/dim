@@ -20,7 +20,7 @@ async fn test_set_and_get_for_media_user() {
     let user = insert_user(&mut tx).await;
     let media = insert_media(&mut tx).await;
 
-    let result = progress::Progress::get_for_media_user(&mut tx, user.clone(), media)
+    let result = progress::Progress::get_for_media_user(&mut tx, user.id, media)
         .await
         .unwrap();
     assert_eq!(result.delta, 0);
@@ -31,12 +31,12 @@ async fn test_set_and_get_for_media_user() {
         .unwrap()
         .as_secs() as i64;
 
-    let rows = progress::Progress::set(&mut tx, 100, user.clone(), media)
+    let rows = progress::Progress::set(&mut tx, 100, user.id, media)
         .await
         .unwrap();
     assert_eq!(rows, 1);
 
-    let result = progress::Progress::get_for_media_user(&mut tx, user.clone(), media)
+    let result = progress::Progress::get_for_media_user(&mut tx, user.id, media)
         .await
         .unwrap();
     assert_eq!(result.delta, 100);
@@ -50,7 +50,7 @@ async fn test_get_total_time_spent_watching() {
     let library = create_test_library(&mut tx).await;
     let user = insert_user(&mut tx).await;
 
-    let result = progress::Progress::get_total_time_spent_watching(&mut tx, user.clone())
+    let result = progress::Progress::get_total_time_spent_watching(&mut tx, user.id)
         .await
         .unwrap();
     assert_eq!(result, 0);
@@ -58,13 +58,13 @@ async fn test_get_total_time_spent_watching() {
     super::media_tests::insert_many(&mut tx, 10).await;
 
     for i in 1..=5 {
-        let rows = progress::Progress::set(&mut tx, 100, user.clone(), i)
+        let rows = progress::Progress::set(&mut tx, 100, user.id, i)
             .await
             .unwrap();
         assert_eq!(rows, 1);
     }
 
-    let result = progress::Progress::get_total_time_spent_watching(&mut tx, user.clone())
+    let result = progress::Progress::get_total_time_spent_watching(&mut tx, user.id)
         .await
         .unwrap();
     assert_eq!(result, 500);
@@ -80,7 +80,7 @@ async fn test_get_total_for_tv() {
     let tv = insert_media(&mut tx).await;
     tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
-    let result = progress::Progress::get_total_for_tv(&mut tx, user.clone(), tv)
+    let result = progress::Progress::get_total_for_tv(&mut tx, user.id, tv)
         .await
         .unwrap();
     assert_eq!(result, 0);
@@ -107,12 +107,12 @@ async fn test_get_total_for_tv() {
         .await
         .unwrap();
 
-        progress::Progress::set(&mut tx, 100, user.clone(), episode)
+        progress::Progress::set(&mut tx, 100, user.id, episode)
             .await
             .unwrap();
     }
 
-    let result = progress::Progress::get_total_for_tv(&mut tx, user.clone(), tv)
+    let result = progress::Progress::get_total_for_tv(&mut tx, user.id, tv)
         .await
         .unwrap();
     assert_eq!(result, 12 * 100);
@@ -171,21 +171,21 @@ async fn test_get_continue_watching() {
     .await
     .unwrap();
 
-    progress::Progress::set(&mut tx, 100, user.clone(), episode1)
+    progress::Progress::set(&mut tx, 100, user.id, episode1)
         .await
         .unwrap();
 
-    let result = progress::Progress::get_continue_watching(&mut tx, user.clone(), 2)
+    let result = progress::Progress::get_continue_watching(&mut tx, user.id, 2)
         .await
         .unwrap();
     assert_eq!(result.len(), 1);
     assert_eq!(result[0], 1);
 
-    progress::Progress::set(&mut tx, 100, user.clone(), episode2)
+    progress::Progress::set(&mut tx, 100, user.id, episode2)
         .await
         .unwrap();
 
-    let result = progress::Progress::get_continue_watching(&mut tx, user.clone(), 2)
+    let result = progress::Progress::get_continue_watching(&mut tx, user.id, 2)
         .await
         .unwrap();
     assert_eq!(result.len(), 2);
