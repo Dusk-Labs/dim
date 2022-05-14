@@ -3,10 +3,3 @@ members = ["dim", "database", "auth", "events"]
 
 [profile.dev]
 codegen-units = 16
-
-[profile.release]
-lto = true
-opt-level = 'z'
-
-[patch.crates-io]
-sqlx = { git = "https://github.com/launchbadge/sqlx", tag = "v0.5.5" }

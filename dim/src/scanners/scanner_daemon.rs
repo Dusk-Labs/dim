@@ -39,12 +39,7 @@ pub struct FsWatcher {
 }
 
 impl FsWatcher {
-    pub fn new(
-        conn: DbConnection,
-        library_id: i64,
-        media_type: MediaType,
-        tx: EventTx,
-    ) -> Self {
+    pub fn new(conn: DbConnection, library_id: i64, media_type: MediaType, tx: EventTx) -> Self {
         Self {
             library_id,
             media_type,

@@ -3,11 +3,16 @@ use std::collections::HashMap;
 use std::num::NonZeroU32;
 use std::time::SystemTime;
 
+use auth::user_cookie_decode;
+use auth::user_cookie_generate;
+use auth::AuthError;
 use serde::Deserialize;
 use serde::Serialize;
 
 use ring::digest;
 use ring::pbkdf2;
+use sqlx::Decode;
+use sqlx::Encode;
 
 static PBKDF2_ALG: pbkdf2::Algorithm = pbkdf2::PBKDF2_HMAC_SHA256;
 const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
@@ -15,7 +20,7 @@ const HASH_ROUNDS: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(1_000) };
 
 pub type Credential = [u8; CREDENTIAL_LEN];
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type)]
 pub enum Theme {
     Light,
     Dark,
@@ -73,6 +78,40 @@ pub struct UserSettings {
     enable_autoplay: bool,
 }
 
+impl<DB: sqlx::Database> sqlx::Type<DB> for UserSettings
+where
+    Vec<u8>: sqlx::Type<DB>,
+{
+    fn type_info() -> DB::TypeInfo {
+        <Vec<u8> as sqlx::Type<DB>>::type_info()
+    }
+}
+
+impl<'r, DB: sqlx::Database> Decode<'r, DB> for UserSettings
+where
+    &'r [u8]: Decode<'r, DB>,
+{
+    fn decode(
+        value: <DB as sqlx::database::HasValueRef<'r>>::ValueRef,
+    ) -> Result<Self, sqlx::error::BoxDynError> {
+        let value = <&[u8] as Decode<DB>>::decode(value)?;
+        Ok(serde_json::from_slice(value).unwrap_or_default())
+    }
+}
+
+impl<'q, DB: sqlx::Database> Encode<'q, DB> for UserSettings
+where
+    Vec<u8>: Encode<'q, DB>,
+{
+    fn encode_by_ref(
+        &self,
+        buf: &mut <DB as sqlx::database::HasArguments<'q>>::ArgumentBuffer,
+    ) -> sqlx::encode::IsNull {
+        let val = serde_json::to_vec(self).unwrap_or_default();
+        <Vec<u8> as Encode<DB>>::encode(val, buf)
+    }
+}
+
 impl Default for UserSettings {
     fn default() -> Self {
         Self {
@@ -98,11 +137,53 @@ pub enum Role {
     User,
 }
 
+#[derive(Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize, sqlx::Type)]
+#[sqlx(transparent)]
+pub struct UserID(pub(crate) i64);
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
+#[serde(transparent)]
+pub struct Roles(pub Vec<String>);
+
+impl<DB: sqlx::Database> sqlx::Type<DB> for Roles
+where
+    String: sqlx::Type<DB>,
+{
+    fn type_info() -> DB::TypeInfo {
+        <String as sqlx::Type<DB>>::type_info()
+    }
+}
+
+impl<'r, DB: sqlx::Database> Decode<'r, DB> for Roles
+where
+    &'r str: Decode<'r, DB>,
+{
+    fn decode(
+        value: <DB as sqlx::database::HasValueRef<'r>>::ValueRef,
+    ) -> Result<Self, sqlx::error::BoxDynError> {
+        let value = <&str as Decode<DB>>::decode(value)?;
+        Ok(serde_json::from_str(value).unwrap_or_default())
+    }
+}
+
+impl<'q, DB: sqlx::Database> Encode<'q, DB> for Roles
+where
+    String: Encode<'q, DB>,
+{
+    fn encode_by_ref(
+        &self,
+        buf: &mut <DB as sqlx::database::HasArguments<'q>>::ArgumentBuffer,
+    ) -> sqlx::encode::IsNull {
+        let val = serde_json::to_string(self).unwrap_or_default();
+        <String as Encode<DB>>::encode(val, buf)
+    }
+}
+
 #[derive(Debug)]
 pub struct User {
+    pub id: UserID,
     pub username: String,
-    pub roles: Vec<String>,
-    pub password: String,
+    pub roles: Roles,
     pub prefs: UserSettings,
     pub picture: Option<i64>,
 }
@@ -114,18 +195,42 @@ impl User {
     ///
     /// * `&` - postgres &ection
     pub async fn get_all(conn: &mut crate::Transaction<'_>) -> Result<Vec<Self>, DatabaseError> {
-        Ok(sqlx::query!("SELECT * FROM users")
+        Ok(
+            sqlx::query!(
+                r#"SELECT id as "id: UserID", username, roles as "roles: Roles", prefs as "prefs: UserSettings", picture FROM users"#
+            )
             .fetch_all(&mut *conn)
             .await?
             .into_iter()
             .map(|user| Self {
-                username: user.username.unwrap(),
-                roles: user.roles.split(',').map(ToString::to_string).collect(),
-                password: user.password,
-                prefs: serde_json::from_slice(&user.prefs).unwrap_or_default(),
+                id: user.id,
+                username: user.username,
+                roles: user.roles,
+                prefs: user.prefs,
                 picture: user.picture,
             })
-            .collect())
+            .collect(),
+        )
+    }
+
+    pub async fn get_by_id(
+        conn: &mut crate::Transaction<'_>,
+        uid: UserID,
+    ) -> Result<Self, DatabaseError> {
+        Ok(sqlx::query!(
+            r#"SELECT id as "id: UserID", username, roles as "roles: Roles", prefs as "prefs: UserSettings", picture from users
+                WHERE id = ?"#,
+            uid
+        )
+        .fetch_one(&mut *conn)
+        .await
+        .map(|u| Self {
+            id: u.id,
+            username: u.username,
+            roles: u.roles,
+            prefs: u.prefs,
+            picture: u.picture,
+        })?)
     }
 
     pub async fn get(
@@ -133,17 +238,17 @@ impl User {
         username: &str,
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query!(
-            "SELECT * from users
-                WHERE username = ?",
+            r#"SELECT id as "id: UserID", username, roles as "roles: Roles", prefs as "prefs: UserSettings", picture from users
+                WHERE username = ?"#,
             username
         )
         .fetch_one(&mut *conn)
         .await
         .map(|u| Self {
-            username: u.username.unwrap(),
-            roles: u.roles.split(',').map(ToString::to_string).collect(),
-            password: u.password,
-            prefs: serde_json::from_slice(&u.prefs).unwrap_or_default(),
+            id: u.id,
+            username: u.username,
+            roles: u.roles,
+            prefs: u.prefs,
             picture: u.picture,
         })?)
     }
@@ -154,14 +259,14 @@ impl User {
     /// * `&` - postgres &ection
     /// * `uname` - username we wish to target and delete
     /// * `pw_hash` - hash of the password for the user we are trying to access
-    pub async fn get_one(
+    pub async fn authenticate(
         conn: &mut crate::Transaction<'_>,
         uname: String,
         pw: String,
     ) -> Result<Self, DatabaseError> {
         let hash = hash(uname.clone(), pw);
         let user = sqlx::query!(
-            "SELECT * FROM users WHERE username = ? AND password = ?",
+            r#"SELECT id as "id: UserID", username, roles as "roles: Roles", prefs as "prefs: UserSettings", picture FROM users WHERE username = ? AND password = ?"#,
             uname,
             hash,
         )
@@ -169,12 +274,28 @@ impl User {
         .await?;
 
         Ok(Self {
-            username: user.username.unwrap(),
-            roles: user.roles.split(',').map(ToString::to_string).collect(),
-            password: user.password,
-            prefs: serde_json::from_slice(&user.prefs).unwrap_or_default(),
+            id: user.id,
+            username: user.username,
+            roles: user.roles,
+            prefs: user.prefs,
             picture: user.picture,
         })
+    }
+
+    /// Method gets users password from the table users based on the user
+    ///
+    /// # Arguments
+    /// * `conn` - DBTransaction
+    pub async fn get_pass(
+        &self,
+        conn: &mut crate::Transaction<'_>,
+    ) -> Result<String, DatabaseError> {
+        let pass = sqlx::query!("SELECT password FROM users WHERE id = ?", self.id,)
+            .fetch_one(&mut *conn)
+            .await
+            .map(|r| r.password)?;
+
+        Ok(pass)
     }
 
     /// Method deletes a entry from the table users and returns the number of rows deleted.
@@ -185,9 +306,9 @@ impl User {
     /// * `uname` - username we wish to target and delete
     pub async fn delete(
         conn: &mut crate::Transaction<'_>,
-        uname: String,
+        uid: UserID,
     ) -> Result<usize, DatabaseError> {
-        Ok(sqlx::query!("DELETE FROM users WHERE username = ?", uname)
+        Ok(sqlx::query!("DELETE FROM users WHERE id = ?", uid)
             .execute(&mut *conn)
             .await?
             .rows_affected() as usize)
@@ -232,17 +353,25 @@ impl User {
 
     pub async fn set_picture(
         conn: &mut crate::Transaction<'_>,
-        username: String,
+        uid: UserID,
         asset_id: i64,
     ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!(
-            "UPDATE users SET picture = $1 WHERE users.username = ?2",
+            "UPDATE users SET picture = $1 WHERE users.id = ?2",
             asset_id,
-            username
+            uid
         )
         .execute(&mut *conn)
         .await?
         .rows_affected() as usize)
+    }
+
+    pub fn has_role(&self, role: &str) -> bool {
+        self.roles.0.contains(&role.to_string())
+    }
+
+    pub fn roles(&self) -> Roles {
+        self.roles.clone()
     }
 }
 
@@ -250,7 +379,7 @@ impl User {
 pub struct InsertableUser {
     pub username: String,
     pub password: String,
-    pub roles: Vec<String>,
+    pub roles: Roles,
     pub prefs: UserSettings,
     pub claimed_invite: String,
 }
@@ -262,7 +391,7 @@ impl InsertableUser {
     /// # Arguments
     /// * `self` - instance of InsertableUser which gets consumed
     /// * `&` - postgres &ection
-    pub async fn insert(self, conn: &mut crate::Transaction<'_>) -> Result<String, DatabaseError> {
+    pub async fn insert(self, conn: &mut crate::Transaction<'_>) -> Result<User, DatabaseError> {
         let Self {
             username,
             password,
@@ -272,21 +401,18 @@ impl InsertableUser {
         } = self;
 
         let password = hash(username.clone(), password);
-        let roles = roles.join(",");
-        let prefs = serde_json::to_vec(&prefs).unwrap_or_default();
 
-        sqlx::query!(
-            "INSERT INTO users (username, password, prefs, claimed_invite, roles) VALUES ($1, $2, $3, $4, $5)",
+        let user = sqlx::query_as!(
+            User,
+            r#"INSERT INTO users (username, password, prefs, claimed_invite, roles) VALUES ($1, $2, $3, $4, $5) returning id as "id: UserID",username,roles as "roles: Roles",prefs as "prefs: UserSettings",picture"#,
             username,
             password,
             prefs,
             claimed_invite,
             roles
-        )
-        .execute(&mut *conn)
+        ).fetch_one(&mut *conn)
         .await?;
-
-        Ok(username)
+        Ok(user)
     }
 }
 
@@ -299,12 +425,11 @@ impl UpdateableUser {
     pub async fn update(
         &self,
         conn: &mut crate::Transaction<'_>,
-        user: &str,
+        user: UserID,
     ) -> Result<usize, DatabaseError> {
         if let Some(prefs) = &self.prefs {
-            let prefs = serde_json::to_vec(&prefs).unwrap_or_default();
             return Ok(sqlx::query!(
-                "UPDATE users SET prefs = $1 WHERE users.username = ?2",
+                "UPDATE users SET prefs = $1 WHERE users.id = ?",
                 prefs,
                 user
             )
@@ -404,6 +529,14 @@ impl Login {
         .execute(&mut *conn)
         .await?
         .rows_affected() as usize)
+    }
+
+    pub fn create_cookie(id: UserID) -> String {
+        user_cookie_generate(id.0)
+    }
+
+    pub fn verify_cookie(cookie: String) -> Result<UserID, AuthError> {
+        Ok(UserID(user_cookie_decode(cookie)?))
     }
 }
 

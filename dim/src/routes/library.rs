@@ -4,13 +4,12 @@ use crate::errors;
 use crate::scanners;
 use crate::scanners::scanner_daemon::FsWatcher;
 
-use auth::Wrapper as Auth;
-
 use database::library::InsertableLibrary;
 use database::library::Library;
 use database::media::Media;
 use database::mediafile::MediaFile;
 
+use database::user::User;
 use events::Message;
 use events::PushEventType;
 
@@ -30,9 +29,8 @@ pub mod filters {
     use warp::reject;
     use warp::Filter;
 
+    use super::super::global_filters::with_auth;
     use super::super::global_filters::with_db;
-
-    use auth::Wrapper as Auth;
 
     use database::DbConnection;
 
@@ -46,8 +44,8 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "library")
             .and(warp::get())
-            .and(with_db(conn))
-            .and(auth::with_auth())
+            .and(with_db(conn.clone()))
+            .and(with_auth(conn))
             .and_then(|conn, auth| async move {
                 super::library_get(conn, auth)
                     .await
@@ -62,12 +60,12 @@ pub mod filters {
         warp::path!("api" / "v1" / "library")
             .and(warp::post())
             .and(warp::body::json::<InsertableLibrary>())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state::<EventTx>(event_tx))
             .and(with_state::<DbConnection>(conn))
             .and_then(
                 |new_library: InsertableLibrary,
-                 user: Auth,
+                 user: User,
                  event_tx: EventTx,
                  conn: DbConnection| async move {
                     super::library_post(conn, new_library, event_tx, user)
@@ -83,11 +81,11 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "library" / i64)
             .and(warp::delete())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(with_state::<EventTx>(event_tx))
             .and_then(
-                |id: i64, user: Auth, conn: DbConnection, event_tx: EventTx| async move {
+                |id: i64, user: User, conn: DbConnection, event_tx: EventTx| async move {
                     super::library_delete(id, user, conn, event_tx)
                         .await
                         .map_err(|e| reject::custom(e))
@@ -100,9 +98,9 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "library" / i64)
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, user: Auth, conn: DbConnection| async move {
+            .and_then(|id: i64, user: User, conn: DbConnection| async move {
                 super::get_self(conn, id, user)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -114,9 +112,9 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "library" / i64 / "media")
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, user: Auth, conn: DbConnection| async move {
+            .and_then(|id: i64, user: User, conn: DbConnection| async move {
                 super::get_all_library(conn, id, user)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -128,9 +126,9 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "library" / i64 / "unmatched")
             .and(warp::get())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, user: Auth, conn: DbConnection| async move {
+            .and_then(|id: i64, user: User, conn: DbConnection| async move {
                 super::get_all_unmatched_media(conn, id, user)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -147,7 +145,7 @@ pub mod filters {
 /// * `_user` - Authentication middleware
 pub async fn library_get(
     conn: DbConnection,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
     Ok(reply::json(&{
@@ -170,7 +168,7 @@ pub async fn library_post(
     conn: DbConnection,
     new_library: InsertableLibrary,
     event_tx: EventTx,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
@@ -205,10 +203,10 @@ pub async fn library_post(
 /// * `event_tx` - channel over which to dispatch events
 /// * `_user` - Auth middleware
 // NOTE: Should we only allow the owner to add/remove libraries?
-#[instrument(err, skip(conn, event_tx, _user), fields(auth.user = _user.user_ref()))]
+#[instrument(err, skip(conn, event_tx, _user), fields(auth.user = _user.username.as_str()))]
 pub async fn library_delete(
     id: i64,
-    _user: Auth,
+    _user: User,
     conn: DbConnection,
     event_tx: EventTx,
 ) -> Result<impl warp::Reply, errors::DimError> {
@@ -264,7 +262,7 @@ pub async fn library_delete(
 pub async fn get_self(
     conn: DbConnection,
     id: i64,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
     Ok(reply::json(&Library::get_one(&mut tx, id).await?))
@@ -280,7 +278,7 @@ pub async fn get_self(
 pub async fn get_all_library(
     conn: DbConnection,
     id: i64,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut result = HashMap::new();
     let mut tx = conn.read().begin().await?;
@@ -322,7 +320,7 @@ pub async fn get_all_library(
 pub async fn get_all_unmatched_media(
     conn: DbConnection,
     id: i64,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut result = HashMap::new();
     let mut tx = conn.read().begin().await?;

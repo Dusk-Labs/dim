@@ -43,8 +43,8 @@ CREATE TABLE _tblmedia (
 CREATE VIEW media AS
 SELECT _tblmedia.*, pp.local_path as poster_path, bp.local_path as backdrop_path
 FROM _tblmedia
-LEFT OUTER JOIN assets pp ON _tblmedia.poster = pp.id
-LEFT OUTER JOIN assets bp ON _tblmedia.backdrop = bp.id;
+LEFT JOIN assets pp ON _tblmedia.poster = pp.id
+LEFT JOIN assets bp ON _tblmedia.backdrop = bp.id;
 
 CREATE TRIGGER media_delete
 INSTEAD OF DELETE ON media
@@ -53,6 +53,7 @@ BEGIN
 END;
 
 CREATE UNIQUE INDEX media_idx ON _tblmedia(library_id, name, media_type) WHERE NOT _tblmedia.media_type = "episode";
+CREATE INDEX media_excl_ep_idx ON _tblmedia(name) WHERE NOT _tblmedia.media_type = "episode";
 
 CREATE TABLE movie (
     id INTEGER,
@@ -85,7 +86,7 @@ CREATE VIEW season AS
 SELECT _tblseason.id, _tblseason.season_number,
     _tblseason.tvshowid, _tblseason.added, assets.local_path as poster
 FROM _tblseason
-LEFT OUTER JOIN assets ON _tblseason.poster = assets.id;
+JOIN assets ON _tblseason.poster = assets.id;
 
 CREATE TRIGGER season_delete
 INSTEAD OF DELETE ON season

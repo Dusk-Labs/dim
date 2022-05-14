@@ -2,7 +2,7 @@ use crate::core::DbConnection;
 use crate::errors;
 use crate::json;
 
-use auth::Wrapper as Auth;
+use database::user::User;
 
 use database::episode::Episode;
 use database::genre::Genre;
@@ -18,11 +18,13 @@ use warp::reply;
 use std::collections::HashMap;
 
 pub mod filters {
+    use database::user::User;
     use warp::reject;
     use warp::Filter;
 
+    use crate::routes::global_filters::with_auth;
+
     use super::super::global_filters::with_state;
-    use auth::Wrapper as Auth;
     use serde::Deserialize;
 
     use database::media::UpdateMedia;
@@ -33,9 +35,9 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "media" / i64)
             .and(warp::get())
-            .and(with_state::<DbConnection>(conn))
-            .and(auth::with_auth())
-            .and_then(|id: i64, conn: DbConnection, user: Auth| async move {
+            .and(with_state::<DbConnection>(conn.clone()))
+            .and(with_auth(conn))
+            .and_then(|id: i64, conn: DbConnection, user: User| async move {
                 super::get_media_by_id(conn, id, user)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -47,9 +49,9 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "media" / i64 / "files")
             .and(warp::get())
-            .and(with_state::<DbConnection>(conn))
-            .and(auth::with_auth())
-            .and_then(|id: i64, conn: DbConnection, _user: Auth| async move {
+            .and(with_state::<DbConnection>(conn.clone()))
+            .and(with_auth(conn))
+            .and_then(|id: i64, conn: DbConnection, _user: User| async move {
                 super::get_media_files(conn, id)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -62,7 +64,7 @@ pub mod filters {
         warp::path!("api" / "v1" / "media" / i64)
             .and(warp::patch())
             .and(warp::body::json::<UpdateMedia>())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and_then(|id, body, auth, conn| async move {
                 super::update_media_by_id(id, body, auth, conn)
@@ -76,17 +78,18 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "media" / i64)
             .and(warp::delete())
-            .and(auth::with_auth())
+            .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, auth: Auth, conn: DbConnection| async move {
+            .and_then(|id: i64, auth: User, conn: DbConnection| async move {
                 super::delete_media_by_id(conn, id, auth)
                     .await
                     .map_err(|e| reject::custom(e))
             })
     }
 
-    pub fn tmdb_search() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone
-    {
+    pub fn tmdb_search(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         #[derive(Deserialize)]
         struct RouteArgs {
             query: String,
@@ -97,14 +100,14 @@ pub mod filters {
         warp::path!("api" / "v1" / "media" / "tmdb_search")
             .and(warp::get())
             .and(warp::query::query::<RouteArgs>())
-            .and(auth::with_auth())
+            .and(with_auth(conn))
             .and_then(
                 |RouteArgs {
                      query,
                      year,
                      media_type,
                  }: RouteArgs,
-                 auth: Auth| async move {
+                 auth: User| async move {
                     super::tmdb_search(query, year, media_type, auth)
                         .await
                         .map_err(|e| reject::custom(e))
@@ -123,9 +126,9 @@ pub mod filters {
         warp::path!("api" / "v1" / "media" / i64 / "progress")
             .and(warp::post())
             .and(warp::query::query::<RouteArgs>())
-            .and(with_state::<DbConnection>(conn))
-            .and(auth::with_auth())
-            .and_then(|id: i64, RouteArgs { offset }: RouteArgs, conn: DbConnection, auth: Auth| async move {
+            .and(with_state::<DbConnection>(conn.clone()))
+            .and(with_auth(conn))
+            .and_then(|id: i64, RouteArgs { offset }: RouteArgs, conn: DbConnection, auth: User| async move {
                 super::map_progress(conn, id, offset, auth)
                     .await
                     .map_err(|e| reject::custom(e))
@@ -165,7 +168,7 @@ pub mod filters {
 pub async fn get_media_by_id(
     conn: DbConnection,
     id: i64,
-    user: Auth,
+    user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
     let media = Media::get(&mut tx, id).await?;
@@ -194,20 +197,15 @@ pub async fn get_media_by_id(
         .collect::<Vec<String>>();
 
     let progress = match media.media_type {
-        MediaType::Episode | MediaType::Movie => {
-            Progress::get_for_media_user(&mut tx, user.0.claims.get_user(), id)
-                .await
-                .map(|x| json!({"progress": x.delta}))
-                .ok()
-        }
+        MediaType::Episode | MediaType::Movie => Progress::get_for_media_user(&mut tx, user.id, id)
+            .await
+            .map(|x| json!({"progress": x.delta}))
+            .ok(),
         MediaType::Tv => {
-            if let Ok(Some(ep)) =
-                Episode::get_last_watched_episode(&mut tx, id, user.0.claims.get_user()).await
-            {
-                let (delta, duration) =
-                    Progress::get_progress_for_media(&mut tx, ep.id, user.0.claims.get_user())
-                        .await
-                        .unwrap_or((0, 1));
+            if let Ok(Some(ep)) = Episode::get_last_watched_episode(&mut tx, id, user.id).await {
+                let (delta, duration) = Progress::get_progress_for_media(&mut tx, ep.id, user.id)
+                    .await
+                    .unwrap_or((0, 1));
 
                 // NOTE: When we get to the last episode of a tv show we want to return the last
                 // episode even if the client finished watching it.
@@ -215,7 +213,7 @@ pub async fn get_media_by_id(
                 if (delta as f64 / duration as f64) > 0.90 && next_episode.is_ok() {
                     let next_episode = next_episode.unwrap();
                     let (delta, _duration) =
-                        Progress::get_progress_for_media(&mut tx, ep.id, user.0.claims.get_user())
+                        Progress::get_progress_for_media(&mut tx, ep.id, user.id)
                             .await
                             .unwrap_or((0, 1));
 
@@ -321,7 +319,7 @@ pub async fn get_media_by_id(
             } else {
                 None
             }
-        },
+        }
         Err(_) => None,
     };
 
@@ -366,7 +364,7 @@ pub async fn get_media_files(
 pub async fn update_media_by_id(
     id: i64,
     data: UpdateMedia,
-    _user: Auth,
+    _user: User,
     conn: DbConnection,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
@@ -392,7 +390,7 @@ pub async fn update_media_by_id(
 pub async fn delete_media_by_id(
     conn: DbConnection,
     id: i64,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
@@ -412,7 +410,7 @@ pub async fn tmdb_search(
     query: String,
     year: Option<i32>,
     media_type: String,
-    _user: Auth,
+    _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     use crate::scanners::tmdb::Tmdb;
 
@@ -447,11 +445,11 @@ pub async fn map_progress(
     conn: DbConnection,
     id: i64,
     offset: i64,
-    user: Auth,
+    user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
-    Progress::set(&mut tx, offset, user.0.claims.get_user(), id).await?;
+    Progress::set(&mut tx, offset, user.id, id).await?;
     tx.commit().await?;
     Ok(StatusCode::OK)
 }

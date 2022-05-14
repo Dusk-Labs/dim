@@ -1,6 +1,7 @@
 use crate::media::InsertableMedia;
 use crate::media::Media;
 use crate::media::UpdateMedia;
+use crate::user::UserID;
 use crate::DatabaseError;
 
 use serde::{Deserialize, Serialize};
@@ -293,7 +294,7 @@ impl Episode {
     pub async fn get_last_watched_episode(
         conn: &mut crate::Transaction<'_>,
         tvid: i64,
-        uid: String,
+        uid: UserID,
     ) -> Result<Option<Episode>, DatabaseError> {
         // FIXME: We're using the query_as function instead of macro because `LEFT OUTER JOIN`
         // crashes the proc macro.

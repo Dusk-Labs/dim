@@ -28,8 +28,8 @@ function Username() {
       return;
     }
 
-    dispatch(changeUsername(newUsername));
-  }, [dispatch, newUsername, user.info.username]);
+    dispatch(changeUsername(user, newUsername));
+  }, [dispatch, newUsername, user]);
 
   const undoChangeUsername = useCallback(() => {
     setNewUsername(user.info.username);
