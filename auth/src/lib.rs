@@ -9,6 +9,7 @@ use rand::Rng;
 use rand::RngCore;
 use serde::Serialize;
 use std::convert::TryInto;
+use err_derive::Error;
 
 const NONCE_LEN: usize = 12;
 const TAG_LEN: usize = 16;
@@ -34,7 +35,6 @@ fn get_key() -> &'static [u8; 32] {
     KEY.get().expect("key must be initialized")
 }
 
-use err_derive::Error;
 #[derive(Clone, Debug, Error, Serialize)]
 pub enum AuthError {
     #[error(display = "InvalidBase64")]
