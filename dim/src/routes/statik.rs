@@ -58,6 +58,7 @@ pub mod filters {
                     let path = PathBuf::from(x.as_str());
                     let mime = match path.extension().and_then(|x| x.to_str()) {
                         Some("js") => "application/javascript",
+                        Some("map") => "application/json",
                         Some("css") => "text/css",
                         Some("woff2") => "font/woff2",
                         Some("png") => "image/png",
