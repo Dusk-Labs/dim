@@ -4,7 +4,8 @@ use aes_gcm::AeadInPlace;
 use aes_gcm::Aes256Gcm;
 use aes_gcm::NewAead;
 
-use err_derive::Error;
+use thiserror::Error;
+use displaydoc::Display;
 use once_cell::sync::OnceCell;
 use rand::Rng;
 use rand::RngCore;
@@ -35,15 +36,15 @@ fn get_key() -> &'static [u8; 32] {
     KEY.get().expect("key must be initialized")
 }
 
-#[derive(Clone, Debug, Error, Serialize)]
+#[derive(Clone, Debug, Display, Error, Serialize)]
 pub enum AuthError {
-    #[error(display = "InvalidBase64")]
+    /// Token is not base64 encoded.
     BadBase64,
-    #[error(display = "Data too short")]
+    /// Token data is too short.
     ShortData,
-    #[error(display = "Failed Decrypting")]
+    /// Failed to decrypt token.
     DecryptError,
-    #[error(display = "Plaintext is not a UserID")]
+    /// Token plaintext does not contain a UserID.
     PlainTextNoti64,
 }
 
