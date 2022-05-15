@@ -7,17 +7,18 @@ use futures::future;
 use futures::stream::FuturesUnordered;
 use futures::FutureExt;
 
-use database::user::User;
 use database::library::MediaType;
 use database::mediafile::MediaFile;
+use database::user::User;
 
-use serde_json::json;
 use serde::Serialize;
+use serde_json::json;
 
 use warp::reject::Reject;
 use warp::reply;
 
 use http::StatusCode;
+use tracing::error;
 use tracing::info;
 use tracing::warn;
 
@@ -89,7 +90,7 @@ pub mod filters {
                  }: RouteArgs| async move {
                     super::rematch_mediafile(conn, mediafiles, tmdb_id, media_type)
                         .await
-                        .map_err(|e| reject::custom(e))
+                        .map_err(reject::custom)
                 },
             )
     }
@@ -154,10 +155,10 @@ pub async fn rematch_mediafile(
 
     let mut tmdb = Tmdb::new("38c372f5bc572c8aadde7a802638534e".into(), media_type);
 
-    let result = tmdb
-        .search_by_id(tmdb_id)
-        .await
-        .map_err(|_| errors::DimError::NotFoundError)?;
+    let result = tmdb.search_by_id(tmdb_id).await.map_err(|e| {
+        error!(?e, "Failed to search for tmdb_id when rematching.");
+        errors::DimError::TmdbIdSearchError(e)
+    })?;
 
     let futures = FuturesUnordered::new();
 

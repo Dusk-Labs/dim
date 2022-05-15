@@ -60,6 +60,10 @@ pub enum DimError {
     /// Error occured in the `/api/v1/mediafile` routes.
     #[error(transparent)]
     MediafileRouteError(#[from] mediafile::Error),
+    /// User does not exist
+    UserNotFound,
+    /// Couldn't find the tmdb id provided.
+    TmdbIdSearchError(crate::scanners::tmdb::TmdbError),
 }
 
 impl From<sqlx::Error> for DimError {
@@ -75,7 +79,10 @@ impl warp::reject::Reject for DimError {}
 impl warp::Reply for DimError {
     fn into_response(self) -> warp::reply::Response {
         let status = match self {
-            Self::LibraryNotFound | Self::NoneError | Self::NotFoundError => StatusCode::NOT_FOUND,
+            Self::LibraryNotFound
+            | Self::NoneError
+            | Self::NotFoundError
+            | Self::TmdbIdSearchError(_) => StatusCode::NOT_FOUND,
             Self::StreamingError(_)
             | Self::DatabaseError { .. }
             | Self::UnknownError
@@ -87,7 +94,8 @@ impl warp::Reply for DimError {
             | Self::Unauthorized
             | Self::InvalidCredentials
             | Self::CookieError(_)
-            | Self::NoToken => StatusCode::UNAUTHORIZED,
+            | Self::NoToken
+            | Self::UserNotFound => StatusCode::UNAUTHORIZED,
             Self::UsernameNotAvailable => StatusCode::BAD_REQUEST,
             Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {
                 StatusCode::NOT_ACCEPTABLE
@@ -96,7 +104,7 @@ impl warp::Reply for DimError {
         };
 
         let resp = json!({
-            "error": json!(&self),
+            "error": json!(&self)["error"],
             "messsage": self.to_string(),
         });
 
@@ -109,6 +117,7 @@ impl warp::Reply for DimError {
 }
 
 #[derive(Clone, Display, Debug, Error, Serialize)]
+#[serde(tag = "error")]
 pub enum StreamingErrors {
     /// A database error occured: {0}
     DatabaseError(String),
@@ -133,7 +142,7 @@ pub enum StreamingErrors {
     /// Could not parse the gid
     GidParseError,
     /// The requested file does not exist on disk.
-    FileDoesNotExist
+    FileDoesNotExist,
 }
 
 impl From<sqlx::Error> for StreamingErrors {
@@ -159,7 +168,7 @@ impl warp::Reply for StreamingErrors {
         };
 
         let resp = json!({
-            "error": json!(&self),
+            "error": json!(&self)["error"],
             "messsage": self.to_string(),
         });
 

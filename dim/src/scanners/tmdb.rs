@@ -28,8 +28,8 @@ pub enum TmdbError {
     ReachedMaxTries,
     /// Internal error with reqwest
     ReqwestError,
-    /// The json returned could not be deserialized
-    DeserializationError,
+    /// The json returned could not be deserialized: {0:?}
+    DeserializationError(String),
     /// No results are found: query={query} year={year:?}
     NoResults { query: String, year: Option<i32> },
     /// No seasons found for the id supplied: {id}
@@ -38,6 +38,19 @@ pub enum TmdbError {
     NoEpisodesFound { id: u64, season: u64 },
     /// Could not find genre with supplied id: {id}
     NoGenreFound { id: u64 },
+    /// Failed to search for id {id} in tmdb: {response:?}
+    SearchByIdNotFound {
+        id: i32,
+        response: ServerError,
+    },
+    /// Failed to deserialize server error: {0}
+    ErrorDeserializationError(String),
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ServerError {
+    status_message: String,
+    status_code: i32,
 }
 
 #[derive(Clone)]
@@ -110,10 +123,20 @@ impl Tmdb {
             pub name: String,
         }
 
+        if !req.status().is_success() {
+            return Err(TmdbError::SearchByIdNotFound {
+                id,
+                response: req
+                    .json::<ServerError>()
+                    .await
+                    .map_err(|e| TmdbError::ErrorDeserializationError(e.to_string()))?,
+            });
+        }
+
         let result: WMedia = req
             .json::<WMedia>()
             .await
-            .map_err(|_| TmdbError::DeserializationError)?;
+            .map_err(|e| TmdbError::DeserializationError(e.to_string()))?;
 
         Ok(Media {
             id: result.id,
@@ -192,7 +215,7 @@ impl Tmdb {
         let mut result: Vec<Media> = req
             .json::<SearchResult>()
             .await
-            .map_err(|_| TmdbError::DeserializationError)?
+            .map_err(|e| TmdbError::DeserializationError(e.to_string()))?
             .results
             .into_iter()
             .flatten()
@@ -243,7 +266,7 @@ impl Tmdb {
 
         req.json::<Wrapper>()
             .await
-            .map_err(|_| TmdbError::DeserializationError)?
+            .map_err(|e| TmdbError::DeserializationError(e.to_string()))?
             .seasons
             .ok_or(TmdbError::NoSeasonsFound { id })
     }
@@ -270,7 +293,7 @@ impl Tmdb {
 
         req.json::<Wrapper>()
             .await
-            .map_err(|_| TmdbError::DeserializationError)?
+            .map_err(|e| TmdbError::DeserializationError(e.to_string()))?
             .episodes
             .ok_or(TmdbError::NoEpisodesFound { id, season })
     }
@@ -308,7 +331,7 @@ impl Tmdb {
         let genres = req
             .json::<Wrapper>()
             .await
-            .map_err(|_| TmdbError::DeserializationError)?
+            .map_err(|e| TmdbError::DeserializationError(e.to_string()))?
             .genres;
 
         {
