@@ -504,7 +504,7 @@ pub async fn tmdb_search(
 ) -> Result<impl warp::Reply, errors::DimError> {
     use crate::scanners::tmdb::Tmdb;
 
-    let media_type = match media_type.as_ref() {
+    let media_type = match media_type.to_lowercase().as_ref() {
         "movie" | "movies" => MediaType::Movie,
         "tv" | "tv_show" | "tv show" | "tv shows" => MediaType::Tv,
         _ => return Err(errors::DimError::InvalidMediaType),
