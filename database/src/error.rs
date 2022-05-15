@@ -1,7 +1,7 @@
 pub use auth::AuthError;
 
-use thiserror::Error;
 use displaydoc::Display;
+use thiserror::Error;
 
 #[derive(Debug, Display, Error)]
 pub enum DatabaseError {

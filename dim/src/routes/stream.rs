@@ -20,8 +20,8 @@ use nightfall::error::NightfallError;
 use nightfall::profiles::*;
 
 use std::future::Future;
-use std::path::PathBuf;
 use std::path::Path;
+use std::path::PathBuf;
 use std::time::Duration;
 
 use futures::stream;
