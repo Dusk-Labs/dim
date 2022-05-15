@@ -505,8 +505,8 @@ pub async fn tmdb_search(
     use crate::scanners::tmdb::Tmdb;
 
     let media_type = match media_type.as_ref() {
-        "movie" => MediaType::Movie,
-        "tv" => MediaType::Tv,
+        "movie" | "movies" => MediaType::Movie,
+        "tv" | "tv_show" | "tv show" | "tv shows" => MediaType::Tv,
         _ => return Err(errors::DimError::InvalidMediaType),
     };
 

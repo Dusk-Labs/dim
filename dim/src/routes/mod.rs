@@ -53,11 +53,9 @@ pub mod global_filters {
                 let id = database::user::Login::verify_cookie(x)
                     .map_err(|e| reject::custom(DimError::CookieError(e)))?;
 
-                User::get_by_id(&mut tx, id).await.map_err(|_| {
-                    reject::custom(DimError::DatabaseError {
-                        description: String::from("Couldn't find user"),
-                    })
-                })
+                User::get_by_id(&mut tx, id)
+                    .await
+                    .map_err(|_| reject::custom(DimError::UserNotFound))
             })
     }
 

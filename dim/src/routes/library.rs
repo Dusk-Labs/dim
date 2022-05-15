@@ -21,10 +21,14 @@ use warp::http::StatusCode;
 use warp::reply;
 
 use serde::Serialize;
+use serde::Deserialize;
 
 use tracing::error;
 use tracing::info;
 use tracing::instrument;
+
+use fuzzy_matcher::FuzzyMatcher;
+use fuzzy_matcher::skim::SkimMatcherV2;
 
 pub mod filters {
     use warp::reject;
@@ -125,12 +129,18 @@ pub mod filters {
     pub fn get_all_unmatched_media(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        #[derive(Deserialize)]
+        struct Args {
+            search: Option<String>
+        }
+
         warp::path!("api" / "v1" / "library" / i64 / "unmatched")
             .and(warp::get())
             .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, user: User, conn: DbConnection| async move {
-                super::get_all_unmatched_media(conn, id, user)
+            .and(warp::filters::query::query::<Args>())
+            .and_then(|id: i64, user: User, conn: DbConnection, Args { search }: Args| async move {
+                super::get_all_unmatched_media(conn, id, user, search)
                     .await
                     .map_err(|e| reject::custom(e))
             })
@@ -319,11 +329,13 @@ pub async fn get_all_library(
 /// * `conn` - database connection
 /// * `id` - id of the library
 /// * `_user` - auth middleware
+/// * `search` - query to fuzzy match against
 // NOTE: construct_standard on a mediafile will yield buggy deltas
 pub async fn get_all_unmatched_media(
     conn: DbConnection,
     id: i64,
     _user: User,
+    search: Option<String>
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
 
@@ -331,10 +343,28 @@ pub async fn get_all_unmatched_media(
         .await
         .map_err(|_| errors::DimError::NotFoundError)?;
 
-    let count = files.len();
-
     // we want to pre-sort to ensure our tree is somewhat ordered.
     files.sort_by(|a, b| a.target_file.cmp(&b.target_file));
+
+    if let Some(search) = search {
+        let matcher = SkimMatcherV2::default();
+
+        let mut matched_files = files
+            .into_iter()
+            .filter_map(|x| {
+                let file_string = x.target_file.to_string_lossy();
+                
+                matcher.fuzzy_match(&file_string, &search)
+                    .map(|score| (x, score))
+            })
+            .collect::<Vec<_>>();
+
+        matched_files.sort_by(|(_, a), (_, b)| b.cmp(&a));
+
+        files = matched_files.into_iter().map(|(file, _)| file).collect();
+    }
+
+    let count = files.len();
 
     #[derive(Serialize)]
     struct Record {
