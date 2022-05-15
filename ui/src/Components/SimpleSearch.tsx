@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import SearchIcon from "assets/figma_icons/Search";
 import "./SimpleSearch.scss";
 
@@ -10,13 +10,15 @@ export interface SimpleSearchProps {
 export const SimpleSearch = ({ placeholder, onChange }: SimpleSearchProps) => {
   const [value, setValue] = useState<string>("");
 
+  useEffect(() => {
+    if (onChange) onChange(value);
+  }, [value]);
+
   const changeValue = useCallback(
     (e) => {
       setValue(e?.target?.value || "");
-
-      if (onChange) onChange(value);
     },
-    [value, setValue, onChange]
+    [setValue]
   );
 
   return (
