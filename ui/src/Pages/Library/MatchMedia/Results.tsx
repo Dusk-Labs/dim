@@ -15,7 +15,7 @@ export const SearchResults = ({ query, params }: Props) => {
   const [skip, setSkip] = useState<boolean>(true);
   const [mediaType, setMediaType] = useState<string | null>(null);
   const [year, setYear] = useState<string | null>(null);
-  const { data, isFetching } = useExternalSearchQuery(
+  const { data, isFetching, isLoading, error } = useExternalSearchQuery(
     { query, year, mediaType: mediaType ?? "" },
     { refetchOnMountOrArgChange: true, skip }
   );
@@ -76,8 +76,8 @@ export const SearchResults = ({ query, params }: Props) => {
 
   return (
     <>
-      {!isFetching && results.length > 0 && results}
-      {!isFetching && results.length === 0 && (
+      {!isFetching && !error && results.length > 0 && results}
+      {error && (
         <div className="search-not-found">
           <SearchIcon />
           <p className="message">No results found for</p>

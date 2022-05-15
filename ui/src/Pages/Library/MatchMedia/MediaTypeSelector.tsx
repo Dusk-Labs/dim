@@ -17,11 +17,11 @@ export const SelectMediatype = ({
       <div className="select-label">Select media type</div>
       <div className="select-subtext">Choose media type to search for</div>
       <div className={`select-options ready-${isReady}`}>
-        <div className="option" onClick={() => selectMediatype("movie")}>
+        <div className="option" onClick={() => selectMediatype("Movies")}>
           <Movie />
           <p>Movies</p>
         </div>
-        <div className="option" onClick={() => selectMediatype("tv")}>
+        <div className="option" onClick={() => selectMediatype("TV Shows")}>
           <TV />
           <p>Shows</p>
         </div>

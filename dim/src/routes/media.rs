@@ -516,6 +516,10 @@ pub async fn tmdb_search(
         .await
         .map_err(|_| errors::DimError::NotFoundError)?;
 
+    if results.is_empty() {
+        return Err(errors::DimError::NotFoundError);
+    }
+
     Ok(ApiMedia::search_response(results.into_iter()))
 }
 
