@@ -73,8 +73,8 @@ function HoverCard(props) {
       ss: ("0" + Math.floor((duration % 3600) % 60)).slice(-2),
     };
 
-    if (genres.length > 3) {
-      genres.splice(3);
+    if (genresCopy.length > 3) {
+      genresCopy.splice(3);
     }
 
     return (

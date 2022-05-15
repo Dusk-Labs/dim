@@ -18,9 +18,7 @@ export const search = v1.injectEndpoints({
       { query: string; year: string | null; mediaType: string }
     >({
       query: ({ query, year, mediaType }) => {
-        /// FIXME: This should be normalized upstream, or best yet, the server can just accept non-normalized versions.
-        let normMediaType = mediaType === "Movies" ? "movie" : "tv";
-        let baseQuery = `media/tmdb_search?query=${query}&media_type=${normMediaType}`;
+        let baseQuery = `media/tmdb_search?query=${query}&media_type=${mediaType}`;
 
         if (year) {
           baseQuery = `${baseQuery}&year=${year}`;

@@ -6,14 +6,13 @@ interface ISearchContext {
   active: boolean;
   suggestionsState: useSuggestionsState;
   activeTags: Array<ISearchTag>;
+  input: string;
 }
 
 export const SearchContext = createContext<ISearchContext>({
   active: false,
   suggestionsState: {
     suggestions: [],
-    selectNext: () => {},
-    selectPrev: () => {},
     selected: undefined,
     clearSelected: () => {},
     advanceTree: (_) => {},
@@ -21,6 +20,8 @@ export const SearchContext = createContext<ISearchContext>({
     getFilterFn: (_) => {
       return undefined;
     },
+    selectByName: (_) => {},
   },
   activeTags: [],
+  input: "",
 });

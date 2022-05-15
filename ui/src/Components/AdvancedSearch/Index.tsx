@@ -48,23 +48,21 @@ export const AdvancedSearch = (props: Props) => {
 
   const suggestionsState = useSuggestions([
     {
-      name: "Year",
-      description: "filter search results by year.",
-      filter: filterInt,
-      options: [],
-    },
-    {
       name: "Media",
       description: "filter search results by media type (Movies, or TV Shows).",
       filter: isOption(["Movies", "TV Shows"]),
       options: mediaHints,
     },
+    {
+      name: "Year",
+      description: "filter search results by year.",
+      filter: filterInt,
+      options: [],
+    },
   ]);
 
   const {
     suggestions,
-    selectNext,
-    selectPrev,
     selected,
     clearSelected,
     advanceTree,
@@ -75,8 +73,9 @@ export const AdvancedSearch = (props: Props) => {
   const onInput = useCallback(
     (e) => {
       setValue(e.target.innerText);
+      toggleSuggestionsOn();
     },
-    [setValue]
+    [setValue, toggleSuggestionsOn]
   );
 
   // Callback attempt to parse input and append it to a un-filled tag if possible.
@@ -102,6 +101,7 @@ export const AdvancedSearch = (props: Props) => {
           // clear the parsed value from the main input
           const rest = value.substring(caretPosition || 0, value.length);
           inputRef.current!.innerText = rest;
+          setValue(rest);
 
           // If this event was triggered by a space key, we want to prevent the event
           // so that it doesnt show up in our search bar.
@@ -119,6 +119,7 @@ export const AdvancedSearch = (props: Props) => {
       setTagValue,
       resetTree,
       getFilterFn,
+      setValue,
     ]
   );
 
@@ -133,12 +134,16 @@ export const AdvancedSearch = (props: Props) => {
       if (last && last.content === "") {
         setTagValue(last.name, tag);
         resetTree();
+        inputRef!.current!.innerText = "";
+        setValue("");
         return;
       }
 
       if (inputRef?.current) inputRef.current!.focus();
       appendTag({ name: tag, content: "" });
       advanceTree(tag);
+      inputRef!.current!.innerText = "";
+      setValue("");
     },
     [
       appendTag,
@@ -149,6 +154,7 @@ export const AdvancedSearch = (props: Props) => {
       resetTree,
       clearSelected,
       toggleSuggestionsOn,
+      setValue,
     ]
   );
 
@@ -160,7 +166,6 @@ export const AdvancedSearch = (props: Props) => {
   }, [value, activeTags, onSearch]);
 
   const onEnter = useCallback(() => {
-    console.log(selected);
     if (!selected) {
       if (value) search();
       return;
@@ -186,10 +191,6 @@ export const AdvancedSearch = (props: Props) => {
 
   const onKeyDown = useCallback(
     (e) => {
-      if (e.key === "ArrowDown") selectNext();
-
-      if (e.key === "ArrowUp") selectPrev();
-
       if (e.key === "Enter") {
         // Prevent deault event handler so we dont get newlines in our div.
         e.preventDefault();
@@ -205,7 +206,7 @@ export const AdvancedSearch = (props: Props) => {
         onBackspace();
       }
     },
-    [selectNext, matchInput, selectPrev, onEnter, onBackspace]
+    [matchInput, onEnter, onBackspace]
   );
 
   return (
@@ -214,7 +215,7 @@ export const AdvancedSearch = (props: Props) => {
         <div className="advanced-search-wrapper">
           <div className="advanced-search-field">
             {activeTags.map(({ name, content }) => (
-              <SearchTag name={name} content={content} />
+              <SearchTag name={name} content={content} key={name} />
             ))}
             <div
               className="advanced-search-input"
@@ -231,7 +232,12 @@ export const AdvancedSearch = (props: Props) => {
         </div>
       </div>
       <SearchContext.Provider
-        value={{ active: showSuggestions, suggestionsState, activeTags }}
+        value={{
+          active: showSuggestions,
+          suggestionsState,
+          activeTags,
+          input: value,
+        }}
       >
         <Suggestions onClick={onSuggestionClick} />
       </SearchContext.Provider>

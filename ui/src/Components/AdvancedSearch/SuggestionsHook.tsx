@@ -13,13 +13,12 @@ export interface SuggestionHint {
 
 export interface useSuggestionsState {
   suggestions: Array<SuggestionHint>;
-  selectNext: () => void;
-  selectPrev: () => void;
   selected?: string;
   clearSelected: () => void;
   advanceTree: (tag: string) => void;
   resetTree: () => void;
   getFilterFn: (tag: string) => ((value: string) => any) | undefined;
+  selectByName: (tag_name: string) => void;
 }
 
 export const useSuggestions = (initial: Array<SuggestionHint> | null) => {
@@ -54,35 +53,12 @@ export const useSuggestions = (initial: Array<SuggestionHint> | null) => {
     setSuggestions(suggestionsTree);
   }, [setSuggestions, suggestionsTree]);
 
-  const selectNext = useCallback(() => {
-    if (selected === null) {
-      setSelected(suggestions[0].name);
-      return;
-    }
-
-    const currentIndex = suggestions.findIndex((x) => x.name === selected);
-
-    if (currentIndex === suggestions.length - 1) {
-      setSelected(suggestions[0].name);
-    } else {
-      setSelected(suggestions[currentIndex + 1].name);
-    }
-  }, [selected, setSelected, suggestions]);
-
-  const selectPrev = useCallback(() => {
-    if (selected === null) {
-      setSelected(suggestions[suggestions.length - 1].name);
-      return;
-    }
-
-    const currentIndex = suggestions.findIndex((x) => x.name === selected);
-
-    if (currentIndex === 0) {
-      setSelected(suggestions[suggestions.length - 1].name);
-    } else {
-      setSelected(suggestions[currentIndex - 1].name);
-    }
-  }, [selected, setSelected, suggestions]);
+  const selectByName = useCallback(
+    (tag_name) => {
+      setSelected(tag_name);
+    },
+    [setSelected]
+  );
 
   const getFilterFn = useCallback(
     (tag: string) => {
@@ -100,12 +76,11 @@ export const useSuggestions = (initial: Array<SuggestionHint> | null) => {
 
   return {
     suggestions,
-    selectNext,
-    selectPrev,
     selected,
     clearSelected,
     advanceTree,
     resetTree,
     getFilterFn,
+    selectByName,
   };
 };

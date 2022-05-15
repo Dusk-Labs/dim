@@ -51,14 +51,15 @@ export const SearchResult = ({
     [isActive, setCurrent, id]
   );
 
-  const startMatching = useCallback(() => {
-    match(id, media_type);
-  }, [id, match, media_type]);
-
   const toggleCancel = useCallback(() => {
     if (isActive) setCurrent(null);
     else setCurrent(id);
   }, [isActive, setCurrent, id]);
+
+  const startMatching = useCallback(() => {
+    match(id, media_type);
+    toggleCancel();
+  }, [id, match, media_type, toggleCancel]);
 
   return (
     <div className={`result-card active-${isActive}`} onClick={toggleCard}>
@@ -79,7 +80,7 @@ export const SearchResult = ({
 
           <div className="middle">
             {genres.map((x: string) => (
-              <p>{x}</p>
+              <p key={x}>{x}</p>
             ))}
           </div>
 

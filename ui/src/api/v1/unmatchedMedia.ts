@@ -20,8 +20,16 @@ export interface UnmatchedMediaFile {
 
 export const media = v1.injectEndpoints({
   endpoints: (build) => ({
-    getUnmatchedMediaFiles: build.query<UnmatchedMediaFiles, string>({
-      query: (id) => `library/${id}/unmatched`,
+    getUnmatchedMediaFiles: build.query<
+      UnmatchedMediaFiles,
+      { id: string; search?: string | null }
+    >({
+      query: ({ id, search }) => {
+        if (search && search.length > 0)
+          return `library/${id}/unmatched?search=${search}`;
+
+        return `library/${id}/unmatched`;
+      },
     }),
   }),
 });

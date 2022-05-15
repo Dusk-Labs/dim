@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import SearchResult from "./SearchResult";
 import { useExternalSearchQuery } from "api/v1/searchExternal";
+import SearchIcon from "assets/figma_icons/Search";
+import { Spinner } from "Components/Spinner";
+
+import "./Results.scss";
 
 export interface Props {
   query: string;
@@ -11,7 +15,7 @@ export const SearchResults = ({ query, params }: Props) => {
   const [skip, setSkip] = useState<boolean>(true);
   const [mediaType, setMediaType] = useState<string | null>(null);
   const [year, setYear] = useState<string | null>(null);
-  const { data } = useExternalSearchQuery(
+  const { data, isFetching } = useExternalSearchQuery(
     { query, year, mediaType: mediaType ?? "" },
     { refetchOnMountOrArgChange: true, skip }
   );
@@ -64,12 +68,29 @@ export const SearchResults = ({ query, params }: Props) => {
               genres={genres || []}
               poster={poster_path || ""}
               media_type={mediaType!}
+              key={id}
             />
           );
         }
       );
 
-  return <>{results ? results : null}</>;
+  return (
+    <>
+      {!isFetching && results.length > 0 && results}
+      {!isFetching && results.length === 0 && (
+        <div className="search-not-found">
+          <SearchIcon />
+          <p className="message">No results found for</p>
+          <p className="query">"{query}"</p>
+        </div>
+      )}
+      {isFetching && (
+        <div className="search-spinner">
+          <Spinner />
+        </div>
+      )}
+    </>
+  );
 };
 
 export default SearchResults;

@@ -15,9 +15,10 @@ import "./Index.scss";
 interface MatchMediaProps {
   data: UnmatchedMediaFiles;
   refetch: () => any;
+  mediafileSearch: (query: string) => void;
 }
 
-const MatchMedia = ({ data, refetch }: MatchMediaProps) => {
+const MatchMedia = ({ data, refetch, mediafileSearch }: MatchMediaProps) => {
   const [current, setCurrent] = useState<number | null>(null);
   const [isOpened, setOpened] = useState<boolean>(true);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
@@ -151,7 +152,7 @@ const MatchMedia = ({ data, refetch }: MatchMediaProps) => {
           <p className="match-head">{data.count} Unmatched files found</p>
           <div className="match-middle">
             <p className="match-label">View and select files to match.</p>
-            <SimpleSearch />
+            <SimpleSearch onChange={mediafileSearch} />
           </div>
 
           <NestedFileView
@@ -206,18 +207,4 @@ const MatchMedia = ({ data, refetch }: MatchMediaProps) => {
   );
 };
 
-/*
- *
-          <div className="search-head">
-            <div
-              className={`toggle ${!isOpened ? "invert" : ""}`}
-              onClick={toggleOpen}
-            >
-              <AngleUp />
-            </div>
-          </div>
-
-          <div className="search-results">
-          </div>
-          */
 export default MatchMedia;
