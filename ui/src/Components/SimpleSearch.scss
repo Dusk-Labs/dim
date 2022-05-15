@@ -1,0 +1,25 @@
+.simple-searchbox {
+  position: relative;
+
+  svg {
+    position: absolute;
+    top: 0;
+    margin-left: 10px;
+    height: 15px;
+    text-align: center;
+    color: #838383;
+    margin-top: 7px;
+  }
+
+  input {
+    height: 30px;
+    width: 15vw;
+    background-color: #2e2e2e;
+    border-radius: 4px;
+    border: 0;
+    padding-left: 35px;
+    padding-right: 10px;
+    color: #fff;
+    outline: none;
+  }
+}

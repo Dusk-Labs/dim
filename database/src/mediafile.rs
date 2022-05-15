@@ -1,12 +1,15 @@
 use crate::media::Media;
+use crate::query_ext::QueryExt;
 use crate::DatabaseError;
 
+use itertools::intersperse;
 use serde::Deserialize;
 use serde::Serialize;
+use std::iter::repeat;
 
 /// MediaFile struct which represents a media file on the filesystem. This struct holds some basic
 /// information which the video player on the front end might require.
-#[derive(Serialize, PartialEq, Debug, Clone)]
+#[derive(Serialize, PartialEq, Debug, Clone, sqlx::FromRow)]
 pub struct MediaFile {
     /// Unique identifier provided by postgres
     pub id: i64,
@@ -118,6 +121,8 @@ impl MediaFile {
         conn: &mut crate::Transaction<'_>,
         id: i64,
     ) -> Result<Vec<Self>, DatabaseError> {
+        // FIXME: I think we can make this query a bit more efficient by adding an index on
+        // mediafile.mediaid, but given how often this is called, this might not be worth it.
         Ok(sqlx::query_as!(
             MediaFile,
             "SELECT mediafile.* FROM _tblseason
@@ -145,6 +150,24 @@ impl MediaFile {
                 .fetch_one(&mut *conn)
                 .await?,
         )
+    }
+
+    /// Method returns all metadata for a set of mediafile ids.
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `ids` - list of mediafile ids
+    pub async fn get_many(
+        conn: &mut crate::Transaction<'_>,
+        ids: &[i64],
+    ) -> Result<Vec<Self>, DatabaseError> {
+        let placeholders = intersperse(repeat("?").take(ids.len()), ",").collect::<String>();
+        let query = format!("SELECT * FROM mediafile WHERE id IN ({placeholders})");
+
+        Ok(sqlx::query_as::<_, MediaFile>(&query)
+            .bind_all(ids)
+            .fetch_all(&mut *conn)
+            .await?)
     }
 
     /// Method checks whether a mediafile entry with the filepath supplied exists or not, returning

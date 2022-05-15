@@ -3,7 +3,9 @@ use crate::core::EventTx;
 use crate::errors;
 use crate::scanners;
 use crate::scanners::scanner_daemon::FsWatcher;
+use crate::tree;
 
+use database::compact_mediafile::CompactMediafile;
 use database::library::InsertableLibrary;
 use database::library::Library;
 use database::media::Media;
@@ -14,16 +16,19 @@ use events::Message;
 use events::PushEventType;
 
 use std::collections::HashMap;
-use std::path::Path;
 
 use warp::http::StatusCode;
 use warp::reply;
 
 use serde::Serialize;
+use serde::Deserialize;
 
 use tracing::error;
 use tracing::info;
 use tracing::instrument;
+
+use fuzzy_matcher::FuzzyMatcher;
+use fuzzy_matcher::skim::SkimMatcherV2;
 
 pub mod filters {
     use warp::reject;
@@ -124,12 +129,18 @@ pub mod filters {
     pub fn get_all_unmatched_media(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        #[derive(Deserialize)]
+        struct Args {
+            search: Option<String>
+        }
+
         warp::path!("api" / "v1" / "library" / i64 / "unmatched")
             .and(warp::get())
             .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, user: User, conn: DbConnection| async move {
-                super::get_all_unmatched_media(conn, id, user)
+            .and(warp::filters::query::query::<Args>())
+            .and_then(|id: i64, user: User, conn: DbConnection, Args { search }: Args| async move {
+                super::get_all_unmatched_media(conn, id, user, search)
                     .await
                     .map_err(|e| reject::custom(e))
             })
@@ -212,23 +223,25 @@ pub async fn library_delete(
 ) -> Result<impl warp::Reply, errors::DimError> {
     // First we mark the library as scheduled for deletion which will make the library and all its
     // content hidden. This is necessary because huge libraries take a long time to delete.
-    let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
-    if Library::mark_hidden(&mut tx, id).await? < 1 {
-        return Err(errors::DimError::LibraryNotFound);
+    {
+        let mut lock = conn.writer().lock_owned().await;
+        let mut tx = database::write_tx(&mut lock).await?;
+        if Library::mark_hidden(&mut tx, id).await? < 1 {
+            return Err(errors::DimError::LibraryNotFound);
+        }
+        tx.commit().await?;
     }
-    tx.commit().await?;
-    drop(lock);
 
     let delete_lib_fut = async move {
         let inner = async {
             let mut lock = conn.writer().lock_owned().await;
             let mut tx = database::write_tx(&mut lock).await?;
+
             Library::delete(&mut tx, id).await?;
             Media::delete_by_lib_id(&mut tx, id).await?;
             MediaFile::delete_by_lib_id(&mut tx, id).await?;
+
             tx.commit().await?;
-            drop(lock);
 
             Ok::<_, database::error::DatabaseError>(())
         };
@@ -316,46 +329,80 @@ pub async fn get_all_library(
 /// * `conn` - database connection
 /// * `id` - id of the library
 /// * `_user` - auth middleware
+/// * `search` - query to fuzzy match against
 // NOTE: construct_standard on a mediafile will yield buggy deltas
 pub async fn get_all_unmatched_media(
     conn: DbConnection,
     id: i64,
     _user: User,
+    search: Option<String>
 ) -> Result<impl warp::Reply, errors::DimError> {
-    let mut result = HashMap::new();
     let mut tx = conn.read().begin().await?;
+
+    let mut files = CompactMediafile::unmatched_for_library(&mut tx, id)
+        .await
+        .map_err(|_| errors::DimError::NotFoundError)?;
+
+    // we want to pre-sort to ensure our tree is somewhat ordered.
+    files.sort_by(|a, b| a.target_file.cmp(&b.target_file));
+
+    if let Some(search) = search {
+        let matcher = SkimMatcherV2::default();
+
+        let mut matched_files = files
+            .into_iter()
+            .filter_map(|x| {
+                let file_string = x.target_file.to_string_lossy();
+                
+                matcher.fuzzy_match(&file_string, &search)
+                    .map(|score| (x, score))
+            })
+            .collect::<Vec<_>>();
+
+        matched_files.sort_by(|(_, a), (_, b)| b.cmp(&a));
+
+        files = matched_files.into_iter().map(|(file, _)| file).collect();
+    }
+
+    let count = files.len();
 
     #[derive(Serialize)]
     struct Record {
         id: i64,
         name: String,
         duration: Option<i64>,
-        target_file: String,
+        file: String,
     }
 
-    sqlx::query_as!(
-        Record,
-        r#"SELECT id, raw_name as name, duration, target_file FROM mediafile
-        WHERE library_id = ? AND media_id IS NULL"#,
-        id
-    )
-    .fetch_all(&mut tx)
-    .await
-    .map_err(|_| errors::DimError::NotFoundError)?
-    .into_iter()
-    .map(|x| {
-        let mut path = Path::new(&x.target_file).to_path_buf();
-        let file_name = path.file_name().unwrap().to_string_lossy().to_string();
-        path.pop();
+    let entry = tree::Entry::build_with(
+        files,
+        |x| {
+            x.target_file
+                .iter()
+                .map(|x| x.to_string_lossy().to_string())
+                .collect()
+        },
+        |k, v| Record {
+            id: v.id,
+            name: v.name,
+            duration: v.duration,
+            file: k.to_string(),
+        },
+    );
 
-        let dir = path.file_name();
-        let group = dir
-            .map(|x| x.to_string_lossy().to_string())
-            .unwrap_or(file_name);
+    #[derive(Serialize)]
+    struct Response {
+        count: usize,
+        files: Vec<tree::Entry<Record>>,
+    }
 
-        (group, x)
-    })
-    .for_each(|(k, v)| result.entry(k).or_insert(vec![]).push(v));
+    let entries = match entry {
+        tree::Entry::Directory { files, .. } => files,
+        _ => unreachable!(),
+    };
 
-    Ok(reply::json(&result))
+    Ok(reply::json(&Response {
+        files: entries,
+        count,
+    }))
 }

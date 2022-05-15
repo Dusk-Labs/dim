@@ -1,6 +1,15 @@
 use serde_derive::{Deserialize, Serialize};
 use std::collections::VecDeque;
-use std::process::Command;
+use std::process::Stdio;
+use tokio::process::Command;
+use tracing::error;
+use tracing::trace;
+
+#[derive(Clone, Copy, Debug, displaydoc::Display, thiserror::Error)]
+pub enum Error {
+    /// ffprobe exited early with an error.
+    FfprobeError,
+}
 
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct FFPWrapper {
@@ -123,8 +132,10 @@ impl FFProbeCtx {
     }
 
     #[tracing::instrument(skip(self, file))]
-    pub fn get_meta(&self, file: impl ToString) -> Result<FFPWrapper, std::io::Error> {
-        let probe = Command::new(self.ffprobe_bin.clone())
+    pub async fn get_meta(&self, file: impl ToString) -> Result<FFPWrapper, std::io::Error> {
+        let mut probe = Command::new(self.ffprobe_bin.clone());
+
+        probe
             .arg(file.to_string())
             .arg("-v")
             .arg("quiet")
@@ -132,9 +143,23 @@ impl FFProbeCtx {
             .arg("json")
             .arg("-show_streams")
             .arg("-show_format")
-            .output()?;
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
 
-        let json = String::from_utf8_lossy(probe.stdout.as_slice());
+        trace!(
+            binary = self.ffprobe_bin.as_str(),
+            args = %probe.as_std().get_args().filter_map(|x| x.to_str()).collect::<Vec<_>>().join(" "),
+            "Spawning ffprobe."
+        );
+
+        let output = probe.spawn()?.wait_with_output().await?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(output.stderr.as_slice());
+            error!(status = ?output.status, stderr = %stderr, "ffprobe exited with an error status.");
+        }
+
+        let json = String::from_utf8_lossy(output.stdout.as_slice());
 
         let de: FFPWrapper = serde_json::from_str(&json).map_or_else(
             |_| FFPWrapper {

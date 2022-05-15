@@ -10,33 +10,47 @@ use reqwest::Client;
 use reqwest::ClientBuilder;
 use reqwest::StatusCode;
 
-use err_derive::Error;
+use displaydoc::Display;
 use futures::stream;
 use futures::StreamExt;
+use thiserror::Error;
 use tokio::sync::RwLock;
 
 use async_recursion::async_recursion;
 
 static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
 
-#[derive(Debug, Error, Serialize)]
+#[derive(Clone, Display, Debug, Error, Serialize)]
 pub enum TmdbError {
-    #[error(display = "The request timeouted")]
+    /// The request timeouted
     Timeout,
-    #[error(display = "Max retry count reached")]
+    /// Max retry count reached
     ReachedMaxTries,
-    #[error(display = "Internal error with reqwest")]
+    /// Internal error with reqwest
     ReqwestError,
-    #[error(display = "The json returned could not be deserialized")]
-    DeserializationError,
-    #[error(display = "No results are found")]
+    /// The json returned could not be deserialized: {0:?}
+    DeserializationError(String),
+    /// No results are found: query={query} year={year:?}
     NoResults { query: String, year: Option<i32> },
-    #[error(display = "No seasons found for the id supplied")]
+    /// No seasons found for the id supplied: {id}
     NoSeasonsFound { id: u64 },
-    #[error(display = "No episodes found for the id supplied")]
+    /// No episodes found for the id supplied: id={id} season={season}
     NoEpisodesFound { id: u64, season: u64 },
-    #[error(display = "Could not find genre with supplied id")]
+    /// Could not find genre with supplied id: {id}
     NoGenreFound { id: u64 },
+    /// Failed to search for id {id} in tmdb: {response:?}
+    SearchByIdNotFound {
+        id: i32,
+        response: ServerError,
+    },
+    /// Failed to deserialize server error: {0}
+    ErrorDeserializationError(String),
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ServerError {
+    status_message: String,
+    status_code: i32,
 }
 
 #[derive(Clone)]
@@ -99,6 +113,7 @@ impl Tmdb {
             pub poster_path: Option<String>,
             pub backdrop_path: Option<String>,
             pub genres: Vec<GenrePair>,
+            pub runtime: Option<u64>,
         }
 
         #[derive(Deserialize, Clone, Debug)]
@@ -108,10 +123,20 @@ impl Tmdb {
             pub name: String,
         }
 
+        if !req.status().is_success() {
+            return Err(TmdbError::SearchByIdNotFound {
+                id,
+                response: req
+                    .json::<ServerError>()
+                    .await
+                    .map_err(|e| TmdbError::ErrorDeserializationError(e.to_string()))?,
+            });
+        }
+
         let result: WMedia = req
             .json::<WMedia>()
             .await
-            .map_err(|_| TmdbError::DeserializationError)?;
+            .map_err(|e| TmdbError::DeserializationError(e.to_string()))?;
 
         Ok(Media {
             id: result.id,
@@ -127,6 +152,7 @@ impl Tmdb {
                 .into_iter()
                 .map(|x| x.name)
                 .collect::<Vec<String>>(),
+            runtime: result.runtime,
         })
     }
 
@@ -189,7 +215,7 @@ impl Tmdb {
         let mut result: Vec<Media> = req
             .json::<SearchResult>()
             .await
-            .map_err(|_| TmdbError::DeserializationError)?
+            .map_err(|e| TmdbError::DeserializationError(e.to_string()))?
             .results
             .into_iter()
             .flatten()
@@ -240,7 +266,7 @@ impl Tmdb {
 
         req.json::<Wrapper>()
             .await
-            .map_err(|_| TmdbError::DeserializationError)?
+            .map_err(|e| TmdbError::DeserializationError(e.to_string()))?
             .seasons
             .ok_or(TmdbError::NoSeasonsFound { id })
     }
@@ -267,7 +293,7 @@ impl Tmdb {
 
         req.json::<Wrapper>()
             .await
-            .map_err(|_| TmdbError::DeserializationError)?
+            .map_err(|e| TmdbError::DeserializationError(e.to_string()))?
             .episodes
             .ok_or(TmdbError::NoEpisodesFound { id, season })
     }
@@ -305,7 +331,7 @@ impl Tmdb {
         let genres = req
             .json::<Wrapper>()
             .await
-            .map_err(|_| TmdbError::DeserializationError)?
+            .map_err(|e| TmdbError::DeserializationError(e.to_string()))?
             .genres;
 
         {
@@ -369,6 +395,7 @@ pub struct Media {
     pub genre_ids: Option<Vec<u64>>,
     #[serde(skip_deserializing)]
     pub genres: Vec<String>,
+    pub runtime: Option<u64>,
 }
 
 impl From<Media> for super::ApiMedia {
@@ -394,8 +421,9 @@ impl From<Media> for super::ApiMedia {
             backdrop_path,
             backdrop_file: this.backdrop_path,
             genres: this.genres,
-            rating: this.vote_average.map(|x| x as i32),
+            rating: this.vote_average,
             seasons: Vec::new(),
+            duration: this.runtime,
         }
     }
 }

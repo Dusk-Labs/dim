@@ -1,0 +1,211 @@
+.result-card {
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.1s ease-in-out;
+  cursor: pointer;
+  margin: 0 20px;
+  margin-top: 5px;
+
+  &:hover {
+    background: rgba(234, 150, 62, 0.05);
+
+    &::after {
+      width: 100%;
+      background-color: #ea963e;
+    }
+  }
+
+  &.active-true {
+    background: rgba(234, 150, 62, 0.1);
+
+    &::after {
+      width: 100%;
+      background-color: #ea963e;
+    }
+  }
+
+  &::after {
+    content: "";
+    bottom: 0;
+    // 100% of the width of the card minus its padding.
+    width: calc(100% - 40px);
+    height: 2px;
+    background-color: #4b4b4b;
+    margin: auto;
+
+    transition: width 0.05s ease-in-out;
+  }
+
+  .inner {
+    display: flex;
+    gap: 20px;
+    padding: 20px 20px;
+
+    .left {
+      flex-shrink: 0;
+
+      img,
+      .placeholder {
+        height: 120px;
+        width: 100%;
+        min-width: 80px;
+        border-radius: 0px;
+        object-fit: fill;
+      }
+
+      .placeholder {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        svg {
+          width: 24px;
+        }
+      }
+    }
+
+    .right {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+
+      .top-row {
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+
+        & > p {
+          font-size: 16px;
+          justify-content: flex-start;
+          font-family: Roboto Regular;
+          font-style: normal;
+          font-weight: 500;
+
+          overflow: hidden;
+          white-space: nowrap;
+          overflow-wrap: anywhere;
+          text-overflow: ellipsis;
+          flex-shrink: 1;
+          padding-right: 10px;
+        }
+
+        .meta {
+          display: flex;
+          margin-left: auto;
+          gap: 10px;
+
+          p {
+            font-size: 13px;
+            color: #ddd;
+            white-space: nowrap;
+          }
+        }
+      }
+
+      .middle {
+        display: flex;
+        column-gap: 20px;
+        margin-top: 5px;
+
+        p {
+          font-size: 14px;
+          color: #ea963e;
+          overflow: hidden;
+          white-space: nowrap;
+          overflow-wrap: anywhere;
+          text-overflow: ellipsis;
+        }
+      }
+
+      .bottom {
+        transition: margin 0.1s ease-in-out;
+
+        .description {
+          overflow: hidden;
+          font-size: 14px;
+        }
+
+        .description-toggle {
+          display: flex;
+          width: 30px;
+          height: 15px;
+          background: rgba(173, 173, 173, 0.34);
+          margin-top: 10px;
+          border-radius: 4px;
+          cursor: pointer;
+
+          transition: background 0.15s ease-in-out;
+
+          &:hover {
+            background: rgba(173, 173, 173, 0.5);
+          }
+
+          svg {
+            font-size: 20px;
+            align-self: center;
+            margin-left: auto;
+            margin-right: auto;
+          }
+        }
+
+        // We want to hide the buttons below by applying some negative margin.
+        // the negative margin here should neg button-height.
+        &.hide-buttons-true {
+          margin-bottom: -30px;
+
+          .buttons-row {
+            opacity: 0;
+          }
+        }
+
+        &.hide-buttons-false {
+          margin-bottom: 0px;
+
+          .buttons-row {
+            opacity: 1;
+          }
+        }
+
+        .buttons-row {
+          display: inline-flex;
+          margin-top: 5px;
+          float: right;
+          gap: 12px;
+
+          transition: opacity 0.1s ease-in-out;
+
+          .button {
+            display: flex;
+            cursor: pointer;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            height: 30px;
+            transition: background-color 0.1s ease-in-out;
+
+            &:hover {
+              background: rgba(255, 255, 255, 0.2);
+            }
+
+            p {
+              font-size: 12px;
+              margin: auto;
+              align-self: center;
+              margin: 10px;
+              line-height: 14px;
+              color: #fff;
+            }
+
+            &.match-button {
+              background: rgba(234, 150, 62, 0.9);
+
+              &:hover {
+                background: rgba(234, 150, 62, 1);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

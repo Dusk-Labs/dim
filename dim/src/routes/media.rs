@@ -1,9 +1,12 @@
 use crate::core::DbConnection;
 use crate::errors;
 use crate::json;
+use crate::scanners::ApiMedia;
+use crate::tree;
 
 use database::user::User;
 
+use database::compact_mediafile::CompactMediafile;
 use database::episode::Episode;
 use database::genre::Genre;
 use database::library::MediaType;
@@ -16,6 +19,8 @@ use warp::http::status::StatusCode;
 use warp::reply;
 
 use std::collections::HashMap;
+
+use serde::Serialize;
 
 pub mod filters {
     use database::user::User;
@@ -55,6 +60,20 @@ pub mod filters {
                 super::get_media_files(conn, id)
                     .await
                     .map_err(|e| reject::custom(e))
+            })
+    }
+
+    pub fn get_mediafile_tree(
+        conn: DbConnection,
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("api" / "v1" / "media" / i64 / "tree")
+            .and(warp::get())
+            .and(with_state::<DbConnection>(conn.clone()))
+            .and(with_auth(conn))
+            .and_then(|id, conn, _user| async move {
+                super::get_mediafile_tree(conn, id)
+                    .await
+                    .map_err(reject::custom)
             })
     }
 
@@ -349,8 +368,79 @@ pub async fn get_media_files(
     id: i64,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
-    let mediafiles = MediaFile::get_of_media(&mut tx, id).await?;
+    let media_type = Media::media_mediatype(&mut tx, id).await?;
+
+    let mediafiles = match media_type {
+        MediaType::Tv => MediaFile::get_of_show(&mut tx, id).await?,
+        MediaType::Episode | MediaType::Movie => MediaFile::get_of_media(&mut tx, id).await?,
+    };
+
     Ok(reply::json(&mediafiles))
+}
+
+/// # GET `/api/v1/media/<id>/tree`
+/// Method mappedReturns a tree of mediafiles for a given media object.
+///
+/// # Authentication
+/// Method requires standard authentication.
+pub async fn get_mediafile_tree(
+    conn: DbConnection,
+    id: i64,
+) -> Result<impl warp::Reply, errors::DimError> {
+    let mut tx = conn.read().begin().await?;
+    let media_type = Media::media_mediatype(&mut tx, id).await?;
+
+    let mut mediafiles = match media_type {
+        MediaType::Movie | MediaType::Episode => {
+            CompactMediafile::all_for_media(&mut tx, id).await?
+        }
+        MediaType::Tv => CompactMediafile::all_for_tv(&mut tx, id).await?,
+    };
+
+    // we want to pre-sort to ensure our tree is somewhat ordered.
+    mediafiles.sort_by(|a, b| a.target_file.cmp(&b.target_file));
+
+    let count = mediafiles.len();
+
+    #[derive(Serialize)]
+    struct Record {
+        id: i64,
+        name: String,
+        duration: Option<i64>,
+        file: String,
+    }
+
+    let entry = tree::Entry::build_with(
+        mediafiles,
+        |x| {
+            x.target_file
+                .iter()
+                .map(|x| x.to_string_lossy().to_string())
+                .collect()
+        },
+        |k, v| Record {
+            id: v.id,
+            name: v.name,
+            duration: v.duration,
+            file: k.to_string(),
+        },
+    );
+
+    #[derive(Serialize)]
+    struct Response {
+        count: usize,
+        files: Vec<tree::Entry<Record>>,
+    }
+
+    let entries = match entry {
+        tree::Entry::Directory { files, .. } => files,
+        _ => unreachable!(),
+    };
+
+    Ok(reply::json(&Response {
+        files: entries,
+        count,
+    }))
 }
 
 /// Method mapped to `PATCH /api/v1/media/<id>` is used to edit information about a media entry
@@ -414,23 +504,23 @@ pub async fn tmdb_search(
 ) -> Result<impl warp::Reply, errors::DimError> {
     use crate::scanners::tmdb::Tmdb;
 
-    let media_type = match media_type.as_ref() {
-        "movie" => MediaType::Movie,
-        "tv" => MediaType::Tv,
+    let media_type = match media_type.to_lowercase().as_ref() {
+        "movie" | "movies" => MediaType::Movie,
+        "tv" | "tv_show" | "tv show" | "tv shows" => MediaType::Tv,
         _ => return Err(errors::DimError::InvalidMediaType),
     };
 
     let mut tmdb_session = Tmdb::new("38c372f5bc572c8aadde7a802638534e".to_string(), media_type);
+    let results = tmdb_session
+        .search_by_name(query, year, None)
+        .await
+        .map_err(|_| errors::DimError::NotFoundError)?;
 
-    Ok(reply::json(
-        &tmdb_session
-            .search_by_name(query, year, None)
-            .await
-            .map_err(|_| errors::DimError::NotFoundError)?
-            .into_iter()
-            .map(Into::<crate::scanners::ApiMedia>::into)
-            .collect::<Vec<_>>(),
-    ))
+    if results.is_empty() {
+        return Err(errors::DimError::NotFoundError);
+    }
+
+    Ok(ApiMedia::search_response(results.into_iter()))
 }
 
 /// Method mapped to `POST /api/v1/media/<id>/progress` is used to map progress for a certain media
