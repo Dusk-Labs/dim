@@ -12,7 +12,7 @@ export const SimpleSearch = ({ placeholder, onChange }: SimpleSearchProps) => {
 
   useEffect(() => {
     if (onChange) onChange(value);
-  }, [value]);
+  }, [value, onChange]);
 
   const changeValue = useCallback(
     (e) => {

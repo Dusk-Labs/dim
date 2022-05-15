@@ -15,7 +15,7 @@ export const SearchResults = ({ query, params }: Props) => {
   const [skip, setSkip] = useState<boolean>(true);
   const [mediaType, setMediaType] = useState<string | null>(null);
   const [year, setYear] = useState<string | null>(null);
-  const { data, isFetching, isLoading, error } = useExternalSearchQuery(
+  const { data, isFetching, error } = useExternalSearchQuery(
     { query, year, mediaType: mediaType ?? "" },
     { refetchOnMountOrArgChange: true, skip }
   );
