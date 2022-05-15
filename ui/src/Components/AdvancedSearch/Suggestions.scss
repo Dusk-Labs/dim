@@ -1,0 +1,58 @@
+.suggestions {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+
+  // margin-top is about 2px's lower than the height of the search bar
+  // so that it hides the border of the search bar.
+  margin-top: 38px;
+
+  padding-top: 5px;
+  background: #2e2e2e;
+  overflow: auto;
+
+  // using margin-right: 145px doesnt work for some fucking reason so we use this hack
+  // i honestly have zero fucking clue why this div overflows its parent by 100px but
+  // im guessing its the padding of the parent that it escapes.
+  width: calc(100% - 145px);
+
+  border-radius: 0 0 4px 4px;
+
+  max-height: 200px;
+
+  &.active-false {
+    display: none;
+  }
+
+  .suggestion {
+    display: inline-flex;
+    gap: 10px;
+    padding: 10px 0 10px 10px;
+    cursor: pointer;
+    transition: background-color 100ms ease-in-out;
+
+    &:hover,
+    &.active-true {
+      background: #4e4e4e;
+    }
+
+    .title,
+    .description {
+      margin-top: auto;
+    }
+
+    .title {
+      &::after {
+        content: ":";
+        padding-left: 2px;
+      }
+    }
+
+    .description {
+      color: #aaa;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+}

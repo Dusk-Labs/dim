@@ -1,6 +1,7 @@
-use err_derive::Error;
+use displaydoc::Display;
 use std::path::Path;
 use std::path::PathBuf;
+use thiserror::Error;
 
 use tracing::debug;
 use tracing::debug_span;
@@ -39,17 +40,17 @@ use anitomy::Anitomy;
 use anitomy::ElementCategory;
 use anitomy::Elements;
 
-#[derive(Debug, Error, Serialize, Clone)]
+#[derive(Display, Debug, Error, Serialize, Clone)]
 pub enum ScannerError {
-    #[error(display = "Could not get a connection to the db")]
+    /// Could not get a connection to the db
     DatabaseConnectionError,
-    #[error(display = "The filename parser returned no useful results")]
+    /// The filename parser returned no useful results
     FilenameParserError,
-    #[error(display = "Something happened to ffprobe")]
+    /// Something happened to ffprobe
     FFProbeError,
-    #[error(display = "An unknown error has occured")]
+    /// An unknown error has occured
     UnknownError,
-    #[error(display = "Database error why={}", _0)]
+    /// Database error: {0}
     DatabaseError(String),
 }
 
@@ -152,9 +153,10 @@ impl MetadataExtractor {
         };
 
         let file_clone = file.clone();
-        let ffprobe_data =
-            move || FFProbeCtx::new(&FFPROBE_BIN).get_meta(file_clone.to_str().unwrap());
-        let ffprobe_data = if let Ok(Ok(data)) = spawn_blocking(ffprobe_data).await {
+        let ffprobe_data = if let Ok(data) = FFProbeCtx::new(&FFPROBE_BIN)
+            .get_meta(file_clone.to_str().unwrap())
+            .await
+        {
             data
         } else {
             error!(

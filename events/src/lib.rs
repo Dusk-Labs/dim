@@ -44,4 +44,7 @@ pub enum PushEventType {
     EventAuthOk,
     /// Tell client their token is wrong or missing
     EventAuthErr,
+    /// Matched mediafile. This hints to a listener that they must remove this mediafile from a
+    /// list, or update its state.
+    MediafileMatched { mediafile: i64, library_id: i64 },
 }

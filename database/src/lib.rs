@@ -11,6 +11,7 @@ use sqlx::ConnectOptions;
 use tracing::{info, instrument};
 
 pub mod asset;
+pub mod compact_mediafile;
 pub mod episode;
 pub mod error;
 pub mod genre;
@@ -19,6 +20,7 @@ pub mod media;
 pub mod mediafile;
 pub mod movie;
 pub mod progress;
+pub mod query_ext;
 #[cfg(feature = "sqlite")]
 pub mod rw_pool;
 pub mod season;

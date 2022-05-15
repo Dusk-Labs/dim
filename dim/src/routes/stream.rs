@@ -20,6 +20,7 @@ use nightfall::error::NightfallError;
 use nightfall::profiles::*;
 
 use std::future::Future;
+use std::path::Path;
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -27,7 +28,6 @@ use futures::stream;
 use futures::StreamExt;
 
 use tokio::fs::File;
-use tokio::task::spawn_blocking;
 
 use serde_json::json;
 
@@ -308,12 +308,17 @@ pub async fn return_virtual_manifest(
         .map_err(|e| errors::StreamingErrors::NoMediaFileFound(e.to_string()))?;
 
     let target_file = media.target_file.clone();
-    let info = spawn_blocking(move || {
-        FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref()).get_meta(target_file)
-    })
-    .await
-    .unwrap()
-    .map_err(|_| errors::StreamingErrors::FFProbeCtxFailed)?;
+
+    // FIXME: When `fs::try_exists` gets stabilized we should use that as it will allow us to
+    // detect if the user lacks permissions to access the file, etc.
+    if !Path::new(&target_file).exists() {
+        return Err(errors::StreamingErrors::FileDoesNotExist);
+    }
+
+    let info = FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
+        .get_meta(target_file)
+        .await
+        .map_err(|_| errors::StreamingErrors::FFProbeCtxFailed)?;
 
     let mut ms = info
         .get_ms()

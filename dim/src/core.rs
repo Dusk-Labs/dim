@@ -111,6 +111,7 @@ pub async fn warp_core(
         routes::media::filters::delete_media_by_id(conn.clone()),
         routes::media::filters::tmdb_search(conn.clone()),
         routes::media::filters::map_progress(conn.clone()),
+        routes::media::filters::get_mediafile_tree(conn.clone()),
         routes::rematch_media::filters::rematch_media_by_id(conn.clone(), event_tx.clone()),
         /* tv routes */
         routes::tv::filters::get_tv_seasons(conn.clone()),

@@ -1,0 +1,33 @@
+.search-not-found {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  margin-top: 3em;
+
+  svg {
+    font-size: 4em;
+    color: #9c9c9c;
+    margin: auto;
+    padding-bottom: 0.5em;
+  }
+
+  p {
+    margin: auto;
+  }
+
+  .message {
+    font-size: 20px;
+  }
+
+  .query {
+    color: #9c9c9c;
+    font-size: 15px;
+  }
+}
+
+.search-spinner {
+  margin: auto;
+  margin-top: 4.6em;
+  height: 30px;
+  width: 30px;
+}

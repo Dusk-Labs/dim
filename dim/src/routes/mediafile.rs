@@ -1,12 +1,42 @@
 use crate::core::DbConnection;
 use crate::errors;
+use crate::errors::ErrorStatusCode;
+use crate::scanners::tmdb::Tmdb;
 
+use futures::future;
+use futures::stream::FuturesUnordered;
+use futures::FutureExt;
+
+use database::library::MediaType;
 use database::mediafile::MediaFile;
-
 use database::user::User;
+
+use serde::Serialize;
 use serde_json::json;
-use warp::http::status::StatusCode;
+
+use warp::reject::Reject;
 use warp::reply;
+
+use http::StatusCode;
+use tracing::error;
+use tracing::info;
+use tracing::warn;
+
+#[derive(Clone, Debug, thiserror::Error, Serialize, displaydoc::Display)]
+pub enum Error {
+    /// Supplied no mediafiles when rematching.
+    NoMediafiles,
+}
+
+impl Reject for Error {}
+
+impl ErrorStatusCode for Error {
+    fn status_code(&self) -> StatusCode {
+        match self {
+            &Error::NoMediafiles => StatusCode::BAD_REQUEST,
+        }
+    }
+}
 
 pub mod filters {
     use database::user::User;
@@ -38,28 +68,29 @@ pub mod filters {
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         #[derive(Deserialize)]
+        #[serde(deny_unknown_fields)]
         struct RouteArgs {
             tmdb_id: i32,
             media_type: String,
+            mediafiles: Vec<i64>,
         }
 
-        warp::path!("api" / "v1" / "mediafile" / i64 / "match")
+        warp::path!("api" / "v1" / "mediafile" / "match")
             .and(warp::patch())
             .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and(warp::query::query::<RouteArgs>())
+            .and(warp::body::json::<RouteArgs>())
             .and_then(
-                |id: i64,
-                 _auth: User,
+                |_auth: User,
                  conn: DbConnection,
-
                  RouteArgs {
                      tmdb_id,
                      media_type,
+                     mediafiles,
                  }: RouteArgs| async move {
-                    super::rematch_mediafile(conn, id, tmdb_id, media_type)
+                    super::rematch_mediafile(conn, mediafiles, tmdb_id, media_type)
                         .await
-                        .map_err(|e| reject::custom(e))
+                        .map_err(reject::custom)
                 },
             )
     }
@@ -87,7 +118,7 @@ pub async fn get_mediafile_info(
     })))
 }
 
-/// Method mapped to `PATCH /api/v1/mediafile/<id>/match` used to match a unmatched(orphan)
+/// Method mapped to `PATCH /api/v1/mediafile/match` used to match a unmatched(orphan)
 /// mediafile to a tmdb id.
 ///
 /// # Arguments
@@ -96,40 +127,65 @@ pub async fn get_mediafile_info(
 /// * `event_tx` - websocket channel over which we dispatch a event notifying other clients of the
 /// new metadata
 ///
-/// * `id` - id of the orphan mediafile we want to rematch
+/// * `mediafiles` - ids of the orphan mediafiles we want to rematch
 /// * `tmdb_id` - the tmdb id of the proper metadata we want to fetch for the media
 pub async fn rematch_mediafile(
     conn: DbConnection,
-    id: i64,
+    mediafiles: Vec<i64>,
     tmdb_id: i32,
     media_type: String,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    use crate::scanners::tmdb::Tmdb;
-    use database::library::MediaType;
+    if mediafiles.is_empty() {
+        return Err(Error::NoMediafiles.into());
+    }
 
     let mut tx = conn.read().begin().await?;
-    let mediafile = MediaFile::get_one(&mut tx, id).await?;
-    let matcher = crate::scanners::get_matcher_unchecked();
 
-    let mut tmdb = match media_type.to_lowercase().as_ref() {
-        "movie" => Tmdb::new("38c372f5bc572c8aadde7a802638534e".into(), MediaType::Movie),
-        "tv" => Tmdb::new("38c372f5bc572c8aadde7a802638534e".into(), MediaType::Tv),
+    // FIXME: impl FromStr for MediaType
+    let media_type = match media_type.to_lowercase().as_ref() {
+        "movie" | "movies" => MediaType::Movie,
+        "tv" | "tv_show" | "tv show" | "tv shows" => MediaType::Tv,
         _ => return Err(errors::DimError::InvalidMediaType),
     };
 
-    let result = tmdb
-        .search_by_id(tmdb_id)
-        .await
-        .map_err(|_| errors::DimError::NotFoundError)?;
+    info!(?media_type, mediafiles = ?&mediafiles, "Rematching mediafiles");
 
-    match media_type.to_lowercase().as_ref() {
-        "movie" => {
-            matcher
-                .match_movie_to_result(mediafile, result.into())
-                .await?
+    let mediafiles = MediaFile::get_many(&mut tx, &mediafiles).await?;
+    let matcher = crate::scanners::get_matcher_unchecked();
+
+    let mut tmdb = Tmdb::new("38c372f5bc572c8aadde7a802638534e".into(), media_type);
+
+    let result = tmdb.search_by_id(tmdb_id).await.map_err(|e| {
+        error!(?e, "Failed to search for tmdb_id when rematching.");
+        errors::DimError::TmdbIdSearchError(e)
+    })?;
+
+    let futures = FuturesUnordered::new();
+
+    for mediafile in mediafiles {
+        match media_type {
+            MediaType::Movie => {
+                futures.push(
+                    matcher
+                        .match_movie_to_result(mediafile, result.clone().into())
+                        .boxed(),
+                );
+            }
+            MediaType::Tv => {
+                futures.push(
+                    matcher
+                        .match_tv_to_result(mediafile, result.clone().into())
+                        .boxed(),
+                );
+            }
+            _ => unreachable!(),
         }
-        "tv" => matcher.match_tv_to_result(mediafile, result.into()).await?,
-        _ => unreachable!(),
+    }
+
+    for result in future::join_all(futures).await {
+        if let Err(x) = result {
+            warn!(error = ?x, "Failed to rematch a mediafile.");
+        }
     }
 
     Ok(StatusCode::OK)

@@ -1,25 +1,13 @@
 .libraryCards {
   padding: 30px;
-  z-index: 1;
-  position: absolute;
-  width: 100%;
-  pointer-events: none;
-  top: 0;
   opacity: 1;
   transition: 0.3s ease-in-out;
   background: var(--primaryColor);
   transition: padding 300ms ease-in-out, top 300ms ease-in-out,
     opacity 300ms ease-in-out;
   animation: appear 0.5s ease-in-out;
-  height: 100%;
   overflow-y: auto;
   scrollbar-width: thin;
-
-  &.slip-true {
-    border-top: solid 3px var(--tertiaryColor);
-    top: 85vh;
-    opacity: 0.5;
-  }
 
   .desc {
     color: var(--secondaryTextColor);

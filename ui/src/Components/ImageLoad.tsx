@@ -9,8 +9,8 @@ export interface ImageLoadChildrenParams {
 
 interface Props {
   children: (params: ImageLoadChildrenParams) => React.ReactElement;
-  src: string;
-  triggerAnimation: string;
+  src?: string;
+  triggerAnimation?: string;
 }
 
 function ImageLoad(props: Props) {
@@ -42,6 +42,11 @@ function ImageLoad(props: Props) {
     setImageSrc(null);
     setTryAgain(false);
     setTimeoutID(null);
+
+    if (!props.src) {
+      setErr(true);
+      return;
+    }
 
     const src = new RegExp("^(?:[a-z]+:)?//").test(props.src)
       ? props.src
@@ -116,7 +121,15 @@ function ImageLoad(props: Props) {
   );
 
   useEffect(() => {
-    // setShow(true);
+    if (props.triggerAnimation) return;
+
+    console.log("Fetching");
+
+    fetchImage();
+    setTryAgainCount(2);
+  }, [fetchImage, props.triggerAnimation]);
+
+  useEffect(() => {
     if (props.src === currentSrc) return;
     setShow(false);
   }, [currentSrc, props.src]);

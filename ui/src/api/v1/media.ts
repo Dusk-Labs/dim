@@ -1,6 +1,8 @@
 import v1 from "./";
 
 import type { Media } from "./types";
+// We can reuse the UnmatchedMediaFiles type here as its functionally a compact mediafile type.
+import type { UnmatchedMediaFiles } from "./unmatchedMedia";
 
 /**
  * A file associated with a piece of media.
@@ -55,6 +57,9 @@ export const media = v1.injectEndpoints({
     getMediaFiles: build.query<MediaFile[], string>({
       query: (id) => `media/${id}/files`,
     }),
+    getMediaFileTree: build.query<UnmatchedMediaFiles, string>({
+      query: (id) => `media/${id}/tree`,
+    }),
     getMedia: build.query<Media, string>({
       query: (id) => `media/${id}`,
     }),
@@ -69,6 +74,7 @@ export const {
   useGetMediaFilesQuery,
   useGetMediaQuery,
   useGetMediaSeasonsQuery,
+  useGetMediaFileTreeQuery,
 } = media;
 
 export default media;

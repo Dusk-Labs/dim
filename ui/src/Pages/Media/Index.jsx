@@ -11,16 +11,14 @@ import "./Index.scss";
 
 function Media() {
   const { id } = useParams();
-
   const [activeId, setActiveId] = useState(id);
-
   const { data: media } = useGetMediaQuery(id);
 
   return (
     <div className="mediaPage">
       <Banner />
       <div className="mediaContent">
-        <div>
+        <div className="meta-content">
           <MetaContent activeId={activeId} />
         </div>
         {media && media.media_type === "tv" && (
