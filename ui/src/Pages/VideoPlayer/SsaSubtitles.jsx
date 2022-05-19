@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 import { VideoPlayerContext } from "./Context";
 
-import SubtitleOctopus from "libass-wasm/dist/js/subtitles-octopus";
+import SubtitleOctopus from "@jellyfin/libass-wasm/dist/js/subtitles-octopus";
 
 import "./Subtitles.scss";
 
