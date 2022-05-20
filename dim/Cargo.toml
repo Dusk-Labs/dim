@@ -68,6 +68,10 @@ image = "0.24.3"
 parking_lot = "0.12.0"
 dashmap = "5.3.3"
 governor = "0.4.2"
+itertools = "0.10.3"
+
+# FIXME: Remove when we get rid of xtra_proc
+new_xtra = { package = "xtra", git = "https://github.com/Restioson/xtra", features = ["with-tokio-1"] }
 
 [build-dependencies]
 fs_extra = "1.1.0"
@@ -79,4 +83,5 @@ nix = "0.20.0"
 zip = "0.5.10"
 
 [dev-dependencies]
+serial_test = "0.6.0"
 tempfile = "3.3.0"
