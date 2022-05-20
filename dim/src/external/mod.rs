@@ -8,6 +8,8 @@ use serde::Deserialize;
 use serde::Serialize;
 use thiserror::Error;
 
+pub mod tmdb;
+
 pub type Result<T> = ::core::result::Result<T, Error>;
 
 #[derive(Clone, Display, Debug, Error, Serialize)]
@@ -28,6 +30,13 @@ pub enum Error {
     NoGenreFound { id: u64 },
     /// Other error
     OtherError(#[serde(skip)] Arc<dyn std::error::Error>),
+}
+
+impl Error {
+    pub fn other(error: impl std::error::Error + 'static) -> Self {
+        let err = Arc::new(error);
+        Self::OtherError(err)
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd)]
@@ -82,6 +91,21 @@ pub struct ExternalActor {
     pub external_id: String,
     pub name: String,
     pub character: String,
+}
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+pub enum MediaType {
+    Movie,
+    Tv,
+}
+
+impl std::fmt::Display for MediaType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MediaType::Movie => write!(f, "movie"),
+            MediaType::Tv => write!(f, "tv"),
+        }
+    }
 }
 
 /// Trait that must be implemented by external metadata agents which allows the scanners to query
