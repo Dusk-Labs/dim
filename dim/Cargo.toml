@@ -63,6 +63,10 @@ tracing-tree = "0.2.0"
 thiserror = "1.0.30"
 displaydoc = "0.2.3"
 fuzzy-matcher = "0.3.7"
+itertools = "0.10.3"
+
+# FIXME: Remove when we get rid of xtra_proc
+new_xtra = { package = "xtra", git = "https://github.com/Restioson/xtra", features = ["with-tokio-1"] }
 
 [build-dependencies]
 fs_extra = "1.1.0"
@@ -74,4 +78,5 @@ nix = "0.20.0"
 zip = "0.5.10"
 
 [dev-dependencies]
+serial_test = "0.6.0"
 tempfile = "3.3.0"
