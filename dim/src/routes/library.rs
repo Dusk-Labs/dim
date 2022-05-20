@@ -20,15 +20,15 @@ use std::collections::HashMap;
 use warp::http::StatusCode;
 use warp::reply;
 
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 
 use tracing::error;
 use tracing::info;
 use tracing::instrument;
 
-use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
+use fuzzy_matcher::FuzzyMatcher;
 
 pub mod filters {
     use warp::reject;
@@ -131,7 +131,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         #[derive(Deserialize)]
         struct Args {
-            search: Option<String>
+            search: Option<String>,
         }
 
         warp::path!("api" / "v1" / "library" / i64 / "unmatched")
@@ -139,11 +139,13 @@ pub mod filters {
             .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
             .and(warp::filters::query::query::<Args>())
-            .and_then(|id: i64, user: User, conn: DbConnection, Args { search }: Args| async move {
-                super::get_all_unmatched_media(conn, id, user, search)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
+            .and_then(
+                |id: i64, user: User, conn: DbConnection, Args { search }: Args| async move {
+                    super::get_all_unmatched_media(conn, id, user, search)
+                        .await
+                        .map_err(|e| reject::custom(e))
+                },
+            )
     }
 }
 
@@ -335,7 +337,7 @@ pub async fn get_all_unmatched_media(
     conn: DbConnection,
     id: i64,
     _user: User,
-    search: Option<String>
+    search: Option<String>,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
 
@@ -353,8 +355,9 @@ pub async fn get_all_unmatched_media(
             .into_iter()
             .filter_map(|x| {
                 let file_string = x.target_file.to_string_lossy();
-                
-                matcher.fuzzy_match(&file_string, &search)
+
+                matcher
+                    .fuzzy_match(&file_string, &search)
                     .map(|score| (x, score))
             })
             .collect::<Vec<_>>();
