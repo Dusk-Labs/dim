@@ -36,6 +36,8 @@ pub mod fetcher;
 pub mod logger;
 /// Contains all of the routes exposed by the webapi.
 pub mod routes;
+/// New generation scanner infrastructure.
+pub mod scanner;
 /// Contains our media scanners and so on.
 pub mod scanners;
 /// Contains the fairing which tracks streams across rest api
