@@ -39,10 +39,7 @@ pub enum TmdbError {
     /// Could not find genre with supplied id: {id}
     NoGenreFound { id: u64 },
     /// Failed to search for id {id} in tmdb: {response:?}
-    SearchByIdNotFound {
-        id: i32,
-        response: ServerError,
-    },
+    SearchByIdNotFound { id: i32, response: ServerError },
     /// Failed to deserialize server error: {0}
     ErrorDeserializationError(String),
 }
