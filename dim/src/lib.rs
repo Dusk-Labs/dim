@@ -28,6 +28,8 @@ use tracing_subscriber::EnvFilter;
 pub mod core;
 /// Module contains all the error definitions used in dim, and returned by the web-service.
 pub mod errors;
+/// Module contains our external api interfaces
+pub mod external;
 /// Contains the code for fetching assets like posters and stills.
 pub mod fetcher;
 /// Contains our custom logger for rocket
