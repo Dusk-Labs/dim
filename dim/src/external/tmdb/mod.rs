@@ -1,5 +1,6 @@
 // #![deny(warnings)]
 
+use std::collections::HashMap;
 use std::future::Future;
 use std::marker::PhantomData;
 
@@ -29,19 +30,30 @@ struct SearchResponse {
 
 #[derive(Deserialize, Clone, Debug)]
 struct TMDBMediaObject {
-    pub id: u64,
+    id: u64,
     #[serde(rename(deserialize = "title", deserialize = "name"))]
-    pub title: String,
+    title: String,
     #[serde(rename(deserialize = "release_date", deserialize = "first_air_date"))]
-    pub release_date: Option<String>,
-    pub overview: Option<String>,
-    pub vote_average: Option<f64>,
-    pub poster_path: Option<String>,
-    pub backdrop_path: Option<String>,
-    pub genre_ids: Option<Vec<u64>>,
+    release_date: Option<String>,
+    overview: Option<String>,
+    vote_average: Option<f64>,
+    poster_path: Option<String>,
+    backdrop_path: Option<String>,
+    genre_ids: Option<Vec<u64>>,
     #[serde(skip_deserializing)]
-    pub genres: Vec<String>,
-    pub runtime: Option<u64>,
+    genres: Vec<String>,
+    runtime: Option<u64>,
+}
+
+#[derive(Deserialize)]
+struct GenreList {
+    genres: Vec<Genre>,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct Genre {
+    id: u64,
+    name: String,
 }
 
 // -- TMDBClient
@@ -54,36 +66,58 @@ enum TMDBClientRequestError {
     ReqwestError(#[from] Arc<reqwest::Error>),
 }
 
+impl TMDBClientRequestError {
+    fn reqwest(err: reqwest::Error) -> Self {
+        Self::ReqwestError(Arc::new(err))
+    }
+}
+
 /// Internal TMDB client type used for building and making requests.
 struct TMDBClient {
     provider: TMDBMetadataProvider,
 }
 
 impl TMDBClient {
-    async fn genre_detail(&self, genre_id: u64) -> Result<String, TMDBClientRequestError> {
-        let url = format!("{TMDB_BASE_URL}/genre/{genre_id}/list");
-        let args: Vec<_> = vec![("api_key", self.provider.api_key.as_ref())]
+    fn make_request<A, T>(
+        &self,
+        args: A,
+        path: String,
+    ) -> impl Future<Output = Result<String, TMDBClientRequestError>>
+    where
+        A: IntoIterator<Item = (T, T)>,
+        T: ToString,
+    {
+        let url = format!("{TMDB_BASE_URL}{path}");
+        let args: Vec<_> = args
             .into_iter()
             .map(|(k, v)| (k.to_string(), v.to_string()))
             .collect();
 
-        let req = self
-            .provider
-            .http_client
-            .get(url)
-            .query(&args)
-            .send()
-            .await
-            .map_err(|err| TMDBClientRequestError::ReqwestError(Arc::new(err)))?;
+        let request = self.provider.http_client.get(url).query(&args);
 
-        let body = req
-            .bytes()
-            .await
-            .map_err(|err| TMDBClientRequestError::ReqwestError(Arc::new(err)))?;
+        async move {
+            let response = request
+                .send()
+                .await
+                .map_err(TMDBClientRequestError::reqwest)?;
 
-        std::str::from_utf8(&body)
-            .map_err(|_| TMDBClientRequestError::InvalidUTF8Body)
-            .map(|st| st.to_string())
+            let body = response
+                .bytes()
+                .await
+                .map_err(TMDBClientRequestError::reqwest)?;
+
+            std::str::from_utf8(&body)
+                .map_err(|_| TMDBClientRequestError::InvalidUTF8Body)
+                .map(|st| st.to_string())
+        }
+    }
+
+    async fn genre_list(&self, media_type: MediaType) -> Result<String, TMDBClientRequestError> {
+        self.make_request(
+            vec![("api_key", self.provider.api_key.as_ref())],
+            format!("/genre/{media_type}/list"),
+        )
+        .await
     }
 
     async fn search(
@@ -92,8 +126,7 @@ impl TMDBClient {
         title: &str,
         year: Option<i32>,
     ) -> Result<String, TMDBClientRequestError> {
-        let url = format!("{TMDB_BASE_URL}/search/{media_type}");
-        let args: Vec<_> = vec![
+        let mut args = vec![
             ("api_key", self.provider.api_key.as_ref()),
             ("language", "en-US"),
             ("query", title),
@@ -105,26 +138,10 @@ impl TMDBClient {
         .chain(
             year.into_iter()
                 .map(|n| ("year".to_string(), n.to_string())),
-        )
-        .collect();
+        );
 
-        let req = self
-            .provider
-            .http_client
-            .get(url)
-            .query(&args)
-            .send()
+        self.make_request(args, format!("/search/{media_type}"))
             .await
-            .map_err(|err| TMDBClientRequestError::ReqwestError(Arc::new(err)))?;
-
-        let body = req
-            .bytes()
-            .await
-            .map_err(|err| TMDBClientRequestError::ReqwestError(Arc::new(err)))?;
-
-        std::str::from_utf8(&body)
-            .map_err(|_| TMDBClientRequestError::InvalidUTF8Body)
-            .map(|st| st.to_string())
     }
 }
 
@@ -142,6 +159,8 @@ type CacheMap = Arc<dashmap::DashMap<CacheKey, RwLock<Option<CacheValue>>>>;
 enum CacheKey {
     /// A search result
     Search { title: String, year: Option<i32> },
+    /// Genre List
+    GenreList { media_type: MediaType },
 }
 
 type PendingRequestTx = broadcast::Sender<Result<Arc<str>, TMDBClientRequestError>>;
@@ -296,28 +315,69 @@ impl TMDBMetadataProvider {
 
         let st = self
             .coalesce_request(&key, |client| async move {
-                let body = client
+                client
                     .search(media_type, &title, year)
                     .await
-                    .map(|st| st.into_boxed_str().into());
-
-                body
+                    .map(|st| st.into_boxed_str().into())
             })
             .await?;
 
-        let search = serde_json::from_str::<SearchResponse>(&st).map_err(Error::other)?;
+        let mut search = serde_json::from_str::<SearchResponse>(&st).map_err(Error::other)?;
 
-        for media in search.results.iter_mut() {
-            if let Some(media_object) = media {
-                let key = CacheKey::GenreDetail {
-                    id: media_object.genre_ids,
-                };
+        // fill in the genre names for the search results.
+        {
+            let key = CacheKey::GenreList { media_type };
+            let st = self
+                .coalesce_request(&key, |client| async move {
+                    client
+                        .genre_list(media_type)
+                        .await
+                        .map(|st| st.into_boxed_str().into())
+                })
+                .await?;
 
-                self.coalesce_request(key, make_request_future)
+            let genre_list = serde_json::from_str::<GenreList>(&st).map_err(Error::other)?;
+
+            let mut genre_id_cache = HashMap::<u64, Genre>::with_capacity(search.results.len());
+            for media in search.results.iter_mut() {
+                if let Some(TMDBMediaObject {
+                    genre_ids: Some(ids),
+                    genres,
+                    ..
+                }) = media
+                {
+                    for genre_id in ids.clone() {
+                        if let Some(genre) = genre_id_cache.get(&genre_id) {
+                            genres.push(genre.name.clone());
+                        } else if let Some(genre) =
+                            genre_list.genres.iter().find(|x| x.id == genre_id)
+                        {
+                            genre_id_cache.insert(genre_id, genre.clone());
+                            genres.push(genre.name.clone());
+                        }
+                    }
+                }
             }
         }
 
-        todo!()
+        let media = search
+            .results
+            .into_iter()
+            .flatten()
+            .map(|media| ExternalMedia {
+                external_id: media.id.to_string(),
+                title: media.title,
+                description: media.description,
+                release_date: media.release_date,
+                posters: media.poster_path,
+                backdrops: media.backdrop_path,
+                genres: media.genres,
+                rating: media.vote_average,
+                duration: media.runtime,
+            })
+            .collect::<Vec<_>>();
+
+        Ok(media)
     }
 
     async fn search_by_id(&self, external_id: &str) -> QueryResult<ExternalMedia> {

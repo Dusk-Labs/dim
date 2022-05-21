@@ -93,7 +93,7 @@ pub struct ExternalActor {
     pub character: String,
 }
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum MediaType {
     Movie,
     Tv,
