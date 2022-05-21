@@ -41,7 +41,7 @@ async fn create_library(conn: &mut database::DbConnection) -> i64 {
 #[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_construct_mediafile() {
-    let files = (0..4096)
+    let files = (0..512)
         .map(|i| format!("Movie{i}.mkv"))
         .collect::<Vec<String>>();
     let (tempdir, files) = super::temp_dir_symlink(files.into_iter(), super::TEST_MP4_PATH);
@@ -98,7 +98,7 @@ async fn test_construct_mediafile() {
 #[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_multiple_instances() {
-    let files = (0..4096)
+    let files = (0..2048)
         .map(|i| format!("Movie{i}.mkv"))
         .collect::<Vec<String>>();
     let (tempdir, files) = super::temp_dir_symlink(files.into_iter(), super::TEST_MP4_PATH);
@@ -150,13 +150,18 @@ async fn test_multiple_instances() {
 
     let mut insert_futures = vec![];
 
-    for (chunk, addr) in insertables.chunks(128).zip(instances.iter()) {
+    for (chunk, addr) in insertables.chunks(128).zip(instances.iter().cycle()) {
         let addr = addr.clone();
         insert_futures.push(async move {
-            addr.send(InsertBatch(chunk.into_iter().cloned().collect()))
+            let chunk_len = chunk.len();
+            let result = addr.send(InsertBatch(chunk.into_iter().cloned().collect()))
                 .await
                 .expect("Addr got dropped")
-                .expect("Failed to insert batch")
+                .expect("Failed to insert batch");
+
+            assert_eq!(result.len(), chunk_len);
+
+            result
         });
     }
 

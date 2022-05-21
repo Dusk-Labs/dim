@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: sudo apt-get update
-      - run: sudo apt-get install -y libva-dev libva-drm2 libva2 sqlite3
+      - run: sudo apt-get install -y libva-dev libva-drm2 libva2 sqlite3 ffmpeg
       - uses: actions/checkout@v2
 
       - name: Download UI artifacts
