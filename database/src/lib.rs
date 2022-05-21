@@ -42,7 +42,7 @@ lazy_static::lazy_static! {
     static ref MIGRATIONS_FLAG: AtomicBool = AtomicBool::new(false);
 }
 
-static __GLOBAL: OnceCell<crate::DbConnection> = OnceCell::new();
+static __GLOBAL: OnceCell<DbConnection> = OnceCell::new();
 const MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("./migrations/");
 
 /// Function runs all migrations embedded to make sure the database works as expected.

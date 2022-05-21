@@ -130,7 +130,6 @@ impl Default for UserSettings {
     }
 }
 
-// NOTE: Figure out the bug with this not being a valid postgres type
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
 pub enum Role {
     Owner,
@@ -190,10 +189,6 @@ pub struct User {
 
 impl User {
     /// Method gets all entries from the table users.
-    ///
-    /// # Arguments
-    ///
-    /// * `&` - postgres &ection
     pub async fn get_all(conn: &mut crate::Transaction<'_>) -> Result<Vec<Self>, DatabaseError> {
         Ok(
             sqlx::query!(
@@ -256,7 +251,6 @@ impl User {
     /// Method gets one entry from the table users based on the username supplied and password.
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
     /// * `uname` - username we wish to target and delete
     /// * `pw_hash` - hash of the password for the user we are trying to access
     pub async fn authenticate(
@@ -302,7 +296,6 @@ impl User {
     /// NOTE: Return should always be 1
     ///
     /// # Arguments
-    /// * `&` - postgres &ection
     /// * `uname` - username we wish to target and delete
     pub async fn delete(
         conn: &mut crate::Transaction<'_>,
@@ -385,12 +378,8 @@ pub struct InsertableUser {
 }
 
 impl InsertableUser {
-    /// Method consumes a InsertableUser object and inserts the values under it into postgres users
+    /// Method consumes a InsertableUser object and inserts the values under it into database
     /// table as a new user
-    ///
-    /// # Arguments
-    /// * `self` - instance of InsertableUser which gets consumed
-    /// * `&` - postgres &ection
     pub async fn insert(self, conn: &mut crate::Transaction<'_>) -> Result<User, DatabaseError> {
         let Self {
             username,

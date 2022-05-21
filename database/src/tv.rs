@@ -13,10 +13,6 @@ pub struct TVShow {
 
 impl TVShow {
     /// Method returns all the tv shows in the database.
-    ///
-    /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
-    ///
     pub async fn get_all(conn: &mut crate::Transaction<'_>) -> Result<Vec<Media>, DatabaseError> {
         Ok(sqlx::query_as!(
             Media,
@@ -105,7 +101,6 @@ impl TVShow {
     /// Method inserts a new tv show in the database.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
     /// * `id` - id of a media object that should be a tv show.
     pub async fn insert(conn: &mut crate::Transaction<'_>, id: i64) -> Result<i64, DatabaseError> {
         Ok(sqlx::query!("INSERT INTO tv_show (id) VALUES ($1)", id)

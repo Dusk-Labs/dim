@@ -37,7 +37,6 @@ impl Default for MediaType {
 /// Library struct which we can use to deserialize database queries into.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Library {
-    /// unique id provided by postgres
     pub id: i64,
     /// unique name of the library
     pub name: String,
