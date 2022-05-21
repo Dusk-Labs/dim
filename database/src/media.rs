@@ -12,7 +12,7 @@ pub trait MediaTrait {}
 /// show. This struct is returned by several methods and can be serialized to json.
 #[derive(Clone, Serialize, Deserialize, Debug, Default)]
 pub struct Media {
-    /// unique id automatically assigned by postgres.
+    /// unique id.
     pub id: i64,
     /// id of the library that this media objects belongs to.
     pub library_id: i64,

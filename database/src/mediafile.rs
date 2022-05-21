@@ -11,7 +11,7 @@ use std::iter::repeat;
 /// information which the video player on the front end might require.
 #[derive(Serialize, PartialEq, Debug, Clone, sqlx::FromRow)]
 pub struct MediaFile {
-    /// Unique identifier provided by postgres
+    /// Unique identifier of a mediafile.
     pub id: i64,
     /// Foreign key linking this entry to the media table or [`Media`](Media) struct
     pub media_id: Option<i64>,

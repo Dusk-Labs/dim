@@ -7,8 +7,6 @@ build = "src/build.rs"
 
 [features]
 default = ["sqlite"]
-
-postgres = ["sqlx/postgres"]
 sqlite = ["sqlx/sqlite"]
 
 [dependencies]

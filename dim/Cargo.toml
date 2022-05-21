@@ -13,7 +13,6 @@ vaapi = ["nightfall/vaapi"]
 # the build script usually will enable this if `yarn` is installed.
 # If enabled explicitly, the build script will panic if something went wrong.
 embed_ui = []
-postgres = ["database/postgres"]
 sqlite = ["database/sqlite"]
 
 [dependencies]

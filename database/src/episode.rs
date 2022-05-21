@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Serialize, Debug)]
 pub struct Episode {
     #[serde(skip_serializing)]
-    /// Unique id provided by postgres
     pub id: i64,
     /// Season id foreign_key
     pub seasonid: i64,
@@ -324,7 +323,6 @@ impl Episode {
     /// Method deletes a episode based on the tv show id, season number, and episode number
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
     /// * `id` - The id of a tv show we target
     /// * `season_num` - The season we are targetting
     /// * `ep_num` - Episode we are targetting
@@ -347,9 +345,6 @@ pub struct InsertableEpisode {
 
 impl InsertableEpisode {
     /// Method inserts a new episode into the database
-    ///
-    /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
     pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
         if let Some(r) = sqlx::query!(
             r#"SELECT id as "id!" FROM episode WHERE episode.seasonid = ? AND episode.episode_ = ?"#,
@@ -403,7 +398,6 @@ impl UpdateEpisode {
     /// Method updates the rows of a episode.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
     /// * `id` - id of the episode we wish to update.
     pub async fn update(
         &self,
