@@ -65,12 +65,19 @@ pub enum Error {
 /// free up. This is done as an optimization so that we don't have so many instances of this
 /// that we start contending over the database lock, inducing timeouts and performance bottlenecks.
 pub struct MediafileCreator {
+    /// Pool of database connections.
     conn: DbConnection,
+    /// Library which we will assign as the owner of the mediafiles inserted by this instance.
     library_id: i64,
+    /// Represents a permit that we must own for the lifetime of the instance of `Self`. It is
+    /// important that we use permits so that we can control how many instances of `Self` exist at
+    /// any point in time.
     _permit: SemaphorePermit<'static>,
 }
 
 impl MediafileCreator {
+    /// Create a new instance of `MediafileCreator`. A instance will be returned once a slot in our
+    /// sempahore frees up.
     pub async fn new(conn: DbConnection, library_id: i64) -> Self {
         // NOTE: This will never panic because `SEMPAHORE` will never be dropped.
         let permit = SEMPAHORE
@@ -85,6 +92,20 @@ impl MediafileCreator {
         }
     }
 
+    /// Method constructs a `InsertableMediaFile` from a path to a file and the metadata extracted
+    /// from its filename. In addition to using metadata from the filename, it also spawns ffprobe
+    /// to obtain stream information. This method can be called concurrently.
+    ///
+    /// # Return
+    /// In addition to normal errors, this method can return `Error::FileExists`. In this case,
+    /// this method has identified that a file with the path passed already exists in the database.
+    /// This isnt a hard error and is simply meant to reduce database load. This error can just be
+    /// skipped.
+    ///
+    /// # Database access
+    /// This method creates one read-only database transaction and it should not affect the
+    /// concurrency of read-write transactions.
+    #[tracing::instrument(skip(self))]
     pub async fn construct_mediafile(
         &self,
         file: PathBuf,
@@ -102,6 +123,7 @@ impl MediafileCreator {
                 .begin()
                 .await
                 .map_err(Error::FailedToAcquireReader)?;
+
             if MediaFile::exists_by_file(&mut tx, &target_file).await {
                 return Err(Error::FileExists);
             }
@@ -153,6 +175,22 @@ impl MediafileCreator {
         })
     }
 
+    /// Method will insert a batch of `InsertableMediaFile` within the context of one transaction.
+    /// Before inserting a file it will attempt to look up if it is already in the database, and if
+    /// so it will skip it.
+    ///
+    /// For better parallelism, this method can be called through the `Actor` interface.
+    ///
+    /// # Return
+    /// Method will return a list of mediafiles that should now be in the database.
+    ///
+    /// # Tracing spans
+    /// Method instruments several futures:
+    ///
+    /// * `mediafile_insert` - tracks when a insert operation is called.
+    /// * `mediafile_select` - tracks the select for a mediafile that happens after a insert.
+    /// * `database_commit` - tracks when a database commit happens.
+    #[tracing::instrument(skip(self, batch))]
     pub async fn insert_batch<'a>(
         &mut self,
         batch: impl Iterator<Item = &'a InsertableMediaFile>,
