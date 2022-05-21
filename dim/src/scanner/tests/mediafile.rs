@@ -5,6 +5,7 @@ use super::super::parse_filenames;
 
 use database::library::InsertableLibrary;
 use database::library::MediaType;
+use database::mediafile::MediaFile;
 use database::mediafile::InsertableMediaFile;
 
 use itertools::Itertools;
@@ -17,8 +18,6 @@ use futures::FutureExt;
 
 use new_xtra::spawn::Tokio;
 use new_xtra::Actor;
-
-use serial_test::serial;
 
 async fn create_library(conn: &mut database::DbConnection) -> i64 {
     let mut lock = conn.writer().lock_owned().await;
@@ -39,7 +38,6 @@ async fn create_library(conn: &mut database::DbConnection) -> i64 {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-#[serial]
 async fn test_construct_mediafile() {
     let files = (0..512)
         .map(|i| format!("Movie{i}.mkv"))
@@ -92,11 +90,28 @@ async fn test_construct_mediafile() {
         );
     }
 
+    // We should have inserted all the files as they dont exist in the database.
     assert_eq!(mediafiles.len(), files.len());
+
+
+    // All the files in `insertables` should already exist in the database, thus this should return
+    // `0`.
+    for chunk in insertables.chunks(128) {
+        let files = instance
+            .insert_batch(chunk.iter())
+            .await
+            .expect("Failed to insert batch.");
+
+        assert_eq!(files.len(), 0);
+    }
+
+    // At this point we should have 512 files in the database.
+    let mut tx = conn.read().begin().await.unwrap();
+    let files_in_db = MediaFile::get_by_lib_null_media(&mut tx, library).await.expect("Failed to get mediafiles.");
+    assert_eq!(files_in_db.len(), files.len());
 }
 
 #[tokio::test(flavor = "multi_thread")]
-#[serial]
 async fn test_multiple_instances() {
     let files = (0..2048)
         .map(|i| format!("Movie{i}.mkv"))
