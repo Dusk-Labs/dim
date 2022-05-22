@@ -1,5 +1,5 @@
 mod file_walker;
-mod mediafile;
+pub(crate) mod mediafile;
 
 use std::fs::hard_link;
 use std::fs::File;

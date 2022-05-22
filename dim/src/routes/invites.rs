@@ -29,7 +29,7 @@ use warp::reply;
 ///
 /// # Response
 /// The route will return a response with the following schema
-/// ```
+/// ```no_compile
 /// [
 ///   {
 ///     "id": String,
@@ -41,7 +41,7 @@ use warp::reply;
 /// ```
 ///
 /// ## Example
-/// ```
+/// ```no_compile
 /// [
 ///   {
 ///     "id": "079a38b4-d39f-4a9e-9a18-964f225b75d3",
@@ -119,14 +119,14 @@ pub async fn get_all_invites(
 ///
 /// # Response
 /// The route will return a response with the following schema
-/// ```
+/// ```no_compile
 /// {
 ///   "token": String,
 /// }
 /// ```
 ///
 /// ## Example
-/// ```
+/// ```no_compile
 /// {
 ///   "token": "844caa7b-f54f-a9ea-4444-555555555555",
 /// }

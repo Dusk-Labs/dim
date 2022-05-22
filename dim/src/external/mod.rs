@@ -33,7 +33,7 @@ pub enum Error {
     OtherError(#[serde(skip)] Arc<dyn std::error::Error>),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd)]
+#[derive(Default, Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub struct ExternalMedia {
     /// String representation of the id for this media object.
     pub external_id: String,

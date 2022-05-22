@@ -3,7 +3,7 @@
 //! # Errors
 //! All routes can error out. If some unexpected behavior has occured, the server will return a non
 //! 2XX HTTP code, alongside the error and error description encoded with the following format:
-//! ```
+//! ```no_compile
 //! {
 //!   "error": "<error type>",
 //!   "message": "<error message>"

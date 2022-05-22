@@ -98,7 +98,7 @@ pub mod filters {
 /// # Response
 /// If authentication is successful, this method will return status `200 0K` as well as a
 /// authentication token.
-/// ```
+/// ```no_compile
 /// {
 ///   "token": "...."
 /// }
@@ -158,7 +158,7 @@ pub async fn admin_exists(conn: DbConnection) -> Result<impl warp::Reply, errors
 /// # Response
 /// If a user is successfully created, this method will return status `200 0K` as well as the
 /// create user's username.
-/// ```
+/// ```no_compile
 /// {
 ///   "username": "...."
 /// }

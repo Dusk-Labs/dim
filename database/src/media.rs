@@ -328,14 +328,13 @@ impl InsertableMedia {
     /// Method used to insert a new media object. Caller can optionally specify a media id if they
     /// wish to reuse a media object.
     #[tracing::instrument(skip(self, conn), fields(self.name = %self.name, self.library_id = %self.library_id))]
-    pub async fn insert(&self, conn: &mut crate::Transaction<'_>, id: Option<i64>) -> Result<i64, DatabaseError> {
+    pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
         // NOTE: ON CONFLICT is removed as conflicts cant happen because writes are serialized.
         let id = sqlx::query!(
-            r#"INSERT INTO _tblmedia (id, library_id, name, description, rating, year, added, poster, backdrop, media_type)
-            VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10)
+            r#"INSERT INTO _tblmedia (library_id, name, description, rating, year, added, poster, backdrop, media_type)
+            VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)
             RETURNING id
             "#,
-            id,
             self.library_id,
             self.name,
             self.description,
@@ -360,10 +359,20 @@ impl InsertableMedia {
         conn: &mut crate::Transaction<'_>,
         id: i64,
     ) -> Result<i64, DatabaseError> {
-
         sqlx::query!(
             r#"INSERT INTO _tblmedia (id, library_id, name, description, rating, year, added, poster, backdrop, media_type)
             VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10)
+            ON CONFLICT(id) DO UPDATE SET
+            id = excluded.id,
+            library_id = excluded.library_id,
+            name = excluded.name,
+            description = excluded.description,
+            rating = excluded.rating,
+            year = excluded.year,
+            added = excluded.added,
+            poster = excluded.poster,
+            backdrop = excluded.backdrop,
+            media_type = excluded.media_type
             "#,
             id,
             self.library_id,

@@ -174,7 +174,7 @@ impl<'a> MovieMatcher<'a> {
         let media_id = if let Some(id) = reuse_media_id {
             media.insert_with_id(&mut *tx, id).await?
         } else {
-            media.insert(&mut *tx, None).await?
+            media.insert(&mut *tx).await?
         };
         // the reason we ignore the result here is that in some cases this can fail. Specifically when there are multiple mediafiles for a movie.
         let _ = InsertableMovie::insert(&mut *tx, media_id).await;

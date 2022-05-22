@@ -179,7 +179,7 @@ impl<'a> TvShowMatcher<'a> {
         let media_id = if let Some(id) = reuse_media_id {
             media.insert_with_id(&mut *tx, id).await?
         } else {
-            media.insert(&mut *tx, None).await?
+            media.insert(&mut *tx).await?
         };
 
         let _ = TVShow::insert(&mut *tx, media_id).await;

@@ -12,7 +12,7 @@ pub async fn insert_tv(conn: &mut crate::Transaction<'_>) -> i64 {
         library_id: 1,
         name: "TestMedia".into(),
         description: None,
-        rating: Some(10),
+        rating: Some(10.0),
         year: Some(2020),
         added: "Test".into(),
         poster: None,
