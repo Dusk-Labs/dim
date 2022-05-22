@@ -143,7 +143,7 @@ impl<'a> MovieMatcher<'a> {
             library_id: orphan.library_id,
             name,
             description: result.overview.clone(),
-            rating: result.rating.map(|x| x as i64),
+            rating: result.rating,
             year,
             added: Utc::now().to_string(),
 
@@ -174,7 +174,7 @@ impl<'a> MovieMatcher<'a> {
         let media_id = if let Some(id) = reuse_media_id {
             media.insert_with_id(&mut *tx, id).await?
         } else {
-            media.insert(&mut *tx).await?
+            media.insert(&mut *tx, None).await?
         };
         // the reason we ignore the result here is that in some cases this can fail. Specifically when there are multiple mediafiles for a movie.
         let _ = InsertableMovie::insert(&mut *tx, media_id).await;

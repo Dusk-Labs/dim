@@ -238,6 +238,16 @@ impl Media {
         .unwrap_or(0)
     }
 
+    pub async fn get_id_by_name(
+        tx: &mut crate::Transaction<'_>,
+        name: &str
+    ) -> Result<Option<i64>, DatabaseError> {
+        Ok(sqlx::query!(r#"SELECT id FROM _tblmedia where name = ?"#, name)
+            .fetch_optional(&mut *tx)
+            .await?
+            .map(|x| x.id))
+    }
+
     pub async fn media_mediatype(
         conn: &mut crate::Transaction<'_>,
         id: i64,
@@ -306,7 +316,7 @@ pub struct InsertableMedia {
     pub library_id: i64,
     pub name: String,
     pub description: Option<String>,
-    pub rating: Option<i64>,
+    pub rating: Option<f64>,
     pub year: Option<i64>,
     pub added: String,
     pub poster: Option<i64>,
@@ -315,26 +325,17 @@ pub struct InsertableMedia {
 }
 
 impl InsertableMedia {
-    /// Method used to insert a new media object.
-    ///
-    /// # Arguments
-    /// * `conn` - mutable reference to a sqlx transaction.
+    /// Method used to insert a new media object. Caller can optionally specify a media id if they
+    /// wish to reuse a media object.
     #[tracing::instrument(skip(self, conn), fields(self.name = %self.name, self.library_id = %self.library_id))]
-    pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
-        if let Some(record) = sqlx::query!(r#"SELECT id FROM _tblmedia where name = ?"#, self.name)
-            .fetch_optional(&mut *conn)
-            .await?
-        {
-            return Ok(record.id);
-        }
-
+    pub async fn insert(&self, conn: &mut crate::Transaction<'_>, id: Option<i64>) -> Result<i64, DatabaseError> {
+        // NOTE: ON CONFLICT is removed as conflicts cant happen because writes are serialized.
         let id = sqlx::query!(
-            r#"INSERT INTO _tblmedia (library_id, name, description, rating, year, added, poster, backdrop, media_type)
-            VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)
-            ON CONFLICT DO UPDATE
-            SET name = $2
-            RETURNING _tblmedia.id as "id!: i64"
+            r#"INSERT INTO _tblmedia (id, library_id, name, description, rating, year, added, poster, backdrop, media_type)
+            VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10)
+            RETURNING id
             "#,
+            id,
             self.library_id,
             self.name,
             self.description,
@@ -359,12 +360,6 @@ impl InsertableMedia {
         conn: &mut crate::Transaction<'_>,
         id: i64,
     ) -> Result<i64, DatabaseError> {
-        if let Some(record) = sqlx::query!(r#"SELECT id FROM _tblmedia where name = ?"#, self.name)
-            .fetch_optional(&mut *conn)
-            .await?
-        {
-            return Ok(record.id);
-        }
 
         sqlx::query!(
             r#"INSERT INTO _tblmedia (id, library_id, name, description, rating, year, added, poster, backdrop, media_type)

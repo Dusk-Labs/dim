@@ -149,7 +149,7 @@ impl<'a> TvShowMatcher<'a> {
             year,
             library_id: orphan.library_id,
             description: result.overview.clone(),
-            rating: result.rating.map(|x| x as i64),
+            rating: result.rating,
             added: Utc::now().to_string(),
             poster,
             backdrop,
@@ -179,7 +179,7 @@ impl<'a> TvShowMatcher<'a> {
         let media_id = if let Some(id) = reuse_media_id {
             media.insert_with_id(&mut *tx, id).await?
         } else {
-            media.insert(&mut *tx).await?
+            media.insert(&mut *tx, None).await?
         };
 
         let _ = TVShow::insert(&mut *tx, media_id).await;
