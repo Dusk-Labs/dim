@@ -43,8 +43,5 @@ pub async fn write_tx(
 
     let mut tx = lock.begin().instrument(debug_span!("TxBegin")).await?;
 
-    sqlx::query("END").execute(&mut tx).await?;
-    sqlx::query("BEGIN EXCLUSIVE").execute(&mut tx).await?;
-
     Ok(tx)
 }
