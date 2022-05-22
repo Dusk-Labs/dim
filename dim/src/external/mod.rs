@@ -1,3 +1,6 @@
+/// Module contains a common interface for extracting and obtaining filename metadata.
+pub mod filename;
+
 use async_trait::async_trait;
 
 use std::sync::Arc;
@@ -116,7 +119,7 @@ impl std::fmt::Display for MediaSearchType {
 /// Trait that must be implemented by external metadata agents which allows the scanners to query
 /// for data.
 #[async_trait]
-pub trait ExternalQuery {
+pub trait ExternalQuery: Send + Sync {
     /// Search by title and year. This must return a Vec of `ExternalMedia` sorted by the search
     /// score.
     async fn search(&self, title: &str, year: Option<i32>) -> Result<Vec<ExternalMedia>>;
@@ -125,6 +128,11 @@ pub trait ExternalQuery {
     async fn search_by_id(&self, external_id: &str) -> Result<ExternalMedia>;
     /// Get all actors for a media by external id. Actors must be ordered in order of importance.
     async fn cast(&self, external_id: &str) -> Result<Vec<ExternalActor>>;
+    /// Upcast `self` into `ExternalQueryShow`. It is important that providers that can query for
+    /// tv shows, implements this to return `Some(self)`.
+    fn as_query_show<'a>(&'a self) -> Option<&dyn ExternalQueryShow> {
+        None
+    }
 }
 
 /// Trait must be implemented by all external metadata agents which support querying for tv shows.
