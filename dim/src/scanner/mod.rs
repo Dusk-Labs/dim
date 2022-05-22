@@ -1,17 +1,27 @@
 //! Module contains all the code for the new generation media scanner.
 
 mod mediafile;
+mod movie;
 #[cfg(test)]
 mod tests;
+
+use anitomy::Anitomy;
+use async_trait::async_trait;
+
+use database::mediafile::MediaFile;
+
+use super::external::filename::FilenameMetadata;
+use super::external::filename::Metadata;
+use super::external::ExternalQuery;
 
 use std::ffi::OsStr;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::Arc;
 
-use walkdir::WalkDir;
-
-use torrent_name_parser::Metadata;
+use torrent_name_parser::Metadata as TorrentMetadata;
 use tracing::warn;
+use walkdir::WalkDir;
 
 pub(super) static SUPPORTED_EXTS: &[&str] = &["mp4", "mkv", "avi", "webm"];
 
@@ -46,7 +56,9 @@ pub fn get_subfiles(paths: impl Iterator<Item = impl AsRef<Path>>) -> Vec<PathBu
     files
 }
 
-pub fn parse_filenames(files: impl Iterator<Item = impl AsRef<Path>>) -> Vec<(PathBuf, Metadata)> {
+pub fn parse_filenames(
+    files: impl Iterator<Item = impl AsRef<Path>>,
+) -> Vec<(PathBuf, Vec<Metadata>)> {
     let mut metadata = Vec::new();
 
     for file in files {
@@ -58,13 +70,29 @@ pub fn parse_filenames(files: impl Iterator<Item = impl AsRef<Path>>) -> Vec<(Pa
             }
         };
 
-        match Metadata::from(&filename) {
-            Ok(meta) => metadata.push((file.as_ref().into(), meta)),
-            Err(error) => {
-                warn!(file = ?file.as_ref(), ?error, "Failed to parse the filename and extract metadata.")
-            }
+        let metas = IntoIterator::into_iter([
+            TorrentMetadata::from_str(&filename),
+            Anitomy::from_str(&filename),
+        ])
+        .filter_map(|x| x)
+        .collect::<Vec<_>>();
+
+        if metas.is_empty() {
+            warn!(file = ?file.as_ref(), "Failed to parse the filename and extract metadata.");
+            continue;
         }
+
+        metadata.push((file.as_ref().into(), metas));
     }
 
     metadata
+}
+
+pub struct WorkUnit(pub MediaFile, pub Vec<Metadata>);
+
+/// Trait that must be implemented by a media matcher. Matchers are responsible for fetching their
+/// own external metadata but it is provided a metadata provider at initialization time.
+#[async_trait]
+pub trait MediaMatcher {
+    async fn batch_match(self: Arc<Self>, provider: Arc<dyn ExternalQuery>, work: Vec<WorkUnit>);
 }
