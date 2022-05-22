@@ -19,7 +19,7 @@ use futures::FutureExt;
 use new_xtra::spawn::Tokio;
 use new_xtra::Actor;
 
-async fn create_library(conn: &mut database::DbConnection) -> i64 {
+pub(crate) async fn create_library(conn: &mut database::DbConnection) -> i64 {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await.unwrap();
 

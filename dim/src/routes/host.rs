@@ -17,7 +17,7 @@ use warp::reply;
 /// ```
 ///
 /// # Response
-/// ```
+/// ```no_compile
 /// {
 ///   "exists": bool
 /// }
