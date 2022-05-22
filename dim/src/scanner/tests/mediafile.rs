@@ -5,8 +5,8 @@ use super::super::parse_filenames;
 
 use database::library::InsertableLibrary;
 use database::library::MediaType;
-use database::mediafile::MediaFile;
 use database::mediafile::InsertableMediaFile;
+use database::mediafile::MediaFile;
 
 use itertools::Itertools;
 
@@ -58,7 +58,7 @@ async fn test_construct_mediafile() {
     let mut insertable_futures =
         parsed
             .into_iter()
-            .map(|(path, meta)| instance.construct_mediafile(path, meta).boxed())
+            .map(|(path, meta)| instance.construct_mediafile(path, meta[0].clone()).boxed())
             .chunks(5)
             .into_iter()
             .map(|chunk| chunk.collect())
@@ -93,7 +93,6 @@ async fn test_construct_mediafile() {
     // We should have inserted all the files as they dont exist in the database.
     assert_eq!(mediafiles.len(), files.len());
 
-
     // All the files in `insertables` should already exist in the database, thus this should return
     // `0`.
     for chunk in insertables.chunks(128) {
@@ -107,7 +106,9 @@ async fn test_construct_mediafile() {
 
     // At this point we should have 512 files in the database.
     let mut tx = conn.read().begin().await.unwrap();
-    let files_in_db = MediaFile::get_by_lib_null_media(&mut tx, library).await.expect("Failed to get mediafiles.");
+    let files_in_db = MediaFile::get_by_lib_null_media(&mut tx, library)
+        .await
+        .expect("Failed to get mediafiles.");
     assert_eq!(files_in_db.len(), files.len());
 }
 
@@ -132,7 +133,7 @@ async fn test_multiple_instances() {
     let mut insertable_futures =
         parsed
             .into_iter()
-            .map(|(path, meta)| instance.construct_mediafile(path, meta).boxed())
+            .map(|(path, meta)| instance.construct_mediafile(path, meta[0].clone()).boxed())
             .chunks(5)
             .into_iter()
             .map(|chunk| chunk.collect())
@@ -169,7 +170,8 @@ async fn test_multiple_instances() {
         let addr = addr.clone();
         insert_futures.push(async move {
             let chunk_len = chunk.len();
-            let result = addr.send(InsertBatch(chunk.into_iter().cloned().collect()))
+            let result = addr
+                .send(InsertBatch(chunk.into_iter().cloned().collect()))
                 .await
                 .expect("Addr got dropped")
                 .expect("Failed to insert batch");

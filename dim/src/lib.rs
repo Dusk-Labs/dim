@@ -32,6 +32,8 @@ pub mod errors;
 pub mod external;
 /// Contains the code for fetching assets like posters and stills.
 pub mod fetcher;
+/// Inspect api for Result type
+pub mod inspect;
 /// Contains our custom logger for rocket
 pub mod logger;
 /// Contains all of the routes exposed by the webapi.

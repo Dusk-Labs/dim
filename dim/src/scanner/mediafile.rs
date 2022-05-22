@@ -1,5 +1,6 @@
 //! Module contains all the code that creates and inserts basic mediafiles into the database.
 
+use crate::external::filename::Metadata;
 use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::FFPROBE_BIN;
 
@@ -12,8 +13,6 @@ use database::DbConnection;
 use displaydoc::Display;
 
 use std::path::PathBuf;
-
-use torrent_name_parser::Metadata;
 
 use tokio::sync::Semaphore;
 use tokio::sync::SemaphorePermit;
@@ -150,10 +149,10 @@ impl MediafileCreator {
             media_id: None,
             target_file,
 
-            raw_name: metadata.title().to_owned(),
-            raw_year: metadata.year().map(|x| x as i64),
-            season: metadata.season().map(|x| x as i64),
-            episode: metadata.episode().map(|x| x as i64),
+            raw_name: metadata.name,
+            raw_year: metadata.year,
+            season: metadata.season,
+            episode: metadata.episode,
 
             quality: video_metadata.get_height().map(|x| x.to_string()),
             codec: video_metadata.get_video_codec(),
