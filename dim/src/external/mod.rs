@@ -94,16 +94,16 @@ pub struct ExternalActor {
 }
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum MediaType {
+pub enum MediaSearchType {
     Movie,
     Tv,
 }
 
-impl std::fmt::Display for MediaType {
+impl std::fmt::Display for MediaSearchType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            MediaType::Movie => write!(f, "movie"),
-            MediaType::Tv => write!(f, "tv"),
+            MediaSearchType::Movie => write!(f, "movie"),
+            MediaSearchType::Tv => write!(f, "tv"),
         }
     }
 }
