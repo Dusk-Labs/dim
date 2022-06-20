@@ -83,7 +83,7 @@ cargo run --release
 
 ## License
 
-Dim is licensed under the GPLv2 license ([LICENSE.md](LICENSE.md) or http://opensource.org/licenses/GPL-2.0)
+Dim is licensed under the AGPLv3 license (see [LICENSE.md](LICENSE.md) or https://opensource.org/licenses/AGPL-3.0)
 
 ## Screenshots
 
