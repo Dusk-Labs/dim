@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["admin_delete_token",""],["admin_exists",""],["generate_invite",""],["get_all_invites",""],["login",""],["register",""],["user_change_password",""],["user_change_username",""],["user_delete_self",""],["user_upload_avatar",""],["whoami",""]]});
+initSidebarItems({"fn":[["admin_exists",""],["login",""],["register",""]]});

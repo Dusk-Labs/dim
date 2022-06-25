@@ -193,6 +193,7 @@
 <span id="188">188</span>
 <span id="189">189</span>
 <span id="190">190</span>
+<span id="191">191</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::balanced_or_tree</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::logger::RequestLogger</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::routes</span>;
@@ -274,18 +275,19 @@
 
     <span class="kw">let</span> <span class="ident">api_routes</span> <span class="op">=</span> <span class="macro">balanced_or_tree!</span>[
         <span class="comment">/* NOTE: v1 REST API routes start HERE */</span>
-        <span class="comment">/* /api/v1/auth and /user routes */</span>
+        <span class="comment">/* /api/v1/auth routes*/</span>
         <span class="ident">auth::filters::login</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">auth::filters::whoami</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">auth::filters::admin_exists</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
+        <span class="ident">user::filters::whoami</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
+        <span class="ident">host::filters::admin_exists</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
         <span class="ident">auth::filters::register</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">auth::filters::get_all_invites</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">auth::filters::generate_invite</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">auth::filters::user_change_password</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">auth::filters::admin_delete_token</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">auth::filters::user_delete_self</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">auth::filters::user_change_username</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">auth::filters::user_upload_avatar</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
+        <span class="ident">invites::filters::get_all_invites</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
+        <span class="ident">invites::filters::generate_invite</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
+        <span class="ident">invites::filters::delete_token</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
+        <span class="comment">/* /api/v1/user routes */</span>
+        <span class="ident">user::filters::change_password</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
+        <span class="ident">user::filters::delete</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
+        <span class="ident">user::filters::change_username</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
+        <span class="ident">user::filters::upload_avatar</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
         <span class="comment">/* general routes */</span>
         <span class="ident">routes::general::filters::search</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
         <span class="ident">routes::general::filters::get_directory_structure</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),

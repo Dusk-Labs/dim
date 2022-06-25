@@ -211,7 +211,9 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">displaydoc::Display</span>;
+<span id="209">209</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">database::DatabaseError</span>;
+<span class="kw">use</span> <span class="ident">displaydoc::Display</span>;
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
@@ -284,6 +286,27 @@
         <span class="ident"><span class="self">Self</span>::DatabaseError</span> {
             <span class="ident">description</span>: <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">e</span>),
         }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">DatabaseError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DimError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">DatabaseError</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::DatabaseError</span> {
+            <span class="ident">description</span>: <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">e</span>),
+        }
+    }
+}
+
+<span class="comment">// TODO: Clean this up.</span>
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>()<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DimError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: ()) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::UnknownError</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DimError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">std::io::Error</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::IOError</span>
     }
 }
 
@@ -396,27 +419,6 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StreamingErrors</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">std::io::Error</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::ProcFailed</span>
-    }
-}
-
-<span class="kw">use</span> <span class="ident">database::DatabaseError</span>;
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">DatabaseError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DimError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">DatabaseError</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::DatabaseError</span> {
-            <span class="ident">description</span>: <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">e</span>),
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>()<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DimError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: ()) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::UnknownError</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DimError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">std::io::Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::IOError</span>
     }
 }
 </code></pre></div>
