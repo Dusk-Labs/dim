@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["admin_exists",""],["delete_invite",""],["generate_invite",""],["get_all_invites",""],["login",""],["process_part",""],["register",""],["user_change_password",""],["user_change_username",""],["user_delete_self",""],["user_upload_avatar",""],["whoami",""]],"mod":[["filters",""]]});

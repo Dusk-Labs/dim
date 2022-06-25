@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["MediaType","Enum represents a media type and can be used on a library or on a media. When returned in a http response, the fields are lowercase."]],"struct":[["InsertableLibrary","InsertableLibrary struct, same as `Library` but without the id field."],["Library","Library struct which we can use to deserialize database queries into."]]});
