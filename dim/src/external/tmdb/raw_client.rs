@@ -1,8 +1,9 @@
 use std::future::Future;
+use std::time::Duration;
 
 use serde::Deserialize;
 
-use crate::external::MediaSearchType;
+use crate::external::{ExternalMedia, MediaSearchType};
 
 use super::{TMDBClientRequestError, TMDBMetadataProvider, TMDB_BASE_URL};
 
@@ -16,9 +17,9 @@ pub struct SearchResponse {
 #[derive(Deserialize, Clone, Debug)]
 pub struct TMDBMediaObject {
     pub id: u64,
-    #[serde(rename(deserialize = "title", deserialize = "name"))]
+    #[serde(rename(serialize = "title", deserialize = "name"))]
     pub title: String,
-    #[serde(rename(deserialize = "release_date", deserialize = "first_air_date"))]
+    #[serde(rename(serialize = "release_date", deserialize = "first_air_date"))]
     pub release_date: Option<String>,
     pub overview: Option<String>,
     pub vote_average: Option<f64>,
@@ -28,6 +29,27 @@ pub struct TMDBMediaObject {
     #[serde(skip_deserializing)]
     pub genres: Vec<String>,
     pub runtime: Option<u64>,
+}
+
+impl From<TMDBMediaObject> for ExternalMedia {
+    fn from(media: TMDBMediaObject) -> ExternalMedia {
+        ExternalMedia {
+            external_id: media.id.to_string(),
+            title: media.title,
+            description: media.overview,
+            release_date: media.release_date.and_then(|date| {
+                let s = format!("{date} 00:00:00 +0000");
+                chrono::DateTime::parse_from_str(&s, "%Y-%m-%d %H:%M:%S %z")
+                    .ok()
+                    .map(|dt| dt.with_timezone(&chrono::Utc))
+            }),
+            posters: media.poster_path.into_iter().collect(),
+            backdrops: media.backdrop_path.into_iter().collect(),
+            genres: media.genres,
+            rating: media.vote_average,
+            duration: media.runtime.map(|n| Duration::from_secs(n)),
+        }
+    }
 }
 
 #[derive(Deserialize)]

@@ -14,7 +14,10 @@ use super::cache_control::{CacheKey, CacheMap, CacheValue};
 use super::raw_client::TMDBClient;
 use super::*;
 
-/// TMDB Metadata Provider implements `ExternalQuery` and handles request coalescing and caching locally.
+/// TMDB Metadata Provider produces `ExternalQuery` implementors, and handles request coalescing and caching locally.
+///
+/// This type is already internally full of Arc's, there is no need to wrap it in another one.
+///
 pub struct TMDBMetadataProvider {
     pub(super) api_key: Arc<str>,
     pub(super) http_client: reqwest::Client,
@@ -32,6 +35,7 @@ impl Clone for TMDBMetadataProvider {
 }
 
 impl TMDBMetadataProvider {
+    /// Create a new metadata provider instance with this API key.
     pub fn new(api_key: &str) -> Self {
         let http_client = reqwest::ClientBuilder::new()
             .user_agent(APP_USER_AGENT)
@@ -56,6 +60,7 @@ impl TMDBMetadataProvider {
         }
     }
 
+    /// curry this metadata provider to supply search results for movies.
     #[inline(always)]
     pub fn movies(&self) -> MetadataProviderOf<Movies> {
         MetadataProviderOf {
@@ -144,6 +149,10 @@ impl TMDBMetadataProvider {
         }
     }
 
+    /// perform a TMDB search for `title` and optionally `year` of a specific search type (movies or TV shows.)
+    ///
+    /// request coalescing is applied internally.
+    ///
     async fn search(
         &self,
         title: &str,
@@ -207,19 +216,7 @@ impl TMDBMetadataProvider {
             .results
             .into_iter()
             .flatten()
-            .map(|media| ExternalMedia {
-                external_id: media.id.to_string(),
-                title: media.title,
-                description: media.overview,
-                release_date: media
-                    .release_date
-                    .and_then(|date| chrono::DateTime::from_str(&date).ok()),
-                posters: media.poster_path.into_iter().collect(),
-                backdrops: media.backdrop_path.into_iter().collect(),
-                genres: media.genres,
-                rating: media.vote_average,
-                duration: media.runtime.map(|n| Duration::from_secs(n)),
-            })
+            .map(ExternalMedia::from)
             .collect::<Vec<_>>();
 
         Ok(media)

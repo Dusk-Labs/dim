@@ -32,6 +32,8 @@ impl TMDBClientRequestError {
 
 #[cfg(test)]
 mod tests {
+    use chrono::{Datelike, Timelike};
+
     use super::*;
     use crate::external::{ExternalMedia, ExternalQuery};
 
@@ -45,11 +47,27 @@ mod tests {
             .await
             .expect("search results should exist");
 
+        let dt = chrono::Utc::now()
+            .with_day(7)
+            .unwrap()
+            .with_month(2)
+            .unwrap()
+            .with_year(2016)
+            .unwrap()
+            .with_minute(0)
+            .unwrap()
+            .with_second(0)
+            .unwrap()
+            .with_nanosecond(0)
+            .unwrap()
+            .with_hour(0)
+            .unwrap();
+
         let letterkenny = ExternalMedia {
             external_id: "65798".into(),
             title: "Letterkenny".into(),
             description: Some("Letterkenny follows Wayne, a good-ol’ country boy in Letterkenny, Ontario trying to protect his homegrown way of life on the farm, against a world that is constantly evolving around him. The residents of Letterkenny belong to one of three groups: Hicks, Skids, and Hockey Players. The three groups are constantly feuding with each other over seemingly trivial matters; often ending with someone getting their ass kicked.".into()),
-            release_date: None, 
+            release_date: Some(dt), 
             posters: vec!["/yvQGoc9GGTfOyPty5ASShT9tPBD.jpg".into()], 
             backdrops: vec!["/wdHK7RZNIGfskbGCIusSKN3vto6.jpg".into()], 
             genres: vec!["Comedy".into()], 

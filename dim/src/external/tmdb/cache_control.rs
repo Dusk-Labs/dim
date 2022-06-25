@@ -6,8 +6,6 @@ use crate::external::MediaSearchType;
 
 /// The type of our hashmap we use for caching.
 ///
-/// The current implementation is using [flurry](https://docs.rs/flurry)
-///
 pub(super) type CacheMap = Arc<dashmap::DashMap<CacheKey, Option<CacheValue>>>;
 
 /// The key type used within the [CacheMap], refers to [CacheValue]s.
