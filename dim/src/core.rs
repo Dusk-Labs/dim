@@ -79,18 +79,19 @@ pub async fn warp_core(
 
     let api_routes = balanced_or_tree![
         /* NOTE: v1 REST API routes start HERE */
-        /* /api/v1/auth and /user routes */
+        /* /api/v1/auth routes*/
         auth::filters::login(conn.clone()),
-        auth::filters::whoami(conn.clone()),
-        auth::filters::admin_exists(conn.clone()),
+        user::filters::whoami(conn.clone()),
+        host::filters::admin_exists(conn.clone()),
         auth::filters::register(conn.clone()),
-        auth::filters::get_all_invites(conn.clone()),
-        auth::filters::generate_invite(conn.clone()),
-        auth::filters::user_change_password(conn.clone()),
-        auth::filters::admin_delete_token(conn.clone()),
-        auth::filters::user_delete_self(conn.clone()),
-        auth::filters::user_change_username(conn.clone()),
-        auth::filters::user_upload_avatar(conn.clone()),
+        invites::filters::get_all_invites(conn.clone()),
+        invites::filters::generate_invite(conn.clone()),
+        invites::filters::delete_token(conn.clone()),
+        /* /api/v1/user routes */
+        user::filters::change_password(conn.clone()),
+        user::filters::delete(conn.clone()),
+        user::filters::change_username(conn.clone()),
+        user::filters::upload_avatar(conn.clone()),
         /* general routes */
         routes::general::filters::search(conn.clone()),
         routes::general::filters::get_directory_structure(conn.clone()),
