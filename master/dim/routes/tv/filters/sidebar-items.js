@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["delete_episode_by_id",""],["delete_season_by_id",""],["get_season_by_id",""],["get_season_episodes",""],["get_tv_seasons",""],["patch_episode_by_id",""],["patch_season_by_id",""]]});
