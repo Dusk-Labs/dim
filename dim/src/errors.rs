@@ -1,3 +1,4 @@
+use database::DatabaseError;
 use displaydoc::Display;
 use thiserror::Error;
 
@@ -71,6 +72,27 @@ impl From<sqlx::Error> for DimError {
         Self::DatabaseError {
             description: format!("{:?}", e),
         }
+    }
+}
+
+impl From<DatabaseError> for DimError {
+    fn from(e: DatabaseError) -> Self {
+        Self::DatabaseError {
+            description: format!("{:?}", e),
+        }
+    }
+}
+
+// TODO: Clean this up.
+impl From<()> for DimError {
+    fn from(_: ()) -> Self {
+        Self::UnknownError
+    }
+}
+
+impl From<std::io::Error> for DimError {
+    fn from(_: std::io::Error) -> Self {
+        Self::IOError
     }
 }
 
@@ -183,26 +205,5 @@ impl warp::Reply for StreamingErrors {
 impl From<std::io::Error> for StreamingErrors {
     fn from(_: std::io::Error) -> Self {
         Self::ProcFailed
-    }
-}
-
-use database::DatabaseError;
-impl From<DatabaseError> for DimError {
-    fn from(e: DatabaseError) -> Self {
-        Self::DatabaseError {
-            description: format!("{:?}", e),
-        }
-    }
-}
-
-impl From<()> for DimError {
-    fn from(_: ()) -> Self {
-        Self::UnknownError
-    }
-}
-
-impl From<std::io::Error> for DimError {
-    fn from(_: std::io::Error) -> Self {
-        Self::IOError
     }
 }

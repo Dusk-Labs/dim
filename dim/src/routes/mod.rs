@@ -1,6 +1,26 @@
+//! This module contains all the routes supported by the API.
+//!
+//! # Errors
+//! All routes can error out. If some unexpected behavior has occured, the server will return a non
+//! 2XX HTTP code, alongside the error and error description encoded with the following format:
+//! ```
+//! {
+//!   "error": "<error type>",
+//!   "message": "<error message>"
+//! }
+//! ```
+//!
+//! ## Common errors
+//! * [`DatabaseError`] - All routes can spurriously fail
+//! when making a database transaction, or trying to acquire a database connection. When this
+//! happens [`DatabaseError`] will be returned.
+//!
+//! [`DatabaseError`]: crate::errors::DimError::DatabaseError
 pub mod auth;
 pub mod dashboard;
 pub mod general;
+pub mod host;
+pub mod invites;
 pub mod library;
 pub mod media;
 pub mod mediafile;
@@ -9,7 +29,9 @@ pub mod settings;
 pub mod statik;
 pub mod stream;
 pub mod tv;
+pub mod user;
 
+#[doc(hidden)]
 pub mod global_filters {
     use crate::errors;
     use crate::errors::DimError;
