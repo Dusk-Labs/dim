@@ -1,0 +1,36 @@
+name: Docs
+
+on: [push, pull_request, workflow_dispatch]
+
+env:
+  CARGO_TERM_COLOR: always
+  DATABASE_URL: "sqlite://./dim_dev.db"
+
+jobs:
+  build:
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y libva-dev libva-drm2 libva2 sqlite3
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: cargo
+
+      - name: Build Docs
+        uses: actions-rs/cargo@v1
+        with:
+          command: doc
+          args: --verbose --workspace --release --no-deps
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.3.3
+        with:
+          branch: docs
+          folder: target/doc
+          target-folder: ${{ github.ref_name }}
