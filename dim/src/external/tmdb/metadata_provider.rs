@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::future::Future;
 use std::marker::PhantomData;
-use std::str::FromStr;
 
 use async_trait::async_trait;
 
@@ -198,7 +197,7 @@ impl TMDBMetadataProvider {
                     ..
                 }) = media
                 {
-                    for genre_id in ids.clone() {
+                    for genre_id in ids.iter().cloned() {
                         if let Some(genre) = genre_id_cache.get(&genre_id) {
                             genres.push(genre.name.clone());
                         } else if let Some(genre) =
@@ -222,8 +221,44 @@ impl TMDBMetadataProvider {
         Ok(media)
     }
 
-    async fn search_by_id(&self, external_id: &str) -> QueryResult<ExternalMedia> {
-        todo!()
+    async fn search_by_id(
+        &self,
+        external_id: &str,
+        media_type: MediaSearchType,
+    ) -> QueryResult<ExternalMedia> {
+        let external_id = external_id.to_string();
+        let key = CacheKey::ById {
+            id: external_id.clone(),
+            ty: media_type,
+        };
+
+        let response_body = self
+            .coalesce_request(&key, |client| async move {
+                client
+                    .get_details(media_type, &external_id)
+                    .await
+                    .map(|st| st.into_boxed_str().into())
+            })
+            .await?;
+
+        match media_type {
+            MediaSearchType::Movie => {
+                let movie_details =
+                    serde_json::from_str::<MovieDetails>(&response_body).map_err(|err| {
+                        crate::external::Error::DeserializationError(format!("{err}"))
+                    })?;
+
+                Ok(movie_details.into())
+            }
+            MediaSearchType::Tv => {
+                let tv_details =
+                    serde_json::from_str::<TvDetails>(&response_body).map_err(|err| {
+                        crate::external::Error::DeserializationError(format!("{err}"))
+                    })?;
+
+                Ok(tv_details.into())
+            }
+        }
     }
 
     async fn actors(&self, external_id: &str) -> QueryResult<Vec<ExternalActor>> {
@@ -275,7 +310,7 @@ where
     }
 
     async fn search_by_id(&self, external_id: &str) -> QueryResult<ExternalMedia> {
-        todo!()
+        self.provider.search_by_id(external_id, K::MEDIA_TYPE).await
     }
 
     async fn actors(&self, external_id: &str) -> QueryResult<Vec<ExternalActor>> {

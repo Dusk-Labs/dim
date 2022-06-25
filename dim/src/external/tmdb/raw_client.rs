@@ -1,7 +1,7 @@
 use std::future::Future;
 use std::time::Duration;
 
-use serde::Deserialize;
+use serde::{de::DeserializeOwned, Deserialize};
 
 use crate::external::{ExternalMedia, MediaSearchType};
 
@@ -52,7 +52,7 @@ impl From<TMDBMediaObject> for ExternalMedia {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct GenreList {
     pub genres: Vec<Genre>,
 }
@@ -61,6 +61,46 @@ pub struct GenreList {
 pub struct Genre {
     pub id: u64,
     pub name: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct MovieDetails {
+    #[serde(flatten)]
+    pub media_object: TMDBMediaObject,
+}
+
+impl From<MovieDetails> for ExternalMedia {
+    fn from(details: MovieDetails) -> Self {
+        let MovieDetails { media_object } = details;
+
+        media_object.into()
+    }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct TvDetails {
+    #[serde(flatten)]
+    pub media_object: TMDBMediaObject,
+    pub genres: Option<Vec<Genre>>,
+}
+
+impl From<TvDetails> for ExternalMedia {
+    fn from(details: TvDetails) -> Self {
+        let TvDetails {
+            media_object,
+            genres,
+        } = details;
+
+        let mut media: ExternalMedia = media_object.into();
+
+        media.genres = genres
+            .unwrap_or_default()
+            .into_iter()
+            .map(|genre| genre.name)
+            .collect();
+
+        media
+    }
 }
 
 // -- TMDBClient
@@ -138,5 +178,19 @@ impl TMDBClient {
 
         self.make_request(args, format!("/search/{media_type}"))
             .await
+    }
+
+    pub async fn get_details(
+        &self,
+        media_type: MediaSearchType,
+        id: &str,
+    ) -> Result<String, TMDBClientRequestError> {
+        let args = vec![
+            ("api_key", self.provider.api_key.as_ref()),
+            ("language", "en-US"),
+            ("query", id),
+        ];
+
+        self.make_request(args, format!("/{media_type}/{id}")).await
     }
 }

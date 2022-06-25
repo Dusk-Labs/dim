@@ -14,7 +14,7 @@ mod metadata_provider;
 mod raw_client;
 
 pub use metadata_provider::{MetadataProviderOf, Movies, TMDBMetadataProvider, TvShows};
-use raw_client::{Genre, GenreList, SearchResponse, TMDBMediaObject};
+use raw_client::{Genre, GenreList, MovieDetails, SearchResponse, TMDBMediaObject, TvDetails};
 
 #[derive(Debug, displaydoc::Display, Clone, thiserror::Error)]
 pub(self) enum TMDBClientRequestError {
@@ -37,16 +37,7 @@ mod tests {
     use super::*;
     use crate::external::{ExternalMedia, ExternalQuery};
 
-    #[tokio::test]
-    async fn sanity_check_tmdb_works() {
-        let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
-        let provider_shows: MetadataProviderOf<TvShows> = provider.tv_shows();
-
-        let metadata = provider_shows
-            .search("letterkenny", None)
-            .await
-            .expect("search results should exist");
-
+    fn make_letterkenny() -> ExternalMedia {
         let dt = chrono::Utc::now()
             .with_day(7)
             .unwrap()
@@ -63,18 +54,46 @@ mod tests {
             .with_hour(0)
             .unwrap();
 
-        let letterkenny = ExternalMedia {
-            external_id: "65798".into(),
+        ExternalMedia {
+        external_id: "65798".into(),
             title: "Letterkenny".into(),
             description: Some("Letterkenny follows Wayne, a good-ol’ country boy in Letterkenny, Ontario trying to protect his homegrown way of life on the farm, against a world that is constantly evolving around him. The residents of Letterkenny belong to one of three groups: Hicks, Skids, and Hockey Players. The three groups are constantly feuding with each other over seemingly trivial matters; often ending with someone getting their ass kicked.".into()),
-            release_date: Some(dt), 
+            release_date: Some(dt),
             posters: vec!["/yvQGoc9GGTfOyPty5ASShT9tPBD.jpg".into()], 
             backdrops: vec!["/wdHK7RZNIGfskbGCIusSKN3vto6.jpg".into()], 
             genres: vec!["Comedy".into()], 
-            rating: Some(8.5), 
+            rating: Some(8.5),
             duration: None
-        };
+        }
+    }
+
+    #[tokio::test]
+    async fn tmdb_search() {
+        let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
+        let provider_shows: MetadataProviderOf<TvShows> = provider.tv_shows();
+
+        let metadata = provider_shows
+            .search("letterkenny", None)
+            .await
+            .expect("search results should exist");
+
+        let letterkenny = make_letterkenny();
 
         assert_eq!(metadata, vec![letterkenny]);
+    }
+
+    #[tokio::test]
+    async fn tmdb_get_details() {
+        let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
+        let provider_shows: MetadataProviderOf<TvShows> = provider.tv_shows();
+
+        let media = provider_shows
+            .search_by_id("65798")
+            .await
+            .expect("search results should exist");
+
+        let letterkenny = make_letterkenny();
+
+        assert_eq!(letterkenny, media);
     }
 }
