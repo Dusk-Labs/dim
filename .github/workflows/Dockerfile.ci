@@ -1,11 +1,3 @@
-FROM node:bullseye AS web
-WORKDIR /ui
-COPY ui/package*.json ./
-RUN yarn install
-COPY ui ./
-ENV NODE_OPTIONS=--openssl-legacy-provider
-RUN yarn run build
-
 FROM debian:bullseye AS ffmpeg
 ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /static
@@ -32,31 +24,39 @@ RUN if [ "${TARGETPLATFORM}" = "linux/arm/v7" ]; then \
     ; fi
     
 RUN chmod +x /static/ffmpeg && chmod +x /static/ffprobe
+# Smoke Test
+#RUN /static/ffmpeg -version
+#RUN /static/ffprobe -version
 
-
-FROM rust:bullseye AS dim
+FROM debian:bullseye AS dim
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y \
-    libva-dev \
-    libva-drm2 \
-    libva2 \
-    sqlite3
+ARG TARGETPLATFORM
 WORKDIR /dim
-COPY . ./
-COPY --from=web /ui/build ui/build
-ARG DATABASE_URL="sqlite://dim_dev.db"
+COPY bin/ bin/
+RUN ls -al bin/
+RUN mkdir -p target/
 
-# Sometimes we may need to quickly build a test image
-ARG RUST_BUILD=release
-RUN if [ "$RUST_BUILD" = "debug" ]; then \
-        cargo build --features vaapi && \
-        mv ./target/debug/dim ./target/dim \
+RUN if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then \
+    mv bin/amd64-bin/dim target/dim && \
+    chmod +x target/dim && \
+    ls -la target/ . && \
+    pwd \
+    ; fi
+    
+RUN if [ "${TARGETPLATFORM}" = "linux/arm64" ]; then \
+    mv bin/aarch64-bin/dim target/dim && \
+    chmod +x target/dim && \
+    ls -la target/ . && \
+    pwd \
+    ; fi
+    
+RUN if [ "${TARGETPLATFORM}" = "linux/arm/v7" ]; then \
+    mv bin/armhf-bin/dim target/dim && \
+    chmod +x target/dim && \
+    ls -la target/ . && \
+    pwd \
     ; fi
 
-RUN if [ "$RUST_BUILD" = "release" ]; then \
-        cargo build --features vaapi --release && \
-        mv ./target/release/dim ./target/dim \
-    ; fi
 
 FROM debian:bullseye
 ENV RUST_BACKTRACE=full
