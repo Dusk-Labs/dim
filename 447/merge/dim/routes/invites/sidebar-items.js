@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["delete_invite","DELETE `/api/v1/auth/token/:token`"],["generate_invite","POST `/api/v1/auth/new_invite`"],["get_all_invites","GET `/api/v1/auth/invites`"]]});
