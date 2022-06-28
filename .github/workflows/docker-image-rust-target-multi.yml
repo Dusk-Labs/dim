@@ -2,7 +2,7 @@ name: Build Dim Bin and Dockerize
 
 on:
   push:
-    branches: [ 'develop' ] #rolling build on develop only
+    branches: [ 'master' ] #rolling build on develop only
     tags: 'v*' #tag for specific release v1.0.2,or anytag, start with v
   pull_request:
     branches: [ 'main' ] #build test on main, not pushing
@@ -234,7 +234,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/build-push-action@v2
         with:
-          push: true
+          #push: true
+          push: ${{ github.event_name != 'pull_request' }}
           context: .
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           file: ./.github/workflows/Dockerfile.ci
