@@ -2,7 +2,11 @@ name: Build Dim Bin and Dockerize
 
 on:
   push:
-    branches: [ 'docker-build' ]
+    branches: [ 'develop' ] #rolling build on develop only
+    tags: 'v*' #tag for specific release v1.0.2,or anytag, start with v
+  pull_request:
+    branches: [ 'main' ] #build test on main, not pushing
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
