@@ -308,6 +308,68 @@
 <span id="303">303</span>
 <span id="304">304</span>
 <span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unstable_name_collisions</span>)]</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external::ExternalMedia</span>;
@@ -321,6 +383,7 @@
 <span class="kw">use</span> <span class="ident">chrono::prelude::Utc</span>;
 <span class="kw">use</span> <span class="ident">chrono::Datelike</span>;
 
+<span class="kw">use</span> <span class="ident">database::genre::Genre</span>;
 <span class="kw">use</span> <span class="ident">database::genre::InsertableGenre</span>;
 <span class="kw">use</span> <span class="ident">database::genre::InsertableGenreMedia</span>;
 <span class="kw">use</span> <span class="ident">database::library::MediaType</span>;
@@ -366,9 +429,6 @@
         <span class="kw">let</span> <span class="ident">media_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">media_id</span>) <span class="op">=</span> <span class="ident">file</span>.<span class="ident">media_id</span> {
             <span class="comment">// NOTE: We need to be careful here for this to work correctly when our parent media</span>
             <span class="comment">// is linked to multiple mediafiles.</span>
-            <span class="comment">// FIXME: We want to be smart here. We should reuse and edit the parent media if it</span>
-            <span class="comment">// doesnt have any children besides us. Otherwise we need to create a new media, or</span>
-            <span class="comment">// link to an existing one.</span>
             <span class="comment">// FIXME: In theory this call should be very cheap, parents are unlikely have too many</span>
             <span class="comment">// entries but we should double check.</span>
             <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">Movie::count_children</span>(<span class="ident">tx</span>, <span class="ident">media_id</span>).<span class="kw">await</span>.<span class="ident">inspect_err</span>(
@@ -409,8 +469,12 @@
             }
         };
 
-        <span class="comment">// NOTE: Previous scanner had a `InsertableMovie::insert`. Honestly no clue if we need</span>
-        <span class="comment">// that, or if that is a remnant from the openflix days.</span>
+        <span class="comment">// NOTE: We want to decouple this media from all genres and essentially rebuild the list.</span>
+        <span class="comment">// Its a lot simpler than doing a diff-update but it might be more expensive.</span>
+        <span class="ident">Genre::decouple_all</span>(<span class="ident">tx</span>, <span class="ident">media_id</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">inspect_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> <span class="macro">error!</span>(<span class="question-mark">?</span><span class="ident">error</span>, <span class="string">&quot;Failed to decouple genres from media.&quot;</span>))<span class="question-mark">?</span>;
+
         <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">provided</span>.<span class="ident">genres</span> {
             <span class="kw">let</span> <span class="ident">genre</span> <span class="op">=</span> <span class="ident">InsertableGenre</span> { <span class="ident">name</span> }
                 .<span class="ident">insert</span>(<span class="ident">tx</span>)
@@ -429,7 +493,7 @@
         <span class="comment">// raw_year to what its parent has so that when we refresh metadata, files that were</span>
         <span class="comment">// matched manually (due to bogus filenames) dont get unmatched, or matched wrongly.</span>
         <span class="ident">UpdateMediaFile</span> {
-            <span class="ident">media_id</span>: <span class="prelude-val">Some</span>(<span class="macro">dbg!</span>(<span class="ident">media_id</span>)),
+            <span class="ident">media_id</span>: <span class="prelude-val">Some</span>(<span class="ident">media_id</span>),
             <span class="ident">raw_name</span>: <span class="prelude-val">Some</span>(<span class="ident">media</span>.<span class="ident">name</span>),
             <span class="ident">raw_year</span>: <span class="ident">media</span>.<span class="ident">year</span>,
             ..<span class="ident">Default::default</span>()
@@ -478,9 +542,9 @@
     <span class="kw">use</span> <span class="ident">chrono::TimeZone</span>;
     <span class="kw">use</span> <span class="ident">database::genre::Genre</span>;
     <span class="kw">use</span> <span class="ident">database::media::Media</span>;
-    <span class="kw">use</span> <span class="ident">database::movie::Movie</span>;
     <span class="kw">use</span> <span class="ident">database::mediafile::InsertableMediaFile</span>;
     <span class="kw">use</span> <span class="ident">database::mediafile::MediaFile</span>;
+    <span class="kw">use</span> <span class="ident">database::movie::Movie</span>;
     <span class="kw">use</span> <span class="ident">database::rw_pool::write_tx</span>;
 
     <span class="attribute">#[<span class="ident">tokio::test</span>(<span class="ident">flavor</span> <span class="op">=</span> <span class="string">&quot;multi_thread&quot;</span>)]</span>
@@ -581,7 +645,9 @@
         <span class="comment">// the new mediafile should point to the same parent as the previous mediafile.</span>
         <span class="macro">assert_eq!</span>(<span class="ident">mfile2_mediaid</span>, <span class="ident">updated_media</span>);
 
-        <span class="kw">let</span> <span class="ident">children_cnt</span> <span class="op">=</span> <span class="ident">Movie::count_children</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">mfile2_mediaid</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">children_cnt</span> <span class="op">=</span> <span class="ident">Movie::count_children</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">mfile2_mediaid</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">children_cnt</span>, <span class="number">2</span>);
 
         <span class="comment">// now that the parent has multiple children, rematching should trigger the creation of a</span>
@@ -608,11 +674,69 @@
     }
 
     <span class="attribute">#[<span class="ident">tokio::test</span>(<span class="ident">flavor</span> <span class="op">=</span> <span class="string">&quot;multi_thread&quot;</span>)]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">rematch_keep_coupling</span>() {
-        <span class="comment">// We rematch a singular mediafile thats owned by a single parent. In this situation we</span>
-        <span class="comment">// simply wish to repatch the parent</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">rematch_new_genres</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">database::get_conn_memory</span>()
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;Failed to obtain a in-memory db pool.&quot;</span>);
+        <span class="kw">let</span> <span class="ident">library</span> <span class="op">=</span> <span class="ident">create_library</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>).<span class="kw">await</span>;
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>.<span class="ident">lock_owned</span>().<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="kw">const</span> <span class="ident">MATCHER</span>: <span class="ident">MovieMatcher</span> <span class="op">=</span> <span class="ident">MovieMatcher</span>;
+
+        <span class="kw">let</span> <span class="ident">mfile_id</span> <span class="op">=</span> <span class="ident">InsertableMediaFile</span> {
+            <span class="ident">library_id</span>: <span class="ident">library</span>,
+            <span class="ident">target_file</span>: <span class="string">&quot;test.mp4&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">raw_name</span>: <span class="string">&quot;test&quot;</span>.<span class="ident">into</span>(),
+            ..<span class="ident">Default::default</span>()
+        }
+        .<span class="ident">insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">mfile</span> <span class="op">=</span> <span class="ident">MediaFile::get_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">mfile_id</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">dummy_external</span> <span class="op">=</span> <span class="ident">ExternalMedia</span> {
+            <span class="ident">external_id</span>: <span class="string">&quot;123&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;Title&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">description</span>: <span class="prelude-val">None</span>,
+            <span class="ident">genres</span>: <span class="macro">vec!</span>[<span class="string">&quot;Anime&quot;</span>.<span class="ident">into</span>()],
+            ..<span class="ident">Default::default</span>()
+        };
+
+        <span class="kw">let</span> <span class="ident">media</span> <span class="op">=</span> <span class="ident">MATCHER</span>
+            .<span class="ident">match_to_result</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">mfile</span>.<span class="ident">clone</span>(), <span class="ident">dummy_external</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">genres</span> <span class="op">=</span> <span class="ident">Genre::get_by_media</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">media</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="comment">// Only linked to genre Anime</span>
+        <span class="macro">assert_eq!</span>(<span class="ident">genres</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">genres</span>[<span class="number">0</span>].<span class="ident">name</span>, <span class="string">&quot;Anime&quot;</span>.<span class="ident">to_string</span>());
+
+        <span class="kw">let</span> <span class="ident">dummy_external</span> <span class="op">=</span> <span class="ident">ExternalMedia</span> {
+            <span class="ident">external_id</span>: <span class="string">&quot;123&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;Title&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">description</span>: <span class="prelude-val">None</span>,
+            <span class="ident">genres</span>: <span class="macro">vec!</span>[<span class="string">&quot;Comedy&quot;</span>.<span class="ident">into</span>(), <span class="string">&quot;Adventure&quot;</span>.<span class="ident">into</span>()],
+            ..<span class="ident">Default::default</span>()
+        };
+
+        <span class="ident">MATCHER</span>
+            .<span class="ident">match_to_result</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">mfile</span>, <span class="ident">dummy_external</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">genres</span> <span class="op">=</span> <span class="ident">Genre::get_by_media</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">media</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="comment">// Now linked to two genres</span>
+        <span class="macro">assert_eq!</span>(<span class="ident">genres</span>.<span class="ident">len</span>(), <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">genres</span>[<span class="number">0</span>].<span class="ident">name</span>, <span class="string">&quot;Comedy&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">genres</span>[<span class="number">1</span>].<span class="ident">name</span>, <span class="string">&quot;Adventure&quot;</span>.<span class="ident">to_string</span>());
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>
