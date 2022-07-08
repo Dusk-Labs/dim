@@ -84,3 +84,8 @@ zip = "0.5.10"
 [dev-dependencies]
 serial_test = "0.6.0"
 tempfile = "3.3.0"
+criterion = { version = "0.3", features = ["async_tokio"] }
+
+[[bench]]
+name = "movie_scanner"
+harness = false
