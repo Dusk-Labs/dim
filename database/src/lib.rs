@@ -1,3 +1,6 @@
+// FIXME: We have a shim in dim/utils but we cant depend on dim because itd be a circular dep.
+#![feature(result_option_inspect)]
+
 use crate::utils::ffpath;
 
 use std::str::FromStr;
@@ -67,6 +70,7 @@ pub async fn get_conn() -> sqlx::Result<crate::DbConnection> {
 
     if !MIGRATIONS_FLAG.load(Ordering::SeqCst) {
         if let Err(err) = run_migrations(conn).await {
+            // FIXME: Make this a panic.
             dbg!(err);
         } else {
             MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
@@ -161,4 +165,26 @@ async fn internal_get_conn() -> sqlx::Result<DbConnection> {
         ).await?;
 
     Ok(rw_pool::SqlitePool::new(rw_only, rd_only))
+}
+
+#[doc(hidden)]
+pub async fn get_conn_file(file: &str) -> sqlx::Result<crate::DbConnection> {
+    let rw_only = sqlx::sqlite::SqliteConnectOptions::new()
+        .create_if_missing(true)
+        .filename(file)
+        .connect()
+        .await?;
+
+    let rd_only = sqlx::pool::PoolOptions::new()
+        .connect_with(sqlx::sqlite::SqliteConnectOptions::from_str(file)?
+            .read_only(true)
+            .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
+            .create_if_missing(true)
+        ).await?;
+
+    let pool = rw_pool::SqlitePool::new(rw_only, rd_only);
+
+    run_migrations(&pool).await.expect("Failed to run migrations");
+
+    Ok(pool)
 }

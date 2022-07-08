@@ -1,5 +1,6 @@
 /// Module contains a common interface for extracting and obtaining filename metadata.
 pub mod filename;
+pub mod mock;
 
 use async_trait::async_trait;
 
@@ -102,7 +103,7 @@ pub trait ExternalQuery: Send + Sync {
 
     /// Upcast `self` into `ExternalQueryShow`. It is important that providers that can query for
     /// tv shows, implements this to return `Some(self)`.
-    fn as_query_show<'a>(&'a self) -> Option<&dyn ExternalQueryShow> {
+    fn as_query_show<'a>(&'a self) -> Option<&'a dyn ExternalQueryShow> {
         None
     }
 }

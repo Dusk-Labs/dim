@@ -38,7 +38,7 @@ impl MovieMatcher {
         file: MediaFile,
         provided: ExternalMedia,
     ) -> Result<i64, Box<dyn std::error::Error>> {
-        // TODO: Push posters and backdrops to download queue.
+        // TODO: Push posters and backdrops to download queue. Push CDC events.
 
         let media = InsertableMedia {
             media_type: MediaType::Movie,
@@ -138,7 +138,7 @@ impl MovieMatcher {
 
 #[async_trait]
 impl MediaMatcher for MovieMatcher {
-    async fn batch_match(self: Arc<Self>, provider: Arc<dyn ExternalQuery>, work: Vec<WorkUnit>) {
+    async fn batch_match(&self, tx: &mut Transaction<'_>, provider: Arc<dyn ExternalQuery>, work: Vec<WorkUnit>) {
         let metadata_futs = work
             .into_iter()
             .map(|WorkUnit(file, metadata)| async {
@@ -157,6 +157,12 @@ impl MediaMatcher for MovieMatcher {
             .collect::<Vec<_>>();
 
         let metadata = futures::future::join_all(metadata_futs).await;
+
+        for meta in metadata.into_iter() {
+            if let Some((file, provided)) = meta {
+                self.match_to_result(tx, file, provided[0].clone()).await.unwrap();
+            }
+        }
     }
 }
 

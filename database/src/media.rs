@@ -1,8 +1,12 @@
 use crate::library::MediaType;
 use crate::DatabaseError;
+use crate::movie::Movie;
+use crate::tv::TVShow;
 
 use serde::Deserialize;
 use serde::Serialize;
+
+use tracing::error;
 
 /// Marker trait used to mark media types that inherit from Media.
 /// Used internally by InsertableTVShow.
@@ -409,6 +413,73 @@ impl InsertableMedia {
             self.backdrop,
             self.media_type
         ).execute(&mut *conn).await?.last_insert_rowid())
+    }
+
+    /// Lazily inserts the media object passed in with the following behavior.
+    ///
+    /// If the media id exists in the database and has one child, the media id is
+    /// reused and the media object passed in is re-inserted. If the media object
+    /// has more than one child, we create a new media object and recouple.
+    pub async fn lazy_insert(
+        &self,
+        tx: &mut crate::Transaction<'_>,
+        media_id: Option<i64>
+    ) -> Result<i64, DatabaseError> {
+        // NOTE: If the mediafile is coupled to a media we assume that we want to reuse the media
+        // object, but replace its metadata in-place. This is useful when rematching a media.
+        let media_id = if let Some(media_id) = media_id {
+            // NOTE: We need to be careful here for this to work correctly when our parent media
+            // is linked to multiple mediafiles.
+            // FIXME: In theory this call should be very cheap, parents are unlikely have too many
+            // entries but we should double check.
+            let count_res = if matches!(self.media_type, MediaType::Movie | MediaType::Episode) {
+                Movie::count_children(tx, media_id).await            
+            } else {
+                TVShow::count_children(tx, media_id).await
+            };
+
+            let count = count_res.inspect_err(
+                |error| error!(?error, ?media_id, "Failed to get media children count."),
+            )?;
+
+            // If we are the only child we can just in-place modify the media object safely.
+            if count == 1 {
+                self
+                    .insert_with_id(tx, media_id)
+                    .await
+                    .inspect_err(|error| {
+                        error!(?error, ?media_id, "Failed to replace parent media entry.")
+                    })?;
+
+                Some(media_id)
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        let media_id = if let Some(media_id) = media_id {
+            media_id
+        } else {
+            // Maybe a media object that can be linked against this file already exists and we want
+            // to bind to it?
+            // FIXME: Libraries can be of mixed type, and some movies and shows share the same
+            // name. As such we should add an extra param for more accurate matching, year or
+            // mediatype can be considered.
+            match Media::get_id_by_name(tx, &self.name)
+                .await
+                .inspect_err(|error| error!(?error, %self.name, "Failed to get a media by name"))?
+                {
+                    Some(id) => id,
+                    None => self
+                        .insert(tx)
+                        .await
+                        .inspect_err(|error| error!(?error, "Failed to insert media object."))?,
+                }
+        };
+
+        Ok(media_id)
     }
 }
 
