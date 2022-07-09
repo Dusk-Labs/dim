@@ -90,8 +90,8 @@ impl Episode {
             EpisodeWrapper,
             r#"SELECT episode.id as "id!", episode.episode_, episode.seasonid FROM episode
                 INNER JOIN season ON season.id = episode.seasonid
-                INNER JOIN tv_show ON tv_show.id = season.tvshowid
-                WHERE tv_show.id = ?
+                INNER JOIN _tblmedia ON _tblmedia.id = season.tvshowid
+                WHERE _tblmedia.id = ?
                 ORDER BY season.season_number, episode.episode_"#,
             tv_show_id
         )

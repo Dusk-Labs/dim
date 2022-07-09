@@ -111,10 +111,13 @@ pub async fn get_conn_devel() -> sqlx::Result<crate::DbConnection> {
         .await?;
 
     let rd_only = sqlx::pool::PoolOptions::new()
-        .connect_with(sqlx::sqlite::SqliteConnectOptions::new()
-            .read_only(true)
-            .create_if_missing(true)
-            .filename("./dim_dev.db")).await?;
+        .connect_with(
+            sqlx::sqlite::SqliteConnectOptions::new()
+                .read_only(true)
+                .create_if_missing(true)
+                .filename("./dim_dev.db"),
+        )
+        .await?;
 
     let pool = rw_pool::SqlitePool::new(rw_only, rd_only);
 
@@ -158,11 +161,13 @@ async fn internal_get_conn() -> sqlx::Result<DbConnection> {
         .await?;
 
     let rd_only = sqlx::pool::PoolOptions::new()
-        .connect_with(sqlx::sqlite::SqliteConnectOptions::from_str(ffpath("config/dim.db"))?
-            .read_only(true)
-            .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
-            .create_if_missing(true)
-        ).await?;
+        .connect_with(
+            sqlx::sqlite::SqliteConnectOptions::from_str(ffpath("config/dim.db"))?
+                .read_only(true)
+                .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
+                .create_if_missing(true),
+        )
+        .await?;
 
     Ok(rw_pool::SqlitePool::new(rw_only, rd_only))
 }
@@ -176,15 +181,19 @@ pub async fn get_conn_file(file: &str) -> sqlx::Result<crate::DbConnection> {
         .await?;
 
     let rd_only = sqlx::pool::PoolOptions::new()
-        .connect_with(sqlx::sqlite::SqliteConnectOptions::from_str(file)?
-            .read_only(true)
-            .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
-            .create_if_missing(true)
-        ).await?;
+        .connect_with(
+            sqlx::sqlite::SqliteConnectOptions::from_str(file)?
+                .read_only(true)
+                .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
+                .create_if_missing(true),
+        )
+        .await?;
 
     let pool = rw_pool::SqlitePool::new(rw_only, rd_only);
 
-    run_migrations(&pool).await.expect("Failed to run migrations");
+    run_migrations(&pool)
+        .await
+        .expect("Failed to run migrations");
 
     Ok(pool)
 }

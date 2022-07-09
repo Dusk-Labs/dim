@@ -17,7 +17,6 @@ async fn test_insert_get_and_delete() {
     let mut tx = write_tx(&mut conn).await.unwrap();
     let _lib = create_test_library(&mut tx).await;
     let tv = insert_media(&mut tx).await;
-    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
     let season = season::InsertableSeason {
         season_number: 1,
@@ -56,7 +55,6 @@ async fn test_get_all_of_season() {
     let mut tx = write_tx(&mut conn).await.unwrap();
     let _lib = create_test_library(&mut tx).await;
     let tv = insert_media(&mut tx).await;
-    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
     let season = season::InsertableSeason {
         season_number: 1,
@@ -98,7 +96,6 @@ async fn test_get_first_of_season() {
     let mut tx = write_tx(&mut conn).await.unwrap();
     let _lib = create_test_library(&mut tx).await;
     let tv = insert_media(&mut tx).await;
-    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
     let season = season::InsertableSeason {
         season_number: 1,
@@ -158,7 +155,6 @@ async fn test_get_all_of_tv() {
     let mut tx = write_tx(&mut conn).await.unwrap();
     let _lib = create_test_library(&mut tx).await;
     let tv = insert_media(&mut tx).await;
-    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
     let result = episode::Episode::get_all_of_tv(&mut tx, tv).await.unwrap();
     assert!(result.is_empty());
@@ -201,7 +197,6 @@ async fn test_update() {
     let mut tx = write_tx(&mut conn).await.unwrap();
     let _lib = create_test_library(&mut tx).await;
     let tv = insert_media(&mut tx).await;
-    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
     let season = season::InsertableSeason {
         season_number: 1,
@@ -244,7 +239,6 @@ async fn test_get_next_episode() {
     let mut tx = write_tx(&mut conn).await.unwrap();
     let _lib = create_test_library(&mut tx).await;
     let tv = insert_media(&mut tx).await;
-    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
     let season = season::InsertableSeason {
         season_number: 1,
