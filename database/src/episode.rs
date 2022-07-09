@@ -320,6 +320,19 @@ impl Episode {
         Ok(Some(result.into_episode(ep)))
     }
 
+    pub async fn get_seasonid(
+        tx: &mut crate::Transaction<'_>,
+        episodeid: i64,
+    ) -> Result<i64, DatabaseError> {
+        Ok(sqlx::query!(
+            "SELECT episode.seasonid FROM episode WHERE episode.id = ?",
+            episodeid
+        )
+        .fetch_one(&mut *tx)
+        .await?
+        .seasonid)
+    }
+
     /// Method deletes a episode based on the tv show id, season number, and episode number
     ///
     /// # Arguments

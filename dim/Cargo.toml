@@ -71,6 +71,7 @@ itertools = "0.10.3"
 
 # FIXME: Remove when we get rid of xtra_proc
 new_xtra = { package = "xtra", git = "https://github.com/Restioson/xtra", features = ["with-tokio-1"] }
+url = "2.2.2"
 
 [build-dependencies]
 fs_extra = "1.1.0"

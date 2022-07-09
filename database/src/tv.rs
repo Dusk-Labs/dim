@@ -20,7 +20,7 @@ impl TVShow {
         }
 
         Ok(sqlx::query_as::<_, Row>(
-            r#"SELECT COUNT(_tblseason.id) as "count: i64" FROM _tblmedia
+            r#"SELECT COUNT(_tblseason.id) as count FROM _tblmedia
             INNER JOIN _tblseason on _tblseason.tvshowid = _tblmedia.id
             WHERE _tblmedia.id = ?"#,
         )

@@ -9,7 +9,6 @@ pub struct Asset {
     pub local_path: String,
     pub file_ext: String,
 }
-
 impl Asset {
     pub async fn get_by_id(
         conn: &mut crate::Transaction<'_>,
@@ -92,6 +91,16 @@ pub struct InsertableAsset {
 }
 
 impl InsertableAsset {
+    pub async fn insert_many(tx: &mut crate::Transaction<'_>, assets: Vec<Self>) -> Result<Vec<Asset>, DatabaseError> {
+        let mut results = vec![];
+
+        for asset in assets {
+            results.push(asset.insert(tx).await?);
+        }
+
+        Ok(results)
+    }
+
     pub async fn insert(self, conn: &mut crate::Transaction<'_>) -> Result<Asset, DatabaseError> {
         let local_path = self.local_path.clone();
 

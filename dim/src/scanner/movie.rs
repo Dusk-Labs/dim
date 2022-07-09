@@ -3,6 +3,7 @@
 use crate::external::ExternalMedia;
 use crate::external::ExternalQuery;
 use crate::inspect::ResultExt;
+use crate::scanners::format_path;
 
 use super::MediaMatcher;
 use super::WorkUnit;
@@ -11,6 +12,7 @@ use async_trait::async_trait;
 use chrono::prelude::Utc;
 use chrono::Datelike;
 
+use database::asset::InsertableAsset;
 use database::genre::Genre;
 use database::genre::InsertableGenre;
 use database::genre::InsertableGenreMedia;
@@ -24,6 +26,21 @@ use database::Transaction;
 
 use std::sync::Arc;
 use tracing::error;
+use tracing::warn;
+
+use url::Url;
+
+fn asset_from_url(url: &str) -> Option<InsertableAsset> {
+    let url = Url::parse(url).ok()?;
+    let filename = uuid::Uuid::new_v4().to_hyphenated().to_string();
+    let local_path = format_path(Some(format!("{filename}.jpg")));
+
+    Some(InsertableAsset {
+        remote_url: Some(url.into()),
+        local_path,
+        file_ext: "jpg".into(),
+    })
+}
 
 pub struct MovieMatcher;
 
@@ -40,6 +57,40 @@ impl MovieMatcher {
     ) -> Result<i64, Box<dyn std::error::Error>> {
         // TODO: Push posters and backdrops to download queue. Push CDC events.
 
+        let posters = provided
+            .posters
+            .iter()
+            .filter_map(|x| asset_from_url(x))
+            .collect::<Vec<_>>();
+
+        let mut poster_ids = vec![];
+
+        for poster in posters {
+            let asset = poster
+                .insert(&mut *tx)
+                .await
+                .inspect_err(|error| error!(?error, "Failed to insert asset into db."))?;
+
+            poster_ids.push(asset);
+        }
+
+        let backdrops = provided
+            .backdrops
+            .iter()
+            .filter_map(|x| asset_from_url(x))
+            .collect::<Vec<_>>();
+
+        let mut backdrop_ids = vec![];
+
+        for backdrop in backdrops {
+            let asset = backdrop
+                .insert(&mut *tx)
+                .await
+                .inspect_err(|error| error!(?error, "Failed to insert asset into db."))?;
+
+            backdrop_ids.push(asset);
+        }
+
         let media = InsertableMedia {
             media_type: MediaType::Movie,
             library_id: file.library_id,
@@ -48,11 +99,28 @@ impl MovieMatcher {
             rating: provided.rating,
             year: provided.release_date.map(|x| x.year() as _),
             added: Utc::now().to_string(),
-            poster: None,
-            backdrop: None,
+            poster: poster_ids.first().map(|x| x.id),
+            backdrop: backdrop_ids.first().map(|x| x.id),
         };
 
         let media_id = media.lazy_insert(tx).await?;
+
+        // Link all backdrops and posters to our media.
+        for poster in poster_ids {
+            let _ = poster
+                .into_media_poster(tx, media_id)
+                .await
+                .inspect_err(|error| warn!(?error, "Failed to link poster to media."));
+        }
+
+        for backdrop in backdrop_ids {
+            let _ = backdrop
+                .into_media_backdrop(tx, media_id)
+                .await
+                .inspect_err(|error| warn!(?error, "Failed to link backdrop."));
+
+            // TODO: Queuing
+        }
 
         // NOTE: We want to decouple this media from all genres and essentially rebuild the list.
         // Its a lot simpler than doing a diff-update but it might be more expensive.

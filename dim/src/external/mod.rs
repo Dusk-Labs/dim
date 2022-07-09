@@ -96,7 +96,9 @@ pub struct ExternalEpisode {
 
 impl ExternalEpisode {
     pub fn title_or_episode(&self) -> String {
-        self.title.clone().unwrap_or_else(|| self.episode_number.to_string())
+        self.title
+            .clone()
+            .unwrap_or_else(|| self.episode_number.to_string())
     }
 }
 
