@@ -52,50 +52,7 @@ impl MovieMatcher {
             backdrop: None,
         };
 
-        // NOTE: If the mediafile is coupled to a media we assume that we want to reuse the media
-        // object, but replace its metadata in-place. This is useful when rematching a media.
-        let media_id = if let Some(media_id) = file.media_id {
-            // NOTE: We need to be careful here for this to work correctly when our parent media
-            // is linked to multiple mediafiles.
-            // FIXME: In theory this call should be very cheap, parents are unlikely have too many
-            // entries but we should double check.
-            let count = Movie::count_children(tx, media_id).await.inspect_err(
-                |error| error!(?error, ?file.media_id, "Failed to get media children count."),
-            )?;
-
-            // If we are the only child we can just in-place modify the media object safely.
-            if count == 1 {
-                media
-                    .insert_with_id(tx, media_id)
-                    .await
-                    .inspect_err(|error| {
-                        error!(?error, ?media_id, "Failed to replace parent media entry.")
-                    })?;
-
-                Some(media_id)
-            } else {
-                None
-            }
-        } else {
-            None
-        };
-
-        let media_id = if let Some(media_id) = media_id {
-            media_id
-        } else {
-            // Maybe a media object that can be linked against this file already exists and we want
-            // to bind to it?
-            match Media::get_id_by_name(tx, &media.name)
-                .await
-                .inspect_err(|error| error!(?error, %media.name, "Failed to get a media by name"))?
-            {
-                Some(id) => id,
-                None => media
-                    .insert(tx)
-                    .await
-                    .inspect_err(|error| error!(?error, "Failed to insert media object."))?,
-            }
-        };
+        let media_id = media.lazy_insert(tx).await?;
 
         // NOTE: We want to decouple this media from all genres and essentially rebuild the list.
         // Its a lot simpler than doing a diff-update but it might be more expensive.
@@ -132,13 +89,35 @@ impl MovieMatcher {
             error!(?error, "Failed to update mediafile to point to new parent.")
         })?;
 
+        // Sometimes we rematch against a media object that already exists but we are the last
+        // child for the parent. When this happens we want to cleanup.
+        match file.media_id {
+            Some(old_id) => {
+                let count = Movie::count_children(tx, old_id).await.inspect_err(
+                    |error| error!(?error, %old_id, "Failed to grab children count."),
+                )?;
+
+                if count == 0 {
+                    Media::delete(tx, old_id).await.inspect_err(
+                        |error| error!(?error, %old_id, "Failed to cleanup child-less parent."),
+                    )?;
+                }
+            }
+            _ => {}
+        }
+
         Ok(media_id)
     }
 }
 
 #[async_trait]
 impl MediaMatcher for MovieMatcher {
-    async fn batch_match(&self, tx: &mut Transaction<'_>, provider: Arc<dyn ExternalQuery>, work: Vec<WorkUnit>) {
+    async fn batch_match(
+        &self,
+        tx: &mut Transaction<'_>,
+        provider: Arc<dyn ExternalQuery>,
+        work: Vec<WorkUnit>,
+    ) {
         let metadata_futs = work
             .into_iter()
             .map(|WorkUnit(file, metadata)| async {
@@ -160,7 +139,9 @@ impl MediaMatcher for MovieMatcher {
 
         for meta in metadata.into_iter() {
             if let Some((file, provided)) = meta {
-                self.match_to_result(tx, file, provided[0].clone()).await.unwrap();
+                self.match_to_result(tx, file, provided[0].clone())
+                    .await
+                    .unwrap();
             }
         }
     }
@@ -250,11 +231,13 @@ mod tests {
             .await
             .unwrap();
 
-        // we are essentially rematching a mediafile and since we are sure our parent has only one
-        // child we can simply replace the parent
-        assert_eq!(media_id, updated_media);
+        // in-place replacement doesnt exist, so we should get a new media id here.
+        assert_ne!(media_id, updated_media);
 
-        let media_obj = Media::get(&mut tx, media_id).await.unwrap();
+        // the old object should be automatically erased.
+        assert!(Media::get(&mut tx, media_id).await.is_err());
+
+        let media_obj = Media::get(&mut tx, updated_media).await.unwrap();
         assert_eq!(media_obj.name, "Other title".to_string());
         assert_eq!(media_obj.description, None);
 
@@ -282,6 +265,7 @@ mod tests {
         let children_cnt = Movie::count_children(&mut tx, mfile2_mediaid)
             .await
             .unwrap();
+
         assert_eq!(children_cnt, 2);
 
         // now that the parent has multiple children, rematching should trigger the creation of a
@@ -369,5 +353,165 @@ mod tests {
         assert_eq!(genres.len(), 2);
         assert_eq!(genres[0].name, "Comedy".to_string());
         assert_eq!(genres[1].name, "Adventure".to_string());
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn mass_rematch() {
+        let mut conn = database::get_conn_memory()
+            .await
+            .expect("Failed to obtain a in-memory db pool.");
+        let library = create_library(&mut conn).await;
+
+        let mut lock = conn.writer.lock_owned().await;
+        let mut tx = write_tx(&mut lock).await.unwrap();
+
+        const MATCHER: MovieMatcher = MovieMatcher;
+
+        let mfile_id = InsertableMediaFile {
+            library_id: library,
+            target_file: "test.mp4".into(),
+            raw_name: "test".into(),
+            ..Default::default()
+        }
+        .insert(&mut tx)
+        .await
+        .unwrap();
+
+        let mfile = MediaFile::get_one(&mut tx, mfile_id).await.unwrap();
+
+        let mfile2_id = InsertableMediaFile {
+            library_id: library,
+            target_file: "test1.mp4".into(),
+            raw_name: "test".into(),
+            ..Default::default()
+        }
+        .insert(&mut tx)
+        .await
+        .unwrap();
+
+        let mfile2 = MediaFile::get_one(&mut tx, mfile2_id).await.unwrap();
+
+        // link two files to the same media.
+        let dummy_external = ExternalMedia {
+            external_id: "123".into(),
+            title: "Test Title".into(),
+            description: Some("test description".into()),
+            release_date: Some(chrono::Utc.ymd(1983, 1, 10).and_hms(0, 0, 0)),
+            posters: vec![],
+            backdrops: vec![],
+            genres: vec!["Comedy".into()],
+            rating: Some(0.0),
+            duration: None,
+        };
+
+        let media_id = MATCHER
+            .match_to_result(&mut tx, mfile.clone(), dummy_external.clone())
+            .await
+            .unwrap();
+
+        let media_id2 = MATCHER
+            .match_to_result(&mut tx, mfile2.clone(), dummy_external.clone())
+            .await
+            .unwrap();
+
+        assert_eq!(media_id, media_id2);
+        assert!(Movie::count_children(&mut tx, media_id).await.unwrap() == 2);
+
+        let dummy_external = ExternalMedia {
+            external_id: "123".into(),
+            title: "Other title".into(),
+            description: None,
+            genres: vec!["Anime".into()],
+            ..Default::default()
+        };
+
+        let mfile = MediaFile::get_one(&mut tx, mfile_id).await.unwrap();
+
+        // Match one child file from first media to a new one.
+        let updated_media = MATCHER
+            .match_to_result(&mut tx, mfile, dummy_external.clone())
+            .await
+            .unwrap();
+
+        // we should now have two medias
+        assert!(Media::get_all(&mut tx, library).await.unwrap().len() == 2);
+
+        // now match second file, after this point we need to have only one media object in the
+        // database.
+        let mfile2 = MediaFile::get_one(&mut tx, mfile2_id).await.unwrap();
+
+        let updated_media2 = MATCHER
+            .match_to_result(&mut tx, mfile2, dummy_external.clone())
+            .await
+            .unwrap();
+
+        assert!(updated_media == updated_media2);
+
+        // we should now have one media
+        assert_eq!(Media::get_all(&mut tx, library).await.unwrap().len(), 1);
+    }
+
+    /// Test refreshes metadata in-place for some media object. Refreshing only works if the new
+    /// metadata has the same title and mediatype as the previous metadata. Otherwise it is
+    /// rematched which will change the id of the object.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn refresh_metadata() {
+        let mut conn = database::get_conn_memory()
+            .await
+            .expect("Failed to obtain a in-memory db pool.");
+        let library = create_library(&mut conn).await;
+
+        let mut lock = conn.writer.lock_owned().await;
+        let mut tx = write_tx(&mut lock).await.unwrap();
+
+        const MATCHER: MovieMatcher = MovieMatcher;
+
+        let mfile_id = InsertableMediaFile {
+            library_id: library,
+            target_file: "test.mp4".into(),
+            raw_name: "test".into(),
+            ..Default::default()
+        }
+        .insert(&mut tx)
+        .await
+        .unwrap();
+
+        let mfile = MediaFile::get_one(&mut tx, mfile_id).await.unwrap();
+
+        // link two files to the same media.
+        let mut dummy_external = ExternalMedia {
+            external_id: "123".into(),
+            title: "Test Title".into(),
+            description: Some("test description".into()),
+            release_date: Some(chrono::Utc.ymd(1983, 1, 10).and_hms(0, 0, 0)),
+            posters: vec![],
+            backdrops: vec![],
+            genres: vec!["Comedy".into()],
+            rating: Some(0.0),
+            duration: None,
+        };
+
+        let media_id = MATCHER
+            .match_to_result(&mut tx, mfile.clone(), dummy_external.clone())
+            .await
+            .unwrap();
+
+        dummy_external.description = Some("new description".into());
+        dummy_external.rating = Some(10.0);
+
+        let refreshed_id = MATCHER
+            .match_to_result(&mut tx, mfile.clone(), dummy_external.clone())
+            .await
+            .unwrap();
+
+        // refreshing means that we just fetch updated metadata but dont rematch as its the same
+        // media technically. as such the ids here should remain equal
+        assert_eq!(media_id, refreshed_id);
+
+        let media = Media::get(&mut tx, refreshed_id).await.unwrap();
+
+        // we should see the new rating and description here
+        assert_eq!(media.description, Some("new description".into()));
+        assert_eq!(media.rating, Some(10.0));
     }
 }

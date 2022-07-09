@@ -1,16 +1,16 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use dim::scanner::*;
 use database::get_conn_file;
 use database::library::InsertableLibrary;
 use database::library::Library;
 use database::library::MediaType;
+use dim::scanner::*;
 use tokio::runtime;
 
-use std::time::Instant;
-use std::time::Duration;
 use std::fs::hard_link;
 use std::fs::File;
 use std::path::PathBuf;
+use std::time::Duration;
+use std::time::Instant;
 
 use tempfile::TempDir;
 
@@ -80,7 +80,9 @@ async fn bootstrap() -> database::DbConnection {
     let outdir = env!("CARGO_TARGET_TMPDIR");
     let tag = generate_tag();
 
-    let mut conn = get_conn_file(&format!("{outdir}/dim.{tag}.db")).await.unwrap();
+    let mut conn = get_conn_file(&format!("{outdir}/dim.{tag}.db"))
+        .await
+        .unwrap();
 
     conn
 }

@@ -70,7 +70,7 @@ pub struct ExternalMedia {
     pub duration: Option<Duration>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]
 pub struct ExternalSeason {
     /// String representation of the id for this season object.
     pub external_id: String,
@@ -84,7 +84,7 @@ pub struct ExternalSeason {
     pub season_number: u64,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]
 pub struct ExternalEpisode {
     pub external_id: String,
     pub title: Option<String>,
@@ -92,6 +92,12 @@ pub struct ExternalEpisode {
     pub episode_number: u64,
     pub stills: Vec<String>,
     pub duration: Option<Duration>,
+}
+
+impl ExternalEpisode {
+    pub fn title_or_episode(&self) -> String {
+        self.title.clone().unwrap_or_else(|| self.episode_number.to_string())
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]

@@ -8,9 +8,7 @@ use database::library::MediaType;
 use database::media::InsertableMedia;
 use database::mediafile::MediaFile;
 use database::mediafile::UpdateMediaFile;
-use database::movie::InsertableMovie;
 use database::season::InsertableSeason;
-use database::tv::TVShow;
 
 use chrono::prelude::Utc;
 use chrono::Datelike;
@@ -182,8 +180,6 @@ impl<'a> TvShowMatcher<'a> {
             media.insert(&mut *tx).await?
         };
 
-        let _ = TVShow::insert(&mut *tx, media_id).await;
-
         for name in result.genres {
             let genre = InsertableGenre { name };
 
@@ -320,15 +316,6 @@ impl<'a> TvShowMatcher<'a> {
 
         // manually insert the underlying `media` into the table and convert it into a streamable movie/ep
         let raw_ep_id = episode.media.insert_blind(&mut *tx).await?;
-        if let Err(e) = InsertableMovie::insert(&mut *tx, raw_ep_id).await {
-            error!(
-                error = ?e,
-                episode_id = raw_ep_id,
-                file = ?&orphan.target_file,
-                "Failed to turn episode into a streamable movie",
-            );
-        }
-
         let episode_id = episode.insert(&mut *tx).await?;
 
         let updated_mediafile = UpdateMediaFile {

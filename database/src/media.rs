@@ -491,6 +491,8 @@ impl From<InsertableMedia> for UpdateMedia {
         Self {
             description: other.description,
             rating: other.rating,
+            poster: other.poster,
+            backdrop: other.backdrop,
             ..Default::default()
         }
     }
