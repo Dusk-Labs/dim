@@ -83,3 +83,20 @@ pub fn setup_logging(_debug: bool) {
 
     let _ = tracing::subscriber::set_global_default(subscriber);
 }
+
+#[cfg(test)]
+pub fn setup_test_logging() {
+    if std::env::var("RUST_LOG").is_err() {
+        std::env::set_var("RUST_LOG", "info");
+    }
+
+    let subscriber = tracing_subscriber::registry()
+        .with(EnvFilter::from_default_env())
+        .with(
+            fmt::layer()
+                .with_span_events(fmt::format::FmtSpan::CLOSE | fmt::format::FmtSpan::NEW)
+                .with_writer(tracing_subscriber::fmt::TestWriter::new()),
+        );
+
+    let _ = tracing::subscriber::set_global_default(subscriber);
+}
