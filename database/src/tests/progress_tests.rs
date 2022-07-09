@@ -78,7 +78,6 @@ async fn test_get_total_for_tv() {
     let user = insert_user(&mut tx).await;
 
     let tv = insert_media(&mut tx).await;
-    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
     let result = progress::Progress::get_total_for_tv(&mut tx, user.id, tv)
         .await
@@ -126,8 +125,6 @@ async fn test_get_continue_watching() {
     let user = insert_user(&mut tx).await;
 
     super::media_tests::insert_many(&mut tx, 2).await;
-    tv::TVShow::insert(&mut tx, 1).await.unwrap();
-    tv::TVShow::insert(&mut tx, 2).await.unwrap();
 
     let season1 = season::InsertableSeason {
         season_number: 1,

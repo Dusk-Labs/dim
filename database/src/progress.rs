@@ -135,9 +135,8 @@ impl Progress {
             JOIN progress ON progress.media_id = _tblmedia.id
             JOIN episode ON episode.id = _tblmedia.id
             JOIN season on season.id = episode.seasonid
-            JOIN tv_show ON tv_show.id = season.tvshowid
             
-            WHERE tv_show.id = ?
+            WHERE season.tvshowid = ?
             AND progress.user_id = ?",
         )
         .bind(tv_id)

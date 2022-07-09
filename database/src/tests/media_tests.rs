@@ -181,7 +181,7 @@ async fn test_update() {
 
     let update = media::UpdateMedia {
         name: Some("TestMedia2".into()),
-        rating: Some(5),
+        rating: Some(5.0),
         ..Default::default()
     };
 
@@ -189,5 +189,5 @@ async fn test_update() {
 
     let result = media::Media::get(&mut tx, media_id).await.unwrap();
     assert_eq!(result.name, "TestMedia2".to_string());
-    assert_eq!(result.rating, Some(5));
+    assert_eq!(result.rating, Some(5.0));
 }

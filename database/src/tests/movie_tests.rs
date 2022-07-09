@@ -10,7 +10,4 @@ async fn test_insert() {
     let _library = create_test_library(&mut tx).await;
 
     let media_id = super::media_tests::insert_media(&mut tx).await;
-    movie::InsertableMovie::insert(&mut tx, media_id)
-        .await
-        .unwrap();
 }

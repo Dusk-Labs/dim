@@ -149,19 +149,7 @@ impl InsertableSeason {
         conn: &mut crate::Transaction<'_>,
         id: i64,
     ) -> Result<i64, DatabaseError> {
-        let result = sqlx::query!(
-            r#"SELECT id as "id!" FROM _tblseason WHERE season_number = ? AND tvshowid = ?"#,
-            self.season_number,
-            id
-        )
-        .fetch_optional(&mut *conn)
-        .await?;
-
-        if let Some(season) = result {
-            return Ok(season.id);
-        }
-
-        let id = sqlx::query!(
+        Ok(sqlx::query!(
             r#"INSERT INTO _tblseason (season_number, added, poster, tvshowid)
             VALUES ($1, $2, $3, $4)
             ON CONFLICT DO UPDATE
@@ -174,9 +162,7 @@ impl InsertableSeason {
         )
         .fetch_one(&mut *conn)
         .await?
-        .id;
-
-        Ok(id)
+        .id)
     }
 }
 

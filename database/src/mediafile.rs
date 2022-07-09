@@ -276,13 +276,13 @@ pub struct InsertableMediaFile {
 impl InsertableMediaFile {
     /// Method checks if a mediafile with the the target file exists in the database.
     pub async fn exists(&self, conn: &mut crate::Transaction<'_>) -> Result<bool, DatabaseError> {
-        let result: Option<i64> = sqlx::query_scalar("SELECT 1 FROM mediafile WHERE target_file = ?")
-            .bind(&self.target_file)
-            .fetch_optional(&mut *conn)
-            .await?;
+        let result: Option<i64> =
+            sqlx::query_scalar("SELECT 1 FROM mediafile WHERE target_file = ?")
+                .bind(&self.target_file)
+                .fetch_optional(&mut *conn)
+                .await?;
 
         Ok(result == Some(1))
-            
     }
 
     /// Method inserts a new mediafile into the database.

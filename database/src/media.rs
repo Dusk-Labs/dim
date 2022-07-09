@@ -1,16 +1,10 @@
 use crate::library::MediaType;
 use crate::DatabaseError;
-use crate::movie::Movie;
-use crate::tv::TVShow;
 
 use serde::Deserialize;
 use serde::Serialize;
 
 use tracing::error;
-
-/// Marker trait used to mark media types that inherit from Media.
-/// Used internally by InsertableTVShow.
-pub trait MediaTrait {}
 
 /// Media struct that represents a media object, usually a movie, tv show or a episode of a tv
 /// show. This struct is returned by several methods and can be serialized to json.
@@ -25,7 +19,7 @@ pub struct Media {
     /// description of this media object. Usually overview of a movie etc.
     pub description: Option<String>,
     /// rating provided by any API that is encoded as a signed integer. Usually TMDB rating.
-    pub rating: Option<i64>,
+    pub rating: Option<f64>,
     /// Year in which this movie/tv show/episode was released/aired.
     pub year: Option<i64>,
     /// Date when this media object was created and inserted into the database. Used by several
@@ -62,7 +56,7 @@ impl Media {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE library_id = ? AND NOT media_type = "episode""#,
+                r#"SELECT id, library_id, name, description, rating as "rating: _", year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE library_id = ? AND NOT media_type = "episode""#,
                 library_id
             )
             .fetch_all(&mut *conn)
@@ -77,7 +71,7 @@ impl Media {
     pub async fn get(conn: &mut crate::Transaction<'_>, id: i64) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE id = ?"#,
+                r#"SELECT id, library_id, name, description, rating as "rating: _", year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE id = ?"#,
                 id
             )
             .fetch_one(&mut *conn)
@@ -97,7 +91,7 @@ impl Media {
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE library_id = ? AND name = ? AND NOT media_type = "episode""#,
+                r#"SELECT id, library_id, name, description, rating as "rating: _", year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE library_id = ? AND name = ? AND NOT media_type = "episode""#,
                 library_id,
                 name,
             )
@@ -111,7 +105,7 @@ impl Media {
     ) -> Result<Self, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as "media_type: _"
+                r#"SELECT media.id, media.library_id, name, description, rating as "rating: _", year, added, poster_path, backdrop_path, media_type as "media_type: _"
                 FROM media
                 INNER JOIN mediafile ON mediafile.media_id = media.id
                 WHERE mediafile.id = ?"#,
@@ -161,7 +155,7 @@ impl Media {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT media.id, media.library_id, media.name, description, rating, year, added, poster_path as "poster_path?", backdrop_path as "backdrop_path?", media.media_type as "media_type: _"
+                r#"SELECT media.id, media.library_id, media.name, description, rating as "rating: _", year, added, poster_path as "poster_path?", backdrop_path as "backdrop_path?", media.media_type as "media_type: _"
                 FROM media
                 JOIN library ON media.library_id = library.id
                 WHERE NOT media.media_type = "episode" AND NOT library.hidden
@@ -181,7 +175,7 @@ impl Media {
         let query = format!("%{}%", query);
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT media.id, media.library_id, media.name, description, rating, year, added, poster_path, backdrop_path, media.media_type as "media_type: _"
+                r#"SELECT media.id, media.library_id, media.name, description, rating as "rating: _", year, added, poster_path, backdrop_path, media.media_type as "media_type: _"
                 FROM media
                 JOIN library ON library.id = media.library_id
                 WHERE NOT media.media_type = "episode" AND NOT library.hidden
@@ -199,7 +193,7 @@ impl Media {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT media.id, media.library_id, media.name, description, rating, year, added, poster_path, backdrop_path, media.media_type as "media_type: _"
+                r#"SELECT media.id, media.library_id, media.name, description, rating as "rating: _", year, added, poster_path, backdrop_path, media.media_type as "media_type: _"
                 FROM media
                 INNER JOIN genre_media ON genre_media.media_id = media.id
                 JOIN library ON library.id = media.library_id
@@ -216,7 +210,7 @@ impl Media {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
                 Media,
-                r#"SELECT media.id, media.library_id, media.name, description, rating, year, added, poster_path, backdrop_path, media.media_type as "media_type: _"
+                r#"SELECT media.id, media.library_id, media.name, description, rating as "rating: _", year, added, poster_path, backdrop_path, media.media_type as "media_type: _"
                 FROM media
                 JOIN library ON library.id = media.library_id
                 WHERE NOT media.media_type = "episode" AND NOT library.hidden
@@ -244,12 +238,14 @@ impl Media {
 
     pub async fn get_id_by_name(
         tx: &mut crate::Transaction<'_>,
-        name: &str
+        name: &str,
     ) -> Result<Option<i64>, DatabaseError> {
-        Ok(sqlx::query!(r#"SELECT id FROM _tblmedia where name = ?"#, name)
-            .fetch_optional(&mut *tx)
-            .await?
-            .map(|x| x.id))
+        Ok(
+            sqlx::query!(r#"SELECT id FROM _tblmedia where name = ?"#, name)
+                .fetch_optional(&mut *tx)
+                .await?
+                .map(|x| x.id),
+        )
     }
 
     pub async fn media_mediatype(
@@ -420,66 +416,31 @@ impl InsertableMedia {
     /// If the media id exists in the database and has one child, the media id is
     /// reused and the media object passed in is re-inserted. If the media object
     /// has more than one child, we create a new media object and recouple.
-    pub async fn lazy_insert(
-        &self,
-        tx: &mut crate::Transaction<'_>,
-        media_id: Option<i64>
-    ) -> Result<i64, DatabaseError> {
-        // NOTE: If the mediafile is coupled to a media we assume that we want to reuse the media
-        // object, but replace its metadata in-place. This is useful when rematching a media.
-        let media_id = if let Some(media_id) = media_id {
-            // NOTE: We need to be careful here for this to work correctly when our parent media
-            // is linked to multiple mediafiles.
-            // FIXME: In theory this call should be very cheap, parents are unlikely have too many
-            // entries but we should double check.
-            let count_res = if matches!(self.media_type, MediaType::Movie | MediaType::Episode) {
-                Movie::count_children(tx, media_id).await            
-            } else {
-                TVShow::count_children(tx, media_id).await
-            };
-
-            let count = count_res.inspect_err(
-                |error| error!(?error, ?media_id, "Failed to get media children count."),
-            )?;
-
-            // If we are the only child we can just in-place modify the media object safely.
-            if count == 1 {
-                self
-                    .insert_with_id(tx, media_id)
+    /// FIXME: How will this behave with cross-mediatype rematches??
+    ///
+    /// Returns a tuple of the id and whether the media object has been in place modified
+    pub async fn lazy_insert(&self, tx: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
+        // Maybe a media object that can be linked against this file already exists and we want
+        // to bind to it?
+        // FIXME: Libraries can be of mixed type, and some movies and shows share the same
+        // name. As such we should add an extra param for more accurate matching, year or
+        // mediatype can be considered.
+        match Media::get_id_by_name(tx, &self.name)
+            .await
+            .inspect_err(|error| error!(?error, %self.name, "Failed to get a media by name"))?
+        {
+            Some(id) => {
+                UpdateMedia::from(self.clone())
+                    .update(tx, id)
                     .await
-                    .inspect_err(|error| {
-                        error!(?error, ?media_id, "Failed to replace parent media entry.")
-                    })?;
-
-                Some(media_id)
-            } else {
-                None
+                    .inspect_err(|error| error!(?error, %id, "Failed to update media metadata"))?;
+                Ok(id)
             }
-        } else {
-            None
-        };
-
-        let media_id = if let Some(media_id) = media_id {
-            media_id
-        } else {
-            // Maybe a media object that can be linked against this file already exists and we want
-            // to bind to it?
-            // FIXME: Libraries can be of mixed type, and some movies and shows share the same
-            // name. As such we should add an extra param for more accurate matching, year or
-            // mediatype can be considered.
-            match Media::get_id_by_name(tx, &self.name)
+            None => Ok(self
+                .insert(tx)
                 .await
-                .inspect_err(|error| error!(?error, %self.name, "Failed to get a media by name"))?
-                {
-                    Some(id) => id,
-                    None => self
-                        .insert(tx)
-                        .await
-                        .inspect_err(|error| error!(?error, "Failed to insert media object."))?,
-                }
-        };
-
-        Ok(media_id)
+                .inspect_err(|error| error!(?error, "Failed to insert media object."))?),
+        }
     }
 }
 
@@ -490,7 +451,7 @@ impl InsertableMedia {
 pub struct UpdateMedia {
     pub name: Option<String>,
     pub description: Option<String>,
-    pub rating: Option<i64>,
+    pub rating: Option<f64>,
     pub year: Option<i64>,
     pub added: Option<String>,
     pub poster: Option<i64>,
@@ -522,5 +483,15 @@ impl UpdateMedia {
         );
 
         Ok(1)
+    }
+}
+
+impl From<InsertableMedia> for UpdateMedia {
+    fn from(other: InsertableMedia) -> Self {
+        Self {
+            description: other.description,
+            rating: other.rating,
+            ..Default::default()
+        }
     }
 }
