@@ -1,7 +1,6 @@
 use database::asset::InsertableAsset;
 use database::genre::InsertableGenre;
 use database::genre::InsertableGenreMedia;
-use database::movie::InsertableMovie;
 use database::DbConnection;
 
 use database::library::MediaType;
@@ -176,8 +175,6 @@ impl<'a> MovieMatcher<'a> {
         } else {
             media.insert(&mut *tx).await?
         };
-        // the reason we ignore the result here is that in some cases this can fail. Specifically when there are multiple mediafiles for a movie.
-        let _ = InsertableMovie::insert(&mut *tx, media_id).await;
 
         for name in result.genres {
             let genre = InsertableGenre { name };
