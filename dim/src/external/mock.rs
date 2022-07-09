@@ -19,7 +19,7 @@ impl ExternalQuery for MockProvider {
         unimplemented!()
     }
 
-    async fn actors(&self, external_id: &str) -> Result<Vec<ExternalActor>> {
+    async fn cast(&self, external_id: &str) -> Result<Vec<ExternalActor>> {
         unimplemented!()
     }
 }
