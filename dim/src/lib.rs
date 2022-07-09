@@ -40,8 +40,6 @@ pub mod logger;
 pub mod routes;
 /// New generation scanner infrastructure.
 pub mod scanner;
-/// Contains our media scanners and so on.
-pub mod scanners;
 /// Contains the fairing which tracks streams across rest api
 pub mod stream_tracking;
 /// Contains all the logic needed for streaming and on-the-fly transcoding.
