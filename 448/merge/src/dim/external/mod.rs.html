@@ -137,6 +137,8 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
@@ -157,8 +159,8 @@
     <span class="ident">Timeout</span>,
     <span class="doccomment">/// Max retry count reached</span>
     <span class="ident">ReachedMaxTries</span>,
-    <span class="doccomment">/// The API response could not be deserialized: {0:?}</span>
-    <span class="ident">DeserializationError</span>(<span class="ident">String</span>),
+    <span class="doccomment">/// The API response could not be deserialized: {error}</span>
+    <span class="ident">DeserializationError</span> { <span class="ident">body</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">error</span>: <span class="ident">String</span> },
     <span class="doccomment">/// No results are found: query={query} year={year:?}</span>
     <span class="ident">NoResults</span> { <span class="ident">query</span>: <span class="ident">String</span>, <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> },
     <span class="doccomment">/// No seasons found for the id supplied: {id}</span>
@@ -171,6 +173,8 @@
     <span class="comment">// This error wont be ever serialized and sent over the wire, however it should still be</span>
     <span class="comment">// printed in logs somewhere as its very unexpected.</span>
     <span class="ident">OtherError</span>(<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip</span>)]</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// The remote API returned an error ({code}): {message}</span>
+    <span class="ident">RemoteApiError</span> { <span class="ident">code</span>: <span class="ident">u16</span>, <span class="ident">message</span>: <span class="ident">String</span> },
 }
 
 <span class="kw">impl</span> <span class="ident">Error</span> {

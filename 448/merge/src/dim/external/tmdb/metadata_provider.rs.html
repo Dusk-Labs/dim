@@ -332,6 +332,23 @@
 <span id="327">327</span>
 <span id="328">328</span>
 <span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::future::Future</span>;
 <span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
@@ -478,7 +495,7 @@
                 }
             }
 
-            (<span class="kw">_</span>, <span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">data</span>().<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="ident">Into::into</span>),
+            (<span class="kw">_</span>, <span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">value</span>.<span class="ident">data</span>().<span class="kw">await</span><span class="question-mark">?</span>),
         }
     }
 
@@ -506,7 +523,12 @@
             })
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">search</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">SearchResponse</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">st</span>).<span class="ident">map_err</span>(<span class="ident">Error::other</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">search</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">SearchResponse</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">st</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+            <span class="ident"><span class="kw">crate</span>::external::Error::DeserializationError</span> {
+                <span class="ident">body</span>: <span class="ident">st</span>,
+                <span class="ident">error</span>: <span class="macro">format!</span>(<span class="string">&quot;{error}&quot;</span>),
+            }
+        })<span class="question-mark">?</span>;
 
         <span class="comment">// fill in the genre names for the search results.</span>
         {
@@ -520,7 +542,12 @@
                 })
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let</span> <span class="ident">genre_list</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">GenreList</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">st</span>).<span class="ident">map_err</span>(<span class="ident">Error::other</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">genre_list</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">GenreList</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">st</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+                <span class="ident"><span class="kw">crate</span>::external::Error::DeserializationError</span> {
+                    <span class="ident">body</span>: <span class="ident">st</span>,
+                    <span class="ident">error</span>: <span class="macro">format!</span>(<span class="string">&quot;{error}&quot;</span>),
+                }
+            })<span class="question-mark">?</span>;
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">genre_id_cache</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="op">&lt;</span><span class="ident">u64</span>, <span class="ident">Genre</span><span class="op">&gt;</span><span class="ident">::with_capacity</span>(<span class="ident">search</span>.<span class="ident">results</span>.<span class="ident">len</span>());
             <span class="kw">for</span> <span class="ident">media</span> <span class="kw">in</span> <span class="ident">search</span>.<span class="ident">results</span>.<span class="ident">iter_mut</span>() {
@@ -578,15 +605,22 @@
             <span class="ident">MediaSearchType::Movie</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">movie_details</span> <span class="op">=</span>
                     <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">MovieDetails</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">response_body</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-                        <span class="ident"><span class="kw">crate</span>::external::Error::DeserializationError</span>(<span class="macro">format!</span>(<span class="string">&quot;{err}&quot;</span>))
+                        <span class="ident"><span class="kw">crate</span>::external::Error::DeserializationError</span> {
+                            <span class="ident">body</span>: <span class="ident">response_body</span>,
+                            <span class="ident">error</span>: <span class="macro">format!</span>(<span class="string">&quot;{err}&quot;</span>),
+                        }
                     })<span class="question-mark">?</span>;
 
                 <span class="prelude-val">Ok</span>(<span class="ident">movie_details</span>.<span class="ident">into</span>())
             }
+
             <span class="ident">MediaSearchType::Tv</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">tv_details</span> <span class="op">=</span>
                     <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">TvDetails</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">response_body</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-                        <span class="ident"><span class="kw">crate</span>::external::Error::DeserializationError</span>(<span class="macro">format!</span>(<span class="string">&quot;{err}&quot;</span>))
+                        <span class="ident"><span class="kw">crate</span>::external::Error::DeserializationError</span> {
+                            <span class="ident">body</span>: <span class="ident">response_body</span>,
+                            <span class="ident">error</span>: <span class="macro">format!</span>(<span class="string">&quot;{err}&quot;</span>),
+                        }
                     })<span class="question-mark">?</span>;
 
                 <span class="prelude-val">Ok</span>(<span class="ident">tv_details</span>.<span class="ident">into</span>())

@@ -199,6 +199,23 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::future::Future</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
@@ -304,6 +321,12 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TmdbError</span> {
+    <span class="kw">pub</span> <span class="ident">status_message</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">status_code</span>: <span class="ident">u64</span>,
+}
+
 <span class="comment">// -- TMDBClient</span>
 
 <span class="doccomment">/// Internal TMDB client type used for building and making requests.</span>
@@ -335,14 +358,25 @@
                 .<span class="kw">await</span>
                 .<span class="ident">map_err</span>(<span class="ident">TMDBClientRequestError::reqwest</span>)<span class="question-mark">?</span>;
 
+            <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">status</span>();
+
             <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">response</span>
                 .<span class="ident">bytes</span>()
                 .<span class="kw">await</span>
                 .<span class="ident">map_err</span>(<span class="ident">TMDBClientRequestError::reqwest</span>)<span class="question-mark">?</span>;
 
-            <span class="ident">std::str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>)
+            <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>)
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">TMDBClientRequestError::InvalidUTF8Body</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">to_string</span>())
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">to_string</span>());
+
+            <span class="kw">if</span> <span class="ident">status</span> <span class="op">!</span><span class="op">=</span> <span class="ident">reqwest::StatusCode::OK</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TMDBClientRequestError::NonOkResponse</span> {
+                    <span class="ident">body</span>: <span class="ident">body</span>.<span class="ident">unwrap_or_default</span>(),
+                    <span class="ident">status</span>,
+                });
+            }
+
+            <span class="ident">body</span>
         }
     }
 
