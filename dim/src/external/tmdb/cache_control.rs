@@ -1,15 +1,12 @@
-use std::sync::Arc;
-
-use tokio::sync::broadcast;
-
 use crate::external::MediaSearchType;
 
+use std::sync::Arc;
+use tokio::sync::broadcast;
+
 /// The type of our hashmap we use for caching.
-///
 pub(super) type CacheMap = Arc<dashmap::DashMap<CacheKey, Option<CacheValue>>>;
 
 /// The key type used within the [CacheMap], refers to [CacheValue]s.
-///
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(super) enum CacheKey {
     /// A search result
@@ -35,12 +32,14 @@ pub(super) enum CacheValue {
 
 impl CacheValue {
     /// get the data out of the value, if it is still pending, wait for it and turn errors into None.
-    pub(super) async fn data(&self) -> Option<Arc<str>> {
+    pub(super) async fn data(&self) -> Result<Arc<str>, super::TMDBClientRequestError> {
         match self {
-            CacheValue::RequestInFlight { tx } => {
-                tx.subscribe().recv().await.map(|o| o.ok()).ok().flatten()
-            }
-            CacheValue::Body { text } => Some(Arc::clone(text)),
+            CacheValue::RequestInFlight { tx } => tx
+                .subscribe()
+                .recv()
+                .await
+                .map_err(super::TMDBClientRequestError::RecvError)?,
+            CacheValue::Body { text } => Ok(Arc::clone(text)),
         }
     }
 }

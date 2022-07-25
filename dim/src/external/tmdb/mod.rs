@@ -1,5 +1,4 @@
 //! A TMDB client implementation with request coalescing and client-side rate-limiting.
-//!
 
 use std::sync::Arc;
 
@@ -22,11 +21,25 @@ pub(self) enum TMDBClientRequestError {
     InvalidUTF8Body,
     /// the error comes from reqwest.
     ReqwestError(#[from] Arc<reqwest::Error>),
+    /// Failed to receive result over channel: {0:?}
+    RecvError(#[from] tokio::sync::broadcast::error::RecvError),
 }
 
 impl TMDBClientRequestError {
     fn reqwest(err: reqwest::Error) -> Self {
         Self::ReqwestError(Arc::new(err))
+    }
+}
+
+impl From<TMDBClientRequestError> for super::Error {
+    fn from(this: TMDBClientRequestError) -> super::Error {
+        use TMDBClientRequestError::*;
+
+        if matches!(this, InvalidUTF8Body | ReqwestError(_) | RecvError(_)) {
+            return super::Error::OtherError(Arc::new(this));
+        } else {
+            unreachable!();
+        }
     }
 }
 

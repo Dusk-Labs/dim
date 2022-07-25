@@ -16,7 +16,6 @@ use super::*;
 /// TMDB Metadata Provider produces `ExternalQuery` implementors, and handles request coalescing and caching locally.
 ///
 /// This type is already internally full of Arc's, there is no need to wrap it in another one.
-///
 pub struct TMDBMetadataProvider {
     pub(super) api_key: Arc<str>,
     pub(super) http_client: reqwest::Client,
@@ -119,13 +118,14 @@ impl TMDBMetadataProvider {
 
                 let tx_ = tx.clone();
                 let fut = make_request_future(client);
+
                 tokio::spawn(async move {
                     let output = fut.await;
                     let _ = tx_.send(output);
                 });
 
                 match { CacheValue::RequestInFlight { tx } }.data().await {
-                    Some(text) => {
+                    Ok(text) => {
                         let body = Arc::clone(&text);
 
                         let _ = match self.cache.get_mut(key) {
@@ -136,22 +136,21 @@ impl TMDBMetadataProvider {
                         Ok(body)
                     }
                     // if an error was yeeted back during the request then purge the cache entry.
-                    None => {
+                    Err(error) => {
                         // clear the cache for values that could not be populated.
                         let _ = self.cache.remove(&key);
-                        Err(Error::Timeout)
+                        Err(error.into())
                     }
                 }
             }
 
-            (_, value) => value.data().await.ok_or(Error::Timeout),
+            (_, value) => value.data().await.map_err(Into::into),
         }
     }
 
     /// perform a TMDB search for `title` and optionally `year` of a specific search type (movies or TV shows.)
     ///
     /// request coalescing is applied internally.
-    ///
     async fn search(
         &self,
         title: &str,

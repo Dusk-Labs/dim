@@ -28,7 +28,9 @@ pub enum Error {
     NoEpisodesFound { id: u64, season: u64 },
     /// Could not find genre with supplied id: {id}
     NoGenreFound { id: u64 },
-    /// Other error
+    /// Other error, usually contains an error that shouldn't happen unless theres a bug.
+    // This error wont be ever serialized and sent over the wire, however it should still be
+    // printed in logs somewhere as its very unexpected.
     OtherError(#[serde(skip)] Arc<dyn std::error::Error>),
 }
 
