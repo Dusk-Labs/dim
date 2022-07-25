@@ -89,7 +89,7 @@ mod tests {
             .unwrap();
 
         ExternalMedia {
-        external_id: "65798".into(),
+            external_id: "65798".into(),
             title: "Letterkenny".into(),
             description: Some("Letterkenny follows Wayne, a good-ol’ country boy in Letterkenny, Ontario trying to protect his homegrown way of life on the farm, against a world that is constantly evolving around him. The residents of Letterkenny belong to one of three groups: Hicks, Skids, and Hockey Players. The three groups are constantly feuding with each other over seemingly trivial matters; often ending with someone getting their ass kicked.".into()),
             release_date: Some(dt),

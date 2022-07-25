@@ -26,8 +26,12 @@ pub(super) type PendingRequestTx =
 pub(super) enum CacheValue {
     /// The request responsible for fulfilling this data is currently in flight.
     RequestInFlight { tx: PendingRequestTx },
-    /// The responses body as UTF-8, cached.
-    Body { text: Arc<str> },
+    /// The responses body as UTF-8, cached. This also has a TTL. Once the TTL is reached, the
+    /// value should be ignored/discarded.
+    Body {
+        text: Arc<str>,
+        ttl: std::time::Instant,
+    },
 }
 
 impl CacheValue {
@@ -39,7 +43,8 @@ impl CacheValue {
                 .recv()
                 .await
                 .map_err(super::TMDBClientRequestError::RecvError)?,
-            CacheValue::Body { text } => Ok(Arc::clone(text)),
+
+            CacheValue::Body { text, .. } => Ok(Arc::clone(text)),
         }
     }
 }

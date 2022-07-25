@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::future::Future;
 use std::marker::PhantomData;
+use std::time::Duration;
+use std::time::Instant;
 
 use async_trait::async_trait;
 
@@ -12,6 +14,9 @@ use core::result::Result;
 use super::cache_control::{CacheKey, CacheMap, CacheValue};
 use super::raw_client::TMDBClient;
 use super::*;
+
+/// How long items should be cached for. Defaults to 12 hours.
+const CACHED_ITEM_TTL: Duration = Duration::from_secs(60 * 60 * 12);
 
 /// TMDB Metadata Provider produces `ExternalQuery` implementors, and handles request coalescing and caching locally.
 ///
@@ -67,16 +72,19 @@ impl TMDBMetadataProvider {
         }
     }
 
-    /// insert a default [CacheValue] if the slot at a given key is not present.
+    /// insert a default [CacheValue] if the slot at a given key is not present or it has expired.
     fn insert_value_if_empty(&self, key: &CacheKey) -> (CacheValue, bool) {
         // grab the entry or instert RwLock::new(None) if not present.
         let mut entry = self.cache.entry(key.clone()).or_default();
 
-        // fast path: cache hits, no writers and the value is present.
+        // fast path: cache hits, no writers, the value is present and it hasn't TTL'd
+        // TODO: Test TTL mechanism.
         {
             let read_guard = entry.value();
             if let Some(value) = read_guard.as_ref() {
-                return (value.clone(), false);
+                if matches!(value, CacheValue::Body { ttl, .. } if *ttl > Instant::now()) {
+                    return (value.clone(), false);
+                }
             }
         }
 
@@ -101,6 +109,7 @@ impl TMDBMetadataProvider {
         &self,
         key: &CacheKey,
         make_request_future: F,
+        ttl: Duration,
     ) -> Result<Arc<str>, Error>
     where
         F: FnOnce(TMDBClient) -> Fut,
@@ -129,7 +138,11 @@ impl TMDBMetadataProvider {
                         let body = Arc::clone(&text);
 
                         let _ = match self.cache.get_mut(key) {
-                            Some(mut entry_ref) => entry_ref.replace(CacheValue::Body { text }),
+                            Some(mut entry_ref) => entry_ref.replace(CacheValue::Body {
+                                text,
+                                ttl: Instant::now() + ttl,
+                            }),
+
                             None => unreachable!("slot was None when original task got its result"),
                         };
 
@@ -164,12 +177,16 @@ impl TMDBMetadataProvider {
         };
 
         let st = self
-            .coalesce_request(&key, |client| async move {
-                client
-                    .search(media_type, &title, year)
-                    .await
-                    .map(|st| st.into_boxed_str().into())
-            })
+            .coalesce_request(
+                &key,
+                |client| async move {
+                    client
+                        .search(media_type, &title, year)
+                        .await
+                        .map(|st| st.into_boxed_str().into())
+                },
+                CACHED_ITEM_TTL,
+            )
             .await?;
 
         let mut search = serde_json::from_str::<SearchResponse>(&st).map_err(|error| {
@@ -183,12 +200,16 @@ impl TMDBMetadataProvider {
         {
             let key = CacheKey::GenreList { media_type };
             let st = self
-                .coalesce_request(&key, |client| async move {
-                    client
-                        .genre_list(media_type)
-                        .await
-                        .map(|st| st.into_boxed_str().into())
-                })
+                .coalesce_request(
+                    &key,
+                    |client| async move {
+                        client
+                            .genre_list(media_type)
+                            .await
+                            .map(|st| st.into_boxed_str().into())
+                    },
+                    CACHED_ITEM_TTL,
+                )
                 .await?;
 
             let genre_list = serde_json::from_str::<GenreList>(&st).map_err(|error| {
@@ -242,12 +263,16 @@ impl TMDBMetadataProvider {
         };
 
         let response_body = self
-            .coalesce_request(&key, |client| async move {
-                client
-                    .get_details(media_type, &external_id)
-                    .await
-                    .map(|st| st.into_boxed_str().into())
-            })
+            .coalesce_request(
+                &key,
+                |client| async move {
+                    client
+                        .get_details(media_type, &external_id)
+                        .await
+                        .map(|st| st.into_boxed_str().into())
+                },
+                CACHED_ITEM_TTL,
+            )
             .await?;
 
         match media_type {
