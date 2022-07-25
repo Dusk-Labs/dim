@@ -103,6 +103,12 @@ impl From<TvDetails> for ExternalMedia {
     }
 }
 
+#[derive(Deserialize, Debug)]
+pub struct TmdbError {
+    pub status_message: String,
+    pub status_code: u64,
+}
+
 // -- TMDBClient
 
 /// Internal TMDB client type used for building and making requests.
@@ -134,14 +140,25 @@ impl TMDBClient {
                 .await
                 .map_err(TMDBClientRequestError::reqwest)?;
 
+            let status = response.status();
+
             let body = response
                 .bytes()
                 .await
                 .map_err(TMDBClientRequestError::reqwest)?;
 
-            std::str::from_utf8(&body)
+            let body = std::str::from_utf8(&body)
                 .map_err(|_| TMDBClientRequestError::InvalidUTF8Body)
-                .map(|st| st.to_string())
+                .map(|st| st.to_string());
+
+            if status != reqwest::StatusCode::OK {
+                return Err(TMDBClientRequestError::NonOkResponse {
+                    body: body.unwrap_or_default(),
+                    status,
+                });
+            }
+
+            body
         }
     }
 

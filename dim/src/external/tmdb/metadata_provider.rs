@@ -144,7 +144,7 @@ impl TMDBMetadataProvider {
                 }
             }
 
-            (_, value) => value.data().await.map_err(Into::into),
+            (_, value) => Ok(value.data().await?),
         }
     }
 
@@ -172,7 +172,12 @@ impl TMDBMetadataProvider {
             })
             .await?;
 
-        let mut search = serde_json::from_str::<SearchResponse>(&st).map_err(Error::other)?;
+        let mut search = serde_json::from_str::<SearchResponse>(&st).map_err(|error| {
+            crate::external::Error::DeserializationError {
+                body: st,
+                error: format!("{error}"),
+            }
+        })?;
 
         // fill in the genre names for the search results.
         {
@@ -186,7 +191,12 @@ impl TMDBMetadataProvider {
                 })
                 .await?;
 
-            let genre_list = serde_json::from_str::<GenreList>(&st).map_err(Error::other)?;
+            let genre_list = serde_json::from_str::<GenreList>(&st).map_err(|error| {
+                crate::external::Error::DeserializationError {
+                    body: st,
+                    error: format!("{error}"),
+                }
+            })?;
 
             let mut genre_id_cache = HashMap::<u64, Genre>::with_capacity(search.results.len());
             for media in search.results.iter_mut() {
@@ -244,15 +254,22 @@ impl TMDBMetadataProvider {
             MediaSearchType::Movie => {
                 let movie_details =
                     serde_json::from_str::<MovieDetails>(&response_body).map_err(|err| {
-                        crate::external::Error::DeserializationError(format!("{err}"))
+                        crate::external::Error::DeserializationError {
+                            body: response_body,
+                            error: format!("{err}"),
+                        }
                     })?;
 
                 Ok(movie_details.into())
             }
+
             MediaSearchType::Tv => {
                 let tv_details =
                     serde_json::from_str::<TvDetails>(&response_body).map_err(|err| {
-                        crate::external::Error::DeserializationError(format!("{err}"))
+                        crate::external::Error::DeserializationError {
+                            body: response_body,
+                            error: format!("{err}"),
+                        }
                     })?;
 
                 Ok(tv_details.into())

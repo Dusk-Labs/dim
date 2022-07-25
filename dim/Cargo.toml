@@ -24,7 +24,7 @@ nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4"
 database = { path = "../database", default-features = false, optional = true }
 events = { path = "../events" }
 
-serde = { version = "^1.0.125", default-features = false, features = ["derive", "std"] }
+serde = { version = "^1.0.125", default-features = false, features = ["derive", "std", "rc"] }
 serde_derive = "^1.0.125"
 serde_json = "^1.0.64"
 

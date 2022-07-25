@@ -18,8 +18,8 @@ pub enum Error {
     Timeout,
     /// Max retry count reached
     ReachedMaxTries,
-    /// The API response could not be deserialized: {0:?}
-    DeserializationError(String),
+    /// The API response could not be deserialized: {error}
+    DeserializationError { body: Arc<str>, error: String },
     /// No results are found: query={query} year={year:?}
     NoResults { query: String, year: Option<i32> },
     /// No seasons found for the id supplied: {id}
@@ -32,6 +32,8 @@ pub enum Error {
     // This error wont be ever serialized and sent over the wire, however it should still be
     // printed in logs somewhere as its very unexpected.
     OtherError(#[serde(skip)] Arc<dyn std::error::Error>),
+    /// The remote API returned an error ({code}): {message}
+    RemoteApiError { code: u16, message: String },
 }
 
 impl Error {

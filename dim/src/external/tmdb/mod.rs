@@ -23,6 +23,11 @@ pub(self) enum TMDBClientRequestError {
     ReqwestError(#[from] Arc<reqwest::Error>),
     /// Failed to receive result over channel: {0:?}
     RecvError(#[from] tokio::sync::broadcast::error::RecvError),
+    /// Received {status:?} response code: {body:?}
+    NonOkResponse {
+        status: reqwest::StatusCode,
+        body: String,
+    },
 }
 
 impl TMDBClientRequestError {
@@ -35,10 +40,26 @@ impl From<TMDBClientRequestError> for super::Error {
     fn from(this: TMDBClientRequestError) -> super::Error {
         use TMDBClientRequestError::*;
 
-        if matches!(this, InvalidUTF8Body | ReqwestError(_) | RecvError(_)) {
-            return super::Error::OtherError(Arc::new(this));
-        } else {
-            unreachable!();
+        match this {
+            // We can generalize some errors into common ones from the upstream enum, but some have to
+            // do with internal logic and are this mapped into `OtherError`. `OtherError` generally
+            // indicates unexpected errors that cannot be handled. These usually mean something broke.
+            //
+            // FIXME: `InternalError` might be a more appropriate name.
+            InvalidUTF8Body | ReqwestError(_) | RecvError(_) => {
+                super::Error::OtherError(Arc::new(this))
+            }
+
+            NonOkResponse { status, body } => {
+                let message = serde_json::from_str::<raw_client::TmdbError>(&body)
+                    .map(|x| x.status_message)
+                    .unwrap_or(body);
+
+                super::Error::RemoteApiError {
+                    code: status.as_u16(),
+                    message,
+                }
+            }
         }
     }
 }
@@ -75,7 +96,7 @@ mod tests {
             posters: vec!["/yvQGoc9GGTfOyPty5ASShT9tPBD.jpg".into()], 
             backdrops: vec!["/wdHK7RZNIGfskbGCIusSKN3vto6.jpg".into()], 
             genres: vec!["Comedy".into()], 
-            rating: Some(8.5),
+            rating: Some(8.4),
             duration: None
         }
     }
