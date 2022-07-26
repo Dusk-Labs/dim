@@ -47,4 +47,13 @@ impl CacheValue {
             CacheValue::Body { text, .. } => Ok(Arc::clone(text)),
         }
     }
+
+    pub fn mem_size(&self) -> usize {
+        let body_size = match self {
+            Self::Body { text, .. } => text.as_bytes().len(),
+            _ => 0,
+        };
+
+        core::mem::size_of::<CacheValue>() + body_size
+    }
 }

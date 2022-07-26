@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::future::Future;
 use std::marker::PhantomData;
+use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::Ordering;
 use std::time::Duration;
 use std::time::Instant;
 
@@ -25,6 +27,7 @@ pub struct TMDBMetadataProvider {
     pub(super) api_key: Arc<str>,
     pub(super) http_client: reqwest::Client,
     cache: CacheMap,
+    cache_size: Arc<AtomicUsize>,
 }
 
 impl Clone for TMDBMetadataProvider {
@@ -33,6 +36,7 @@ impl Clone for TMDBMetadataProvider {
             api_key: self.api_key.clone(),
             http_client: self.http_client.clone(),
             cache: self.cache.clone(),
+            cache_size: self.cache_size.clone(),
         }
     }
 }
@@ -51,6 +55,7 @@ impl TMDBMetadataProvider {
             api_key,
             http_client,
             cache: Default::default(),
+            cache_size: Default::default(),
         }
     }
 
@@ -79,29 +84,37 @@ impl TMDBMetadataProvider {
 
         // fast path: cache hits, no writers, the value is present and it hasn't TTL'd
         // TODO: Test TTL mechanism.
-        {
+        let needs_cleanup = {
             let read_guard = entry.value();
             if let Some(value) = read_guard.as_ref() {
                 if matches!(value, CacheValue::Body { ttl, .. } if *ttl > Instant::now()) {
                     return (value.clone(), false);
                 }
+
+                true
+            } else {
+                false
             }
-        }
+        };
 
         // slow path: get a write guard, if the slot is still uninit when we acquire; initialize it.s
         let slot = entry.value_mut();
 
         match slot.as_ref() {
             // someone initialized the slot before we got the write guard, use their value.
-            Some(value) => (value.clone(), false),
-            // we're still first, initialize the value and keep going.
-            None => {
-                let (tx, _) = broadcast::channel(1);
-                let value = CacheValue::RequestInFlight { tx };
-                slot.replace(value.clone());
-                (value, true)
-            }
+            Some(value) if !needs_cleanup => return (value.clone(), false),
+            _ => {}
         }
+
+        // we're still first or the old value needs to be cleaned, get rid of it.
+        let (tx, _) = broadcast::channel(1);
+        let value = CacheValue::RequestInFlight { tx };
+
+        if let Some(old) = slot.replace(value.clone()) {
+            self.cache_size.fetch_sub(old.mem_size(), Ordering::Release);
+        }
+
+        (value, true)
     }
 
     /// perform request coalescing; when two futures are made with the same key the duplicates wait for the original to broadcast the results.
@@ -137,12 +150,17 @@ impl TMDBMetadataProvider {
                     Ok(text) => {
                         let body = Arc::clone(&text);
 
-                        let _ = match self.cache.get_mut(key) {
-                            Some(mut entry_ref) => entry_ref.replace(CacheValue::Body {
-                                text,
-                                ttl: Instant::now() + ttl,
-                            }),
+                        let value = CacheValue::Body {
+                            text,
+                            ttl: Instant::now() + ttl,
+                        };
 
+                        // Increase our memory usage tracker.
+                        self.cache_size
+                            .fetch_add(value.mem_size(), Ordering::Release);
+
+                        match self.cache.get_mut(key) {
+                            Some(mut entry_ref) => entry_ref.replace(value),
                             None => unreachable!("slot was None when original task got its result"),
                         };
 
