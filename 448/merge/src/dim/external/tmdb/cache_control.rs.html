@@ -48,6 +48,20 @@
 <span id="43">43</span>
 <span id="44">44</span>
 <span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external::MediaSearchType</span>;
 
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
@@ -76,8 +90,12 @@
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum</span> <span class="ident">CacheValue</span> {
     <span class="doccomment">/// The request responsible for fulfilling this data is currently in flight.</span>
     <span class="ident">RequestInFlight</span> { <span class="ident">tx</span>: <span class="ident">PendingRequestTx</span> },
-    <span class="doccomment">/// The responses body as UTF-8, cached.</span>
-    <span class="ident">Body</span> { <span class="ident">text</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> },
+    <span class="doccomment">/// The responses body as UTF-8, cached. This also has a TTL. Once the TTL is reached, the</span>
+    <span class="doccomment">/// value should be ignored/discarded.</span>
+    <span class="ident">Body</span> {
+        <span class="ident">text</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
+        <span class="ident">ttl</span>: <span class="ident">std::time::Instant</span>,
+    },
 }
 
 <span class="kw">impl</span> <span class="ident">CacheValue</span> {
@@ -89,8 +107,18 @@
                 .<span class="ident">recv</span>()
                 .<span class="kw">await</span>
                 .<span class="ident">map_err</span>(<span class="ident"><span class="kw">super</span>::TMDBClientRequestError::RecvError</span>)<span class="question-mark">?</span>,
-            <span class="ident">CacheValue::Body</span> { <span class="ident">text</span> } =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Arc::clone</span>(<span class="ident">text</span>)),
+
+            <span class="ident">CacheValue::Body</span> { <span class="ident">text</span>, .. } =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Arc::clone</span>(<span class="ident">text</span>)),
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mem_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="kw">let</span> <span class="ident">body_size</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Body</span> { <span class="ident">text</span>, .. } =&gt; <span class="ident">text</span>.<span class="ident">as_bytes</span>().<span class="ident">len</span>(),
+            <span class="kw">_</span> =&gt; <span class="number">0</span>,
+        };
+
+        <span class="ident">core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">CacheValue</span><span class="op">&gt;</span>() <span class="op">+</span> <span class="ident">body_size</span>
     }
 }
 </code></pre></div>
