@@ -392,6 +392,16 @@
 <span id="387">387</span>
 <span id="388">388</span>
 <span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::future::Future</span>;
 <span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
@@ -407,7 +417,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external</span>::{<span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">QueryResult</span>, <span class="kw-2">*</span>};
 <span class="kw">use</span> <span class="ident">core::result::Result</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::cache_control</span>::{<span class="ident">CacheKey</span>, <span class="ident">CacheMap</span>, <span class="ident">CacheValue</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::cache_control</span>::{<span class="ident">AbortOnDropHandle</span>, <span class="ident">CacheEviction</span>, <span class="ident">CacheKey</span>, <span class="ident">CacheMap</span>, <span class="ident">CacheValue</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::raw_client::TMDBClient</span>;
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -422,6 +432,7 @@
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">http_client</span>: <span class="ident">reqwest::Client</span>,
     <span class="ident">cache</span>: <span class="ident">CacheMap</span>,
     <span class="ident">cache_size</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">AtomicUsize</span><span class="op">&gt;</span>,
+    <span class="ident">cache_eviction</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">AbortOnDropHandle</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">TMDBMetadataProvider</span> {
@@ -431,6 +442,7 @@
             <span class="ident">http_client</span>: <span class="self">self</span>.<span class="ident">http_client</span>.<span class="ident">clone</span>(),
             <span class="ident">cache</span>: <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">clone</span>(),
             <span class="ident">cache_size</span>: <span class="self">self</span>.<span class="ident">cache_size</span>.<span class="ident">clone</span>(),
+            <span class="ident">cache_eviction</span>: <span class="self">self</span>.<span class="ident">cache_eviction</span>.<span class="ident">clone</span>(),
         }
     }
 }
@@ -445,11 +457,18 @@
 
         <span class="kw">let</span> <span class="ident">api_key</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">api_key</span>.<span class="ident">to_owned</span>().<span class="ident">into_boxed_str</span>().<span class="ident">into</span>();
 
+        <span class="kw">let</span> <span class="ident">cache</span>: <span class="ident">CacheMap</span> <span class="op">=</span> <span class="ident">Default::default</span>();
+        <span class="kw">let</span> <span class="ident">cache_size</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">AtomicUsize::new</span>(<span class="number">0</span>));
+
         <span class="self">Self</span> {
+            <span class="comment">// FIXME: Make max cache size configurable at start-time.</span>
+            <span class="ident">cache_eviction</span>: <span class="ident">Arc::new</span>(
+                <span class="ident">CacheEviction::new</span>(<span class="ident">cache</span>.<span class="ident">clone</span>(), <span class="ident">cache_size</span>.<span class="ident">clone</span>(), <span class="number">102_400_000</span>).<span class="ident">start_policy</span>(),
+            ),
             <span class="ident">api_key</span>,
             <span class="ident">http_client</span>,
-            <span class="ident">cache</span>: <span class="ident">Default::default</span>(),
-            <span class="ident">cache_size</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">cache</span>,
+            <span class="ident">cache_size</span>,
         }
     }
 
@@ -505,7 +524,8 @@
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">CacheValue::RequestInFlight</span> { <span class="ident">tx</span> };
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">old</span>) <span class="op">=</span> <span class="ident">slot</span>.<span class="ident">replace</span>(<span class="ident">value</span>.<span class="ident">clone</span>()) {
-            <span class="self">self</span>.<span class="ident">cache_size</span>.<span class="ident">fetch_sub</span>(<span class="ident">old</span>.<span class="ident">mem_size</span>(), <span class="ident">Ordering::Release</span>);
+            <span class="comment">// Unsure how relaxed ordering will hold up on non-x86 targets.</span>
+            <span class="self">self</span>.<span class="ident">cache_size</span>.<span class="ident">fetch_sub</span>(<span class="ident">old</span>.<span class="ident">mem_size</span>(), <span class="ident">Ordering::Relaxed</span>);
         }
 
         (<span class="ident">value</span>, <span class="bool-val">true</span>)
@@ -551,7 +571,7 @@
 
                         <span class="comment">// Increase our memory usage tracker.</span>
                         <span class="self">self</span>.<span class="ident">cache_size</span>
-                            .<span class="ident">fetch_add</span>(<span class="ident">value</span>.<span class="ident">mem_size</span>(), <span class="ident">Ordering::Release</span>);
+                            .<span class="ident">fetch_add</span>(<span class="ident">value</span>.<span class="ident">mem_size</span>(), <span class="ident">Ordering::Relaxed</span>);
 
                         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">get_mut</span>(<span class="ident">key</span>) {
                             <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">entry_ref</span>) =&gt; <span class="ident">entry_ref</span>.<span class="ident">replace</span>(<span class="ident">value</span>),
