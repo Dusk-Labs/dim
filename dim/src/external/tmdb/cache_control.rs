@@ -29,6 +29,8 @@ pub(super) enum CacheKey {
     GenreList { media_type: MediaSearchType },
     /// Searching by ID
     ById { id: String, ty: MediaSearchType },
+    /// Search for an actor by id
+    ActorById { id: String },
 }
 
 pub(super) type PendingRequestTx =

@@ -234,7 +234,7 @@ impl TMDBMetadataProvider {
                     client
                         .search(media_type, &title, year)
                         .await
-                        .map(|st| st.into_boxed_str().into())
+                        .map(|st| st.into())
                 },
                 CACHED_ITEM_TTL,
             )
@@ -253,12 +253,7 @@ impl TMDBMetadataProvider {
             let st = self
                 .coalesce_request(
                     &key,
-                    |client| async move {
-                        client
-                            .genre_list(media_type)
-                            .await
-                            .map(|st| st.into_boxed_str().into())
-                    },
+                    |client| async move { client.genre_list(media_type).await.map(|st| st.into()) },
                     CACHED_ITEM_TTL,
                 )
                 .await?;
@@ -320,7 +315,7 @@ impl TMDBMetadataProvider {
                     client
                         .get_details(media_type, &external_id)
                         .await
-                        .map(|st| st.into_boxed_str().into())
+                        .map(|st| st.into())
                 },
                 CACHED_ITEM_TTL,
             )
@@ -353,8 +348,37 @@ impl TMDBMetadataProvider {
         }
     }
 
-    async fn actors(&self, external_id: &str) -> QueryResult<Vec<ExternalActor>> {
-        todo!()
+    async fn cast(
+        &self,
+        external_id: &str,
+        media_type: MediaSearchType,
+    ) -> QueryResult<Vec<ExternalActor>> {
+        let external_id = external_id.to_string();
+        let key = CacheKey::ActorById {
+            id: external_id.clone(),
+        };
+
+        let resp = self
+            .coalesce_request(
+                &key,
+                |client| async move {
+                    client
+                        .get_actor(media_type, &external_id)
+                        .await
+                        .map(|st| st.into())
+                },
+                CACHED_ITEM_TTL,
+            )
+            .await?;
+
+        let actor = serde_json::from_str::<Cast>(&resp).map_err(|error| {
+            crate::external::Error::DeserializationError {
+                body: resp,
+                error: format!("{error}"),
+            }
+        })?;
+
+        Ok(actor.cast.into_iter().map(|x| x.into()).collect())
     }
 }
 
@@ -405,8 +429,8 @@ where
         self.provider.search_by_id(external_id, K::MEDIA_TYPE).await
     }
 
-    async fn actors(&self, external_id: &str) -> QueryResult<Vec<ExternalActor>> {
-        todo!()
+    async fn cast(&self, external_id: &str) -> QueryResult<Vec<ExternalActor>> {
+        self.provider.cast(external_id, K::MEDIA_TYPE).await
     }
 }
 

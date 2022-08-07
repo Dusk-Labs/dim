@@ -94,6 +94,7 @@ pub struct ExternalEpisode {
 pub struct ExternalActor {
     pub external_id: String,
     pub name: String,
+    pub profile_path: Option<String>,
     pub character: String,
 }
 
@@ -122,8 +123,8 @@ pub trait ExternalQuery {
     /// Search by external id. This must return a singular `ExternalMedia` which has the id passed
     /// in.
     async fn search_by_id(&self, external_id: &str) -> Result<ExternalMedia>;
-    /// Get all actors for an external id. Actors must be ordered in order of importance.
-    async fn actors(&self, external_id: &str) -> Result<Vec<ExternalActor>>;
+    /// Get all actors for a media by external id. Actors must be ordered in order of importance.
+    async fn cast(&self, external_id: &str) -> Result<Vec<ExternalActor>>;
 }
 
 /// Trait must be implemented by all external metadata agents which support querying for tv shows.

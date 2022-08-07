@@ -13,7 +13,9 @@ mod metadata_provider;
 mod raw_client;
 
 pub use metadata_provider::{MetadataProviderOf, Movies, TMDBMetadataProvider, TvShows};
-use raw_client::{Genre, GenreList, MovieDetails, SearchResponse, TMDBMediaObject, TvDetails};
+use raw_client::{
+    Cast, Genre, GenreList, MovieDetails, SearchResponse, TMDBMediaObject, TvDetails,
+};
 
 #[derive(Debug, displaydoc::Display, Clone, thiserror::Error)]
 pub(self) enum TMDBClientRequestError {
@@ -69,7 +71,7 @@ mod tests {
     use chrono::{Datelike, Timelike};
 
     use super::*;
-    use crate::external::{ExternalMedia, ExternalQuery};
+    use crate::external::{ExternalActor, ExternalMedia, ExternalQuery};
 
     fn make_letterkenny() -> ExternalMedia {
         let dt = chrono::Utc::now()
@@ -93,8 +95,8 @@ mod tests {
             title: "Letterkenny".into(),
             description: Some("Letterkenny follows Wayne, a good-ol’ country boy in Letterkenny, Ontario trying to protect his homegrown way of life on the farm, against a world that is constantly evolving around him. The residents of Letterkenny belong to one of three groups: Hicks, Skids, and Hockey Players. The three groups are constantly feuding with each other over seemingly trivial matters; often ending with someone getting their ass kicked.".into()),
             release_date: Some(dt),
-            posters: vec!["/yvQGoc9GGTfOyPty5ASShT9tPBD.jpg".into()], 
-            backdrops: vec!["/wdHK7RZNIGfskbGCIusSKN3vto6.jpg".into()], 
+            posters: vec!["https://image.tmdb.org/t/p/w600_and_h900_bestv2/yvQGoc9GGTfOyPty5ASShT9tPBD.jpg".into()], 
+            backdrops: vec!["https://image.tmdb.org/t/p/original/wdHK7RZNIGfskbGCIusSKN3vto6.jpg".into()], 
             genres: vec!["Comedy".into()], 
             rating: Some(8.3),
             duration: None
@@ -129,5 +131,27 @@ mod tests {
         let letterkenny = make_letterkenny();
 
         assert_eq!(letterkenny, media);
+    }
+
+    #[tokio::test]
+    async fn tmdb_get_cast() {
+        let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
+        let provider_movies: MetadataProviderOf<Movies> = provider.movies();
+
+        let cast = provider_movies
+            .cast("335984")
+            .await
+            .expect("cast should exist");
+
+        let expected = ExternalActor {
+            external_id: "30614".into(),
+            name: "Ryan Gosling".into(),
+            profile_path: Some(
+                "https://image.tmdb.org/t/p/original/lyUyVARQKhGxaxy0FbPJCQRpiaW.jpg".into(),
+            ),
+            character: "K".into(),
+        };
+
+        assert_eq!(cast[0], expected);
     }
 }

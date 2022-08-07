@@ -1,9 +1,9 @@
 use std::future::Future;
 use std::time::Duration;
 
-use serde::{de::DeserializeOwned, Deserialize};
+use serde::Deserialize;
 
-use crate::external::{ExternalMedia, MediaSearchType};
+use crate::external::{ExternalActor, ExternalMedia, MediaSearchType};
 
 use super::{TMDBClientRequestError, TMDBMetadataProvider, TMDB_BASE_URL};
 
@@ -43,8 +43,16 @@ impl From<TMDBMediaObject> for ExternalMedia {
                     .ok()
                     .map(|dt| dt.with_timezone(&chrono::Utc))
             }),
-            posters: media.poster_path.into_iter().collect(),
-            backdrops: media.backdrop_path.into_iter().collect(),
+            posters: media
+                .poster_path
+                .into_iter()
+                .map(|x| format!("https://image.tmdb.org/t/p/w600_and_h900_bestv2{x}"))
+                .collect(),
+            backdrops: media
+                .backdrop_path
+                .into_iter()
+                .map(|x| format!("https://image.tmdb.org/t/p/original{x}"))
+                .collect(),
             genres: media.genres,
             rating: media.vote_average,
             duration: media.runtime.map(|n| Duration::from_secs(n)),
@@ -101,6 +109,44 @@ impl From<TvDetails> for ExternalMedia {
 
         media
     }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct CastActor {
+    pub id: u64,
+    pub name: String,
+    pub original_name: String,
+    pub character: String,
+    pub cast_id: u64,
+    pub gender: u64,
+    pub adult: bool,
+    pub profile_path: Option<String>,
+    pub order: u64,
+}
+
+impl From<CastActor> for ExternalActor {
+    fn from(actor: CastActor) -> Self {
+        let CastActor {
+            id,
+            name,
+            profile_path,
+            character,
+            ..
+        } = actor;
+
+        ExternalActor {
+            name,
+            character,
+            external_id: id.to_string(),
+            profile_path: profile_path.map(|x| format!("https://image.tmdb.org/t/p/original{x}")),
+        }
+    }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Cast {
+    pub id: u64,
+    pub cast: Vec<CastActor>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -209,5 +255,19 @@ impl TMDBClient {
         ];
 
         self.make_request(args, format!("/{media_type}/{id}")).await
+    }
+
+    pub async fn get_actor(
+        &self,
+        media_type: MediaSearchType,
+        id: &str,
+    ) -> Result<String, TMDBClientRequestError> {
+        let args = vec![
+            ("api_key", self.provider.api_key.as_ref()),
+            ("language", "en-US"),
+        ];
+
+        self.make_request(args, format!("/{media_type}/{id}/credits"))
+            .await
     }
 }
