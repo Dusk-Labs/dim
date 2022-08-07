@@ -425,6 +425,30 @@
 <span id="420">420</span>
 <span id="421">421</span>
 <span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::future::Future</span>;
 <span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
@@ -661,7 +685,7 @@
                     <span class="ident">client</span>
                         .<span class="ident">search</span>(<span class="ident">media_type</span>, <span class="kw-2">&amp;</span><span class="ident">title</span>, <span class="ident">year</span>)
                         .<span class="kw">await</span>
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">into_boxed_str</span>().<span class="ident">into</span>())
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">into</span>())
                 },
                 <span class="ident">CACHED_ITEM_TTL</span>,
             )
@@ -680,12 +704,7 @@
             <span class="kw">let</span> <span class="ident">st</span> <span class="op">=</span> <span class="self">self</span>
                 .<span class="ident">coalesce_request</span>(
                     <span class="kw-2">&amp;</span><span class="ident">key</span>,
-                    <span class="op">|</span><span class="ident">client</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                        <span class="ident">client</span>
-                            .<span class="ident">genre_list</span>(<span class="ident">media_type</span>)
-                            .<span class="kw">await</span>
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">into_boxed_str</span>().<span class="ident">into</span>())
-                    },
+                    <span class="op">|</span><span class="ident">client</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> { <span class="ident">client</span>.<span class="ident">genre_list</span>(<span class="ident">media_type</span>).<span class="kw">await</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">into</span>()) },
                     <span class="ident">CACHED_ITEM_TTL</span>,
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -747,7 +766,7 @@
                     <span class="ident">client</span>
                         .<span class="ident">get_details</span>(<span class="ident">media_type</span>, <span class="kw-2">&amp;</span><span class="ident">external_id</span>)
                         .<span class="kw">await</span>
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">into_boxed_str</span>().<span class="ident">into</span>())
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">into</span>())
                 },
                 <span class="ident">CACHED_ITEM_TTL</span>,
             )
@@ -780,8 +799,37 @@
         }
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">actors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalActor</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="macro">todo!</span>()
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">cast</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">media_type</span>: <span class="ident">MediaSearchType</span>,
+    ) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalActor</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">external_id</span> <span class="op">=</span> <span class="ident">external_id</span>.<span class="ident">to_string</span>();
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">CacheKey::ActorById</span> {
+            <span class="ident">id</span>: <span class="ident">external_id</span>.<span class="ident">clone</span>(),
+        };
+
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">coalesce_request</span>(
+                <span class="kw-2">&amp;</span><span class="ident">key</span>,
+                <span class="op">|</span><span class="ident">client</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                    <span class="ident">client</span>
+                        .<span class="ident">get_actor</span>(<span class="ident">media_type</span>, <span class="kw-2">&amp;</span><span class="ident">external_id</span>)
+                        .<span class="kw">await</span>
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">into</span>())
+                },
+                <span class="ident">CACHED_ITEM_TTL</span>,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="kw">let</span> <span class="ident">actor</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">Cast</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+            <span class="ident"><span class="kw">crate</span>::external::Error::DeserializationError</span> {
+                <span class="ident">body</span>: <span class="ident">resp</span>,
+                <span class="ident">error</span>: <span class="macro">format!</span>(<span class="string">&quot;{error}&quot;</span>),
+            }
+        })<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="ident">actor</span>.<span class="ident">cast</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">into</span>()).<span class="ident">collect</span>())
     }
 }
 
@@ -832,8 +880,8 @@
         <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">search_by_id</span>(<span class="ident">external_id</span>, <span class="ident">K::MEDIA_TYPE</span>).<span class="kw">await</span>
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">actors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalActor</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="macro">todo!</span>()
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">cast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalActor</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">cast</span>(<span class="ident">external_id</span>, <span class="ident">K::MEDIA_TYPE</span>).<span class="kw">await</span>
     }
 }
 

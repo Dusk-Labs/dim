@@ -200,6 +200,8 @@
 <span id="195">195</span>
 <span id="196">196</span>
 <span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external::MediaSearchType</span>;
 
 <span class="kw">use</span> <span class="ident">std::sync::atomic::AtomicUsize</span>;
@@ -231,6 +233,8 @@
     <span class="ident">GenreList</span> { <span class="ident">media_type</span>: <span class="ident">MediaSearchType</span> },
     <span class="doccomment">/// Searching by ID</span>
     <span class="ident">ById</span> { <span class="ident">id</span>: <span class="ident">String</span>, <span class="ident">ty</span>: <span class="ident">MediaSearchType</span> },
+    <span class="doccomment">/// Search for an actor by id</span>
+    <span class="ident">ActorById</span> { <span class="ident">id</span>: <span class="ident">String</span> },
 }
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type</span> <span class="ident">PendingRequestTx</span> <span class="op">=</span>

@@ -136,6 +136,30 @@
 <span id="131">131</span>
 <span id="132">132</span>
 <span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A TMDB client implementation with request coalescing and client-side rate-limiting.</span>
 
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
@@ -151,7 +175,9 @@
 <span class="kw">mod</span> <span class="ident">raw_client</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">metadata_provider</span>::{<span class="ident">MetadataProviderOf</span>, <span class="ident">Movies</span>, <span class="ident">TMDBMetadataProvider</span>, <span class="ident">TvShows</span>};
-<span class="kw">use</span> <span class="ident">raw_client</span>::{<span class="ident">Genre</span>, <span class="ident">GenreList</span>, <span class="ident">MovieDetails</span>, <span class="ident">SearchResponse</span>, <span class="ident">TMDBMediaObject</span>, <span class="ident">TvDetails</span>};
+<span class="kw">use</span> <span class="ident">raw_client</span>::{
+    <span class="ident">Cast</span>, <span class="ident">Genre</span>, <span class="ident">GenreList</span>, <span class="ident">MovieDetails</span>, <span class="ident">SearchResponse</span>, <span class="ident">TMDBMediaObject</span>, <span class="ident">TvDetails</span>,
+};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">displaydoc::Display</span>, <span class="ident">Clone</span>, <span class="ident">thiserror::Error</span>)]</span>
 <span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">enum</span> <span class="ident">TMDBClientRequestError</span> {
@@ -207,7 +233,7 @@
     <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">Datelike</span>, <span class="ident">Timelike</span>};
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external</span>::{<span class="ident">ExternalMedia</span>, <span class="ident">ExternalQuery</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external</span>::{<span class="ident">ExternalActor</span>, <span class="ident">ExternalMedia</span>, <span class="ident">ExternalQuery</span>};
 
     <span class="kw">fn</span> <span class="ident">make_letterkenny</span>() -&gt; <span class="ident">ExternalMedia</span> {
         <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">chrono::Utc::now</span>()
@@ -231,8 +257,8 @@
             <span class="ident">title</span>: <span class="string">&quot;Letterkenny&quot;</span>.<span class="ident">into</span>(),
             <span class="ident">description</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Letterkenny follows Wayne, a good-ol’ country boy in Letterkenny, Ontario trying to protect his homegrown way of life on the farm, against a world that is constantly evolving around him. The residents of Letterkenny belong to one of three groups: Hicks, Skids, and Hockey Players. The three groups are constantly feuding with each other over seemingly trivial matters; often ending with someone getting their ass kicked.&quot;</span>.<span class="ident">into</span>()),
             <span class="ident">release_date</span>: <span class="prelude-val">Some</span>(<span class="ident">dt</span>),
-            <span class="ident">posters</span>: <span class="macro">vec!</span>[<span class="string">&quot;/yvQGoc9GGTfOyPty5ASShT9tPBD.jpg&quot;</span>.<span class="ident">into</span>()], 
-            <span class="ident">backdrops</span>: <span class="macro">vec!</span>[<span class="string">&quot;/wdHK7RZNIGfskbGCIusSKN3vto6.jpg&quot;</span>.<span class="ident">into</span>()], 
+            <span class="ident">posters</span>: <span class="macro">vec!</span>[<span class="string">&quot;https://image.tmdb.org/t/p/w600_and_h900_bestv2/yvQGoc9GGTfOyPty5ASShT9tPBD.jpg&quot;</span>.<span class="ident">into</span>()], 
+            <span class="ident">backdrops</span>: <span class="macro">vec!</span>[<span class="string">&quot;https://image.tmdb.org/t/p/original/wdHK7RZNIGfskbGCIusSKN3vto6.jpg&quot;</span>.<span class="ident">into</span>()], 
             <span class="ident">genres</span>: <span class="macro">vec!</span>[<span class="string">&quot;Comedy&quot;</span>.<span class="ident">into</span>()], 
             <span class="ident">rating</span>: <span class="prelude-val">Some</span>(<span class="number">8.3</span>),
             <span class="ident">duration</span>: <span class="prelude-val">None</span>
@@ -267,6 +293,28 @@
         <span class="kw">let</span> <span class="ident">letterkenny</span> <span class="op">=</span> <span class="ident">make_letterkenny</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">letterkenny</span>, <span class="ident">media</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">tmdb_get_cast</span>() {
+        <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">TMDBMetadataProvider::new</span>(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
+        <span class="kw">let</span> <span class="ident">provider_movies</span>: <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">Movies</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">provider</span>.<span class="ident">movies</span>();
+
+        <span class="kw">let</span> <span class="ident">cast</span> <span class="op">=</span> <span class="ident">provider_movies</span>
+            .<span class="ident">cast</span>(<span class="string">&quot;335984&quot;</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;cast should exist&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">ExternalActor</span> {
+            <span class="ident">external_id</span>: <span class="string">&quot;30614&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">name</span>: <span class="string">&quot;Ryan Gosling&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">profile_path</span>: <span class="prelude-val">Some</span>(
+                <span class="string">&quot;https://image.tmdb.org/t/p/original/lyUyVARQKhGxaxy0FbPJCQRpiaW.jpg&quot;</span>.<span class="ident">into</span>(),
+            ),
+            <span class="ident">character</span>: <span class="string">&quot;K&quot;</span>.<span class="ident">into</span>(),
+        };
+
+        <span class="macro">assert_eq!</span>(<span class="ident">cast</span>[<span class="number">0</span>], <span class="ident">expected</span>);
     }
 }
 </code></pre></div>
