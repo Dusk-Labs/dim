@@ -199,6 +199,7 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
+<span id="197">197</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external::MediaSearchType</span>;
 
 <span class="kw">use</span> <span class="ident">std::sync::atomic::AtomicUsize</span>;
@@ -303,6 +304,7 @@
                     <span class="ident">duration_ms</span> <span class="op">=</span> <span class="ident">duration</span>,
                     <span class="string">&quot;tmdb cache eviction finished.&quot;</span>
                 );
+
                 <span class="ident">thread::sleep</span>(<span class="ident">EVICT_EVERY</span>);
             }
         });

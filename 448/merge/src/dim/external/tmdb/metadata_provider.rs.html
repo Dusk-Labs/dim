@@ -425,7 +425,6 @@
 <span id="420">420</span>
 <span id="421">421</span>
 <span id="422">422</span>
-<span id="423">423</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::future::Future</span>;
 <span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
@@ -597,6 +596,10 @@
 
                 <span class="kw">let</span> <span class="ident">tx_</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">clone</span>();
                 <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">make_request_future</span>(<span class="ident">client</span>);
+
+                <span class="comment">// we want to ratelimit locally. Thus we wait for a permit until we spawn the</span>
+                <span class="comment">// request future.</span>
+                <span class="self">self</span>.<span class="ident">governor</span>.<span class="ident">until_ready</span>().<span class="kw">await</span>;
 
                 <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
                     <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">fut</span>.<span class="kw">await</span>;
@@ -822,17 +825,14 @@
     <span class="ident">K</span>: <span class="ident">sealed::AssocMediaTypeConst</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalMedia</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">governor</span>.<span class="ident">until_ready</span>().<span class="kw">await</span>;
         <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">search</span>(<span class="ident">title</span>, <span class="ident">year</span>, <span class="ident">K::MEDIA_TYPE</span>).<span class="kw">await</span>
     }
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search_by_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">ExternalMedia</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">governor</span>.<span class="ident">until_ready</span>().<span class="kw">await</span>;
         <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">search_by_id</span>(<span class="ident">external_id</span>, <span class="ident">K::MEDIA_TYPE</span>).<span class="kw">await</span>
     }
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">actors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalActor</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">governor</span>.<span class="ident">until_ready</span>().<span class="kw">await</span>;
         <span class="macro">todo!</span>()
     }
 }
@@ -840,12 +840,10 @@
 <span class="attribute">#[<span class="ident">async_trait</span>]</span>
 <span class="kw">impl</span> <span class="ident">ExternalQueryShow</span> <span class="kw">for</span> <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">TvShows</span><span class="op">&gt;</span> {
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">seasons_for_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalSeason</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">governor</span>.<span class="ident">until_ready</span>().<span class="kw">await</span>;
         <span class="macro">todo!</span>()
     }
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">episodes_for_season</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">season_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalEpisode</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">governor</span>.<span class="ident">until_ready</span>().<span class="kw">await</span>;
         <span class="macro">todo!</span>()
     }
 }
