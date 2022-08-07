@@ -96,7 +96,7 @@ mod tests {
             posters: vec!["/yvQGoc9GGTfOyPty5ASShT9tPBD.jpg".into()], 
             backdrops: vec!["/wdHK7RZNIGfskbGCIusSKN3vto6.jpg".into()], 
             genres: vec!["Comedy".into()], 
-            rating: Some(8.4),
+            rating: Some(8.3),
             duration: None
         }
     }

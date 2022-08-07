@@ -13,7 +13,7 @@ use tokio::sync::broadcast;
 use crate::external::{Result as QueryResult, *};
 use core::result::Result;
 
-use super::cache_control::{CacheKey, CacheMap, CacheValue};
+use super::cache_control::{AbortOnDropHandle, CacheEviction, CacheKey, CacheMap, CacheValue};
 use super::raw_client::TMDBClient;
 use super::*;
 
@@ -28,6 +28,7 @@ pub struct TMDBMetadataProvider {
     pub(super) http_client: reqwest::Client,
     cache: CacheMap,
     cache_size: Arc<AtomicUsize>,
+    cache_eviction: Arc<AbortOnDropHandle>,
 }
 
 impl Clone for TMDBMetadataProvider {
@@ -37,6 +38,7 @@ impl Clone for TMDBMetadataProvider {
             http_client: self.http_client.clone(),
             cache: self.cache.clone(),
             cache_size: self.cache_size.clone(),
+            cache_eviction: self.cache_eviction.clone(),
         }
     }
 }
@@ -51,11 +53,18 @@ impl TMDBMetadataProvider {
 
         let api_key: Arc<str> = api_key.to_owned().into_boxed_str().into();
 
+        let cache: CacheMap = Default::default();
+        let cache_size = Arc::new(AtomicUsize::new(0));
+
         Self {
+            // FIXME: Make max cache size configurable at start-time.
+            cache_eviction: Arc::new(
+                CacheEviction::new(cache.clone(), cache_size.clone(), 102_400_000).start_policy(),
+            ),
             api_key,
             http_client,
-            cache: Default::default(),
-            cache_size: Default::default(),
+            cache,
+            cache_size,
         }
     }
 
@@ -111,7 +120,8 @@ impl TMDBMetadataProvider {
         let value = CacheValue::RequestInFlight { tx };
 
         if let Some(old) = slot.replace(value.clone()) {
-            self.cache_size.fetch_sub(old.mem_size(), Ordering::Release);
+            // Unsure how relaxed ordering will hold up on non-x86 targets.
+            self.cache_size.fetch_sub(old.mem_size(), Ordering::Relaxed);
         }
 
         (value, true)
@@ -157,7 +167,7 @@ impl TMDBMetadataProvider {
 
                         // Increase our memory usage tracker.
                         self.cache_size
-                            .fetch_add(value.mem_size(), Ordering::Release);
+                            .fetch_add(value.mem_size(), Ordering::Relaxed);
 
                         match self.cache.get_mut(key) {
                             Some(mut entry_ref) => entry_ref.replace(value),
