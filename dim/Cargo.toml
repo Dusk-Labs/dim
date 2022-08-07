@@ -67,6 +67,7 @@ dominant_color = "0.3.0"
 image = "0.24.3"
 parking_lot = "0.12.0"
 dashmap = "5.3.3"
+governor = "0.4.2"
 
 [build-dependencies]
 fs_extra = "1.1.0"

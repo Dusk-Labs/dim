@@ -102,6 +102,7 @@ impl CacheEviction {
                     duration_ms = duration,
                     "tmdb cache eviction finished."
                 );
+
                 thread::sleep(EVICT_EVERY);
             }
         });
@@ -169,7 +170,7 @@ mod tests {
         // pretend we already have 100 items in the cache.
         let mut usage = 0;
 
-        for i in 0..=100 {
+        for i in 0..=10000 {
             let value = CacheValue::Body {
                 text: format!("{i}").into(),
                 ttl: Instant::now(),
@@ -190,7 +191,7 @@ mod tests {
         let policy = CacheEviction::new(cache.clone(), usage.clone(), 0);
         let evicted = policy.evict();
 
-        assert!(evicted < 100);
+        assert!(evicted < 10000);
         assert!(evicted > 0);
     }
 }

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::future::Future;
 use std::marker::PhantomData;
+use std::num::NonZeroU32;
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
@@ -13,12 +14,23 @@ use tokio::sync::broadcast;
 use crate::external::{Result as QueryResult, *};
 use core::result::Result;
 
+use governor::clock::DefaultClock;
+use governor::middleware::NoOpMiddleware;
+use governor::state::direct::NotKeyed;
+use governor::state::InMemoryState;
+use governor::Quota;
+use governor::RateLimiter;
+
 use super::cache_control::{AbortOnDropHandle, CacheEviction, CacheKey, CacheMap, CacheValue};
 use super::raw_client::TMDBClient;
 use super::*;
 
 /// How long items should be cached for. Defaults to 12 hours.
 const CACHED_ITEM_TTL: Duration = Duration::from_secs(60 * 60 * 12);
+/// How many requests we can send per second.
+const REQ_QUOTA: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(200) };
+
+type Governor = RateLimiter<NotKeyed, InMemoryState, DefaultClock, NoOpMiddleware>;
 
 /// TMDB Metadata Provider produces `ExternalQuery` implementors, and handles request coalescing and caching locally.
 ///
@@ -29,6 +41,7 @@ pub struct TMDBMetadataProvider {
     cache: CacheMap,
     cache_size: Arc<AtomicUsize>,
     cache_eviction: Arc<AbortOnDropHandle>,
+    pub(self) governor: Arc<Governor>,
 }
 
 impl Clone for TMDBMetadataProvider {
@@ -39,6 +52,7 @@ impl Clone for TMDBMetadataProvider {
             cache: self.cache.clone(),
             cache_size: self.cache_size.clone(),
             cache_eviction: self.cache_eviction.clone(),
+            governor: self.governor.clone(),
         }
     }
 }
@@ -56,15 +70,20 @@ impl TMDBMetadataProvider {
         let cache: CacheMap = Default::default();
         let cache_size = Arc::new(AtomicUsize::new(0));
 
+        let cache_eviction = Arc::new(
+            CacheEviction::new(cache.clone(), cache_size.clone(), 102_400_000).start_policy(),
+        );
+
+        let governor = Arc::new(Governor::direct(Quota::per_second(REQ_QUOTA)));
+
         Self {
             // FIXME: Make max cache size configurable at start-time.
-            cache_eviction: Arc::new(
-                CacheEviction::new(cache.clone(), cache_size.clone(), 102_400_000).start_policy(),
-            ),
             api_key,
             http_client,
             cache,
             cache_size,
+            cache_eviction,
+            governor,
         }
     }
 
@@ -150,6 +169,10 @@ impl TMDBMetadataProvider {
 
                 let tx_ = tx.clone();
                 let fut = make_request_future(client);
+
+                // we want to ratelimit locally. Thus we wait for a permit until we spawn the
+                // request future.
+                self.governor.until_ready().await;
 
                 tokio::spawn(async move {
                     let output = fut.await;
