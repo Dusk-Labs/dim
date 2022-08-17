@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["MovieMatcher",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["MovieMatcher",""]]};
