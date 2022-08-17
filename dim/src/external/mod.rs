@@ -8,6 +8,8 @@ use serde::Deserialize;
 use serde::Serialize;
 use thiserror::Error;
 
+pub mod tmdb;
+
 pub type Result<T> = ::core::result::Result<T, Error>;
 
 #[derive(Clone, Display, Debug, Error, Serialize)]
@@ -16,8 +18,8 @@ pub enum Error {
     Timeout,
     /// Max retry count reached
     ReachedMaxTries,
-    /// The API response could not be deserialized: {0:?}
-    DeserializationError(String),
+    /// The API response could not be deserialized: {error}
+    DeserializationError { body: Arc<str>, error: String },
     /// No results are found: query={query} year={year:?}
     NoResults { query: String, year: Option<i32> },
     /// No seasons found for the id supplied: {id}
@@ -26,8 +28,19 @@ pub enum Error {
     NoEpisodesFound { id: u64, season: u64 },
     /// Could not find genre with supplied id: {id}
     NoGenreFound { id: u64 },
-    /// Other error
+    /// Other error, usually contains an error that shouldn't happen unless theres a bug.
+    // This error wont be ever serialized and sent over the wire, however it should still be
+    // printed in logs somewhere as its very unexpected.
     OtherError(#[serde(skip)] Arc<dyn std::error::Error>),
+    /// The remote API returned an error ({code}): {message}
+    RemoteApiError { code: u16, message: String },
+}
+
+impl Error {
+    pub fn other(error: impl std::error::Error + 'static) -> Self {
+        let err = Arc::new(error);
+        Self::OtherError(err)
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd)]
@@ -81,7 +94,23 @@ pub struct ExternalEpisode {
 pub struct ExternalActor {
     pub external_id: String,
     pub name: String,
+    pub profile_path: Option<String>,
     pub character: String,
+}
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum MediaSearchType {
+    Movie,
+    Tv,
+}
+
+impl std::fmt::Display for MediaSearchType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MediaSearchType::Movie => write!(f, "movie"),
+            MediaSearchType::Tv => write!(f, "tv"),
+        }
+    }
 }
 
 /// Trait that must be implemented by external metadata agents which allows the scanners to query
@@ -94,8 +123,8 @@ pub trait ExternalQuery {
     /// Search by external id. This must return a singular `ExternalMedia` which has the id passed
     /// in.
     async fn search_by_id(&self, external_id: &str) -> Result<ExternalMedia>;
-    /// Get all actors for an external id. Actors must be ordered in order of importance.
-    async fn actors(&self, external_id: &str) -> Result<Vec<ExternalActor>>;
+    /// Get all actors for a media by external id. Actors must be ordered in order of importance.
+    async fn cast(&self, external_id: &str) -> Result<Vec<ExternalActor>>;
 }
 
 /// Trait must be implemented by all external metadata agents which support querying for tv shows.
@@ -104,5 +133,19 @@ pub trait ExternalQueryShow: ExternalQuery {
     /// Get all seasons for an external id. Seasons must be ranked in order by their number.
     async fn seasons_for_id(&self, external_id: &str) -> Result<Vec<ExternalSeason>>;
     /// Get all episodes for a season ranked in order of the episode number.
-    async fn episodes_for_season(&self, season_id: &str) -> Result<Vec<ExternalEpisode>>;
+    // FIXME: TMDB doesnt support fetching by season id, but rather by season number and tv show
+    // id. However other backends could have the opposite situation
+    // As such its ideal that we have all external ids follow a standard scheme, for instance a
+    // tmdb movie id would look like this `tmdb://12345`, an imdb media id would be similar
+    // `imdb://tt1234556`. Season ids would also track their parent media id, so a season id would
+    // be like this `tmdb://12345?season_id=32&season=2`, similarly episodes would also track their
+    // parent ids, including season id, number, tv show id, episode number and episode id. This is
+    // not ideal but it should cover all of the cases.
+    //
+    // For now this API accepts a external id and season number but this is subject to change.
+    async fn episodes_for_season(
+        &self,
+        external_id: &str,
+        season_number: u64,
+    ) -> Result<Vec<ExternalEpisode>>;
 }
