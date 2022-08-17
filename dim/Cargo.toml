@@ -63,6 +63,8 @@ thiserror = "1.0.30"
 displaydoc = "0.2.3"
 fuzzy-matcher = "0.3.7"
 itertools = "0.10.3"
+dominant_color = "0.3.0"
+image = "0.24.3"
 
 # FIXME: Remove when we get rid of xtra_proc
 new_xtra = { package = "xtra", git = "https://github.com/Restioson/xtra", features = ["with-tokio-1"] }
