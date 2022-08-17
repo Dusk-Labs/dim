@@ -63,6 +63,8 @@ tracing-tree = "0.2.0"
 thiserror = "1.0.30"
 displaydoc = "0.2.3"
 fuzzy-matcher = "0.3.7"
+dominant_color = "0.3.0"
+image = "0.24.3"
 
 [build-dependencies]
 fs_extra = "1.1.0"
