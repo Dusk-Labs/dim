@@ -3,7 +3,9 @@ use std::time::Duration;
 
 use serde::Deserialize;
 
-use crate::external::{ExternalActor, ExternalMedia, MediaSearchType};
+use crate::external::{
+    ExternalActor, ExternalEpisode, ExternalMedia, ExternalSeason, MediaSearchType,
+};
 
 use super::{TMDBClientRequestError, TMDBMetadataProvider, TMDB_BASE_URL};
 
@@ -155,6 +157,104 @@ pub struct TmdbError {
     pub status_code: u64,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct TvSeasons {
+    pub seasons: Vec<TvSeason>,
+}
+
+impl From<TvSeasons> for Vec<ExternalSeason> {
+    fn from(seasons: TvSeasons) -> Self {
+        let TvSeasons { seasons } = seasons;
+        seasons.into_iter().map(Into::into).collect()
+    }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct TvSeason {
+    pub id: u64,
+    pub air_date: String,
+    pub episode_count: u64,
+    pub name: String,
+    pub overview: Option<String>,
+    pub poster_path: Option<String>,
+    pub season_number: u64,
+}
+
+impl From<TvSeason> for ExternalSeason {
+    fn from(season: TvSeason) -> Self {
+        let TvSeason {
+            id,
+            name,
+            overview,
+            poster_path,
+            season_number,
+            ..
+        } = season;
+
+        Self {
+            external_id: id.to_string(),
+            title: Some(name),
+            description: overview,
+            posters: poster_path
+                .map(|x| {
+                    vec![format!(
+                        "https://image.tmdb.org/t/p/w600_and_h900_bestv2{x}"
+                    )]
+                })
+                .unwrap_or_default(),
+            season_number,
+        }
+    }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct TvEpisodes {
+    pub episodes: Vec<TvEpisode>,
+}
+
+impl From<TvEpisodes> for Vec<ExternalEpisode> {
+    fn from(episodes: TvEpisodes) -> Self {
+        let TvEpisodes { episodes } = episodes;
+
+        episodes.into_iter().map(Into::into).collect()
+    }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct TvEpisode {
+    pub id: u64,
+    pub name: Option<String>,
+    pub episode_number: u64,
+    pub overview: Option<String>,
+    pub still_path: Option<String>,
+    pub vote_average: Option<f64>,
+    pub vote_count: Option<u64>,
+}
+
+impl From<TvEpisode> for ExternalEpisode {
+    fn from(episode: TvEpisode) -> Self {
+        let TvEpisode {
+            id,
+            name,
+            episode_number,
+            overview,
+            still_path,
+            ..
+        } = episode;
+
+        Self {
+            external_id: id.to_string(),
+            title: name,
+            description: overview,
+            stills: still_path
+                .map(|x| vec![format!("https://image.tmdb.org/t/p/original{x}")])
+                .unwrap_or_default(),
+            episode_number,
+            duration: None,
+        }
+    }
+}
+
 // -- TMDBClient
 
 /// Internal TMDB client type used for building and making requests.
@@ -268,6 +368,20 @@ impl TMDBClient {
         ];
 
         self.make_request(args, format!("/{media_type}/{id}/credits"))
+            .await
+    }
+
+    pub async fn get_episodes(
+        &self,
+        id: &str,
+        season_number: u64,
+    ) -> Result<String, TMDBClientRequestError> {
+        let args = vec![
+            ("api_key", self.provider.api_key.as_ref()),
+            ("language", "en-US"),
+        ];
+
+        self.make_request(args, format!("/tv/{id}/season/{season_number}"))
             .await
     }
 }

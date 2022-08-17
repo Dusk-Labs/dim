@@ -133,5 +133,19 @@ pub trait ExternalQueryShow: ExternalQuery {
     /// Get all seasons for an external id. Seasons must be ranked in order by their number.
     async fn seasons_for_id(&self, external_id: &str) -> Result<Vec<ExternalSeason>>;
     /// Get all episodes for a season ranked in order of the episode number.
-    async fn episodes_for_season(&self, season_id: &str) -> Result<Vec<ExternalEpisode>>;
+    // FIXME: TMDB doesnt support fetching by season id, but rather by season number and tv show
+    // id. However other backends could have the opposite situation
+    // As such its ideal that we have all external ids follow a standard scheme, for instance a
+    // tmdb movie id would look like this `tmdb://12345`, an imdb media id would be similar
+    // `imdb://tt1234556`. Season ids would also track their parent media id, so a season id would
+    // be like this `tmdb://12345?season_id=32&season=2`, similarly episodes would also track their
+    // parent ids, including season id, number, tv show id, episode number and episode id. This is
+    // not ideal but it should cover all of the cases.
+    //
+    // For now this API accepts a external id and season number but this is subject to change.
+    async fn episodes_for_season(
+        &self,
+        external_id: &str,
+        season_number: u64,
+    ) -> Result<Vec<ExternalEpisode>>;
 }

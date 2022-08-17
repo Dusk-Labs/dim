@@ -31,6 +31,8 @@ pub(super) enum CacheKey {
     ById { id: String, ty: MediaSearchType },
     /// Search for an actor by id
     ActorById { id: String },
+    /// Get all episodes for a season
+    Episodes { id: String, season_number: u64 },
 }
 
 pub(super) type PendingRequestTx =

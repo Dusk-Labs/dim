@@ -380,6 +380,72 @@ impl TMDBMetadataProvider {
 
         Ok(actor.cast.into_iter().map(|x| x.into()).collect())
     }
+
+    async fn seasons_by_id(&self, external_id: &str) -> QueryResult<Vec<ExternalSeason>> {
+        let external_id = external_id.to_string();
+        let key = CacheKey::ById {
+            id: external_id.clone(),
+            ty: MediaSearchType::Tv,
+        };
+
+        // NOTE: We share the same key as search by id because the seasons are returned inline with
+        // that response but the interface requires that theyre decoupled.
+        let response_body = self
+            .coalesce_request(
+                &key,
+                |client| async move {
+                    client
+                        .get_details(MediaSearchType::Tv, &external_id)
+                        .await
+                        .map(|st| st.into())
+                },
+                CACHED_ITEM_TTL,
+            )
+            .await?;
+
+        let tv_details = serde_json::from_str::<TvSeasons>(&response_body).map_err(|err| {
+            crate::external::Error::DeserializationError {
+                body: response_body,
+                error: format!("{err}"),
+            }
+        })?;
+
+        Ok(tv_details.into())
+    }
+
+    async fn episodes_by_id(
+        &self,
+        external_id: &str,
+        season_number: u64,
+    ) -> QueryResult<Vec<ExternalEpisode>> {
+        let external_id = external_id.to_string();
+        let key = CacheKey::Episodes {
+            id: external_id.clone(),
+            season_number,
+        };
+
+        let response_body = self
+            .coalesce_request(
+                &key,
+                |client| async move {
+                    client
+                        .get_episodes(&external_id, season_number)
+                        .await
+                        .map(|st| st.into())
+                },
+                CACHED_ITEM_TTL,
+            )
+            .await?;
+
+        let tv_details = serde_json::from_str::<TvEpisodes>(&response_body).map_err(|err| {
+            crate::external::Error::DeserializationError {
+                body: response_body,
+                error: format!("{err}"),
+            }
+        })?;
+
+        Ok(tv_details.into())
+    }
 }
 
 // -- TMDBMetadataProviderRef<T>
@@ -437,10 +503,24 @@ where
 #[async_trait]
 impl ExternalQueryShow for MetadataProviderOf<TvShows> {
     async fn seasons_for_id(&self, external_id: &str) -> QueryResult<Vec<ExternalSeason>> {
-        todo!()
+        let mut seasons = self.provider.seasons_by_id(external_id).await?;
+        seasons.sort_by(|a, b| a.season_number.cmp(&b.season_number));
+
+        Ok(seasons)
     }
 
-    async fn episodes_for_season(&self, season_id: &str) -> QueryResult<Vec<ExternalEpisode>> {
-        todo!()
+    async fn episodes_for_season(
+        &self,
+        external_id: &str,
+        season_number: u64,
+    ) -> QueryResult<Vec<ExternalEpisode>> {
+        let mut episodes = self
+            .provider
+            .episodes_by_id(external_id, season_number)
+            .await?;
+
+        episodes.sort_by(|a, b| a.episode_number.cmp(&b.episode_number));
+
+        Ok(episodes)
     }
 }

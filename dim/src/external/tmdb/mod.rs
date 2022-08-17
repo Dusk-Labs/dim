@@ -14,7 +14,8 @@ mod raw_client;
 
 pub use metadata_provider::{MetadataProviderOf, Movies, TMDBMetadataProvider, TvShows};
 use raw_client::{
-    Cast, Genre, GenreList, MovieDetails, SearchResponse, TMDBMediaObject, TvDetails,
+    Cast, Genre, GenreList, MovieDetails, SearchResponse, TMDBMediaObject, TvDetails, TvEpisodes,
+    TvSeasons,
 };
 
 #[derive(Debug, displaydoc::Display, Clone, thiserror::Error)]
@@ -71,7 +72,10 @@ mod tests {
     use chrono::{Datelike, Timelike};
 
     use super::*;
-    use crate::external::{ExternalActor, ExternalMedia, ExternalQuery};
+    use crate::external::{
+        ExternalActor, ExternalEpisode, ExternalMedia, ExternalQuery, ExternalQueryShow,
+        ExternalSeason,
+    };
 
     fn make_letterkenny() -> ExternalMedia {
         let dt = chrono::Utc::now()
@@ -153,5 +157,58 @@ mod tests {
         };
 
         assert_eq!(cast[0], expected);
+    }
+
+    #[tokio::test]
+    async fn tmdb_get_seasons() {
+        let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
+        let provider_shows: MetadataProviderOf<TvShows> = provider.tv_shows();
+
+        let mut media = provider_shows
+            .seasons_for_id("63639")
+            .await
+            .expect("search results should exist");
+
+        assert_eq!(media.len(), 7);
+
+        let last = media.pop().unwrap();
+
+        assert_eq!(last.season_number, 6);
+
+        let expected = ExternalSeason {
+            external_id: "214858".into(),
+            title: Some("Season 6".into()),
+            description: Some("Holden and the crew of the Rocinante fight alongside the Combined Fleet of Earth and Mars to protect the Inner Planets from Marco Inaros and his Free Navy's campaign of death and destruction. Meanwhile, on a distant planet beyond the Rings, a new power rises.".into()),
+            posters: vec!["https://image.tmdb.org/t/p/w600_and_h900_bestv2/smJPN02aTJcMVQ4z02CINKjg6L0.jpg".into()],
+            season_number: 6
+        };
+
+        assert_eq!(last, expected);
+    }
+
+    #[tokio::test]
+    async fn tmdb_get_episodes() {
+        let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
+        let provider_shows: MetadataProviderOf<TvShows> = provider.tv_shows();
+
+        let mut media = provider_shows
+            .episodes_for_season("63639", 3)
+            .await
+            .expect("search results should exist");
+
+        assert_eq!(media.len(), 13);
+
+        let last = media.pop().unwrap();
+
+        let expected = ExternalEpisode {
+            external_id: "1503262".into(), 
+            title: Some("Abaddon's Gate".into()),
+            description: Some("Holden and his allies must stop Ashford and his team from destroying the Ring, and perhaps all of humanity.".into()),
+            episode_number: 13,
+            stills: vec!["https://image.tmdb.org/t/p/original/nE5kS7hHGmv3bTGVL1hlsVQKXo4.jpg".into()],
+            duration: None
+        };
+
+        assert_eq!(last, expected);
     }
 }
