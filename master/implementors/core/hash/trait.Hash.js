@@ -1,3 +1,4 @@
 (function() {var implementors = {};
 implementors["database"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.63.0/core/hash/trait.Hash.html\" title=\"trait core::hash::Hash\">Hash</a> for <a class=\"enum\" href=\"database/library/enum.MediaType.html\" title=\"enum database::library::MediaType\">MediaType</a>","synthetic":false,"types":["database::library::MediaType"]}];
+implementors["dim"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.63.0/core/hash/trait.Hash.html\" title=\"trait core::hash::Hash\">Hash</a> for <a class=\"enum\" href=\"dim/external/enum.MediaSearchType.html\" title=\"enum dim::external::MediaSearchType\">MediaSearchType</a>","synthetic":false,"types":["dim::external::MediaSearchType"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
