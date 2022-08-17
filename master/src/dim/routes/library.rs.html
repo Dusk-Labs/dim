@@ -1,9 +1,10 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/library.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>library.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/library.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>library.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -414,9 +415,41 @@
 <span id="409">409</span>
 <span id="410">410</span>
 <span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::EventTx</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::json</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scanners</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scanners::scanner_daemon::FsWatcher</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tree</span>;
@@ -565,23 +598,53 @@
     }
 }
 
+<span class="doccomment">/// # GET `/api/v1/library`</span>
 <span class="doccomment">/// Method maps to `GET /api/v1/library` and returns a list of all libraries in te database.</span>
-<span class="doccomment">/// This method can only be accessed by authenticated users.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Arguments</span>
-<span class="doccomment">/// * `conn` - database connection</span>
-<span class="doccomment">/// * `_log` - logger</span>
-<span class="doccomment">/// * `_user` - Authentication middleware</span>
+<span class="doccomment">/// # Request</span>
+<span class="doccomment">/// An authenticated request must be made to this endpoint. No other inputs are required.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Example</span>
+<span class="doccomment">/// ```text</span>
+<span class="doccomment">/// curl -X GET http://127.0.0.1:8000/api/v1/library -H &quot;Authroization: ....&quot;</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Response</span>
+<span class="doccomment">/// This method will return `200 OK` as well as a JSON payload of the following format:</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// [</span>
+<span class="doccomment">///   {</span>
+<span class="doccomment">///     &quot;id&quot;: number,</span>
+<span class="doccomment">///     &quot;name&quot;: string,</span>
+<span class="doccomment">///     &quot;media_type&quot;: &quot;movie&quot; | &quot;tv&quot;,</span>
+<span class="doccomment">///     &quot;media_count&quot;: number,</span>
+<span class="doccomment">///   },</span>
+<span class="doccomment">///   ...</span>
+<span class="doccomment">/// ]</span>
+<span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">library_get</span>(
     <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
     <span class="ident">_user</span>: <span class="ident">User</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span>{
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">Library::get_all</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span>;
-        <span class="ident">x</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">name</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">name</span>));
-        <span class="ident">x</span>
-    }))
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">libraries</span> <span class="op">=</span> <span class="ident">Library::get_all</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span>;
+    <span class="ident">libraries</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">name</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">name</span>));
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reply</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+
+    <span class="kw">for</span> <span class="ident">library</span> <span class="kw">in</span> <span class="ident">libraries</span>.<span class="ident">into_iter</span>() {
+        <span class="kw">let</span> <span class="ident">library_size</span> <span class="op">=</span> <span class="ident">Library::get_size</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">library</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="ident">reply</span>.<span class="ident">push</span>(<span class="macro">json!</span>({
+            <span class="string">&quot;id&quot;</span>: <span class="ident">library</span>.<span class="ident">id</span>,
+            <span class="string">&quot;name&quot;</span>: <span class="ident">library</span>.<span class="ident">name</span>,
+            <span class="string">&quot;media_type&quot;</span>: <span class="ident">library</span>.<span class="ident">media_type</span>,
+            <span class="string">&quot;media_count&quot;</span>: <span class="ident">library_size</span>,
+        }));
+    }
+
+    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">reply</span>))
 }
 
 <span class="doccomment">/// Method maps to `POST /api/v1/library`, it adds a new library to the database, starts a new</span>
@@ -826,5 +889,5 @@
     }))
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
 </body></html>

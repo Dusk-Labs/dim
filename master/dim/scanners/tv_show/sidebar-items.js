@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["TvShowMatcher",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["TvShowMatcher",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["PushEventType","Enum holds all event types used within dim that are dispatched over ws."]],"struct":[["Message","Struct encompasses a message we are trying to relay to a client from somehwere within dim. It holds an id and a event_type field."]]});
+window.SIDEBAR_ITEMS = {"enum":[["PushEventType","Enum holds all event types used within dim that are dispatched over ws."]],"struct":[["Message","Struct encompasses a message we are trying to relay to a client from somehwere within dim. It holds an id and a event_type field."]]};

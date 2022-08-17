@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["AuthError",""],["DatabaseError",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["AuthError",""],["DatabaseError",""]]};
