@@ -1,6 +1,7 @@
 use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors;
+use crate::json;
 use crate::scanners;
 use crate::scanners::scanner_daemon::FsWatcher;
 use crate::tree;
@@ -149,23 +150,53 @@ pub mod filters {
     }
 }
 
+/// # GET `/api/v1/library`
 /// Method maps to `GET /api/v1/library` and returns a list of all libraries in te database.
-/// This method can only be accessed by authenticated users.
 ///
-/// # Arguments
-/// * `conn` - database connection
-/// * `_log` - logger
-/// * `_user` - Authentication middleware
+/// # Request
+/// An authenticated request must be made to this endpoint. No other inputs are required.
+///
+/// ## Example
+/// ```text
+/// curl -X GET http://127.0.0.1:8000/api/v1/library -H "Authroization: ...."
+/// ```
+///
+/// # Response
+/// This method will return `200 OK` as well as a JSON payload of the following format:
+/// ```
+/// [
+///   {
+///     "id": number,
+///     "name": string,
+///     "media_type": "movie" | "tv",
+///     "media_count": number,
+///   },
+///   ...
+/// ]
+/// ```
 pub async fn library_get(
     conn: DbConnection,
     _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut tx = conn.read().begin().await?;
-    Ok(reply::json(&{
-        let mut x = Library::get_all(&mut tx).await;
-        x.sort_by(|a, b| a.name.cmp(&b.name));
-        x
-    }))
+
+    let mut libraries = Library::get_all(&mut tx).await;
+    libraries.sort_by(|a, b| a.name.cmp(&b.name));
+
+    let mut reply = vec![];
+
+    for library in libraries.into_iter() {
+        let library_size = Library::get_size(&mut tx, library.id).await?;
+
+        reply.push(json!({
+            "id": library.id,
+            "name": library.name,
+            "media_type": library.media_type,
+            "media_count": library_size,
+        }));
+    }
+
+    Ok(reply::json(&reply))
 }
 
 /// Method maps to `POST /api/v1/library`, it adds a new library to the database, starts a new

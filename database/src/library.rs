@@ -146,6 +146,19 @@ impl Library {
                 .rows_affected() as usize,
         )
     }
+
+    pub async fn get_size(
+        tx: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<usize, DatabaseError> {
+        Ok(sqlx::query!(
+            "SELECT COUNT(id) as size FROM _tblmedia WHERE library_id = ?",
+            id
+        )
+        .fetch_one(&mut *tx)
+        .await?
+        .size as usize)
+    }
 }
 
 /// InsertableLibrary struct, same as [`Library`](Library) but without the id field.
