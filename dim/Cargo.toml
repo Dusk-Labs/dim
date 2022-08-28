@@ -24,13 +24,13 @@ nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4"
 database = { path = "../database", default-features = false, optional = true }
 events = { path = "../events" }
 
-serde = { version = "^1.0.125", default-features = false, features = ["derive", "std"] }
+serde = { version = "^1.0.125", default-features = false, features = ["derive", "std", "rc"] }
 serde_derive = "^1.0.125"
 serde_json = "^1.0.64"
 
 lazy_static = "1.4.0"
 walkdir = "2.3.1"
-rand = "0.7.3"
+rand = { version = "0.7.3", features = ["small_rng"] }
 chrono = { version = "0.4.19", features = ["serde"] }
 rust-embed = "^5.9.0"
 torrent-name-parser = "0.6.3"
@@ -63,6 +63,11 @@ tracing-tree = "0.2.0"
 thiserror = "1.0.30"
 displaydoc = "0.2.3"
 fuzzy-matcher = "0.3.7"
+dominant_color = "0.3.0"
+image = "0.24.3"
+parking_lot = "0.12.0"
+dashmap = "5.3.3"
+governor = "0.4.2"
 
 [build-dependencies]
 fs_extra = "1.1.0"
