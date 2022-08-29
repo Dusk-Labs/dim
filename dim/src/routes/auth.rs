@@ -54,19 +54,6 @@ pub mod filters {
             })
     }
 
-    pub fn admin_exists(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "auth" / "admin_exists")
-            .and(warp::get())
-            .and(with_db(conn))
-            .and_then(|conn: DbConnection| async move {
-                super::admin_exists(conn)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
-
     pub fn register(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
