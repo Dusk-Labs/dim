@@ -147,16 +147,15 @@ mod tests {
             .await
             .expect("cast should exist");
 
-        let expected = ExternalActor {
-            external_id: "30614".into(),
-            name: "Ryan Gosling".into(),
-            profile_path: Some(
-                "https://image.tmdb.org/t/p/original/lyUyVARQKhGxaxy0FbPJCQRpiaW.jpg".into(),
-            ),
-            character: "K".into(),
-        };
+        let ryan = &cast[0];
 
-        assert_eq!(cast[0], expected);
+        assert_eq!(ryan.external_id, "30614".to_string());
+        assert_eq!(ryan.name, "Ryan Gosling".to_string());
+        assert_eq!(
+            ryan.profile_path,
+            Some("https://image.tmdb.org/t/p/original/lyUyVARQKhGxaxy0FbPJCQRpiaW.jpg".into())
+        );
+        assert!(matches!(ryan.character.as_str(), "K" | "\'K\'"));
     }
 
     #[tokio::test]
