@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["DefaultVideoQuality",""],["Role",""],["Theme",""]],"fn":[["default_false",""],["default_theme",""],["default_true",""],["hash",""],["verify",""]],"struct":[["InsertableUser",""],["Login",""],["Roles",""],["UpdateableUser",""],["User",""],["UserID",""],["UserSettings",""]],"type":[["Credential",""]]};
