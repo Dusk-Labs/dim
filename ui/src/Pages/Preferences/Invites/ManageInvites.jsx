@@ -10,6 +10,8 @@ import {
 import TrashIcon from "../../../assets/Icons/Trash";
 
 function ManageInvites() {
+  const href = window.location.host;
+  console.log(href);
   const dispatch = useDispatch();
 
   const { user, auth } = useSelector((store) => ({
