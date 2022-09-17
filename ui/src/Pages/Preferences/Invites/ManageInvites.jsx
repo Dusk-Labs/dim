@@ -35,13 +35,22 @@ function ManageInvites() {
   );
 
   const toClipboard = (token) => {
-    navigator.clipboard.writeText(token).then(() => {
-      dispatch(
-        addNotification({
-          msg: "Successfuly copied to your clipboard.",
-        })
-      );
-    });
+    navigator.clipboard.writeText(token).then(
+      () => {
+        dispatch(
+          addNotification({
+            msg: "Successfuly copied to your clipboard.",
+          })
+        );
+      },
+      () => {
+        dispatch(
+          addNotification({
+            msg: "There was an error copying your id to your clipboard",
+          })
+        );
+      }
+    );
   };
 
   const tokens = auth.invites.items.map((token, i) => {
