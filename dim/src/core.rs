@@ -1,7 +1,7 @@
 use crate::balanced_or_tree;
 use crate::logger::RequestLogger;
 use crate::routes;
-use crate::scanners;
+use crate::scanner;
 use crate::stream_tracking::StreamTracking;
 use crate::websocket;
 
@@ -32,6 +32,7 @@ pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
 /// dispatched to clients.
 #[instrument(skip_all)]
 pub async fn run_scanners(tx: EventTx) {
+    /*
     if let Ok(conn) = database::get_conn_logged().await {
         if let Ok(mut db_tx) = conn.read().begin().await {
             let mut libs = database::library::Library::get_all(&mut db_tx).await;
@@ -59,6 +60,7 @@ pub async fn run_scanners(tx: EventTx) {
             }
         }
     }
+    */
 }
 
 #[instrument(skip(stream_manager, event_tx, rt, event_rx))]
@@ -113,7 +115,7 @@ pub async fn warp_core(
         routes::media::filters::tmdb_search(conn.clone()),
         routes::media::filters::map_progress(conn.clone()),
         routes::media::filters::get_mediafile_tree(conn.clone()),
-        routes::rematch_media::filters::rematch_media_by_id(conn.clone(), event_tx.clone()),
+    //    routes::rematch_media::filters::rematch_media_by_id(conn.clone(), event_tx.clone()),
         /* tv routes */
         routes::tv::filters::get_tv_seasons(conn.clone()),
         routes::tv::filters::patch_episode_by_id(conn.clone()),

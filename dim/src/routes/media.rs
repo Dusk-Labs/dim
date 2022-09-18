@@ -1,7 +1,7 @@
 use crate::core::DbConnection;
 use crate::errors;
 use crate::json;
-use crate::scanners::ApiMedia;
+//use crate::scanners::ApiMedia;
 use crate::tree;
 
 use database::user::User;
@@ -502,6 +502,7 @@ pub async fn tmdb_search(
     media_type: String,
     _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
+    /*
     use crate::scanners::tmdb::Tmdb;
 
     let media_type = match media_type.to_lowercase().as_ref() {
@@ -521,6 +522,9 @@ pub async fn tmdb_search(
     }
 
     Ok(ApiMedia::search_response(results.into_iter()))
+    */
+
+    Ok("Abc".to_string())
 }
 
 /// Method mapped to `POST /api/v1/media/<id>/progress` is used to map progress for a certain media

@@ -1,11 +1,9 @@
 use crate::core::DbConnection;
 use crate::errors;
 use crate::errors::ErrorStatusCode;
-use crate::scanners::tmdb::Tmdb;
 
 use futures::future;
 use futures::stream::FuturesUnordered;
-use futures::FutureExt;
 
 use database::library::MediaType;
 use database::mediafile::MediaFile;
@@ -135,6 +133,7 @@ pub async fn rematch_mediafile(
     tmdb_id: i32,
     media_type: String,
 ) -> Result<impl warp::Reply, errors::DimError> {
+    /*
     if mediafiles.is_empty() {
         return Err(Error::NoMediafiles.into());
     }
@@ -187,6 +186,7 @@ pub async fn rematch_mediafile(
             warn!(error = ?x, "Failed to rematch a mediafile.");
         }
     }
+    */
 
     Ok(StatusCode::OK)
 }
