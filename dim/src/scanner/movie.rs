@@ -3,7 +3,7 @@
 use crate::external::ExternalMedia;
 use crate::external::ExternalQuery;
 use crate::inspect::ResultExt;
-use crate::scanners::format_path;
+use crate::scanner::format_path;
 
 use super::MediaMatcher;
 use super::WorkUnit;
@@ -30,6 +30,31 @@ use tracing::warn;
 
 use url::Url;
 
+use displaydoc::Display;
+use thiserror::Error;
+
+#[derive(Clone, Debug, Display, Error)]
+pub enum Error {
+    /// Failed to insert poster into database: {0:?}
+    PosterInsert(database::DatabaseError),
+    /// Failed to insert backdrop into database: {0:?}
+    BackdropInsert(database::DatabaseError),
+    /// Failed to decouple genres from media: {0:?}
+    GenreDecouple(database::DatabaseError),
+    /// Failed to create or get genre: {0:?}
+    GetOrInsertGenre(database::DatabaseError),
+    /// Failed to attach genre to media object: {0:?}
+    CoupleGenre(database::DatabaseError),
+    /// Failed to update mediafile to point to new parent: {0:?}
+    UpdateMediafile(database::DatabaseError),
+    /// Failed to get children count for movie: {0:?}
+    ChildrenCount(database::DatabaseError),
+    /// Failed to cleanup child-less parent: {0:?}
+    ChildCleanup(database::DatabaseError),
+    /// Failed to insert or get media object: {0:?}
+    GetOrInsertMedia(database::DatabaseError),
+}
+
 fn asset_from_url(url: &str) -> Option<InsertableAsset> {
     let url = Url::parse(url).ok()?;
     let filename = uuid::Uuid::new_v4().to_hyphenated().to_string();
@@ -54,7 +79,7 @@ impl MovieMatcher {
         tx: &mut Transaction<'life0>,
         file: MediaFile,
         provided: ExternalMedia,
-    ) -> Result<i64, Box<dyn std::error::Error>> {
+    ) -> Result<i64, Error> {
         // TODO: Push posters and backdrops to download queue. Push CDC events.
 
         let posters = provided
@@ -69,7 +94,8 @@ impl MovieMatcher {
             let asset = poster
                 .insert(&mut *tx)
                 .await
-                .inspect_err(|error| error!(?error, "Failed to insert asset into db."))?;
+                .inspect_err(|error| error!(?error, "Failed to insert asset into db."))
+                .map_err(Error::PosterInsert)?;
 
             poster_ids.push(asset);
         }
@@ -86,7 +112,8 @@ impl MovieMatcher {
             let asset = backdrop
                 .insert(&mut *tx)
                 .await
-                .inspect_err(|error| error!(?error, "Failed to insert asset into db."))?;
+                .inspect_err(|error| error!(?error, "Failed to insert asset into db."))
+                .map_err(Error::BackdropInsert)?;
 
             backdrop_ids.push(asset);
         }
@@ -103,7 +130,7 @@ impl MovieMatcher {
             backdrop: backdrop_ids.first().map(|x| x.id),
         };
 
-        let media_id = media.lazy_insert(tx).await?;
+        let media_id = media.lazy_insert(tx).await.map_err(Error::GetOrInsertMedia)?;
 
         // Link all backdrops and posters to our media.
         for poster in poster_ids {
@@ -126,20 +153,23 @@ impl MovieMatcher {
         // Its a lot simpler than doing a diff-update but it might be more expensive.
         Genre::decouple_all(tx, media_id)
             .await
-            .inspect_err(|error| error!(?error, "Failed to decouple genres from media."))?;
+            .inspect_err(|error| error!(?error, "Failed to decouple genres from media."))
+            .map_err(Error::GenreDecouple)?;
 
         for name in provided.genres {
             let genre = InsertableGenre { name }
                 .insert(tx)
                 .await
-                .inspect_err(|error| error!(?error, "Failed to create or get genre."))?;
+                .inspect_err(|error| error!(?error, "Failed to create or get genre."))
+                .map_err(Error::GetOrInsertGenre)?;
 
             // TODO: Recouple genres always otherwise rematching would get buggy genre lists
             InsertableGenreMedia::insert_pair(genre, media_id, tx)
                 .await
                 .inspect_err(
                     |error| error!(?error, %media_id, "Failed to attach genre to media object."),
-                )?;
+                )
+                .map_err(Error::CoupleGenre)?;
         }
 
         // Update mediafile to point to a new parent media_id. We also want to set raw_name and
@@ -155,7 +185,8 @@ impl MovieMatcher {
         .await
         .inspect_err(|error| {
             error!(?error, "Failed to update mediafile to point to new parent.")
-        })?;
+        })
+        .map_err(Error::UpdateMediafile)?;
 
         // Sometimes we rematch against a media object that already exists but we are the last
         // child for the parent. When this happens we want to cleanup.
@@ -163,12 +194,14 @@ impl MovieMatcher {
             Some(old_id) => {
                 let count = Movie::count_children(tx, old_id).await.inspect_err(
                     |error| error!(?error, %old_id, "Failed to grab children count."),
-                )?;
+                )
+                    .map_err(Error::ChildrenCount)?;
 
                 if count == 0 {
                     Media::delete(tx, old_id).await.inspect_err(
                         |error| error!(?error, %old_id, "Failed to cleanup child-less parent."),
-                    )?;
+                    )
+                        .map_err(Error::ChildCleanup)?;
                 }
             }
             _ => {}
@@ -195,7 +228,7 @@ impl MediaMatcher for MovieMatcher {
                         .await
                     {
                         Ok(provided) => return Some((file, provided)),
-                        Err(e) => error!(?meta, "Failed to find a movie match."),
+                        Err(e) => error!(?meta, ?e, "Failed to find a movie match."),
                     }
                 }
 
@@ -207,9 +240,11 @@ impl MediaMatcher for MovieMatcher {
 
         for meta in metadata.into_iter() {
             if let Some((file, provided)) = meta {
-                self.match_to_result(tx, file, provided[0].clone())
-                    .await
-                    .unwrap();
+                if let Some(provided) = provided.get(0) {
+                    self.match_to_result(tx, file, provided.clone())
+                        .await
+                        .inspect_err(|error| error!(?error, "failed to match to result"));
+                }
             }
         }
     }

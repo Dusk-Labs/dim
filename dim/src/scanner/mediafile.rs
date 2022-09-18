@@ -12,6 +12,7 @@ use database::DatabaseError;
 use database::DbConnection;
 use displaydoc::Display;
 
+use std::sync::Arc;
 use std::path::PathBuf;
 
 use tokio::sync::Semaphore;
@@ -33,24 +34,26 @@ static SEMPAHORE: Semaphore = Semaphore::const_new(12);
 
 pub type Result<T> = ::core::result::Result<T, Error>;
 
-#[derive(Debug, Display, Error)]
+pub type SqlxError = Arc<sqlx::Error>;
+
+#[derive(Clone, Debug, Display, Error)]
 pub enum Error {
     /// The file already exists in the database.
     FileExists,
     /// Failed to acquire a read-only database transaction: {0:?}
-    FailedToAcquireReader(sqlx::Error),
+    FailedToAcquireReader(SqlxError),
     /// Failed to acquire a read-write database transaction: {0:?}
-    FailedToAcquireWriter(sqlx::Error),
+    FailedToAcquireWriter(SqlxError),
     /// File passed is non-unicode.
     NonUnicodeFile,
     /// Failed to extract media information with ffprobe: {0:?}
-    FfprobeError(std::io::Error),
+    FfprobeError(Arc<std::io::Error>),
     /// Failed to write mediafile to the database: {0:?}
     InsertFailed(DatabaseError),
     /// Failed to select written mediafile from the database: {0:?}
     SelectFailed(DatabaseError),
     /// Failed to commit mediafiles to the database: {0:?}
-    CommitFailed(sqlx::Error),
+    CommitFailed(SqlxError),
     /// Failed to check if mediafile exists in the database: {0:?}
     ExistanceCheckFailed(DatabaseError),
 }
@@ -121,7 +124,7 @@ impl MediafileCreator {
                 .read()
                 .begin()
                 .await
-                .map_err(Error::FailedToAcquireReader)?;
+                .map_err(|e| Error::FailedToAcquireReader(e.into()))?;
 
             if MediaFile::exists_by_file(&mut tx, &target_file).await {
                 return Err(Error::FileExists);
@@ -143,7 +146,7 @@ impl MediafileCreator {
             Ok(x) => x,
             Err(error) => {
                 error!(?error, "Couldn't extract media information with ffprobe");
-                return Err(Error::FfprobeError(error));
+                return Err(Error::FfprobeError(error.into()));
             }
         };
 
@@ -202,7 +205,7 @@ impl MediafileCreator {
         let mut lock = self.conn.writer().lock_owned().await;
         let mut tx = database::write_tx(&mut lock)
             .await
-            .map_err(Error::FailedToAcquireWriter)?;
+            .map_err(|e| Error::FailedToAcquireWriter(e.into()))?;
 
         for mediafile in batch {
             if mediafile
@@ -231,7 +234,7 @@ impl MediafileCreator {
         tx.commit()
             .instrument(debug_span!("database_commit"))
             .await
-            .map_err(Error::CommitFailed)?;
+            .map_err(|e| Error::CommitFailed(e.into()))?;
 
         Ok(work_done)
     }

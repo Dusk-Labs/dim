@@ -24,7 +24,7 @@ pub mod invites;
 pub mod library;
 pub mod media;
 pub mod mediafile;
-pub mod rematch_media;
+//pub mod rematch_media;
 pub mod settings;
 pub mod statik;
 pub mod stream;

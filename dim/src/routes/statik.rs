@@ -31,8 +31,6 @@ pub mod filters {
         struct QueryArgs {
             w: Option<u32>,
             h: Option<u32>,
-            #[serde(default)]
-            attach_accents: bool,
         }
 
         let metadata_path = crate::core::METADATA_PATH.get().unwrap();
@@ -44,15 +42,8 @@ pub mod filters {
             .and(with_state(metadata_path.clone()))
             .and(with_state(conn))
             .and_then(
-                |x,
-                 QueryArgs {
-                     w,
-                     h,
-                     attach_accents,
-                 }: QueryArgs,
-                 meta_path,
-                 conn| async move {
-                    super::get_image(x, w, h, meta_path, conn, attach_accents)
+                |x, QueryArgs { w, h }: QueryArgs, meta_path, conn| async move {
+                    super::get_image(x, w, h, meta_path, conn)
                         .await
                         .map_err(|e| reject::custom(e))
                 },
@@ -145,7 +136,6 @@ pub async fn get_image(
     _resize_h: Option<u32>,
     meta_path: String,
     conn: database::DbConnection,
-    attach_accents: bool,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut file_path = PathBuf::from(&meta_path);
     file_path.push(path.as_str());
@@ -162,8 +152,6 @@ pub async fn get_image(
     */
 
     let mut tx = conn.read().begin().await?;
-    // FIXME (val): return not yet available error here as a hint that in the future this URL will
-    // return 200 OK.
     if !Path::new(&file_path).exists() {
         if let Ok(x) = asset::Asset::get_url_by_file(&mut tx, &url_path).await {
             insert_into_queue(x, 5).await;
@@ -172,36 +160,12 @@ pub async fn get_image(
 
     let image = tokio::fs::read(file_path).await.ok();
 
-    let accents = match (image.as_ref(), attach_accents) {
-        (Some(data), true) => {
-            if let Ok(image) = image::load_from_memory(&data) {
-                Some(
-                    dominant_color::get_colors(image.as_bytes(), false)
-                        .chunks_exact(3)
-                        .map(|rgb| match rgb {
-                            [r, g, b] => format!("#{r:02x}{g:02x}{b:02x}"),
-                            _ => unreachable!(),
-                        })
-                        .collect::<Vec<_>>()
-                        .join(","),
-                )
-            } else {
-                None
-            }
-        }
-        _ => None,
-    };
-
     if let Some(data) = image {
-        let mut resp = warp::http::Response::builder()
+        return warp::http::Response::builder()
             .status(StatusCode::OK)
-            .header("ContentType", "image/jpeg");
-
-        if let Some(accents) = accents {
-            resp = resp.header("X-IMAGE-ACCENTS", accents);
-        }
-
-        return resp.body(data).map_err(|_| errors::DimError::NotFoundError);
+            .header("ContentType", "image/jpeg")
+            .body(data)
+            .map_err(|_| errors::DimError::NotFoundError);
     }
 
     Err(errors::DimError::NotFoundError)

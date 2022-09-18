@@ -1,5 +1,6 @@
 //! Module contains all the code for the new generation media scanner.
 
+mod error;
 mod mediafile;
 mod movie;
 #[cfg(test)]
@@ -109,7 +110,7 @@ pub struct WorkUnit(pub MediaFile, pub Vec<Metadata>);
 /// Trait that must be implemented by a media matcher. Matchers are responsible for fetching their
 /// own external metadata but it is provided a metadata provider at initialization time.
 #[async_trait]
-pub trait MediaMatcher {
+pub trait MediaMatcher: Send + Sync {
     async fn batch_match(
         &self,
         tx: &mut database::Transaction<'_>,
@@ -205,12 +206,14 @@ pub async fn start_custom(
 
     // TODO: We can receive work over a channel so that we can in parallel create new mediafiles
     // and match objects.
-    for unit in workunits.into_iter().chunks(128).into_iter() {
+    // FIXME: Chunks iterator is a PITA to use across an await point
+    let units = workunits.into_iter().chunks(128).into_iter().map(|x| x.collect::<Vec<_>>()).collect::<Vec<_>>();
+    for unit in units {
         let mut lock = conn.writer().lock_owned().await;
         let mut tx = database::write_tx(&mut lock).await?;
 
         matcher
-            .batch_match(&mut tx, provider.clone(), unit.collect())
+            .batch_match(&mut tx, provider.clone(), unit)
             .await;
 
         tx.commit().await?;

@@ -6,7 +6,6 @@ use serde::Serialize;
 use serde_json::json;
 
 use crate::routes::mediafile;
-use crate::scanners::base::ScannerError;
 use nightfall::error::NightfallError;
 
 use http::StatusCode;
@@ -40,8 +39,10 @@ pub enum DimError {
     StreamingError(#[from] StreamingErrors),
     /// User has no permission to access this route.
     Unauthorized,
+    /*
     /// Error has occured when matching.
     ScannerError(#[from] ScannerError),
+    */
     /// Upload failed.
     UploadFailed,
     /// Failed to deserialize request body: {description:?}.
@@ -63,8 +64,10 @@ pub enum DimError {
     MediafileRouteError(#[from] mediafile::Error),
     /// User does not exist
     UserNotFound,
+    /*
     /// Couldn't find the tmdb id provided.
     TmdbIdSearchError(crate::scanners::tmdb::TmdbError),
+    */
 }
 
 impl From<sqlx::Error> for DimError {
@@ -100,17 +103,17 @@ impl warp::reject::Reject for DimError {}
 
 impl warp::Reply for DimError {
     fn into_response(self) -> warp::reply::Response {
+            //| Self::ScannerError(_)
+            //| Self::TmdbIdSearchError(_) => StatusCode::NOT_FOUND,
         let status = match self {
             Self::LibraryNotFound
             | Self::NoneError
-            | Self::NotFoundError
-            | Self::TmdbIdSearchError(_) => StatusCode::NOT_FOUND,
+            | Self::NotFoundError => StatusCode::NOT_FOUND,
             Self::StreamingError(_)
             | Self::DatabaseError { .. }
             | Self::UnknownError
             | Self::IOError
             | Self::InternalServerError
-            | Self::ScannerError(_)
             | Self::UploadFailed => StatusCode::INTERNAL_SERVER_ERROR,
             Self::Unauthenticated
             | Self::Unauthorized
