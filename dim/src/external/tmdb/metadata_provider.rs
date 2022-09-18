@@ -10,6 +10,7 @@ use std::time::Instant;
 use async_trait::async_trait;
 
 use tokio::sync::broadcast;
+use tracing::instrument;
 
 use crate::external::{Result as QueryResult, *};
 use core::result::Result;
@@ -28,7 +29,7 @@ use super::*;
 /// How long items should be cached for. Defaults to 12 hours.
 const CACHED_ITEM_TTL: Duration = Duration::from_secs(60 * 60 * 12);
 /// How many requests we can send per second.
-const REQ_QUOTA: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(200) };
+const REQ_QUOTA: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(128) };
 
 type Governor = RateLimiter<NotKeyed, InMemoryState, DefaultClock, NoOpMiddleware>;
 
@@ -62,6 +63,10 @@ impl TMDBMetadataProvider {
     pub fn new(api_key: &str) -> Self {
         let http_client = reqwest::ClientBuilder::new()
             .user_agent(APP_USER_AGENT)
+            .brotli(true)
+            .tcp_keepalive(Some(Duration::from_millis(16_000)))
+            .tcp_nodelay(true)
+            .http1_only()
             .build()
             .expect("building this client should never fail.");
 
@@ -273,14 +278,22 @@ impl TMDBMetadataProvider {
                     ..
                 }) = media
                 {
+                    let genre_vec = genres.insert(vec![]);
+
                     for genre_id in ids.iter().cloned() {
                         if let Some(genre) = genre_id_cache.get(&genre_id) {
-                            genres.push(genre.name.clone());
+                            genre_vec.push(Genre {
+                                id: genre_id,
+                                name: genre.name.clone(),
+                            });
                         } else if let Some(genre) =
                             genre_list.genres.iter().find(|x| x.id == genre_id)
                         {
                             genre_id_cache.insert(genre_id, genre.clone());
-                            genres.push(genre.name.clone());
+                            genre_vec.push(Genre {
+                                id: genre_id,
+                                name: genre.name.clone(),
+                            });
                         }
                     }
                 }
@@ -321,31 +334,14 @@ impl TMDBMetadataProvider {
             )
             .await?;
 
-        match media_type {
-            MediaSearchType::Movie => {
-                let movie_details =
-                    serde_json::from_str::<MovieDetails>(&response_body).map_err(|err| {
-                        crate::external::Error::DeserializationError {
-                            body: response_body,
-                            error: format!("{err}"),
-                        }
-                    })?;
-
-                Ok(movie_details.into())
+        let details = serde_json::from_str::<TMDBMediaObject>(&response_body).map_err(|err| {
+            crate::external::Error::DeserializationError {
+                body: response_body,
+                error: format!("{err}"),
             }
+        })?;
 
-            MediaSearchType::Tv => {
-                let tv_details =
-                    serde_json::from_str::<TvDetails>(&response_body).map_err(|err| {
-                        crate::external::Error::DeserializationError {
-                            body: response_body,
-                            error: format!("{err}"),
-                        }
-                    })?;
-
-                Ok(tv_details.into())
-            }
-        }
+        Ok(details.into())
     }
 
     async fn cast(
@@ -497,21 +493,48 @@ impl<K> ExternalQuery for MetadataProviderOf<K>
 where
     K: sealed::AssocMediaTypeConst + Send + Sync + 'static,
 {
+    #[instrument]
     async fn search(&self, title: &str, year: Option<i32>) -> QueryResult<Vec<ExternalMedia>> {
         self.provider.search(title, year, K::MEDIA_TYPE).await
     }
 
+    #[instrument]
     async fn search_by_id(&self, external_id: &str) -> QueryResult<ExternalMedia> {
         self.provider.search_by_id(external_id, K::MEDIA_TYPE).await
     }
 
+    #[instrument]
     async fn cast(&self, external_id: &str) -> QueryResult<Vec<ExternalActor>> {
         self.provider.cast(external_id, K::MEDIA_TYPE).await
     }
 }
 
+impl<K> IntoQueryShow for MetadataProviderOf<K>
+where
+    K: sealed::AssocMediaTypeConst + Send + Sync + 'static,
+{
+    default fn as_query_show<'a>(&'a self) -> Option<&'a dyn ExternalQueryShow> {
+        None
+    }
+
+    default fn into_query_show(self: Arc<Self>) -> Option<Arc<dyn ExternalQueryShow>> {
+        None
+    }
+}
+
+impl IntoQueryShow for MetadataProviderOf<TvShows> {
+    fn as_query_show(&self) -> Option<&dyn ExternalQueryShow> {
+        Some(self)
+    }
+
+    fn into_query_show(self: Arc<Self>) -> Option<Arc<dyn ExternalQueryShow>> {
+        Some(self)
+    }
+}
+
 #[async_trait]
 impl ExternalQueryShow for MetadataProviderOf<TvShows> {
+    #[instrument]
     async fn seasons_for_id(&self, external_id: &str) -> QueryResult<Vec<ExternalSeason>> {
         let mut seasons = self.provider.seasons_by_id(external_id).await?;
         seasons.sort_by(|a, b| a.season_number.cmp(&b.season_number));
@@ -519,6 +542,7 @@ impl ExternalQueryShow for MetadataProviderOf<TvShows> {
         Ok(seasons)
     }
 
+    #[instrument]
     async fn episodes_for_season(
         &self,
         external_id: &str,

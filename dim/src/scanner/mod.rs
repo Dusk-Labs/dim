@@ -12,6 +12,7 @@ use self::mediafile::Error as CreatorError;
 use self::mediafile::MediafileCreator;
 use super::external::filename::FilenameMetadata;
 use super::external::filename::Metadata;
+use super::external::filename::CombinedExtractor;
 use super::external::ExternalQuery;
 use crate::core::EventTx;
 
@@ -96,6 +97,7 @@ pub fn parse_filenames(
         let metas = IntoIterator::into_iter([
             TorrentMetadata::from_str(&filename),
             Anitomy::from_str(&filename),
+            CombinedExtractor::from_str(&filename),
         ])
         .filter_map(|x| x)
         .collect::<Vec<_>>();
@@ -131,10 +133,16 @@ pub async fn insert_mediafiles(
     dirs: Vec<impl AsRef<Path> + Send + 'static>,
 ) -> Result<Vec<WorkUnit>, Error> {
     let now = Instant::now();
-    let subfiles = tokio::task::spawn_blocking(|| get_subfiles(dirs.into_iter())).await.unwrap();
+    let subfiles = tokio::task::spawn_blocking(|| get_subfiles(dirs.into_iter()))
+        .await
+        .unwrap();
     let elapsed = now.elapsed();
 
-    info!(elapsed_ms = elapsed.as_millis(), files = subfiles.len(), "Walked all target directories.");
+    info!(
+        elapsed_ms = elapsed.as_millis(),
+        files = subfiles.len(),
+        "Walked all target directories."
+    );
 
     let parsed = parse_filenames(subfiles.iter());
 
@@ -167,7 +175,7 @@ pub async fn insert_mediafiles(
 
     let mut mediafiles = vec![];
 
-    for chunk in insertables.chunks(128) {
+    for chunk in insertables.chunks(256) {
         mediafiles.append(&mut instance.insert_batch(chunk.iter()).await?);
     }
 
@@ -199,6 +207,7 @@ pub async fn start_custom(
 
     let matcher = match media_type {
         MediaType::Movie => Arc::new(movie::MovieMatcher) as Arc<dyn MediaMatcher>,
+        MediaType::Tv => Arc::new(tv_show::TvMatcher) as Arc<dyn MediaMatcher>,
         _ => unimplemented!(),
     };
 

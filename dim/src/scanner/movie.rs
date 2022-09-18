@@ -55,7 +55,7 @@ pub enum Error {
     GetOrInsertMedia(database::DatabaseError),
 }
 
-fn asset_from_url(url: &str) -> Option<InsertableAsset> {
+pub fn asset_from_url(url: &str) -> Option<InsertableAsset> {
     let url = Url::parse(url).ok()?;
     let filename = uuid::Uuid::new_v4().to_hyphenated().to_string();
     let local_path = format_path(Some(format!("{filename}.jpg")));
@@ -128,7 +128,10 @@ impl MovieMatcher {
             backdrop: backdrop_ids.first().map(|x| x.id),
         };
 
-        let media_id = media.lazy_insert(tx).await.map_err(Error::GetOrInsertMedia)?;
+        let media_id = media
+            .lazy_insert(tx)
+            .await
+            .map_err(Error::GetOrInsertMedia)?;
 
         // Link all backdrops and posters to our media.
         for poster in poster_ids {
@@ -181,24 +184,24 @@ impl MovieMatcher {
         }
         .update(tx, file.id)
         .await
-        .inspect_err(|error| {
-            error!(?error, "Failed to update mediafile to point to new parent.")
-        })
+        .inspect_err(|error| error!(?error, "Failed to update mediafile to point to new parent."))
         .map_err(Error::UpdateMediafile)?;
 
         // Sometimes we rematch against a media object that already exists but we are the last
         // child for the parent. When this happens we want to cleanup.
         match file.media_id {
             Some(old_id) => {
-                let count = Movie::count_children(tx, old_id).await.inspect_err(
-                    |error| error!(?error, %old_id, "Failed to grab children count."),
-                )
+                let count = Movie::count_children(tx, old_id)
+                    .await
+                    .inspect_err(|error| error!(?error, %old_id, "Failed to grab children count."))
                     .map_err(Error::ChildrenCount)?;
 
                 if count == 0 {
-                    Media::delete(tx, old_id).await.inspect_err(
-                        |error| error!(?error, %old_id, "Failed to cleanup child-less parent."),
-                    )
+                    Media::delete(tx, old_id)
+                        .await
+                        .inspect_err(
+                            |error| error!(?error, %old_id, "Failed to cleanup child-less parent."),
+                        )
                         .map_err(Error::ChildCleanup)?;
                 }
             }

@@ -103,8 +103,8 @@ impl warp::reject::Reject for DimError {}
 
 impl warp::Reply for DimError {
     fn into_response(self) -> warp::reply::Response {
-            //| Self::ScannerError(_)
-            //| Self::TmdbIdSearchError(_) => StatusCode::NOT_FOUND,
+        //| Self::ScannerError(_)
+        //| Self::TmdbIdSearchError(_) => StatusCode::NOT_FOUND,
         let status = match self {
             Self::LibraryNotFound
             | Self::NoneError

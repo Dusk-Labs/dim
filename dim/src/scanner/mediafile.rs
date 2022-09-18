@@ -12,8 +12,8 @@ use database::DatabaseError;
 use database::DbConnection;
 use displaydoc::Display;
 
-use std::sync::Arc;
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use tokio::sync::Semaphore;
 use tokio::sync::SemaphorePermit;

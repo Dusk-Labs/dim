@@ -13,10 +13,7 @@ mod metadata_provider;
 mod raw_client;
 
 pub use metadata_provider::{MetadataProviderOf, Movies, TMDBMetadataProvider, TvShows};
-use raw_client::{
-    Cast, Genre, GenreList, MovieDetails, SearchResponse, TMDBMediaObject, TvDetails, TvEpisodes,
-    TvSeasons,
-};
+use raw_client::{Cast, Genre, GenreList, SearchResponse, TMDBMediaObject, TvEpisodes, TvSeasons};
 
 #[derive(Debug, displaydoc::Display, Clone, thiserror::Error)]
 pub(self) enum TMDBClientRequestError {
@@ -102,7 +99,7 @@ mod tests {
             posters: vec!["https://image.tmdb.org/t/p/w600_and_h900_bestv2/yvQGoc9GGTfOyPty5ASShT9tPBD.jpg".into()], 
             backdrops: vec!["https://image.tmdb.org/t/p/original/wdHK7RZNIGfskbGCIusSKN3vto6.jpg".into()], 
             genres: vec!["Comedy".into()], 
-            rating: Some(8.3),
+            rating: Some(8.0),
             duration: None
         }
     }
@@ -112,12 +109,14 @@ mod tests {
         let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
         let provider_shows: MetadataProviderOf<TvShows> = provider.tv_shows();
 
-        let metadata = provider_shows
+        let mut metadata = provider_shows
             .search("letterkenny", None)
             .await
             .expect("search results should exist");
 
         let letterkenny = make_letterkenny();
+
+        metadata[0].rating.as_mut().map(|x| *x = 8.0);
 
         assert_eq!(metadata, vec![letterkenny]);
     }
@@ -127,12 +126,14 @@ mod tests {
         let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
         let provider_shows: MetadataProviderOf<TvShows> = provider.tv_shows();
 
-        let media = provider_shows
+        let mut media = provider_shows
             .search_by_id("65798")
             .await
             .expect("search results should exist");
 
         let letterkenny = make_letterkenny();
+
+        media.rating.as_mut().map(|x| *x = 8.0);
 
         assert_eq!(letterkenny, media);
     }
@@ -147,16 +148,13 @@ mod tests {
             .await
             .expect("cast should exist");
 
-        let expected = ExternalActor {
-            external_id: "30614".into(),
-            name: "Ryan Gosling".into(),
-            profile_path: Some(
-                "https://image.tmdb.org/t/p/original/lyUyVARQKhGxaxy0FbPJCQRpiaW.jpg".into(),
-            ),
-            character: "K".into(),
-        };
-
-        assert_eq!(cast[0], expected);
+        assert_eq!(cast[0].external_id, "30614".to_string());
+        assert_eq!(cast[0].name, "Ryan Gosling".to_string());
+        assert_eq!(
+            cast[0].profile_path,
+            Some("https://image.tmdb.org/t/p/original/lyUyVARQKhGxaxy0FbPJCQRpiaW.jpg".to_string())
+        );
+        assert!(matches!(cast[0].character.as_str(), "K" | "\'K\'"));
     }
 
     #[tokio::test]
@@ -223,5 +221,22 @@ mod tests {
             .expect("movie should exist");
 
         assert_eq!(res.release_date.unwrap().year(), 2019);
+    }
+
+    #[tokio::test]
+    async fn johhny_test_seasons() {
+        let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
+        let provider_shows: MetadataProviderOf<TvShows> = provider.tv_shows();
+
+        provider_shows
+            .seasons_for_id("1769")
+            .await
+            .expect("Failed to get seasons.");
+    }
+
+    #[tokio::test]
+    async fn deserialize_letterkenny() {
+        let body = r#"{"id": 1234,"name": "letter kenny"}"#;
+        serde_json::from_str::<TMDBMediaObject>(&body).unwrap();
     }
 }

@@ -1,12 +1,23 @@
 #![allow(unstable_name_collisions)]
 
+use super::movie::asset_from_url;
+use super::MediaMatcher;
+use super::Metadata;
+use super::WorkUnit;
 use crate::external::ExternalEpisode;
 use crate::external::ExternalMedia;
+use crate::external::ExternalQuery;
+use crate::external::ExternalQueryShow;
 use crate::external::ExternalSeason;
 use crate::inspect::ResultExt;
 
+use async_trait::async_trait;
+
 use database::episode::Episode;
 use database::episode::InsertableEpisode;
+use database::genre::Genre;
+use database::genre::InsertableGenre;
+use database::genre::InsertableGenreMedia;
 use database::library::MediaType;
 use database::media::InsertableMedia;
 use database::media::Media;
@@ -21,7 +32,11 @@ use database::Transaction;
 use chrono::prelude::Utc;
 use chrono::Datelike;
 
+use std::sync::Arc;
+use tracing::debug;
 use tracing::error;
+use tracing::info;
+use tracing::instrument;
 
 use displaydoc::Display;
 use thiserror::Error;
@@ -70,6 +85,42 @@ impl TvMatcher {
         // TODO: insert poster and backdrops.
         let (emedia, eseason, eepisode) = result;
 
+        let posters = emedia
+            .posters
+            .iter()
+            .filter_map(|x| asset_from_url(x))
+            .collect::<Vec<_>>();
+
+        let mut poster_ids = vec![];
+
+        for poster in posters {
+            let asset = poster
+                .insert(&mut *tx)
+                .await
+                .inspect_err(|error| error!(?error, "Failed to insert asset into db."))
+                .map_err(Error::PosterInsert)?;
+
+            poster_ids.push(asset);
+        }
+
+        let backdrops = emedia
+            .backdrops
+            .iter()
+            .filter_map(|x| asset_from_url(x))
+            .collect::<Vec<_>>();
+
+        let mut backdrop_ids = vec![];
+
+        for backdrop in backdrops {
+            let asset = backdrop
+                .insert(&mut *tx)
+                .await
+                .inspect_err(|error| error!(?error, "Failed to insert asset into db."))
+                .map_err(Error::BackdropInsert)?;
+
+            backdrop_ids.push(asset);
+        }
+
         let media = InsertableMedia {
             media_type: MediaType::Tv,
             library_id: file.library_id,
@@ -78,8 +129,8 @@ impl TvMatcher {
             rating: emedia.rating,
             year: emedia.release_date.map(|x| x.year() as _),
             added: Utc::now().to_string(),
-            poster: None,
-            backdrop: None,
+            poster: poster_ids.first().map(|x| x.id),
+            backdrop: backdrop_ids.first().map(|x| x.id),
         };
 
         let parent_id = media
@@ -88,7 +139,28 @@ impl TvMatcher {
             .inspect_err(|error| error!(?error, ?file, "Failed to lazy insert tv show"))
             .map_err(Error::GetOrInsertMedia)?;
 
-        // TODO: Decouple then re-attach genres for current tv show.
+        // NOTE: We want to decouple this media from all genres and essentially rebuild the list.
+        // Its a lot simpler than doing a diff-update but it might be more expensive.
+        Genre::decouple_all(tx, parent_id)
+            .await
+            .inspect_err(|error| error!(?error, "Failed to decouple genres from media."))
+            .map_err(Error::GenreDecouple)?;
+
+        for name in emedia.genres {
+            let genre = InsertableGenre { name }
+                .insert(tx)
+                .await
+                .inspect_err(|error| error!(?error, "Failed to create or get genre."))
+                .map_err(Error::GetOrInsertGenre)?;
+
+            // TODO: Recouple genres always otherwise rematching would get buggy genre lists
+            InsertableGenreMedia::insert_pair(genre, parent_id, tx)
+                .await
+                .inspect_err(
+                    |error| error!(?error, %parent_id, "Failed to attach genre to media object."),
+                )
+                .map_err(Error::CoupleGenre)?;
+        }
 
         let seasonid = self.match_to_season(tx, parent_id, eseason).await?;
         let episodeid = self
@@ -100,9 +172,12 @@ impl TvMatcher {
         // want to erase their existance.
         match file.media_id {
             Some(x) if x != episodeid => {
-                let season_id = Episode::get_seasonid(tx, x).await.inspect_err(
-                    |error| error!(?error, id = %x, "Failed to get seasonid for episode"),
-                ).map_err(Error::GetSeasonId)?;
+                let season_id = Episode::get_seasonid(tx, x)
+                    .await
+                    .inspect_err(
+                        |error| error!(?error, id = %x, "Failed to get seasonid for episode"),
+                    )
+                    .map_err(Error::GetSeasonId)?;
 
                 let tvshow_id = Season::get_tvshowid(tx, season_id).await.inspect_err(
                     |error| error!(?error, id = %x, "Failed to get tvshowid for season/episode."),
@@ -113,19 +188,28 @@ impl TvMatcher {
                 ).map_err(Error::ChildrenCount)?;
 
                 if count == 0 {
-                    Media::delete(tx, x).await.inspect_err(
-                        |error| error!(?error, id = %x, "Failed to delete child-less episode"),
-                    ).map_err(Error::ChildCleanup)?;
+                    Media::delete(tx, x)
+                        .await
+                        .inspect_err(
+                            |error| error!(?error, id = %x, "Failed to delete child-less episode"),
+                        )
+                        .map_err(Error::ChildCleanup)?;
                 }
 
-                let count = Season::count_children(tx, season_id).await.inspect_err(
-                    |error| error!(?error, id = %x, "Failed to get children count for season"),
-                ).map_err(Error::ChildrenCount)?;
+                let count = Season::count_children(tx, season_id)
+                    .await
+                    .inspect_err(
+                        |error| error!(?error, id = %x, "Failed to get children count for season"),
+                    )
+                    .map_err(Error::ChildrenCount)?;
 
                 if count == 0 {
-                    Season::delete_by_id(tx, season_id).await.inspect_err(
-                        |error| error!(?error, id = %x, "Failed to delete child-less season"),
-                    ).map_err(Error::ChildCleanup)?;
+                    Season::delete_by_id(tx, season_id)
+                        .await
+                        .inspect_err(
+                            |error| error!(?error, id = %x, "Failed to delete child-less season"),
+                        )
+                        .map_err(Error::ChildCleanup)?;
                 }
 
                 let count = TVShow::count_children(tx, tvshow_id).await.inspect_err(
@@ -133,9 +217,12 @@ impl TvMatcher {
                 ).map_err(Error::ChildrenCount)?;
 
                 if count == 0 {
-                    Media::delete(tx, tvshow_id).await.inspect_err(
-                        |error| error!(?error, id = %x, "Failed to delete child-less tv show"),
-                    ).map_err(Error::ChildCleanup)?;
+                    Media::delete(tx, tvshow_id)
+                        .await
+                        .inspect_err(
+                            |error| error!(?error, id = %x, "Failed to delete child-less tv show"),
+                        )
+                        .map_err(Error::ChildCleanup)?;
                 }
             }
             _ => {}
@@ -152,11 +239,28 @@ impl TvMatcher {
         parent_id: i64,
         result: ExternalSeason,
     ) -> Result<i64, Box<dyn std::error::Error>> {
-        // TODO: Fetch poster.
+        let posters = result
+            .posters
+            .iter()
+            .filter_map(|x| asset_from_url(x))
+            .collect::<Vec<_>>();
+
+        let mut poster_ids = vec![];
+
+        for poster in posters {
+            let asset = poster
+                .insert(&mut *tx)
+                .await
+                .inspect_err(|error| error!(?error, "Failed to insert asset into db."))
+                .map_err(Error::PosterInsert)?;
+
+            poster_ids.push(asset);
+        }
+
         let season = InsertableSeason {
             season_number: result.season_number as _,
             added: Utc::now().to_string(),
-            poster: None,
+            poster: poster_ids.first().map(|x| x.id),
         };
 
         let season_id = season
@@ -175,13 +279,31 @@ impl TvMatcher {
         seasonid: i64,
         result: ExternalEpisode,
     ) -> Result<i64, Box<dyn std::error::Error>> {
-        // NOTE: Add backdrops
+        let stills = result
+            .stills
+            .iter()
+            .filter_map(|x| asset_from_url(x))
+            .collect::<Vec<_>>();
+
+        let mut still_ids = vec![];
+
+        for still in stills {
+            let asset = still
+                .insert(&mut *tx)
+                .await
+                .inspect_err(|error| error!(?error, "Failed to insert asset into db."))
+                .map_err(Error::PosterInsert)?;
+
+            still_ids.push(asset);
+        }
+
         let media = InsertableMedia {
             library_id: file.library_id,
             name: result.title_or_episode(),
             added: Utc::now().to_string(),
             media_type: MediaType::Episode,
             description: result.description.clone(),
+            backdrop: still_ids.first().map(|x| x.id),
             ..Default::default()
         };
 
@@ -218,6 +340,98 @@ impl TvMatcher {
             .map_err(Error::UpdateMediafile)?;
 
         Ok(episode_id)
+    }
+
+    #[instrument(skip(provider, metadata))]
+    async fn lookup_metadata(
+        provider: Arc<dyn ExternalQueryShow>,
+        file: MediaFile,
+        metadata: Vec<Metadata>,
+    ) -> Option<(MediaFile, (ExternalMedia, ExternalSeason, ExternalEpisode))> {
+        for meta in metadata {
+            match provider
+                .search(meta.name.as_ref(), meta.year.map(|x| x as _))
+                .await
+            {
+                Ok(provided) => {
+                    let first = if let Some(x) = provided.first() {
+                        x.clone()
+                    } else {
+                        continue;
+                    };
+
+                    let Ok(seasons) = provider.seasons_for_id(&first.external_id).await else {
+                        info!(?meta, "Failed to find season match with the current metadata set.");
+                        continue;
+                    };
+
+                    // FIXME: If a file doesnt have season metadata, we want to default to
+                    // marking this file as an extra and put it in season 0
+                    let Some(season) = seasons
+                        .into_iter()
+                        .find(|x| x.season_number as i64 == meta.season.unwrap_or(0)) else {
+                        info!(?meta, "Provider didnt return our desired season with current metadata.");
+                        continue;
+                    };
+
+                    let Ok(episodes) = provider
+                        .episodes_for_season(&first.external_id, meta.season.unwrap_or(0) as _)
+                        .await else {
+                        // FIXME: We might want to propagate this error.
+                        info!(?meta, "Failed to fetch episodes with current metadata set.");
+                        continue;
+                    };
+
+                    let Some(episode) = episodes
+                        .into_iter()
+                        .find(|x| x.episode_number as i64 == meta.episode.unwrap_or(0)) else {
+                        info!(
+                            ?meta,
+                            "Provider didnt return our desired episode with current metadata."
+                        );
+                        continue;
+                    };
+
+                    return Some((file, (first, season, episode)));
+                }
+                Err(e) => error!(?meta, error = ?e, "Failed to find a movie match."),
+            }
+        }
+
+        None
+    }
+}
+
+#[async_trait]
+impl MediaMatcher for TvMatcher {
+    async fn batch_match(
+        &self,
+        tx: &mut Transaction<'_>,
+        provider: Arc<dyn ExternalQuery>,
+        work: Vec<WorkUnit>,
+    ) {
+        let provider_show: Arc<dyn ExternalQueryShow> = provider
+            .into_query_show()
+            .expect("Scanner needs a show provider");
+
+        let metadata_futs = work
+            .into_iter()
+            .map(|WorkUnit(file, metadata)| {
+                let provider_show = Arc::clone(&provider_show);
+                tokio::spawn(Self::lookup_metadata(provider_show, file, metadata))
+            })
+            .collect::<Vec<_>>();
+
+        let metadata = futures::future::join_all(metadata_futs).await;
+
+        // FIXME: Propagate errors.
+        for meta in metadata.into_iter() {
+            if let Ok(Some((file, provided))) = meta {
+                self.match_to_result(tx, file, provided)
+                    .await
+                    .inspect_err(|error| error!(?error, "failed to match to result"));
+            }
+        }
     }
 }
 

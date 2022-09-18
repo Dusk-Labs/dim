@@ -64,6 +64,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "alloc-no-stdlib"
+version = "2.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc7bb162ec39d46ab1ca8c77bf72e890535becd1751bb45f64c597edb4c8c6b3"
+
+[[package]]
+name = "alloc-stdlib"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "94fb8275041c72129eb51b7d0322c29b8387a0386127718b096429201a5d6ece"
+dependencies = [
+ "alloc-no-stdlib",
+]
+
+[[package]]
 name = "anitomy"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -88,6 +103,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d52a9bb7ec0cf484c551830a7ce27bd20d67eac647e1befb56b0be4ee39a55d2"
 dependencies = [
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "async-compression"
+version = "0.3.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "345fd392ab01f746c717b1357165b76f0b67a60192007b234058c9045fdcf695"
+dependencies = [
+ "brotli",
+ "futures-core",
+ "memchr",
+ "pin-project-lite",
+ "tokio",
 ]
 
 [[package]]
@@ -196,6 +224,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0bf7fe51849ea569fd452f37822f606a5cabb684dc918707a0193fd4664ff324"
 dependencies = [
  "generic-array",
+]
+
+[[package]]
+name = "brotli"
+version = "3.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1a0b1dbcc8ae29329621f8d4f0d835787c1c38bb1401979b49d13b0b305ff68"
+dependencies = [
+ "alloc-no-stdlib",
+ "alloc-stdlib",
+ "brotli-decompressor",
+]
+
+[[package]]
+name = "brotli-decompressor"
+version = "2.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59ad2d4653bf5ca36ae797b1f4bb4dbddb60ce49ca4aed8a2ce4829f60425b80"
+dependencies = [
+ "alloc-no-stdlib",
+ "alloc-stdlib",
 ]
 
 [[package]]
@@ -646,6 +695,7 @@ dependencies = [
  "fuzzy-matcher",
  "governor",
  "http",
+ "hyper",
  "image",
  "itertools",
  "lazy_static",
@@ -658,6 +708,7 @@ dependencies = [
  "priority-queue",
  "rand 0.7.3",
  "reqwest",
+ "retry-block",
  "rust-embed",
  "serde",
  "serde_derive",
@@ -1196,9 +1247,9 @@ checksum = "c4a1e36c821dbe04574f602848a19f742f4fb3c98d40449f11bcad18d6b17421"
 
 [[package]]
 name = "hyper"
-version = "0.14.19"
+version = "0.14.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42dc3c131584288d375f2d07f822b0cb012d8c6fb899a5b9fdb3cb7eb9b6004f"
+checksum = "02c929dc5c39e335a03c405292728118860721b10190d98c2a0f0efd5baafbac"
 dependencies = [
  "bytes 1.1.0",
  "futures-channel",
@@ -2198,6 +2249,7 @@ version = "0.11.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b75aa69a3f06bbcc66ede33af2af253c6f7a86b1ca0033f60c580a27074fbf92"
 dependencies = [
+ "async-compression",
  "base64",
  "bytes 1.1.0",
  "encoding_rs",
@@ -2222,6 +2274,7 @@ dependencies = [
  "serde_urlencoded",
  "tokio",
  "tokio-rustls 0.23.4",
+ "tokio-util 0.7.3",
  "tower-service",
  "url",
  "wasm-bindgen",
@@ -2229,6 +2282,20 @@ dependencies = [
  "web-sys",
  "webpki-roots 0.22.3",
  "winreg",
+]
+
+[[package]]
+name = "retry-block"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "095a7c37fd304fa4fef479da6293cd8dcd8ddb7eb26a03c28cc33f949362a379"
+dependencies = [
+ "async-trait",
+ "futures-util",
+ "rand 0.8.5",
+ "serde",
+ "tokio",
+ "tokio-stream",
 ]
 
 [[package]]

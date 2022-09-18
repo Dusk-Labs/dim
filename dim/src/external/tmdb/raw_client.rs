@@ -1,3 +1,9 @@
+use futures::future::BoxFuture;
+use futures::FutureExt;
+use retry_block::async_retry;
+use retry_block::delay::Fixed;
+use retry_block::OperationResult;
+use std::error::Error;
 use std::future::Future;
 use std::time::Duration;
 
@@ -16,22 +22,19 @@ pub struct SearchResponse {
     pub results: Vec<Option<TMDBMediaObject>>,
 }
 
-#[derive(Deserialize, Clone, Debug)]
+#[derive(Deserialize, Clone, Debug, Default)]
 pub struct TMDBMediaObject {
     pub id: u64,
-    #[serde(rename(serialize = "title"))]
-    #[serde(alias = "title", alias = "name")]
+    #[serde(alias = "name")]
     pub title: String,
-    #[serde(rename(serialize = "release_date"))]
-    #[serde(alias = "first_air_date", alias = "release_date")]
+    #[serde(alias = "first_air_date")]
     pub release_date: Option<String>,
     pub overview: Option<String>,
     pub vote_average: Option<f64>,
     pub poster_path: Option<String>,
     pub backdrop_path: Option<String>,
     pub genre_ids: Option<Vec<u64>>,
-    #[serde(skip_deserializing)]
-    pub genres: Vec<String>,
+    pub genres: Option<Vec<Genre>>,
     pub runtime: Option<u64>,
 }
 
@@ -57,7 +60,12 @@ impl From<TMDBMediaObject> for ExternalMedia {
                 .into_iter()
                 .map(|x| format!("https://image.tmdb.org/t/p/original{x}"))
                 .collect(),
-            genres: media.genres,
+            genres: media
+                .genres
+                .unwrap_or_default()
+                .into_iter()
+                .map(|genre| genre.name)
+                .collect(),
             rating: media.vote_average,
             duration: media.runtime.map(|n| Duration::from_secs(n)),
         }
@@ -73,46 +81,6 @@ pub struct GenreList {
 pub struct Genre {
     pub id: u64,
     pub name: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct MovieDetails {
-    #[serde(flatten)]
-    pub media_object: TMDBMediaObject,
-}
-
-impl From<MovieDetails> for ExternalMedia {
-    fn from(details: MovieDetails) -> Self {
-        let MovieDetails { media_object } = details;
-
-        media_object.into()
-    }
-}
-
-#[derive(Deserialize, Debug)]
-pub struct TvDetails {
-    #[serde(flatten)]
-    pub media_object: TMDBMediaObject,
-    pub genres: Option<Vec<Genre>>,
-}
-
-impl From<TvDetails> for ExternalMedia {
-    fn from(details: TvDetails) -> Self {
-        let TvDetails {
-            media_object,
-            genres,
-        } = details;
-
-        let mut media: ExternalMedia = media_object.into();
-
-        media.genres = genres
-            .unwrap_or_default()
-            .into_iter()
-            .map(|genre| genre.name)
-            .collect();
-
-        media
-    }
 }
 
 #[derive(Deserialize, Debug)]
@@ -174,7 +142,7 @@ impl From<TvSeasons> for Vec<ExternalSeason> {
 #[derive(Deserialize, Debug)]
 pub struct TvSeason {
     pub id: u64,
-    pub air_date: String,
+    pub air_date: Option<String>,
     pub episode_count: u64,
     pub name: String,
     pub overview: Option<String>,
@@ -269,7 +237,7 @@ impl TMDBClient {
         &self,
         args: A,
         path: String,
-    ) -> impl Future<Output = Result<String, TMDBClientRequestError>>
+    ) -> BoxFuture<Result<String, TMDBClientRequestError>>
     where
         A: IntoIterator<Item = (T, T)>,
         T: ToString,
@@ -280,34 +248,52 @@ impl TMDBClient {
             .map(|(k, v)| (k.to_string(), v.to_string()))
             .collect();
 
-        let request = self.provider.http_client.get(url).query(&args);
+        let provider = self.provider.http_client.clone();
 
         async move {
-            let response = request
-                .send()
-                .await
-                .map_err(TMDBClientRequestError::reqwest)?;
+            let result = async_retry!(Fixed::new(Duration::from_millis(50)).take(24), {
+                let request = provider.get(url.clone()).query(&args);
+                let response = match request
+                    .send()
+                    .await
+                    .map_err(TMDBClientRequestError::reqwest)
+                {
+                    Ok(x) => x,
+                    Err(err) => return Err(err).into(),
+                };
 
-            let status = response.status();
+                let status = response.status();
 
-            let body = response
-                .bytes()
-                .await
-                .map_err(TMDBClientRequestError::reqwest)?;
+                let body = match response
+                    .bytes()
+                    .await
+                    .map_err(TMDBClientRequestError::reqwest)
+                {
+                    Ok(x) => x,
+                    Err(err) => return Err(err).into(),
+                };
 
-            let body = std::str::from_utf8(&body)
-                .map_err(|_| TMDBClientRequestError::InvalidUTF8Body)
-                .map(|st| st.to_string());
+                let body = std::str::from_utf8(&body)
+                    .map_err(|_| TMDBClientRequestError::InvalidUTF8Body)
+                    .map(|st| st.to_string());
 
-            if status != reqwest::StatusCode::OK {
-                return Err(TMDBClientRequestError::NonOkResponse {
-                    body: body.unwrap_or_default(),
-                    status,
-                });
-            }
+                if status != reqwest::StatusCode::OK {
+                    return Err(TMDBClientRequestError::NonOkResponse {
+                        body: body.unwrap_or_default(),
+                        status,
+                    })
+                    .into();
+                }
 
-            body
+                match body {
+                    Ok(x) => OperationResult::Ok(x),
+                    Err(err) => OperationResult::Err(err),
+                }
+            });
+
+            result
         }
+        .boxed()
     }
 
     pub async fn genre_list(
