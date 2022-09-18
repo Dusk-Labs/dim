@@ -459,10 +459,20 @@ pub struct Movies;
 /// An instance of [TMDBMetadataProvider] with a generic parameter to infer the [MediaType] for searches.
 pub struct MetadataProviderOf<K>
 where
-    K: Send + Sync + 'static,
+    K: sealed::AssocMediaTypeConst + Send + Sync + 'static,
 {
     pub provider: TMDBMetadataProvider,
     _key: PhantomData<K>,
+}
+
+impl<K: sealed::AssocMediaTypeConst + Send + Sync + 'static> std::fmt::Debug
+    for MetadataProviderOf<K>
+{
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        fmt.debug_struct("TMDBMetadataProviderOf<K>")
+            .field("key", &K::MEDIA_TYPE)
+            .finish()
+    }
 }
 
 mod sealed {

@@ -1,7 +1,12 @@
 use crate::core::EventTx;
+use crate::external::ExternalQuery;
+
+use super::movie;
+use super::MediaMatcher;
 
 use std::path::PathBuf;
 use std::sync::mpsc;
+use std::sync::Arc;
 use std::time::Duration;
 
 use database::library::Library;
@@ -37,19 +42,34 @@ pub struct FsWatcher {
     library_id: i64,
     tx: EventTx,
     conn: DbConnection,
+    matcher: Arc<dyn MediaMatcher>,
+    provider: Arc<dyn ExternalQuery>,
 }
 
 impl FsWatcher {
-    pub fn new(conn: DbConnection, library_id: i64, media_type: MediaType, tx: EventTx) -> Self {
+    pub fn new(
+        conn: DbConnection,
+        library_id: i64,
+        media_type: MediaType,
+        tx: EventTx,
+        provider: Arc<dyn ExternalQuery>,
+    ) -> Self {
+        let matcher = match media_type {
+            MediaType::Movie => Arc::new(movie::MovieMatcher) as Arc<dyn MediaMatcher>,
+            _ => unimplemented!(),
+        };
+
         Self {
             library_id,
             media_type,
             tx,
             conn,
+            matcher,
+            provider,
         }
     }
 
-    pub async fn start_daemon(&self) -> Result<(), FsWatcherError> {
+    pub async fn start_daemon(&mut self) -> Result<(), FsWatcherError> {
         let library = {
             let mut tx = match self.conn.read().begin().await {
                 Ok(x) => x,
@@ -78,7 +98,7 @@ impl FsWatcher {
         Ok(())
     }
 
-    async fn handle_create(&self, path: PathBuf) {
+    async fn handle_create(&mut self, path: PathBuf) {
         debug!("Received handle_create event type: {:?}", path);
 
         if path.is_file()
@@ -87,37 +107,34 @@ impl FsWatcher {
                 .and_then(|e| e.to_str())
                 .map_or(false, |e| super::SUPPORTED_EXTS.contains(&e))
         {
-            let extractor = super::get_extractor(&self.tx);
-            let matcher = super::get_matcher(&self.tx);
-
-            if let Ok(mfile) = extractor
-                .mount_file(path.clone(), self.library_id, self.media_type)
-                .await
+            if let Ok(mfile) =
+                super::insert_mediafiles(&mut self.conn, self.library_id, vec![path.clone()]).await
             {
-                match self.media_type {
-                    MediaType::Movie => {
-                        let _ = matcher.match_movie(mfile).await;
-                    }
-                    MediaType::Tv => {
-                        let _ = matcher.match_tv(mfile).await;
-                    }
-                    _ => unreachable!(),
-                }
+                let mut lock = self.conn.writer().lock_owned().await;
+                let mut tx = database::write_tx(&mut lock).await.unwrap();
+
+                self.matcher
+                    .batch_match(&mut tx, self.provider.clone(), mfile)
+                    .await;
+
+                tx.commit().await.unwrap();
             }
         } else if path.is_dir() {
             if let Some(x) = path.to_str() {
                 let _ = super::start_custom(
+                    &mut self.conn,
                     self.library_id,
+                    vec![x.to_string()],
                     self.tx.clone(),
-                    IntoIterator::into_iter([x]),
                     self.media_type,
+                    self.provider.clone(),
                 )
                 .await;
             }
         }
     }
 
-    async fn handle_remove(&self, path: PathBuf) {
+    async fn handle_remove(&mut self, path: PathBuf) {
         debug!("Received handle remove {:?}", path);
 
         let path = match path.to_str() {
@@ -167,7 +184,7 @@ impl FsWatcher {
         }
     }
 
-    async fn handle_rename(&self, from: PathBuf, to: PathBuf) {
+    async fn handle_rename(&mut self, from: PathBuf, to: PathBuf) {
         debug!(
             from = ?from,
             to = ?to,

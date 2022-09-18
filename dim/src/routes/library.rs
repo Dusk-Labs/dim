@@ -3,15 +3,14 @@ use crate::core::EventTx;
 use crate::errors;
 use crate::json;
 use crate::scanner;
-/*
->>>>>>> tmp
-use crate::scanners::scanner_daemon::FsWatcher;
-*/
+//use crate::scanners::scanner_daemon::FsWatcher;
+use crate::external::tmdb::TMDBMetadataProvider;
 use crate::tree;
 
 use database::compact_mediafile::CompactMediafile;
 use database::library::InsertableLibrary;
 use database::library::Library;
+use database::library::MediaType;
 use database::media::Media;
 use database::mediafile::MediaFile;
 
@@ -20,6 +19,7 @@ use events::Message;
 use events::PushEventType;
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use warp::http::StatusCode;
 use warp::reply;
@@ -212,7 +212,7 @@ pub async fn library_get(
 /// * `log` - logger
 /// * `_user` - Auth middleware
 pub async fn library_post(
-    conn: DbConnection,
+    mut conn: DbConnection,
     new_library: InsertableLibrary,
     event_tx: EventTx,
     _user: User,
@@ -225,9 +225,18 @@ pub async fn library_post(
 
     let tx_clone = event_tx.clone();
 
-//    let fs_watcher = FsWatcher::new(conn.clone(), id, new_library.media_type, tx_clone.clone());
-//    tokio::spawn(async move { fs_watcher.start_daemon().await });
-//    tokio::spawn(scanner::start(conn, id, tx_clone));
+    //let fs_watcher = FsWatcher::new(conn.clone(), id, new_library.media_type, tx_clone.clone());
+    //tokio::spawn(async move { fs_watcher.start_daemon().await });
+
+    let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
+
+    let provider = match new_library.media_type {
+        MediaType::Movie => Arc::new(provider.movies()) as Arc<_>,
+        MediaType::Tv => Arc::new(provider.tv_shows()) as Arc<_>,
+        _ => unreachable!(),
+    };
+
+    tokio::spawn(async move { scanner::start(&mut conn, id, tx_clone, provider).await });
 
     let event = Message {
         id,

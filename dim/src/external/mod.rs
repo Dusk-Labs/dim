@@ -4,6 +4,7 @@ pub mod mock;
 
 use async_trait::async_trait;
 
+use std::fmt::Debug;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -35,13 +36,13 @@ pub enum Error {
     /// Other error, usually contains an error that shouldn't happen unless theres a bug.
     // This error wont be ever serialized and sent over the wire, however it should still be
     // printed in logs somewhere as its very unexpected.
-    OtherError(#[serde(skip)] Arc<dyn std::error::Error>),
+    OtherError(#[serde(skip)] Arc<dyn std::error::Error + Send + Sync + 'static>),
     /// The remote API returned an error ({code}): {message}
     RemoteApiError { code: u16, message: String },
 }
 
 impl Error {
-    pub fn other(error: impl std::error::Error + 'static) -> Self {
+    pub fn other(error: impl std::error::Error + Send + Sync + 'static) -> Self {
         let err = Arc::new(error);
         Self::OtherError(err)
     }
@@ -128,7 +129,7 @@ impl std::fmt::Display for MediaSearchType {
 /// Trait that must be implemented by external metadata agents which allows the scanners to query
 /// for data.
 #[async_trait]
-pub trait ExternalQuery: Send + Sync {
+pub trait ExternalQuery: Debug + Send + Sync {
     /// Search by title and year. This must return a Vec of `ExternalMedia` sorted by the search
     /// score.
     async fn search(&self, title: &str, year: Option<i32>) -> Result<Vec<ExternalMedia>>;

@@ -3,7 +3,7 @@ use super::ExternalMedia;
 use super::ExternalQuery;
 use super::Result;
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct MockProvider;
 
 #[async_trait::async_trait]

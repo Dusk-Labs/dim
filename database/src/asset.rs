@@ -91,7 +91,10 @@ pub struct InsertableAsset {
 }
 
 impl InsertableAsset {
-    pub async fn insert_many(tx: &mut crate::Transaction<'_>, assets: Vec<Self>) -> Result<Vec<Asset>, DatabaseError> {
+    pub async fn insert_many(
+        tx: &mut crate::Transaction<'_>,
+        assets: Vec<Self>,
+    ) -> Result<Vec<Asset>, DatabaseError> {
         let mut results = vec![];
 
         for asset in assets {
@@ -102,22 +105,18 @@ impl InsertableAsset {
     }
 
     pub async fn insert(self, conn: &mut crate::Transaction<'_>) -> Result<Asset, DatabaseError> {
-        let local_path = self.local_path.clone();
+        let url = self.remote_url.clone().unwrap_or_default();
 
-        if let Ok(x) = sqlx::query_as_unchecked!(
-            Asset,
-            "SELECT * FROM assets WHERE local_path = ?",
-            local_path
-        )
-        .fetch_one(&mut *conn)
-        .await
+        if let Ok(x) =
+            sqlx::query_as_unchecked!(Asset, "SELECT * FROM assets WHERE remote_url = ?", url)
+                .fetch_one(&mut *conn)
+                .await
         {
             return Ok(x);
         }
 
-        sqlx::query_as_unchecked!(
-            Asset,
-            "INSERT OR IGNORE INTO assets (remote_url, local_path, file_ext)
+        sqlx::query!(
+            "INSERT INTO assets (remote_url, local_path, file_ext)
                 VALUES ($1, $2, $3)",
             self.remote_url,
             self.local_path,
@@ -127,11 +126,10 @@ impl InsertableAsset {
         .await?;
 
         // NOTE: asset is guaranteed to be in the table if we get here
-
-        let result = sqlx::query_as_unchecked!(
+        let result = sqlx::query_as!(
             Asset,
-            "SELECT * FROM assets WHERE local_path = ?",
-            local_path
+            r#"SELECT id as "id!", remote_url, local_path, file_ext FROM assets WHERE remote_url = ?"#,
+            url
         )
         .fetch_one(&mut *conn)
         .await?;

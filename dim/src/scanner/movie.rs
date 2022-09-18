@@ -70,8 +70,7 @@ fn asset_from_url(url: &str) -> Option<InsertableAsset> {
 pub struct MovieMatcher;
 
 impl MovieMatcher {
-    /// Method will match a mediafile to a new media. Caller must ensure that the mediafile
-    /// supplied is not coupled to a media object. If it is coupled we will assume that we can
+    /// Method will match a mediafile to a new media. Caller must ensure that the mediafile supplied is not coupled to a media object. If it is coupled we will assume that we can
     /// replace the metadata supplied to it.
     #[tracing::instrument(skip(self, tx))]
     async fn match_to_result<'life0>(
@@ -81,7 +80,6 @@ impl MovieMatcher {
         provided: ExternalMedia,
     ) -> Result<i64, Error> {
         // TODO: Push posters and backdrops to download queue. Push CDC events.
-
         let posters = provided
             .posters
             .iter()
@@ -228,7 +226,7 @@ impl MediaMatcher for MovieMatcher {
                         .await
                     {
                         Ok(provided) => return Some((file, provided)),
-                        Err(e) => error!(?meta, ?e, "Failed to find a movie match."),
+                        Err(e) => error!(?meta, error = ?e, "Failed to find a movie match."),
                     }
                 }
 
@@ -238,9 +236,10 @@ impl MediaMatcher for MovieMatcher {
 
         let metadata = futures::future::join_all(metadata_futs).await;
 
+        // FIXME: Propagate errors.
         for meta in metadata.into_iter() {
             if let Some((file, provided)) = meta {
-                if let Some(provided) = provided.get(0) {
+                if let Some(provided) = provided.first() {
                     self.match_to_result(tx, file, provided.clone())
                         .await
                         .inspect_err(|error| error!(?error, "failed to match to result"));

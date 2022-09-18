@@ -5,7 +5,8 @@ use thiserror::Error;
 use serde::Serialize;
 use serde_json::json;
 
-use crate::routes::mediafile;
+//use crate::routes::mediafile;
+//use crate::scanners::base::ScannerError;
 use nightfall::error::NightfallError;
 
 use http::StatusCode;
@@ -59,15 +60,14 @@ pub enum DimError {
     UsernameNotAvailable,
     /// An error has occured while parsing cookies: {0:?}
     CookieError(#[source] database::error::AuthError),
-    /// Error occured in the `/api/v1/mediafile` routes.
+    /* Error occured in the `/api/v1/mediafile` routes.
     #[error(transparent)]
     MediafileRouteError(#[from] mediafile::Error),
+    */
     /// User does not exist
     UserNotFound,
-    /*
     /// Couldn't find the tmdb id provided.
-    TmdbIdSearchError(crate::scanners::tmdb::TmdbError),
-    */
+    ExternalSearchError(crate::external::Error),
 }
 
 impl From<sqlx::Error> for DimError {
@@ -108,7 +108,8 @@ impl warp::Reply for DimError {
         let status = match self {
             Self::LibraryNotFound
             | Self::NoneError
-            | Self::NotFoundError => StatusCode::NOT_FOUND,
+            | Self::NotFoundError
+            | Self::ExternalSearchError(_) => StatusCode::NOT_FOUND,
             Self::StreamingError(_)
             | Self::DatabaseError { .. }
             | Self::UnknownError
@@ -124,8 +125,8 @@ impl warp::Reply for DimError {
             Self::UsernameNotAvailable => StatusCode::BAD_REQUEST,
             Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {
                 StatusCode::NOT_ACCEPTABLE
-            }
-            Self::MediafileRouteError(ref e) => e.status_code(),
+            } //       Self::MediafileRouteError(ref e) => e.status_code(),
+              // | Self::ScannerError(_)
         };
 
         let resp = json!({

@@ -1,6 +1,7 @@
 //! Module contains all the code for the new generation media scanner.
 
-mod error;
+pub mod daemon;
+pub mod error;
 mod mediafile;
 mod movie;
 #[cfg(test)]
@@ -39,10 +40,15 @@ use tracing::instrument;
 use tracing::warn;
 use walkdir::WalkDir;
 
+pub type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
+
 pub(super) static SUPPORTED_EXTS: &[&str] = &["mp4", "mkv", "avi", "webm"];
 
 /// Function recursively walks the paths passed and returns all files in those directories.
 /// FIXME: THIS IS NOT ASYNC-SAFE!!!
+/// NOTE: I've noticed that walking a directory mounted over ssh is very slow, 80 files in like 300
+/// seconds. Doubt theres a way to fix this but we could alliviate the UX-degradation by sending
+/// the files over a channel instead of returning them at once.
 pub fn get_subfiles(paths: impl Iterator<Item = impl AsRef<Path>>) -> Vec<PathBuf> {
     let mut files = Vec::with_capacity(2048);
     for path in paths {
@@ -122,9 +128,14 @@ pub trait MediaMatcher: Send + Sync {
 pub async fn insert_mediafiles(
     conn: &mut database::DbConnection,
     library_id: i64,
-    dirs: Vec<impl AsRef<Path>>,
-) -> Result<Vec<WorkUnit>, Box<dyn std::error::Error>> {
-    let subfiles = get_subfiles(dirs.into_iter());
+    dirs: Vec<impl AsRef<Path> + Send + 'static>,
+) -> Result<Vec<WorkUnit>, Error> {
+    let now = Instant::now();
+    let subfiles = tokio::task::spawn_blocking(|| get_subfiles(dirs.into_iter())).await.unwrap();
+    let elapsed = now.elapsed();
+
+    info!(elapsed_ms = elapsed.as_millis(), files = subfiles.len(), "Walked all target directories.");
+
     let parsed = parse_filenames(subfiles.iter());
 
     let mut instance = MediafileCreator::new(conn.clone(), library_id).await;
@@ -171,10 +182,11 @@ pub async fn insert_mediafiles(
 pub async fn start_custom(
     conn: &mut database::DbConnection,
     library_id: i64,
-    dirs: Vec<impl AsRef<Path>>,
+    dirs: Vec<impl AsRef<Path> + Send + 'static>,
     tx: EventTx,
     media_type: MediaType,
-) -> Result<(), Box<dyn std::error::Error>> {
+    provider: Arc<dyn ExternalQuery>,
+) -> Result<(), Error> {
     info!(library_id, "Scanning library");
 
     tx.send(
@@ -190,8 +202,6 @@ pub async fn start_custom(
         _ => unimplemented!(),
     };
 
-    let provider = Arc::new(crate::external::mock::MockProvider);
-
     let now = Instant::now();
     let workunits = insert_mediafiles(conn, library_id, dirs).await?;
 
@@ -204,17 +214,23 @@ pub async fn start_custom(
 
     let now = Instant::now();
 
+    // NOTE: itertools::GroupBy is used across an await point and thus must also be Sync. This
+    // breaks some of our higher-level logic where we spawn this task. Thus we collect it before
+    // we proceed consuming it.
+    let chunk_iter = workunits
+        .into_iter()
+        .chunks(128)
+        .into_iter()
+        .map(|x| x.collect())
+        .collect::<Vec<_>>();
+
     // TODO: We can receive work over a channel so that we can in parallel create new mediafiles
     // and match objects.
-    // FIXME: Chunks iterator is a PITA to use across an await point
-    let units = workunits.into_iter().chunks(128).into_iter().map(|x| x.collect::<Vec<_>>()).collect::<Vec<_>>();
-    for unit in units {
+    for unit in chunk_iter.into_iter() {
         let mut lock = conn.writer().lock_owned().await;
         let mut tx = database::write_tx(&mut lock).await?;
 
-        matcher
-            .batch_match(&mut tx, provider.clone(), unit)
-            .await;
+        matcher.batch_match(&mut tx, provider.clone(), unit).await;
 
         tx.commit().await?;
     }
@@ -240,12 +256,21 @@ pub async fn start(
     conn: &mut database::DbConnection,
     library_id: i64,
     tx: EventTx,
-) -> Result<(), Box<dyn std::error::Error>> {
+    provider: Arc<dyn ExternalQuery>,
+) -> Result<(), Error> {
     let mut tx_ = conn.read().begin().await?;
 
     let lib = Library::get_one(&mut tx_, library_id).await?;
 
-    start_custom(conn, library_id, lib.locations, tx, lib.media_type).await
+    start_custom(
+        conn,
+        library_id,
+        lib.locations,
+        tx,
+        lib.media_type,
+        provider,
+    )
+    .await
 }
 
 /// Function formats the path where assets are stored.

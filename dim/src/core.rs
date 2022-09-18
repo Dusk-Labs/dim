@@ -23,6 +23,7 @@ pub type EventTx = UnboundedSender<String>;
 /// Path to where metadata is stored and should be fetched to.
 pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
 
+/*
 /// Function dumps a list of all libraries in the database and starts a scanner for each which
 /// monitors for new files using fsnotify. It also scans all orphans on boot.
 ///
@@ -43,7 +44,7 @@ pub async fn run_scanners(tx: EventTx) {
                 let library_id = lib.id;
                 let tx_clone = tx.clone();
                 let media_type = lib.media_type;
-                let watcher = scanners::scanner_daemon::FsWatcher::new(
+                let watcher = scanner::scanner_daemon::FsWatcher::new(
                     conn.clone(),
                     library_id,
                     media_type,
@@ -62,6 +63,7 @@ pub async fn run_scanners(tx: EventTx) {
     }
     */
 }
+*/
 
 #[instrument(skip(stream_manager, event_tx, rt, event_rx))]
 pub async fn warp_core(
@@ -112,10 +114,10 @@ pub async fn warp_core(
         routes::media::filters::get_media_files(conn.clone()),
         routes::media::filters::update_media_by_id(conn.clone()),
         routes::media::filters::delete_media_by_id(conn.clone()),
-        routes::media::filters::tmdb_search(conn.clone()),
+        //routes::media::filters::tmdb_search(conn.clone()),
         routes::media::filters::map_progress(conn.clone()),
         routes::media::filters::get_mediafile_tree(conn.clone()),
-    //    routes::rematch_media::filters::rematch_media_by_id(conn.clone(), event_tx.clone()),
+        //routes::rematch_media::filters::rematch_media_by_id(conn.clone(), event_tx.clone()),
         /* tv routes */
         routes::tv::filters::get_tv_seasons(conn.clone()),
         routes::tv::filters::patch_episode_by_id(conn.clone()),
@@ -124,8 +126,10 @@ pub async fn warp_core(
         routes::tv::filters::patch_episode_by_id(conn.clone()),
         routes::tv::filters::delete_episode_by_id(conn.clone()),
         /* mediafile routes */
+        /*
         routes::mediafile::filters::get_mediafile_info(conn.clone()),
         routes::mediafile::filters::rematch_mediafile(conn.clone()),
+        */
         /* settings routes */
         routes::settings::filters::get_user_settings(conn.clone()),
         routes::settings::filters::post_user_settings(conn.clone()),
@@ -154,6 +158,7 @@ pub async fn warp_core(
         warp::path!("api" / "stream" / ..)
             .and(warp::any())
             .map(|| StatusCode::NOT_FOUND),
+        routes::statik::filters::get_image(conn.clone()),
     ]
     .recover(routes::global_filters::handle_rejection);
 
@@ -172,7 +177,6 @@ pub async fn warp_core(
             .recover(routes::global_filters::handle_rejection),
         /* static routes */
         routes::statik::filters::dist_static(),
-        routes::statik::filters::get_image(conn.clone()),
         routes::statik::filters::react_routes(),
     ]
     .recover(routes::global_filters::handle_rejection)

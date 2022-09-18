@@ -98,7 +98,7 @@ function ImageLoad(props: Props) {
 
       const id = window.setTimeout(() => {
         fetchImage();
-      }, 3000);
+      }, 2000);
 
       setTimeoutID(id);
     }

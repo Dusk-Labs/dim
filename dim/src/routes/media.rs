@@ -106,6 +106,7 @@ pub mod filters {
             })
     }
 
+    /*
     pub fn tmdb_search(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
@@ -133,6 +134,7 @@ pub mod filters {
                 },
             )
     }
+    */
 
     pub fn map_progress(
         conn: DbConnection,
@@ -489,6 +491,7 @@ pub async fn delete_media_by_id(
     Ok(StatusCode::OK)
 }
 
+/*
 /// Method mapped to `GET /api/v1/media/tmdb_search` is used to quickly search TMDB based on 3
 /// params, one of which is optional. This is used client side in the rematch utility
 ///
@@ -526,6 +529,7 @@ pub async fn tmdb_search(
 
     Ok("Abc".to_string())
 }
+*/
 
 /// Method mapped to `POST /api/v1/media/<id>/progress` is used to map progress for a certain media
 /// to the user. This is useful for remembering progress for a movie etc.

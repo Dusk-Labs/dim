@@ -107,7 +107,7 @@ fn main() {
 
         if !global_settings.quiet_boot {
             info!("Transposing scanners from the netherworld...");
-            core::run_scanners(event_tx.clone()).await;
+            //core::run_scanners(event_tx.clone()).await;
         }
 
         info!("Summoning Dim v{}...", structopt::clap::crate_version!());

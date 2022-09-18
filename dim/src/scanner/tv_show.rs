@@ -23,6 +23,41 @@ use chrono::Datelike;
 
 use tracing::error;
 
+use displaydoc::Display;
+use thiserror::Error;
+
+#[derive(Clone, Debug, Display, Error)]
+pub enum Error {
+    /// Failed to insert poster into database: {0:?}
+    PosterInsert(database::DatabaseError),
+    /// Failed to insert backdrop into database: {0:?}
+    BackdropInsert(database::DatabaseError),
+    /// Failed to decouple genres from media: {0:?}
+    GenreDecouple(database::DatabaseError),
+    /// Failed to create or get genre: {0:?}
+    GetOrInsertGenre(database::DatabaseError),
+    /// Failed to attach genre to media object: {0:?}
+    CoupleGenre(database::DatabaseError),
+    /// Failed to update mediafile to point to new parent: {0:?}
+    UpdateMediafile(database::DatabaseError),
+    /// Failed to get children count for movie: {0:?}
+    ChildrenCount(database::DatabaseError),
+    /// Failed to cleanup child-less parent: {0:?}
+    ChildCleanup(database::DatabaseError),
+    /// Failed to insert or get tv object: {0:?}
+    GetOrInsertMedia(database::DatabaseError),
+    /// Failed to insert or get season: {0:?}
+    GetOrInsertSeason(database::DatabaseError),
+    /// Failed to insert media object for episode: {0:?}
+    GetOrInsertMediaEpisode(database::DatabaseError),
+    /// Failed to insert episode object: {0:?}
+    GetOrInsertEpisode(database::DatabaseError),
+    /// Failed to get season id for episode: {0:?}
+    GetSeasonId(database::DatabaseError),
+    /// Failed to get tvshowid for season: {0:?}
+    GetTvId(database::DatabaseError),
+}
+
 pub struct TvMatcher;
 
 impl TvMatcher {
@@ -50,7 +85,8 @@ impl TvMatcher {
         let parent_id = media
             .lazy_insert(tx)
             .await
-            .inspect_err(|error| error!(?error, ?file, "Failed to lazy insert tv show"))?;
+            .inspect_err(|error| error!(?error, ?file, "Failed to lazy insert tv show"))
+            .map_err(Error::GetOrInsertMedia)?;
 
         // TODO: Decouple then re-attach genres for current tv show.
 
@@ -66,40 +102,40 @@ impl TvMatcher {
             Some(x) if x != episodeid => {
                 let season_id = Episode::get_seasonid(tx, x).await.inspect_err(
                     |error| error!(?error, id = %x, "Failed to get seasonid for episode"),
-                )?;
+                ).map_err(Error::GetSeasonId)?;
 
                 let tvshow_id = Season::get_tvshowid(tx, season_id).await.inspect_err(
                     |error| error!(?error, id = %x, "Failed to get tvshowid for season/episode."),
-                )?;
+                ).map_err(Error::GetTvId)?;
 
                 let count = Movie::count_children(tx, x).await.inspect_err(
                     |error| error!(?error, id = %x, "Failed to obtain children count for episode."),
-                )?;
+                ).map_err(Error::ChildrenCount)?;
 
                 if count == 0 {
                     Media::delete(tx, x).await.inspect_err(
                         |error| error!(?error, id = %x, "Failed to delete child-less episode"),
-                    )?;
+                    ).map_err(Error::ChildCleanup)?;
                 }
 
                 let count = Season::count_children(tx, season_id).await.inspect_err(
                     |error| error!(?error, id = %x, "Failed to get children count for season"),
-                )?;
+                ).map_err(Error::ChildrenCount)?;
 
                 if count == 0 {
                     Season::delete_by_id(tx, season_id).await.inspect_err(
                         |error| error!(?error, id = %x, "Failed to delete child-less season"),
-                    )?;
+                    ).map_err(Error::ChildCleanup)?;
                 }
 
                 let count = TVShow::count_children(tx, tvshow_id).await.inspect_err(
                     |error| error!(?error, id = %x, "Failed to get children count for tv show."),
-                )?;
+                ).map_err(Error::ChildrenCount)?;
 
                 if count == 0 {
                     Media::delete(tx, tvshow_id).await.inspect_err(
                         |error| error!(?error, id = %x, "Failed to delete child-less tv show"),
-                    )?;
+                    ).map_err(Error::ChildCleanup)?;
                 }
             }
             _ => {}
@@ -126,7 +162,8 @@ impl TvMatcher {
         let season_id = season
             .insert(tx, parent_id)
             .await
-            .inspect_err(|error| error!(?error, "Failed to insert season object."))?;
+            .inspect_err(|error| error!(?error, "Failed to insert season object."))
+            .map_err(Error::GetOrInsertSeason)?;
 
         Ok(season_id)
     }
@@ -158,14 +195,16 @@ impl TvMatcher {
             .media
             .insert_blind(&mut *tx)
             .await
-            .inspect_err(|error| error!(?error, ?file, "Failed to insert media for episode."))?;
+            .inspect_err(|error| error!(?error, ?file, "Failed to insert media for episode."))
+            .map_err(Error::GetOrInsertMediaEpisode)?;
 
         // NOTE: WE use to turn a episode into a movie here, not sure if necessary anymore.
 
         let episode_id = episode
             .insert(&mut *tx)
             .await
-            .inspect_err(|error| error!(?error, ?file, "Failed to insert episode."))?;
+            .inspect_err(|error| error!(?error, ?file, "Failed to insert episode."))
+            .map_err(Error::GetOrInsertEpisode)?;
 
         let updated_mediafile = UpdateMediaFile {
             media_id: Some(episode_id),
@@ -175,7 +214,8 @@ impl TvMatcher {
         updated_mediafile
             .update(&mut *tx, file.id)
             .await
-            .inspect_err(|error| error!(?error, ?file, "Failed to update mediafile media id."))?;
+            .inspect_err(|error| error!(?error, ?file, "Failed to update mediafile media id."))
+            .map_err(Error::UpdateMediafile)?;
 
         Ok(episode_id)
     }

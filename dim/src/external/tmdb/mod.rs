@@ -211,4 +211,17 @@ mod tests {
 
         assert_eq!(last, expected);
     }
+
+    #[tokio::test]
+    async fn once_upon_get_year() {
+        let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
+        let provider_movies: MetadataProviderOf<Movies> = provider.movies();
+
+        let res = provider_movies
+            .search_by_id("466272")
+            .await
+            .expect("movie should exist");
+
+        assert_eq!(res.release_date.unwrap().year(), 2019);
+    }
 }

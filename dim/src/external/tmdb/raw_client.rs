@@ -19,9 +19,11 @@ pub struct SearchResponse {
 #[derive(Deserialize, Clone, Debug)]
 pub struct TMDBMediaObject {
     pub id: u64,
-    #[serde(rename(serialize = "title", deserialize = "name"))]
+    #[serde(rename(serialize = "title"))]
+    #[serde(alias = "title", alias = "name")]
     pub title: String,
-    #[serde(rename(serialize = "release_date", deserialize = "first_air_date"))]
+    #[serde(rename(serialize = "release_date"))]
+    #[serde(alias = "first_air_date", alias = "release_date")]
     pub release_date: Option<String>,
     pub overview: Option<String>,
     pub vote_average: Option<f64>,
