@@ -10,9 +10,9 @@ mod tv_show;
 
 use self::mediafile::Error as CreatorError;
 use self::mediafile::MediafileCreator;
+use super::external::filename::CombinedExtractor;
 use super::external::filename::FilenameMetadata;
 use super::external::filename::Metadata;
-use super::external::filename::CombinedExtractor;
 use super::external::ExternalQuery;
 use crate::core::EventTx;
 

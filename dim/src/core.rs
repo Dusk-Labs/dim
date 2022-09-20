@@ -114,7 +114,7 @@ pub async fn warp_core(
         routes::media::filters::get_media_files(conn.clone()),
         routes::media::filters::update_media_by_id(conn.clone()),
         routes::media::filters::delete_media_by_id(conn.clone()),
-        //routes::media::filters::tmdb_search(conn.clone()),
+        routes::media::filters::tmdb_search(conn.clone()),
         routes::media::filters::map_progress(conn.clone()),
         routes::media::filters::get_mediafile_tree(conn.clone()),
         //routes::rematch_media::filters::rematch_media_by_id(conn.clone(), event_tx.clone()),

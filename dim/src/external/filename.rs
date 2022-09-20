@@ -76,6 +76,5 @@ impl FilenameMetadata for CombinedExtractor {
                 .get(ElementCategory::EpisodeNumber)
                 .and_then(|x| x.parse().ok()),
         })
-
     }
 }

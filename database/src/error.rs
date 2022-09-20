@@ -1,8 +1,8 @@
 pub use auth::AuthError;
 
 use displaydoc::Display;
-use thiserror::Error;
 use std::sync::Arc;
+use thiserror::Error;
 
 #[derive(Clone, Debug, Display, Error)]
 pub enum DatabaseError {

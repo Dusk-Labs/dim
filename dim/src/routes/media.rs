@@ -106,7 +106,6 @@ pub mod filters {
             })
     }
 
-    /*
     pub fn tmdb_search(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
@@ -134,7 +133,6 @@ pub mod filters {
                 },
             )
     }
-    */
 
     pub fn map_progress(
         conn: DbConnection,
@@ -491,7 +489,6 @@ pub async fn delete_media_by_id(
     Ok(StatusCode::OK)
 }
 
-/*
 /// Method mapped to `GET /api/v1/media/tmdb_search` is used to quickly search TMDB based on 3
 /// params, one of which is optional. This is used client side in the rematch utility
 ///
@@ -505,18 +502,35 @@ pub async fn tmdb_search(
     media_type: String,
     _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    /*
-    use crate::scanners::tmdb::Tmdb;
+    use crate::external::tmdb::MetadataProviderOf;
+    use crate::external::tmdb::Movies;
+    use crate::external::tmdb::TMDBMetadataProvider;
+    use crate::external::tmdb::TvShows;
+    use crate::external::ExternalQuery;
+    use crate::utils::secs_to_pretty;
 
-    let media_type = match media_type.to_lowercase().as_ref() {
-        "movie" | "movies" => MediaType::Movie,
-        "tv" | "tv_show" | "tv show" | "tv shows" => MediaType::Tv,
+    use chrono::Datelike;
+
+    use once_cell::sync::Lazy;
+
+    const API_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
+
+    const MOVIES_PROVIDER: Lazy<MetadataProviderOf<Movies>> =
+        Lazy::new(|| TMDBMetadataProvider::new(&API_KEY).movies());
+    const TV_PROVIDER: Lazy<MetadataProviderOf<TvShows>> =
+        Lazy::new(|| TMDBMetadataProvider::new(&API_KEY).tv_shows());
+
+    let movies_provider_ref = &*MOVIES_PROVIDER;
+    let tv_provider_ref = &*TV_PROVIDER;
+
+    let provider: &dyn ExternalQuery = match media_type.to_lowercase().as_ref() {
+        "movie" | "movies" => movies_provider_ref,
+        "tv" | "tv_show" | "tv show" | "tv shows" => tv_provider_ref,
         _ => return Err(errors::DimError::InvalidMediaType),
     };
 
-    let mut tmdb_session = Tmdb::new("38c372f5bc572c8aadde7a802638534e".to_string(), media_type);
-    let results = tmdb_session
-        .search_by_name(query, year, None)
+    let results = provider
+        .search(&query, year)
         .await
         .map_err(|_| errors::DimError::NotFoundError)?;
 
@@ -524,12 +538,24 @@ pub async fn tmdb_search(
         return Err(errors::DimError::NotFoundError);
     }
 
-    Ok(ApiMedia::search_response(results.into_iter()))
-    */
+    let resp = results
+        .into_iter()
+        .map(|x| {
+            json!({
+                "id": x.external_id,
+                "title": x.title,
+                "year": x.release_date.map(|x| x.year()),
+                "overview": x.description,
+                "poster_path": x.posters.first(),
+                "genres": x.genres,
+                "rating": x.rating,
+                "duration": x.duration.map(|x| secs_to_pretty(x.as_secs())),
+            })
+        })
+        .collect::<Vec<_>>();
 
-    Ok("Abc".to_string())
+    Ok(reply::json(&resp))
 }
-*/
 
 /// Method mapped to `POST /api/v1/media/<id>/progress` is used to map progress for a certain media
 /// to the user. This is useful for remembering progress for a movie etc.
