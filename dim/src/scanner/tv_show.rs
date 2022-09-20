@@ -73,6 +73,7 @@ pub enum Error {
     GetTvId(database::DatabaseError),
 }
 
+#[derive(Clone, Copy)]
 pub struct TvMatcher;
 
 impl TvMatcher {
@@ -432,6 +433,75 @@ impl MediaMatcher for TvMatcher {
                     .inspect_err(|error| error!(?error, "failed to match to result"));
             }
         }
+    }
+
+    async fn match_to_id(
+        &self,
+        tx: &mut Transaction<'_>,
+        provider: Arc<dyn ExternalQuery>,
+        work: WorkUnit,
+        external_id: &str,
+    ) {
+        let provider: Arc<dyn ExternalQueryShow> = provider
+            .into_query_show()
+            .expect("Scanner needs a show provider");
+
+        let WorkUnit(file, metadata) = work;
+
+        let provided = match provider.search_by_id(external_id).await {
+            Ok(provided) => provided,
+            Err(e) => {
+                error!(%external_id, error = ?e, "Failed to find a movie match.");
+                return;
+            }
+        };
+
+        let mut season_result = None;
+        let mut episode_result = None;
+
+        for meta in metadata {
+            let Ok(seasons) = provider.seasons_for_id(external_id).await else {
+                info!(?meta, "Failed to find season match with the current metadata set.");
+                continue;
+            };
+
+            // FIXME: If a file doesnt have season metadata, we want to default to
+            // marking this file as an extra and put it in season 0
+            let Some(season) = seasons
+                .into_iter()
+                .find(|x| x.season_number as i64 == meta.season.unwrap_or(0)) else {
+                    info!(?meta, "Provider didnt return our desired season with current metadata.");
+                    continue;
+                };
+
+            let Ok(episodes) = provider
+                .episodes_for_season(external_id, meta.season.unwrap_or(0) as _)
+                .await else {
+                    // FIXME: We might want to propagate this error.
+                    info!(?meta, "Failed to fetch episodes with current metadata set.");
+                    continue;
+                };
+
+            let Some(episode) = episodes
+                .into_iter()
+                .find(|x| x.episode_number as i64 == meta.episode.unwrap_or(0)) else {
+                    info!(
+                        ?meta,
+                        "Provider didnt return our desired episode with current metadata."
+                    );
+                    continue
+                };
+
+            season_result = Some(season);
+            episode_result = Some(episode);
+        }
+
+        let Some(season_result) = season_result else { return; };
+        let Some(episode_result) = episode_result else { return; };
+
+        self.match_to_result(tx, file, (provided, season_result, episode_result))
+            .await
+            .inspect_err(|error| error!(?error, "failed to match to result"));
     }
 }
 

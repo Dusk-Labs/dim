@@ -67,6 +67,7 @@ pub fn asset_from_url(url: &str) -> Option<InsertableAsset> {
     })
 }
 
+#[derive(Clone, Copy)]
 pub struct MovieMatcher;
 
 impl MovieMatcher {
@@ -249,6 +250,29 @@ impl MediaMatcher for MovieMatcher {
                 }
             }
         }
+    }
+
+    async fn match_to_id(
+        &self,
+        tx: &mut Transaction<'_>,
+        provider: Arc<dyn ExternalQuery>,
+        work: WorkUnit,
+        external_id: &str,
+    ) {
+        let WorkUnit(file, _) = work;
+
+        let provided = match provider.search_by_id(external_id).await {
+            Ok(provided) => provided,
+            Err(e) => {
+                error!(%external_id, error = ?e, "Failed to find a movie match.");
+                return;
+            }
+        };
+
+        let _ = self
+            .match_to_result(tx, file, provided)
+            .await
+            .inspect_err(|error| error!(?error, "failed to match file to external id."));
     }
 }
 

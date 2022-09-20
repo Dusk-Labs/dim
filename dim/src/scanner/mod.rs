@@ -3,10 +3,10 @@
 pub mod daemon;
 pub mod error;
 mod mediafile;
-mod movie;
+pub mod movie;
 #[cfg(test)]
 mod tests;
-mod tv_show;
+pub mod tv_show;
 
 use self::mediafile::Error as CreatorError;
 use self::mediafile::MediafileCreator;
@@ -124,6 +124,15 @@ pub trait MediaMatcher: Send + Sync {
         tx: &mut database::Transaction<'_>,
         provider: Arc<dyn ExternalQuery>,
         work: Vec<WorkUnit>,
+    );
+
+    /// Match a WorkUnit to a specific external id.
+    async fn match_to_id(
+        &self,
+        tx: &mut database::Transaction<'_>,
+        provider: Arc<dyn ExternalQuery>,
+        work: WorkUnit,
+        external_id: &str,
     );
 }
 

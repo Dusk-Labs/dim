@@ -68,7 +68,7 @@ pub mod filters {
         #[derive(Deserialize)]
         #[serde(deny_unknown_fields)]
         struct RouteArgs {
-            tmdb_id: i32,
+            tmdb_id: String,
             media_type: String,
             mediafiles: Vec<i64>,
         }
@@ -130,10 +130,19 @@ pub async fn get_mediafile_info(
 pub async fn rematch_mediafile(
     conn: DbConnection,
     mediafiles: Vec<i64>,
-    tmdb_id: i32,
+    external_id: String,
     media_type: String,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    /*
+    use super::media::MOVIES_PROVIDER;
+    use super::media::TV_PROVIDER;
+    use crate::external::ExternalQuery;
+    use crate::scanner::movie;
+    use crate::scanner::parse_filenames;
+    use crate::scanner::tv_show;
+    use crate::scanner::MediaMatcher;
+    use crate::scanner::WorkUnit;
+    use std::sync::Arc;
+
     if mediafiles.is_empty() {
         return Err(Error::NoMediafiles.into());
     }
@@ -141,52 +150,48 @@ pub async fn rematch_mediafile(
     let mut tx = conn.read().begin().await?;
 
     // FIXME: impl FromStr for MediaType
-    let media_type = match media_type.to_lowercase().as_ref() {
-        "movie" | "movies" => MediaType::Movie,
-        "tv" | "tv_show" | "tv show" | "tv shows" => MediaType::Tv,
+    let provider: Arc<dyn ExternalQuery> = match media_type.to_lowercase().as_ref() {
+        "movie" | "movies" => (*MOVIES_PROVIDER).clone(),
+        "tv" | "tv_show" | "tv show" | "tv shows" => (*TV_PROVIDER).clone(),
+        _ => return Err(errors::DimError::InvalidMediaType),
+    };
+
+    let matcher = match media_type.to_lowercase().as_ref() {
+        "movie" | "movies" => Arc::new(movie::MovieMatcher) as Arc<dyn MediaMatcher>,
+        "tv" | "tv_show" | "tv show" | "tv shows" => {
+            Arc::new(tv_show::TvMatcher) as Arc<dyn MediaMatcher>
+        }
         _ => return Err(errors::DimError::InvalidMediaType),
     };
 
     info!(?media_type, mediafiles = ?&mediafiles, "Rematching mediafiles");
 
     let mediafiles = MediaFile::get_many(&mut tx, &mediafiles).await?;
-    let matcher = crate::scanners::get_matcher_unchecked();
 
-    let mut tmdb = Tmdb::new("38c372f5bc572c8aadde7a802638534e".into(), media_type);
-
-    let result = tmdb.search_by_id(tmdb_id).await.map_err(|e| {
+    provider.search_by_id(&external_id).await.map_err(|e| {
         error!(?e, "Failed to search for tmdb_id when rematching.");
-        errors::DimError::TmdbIdSearchError(e)
+        errors::DimError::ExternalSearchError(e)
     })?;
 
-    let futures = FuturesUnordered::new();
+    let mut lock = conn.writer().lock_owned().await;
+    let mut tx = database::write_tx(&mut lock).await?;
 
     for mediafile in mediafiles {
-        match media_type {
-            MediaType::Movie => {
-                futures.push(
-                    matcher
-                        .match_movie_to_result(mediafile, result.clone().into())
-                        .boxed(),
-                );
-            }
-            MediaType::Tv => {
-                futures.push(
-                    matcher
-                        .match_tv_to_result(mediafile, result.clone().into())
-                        .boxed(),
-                );
-            }
-            _ => unreachable!(),
-        }
+        let Some((_, metadata)) = parse_filenames(IntoIterator::into_iter([&mediafile.target_file])).pop() else {
+            continue;
+        };
+
+        matcher
+            .match_to_id(
+                &mut tx,
+                provider.clone(),
+                WorkUnit(mediafile.clone(), metadata),
+                &external_id,
+            )
+            .await;
     }
 
-    for result in future::join_all(futures).await {
-        if let Err(x) = result {
-            warn!(error = ?x, "Failed to rematch a mediafile.");
-        }
-    }
-    */
+    tx.commit().await?;
 
     Ok(StatusCode::OK)
 }

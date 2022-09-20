@@ -126,10 +126,8 @@ pub async fn warp_core(
         routes::tv::filters::patch_episode_by_id(conn.clone()),
         routes::tv::filters::delete_episode_by_id(conn.clone()),
         /* mediafile routes */
-        /*
         routes::mediafile::filters::get_mediafile_info(conn.clone()),
         routes::mediafile::filters::rematch_mediafile(conn.clone()),
-        */
         /* settings routes */
         routes::settings::filters::get_user_settings(conn.clone()),
         routes::settings::filters::post_user_settings(conn.clone()),

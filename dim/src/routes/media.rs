@@ -1,7 +1,8 @@
 use crate::core::DbConnection;
 use crate::errors;
+use crate::external::tmdb::TMDBMetadataProvider;
+use crate::external::ExternalQuery;
 use crate::json;
-//use crate::scanners::ApiMedia;
 use crate::tree;
 
 use database::user::User;
@@ -19,8 +20,16 @@ use warp::http::status::StatusCode;
 use warp::reply;
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
+use once_cell::sync::Lazy;
 use serde::Serialize;
+
+pub const API_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
+pub const MOVIES_PROVIDER: Lazy<Arc<dyn ExternalQuery>> =
+    Lazy::new(|| Arc::new(TMDBMetadataProvider::new(&API_KEY).movies()));
+pub const TV_PROVIDER: Lazy<Arc<dyn ExternalQuery>> =
+    Lazy::new(|| Arc::new(TMDBMetadataProvider::new(&API_KEY).tv_shows()));
 
 pub mod filters {
     use database::user::User;
@@ -502,30 +511,13 @@ pub async fn tmdb_search(
     media_type: String,
     _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    use crate::external::tmdb::MetadataProviderOf;
-    use crate::external::tmdb::Movies;
-    use crate::external::tmdb::TMDBMetadataProvider;
-    use crate::external::tmdb::TvShows;
-    use crate::external::ExternalQuery;
     use crate::utils::secs_to_pretty;
 
     use chrono::Datelike;
 
-    use once_cell::sync::Lazy;
-
-    const API_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
-
-    const MOVIES_PROVIDER: Lazy<MetadataProviderOf<Movies>> =
-        Lazy::new(|| TMDBMetadataProvider::new(&API_KEY).movies());
-    const TV_PROVIDER: Lazy<MetadataProviderOf<TvShows>> =
-        Lazy::new(|| TMDBMetadataProvider::new(&API_KEY).tv_shows());
-
-    let movies_provider_ref = &*MOVIES_PROVIDER;
-    let tv_provider_ref = &*TV_PROVIDER;
-
-    let provider: &dyn ExternalQuery = match media_type.to_lowercase().as_ref() {
-        "movie" | "movies" => movies_provider_ref,
-        "tv" | "tv_show" | "tv show" | "tv shows" => tv_provider_ref,
+    let provider = match media_type.to_lowercase().as_ref() {
+        "movie" | "movies" => (*MOVIES_PROVIDER).clone(),
+        "tv" | "tv_show" | "tv show" | "tv shows" => (*TV_PROVIDER).clone(),
         _ => return Err(errors::DimError::InvalidMediaType),
     };
 
