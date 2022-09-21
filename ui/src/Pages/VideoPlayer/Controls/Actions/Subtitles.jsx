@@ -12,9 +12,13 @@ function VideoActionSubtitles() {
     video: store.video,
   }));
 
-  const toggleSubtitles = useCallback(() => {
-    dispatch(toggleShowSubSwitcher());
-  }, [dispatch]);
+  const toggleSubtitles = useCallback(
+    (e) => {
+      e.target.blur();
+      dispatch(toggleShowSubSwitcher());
+    },
+    [dispatch]
+  );
 
   const handleKeyDown = useCallback(
     (e) => {

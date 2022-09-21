@@ -14,19 +14,23 @@ function VideoActionSeekBack() {
 
   const { seekTo } = useContext(VideoPlayerContext);
 
-  const seekBackward = useCallback(() => {
-    dispatch(
-      updateVideo({
-        idleCount: 0,
-      })
-    );
+  const seekBackward = useCallback(
+    (e) => {
+      e.target.blur();
+      dispatch(
+        updateVideo({
+          idleCount: 0,
+        })
+      );
 
-    if (video.currentTime - 15 <= 0) {
-      seekTo(0);
-    } else {
-      seekTo(video.currentTime - 15);
-    }
-  }, [dispatch, seekTo, video.currentTime]);
+      if (video.currentTime - 15 <= 0) {
+        seekTo(0);
+      } else {
+        seekTo(video.currentTime - 15);
+      }
+    },
+    [dispatch, seekTo, video.currentTime]
+  );
 
   const handleKeyDown = useCallback(
     (e) => {
