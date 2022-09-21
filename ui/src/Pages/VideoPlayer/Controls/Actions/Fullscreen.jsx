@@ -33,14 +33,18 @@ function VideoActionFullscreen() {
     } catch (e) {}
   }, [dispatch, videoPlayer]);
 
-  const handleFullscreenChange = useCallback(() => {
-    dispatch(
-      updateVideo({
-        fullscreen: document.fullscreenElement !== null,
-        idleCount: 0,
-      })
-    );
-  }, [dispatch]);
+  const handleFullscreenChange = useCallback(
+    (e) => {
+      e.target.blur();
+      dispatch(
+        updateVideo({
+          fullscreen: document.fullscreenElement !== null,
+          idleCount: 0,
+        })
+      );
+    },
+    [dispatch]
+  );
 
   const handleKeyDown = useCallback(
     (e) => {
