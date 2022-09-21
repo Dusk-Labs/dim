@@ -3,7 +3,7 @@ name = "dim"
 version = "0.4.0-dev"
 build = "src/build.rs"
 authors = ["Valerian G. <valerian@dusklabs.io>"]
-edition = "2018"
+edition = "2021"
 license = "AGPL-3.0-only"
 
 [features]

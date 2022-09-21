@@ -147,21 +147,23 @@ pub async fn rematch_mediafile(
         return Err(Error::NoMediafiles.into());
     }
 
+    let Ok(media_type): Result<MediaType, ()> = media_type.to_lowercase().try_into() else {
+        return Err(errors::DimError::InvalidMediaType);
+    };
+
     let mut tx = conn.read().begin().await?;
 
     // FIXME: impl FromStr for MediaType
-    let provider: Arc<dyn ExternalQuery> = match media_type.to_lowercase().as_ref() {
-        "movie" | "movies" => (*MOVIES_PROVIDER).clone(),
-        "tv" | "tv_show" | "tv show" | "tv shows" => (*TV_PROVIDER).clone(),
+    let provider: Arc<dyn ExternalQuery> = match media_type {
+        MediaType::Movie => (*MOVIES_PROVIDER).clone(),
+        MediaType::Tv => (*TV_PROVIDER).clone(),
         _ => return Err(errors::DimError::InvalidMediaType),
     };
 
-    let matcher = match media_type.to_lowercase().as_ref() {
-        "movie" | "movies" => Arc::new(movie::MovieMatcher) as Arc<dyn MediaMatcher>,
-        "tv" | "tv_show" | "tv show" | "tv shows" => {
-            Arc::new(tv_show::TvMatcher) as Arc<dyn MediaMatcher>
-        }
-        _ => return Err(errors::DimError::InvalidMediaType),
+    let matcher = match media_type {
+        MediaType::Movie => Arc::new(movie::MovieMatcher) as Arc<dyn MediaMatcher>,
+        MediaType::Tv => Arc::new(tv_show::TvMatcher) as Arc<dyn MediaMatcher>,
+        _ => unreachable!(),
     };
 
     info!(?media_type, mediafiles = ?&mediafiles, "Rematching mediafiles");

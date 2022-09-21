@@ -129,7 +129,7 @@ impl MediaFile {
                 INNER JOIN episode ON _tblseason.id = episode.seasonid
                 INNER JOIN mediafile ON mediafile.media_id = episode.id
                 WHERE _tblseason.tvshowid = ?
-                GROUP BY episode.id",
+                GROUP BY mediafile.id",
             id
         )
         .fetch_all(&mut *conn)

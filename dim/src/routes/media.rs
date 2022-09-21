@@ -300,11 +300,16 @@ pub async fn get_media_by_id(
                     .first()
                     .map(mediafile_tags)
         }),
-        MediaType::Tv => json!(MediaFile::get_of_show(&mut tx, media.id)
-            .await?
-            .iter()
-            .map(|x| (x.media_id.unwrap(), mediafile_tags(x)))
-            .collect::<HashMap<_, _>>()),
+        MediaType::Tv => {
+            let mut result = MediaFile::get_of_show(&mut tx, media.id).await?;
+
+            result.dedup_by_key(|x| x.media_id);
+
+            json!(result
+                .iter()
+                .map(|x| (x.media_id.unwrap(), mediafile_tags(x)))
+                .collect::<HashMap<_, _>>())
+        }
     };
 
     let season_episode_tag = match media.media_type {

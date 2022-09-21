@@ -1,6 +1,7 @@
 use crate::DatabaseError;
 use serde::Deserialize;
 use serde::Serialize;
+use std::convert::TryFrom;
 use std::fmt;
 
 /// Enum represents a media type and can be used on a library or on a media.
@@ -25,6 +26,27 @@ impl fmt::Display for MediaType {
                 Self::Episode => "episode",
             }
         )
+    }
+}
+
+impl TryFrom<&str> for MediaType {
+    type Error = ();
+
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "movie" | "movies" => Ok(Self::Movie),
+            "tv" | "tv_show" | "tv show" | "tv shows" => Ok(Self::Tv),
+            "episode" | "episodes" | "ep" => Ok(Self::Episode),
+            _ => Err(()),
+        }
+    }
+}
+
+impl TryFrom<String> for MediaType {
+    type Error = ();
+
+    fn try_from(s: String) -> Result<Self, Self::Error> {
+        s.as_str().try_into()
     }
 }
 
