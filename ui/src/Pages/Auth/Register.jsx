@@ -17,7 +17,6 @@ function useQuery() {
 
 function Register(props) {
   let token = useQuery()?.get("token");
-  console.log(token || "no token");
 
   const dispatch = useDispatch();
   const auth = useSelector((store) => store.auth);
