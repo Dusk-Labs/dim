@@ -2,6 +2,7 @@ import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import SettingsIcon from "../../../../assets/Icons/Settings";
+import VideoActionPlayPause from "./PlayPause";
 
 import { toggleShowSettings } from "../../../../actions/video";
 
@@ -18,8 +19,12 @@ function VideoActionSettings() {
 
   const handleKeyDown = useCallback(
     (e) => {
+      e.target.blur();
       if (e.key === "c") {
         toggleSettings();
+      }
+      if (e.key === "Spacebar") {
+        VideoActionPlayPause();
       }
     },
     [toggleSettings]
