@@ -1,10 +1,10 @@
 use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors;
+use crate::external::tmdb::TMDBMetadataProvider;
 use crate::json;
 use crate::scanner;
-//use crate::scanners::scanner_daemon::FsWatcher;
-use crate::external::tmdb::TMDBMetadataProvider;
+use crate::scanner::daemon::FsWatcher;
 use crate::tree;
 
 use database::compact_mediafile::CompactMediafile;
@@ -225,9 +225,6 @@ pub async fn library_post(
 
     let tx_clone = event_tx.clone();
 
-    //let fs_watcher = FsWatcher::new(conn.clone(), id, new_library.media_type, tx_clone.clone());
-    //tokio::spawn(async move { fs_watcher.start_daemon().await });
-
     let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
 
     let provider = match new_library.media_type {
@@ -236,6 +233,15 @@ pub async fn library_post(
         _ => unreachable!(),
     };
 
+    let mut fs_watcher = FsWatcher::new(
+        conn.clone(),
+        id,
+        new_library.media_type,
+        tx_clone.clone(),
+        Arc::clone(&provider),
+    );
+
+    tokio::spawn(async move { fs_watcher.start_daemon().await });
     tokio::spawn(async move { scanner::start(&mut conn, id, tx_clone, provider).await });
 
     let event = Message {

@@ -2,6 +2,7 @@ use crate::core::EventTx;
 use crate::external::ExternalQuery;
 
 use super::movie;
+use super::tv_show;
 use super::MediaMatcher;
 
 use std::path::PathBuf;
@@ -56,6 +57,7 @@ impl FsWatcher {
     ) -> Self {
         let matcher = match media_type {
             MediaType::Movie => Arc::new(movie::MovieMatcher) as Arc<dyn MediaMatcher>,
+            MediaType::Tv => Arc::new(tv_show::TvMatcher) as Arc<dyn MediaMatcher>,
             _ => unimplemented!(),
         };
 
