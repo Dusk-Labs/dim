@@ -30,12 +30,16 @@ function VideoActionPrevVideo() {
     setEnable(true);
   }, [prevEpisodeId]);
 
-  const nextVideo = useCallback(() => {
-    const item = nextMediaFiles[0];
-    if (!item) return;
+  const nextVideo = useCallback(
+    (e) => {
+      e.target.blur();
+      const item = nextMediaFiles[0];
+      if (!item) return;
 
-    history.replace(`/play/${item.id}`, { from: history.location.pathname });
-  }, [history, nextMediaFiles]);
+      history.replace(`/play/${item.id}`, { from: history.location.pathname });
+    },
+    [history, nextMediaFiles]
+  );
 
   return (
     <button

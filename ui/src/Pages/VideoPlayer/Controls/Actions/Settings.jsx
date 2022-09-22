@@ -14,8 +14,8 @@ function VideoActionSettings() {
 
   const toggleSettings = useCallback(
     (e) => {
-      e.target.blur();
       dispatch(toggleShowSettings());
+      e.target.blur();
     },
     [dispatch]
   );
