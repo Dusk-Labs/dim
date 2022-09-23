@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["EventType",""],["Table",""]],"struct":[["Event",""],["ReactorCore",""]],"trait":[["Reactor",""]]});
