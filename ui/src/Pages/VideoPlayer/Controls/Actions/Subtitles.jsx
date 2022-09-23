@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import CCIcon from "../../../../assets/Icons/CC";
 
 import { toggleShowSubSwitcher } from "../../../../actions/video";
+import { UnfocusableButton } from "Components/unfocusableButton";
 
 function VideoActionSubtitles() {
   const dispatch = useDispatch();
@@ -14,7 +15,6 @@ function VideoActionSubtitles() {
 
   const toggleSubtitles = useCallback(
     (e) => {
-      e.target.blur();
       dispatch(toggleShowSubSwitcher());
     },
     [dispatch]
@@ -38,12 +38,12 @@ function VideoActionSubtitles() {
   }, [handleKeyDown]);
 
   return (
-    <button
+    <UnfocusableButton
       onClick={toggleSubtitles}
       className={`cc trackActive-${video.textTrackEnabled} menuActive-${video.showSubSwitcher}`}
     >
       <CCIcon />
-    </button>
+    </UnfocusableButton>
   );
 }
 

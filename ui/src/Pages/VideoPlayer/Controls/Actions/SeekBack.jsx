@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import BackwardIcon from "../../../../assets/Icons/Backward";
 import { updateVideo } from "../../../../actions/video";
 import { VideoPlayerContext } from "../../Context";
+import { UnfocusableButton } from "Components/unfocusableButton";
 
 function VideoActionSeekBack() {
   const dispatch = useDispatch();
@@ -16,7 +17,6 @@ function VideoActionSeekBack() {
 
   const seekBackward = useCallback(
     (e) => {
-      e.target.blur();
       dispatch(
         updateVideo({
           idleCount: 0,
@@ -50,9 +50,9 @@ function VideoActionSeekBack() {
   }, [handleKeyDown]);
 
   return (
-    <button onClick={seekBackward} className="backward">
+    <UnfocusableButton onClick={seekBackward} className="backward">
       <BackwardIcon />
-    </button>
+    </UnfocusableButton>
   );
 }
 

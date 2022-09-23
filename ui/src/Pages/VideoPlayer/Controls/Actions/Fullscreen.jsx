@@ -7,6 +7,7 @@ import CompressIcon from "../../../../assets/Icons/Compress";
 import { updateVideo } from "../../../../actions/video";
 
 import { VideoPlayerContext } from "Pages/VideoPlayer/Context";
+import { UnfocusableButton } from "Components/unfocusableButton";
 
 function VideoActionFullscreen() {
   const dispatch = useDispatch();
@@ -73,9 +74,9 @@ function VideoActionFullscreen() {
     );
   else
     return (
-      <button onClick={toggleFullscreen} className="fullscreen">
+      <UnfocusableButton onClick={toggleFullscreen} className="fullscreen">
         <ExpandIcon />
-      </button>
+      </UnfocusableButton>
     );
 }
 

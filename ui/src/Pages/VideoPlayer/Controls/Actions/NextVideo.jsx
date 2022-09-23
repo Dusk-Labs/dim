@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import NextVideoIcon from "../../../../assets/Icons/NextVideo";
+import { UnfocusableButton } from "Components/unfocusableButton";
 
 import {
   useGetMediaFilesQuery,
@@ -33,7 +34,6 @@ function VideoActionNextVideo() {
 
   const nextVideo = useCallback(
     (e) => {
-      e.target.blur();
       const item = nextMediaFiles[0];
       if (!item) return;
 
@@ -43,13 +43,13 @@ function VideoActionNextVideo() {
   );
 
   return (
-    <button
+    <UnfocusableButton
       onClick={nextVideo}
       className={`next_video ${enabled}`}
       disabled={!enabled}
     >
       <NextVideoIcon />
-    </button>
+    </UnfocusableButton>
   );
 }
 
