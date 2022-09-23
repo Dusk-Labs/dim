@@ -1,25 +1,47 @@
-use tokio::sync::OwnedMutexGuard;
-use sqlx::SqliteConnection;
-use rusqlite::Connection;
+pub mod handler;
+mod types;
+
+use async_trait::async_trait;
+
 use rusqlite::hooks::Action;
+use rusqlite::Connection;
+use sqlx::SqliteConnection;
+use tokio::sync::OwnedMutexGuard;
 
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::time::Duration;
+use std::time::Instant;
 
+use tokio::sync::mpsc::unbounded_channel;
+use tokio::sync::mpsc::UnboundedReceiver;
+use tokio::sync::mpsc::UnboundedSender;
+
+use tracing::error;
+use tracing::warn;
+
+use types::Event;
+use types::Table;
+
+const MAX_COMMIT_DURATION: Duration = Duration::from_millis(5);
+
+#[async_trait]
 pub trait Reactor {
-    type Error;
+    type Error: ::std::error::Error;
 
-    fn react(&mut self, event: Event) -> Result<(), Self::Error>;
+    async fn react(&mut self, event: Event) -> Result<(), Self::Error>;
 }
 
 #[derive(Clone)]
 struct Context {
     uncommited_buffer: Arc<Mutex<Vec<Event>>>,
+    tx: UnboundedSender<Event>,
 }
 
 impl Context {
-    pub fn new() -> Self {
-        Self { 
+    pub fn new(tx: UnboundedSender<Event>) -> Self {
+        Self {
+            tx,
             uncommited_buffer: Arc::new(Mutex::new(Vec::new())),
         }
     }
@@ -27,16 +49,20 @@ impl Context {
 
 pub struct ReactorCore {
     hook_ctx: Context,
+    recvr: UnboundedReceiver<Event>,
 }
 
 impl ReactorCore {
     pub fn new() -> Self {
-        Self  {
-            hook_ctx: Context::new()
+        let (tx, rx) = unbounded_channel();
+
+        Self {
+            hook_ctx: Context::new(tx),
+            recvr: rx,
         }
     }
 
-    pub async fn register(&self, lock: &mut OwnedMutexGuard<SqliteConnection>) {
+    pub async fn register(&mut self, lock: &mut OwnedMutexGuard<SqliteConnection>) {
         let mut handle_lock = lock.lock_handle().await.unwrap();
         let handle = handle_lock.as_raw_handle();
 
@@ -53,8 +79,12 @@ impl ReactorCore {
         core::mem::forget(conn);
     }
 
-    pub async fn react<E>(self, reactor: impl Reactor<Error = E>) {
-        return;
+    pub async fn react<E: ::std::error::Error>(mut self, mut reactor: impl Reactor<Error = E>) {
+        while let Some(event) = self.recvr.recv().await {
+            if let Err(e) = reactor.react(event).await {
+                error!(error = ?e, ?event, "Reactor returned an when processing event.");
+            }
+        }
     }
 
     pub fn update_hook(&self) -> impl FnMut(Action, &str, &str, i64) + Send + 'static {
@@ -86,7 +116,31 @@ impl ReactorCore {
     }
 
     pub fn commit_hook(&self) -> impl FnMut() -> bool + Send + 'static {
-        || { true }
+        let context = self.hook_ctx.clone();
+
+        // NOTE: If we get a commit we can assume our buffer of events is valid and can be reacted
+        // on because they are going to be written to the disk.
+        move || {
+            let now = Instant::now();
+            let mut buffer = context.uncommited_buffer.lock().unwrap();
+            let buffer_len = buffer.len();
+
+            while let Some(event) = buffer.pop() {
+                if let Err(_) = context.tx.send(event) {
+                    error!("Failed to send database event.");
+                }
+            }
+
+            let elapsed = now.elapsed();
+            if elapsed > MAX_COMMIT_DURATION {
+                warn!(
+                    elapsed_ms = elapsed.as_millis(),
+                    buffer_len, "Commit hook took too long"
+                );
+            }
+
+            false
+        }
     }
 
     pub fn rollback_hook(&self) -> impl FnMut() + Send + 'static {
@@ -100,46 +154,4 @@ impl ReactorCore {
             buffer.clear();
         }
     }
-}
-
-#[derive(Clone, Copy, Debug)]
-pub enum Table {
-    Library,
-    Media,
-}
-
-impl TryFrom<&str> for Table {
-    type Error = ();
-
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        match s {
-            "library" => Ok(Self::Library),
-            "media" => Ok(Self::Media),
-            _ => Err(())
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug)]
-pub enum EventType {
-    Insert,
-    Update,
-    Delete,
-}
-
-impl From<Action> for EventType {
-    fn from(action: Action) -> EventType {
-        match action {
-            Action::SQLITE_INSERT => EventType::Insert,
-            Action::SQLITE_UPDATE => EventType::Update,
-            Action::SQLITE_DELETE => EventType::Delete,
-            _ => unimplemented!()
-        }
-    }
-}
-
-pub struct Event {
-    pub id: i64,
-    pub event_type: EventType,
-    pub table: Table,
 }

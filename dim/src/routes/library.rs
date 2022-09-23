@@ -244,13 +244,6 @@ pub async fn library_post(
     tokio::spawn(async move { fs_watcher.start_daemon().await });
     tokio::spawn(async move { scanner::start(&mut conn, id, tx_clone, provider).await });
 
-    let event = Message {
-        id,
-        event_type: PushEventType::EventNewLibrary,
-    };
-
-    let _ = event_tx.send(serde_json::to_string(&event).unwrap());
-
     Ok(StatusCode::CREATED)
 }
 
@@ -285,10 +278,16 @@ pub async fn library_delete(
 
     let delete_lib_fut = async move {
         let inner = async {
+            // TODO: Need to do this in two transactions to trigger the CDC event.
             let mut lock = conn.writer().lock_owned().await;
             let mut tx = database::write_tx(&mut lock).await?;
 
             Library::delete(&mut tx, id).await?;
+
+            tx.commit().await?;
+
+            let mut tx = database::write_tx(&mut lock).await?;
+
             Media::delete_by_lib_id(&mut tx, id).await?;
             MediaFile::delete_by_lib_id(&mut tx, id).await?;
 
@@ -303,13 +302,6 @@ pub async fn library_delete(
             info!("Deleted library");
         }
     };
-
-    let event = Message {
-        id,
-        event_type: PushEventType::EventRemoveLibrary,
-    };
-
-    let _ = event_tx.send(serde_json::to_string(&event).unwrap());
 
     tokio::spawn(delete_lib_fut);
 
