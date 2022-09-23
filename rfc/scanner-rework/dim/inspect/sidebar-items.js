@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["ResultExt",""]]};
+initSidebarItems({"trait":[["ResultExt",""]]});

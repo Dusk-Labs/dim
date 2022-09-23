@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["ffpath",""]]};
+initSidebarItems({"fn":[["ffpath",""]]});

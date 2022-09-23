@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/media.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>media.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/media.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>media.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -576,583 +583,584 @@
 <span id="576">576</span>
 <span id="577">577</span>
 <span id="578">578</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
-<span class="kw">use </span><span class="kw">crate</span>::errors;
-<span class="kw">use </span><span class="kw">crate</span>::external::tmdb::TMDBMetadataProvider;
-<span class="kw">use </span><span class="kw">crate</span>::external::ExternalQuery;
-<span class="kw">use </span><span class="kw">crate</span>::json;
-<span class="kw">use </span><span class="kw">crate</span>::tree;
-<span class="kw">use </span><span class="kw">crate</span>::utils::secs_to_pretty;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external::tmdb::TMDBMetadataProvider</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external::ExternalQuery</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::json</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tree</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::secs_to_pretty</span>;
 
-<span class="kw">use </span>chrono::Datelike;
-<span class="kw">use </span>database::user::User;
+<span class="kw">use</span> <span class="ident">chrono::Datelike</span>;
+<span class="kw">use</span> <span class="ident">database::user::User</span>;
 
-<span class="kw">use </span>database::compact_mediafile::CompactMediafile;
-<span class="kw">use </span>database::episode::Episode;
-<span class="kw">use </span>database::genre::Genre;
-<span class="kw">use </span>database::library::MediaType;
-<span class="kw">use </span>database::media::Media;
-<span class="kw">use </span>database::media::UpdateMedia;
-<span class="kw">use </span>database::mediafile::MediaFile;
-<span class="kw">use </span>database::progress::Progress;
+<span class="kw">use</span> <span class="ident">database::compact_mediafile::CompactMediafile</span>;
+<span class="kw">use</span> <span class="ident">database::episode::Episode</span>;
+<span class="kw">use</span> <span class="ident">database::genre::Genre</span>;
+<span class="kw">use</span> <span class="ident">database::library::MediaType</span>;
+<span class="kw">use</span> <span class="ident">database::media::Media</span>;
+<span class="kw">use</span> <span class="ident">database::media::UpdateMedia</span>;
+<span class="kw">use</span> <span class="ident">database::mediafile::MediaFile</span>;
+<span class="kw">use</span> <span class="ident">database::progress::Progress</span>;
 
-<span class="kw">use </span>warp::http::status::StatusCode;
-<span class="kw">use </span>warp::reply;
+<span class="kw">use</span> <span class="ident">warp::http::status::StatusCode</span>;
+<span class="kw">use</span> <span class="ident">warp::reply</span>;
 
-<span class="kw">use </span>std::collections::HashMap;
-<span class="kw">use </span>std::sync::Arc;
+<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 
-<span class="kw">use </span>once_cell::sync::Lazy;
-<span class="kw">use </span>serde::Serialize;
+<span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
+<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
-<span class="kw">pub const </span>API_KEY: <span class="kw-2">&amp;</span>str = <span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>;
-<span class="kw">pub const </span>MOVIES_PROVIDER: Lazy&lt;Arc&lt;<span class="kw">dyn </span>ExternalQuery&gt;&gt; =
-    Lazy::new(|| Arc::new(TMDBMetadataProvider::new(<span class="kw-2">&amp;</span>API_KEY).movies()));
-<span class="kw">pub const </span>TV_PROVIDER: Lazy&lt;Arc&lt;<span class="kw">dyn </span>ExternalQuery&gt;&gt; =
-    Lazy::new(|| Arc::new(TMDBMetadataProvider::new(<span class="kw-2">&amp;</span>API_KEY).tv_shows()));
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">API_KEY</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MOVIES_PROVIDER</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ExternalQuery</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
+    <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Arc::new</span>(<span class="ident">TMDBMetadataProvider::new</span>(<span class="kw-2">&amp;</span><span class="ident">API_KEY</span>).<span class="ident">movies</span>()));
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">TV_PROVIDER</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ExternalQuery</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
+    <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Arc::new</span>(<span class="ident">TMDBMetadataProvider::new</span>(<span class="kw-2">&amp;</span><span class="ident">API_KEY</span>).<span class="ident">tv_shows</span>()));
 
-<span class="kw">pub mod </span>filters {
-    <span class="kw">use </span>database::user::User;
-    <span class="kw">use </span>warp::reject;
-    <span class="kw">use </span>warp::Filter;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filters</span> {
+    <span class="kw">use</span> <span class="ident">database::user::User</span>;
+    <span class="kw">use</span> <span class="ident">warp::reject</span>;
+    <span class="kw">use</span> <span class="ident">warp::Filter</span>;
 
-    <span class="kw">use </span><span class="kw">crate</span>::routes::global_filters::with_auth;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::routes::global_filters::with_auth</span>;
 
-    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state;
-    <span class="kw">use </span>serde::Deserialize;
+    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state</span>;
+    <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 
-    <span class="kw">use </span>database::media::UpdateMedia;
-    <span class="kw">use </span>database::DbConnection;
+    <span class="kw">use</span> <span class="ident">database::media::UpdateMedia</span>;
+    <span class="kw">use</span> <span class="ident">database::DbConnection</span>;
 
-    <span class="kw">pub fn </span>get_media_by_id(
-        conn: DbConnection,
-    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;media&quot; </span>/ i64)
-            .and(warp::get())
-            .and(with_state::&lt;DbConnection&gt;(conn.clone()))
-            .and(with_auth(conn))
-            .and_then(|id: i64, conn: DbConnection, user: User| <span class="kw">async move </span>{
-                <span class="kw">super</span>::get_media_by_id(conn, id, user)
-                    .<span class="kw">await
-                    </span>.map_err(|e| reject::custom(e))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_media_by_id</span>(
+        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;media&quot;</span> <span class="op">/</span> <span class="ident">i64</span>)
+            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
+            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
+            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>))
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span>: <span class="ident">i64</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span>, <span class="ident">user</span>: <span class="ident">User</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                <span class="ident"><span class="kw">super</span>::get_media_by_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>, <span class="ident">user</span>)
+                    .<span class="kw">await</span>
+                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
             })
     }
 
-    <span class="kw">pub fn </span>get_media_files(
-        conn: DbConnection,
-    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;media&quot; </span>/ i64 / <span class="string">&quot;files&quot;</span>)
-            .and(warp::get())
-            .and(with_state::&lt;DbConnection&gt;(conn.clone()))
-            .and(with_auth(conn))
-            .and_then(|id: i64, conn: DbConnection, _user: User| <span class="kw">async move </span>{
-                <span class="kw">super</span>::get_media_files(conn, id)
-                    .<span class="kw">await
-                    </span>.map_err(|e| reject::custom(e))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_media_files</span>(
+        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;media&quot;</span> <span class="op">/</span> <span class="ident">i64</span> <span class="op">/</span> <span class="string">&quot;files&quot;</span>)
+            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
+            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
+            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>))
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span>: <span class="ident">i64</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span>, <span class="ident">_user</span>: <span class="ident">User</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                <span class="ident"><span class="kw">super</span>::get_media_files</span>(<span class="ident">conn</span>, <span class="ident">id</span>)
+                    .<span class="kw">await</span>
+                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
             })
     }
 
-    <span class="kw">pub fn </span>get_mediafile_tree(
-        conn: DbConnection,
-    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;media&quot; </span>/ i64 / <span class="string">&quot;tree&quot;</span>)
-            .and(warp::get())
-            .and(with_state::&lt;DbConnection&gt;(conn.clone()))
-            .and(with_auth(conn))
-            .and_then(|id, conn, _user| <span class="kw">async move </span>{
-                <span class="kw">super</span>::get_mediafile_tree(conn, id)
-                    .<span class="kw">await
-                    </span>.map_err(reject::custom)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mediafile_tree</span>(
+        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;media&quot;</span> <span class="op">/</span> <span class="ident">i64</span> <span class="op">/</span> <span class="string">&quot;tree&quot;</span>)
+            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
+            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
+            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>))
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span>, <span class="ident">conn</span>, <span class="ident">_user</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                <span class="ident"><span class="kw">super</span>::get_mediafile_tree</span>(<span class="ident">conn</span>, <span class="ident">id</span>)
+                    .<span class="kw">await</span>
+                    .<span class="ident">map_err</span>(<span class="ident">reject::custom</span>)
             })
     }
 
-    <span class="kw">pub fn </span>update_media_by_id(
-        conn: DbConnection,
-    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;media&quot; </span>/ i64)
-            .and(warp::patch())
-            .and(warp::body::json::&lt;UpdateMedia&gt;())
-            .and(with_auth(conn.clone()))
-            .and(with_state::&lt;DbConnection&gt;(conn))
-            .and_then(|id, body, auth, conn| <span class="kw">async move </span>{
-                <span class="kw">super</span>::update_media_by_id(id, body, auth, conn)
-                    .<span class="kw">await
-                    </span>.map_err(|e| reject::custom(e))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_media_by_id</span>(
+        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;media&quot;</span> <span class="op">/</span> <span class="ident">i64</span>)
+            .<span class="ident">and</span>(<span class="ident">warp::patch</span>())
+            .<span class="ident">and</span>(<span class="ident">warp::body::json</span>::<span class="op">&lt;</span><span class="ident">UpdateMedia</span><span class="op">&gt;</span>())
+            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
+            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span>, <span class="ident">body</span>, <span class="ident">auth</span>, <span class="ident">conn</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                <span class="ident"><span class="kw">super</span>::update_media_by_id</span>(<span class="ident">id</span>, <span class="ident">body</span>, <span class="ident">auth</span>, <span class="ident">conn</span>)
+                    .<span class="kw">await</span>
+                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
             })
     }
 
-    <span class="kw">pub fn </span>delete_media_by_id(
-        conn: DbConnection,
-    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;media&quot; </span>/ i64)
-            .and(warp::delete())
-            .and(with_auth(conn.clone()))
-            .and(with_state::&lt;DbConnection&gt;(conn))
-            .and_then(|id: i64, auth: User, conn: DbConnection| <span class="kw">async move </span>{
-                <span class="kw">super</span>::delete_media_by_id(conn, id, auth)
-                    .<span class="kw">await
-                    </span>.map_err(|e| reject::custom(e))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_media_by_id</span>(
+        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;media&quot;</span> <span class="op">/</span> <span class="ident">i64</span>)
+            .<span class="ident">and</span>(<span class="ident">warp::delete</span>())
+            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
+            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span>: <span class="ident">i64</span>, <span class="ident">auth</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                <span class="ident"><span class="kw">super</span>::delete_media_by_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>, <span class="ident">auth</span>)
+                    .<span class="kw">await</span>
+                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
             })
     }
 
-    <span class="kw">pub fn </span>tmdb_search(
-        conn: DbConnection,
-    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
-        <span class="attribute">#[derive(Deserialize)]
-        </span><span class="kw">struct </span>RouteArgs {
-            query: String,
-            year: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-            media_type: String,
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tmdb_search</span>(
+        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
+        <span class="kw">struct</span> <span class="ident">RouteArgs</span> {
+            <span class="ident">query</span>: <span class="ident">String</span>,
+            <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+            <span class="ident">media_type</span>: <span class="ident">String</span>,
         }
 
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;media&quot; </span>/ <span class="string">&quot;tmdb_search&quot;</span>)
-            .and(warp::get())
-            .and(warp::query::query::&lt;RouteArgs&gt;())
-            .and(with_auth(conn))
-            .and_then(
-                |RouteArgs {
-                     query,
-                     year,
-                     media_type,
-                 }: RouteArgs,
-                 auth: User| <span class="kw">async move </span>{
-                    <span class="kw">super</span>::tmdb_search(query, year, media_type, auth)
-                        .<span class="kw">await
-                        </span>.map_err(|e| reject::custom(e))
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;media&quot;</span> <span class="op">/</span> <span class="string">&quot;tmdb_search&quot;</span>)
+            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
+            .<span class="ident">and</span>(<span class="ident">warp::query::query</span>::<span class="op">&lt;</span><span class="ident">RouteArgs</span><span class="op">&gt;</span>())
+            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>))
+            .<span class="ident">and_then</span>(
+                <span class="op">|</span><span class="ident">RouteArgs</span> {
+                     <span class="ident">query</span>,
+                     <span class="ident">year</span>,
+                     <span class="ident">media_type</span>,
+                 }: <span class="ident">RouteArgs</span>,
+                 <span class="ident">auth</span>: <span class="ident">User</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                    <span class="ident"><span class="kw">super</span>::tmdb_search</span>(<span class="ident">query</span>, <span class="ident">year</span>, <span class="ident">media_type</span>, <span class="ident">auth</span>)
+                        .<span class="kw">await</span>
+                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
                 },
             )
     }
 
-    <span class="kw">pub fn </span>map_progress(
-        conn: DbConnection,
-    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
-        <span class="attribute">#[derive(Deserialize)]
-        </span><span class="kw">struct </span>RouteArgs {
-            offset: i64,
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_progress</span>(
+        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
+        <span class="kw">struct</span> <span class="ident">RouteArgs</span> {
+            <span class="ident">offset</span>: <span class="ident">i64</span>,
         }
 
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;media&quot; </span>/ i64 / <span class="string">&quot;progress&quot;</span>)
-            .and(warp::post())
-            .and(warp::query::query::&lt;RouteArgs&gt;())
-            .and(with_state::&lt;DbConnection&gt;(conn.clone()))
-            .and(with_auth(conn))
-            .and_then(|id: i64, RouteArgs { offset }: RouteArgs, conn: DbConnection, auth: User| <span class="kw">async move </span>{
-                <span class="kw">super</span>::map_progress(conn, id, offset, auth)
-                    .<span class="kw">await
-                    </span>.map_err(|e| reject::custom(e))
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;media&quot;</span> <span class="op">/</span> <span class="ident">i64</span> <span class="op">/</span> <span class="string">&quot;progress&quot;</span>)
+            .<span class="ident">and</span>(<span class="ident">warp::post</span>())
+            .<span class="ident">and</span>(<span class="ident">warp::query::query</span>::<span class="op">&lt;</span><span class="ident">RouteArgs</span><span class="op">&gt;</span>())
+            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
+            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>))
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span>: <span class="ident">i64</span>, <span class="ident">RouteArgs</span> { <span class="ident">offset</span> }: <span class="ident">RouteArgs</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span>, <span class="ident">auth</span>: <span class="ident">User</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                <span class="ident"><span class="kw">super</span>::map_progress</span>(<span class="ident">conn</span>, <span class="ident">id</span>, <span class="ident">offset</span>, <span class="ident">auth</span>)
+                    .<span class="kw">await</span>
+                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
             })
     }
 }
 
-<span class="doccomment">/// Method mapped to `GET /api/v1/media/&lt;id&gt;` returns info about a media based on the id queried.
-/// This method can only be accessed by authenticated users.
-///
-/// # Arguments
-/// * `conn` - database connection
-/// * `id` - id of the media we want to query info of
-/// * `_user` - Auth middleware
-///
-/// # Return Schema
-/// ```text
-/// {
-///     &quot;id&quot;: int,
-///     &quot;library_id&quot;: int,
-///     &quot;name&quot;: string,
-///     &quot;description&quot;: string,
-///     &quot;rating&quot;: int,
-///     &quot;year&quot;: int,
-///     &quot;added&quot;: string | date,
-///     &quot;poster_path&quot;: string | uri_path,
-///     &quot;backdrop_path&quot;: string | uri_path,
-///     &quot;media_type&quot;: string | enum,
-///     &quot;genres&quot;: [string],
-///     &quot;duration&quot;: int,
-///     &quot;duration_pretty&quot;: string,
-/// }
-/// ```
-///
-/// # Additional types
-/// [`MediaType`](`database::library::MediaType`)
-</span><span class="kw">pub async fn </span>get_media_by_id(
-    conn: DbConnection,
-    id: i64,
-    user: User,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>media = Media::get(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="doccomment">/// Method mapped to `GET /api/v1/media/&lt;id&gt;` returns info about a media based on the id queried.</span>
+<span class="doccomment">/// This method can only be accessed by authenticated users.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Arguments</span>
+<span class="doccomment">/// * `conn` - database connection</span>
+<span class="doccomment">/// * `id` - id of the media we want to query info of</span>
+<span class="doccomment">/// * `_user` - Auth middleware</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Return Schema</span>
+<span class="doccomment">/// ```text</span>
+<span class="doccomment">/// {</span>
+<span class="doccomment">///     &quot;id&quot;: int,</span>
+<span class="doccomment">///     &quot;library_id&quot;: int,</span>
+<span class="doccomment">///     &quot;name&quot;: string,</span>
+<span class="doccomment">///     &quot;description&quot;: string,</span>
+<span class="doccomment">///     &quot;rating&quot;: int,</span>
+<span class="doccomment">///     &quot;year&quot;: int,</span>
+<span class="doccomment">///     &quot;added&quot;: string | date,</span>
+<span class="doccomment">///     &quot;poster_path&quot;: string | uri_path,</span>
+<span class="doccomment">///     &quot;backdrop_path&quot;: string | uri_path,</span>
+<span class="doccomment">///     &quot;media_type&quot;: string | enum,</span>
+<span class="doccomment">///     &quot;genres&quot;: [string],</span>
+<span class="doccomment">///     &quot;duration&quot;: int,</span>
+<span class="doccomment">///     &quot;duration_pretty&quot;: string,</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Additional types</span>
+<span class="doccomment">/// [`MediaType`](`database::library::MediaType`)</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_media_by_id</span>(
+    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    <span class="ident">id</span>: <span class="ident">i64</span>,
+    <span class="ident">user</span>: <span class="ident">User</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">media</span> <span class="op">=</span> <span class="ident">Media::get</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>media_id = <span class="kw">match </span>media.media_type {
-        MediaType::Movie | MediaType::Episode =&gt; id,
-        MediaType::Tv =&gt; Episode::get_first_for_show(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>.id,
+    <span class="kw">let</span> <span class="ident">media_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">media</span>.<span class="ident">media_type</span> {
+        <span class="ident">MediaType::Movie</span> <span class="op">|</span> <span class="ident">MediaType::Episode</span> =&gt; <span class="ident">id</span>,
+        <span class="ident">MediaType::Tv</span> =&gt; <span class="ident">Episode::get_first_for_show</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">id</span>,
     };
 
-    <span class="comment">// TODO: at some point we want to issue a warning to the UI that none of the mediafiles with
-    // this media have a duration (maybe because of corruption).
-    </span><span class="kw">let </span>duration = <span class="kw">match </span>MediaFile::get_of_media(<span class="kw-2">&amp;mut </span>tx, media_id).<span class="kw">await </span>{
-        <span class="prelude-val">Ok</span>(x) =&gt; x
-            .iter()
-            .filter_map(|x| x.duration)
-            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-            .pop()
-            .unwrap_or(<span class="number">0</span>),
+    <span class="comment">// TODO: at some point we want to issue a warning to the UI that none of the mediafiles with</span>
+    <span class="comment">// this media have a duration (maybe because of corruption).</span>
+    <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">MediaFile::get_of_media</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">media_id</span>).<span class="kw">await</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">duration</span>)
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+            .<span class="ident">pop</span>()
+            .<span class="ident">unwrap_or</span>(<span class="number">0</span>),
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="number">0</span>,
     };
 
-    <span class="kw">let </span>genres = Genre::get_by_media(<span class="kw-2">&amp;mut </span>tx, id)
-        .<span class="kw">await</span><span class="question-mark">?
-        </span>.into_iter()
-        .map(|x| x.name)
-        .collect::&lt;Vec&lt;String&gt;&gt;();
+    <span class="kw">let</span> <span class="ident">genres</span> <span class="op">=</span> <span class="ident">Genre::get_by_media</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">name</span>)
+        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
-    <span class="kw">let </span>progress = <span class="kw">match </span>media.media_type {
-        MediaType::Episode | MediaType::Movie =&gt; Progress::get_for_media_user(<span class="kw-2">&amp;mut </span>tx, user.id, id)
-            .<span class="kw">await
-            </span>.map(|x| <span class="macro">json!</span>({<span class="string">&quot;progress&quot;</span>: x.delta}))
-            .ok(),
-        MediaType::Tv =&gt; {
-            <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(ep)) = Episode::get_last_watched_episode(<span class="kw-2">&amp;mut </span>tx, id, user.id).<span class="kw">await </span>{
-                <span class="kw">let </span>(delta, duration) = Progress::get_progress_for_media(<span class="kw-2">&amp;mut </span>tx, ep.id, user.id)
-                    .<span class="kw">await
-                    </span>.unwrap_or((<span class="number">0</span>, <span class="number">1</span>));
+    <span class="kw">let</span> <span class="ident">progress</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">media</span>.<span class="ident">media_type</span> {
+        <span class="ident">MediaType::Episode</span> <span class="op">|</span> <span class="ident">MediaType::Movie</span> =&gt; <span class="ident">Progress::get_for_media_user</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">id</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">json!</span>({<span class="string">&quot;progress&quot;</span>: <span class="ident">x</span>.<span class="ident">delta</span>}))
+            .<span class="ident">ok</span>(),
+        <span class="ident">MediaType::Tv</span> =&gt; {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">ep</span>)) <span class="op">=</span> <span class="ident">Episode::get_last_watched_episode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span> {
+                <span class="kw">let</span> (<span class="ident">delta</span>, <span class="ident">duration</span>) <span class="op">=</span> <span class="ident">Progress::get_progress_for_media</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">ep</span>.<span class="ident">id</span>, <span class="ident">user</span>.<span class="ident">id</span>)
+                    .<span class="kw">await</span>
+                    .<span class="ident">unwrap_or</span>((<span class="number">0</span>, <span class="number">1</span>));
 
-                <span class="comment">// NOTE: When we get to the last episode of a tv show we want to return the last
-                // episode even if the client finished watching it.
-                </span><span class="kw">let </span>next_episode = ep.get_next_episode(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span>;
-                <span class="kw">if </span>(delta <span class="kw">as </span>f64 / duration <span class="kw">as </span>f64) &gt; <span class="number">0.90 </span>&amp;&amp; next_episode.is_ok() {
-                    <span class="kw">let </span>next_episode = next_episode.unwrap();
-                    <span class="kw">let </span>(delta, _duration) =
-                        Progress::get_progress_for_media(<span class="kw-2">&amp;mut </span>tx, ep.id, user.id)
-                            .<span class="kw">await
-                            </span>.unwrap_or((<span class="number">0</span>, <span class="number">1</span>));
+                <span class="comment">// NOTE: When we get to the last episode of a tv show we want to return the last</span>
+                <span class="comment">// episode even if the client finished watching it.</span>
+                <span class="kw">let</span> <span class="ident">next_episode</span> <span class="op">=</span> <span class="ident">ep</span>.<span class="ident">get_next_episode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span>;
+                <span class="kw">if</span> (<span class="ident">delta</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">duration</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">&gt;</span> <span class="number">0.90</span> <span class="op">&amp;&amp;</span> <span class="ident">next_episode</span>.<span class="ident">is_ok</span>() {
+                    <span class="kw">let</span> <span class="ident">next_episode</span> <span class="op">=</span> <span class="ident">next_episode</span>.<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> (<span class="ident">delta</span>, <span class="ident">_duration</span>) <span class="op">=</span>
+                        <span class="ident">Progress::get_progress_for_media</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">ep</span>.<span class="ident">id</span>, <span class="ident">user</span>.<span class="ident">id</span>)
+                            .<span class="kw">await</span>
+                            .<span class="ident">unwrap_or</span>((<span class="number">0</span>, <span class="number">1</span>));
 
                     <span class="prelude-val">Some</span>(<span class="macro">json!</span>({
-                        <span class="string">&quot;progress&quot;</span>: delta,
-                        <span class="string">&quot;season&quot;</span>: next_episode.get_season_number(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span>.unwrap_or(<span class="number">0</span>),
-                        <span class="string">&quot;episode&quot;</span>: next_episode.episode,
-                        <span class="string">&quot;play_btn_id&quot;</span>: next_episode.id,
+                        <span class="string">&quot;progress&quot;</span>: <span class="ident">delta</span>,
+                        <span class="string">&quot;season&quot;</span>: <span class="ident">next_episode</span>.<span class="ident">get_season_number</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>),
+                        <span class="string">&quot;episode&quot;</span>: <span class="ident">next_episode</span>.<span class="ident">episode</span>,
+                        <span class="string">&quot;play_btn_id&quot;</span>: <span class="ident">next_episode</span>.<span class="ident">id</span>,
                     }))
-                } <span class="kw">else </span>{
+                } <span class="kw">else</span> {
                     <span class="prelude-val">Some</span>(<span class="macro">json!</span>({
-                        <span class="string">&quot;progress&quot;</span>: delta,
-                        <span class="string">&quot;season&quot;</span>: ep.get_season_number(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span>.unwrap_or(<span class="number">0</span>),
-                        <span class="string">&quot;episode&quot;</span>: ep.episode,
-                        <span class="string">&quot;play_btn_id&quot;</span>: ep.id,
+                        <span class="string">&quot;progress&quot;</span>: <span class="ident">delta</span>,
+                        <span class="string">&quot;season&quot;</span>: <span class="ident">ep</span>.<span class="ident">get_season_number</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>),
+                        <span class="string">&quot;episode&quot;</span>: <span class="ident">ep</span>.<span class="ident">episode</span>,
+                        <span class="string">&quot;play_btn_id&quot;</span>: <span class="ident">ep</span>.<span class="ident">id</span>,
                     }))
                 }
-            } <span class="kw">else </span>{
-                <span class="kw">let </span>ep = Episode::get_first_for_show(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
+            } <span class="kw">else</span> {
+                <span class="kw">let</span> <span class="ident">ep</span> <span class="op">=</span> <span class="ident">Episode::get_first_for_show</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="prelude-val">Some</span>(<span class="macro">json!</span>({
                     <span class="string">&quot;progress&quot;</span>: <span class="number">0</span>,
-                    <span class="string">&quot;season&quot;</span>: ep.get_season_number(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span>.unwrap_or(<span class="number">0</span>),
-                    <span class="string">&quot;episode&quot;</span>: ep.episode,
-                    <span class="string">&quot;play_btn_id&quot;</span>: ep.id,
+                    <span class="string">&quot;season&quot;</span>: <span class="ident">ep</span>.<span class="ident">get_season_number</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>),
+                    <span class="string">&quot;episode&quot;</span>: <span class="ident">ep</span>.<span class="ident">episode</span>,
+                    <span class="string">&quot;play_btn_id&quot;</span>: <span class="ident">ep</span>.<span class="ident">id</span>,
                 }))
             }
         }
     };
 
-    <span class="kw">fn </span>mediafile_tags(x: <span class="kw-2">&amp;</span>MediaFile) -&gt; serde_json::Value {
-        <span class="kw">let </span>video_tag = <span class="macro">format!</span>(
+    <span class="kw">fn</span> <span class="ident">mediafile_tags</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">MediaFile</span>) -&gt; <span class="ident">serde_json::Value</span> {
+        <span class="kw">let</span> <span class="ident">video_tag</span> <span class="op">=</span> <span class="macro">format!</span>(
             <span class="string">&quot;{} ({})&quot;</span>,
-            x.quality
-                .as_ref()
-                .map(|x| <span class="macro">format!</span>(<span class="string">&quot;{}p&quot;</span>, x))
-                .unwrap_or(<span class="string">&quot;Unknown&quot;</span>.into()),
-            <span class="kw">crate</span>::utils::codec_pretty(x.codec.as_deref().unwrap_or(<span class="string">&quot;Unknown&quot;</span>))
+            <span class="ident">x</span>.<span class="ident">quality</span>
+                .<span class="ident">as_ref</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;{}p&quot;</span>, <span class="ident">x</span>))
+                .<span class="ident">unwrap_or</span>(<span class="string">&quot;Unknown&quot;</span>.<span class="ident">into</span>()),
+            <span class="ident"><span class="kw">crate</span>::utils::codec_pretty</span>(<span class="ident">x</span>.<span class="ident">codec</span>.<span class="ident">as_deref</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;Unknown&quot;</span>))
         );
 
-        <span class="kw">let </span>audio_lang = x.audio_language.as_deref().unwrap_or(<span class="string">&quot;Unknown&quot;</span>);
-        <span class="kw">let </span>audio_codec = <span class="kw">crate</span>::utils::codec_pretty(x.audio.as_deref().unwrap_or(<span class="string">&quot;Unknown&quot;</span>));
-        <span class="kw">let </span>audio_ch = <span class="kw">crate</span>::utils::channels_pretty(x.channels.unwrap_or(<span class="number">2</span>));
+        <span class="kw">let</span> <span class="ident">audio_lang</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">audio_language</span>.<span class="ident">as_deref</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;Unknown&quot;</span>);
+        <span class="kw">let</span> <span class="ident">audio_codec</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::utils::codec_pretty</span>(<span class="ident">x</span>.<span class="ident">audio</span>.<span class="ident">as_deref</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;Unknown&quot;</span>));
+        <span class="kw">let</span> <span class="ident">audio_ch</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::utils::channels_pretty</span>(<span class="ident">x</span>.<span class="ident">channels</span>.<span class="ident">unwrap_or</span>(<span class="number">2</span>));
 
-        <span class="kw">let </span>audio_tag = <span class="macro">format!</span>(<span class="string">&quot;{} ({} {})&quot;</span>, audio_lang, audio_codec, audio_ch);
+        <span class="kw">let</span> <span class="ident">audio_tag</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{} ({} {})&quot;</span>, <span class="ident">audio_lang</span>, <span class="ident">audio_codec</span>, <span class="ident">audio_ch</span>);
 
         <span class="macro">json!</span>({
-            <span class="string">&quot;video&quot;</span>: video_tag,
-            <span class="string">&quot;audio&quot;</span>: audio_tag,
+            <span class="string">&quot;video&quot;</span>: <span class="ident">video_tag</span>,
+            <span class="string">&quot;audio&quot;</span>: <span class="ident">audio_tag</span>,
         })
     }
 
-    <span class="kw">let </span>quality_tags = <span class="kw">match </span>media.media_type {
-        MediaType::Episode | MediaType::Movie =&gt; <span class="macro">json!</span>({
-                media.id.to_string(): MediaFile::get_of_media(<span class="kw-2">&amp;mut </span>tx, media.id)
-                    .<span class="kw">await</span><span class="question-mark">?
-                    </span>.first()
-                    .map(mediafile_tags)
+    <span class="kw">let</span> <span class="ident">quality_tags</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">media</span>.<span class="ident">media_type</span> {
+        <span class="ident">MediaType::Episode</span> <span class="op">|</span> <span class="ident">MediaType::Movie</span> =&gt; <span class="macro">json!</span>({
+                <span class="ident">media</span>.<span class="ident">id</span>.<span class="ident">to_string</span>(): <span class="ident">MediaFile::get_of_media</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">media</span>.<span class="ident">id</span>)
+                    .<span class="kw">await</span><span class="question-mark">?</span>
+                    .<span class="ident">first</span>()
+                    .<span class="ident">map</span>(<span class="ident">mediafile_tags</span>)
         }),
-        MediaType::Tv =&gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>result = MediaFile::get_of_show(<span class="kw-2">&amp;mut </span>tx, media.id).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">MediaType::Tv</span> =&gt; {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">MediaFile::get_of_show</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">media</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            result.dedup_by_key(|x| x.media_id);
+            <span class="ident">result</span>.<span class="ident">dedup_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">media_id</span>);
 
-            <span class="macro">json!</span>(result
-                .iter()
-                .map(|x| (x.media_id.unwrap(), mediafile_tags(x)))
-                .collect::&lt;HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;())
+            <span class="macro">json!</span>(<span class="ident">result</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">x</span>.<span class="ident">media_id</span>.<span class="ident">unwrap</span>(), <span class="ident">mediafile_tags</span>(<span class="ident">x</span>)))
+                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>())
         }
     };
 
-    <span class="kw">let </span>season_episode_tag = <span class="kw">match </span>media.media_type {
-        MediaType::Episode =&gt; {
-            <span class="kw">let </span>result = Episode::get_season_episode_by_id(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">season_episode_tag</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">media</span>.<span class="ident">media_type</span> {
+        <span class="ident">MediaType::Episode</span> =&gt; {
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Episode::get_season_episode_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Some</span>(<span class="macro">json!</span>({
-                <span class="string">&quot;season&quot;</span>: result.<span class="number">0</span>,
-                <span class="string">&quot;episode&quot;</span>: result.<span class="number">1</span>,
+                <span class="string">&quot;season&quot;</span>: <span class="ident">result</span>.<span class="number">0</span>,
+                <span class="string">&quot;episode&quot;</span>: <span class="ident">result</span>.<span class="number">1</span>,
             }))
         }
-        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
     };
 
-    <span class="kw">const </span>EPISODE_DONE_THRESH: f64 = <span class="number">0.9</span>;
+    <span class="kw">const</span> <span class="ident">EPISODE_DONE_THRESH</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.9</span>;
 
-    <span class="kw">let </span>next_episode_id = <span class="kw">match </span>Episode::get_by_id(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await </span>{
-        <span class="prelude-val">Ok</span>(x) =&gt; {
-            <span class="kw">let </span>next_episode = <span class="kw">if let </span><span class="prelude-val">Ok</span>(x) = x.get_next_episode(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await </span>{
+    <span class="kw">let</span> <span class="ident">next_episode_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">Episode::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; {
+            <span class="kw">let</span> <span class="ident">next_episode</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">get_next_episode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span> {
                 <span class="prelude-val">Some</span>(<span class="macro">json!</span>({
-                    <span class="string">&quot;next_episode_id&quot;</span>: x.id,
+                    <span class="string">&quot;next_episode_id&quot;</span>: <span class="ident">x</span>.<span class="ident">id</span>,
                     <span class="string">&quot;chapters&quot;</span>: {
-                        <span class="string">&quot;credits&quot;</span>: x.media.get_first_duration(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await as </span>f64 * EPISODE_DONE_THRESH
+                        <span class="string">&quot;credits&quot;</span>: <span class="ident">x</span>.<span class="ident">media</span>.<span class="ident">get_first_duration</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">*</span> <span class="ident">EPISODE_DONE_THRESH</span>
                     }
                 }))
-            } <span class="kw">else </span>{
-                <span class="prelude-val">None
-            </span>};
+            } <span class="kw">else</span> {
+                <span class="prelude-val">None</span>
+            };
 
-            <span class="kw">let </span>prev_episode = x
-                .get_prev_episode(<span class="kw-2">&amp;mut </span>tx)
-                .<span class="kw">await
-                </span>.map(|x| <span class="macro">json!</span>({<span class="string">&quot;prev_episode_id&quot;</span>: x.id}))
-                .ok();
+            <span class="kw">let</span> <span class="ident">prev_episode</span> <span class="op">=</span> <span class="ident">x</span>
+                .<span class="ident">get_prev_episode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+                .<span class="kw">await</span>
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">json!</span>({<span class="string">&quot;prev_episode_id&quot;</span>: <span class="ident">x</span>.<span class="ident">id</span>}))
+                .<span class="ident">ok</span>();
 
-            <span class="kw">if </span>next_episode.is_some() || prev_episode.is_some() {
+            <span class="kw">if</span> <span class="ident">next_episode</span>.<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">prev_episode</span>.<span class="ident">is_some</span>() {
                 <span class="prelude-val">Some</span>(<span class="macro">json!</span>({
-                    ..<span class="question-mark">?</span>next_episode,
-                    ..<span class="question-mark">?</span>prev_episode,
+                    ..<span class="question-mark">?</span><span class="ident">next_episode</span>,
+                    ..<span class="question-mark">?</span><span class="ident">prev_episode</span>,
                 }))
-            } <span class="kw">else </span>{
-                <span class="prelude-val">None
-            </span>}
+            } <span class="kw">else</span> {
+                <span class="prelude-val">None</span>
+            }
         }
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
     };
 
-    <span class="comment">// FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
-    </span><span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
-        <span class="string">&quot;id&quot;</span>: media.id,
-        <span class="string">&quot;library_id&quot;</span>: media.library_id,
-        <span class="string">&quot;name&quot;</span>: media.name,
-        <span class="string">&quot;description&quot;</span>: media.description,
-        <span class="string">&quot;rating&quot;</span>: media.rating,
-        <span class="string">&quot;year&quot;</span>: media.year,
-        <span class="string">&quot;added&quot;</span>: media.added,
-        <span class="string">&quot;poster_path&quot;</span>: media.poster_path,
-        <span class="string">&quot;backdrop_path&quot;</span>: media.backdrop_path,
-        <span class="string">&quot;media_type&quot;</span>: media.media_type,
-        <span class="string">&quot;genres&quot;</span>: genres,
-        <span class="string">&quot;duration&quot;</span>: duration,
-        <span class="string">&quot;tags&quot;</span>: quality_tags,
-        ..<span class="question-mark">?</span>next_episode_id,
-        ..<span class="question-mark">?</span>season_episode_tag,
-        ..<span class="question-mark">?</span>progress
+    <span class="comment">// FIXME: Remove the duration tag once the UI transitioned to using duration_pretty</span>
+    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
+        <span class="string">&quot;id&quot;</span>: <span class="ident">media</span>.<span class="ident">id</span>,
+        <span class="string">&quot;library_id&quot;</span>: <span class="ident">media</span>.<span class="ident">library_id</span>,
+        <span class="string">&quot;name&quot;</span>: <span class="ident">media</span>.<span class="ident">name</span>,
+        <span class="string">&quot;description&quot;</span>: <span class="ident">media</span>.<span class="ident">description</span>,
+        <span class="string">&quot;rating&quot;</span>: <span class="ident">media</span>.<span class="ident">rating</span>,
+        <span class="string">&quot;year&quot;</span>: <span class="ident">media</span>.<span class="ident">year</span>,
+        <span class="string">&quot;added&quot;</span>: <span class="ident">media</span>.<span class="ident">added</span>,
+        <span class="string">&quot;poster_path&quot;</span>: <span class="ident">media</span>.<span class="ident">poster_path</span>,
+        <span class="string">&quot;backdrop_path&quot;</span>: <span class="ident">media</span>.<span class="ident">backdrop_path</span>,
+        <span class="string">&quot;media_type&quot;</span>: <span class="ident">media</span>.<span class="ident">media_type</span>,
+        <span class="string">&quot;genres&quot;</span>: <span class="ident">genres</span>,
+        <span class="string">&quot;duration&quot;</span>: <span class="ident">duration</span>,
+        <span class="string">&quot;tags&quot;</span>: <span class="ident">quality_tags</span>,
+        ..<span class="question-mark">?</span><span class="ident">next_episode_id</span>,
+        ..<span class="question-mark">?</span><span class="ident">season_episode_tag</span>,
+        ..<span class="question-mark">?</span><span class="ident">progress</span>
     })))
 }
 
-<span class="kw">pub async fn </span>get_media_files(
-    conn: DbConnection,
-    id: i64,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>media_type = Media::media_mediatype(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_media_files</span>(
+    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    <span class="ident">id</span>: <span class="ident">i64</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">media_type</span> <span class="op">=</span> <span class="ident">Media::media_mediatype</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>mediafiles = <span class="kw">match </span>media_type {
-        MediaType::Tv =&gt; MediaFile::get_of_show(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>,
-        MediaType::Episode | MediaType::Movie =&gt; MediaFile::get_of_media(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>,
+    <span class="kw">let</span> <span class="ident">mediafiles</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">media_type</span> {
+        <span class="ident">MediaType::Tv</span> =&gt; <span class="ident">MediaFile::get_of_show</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+        <span class="ident">MediaType::Episode</span> <span class="op">|</span> <span class="ident">MediaType::Movie</span> =&gt; <span class="ident">MediaFile::get_of_media</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>,
     };
 
-    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span>mediafiles))
+    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">mediafiles</span>))
 }
 
-<span class="doccomment">/// # GET `/api/v1/media/&lt;id&gt;/tree`
-/// Method mappedReturns a tree of mediafiles for a given media object.
-///
-/// # Authentication
-/// Method requires standard authentication.
-</span><span class="kw">pub async fn </span>get_mediafile_tree(
-    conn: DbConnection,
-    id: i64,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>media_type = Media::media_mediatype(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="doccomment">/// # GET `/api/v1/media/&lt;id&gt;/tree`</span>
+<span class="doccomment">/// Method mappedReturns a tree of mediafiles for a given media object.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Authentication</span>
+<span class="doccomment">/// Method requires standard authentication.</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_mediafile_tree</span>(
+    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    <span class="ident">id</span>: <span class="ident">i64</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">media_type</span> <span class="op">=</span> <span class="ident">Media::media_mediatype</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span><span class="kw-2">mut </span>mediafiles = <span class="kw">match </span>media_type {
-        MediaType::Movie | MediaType::Episode =&gt; {
-            CompactMediafile::all_for_media(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?
-        </span>}
-        MediaType::Tv =&gt; CompactMediafile::all_for_tv(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>,
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mediafiles</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">media_type</span> {
+        <span class="ident">MediaType::Movie</span> <span class="op">|</span> <span class="ident">MediaType::Episode</span> =&gt; {
+            <span class="ident">CompactMediafile::all_for_media</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>
+        }
+        <span class="ident">MediaType::Tv</span> =&gt; <span class="ident">CompactMediafile::all_for_tv</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>,
     };
 
-    <span class="comment">// we want to pre-sort to ensure our tree is somewhat ordered.
-    </span>mediafiles.sort_by(|a, b| a.target_file.cmp(<span class="kw-2">&amp;</span>b.target_file));
+    <span class="comment">// we want to pre-sort to ensure our tree is somewhat ordered.</span>
+    <span class="ident">mediafiles</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">target_file</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">target_file</span>));
 
-    <span class="kw">let </span>count = mediafiles.len();
+    <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">mediafiles</span>.<span class="ident">len</span>();
 
-    <span class="attribute">#[derive(Serialize)]
-    </span><span class="kw">struct </span>Record {
-        id: i64,
-        name: String,
-        duration: <span class="prelude-ty">Option</span>&lt;i64&gt;,
-        file: String,
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
+    <span class="kw">struct</span> <span class="ident">Record</span> {
+        <span class="ident">id</span>: <span class="ident">i64</span>,
+        <span class="ident">name</span>: <span class="ident">String</span>,
+        <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+        <span class="ident">file</span>: <span class="ident">String</span>,
     }
 
-    <span class="kw">let </span>entry = tree::Entry::build_with(
-        mediafiles,
-        |x| {
-            x.target_file
-                .iter()
-                .map(|x| x.to_string_lossy().to_string())
-                .collect()
+    <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="ident">tree::Entry::build_with</span>(
+        <span class="ident">mediafiles</span>,
+        <span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+            <span class="ident">x</span>.<span class="ident">target_file</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>())
+                .<span class="ident">collect</span>()
         },
-        |k, v| Record {
-            id: v.id,
-            name: v.name,
-            duration: v.duration,
-            file: k.to_string(),
+        <span class="op">|</span><span class="ident">k</span>, <span class="ident">v</span><span class="op">|</span> <span class="ident">Record</span> {
+            <span class="ident">id</span>: <span class="ident">v</span>.<span class="ident">id</span>,
+            <span class="ident">name</span>: <span class="ident">v</span>.<span class="ident">name</span>,
+            <span class="ident">duration</span>: <span class="ident">v</span>.<span class="ident">duration</span>,
+            <span class="ident">file</span>: <span class="ident">k</span>.<span class="ident">to_string</span>(),
         },
     );
 
-    <span class="attribute">#[derive(Serialize)]
-    </span><span class="kw">struct </span>Response {
-        count: usize,
-        files: Vec&lt;tree::Entry&lt;Record&gt;&gt;,
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
+    <span class="kw">struct</span> <span class="ident">Response</span> {
+        <span class="ident">count</span>: <span class="ident">usize</span>,
+        <span class="ident">files</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree::Entry</span><span class="op">&lt;</span><span class="ident">Record</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     }
 
-    <span class="kw">let </span>entries = <span class="kw">match </span>entry {
-        tree::Entry::Directory { files, .. } =&gt; files,
-        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
+    <span class="kw">let</span> <span class="ident">entries</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">entry</span> {
+        <span class="ident">tree::Entry::Directory</span> { <span class="ident">files</span>, .. } =&gt; <span class="ident">files</span>,
+        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
     };
 
-    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span>Response {
-        files: entries,
-        count,
+    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">Response</span> {
+        <span class="ident">files</span>: <span class="ident">entries</span>,
+        <span class="ident">count</span>,
     }))
 }
 
-<span class="doccomment">/// Method mapped to `PATCH /api/v1/media/&lt;id&gt;` is used to edit information about a media entry
-/// manually. It is used in the web ui to manually edit metadata of a media.
-///
-/// # Arguments
-/// * `conn` - database connection
-/// * `id` - id of the media we want to edit
-/// * `data` - the info that we changed about the media entry
-/// * `_user` - Auth middleware
-</span><span class="kw">pub async fn </span>update_media_by_id(
-    id: i64,
-    data: UpdateMedia,
-    _user: User,
-    conn: DbConnection,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>status = <span class="kw">if </span>data.update(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span>.is_ok() {
-        StatusCode::NO_CONTENT
-    } <span class="kw">else </span>{
-        StatusCode::NOT_MODIFIED
+<span class="doccomment">/// Method mapped to `PATCH /api/v1/media/&lt;id&gt;` is used to edit information about a media entry</span>
+<span class="doccomment">/// manually. It is used in the web ui to manually edit metadata of a media.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Arguments</span>
+<span class="doccomment">/// * `conn` - database connection</span>
+<span class="doccomment">/// * `id` - id of the media we want to edit</span>
+<span class="doccomment">/// * `data` - the info that we changed about the media entry</span>
+<span class="doccomment">/// * `_user` - Auth middleware</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_media_by_id</span>(
+    <span class="ident">id</span>: <span class="ident">i64</span>,
+    <span class="ident">data</span>: <span class="ident">UpdateMedia</span>,
+    <span class="ident">_user</span>: <span class="ident">User</span>,
+    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">data</span>.<span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span>.<span class="ident">is_ok</span>() {
+        <span class="ident">StatusCode::NO_CONTENT</span>
+    } <span class="kw">else</span> {
+        <span class="ident">StatusCode::NOT_MODIFIED</span>
     };
 
-    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(status)
+    <span class="prelude-val">Ok</span>(<span class="ident">status</span>)
 }
 
-<span class="doccomment">/// Method mapped to `DELETE /api/v1/media/&lt;id&gt;` is used to delete a media entry for the library.
-/// ONly authenticated users can query this.
-///
-/// # Arguments
-/// * `conn` - database connection
-/// * `id` - id of the media we want to delete
-/// * `_user` - auth middleware
-</span><span class="kw">pub async fn </span>delete_media_by_id(
-    conn: DbConnection,
-    id: i64,
-    _user: User,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
-    Media::delete(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
-    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(StatusCode::OK)
+<span class="doccomment">/// Method mapped to `DELETE /api/v1/media/&lt;id&gt;` is used to delete a media entry for the library.</span>
+<span class="doccomment">/// ONly authenticated users can query this.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Arguments</span>
+<span class="doccomment">/// * `conn` - database connection</span>
+<span class="doccomment">/// * `id` - id of the media we want to delete</span>
+<span class="doccomment">/// * `_user` - auth middleware</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_media_by_id</span>(
+    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    <span class="ident">id</span>: <span class="ident">i64</span>,
+    <span class="ident">_user</span>: <span class="ident">User</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">Media::delete</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">StatusCode::OK</span>)
 }
 
-<span class="doccomment">/// Method mapped to `GET /api/v1/media/tmdb_search` is used to quickly search TMDB based on 3
-/// params, one of which is optional. This is used client side in the rematch utility
-///
-/// # Arguments
-/// * `query` - the query we want to send to tmdb, ie movie title, tv show title
-/// * `year` - optional parameter specifying the release year of the media we want to look up
-/// * `media_type` - parameter that tells us what media type we are querying, ie movie or tv show
-</span><span class="kw">pub async fn </span>tmdb_search(
-    query: String,
-    year: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-    media_type: String,
-    _user: User,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
-    <span class="kw">let </span><span class="prelude-val">Ok</span>(media_type) = media_type.to_lowercase().try_into() <span class="kw">else </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(errors::DimError::InvalidMediaType);
+<span class="doccomment">/// Method mapped to `GET /api/v1/media/tmdb_search` is used to quickly search TMDB based on 3</span>
+<span class="doccomment">/// params, one of which is optional. This is used client side in the rematch utility</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Arguments</span>
+<span class="doccomment">/// * `query` - the query we want to send to tmdb, ie movie title, tv show title</span>
+<span class="doccomment">/// * `year` - optional parameter specifying the release year of the media we want to look up</span>
+<span class="doccomment">/// * `media_type` - parameter that tells us what media type we are querying, ie movie or tv show</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">tmdb_search</span>(
+    <span class="ident">query</span>: <span class="ident">String</span>,
+    <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+    <span class="ident">media_type</span>: <span class="ident">String</span>,
+    <span class="ident">_user</span>: <span class="ident">User</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">media_type</span>) <span class="op">=</span> <span class="ident">media_type</span>.<span class="ident">to_lowercase</span>().<span class="ident">try_into</span>() <span class="kw">else</span> {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">errors::DimError::InvalidMediaType</span>);
     };
 
-    <span class="kw">let </span>provider = <span class="kw">match </span>media_type {
-        MediaType::Movie =&gt; (<span class="kw-2">*</span>MOVIES_PROVIDER).clone(),
-        MediaType::Tv =&gt; (<span class="kw-2">*</span>TV_PROVIDER).clone(),
-        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(errors::DimError::InvalidMediaType),
+    <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">media_type</span> {
+        <span class="ident">MediaType::Movie</span> =&gt; (<span class="kw-2">*</span><span class="ident">MOVIES_PROVIDER</span>).<span class="ident">clone</span>(),
+        <span class="ident">MediaType::Tv</span> =&gt; (<span class="kw-2">*</span><span class="ident">TV_PROVIDER</span>).<span class="ident">clone</span>(),
+        <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">errors::DimError::InvalidMediaType</span>),
     };
 
-    <span class="kw">let </span>results = provider
-        .search(<span class="kw-2">&amp;</span>query, year)
-        .<span class="kw">await
-        </span>.map_err(|<span class="kw">_</span>| errors::DimError::NotFoundError)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">provider</span>
+        .<span class="ident">search</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>, <span class="ident">year</span>)
+        .<span class="kw">await</span>
+        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">errors::DimError::NotFoundError</span>)<span class="question-mark">?</span>;
 
-    <span class="kw">if </span>results.is_empty() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(errors::DimError::NotFoundError);
+    <span class="kw">if</span> <span class="ident">results</span>.<span class="ident">is_empty</span>() {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">errors::DimError::NotFoundError</span>);
     }
 
-    <span class="kw">let </span>resp = results
-        .into_iter()
-        .map(|x| {
+    <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">results</span>
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
             <span class="macro">json!</span>({
-                <span class="string">&quot;id&quot;</span>: x.external_id,
-                <span class="string">&quot;title&quot;</span>: x.title,
-                <span class="string">&quot;year&quot;</span>: x.release_date.map(|x| x.year()),
-                <span class="string">&quot;overview&quot;</span>: x.description,
-                <span class="string">&quot;poster_path&quot;</span>: x.posters.first(),
-                <span class="string">&quot;genres&quot;</span>: x.genres,
-                <span class="string">&quot;rating&quot;</span>: x.rating,
-                <span class="string">&quot;duration&quot;</span>: x.duration.map(|x| secs_to_pretty(x.as_secs())),
+                <span class="string">&quot;id&quot;</span>: <span class="ident">x</span>.<span class="ident">external_id</span>,
+                <span class="string">&quot;title&quot;</span>: <span class="ident">x</span>.<span class="ident">title</span>,
+                <span class="string">&quot;year&quot;</span>: <span class="ident">x</span>.<span class="ident">release_date</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">year</span>()),
+                <span class="string">&quot;overview&quot;</span>: <span class="ident">x</span>.<span class="ident">description</span>,
+                <span class="string">&quot;poster_path&quot;</span>: <span class="ident">x</span>.<span class="ident">posters</span>.<span class="ident">first</span>(),
+                <span class="string">&quot;genres&quot;</span>: <span class="ident">x</span>.<span class="ident">genres</span>,
+                <span class="string">&quot;rating&quot;</span>: <span class="ident">x</span>.<span class="ident">rating</span>,
+                <span class="string">&quot;duration&quot;</span>: <span class="ident">x</span>.<span class="ident">duration</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">secs_to_pretty</span>(<span class="ident">x</span>.<span class="ident">as_secs</span>())),
             })
         })
-        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
-    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span>resp))
+    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>))
 }
 
-<span class="doccomment">/// Method mapped to `POST /api/v1/media/&lt;id&gt;/progress` is used to map progress for a certain media
-/// to the user. This is useful for remembering progress for a movie etc.
-///
-/// # Arguments
-/// * `id` - id of the media to modify
-///
-/// # Query params
-/// * `offset` - offset in seconds
-</span><span class="kw">pub async fn </span>map_progress(
-    conn: DbConnection,
-    id: i64,
-    offset: i64,
-    user: User,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
-    Progress::set(<span class="kw-2">&amp;mut </span>tx, offset, user.id, id).<span class="kw">await</span><span class="question-mark">?</span>;
-    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(StatusCode::OK)
+<span class="doccomment">/// Method mapped to `POST /api/v1/media/&lt;id&gt;/progress` is used to map progress for a certain media</span>
+<span class="doccomment">/// to the user. This is useful for remembering progress for a movie etc.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Arguments</span>
+<span class="doccomment">/// * `id` - id of the media to modify</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Query params</span>
+<span class="doccomment">/// * `offset` - offset in seconds</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">map_progress</span>(
+    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    <span class="ident">id</span>: <span class="ident">i64</span>,
+    <span class="ident">offset</span>: <span class="ident">i64</span>,
+    <span class="ident">user</span>: <span class="ident">User</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">Progress::set</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">offset</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">StatusCode::OK</span>)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>

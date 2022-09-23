@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/general.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>general.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/general.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>general.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -254,218 +261,218 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
-<span class="kw">use </span><span class="kw">crate</span>::errors;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>;
 
-<span class="kw">use </span>database::user::User;
-<span class="kw">use </span>serde::Serialize;
+<span class="kw">use</span> <span class="ident">database::user::User</span>;
+<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
-<span class="kw">use </span>database::genre::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">database::genre</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use </span>tokio::task::spawn_blocking;
+<span class="kw">use</span> <span class="ident">tokio::task::spawn_blocking</span>;
 
-<span class="kw">use </span>std::fs;
-<span class="kw">use </span>std::io;
-<span class="kw">use </span>std::path::PathBuf;
+<span class="kw">use</span> <span class="ident">std::fs</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
 
-<span class="kw">use </span>warp::reply;
+<span class="kw">use</span> <span class="ident">warp::reply</span>;
 
-<span class="kw">pub mod </span>filters {
-    <span class="kw">use </span>database::DbConnection;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filters</span> {
+    <span class="kw">use</span> <span class="ident">database::DbConnection</span>;
 
-    <span class="kw">use </span>database::user::User;
-    <span class="kw">use </span>warp::reject;
-    <span class="kw">use </span>warp::Filter;
-    <span class="kw">use </span>warp::Rejection;
+    <span class="kw">use</span> <span class="ident">database::user::User</span>;
+    <span class="kw">use</span> <span class="ident">warp::reject</span>;
+    <span class="kw">use</span> <span class="ident">warp::Filter</span>;
+    <span class="kw">use</span> <span class="ident">warp::Rejection</span>;
 
-    <span class="kw">use </span><span class="kw">crate</span>::routes::global_filters::with_auth;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::routes::global_filters::with_auth</span>;
 
-    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state;
-    <span class="kw">use </span>serde::Deserialize;
+    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state</span>;
+    <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 
-    <span class="kw">pub fn </span>get_directory_structure(
-        conn: DbConnection,
-    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = Rejection&gt; + Clone {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;filebrowser&quot; </span>/ ..)
-            .and(warp::path::tail())
-            .and(with_auth(conn))
-            .and_then(|tail: warp::path::Tail, user: User| <span class="kw">async move </span>{
-                <span class="kw">let </span>decoded_path = percent_encoding::percent_decode(tail.as_str().as_bytes())
-                    .decode_utf8()
-                    .unwrap()
-                    .to_string();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_directory_structure</span>(
+        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;filebrowser&quot;</span> <span class="op">/</span> ..)
+            .<span class="ident">and</span>(<span class="ident">warp::path::tail</span>())
+            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>))
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">tail</span>: <span class="ident">warp::path::Tail</span>, <span class="ident">user</span>: <span class="ident">User</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                <span class="kw">let</span> <span class="ident">decoded_path</span> <span class="op">=</span> <span class="ident">percent_encoding::percent_decode</span>(<span class="ident">tail</span>.<span class="ident">as_str</span>().<span class="ident">as_bytes</span>())
+                    .<span class="ident">decode_utf8</span>()
+                    .<span class="ident">unwrap</span>()
+                    .<span class="ident">to_string</span>();
 
-                <span class="kw">super</span>::get_directory_structure(decoded_path.into(), user)
-                    .<span class="kw">await
-                    </span>.map_err(|e| reject::custom(e))
+                <span class="ident"><span class="kw">super</span>::get_directory_structure</span>(<span class="ident">decoded_path</span>.<span class="ident">into</span>(), <span class="ident">user</span>)
+                    .<span class="kw">await</span>
+                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
             })
     }
 
-    <span class="kw">pub fn </span>search(
-        conn: DbConnection,
-    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = Rejection&gt; + Clone {
-        <span class="attribute">#[derive(Deserialize)]
-        </span><span class="kw">struct </span>SearchArgs {
-            query: <span class="prelude-ty">Option</span>&lt;String&gt;,
-            year: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-            library_id: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-            genre: <span class="prelude-ty">Option</span>&lt;String&gt;,
-            quick: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">search</span>(
+        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
+        <span class="kw">struct</span> <span class="ident">SearchArgs</span> {
+            <span class="ident">query</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+            <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+            <span class="ident">library_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+            <span class="ident">genre</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+            <span class="ident">quick</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
         }
 
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;search&quot;</span>)
-            .and(warp::get())
-            .and(with_auth(conn.clone()))
-            .and(with_state::&lt;DbConnection&gt;(conn))
-            .and(warp::query::query::&lt;SearchArgs&gt;())
-            .and_then(
-                |auth: User, conn: DbConnection, args: SearchArgs| <span class="kw">async move </span>{
-                    <span class="kw">super</span>::search(
-                        conn,
-                        args.query,
-                        args.year,
-                        args.library_id,
-                        args.genre,
-                        args.quick,
-                        auth,
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;search&quot;</span>)
+            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
+            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
+            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
+            .<span class="ident">and</span>(<span class="ident">warp::query::query</span>::<span class="op">&lt;</span><span class="ident">SearchArgs</span><span class="op">&gt;</span>())
+            .<span class="ident">and_then</span>(
+                <span class="op">|</span><span class="ident">auth</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span>, <span class="ident">args</span>: <span class="ident">SearchArgs</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                    <span class="ident"><span class="kw">super</span>::search</span>(
+                        <span class="ident">conn</span>,
+                        <span class="ident">args</span>.<span class="ident">query</span>,
+                        <span class="ident">args</span>.<span class="ident">year</span>,
+                        <span class="ident">args</span>.<span class="ident">library_id</span>,
+                        <span class="ident">args</span>.<span class="ident">genre</span>,
+                        <span class="ident">args</span>.<span class="ident">quick</span>,
+                        <span class="ident">auth</span>,
                     )
-                    .<span class="kw">await
-                    </span>.map_err(|e| reject::custom(e))
+                    .<span class="kw">await</span>
+                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
                 },
             )
     }
 }
 
-<span class="kw">pub fn </span>enumerate_directory&lt;T: AsRef&lt;std::path::Path&gt;&gt;(path: T) -&gt; io::Result&lt;Vec&lt;String&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>dirs: Vec&lt;String&gt; = fs::read_dir(path)<span class="question-mark">?
-        </span>.into_iter()
-        .filter_map(|x| x.ok())
-        .filter(|x| {
-            !x.file_name()
-                .to_str()
-                .map(|s| s.starts_with(<span class="string">&#39;.&#39;</span>))
-                .unwrap_or(<span class="bool-val">false</span>)
-                &amp;&amp; !x.path().is_file()
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enumerate_directory</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">std::path::Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">T</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dirs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">fs::read_dir</span>(<span class="ident">path</span>)<span class="question-mark">?</span>
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">ok</span>())
+        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+            <span class="op">!</span><span class="ident">x</span>.<span class="ident">file_name</span>()
+                .<span class="ident">to_str</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&#39;.&#39;</span>))
+                .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">path</span>().<span class="ident">is_file</span>()
         })
-        .map(|x| {
-            <span class="kw">let </span>path = x.path().to_string_lossy().to_string().replace(<span class="string">&quot;\\&quot;</span>, <span class="string">&quot;/&quot;</span>);
-            <span class="kw">if </span><span class="macro">cfg!</span>(windows) {
-                path.replace(<span class="string">&quot;C:&quot;</span>, <span class="string">&quot;&quot;</span>)
-            } <span class="kw">else </span>{
-                path
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">path</span>().<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>().<span class="ident">replace</span>(<span class="string">&quot;\\&quot;</span>, <span class="string">&quot;/&quot;</span>);
+            <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">windows</span>) {
+                <span class="ident">path</span>.<span class="ident">replace</span>(<span class="string">&quot;C:&quot;</span>, <span class="string">&quot;&quot;</span>)
+            } <span class="kw">else</span> {
+                <span class="ident">path</span>
             }
         })
-        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
-    dirs.sort();
-    <span class="prelude-val">Ok</span>(dirs)
+    <span class="ident">dirs</span>.<span class="ident">sort</span>();
+    <span class="prelude-val">Ok</span>(<span class="ident">dirs</span>)
 }
 
-<span class="kw">pub async fn </span>get_directory_structure(
-    path: PathBuf,
-    _user: User,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
-    <span class="macro">cfg_if::cfg_if! </span>{
-        <span class="kw">if </span><span class="attribute">#[cfg(target_os = <span class="string">&quot;windows&quot;</span>)] </span>{
-            <span class="kw">let </span>path_prefix = <span class="string">&quot;C:/&quot;</span>;
-        } <span class="kw">else </span>{
-            <span class="kw">let </span>path_prefix = <span class="string">&quot;/&quot;</span>;
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_directory_structure</span>(
+    <span class="ident">path</span>: <span class="ident">PathBuf</span>,
+    <span class="ident">_user</span>: <span class="ident">User</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
+    <span class="macro">cfg_if::cfg_if!</span> {
+        <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>)]</span> {
+            <span class="kw">let</span> <span class="ident">path_prefix</span> <span class="op">=</span> <span class="string">&quot;C:/&quot;</span>;
+        } <span class="kw">else</span> {
+            <span class="kw">let</span> <span class="ident">path_prefix</span> <span class="op">=</span> <span class="string">&quot;/&quot;</span>;
         }
     }
 
-    <span class="kw">let </span>path = <span class="kw">if </span>path.starts_with(path_prefix) {
-        path
-    } <span class="kw">else </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>new_path = PathBuf::new();
-        new_path.push(path_prefix);
-        new_path.push(path);
-        new_path
+    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">starts_with</span>(<span class="ident">path_prefix</span>) {
+        <span class="ident">path</span>
+    } <span class="kw">else</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_path</span> <span class="op">=</span> <span class="ident">PathBuf::new</span>();
+        <span class="ident">new_path</span>.<span class="ident">push</span>(<span class="ident">path_prefix</span>);
+        <span class="ident">new_path</span>.<span class="ident">push</span>(<span class="ident">path</span>);
+        <span class="ident">new_path</span>
     };
 
-    <span class="prelude-val">Ok</span>(reply::json(
-        <span class="kw-2">&amp;</span>spawn_blocking(|| enumerate_directory(path))
-            .<span class="kw">await
-            </span>.unwrap()<span class="question-mark">?</span>,
+    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(
+        <span class="kw-2">&amp;</span><span class="ident">spawn_blocking</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">enumerate_directory</span>(<span class="ident">path</span>))
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>()<span class="question-mark">?</span>,
     ))
 }
 
-<span class="kw">pub async fn </span>search(
-    conn: DbConnection,
-    query: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    year: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-    _library_id: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-    genre: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    _quick: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-    _user: User,
-) -&gt; <span class="prelude-ty">Result</span>&lt;warp::reply::Json, errors::DimError&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(query_string) = query {
-        <span class="kw">let </span>query_string = query_string
-            .split(<span class="string">&#39; &#39;</span>)
-            .map(|x| <span class="macro">format!</span>(<span class="string">&quot;%{}%&quot;</span>, x))
-            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-            .as_slice()
-            .join(<span class="string">&quot; &quot;</span>);
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search</span>(
+    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    <span class="ident">query</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+    <span class="ident">_library_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+    <span class="ident">genre</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">_quick</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
+    <span class="ident">_user</span>: <span class="ident">User</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">warp::reply::Json</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">query_string</span>) <span class="op">=</span> <span class="ident">query</span> {
+        <span class="kw">let</span> <span class="ident">query_string</span> <span class="op">=</span> <span class="ident">query_string</span>
+            .<span class="ident">split</span>(<span class="string">&#39; &#39;</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;%{}%&quot;</span>, <span class="ident">x</span>))
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+            .<span class="ident">as_slice</span>()
+            .<span class="ident">join</span>(<span class="string">&quot; &quot;</span>);
 
-        <span class="kw">return </span>search_by_name(<span class="kw-2">&amp;mut </span>tx, <span class="kw-2">&amp;</span>query_string, <span class="number">15</span>).<span class="kw">await</span>;
+        <span class="kw">return</span> <span class="ident">search_by_name</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">query_string</span>, <span class="number">15</span>).<span class="kw">await</span>;
     }
 
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = genre {
-        <span class="kw">let </span>genre_id = Genre::get_by_name(<span class="kw-2">&amp;mut </span>tx, x).<span class="kw">await</span><span class="question-mark">?</span>.id;
-        <span class="kw">return </span>search_by_genre(<span class="kw-2">&amp;mut </span>tx, genre_id).<span class="kw">await</span>;
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">genre</span> {
+        <span class="kw">let</span> <span class="ident">genre_id</span> <span class="op">=</span> <span class="ident">Genre::get_by_name</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">x</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">id</span>;
+        <span class="kw">return</span> <span class="ident">search_by_genre</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">genre_id</span>).<span class="kw">await</span>;
     }
 
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = year {
-        <span class="kw">return </span>search_by_release_year(<span class="kw-2">&amp;mut </span>tx, x <span class="kw">as </span>i64).<span class="kw">await</span>;
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">year</span> {
+        <span class="kw">return</span> <span class="ident">search_by_release_year</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">x</span> <span class="kw">as</span> <span class="ident">i64</span>).<span class="kw">await</span>;
     }
 
-    <span class="prelude-val">Err</span>(errors::DimError::NotFoundError)
+    <span class="prelude-val">Err</span>(<span class="ident">errors::DimError::NotFoundError</span>)
 }
 
-<span class="kw">async fn </span>search_by_name(
-    conn: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-    query: <span class="kw-2">&amp;</span>str,
-    limit: i64,
-) -&gt; <span class="prelude-ty">Result</span>&lt;warp::reply::Json, errors::DimError&gt; {
-    <span class="attribute">#[derive(Serialize)]
-    </span><span class="kw">struct </span>Record {
-        id: i64,
-        library_id: i64,
-        name: String,
-        poster_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search_by_name</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">database::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+    <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+    <span class="ident">limit</span>: <span class="ident">i64</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">warp::reply::Json</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
+    <span class="kw">struct</span> <span class="ident">Record</span> {
+        <span class="ident">id</span>: <span class="ident">i64</span>,
+        <span class="ident">library_id</span>: <span class="ident">i64</span>,
+        <span class="ident">name</span>: <span class="ident">String</span>,
+        <span class="ident">poster_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     }
 
-    <span class="kw">let </span>data = <span class="macro">sqlx::query_as!</span>(
-        Record,
+    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">Record</span>,
         <span class="string">r#&quot;SELECT _tblmedia.id, library_id, name, assets.local_path as poster_path FROM _tblmedia
            LEFT JOIN assets on _tblmedia.poster = assets.id
            WHERE NOT media_type = &quot;episode&quot;
            AND UPPER(name) LIKE ?
            LIMIT ?&quot;#</span>,
-        query,
-        limit
+        <span class="ident">query</span>,
+        <span class="ident">limit</span>
     )
-    .fetch_all(conn)
-    .<span class="kw">await
-    </span>.map_err(|<span class="kw">_</span>| errors::DimError::NotFoundError)<span class="question-mark">?</span>;
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span>
+    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">errors::DimError::NotFoundError</span>)<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span>data))
+    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>))
 }
 
-<span class="kw">async fn </span>search_by_genre(
-    conn: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-    genre_id: i64,
-) -&gt; <span class="prelude-ty">Result</span>&lt;warp::reply::Json, errors::DimError&gt; {
-    <span class="attribute">#[derive(Serialize)]
-    </span><span class="kw">struct </span>Record {
-        id: i64,
-        library_id: i64,
-        name: String,
-        poster_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search_by_genre</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">database::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+    <span class="ident">genre_id</span>: <span class="ident">i64</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">warp::reply::Json</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
+    <span class="kw">struct</span> <span class="ident">Record</span> {
+        <span class="ident">id</span>: <span class="ident">i64</span>,
+        <span class="ident">library_id</span>: <span class="ident">i64</span>,
+        <span class="ident">name</span>: <span class="ident">String</span>,
+        <span class="ident">poster_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     }
 
-    <span class="kw">let </span>data = <span class="macro">sqlx::query_as!</span>(
-        Record,
+    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">Record</span>,
         <span class="string">r#&quot;SELECT _tblmedia.id, library_id, name, assets.local_path as poster_path
                 FROM _tblmedia
                 LEFT JOIN assets on _tblmedia.poster = assets.id
@@ -473,42 +480,43 @@
                 WHERE NOT media_type = &quot;episode&quot;
                 AND genre_media.genre_id = ?
                 &quot;#</span>,
-        genre_id,
+        <span class="ident">genre_id</span>,
     )
-    .fetch_all(conn)
-    .<span class="kw">await
-    </span>.map_err(|<span class="kw">_</span>| errors::DimError::NotFoundError)<span class="question-mark">?</span>;
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span>
+    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">errors::DimError::NotFoundError</span>)<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span>data))
+    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>))
 }
 
-<span class="kw">async fn </span>search_by_release_year(
-    conn: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-    year: i64,
-) -&gt; <span class="prelude-ty">Result</span>&lt;warp::reply::Json, errors::DimError&gt; {
-    <span class="attribute">#[derive(Serialize)]
-    </span><span class="kw">struct </span>Record {
-        id: i64,
-        library_id: i64,
-        name: String,
-        poster_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search_by_release_year</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">database::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+    <span class="ident">year</span>: <span class="ident">i64</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">warp::reply::Json</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
+    <span class="kw">struct</span> <span class="ident">Record</span> {
+        <span class="ident">id</span>: <span class="ident">i64</span>,
+        <span class="ident">library_id</span>: <span class="ident">i64</span>,
+        <span class="ident">name</span>: <span class="ident">String</span>,
+        <span class="ident">poster_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     }
 
-    <span class="kw">let </span>data = <span class="macro">sqlx::query_as!</span>(
-        Record,
+    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">Record</span>,
         <span class="string">r#&quot;SELECT _tblmedia.id, library_id, name, assets.local_path as poster_path
                 FROM _tblmedia
             LEFT JOIN assets on _tblmedia.poster = assets.id
                 WHERE NOT media_type = &quot;episode&quot;
                 AND year = ?
                 &quot;#</span>,
-        year,
+        <span class="ident">year</span>,
     )
-    .fetch_all(conn)
-    .<span class="kw">await
-    </span>.map_err(|<span class="kw">_</span>| errors::DimError::NotFoundError)<span class="question-mark">?</span>;
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span>
+    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">errors::DimError::NotFoundError</span>)<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(warp::reply::json(<span class="kw-2">&amp;</span>data))
+    <span class="prelude-val">Ok</span>(<span class="ident">warp::reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>

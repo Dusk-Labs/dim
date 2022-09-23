@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/scanner/mediafile.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mediafile.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/scanner/mediafile.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mediafile.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -256,263 +263,264 @@
 <span id="256">256</span>
 <span id="257">257</span>
 <span id="258">258</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Module contains all the code that creates and inserts basic mediafiles into the database.
+</pre><pre class="rust"><code><span class="doccomment">//! Module contains all the code that creates and inserts basic mediafiles into the database.</span>
 
-</span><span class="kw">use </span><span class="kw">crate</span>::external::filename::Metadata;
-<span class="kw">use </span><span class="kw">crate</span>::streaming::ffprobe::FFProbeCtx;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external::filename::Metadata</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::streaming::ffprobe::FFProbeCtx</span>;
 
-<span class="kw">use </span>async_trait::async_trait;
+<span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 
-<span class="kw">use </span>database::mediafile::InsertableMediaFile;
-<span class="kw">use </span>database::mediafile::MediaFile;
-<span class="kw">use </span>database::DatabaseError;
-<span class="kw">use </span>database::DbConnection;
-<span class="kw">use </span>displaydoc::Display;
+<span class="kw">use</span> <span class="ident">database::mediafile::InsertableMediaFile</span>;
+<span class="kw">use</span> <span class="ident">database::mediafile::MediaFile</span>;
+<span class="kw">use</span> <span class="ident">database::DatabaseError</span>;
+<span class="kw">use</span> <span class="ident">database::DbConnection</span>;
+<span class="kw">use</span> <span class="ident">displaydoc::Display</span>;
 
-<span class="kw">use </span>serde::Serialize;
-<span class="kw">use </span>std::path::PathBuf;
-<span class="kw">use </span>std::sync::Arc;
+<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
+<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
+<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 
-<span class="kw">use </span>tokio::sync::Semaphore;
-<span class="kw">use </span>tokio::sync::SemaphorePermit;
+<span class="kw">use</span> <span class="ident">tokio::sync::Semaphore</span>;
+<span class="kw">use</span> <span class="ident">tokio::sync::SemaphorePermit</span>;
 
-<span class="kw">use </span>tracing::debug_span;
-<span class="kw">use </span>tracing::error;
-<span class="kw">use </span>tracing::warn;
-<span class="kw">use </span>tracing::Instrument;
+<span class="kw">use</span> <span class="ident">tracing::debug_span</span>;
+<span class="kw">use</span> <span class="ident">tracing::error</span>;
+<span class="kw">use</span> <span class="ident">tracing::warn</span>;
+<span class="kw">use</span> <span class="ident">tracing::Instrument</span>;
 
-<span class="kw">use </span>thiserror::Error;
+<span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
-<span class="kw">use </span>new_xtra::prelude::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">new_xtra::prelude</span>::<span class="kw-2">*</span>;
 
-<span class="doccomment">/// This semaphore is necessary so that we dont create too many instances of `MediafileCreator`.
-/// Having too many instances would not make sense as we can support only so many instances without
-/// ending up contending over the database lock.
-</span><span class="kw">static </span>SEMPAHORE: Semaphore = Semaphore::const_new(<span class="number">12</span>);
+<span class="doccomment">/// This semaphore is necessary so that we dont create too many instances of `MediafileCreator`.</span>
+<span class="doccomment">/// Having too many instances would not make sense as we can support only so many instances without</span>
+<span class="doccomment">/// ending up contending over the database lock.</span>
+<span class="kw">static</span> <span class="ident">SEMPAHORE</span>: <span class="ident">Semaphore</span> <span class="op">=</span> <span class="ident">Semaphore::const_new</span>(<span class="number">12</span>);
 
-<span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = ::core::result::Result&lt;T, Error&gt;;
-<span class="kw">pub type </span>SqlxError = Arc&lt;sqlx::Error&gt;;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">SqlxError</span> <span class="op">=</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">sqlx::Error</span><span class="op">&gt;</span>;
 
-<span class="attribute">#[derive(Clone, Debug, Display, Error, Serialize)]
-</span><span class="kw">pub enum </span>Error {
-    <span class="doccomment">/// The file already exists in the database.
-    </span>FileExists,
-    <span class="doccomment">/// Failed to acquire a read-only database transaction: {0:?}
-    </span>FailedToAcquireReader(<span class="attribute">#[serde(skip)] </span>SqlxError),
-    <span class="doccomment">/// Failed to acquire a read-write database transaction: {0:?}
-    </span>FailedToAcquireWriter(<span class="attribute">#[serde(skip)] </span>SqlxError),
-    <span class="doccomment">/// File passed is non-unicode.
-    </span>NonUnicodeFile,
-    <span class="doccomment">/// Failed to extract media information with ffprobe: {0:?}
-    </span>FfprobeError(<span class="attribute">#[serde(skip)] </span>Arc&lt;std::io::Error&gt;),
-    <span class="doccomment">/// Failed to write mediafile to the database: {0:?}
-    </span>InsertFailed(<span class="attribute">#[serde(skip)] </span>DatabaseError),
-    <span class="doccomment">/// Failed to select written mediafile from the database: {0:?}
-    </span>SelectFailed(<span class="attribute">#[serde(skip)] </span>DatabaseError),
-    <span class="doccomment">/// Failed to commit mediafiles to the database: {0:?}
-    </span>CommitFailed(<span class="attribute">#[serde(skip)] </span>SqlxError),
-    <span class="doccomment">/// Failed to check if mediafile exists in the database: {0:?}
-    </span>ExistanceCheckFailed(<span class="attribute">#[serde(skip)] </span>DatabaseError),
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Display</span>, <span class="ident">Error</span>, <span class="ident">Serialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
+    <span class="doccomment">/// The file already exists in the database.</span>
+    <span class="ident">FileExists</span>,
+    <span class="doccomment">/// Failed to acquire a read-only database transaction: {0:?}</span>
+    <span class="ident">FailedToAcquireReader</span>(<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip</span>)]</span> <span class="ident">SqlxError</span>),
+    <span class="doccomment">/// Failed to acquire a read-write database transaction: {0:?}</span>
+    <span class="ident">FailedToAcquireWriter</span>(<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip</span>)]</span> <span class="ident">SqlxError</span>),
+    <span class="doccomment">/// File passed is non-unicode.</span>
+    <span class="ident">NonUnicodeFile</span>,
+    <span class="doccomment">/// Failed to extract media information with ffprobe: {0:?}</span>
+    <span class="ident">FfprobeError</span>(<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip</span>)]</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">std::io::Error</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// Failed to write mediafile to the database: {0:?}</span>
+    <span class="ident">InsertFailed</span>(<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip</span>)]</span> <span class="ident">DatabaseError</span>),
+    <span class="doccomment">/// Failed to select written mediafile from the database: {0:?}</span>
+    <span class="ident">SelectFailed</span>(<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip</span>)]</span> <span class="ident">DatabaseError</span>),
+    <span class="doccomment">/// Failed to commit mediafiles to the database: {0:?}</span>
+    <span class="ident">CommitFailed</span>(<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip</span>)]</span> <span class="ident">SqlxError</span>),
+    <span class="doccomment">/// Failed to check if mediafile exists in the database: {0:?}</span>
+    <span class="ident">ExistanceCheckFailed</span>(<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip</span>)]</span> <span class="ident">DatabaseError</span>),
 }
 
-<span class="doccomment">/// Struct is responsible for creating `InsertableMediaFile`&#39;s and preparing them for insertions
-/// into the database. It also handles writing these files to the database, and is responsible for
-/// various optimizations such as batching.
-///
-/// The number of instances of this struct that can exist at any given time is restricted by a
-/// semaphore. If this limit is reached, `MediafileCreator::new` will wait until some slots
-/// free up. This is done as an optimization so that we don&#39;t have so many instances of this
-/// that we start contending over the database lock, inducing timeouts and performance bottlenecks.
-</span><span class="kw">pub struct </span>MediafileCreator {
-    <span class="doccomment">/// Pool of database connections.
-    </span>conn: DbConnection,
-    <span class="doccomment">/// Library which we will assign as the owner of the mediafiles inserted by this instance.
-    </span>library_id: i64,
-    <span class="doccomment">/// Represents a permit that we must own for the lifetime of the instance of `Self`. It is
-    /// important that we use permits so that we can control how many instances of `Self` exist at
-    /// any point in time.
-    </span>_permit: SemaphorePermit&lt;<span class="lifetime">&#39;static</span>&gt;,
+<span class="doccomment">/// Struct is responsible for creating `InsertableMediaFile`&#39;s and preparing them for insertions</span>
+<span class="doccomment">/// into the database. It also handles writing these files to the database, and is responsible for</span>
+<span class="doccomment">/// various optimizations such as batching.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The number of instances of this struct that can exist at any given time is restricted by a</span>
+<span class="doccomment">/// semaphore. If this limit is reached, `MediafileCreator::new` will wait until some slots</span>
+<span class="doccomment">/// free up. This is done as an optimization so that we don&#39;t have so many instances of this</span>
+<span class="doccomment">/// that we start contending over the database lock, inducing timeouts and performance bottlenecks.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MediafileCreator</span> {
+    <span class="doccomment">/// Pool of database connections.</span>
+    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
+    <span class="doccomment">/// Library which we will assign as the owner of the mediafiles inserted by this instance.</span>
+    <span class="ident">library_id</span>: <span class="ident">i64</span>,
+    <span class="doccomment">/// Represents a permit that we must own for the lifetime of the instance of `Self`. It is</span>
+    <span class="doccomment">/// important that we use permits so that we can control how many instances of `Self` exist at</span>
+    <span class="doccomment">/// any point in time.</span>
+    <span class="ident">_permit</span>: <span class="ident">SemaphorePermit</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl </span>MediafileCreator {
-    <span class="doccomment">/// Create a new instance of `MediafileCreator`. A instance will be returned once a slot in our
-    /// sempahore frees up.
-    </span><span class="kw">pub async fn </span>new(conn: DbConnection, library_id: i64) -&gt; <span class="self">Self </span>{
-        <span class="comment">// NOTE: This will never panic because `SEMPAHORE` will never be dropped.
-        </span><span class="kw">let </span>permit = SEMPAHORE
-            .acquire()
-            .<span class="kw">await
-            </span>.expect(<span class="string">&quot;Failed to acquire a permit for `MediafileCreator`&quot;</span>);
+<span class="kw">impl</span> <span class="ident">MediafileCreator</span> {
+    <span class="doccomment">/// Create a new instance of `MediafileCreator`. A instance will be returned once a slot in our</span>
+    <span class="doccomment">/// sempahore frees up.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="ident">DbConnection</span>, <span class="ident">library_id</span>: <span class="ident">i64</span>) -&gt; <span class="self">Self</span> {
+        <span class="comment">// NOTE: This will never panic because `SEMPAHORE` will never be dropped.</span>
+        <span class="kw">let</span> <span class="ident">permit</span> <span class="op">=</span> <span class="ident">SEMPAHORE</span>
+            .<span class="ident">acquire</span>()
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;Failed to acquire a permit for `MediafileCreator`&quot;</span>);
 
-        <span class="self">Self </span>{
-            conn,
-            library_id,
-            _permit: permit,
+        <span class="self">Self</span> {
+            <span class="ident">conn</span>,
+            <span class="ident">library_id</span>,
+            <span class="ident">_permit</span>: <span class="ident">permit</span>,
         }
     }
 
-    <span class="doccomment">/// Method constructs a `InsertableMediaFile` from a path to a file and the metadata extracted
-    /// from its filename. In addition to using metadata from the filename, it also spawns ffprobe
-    /// to obtain stream information. This method can be called concurrently.
-    ///
-    /// # Return
-    /// In addition to normal errors, this method can return `Error::FileExists`. In this case,
-    /// this method has identified that a file with the path passed already exists in the database.
-    /// This isnt a hard error and is simply meant to reduce database load. This error can just be
-    /// skipped.
-    ///
-    /// # Database access
-    /// This method creates one read-only database transaction and it should not affect the
-    /// concurrency of read-write transactions.
-    </span><span class="attribute">#[tracing::instrument(skip(<span class="self">self</span>))]
-    </span><span class="kw">pub async fn </span>construct_mediafile(
+    <span class="doccomment">/// Method constructs a `InsertableMediaFile` from a path to a file and the metadata extracted</span>
+    <span class="doccomment">/// from its filename. In addition to using metadata from the filename, it also spawns ffprobe</span>
+    <span class="doccomment">/// to obtain stream information. This method can be called concurrently.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Return</span>
+    <span class="doccomment">/// In addition to normal errors, this method can return `Error::FileExists`. In this case,</span>
+    <span class="doccomment">/// this method has identified that a file with the path passed already exists in the database.</span>
+    <span class="doccomment">/// This isnt a hard error and is simply meant to reduce database load. This error can just be</span>
+    <span class="doccomment">/// skipped.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Database access</span>
+    <span class="doccomment">/// This method creates one read-only database transaction and it should not affect the</span>
+    <span class="doccomment">/// concurrency of read-write transactions.</span>
+    <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">construct_mediafile</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        file: PathBuf,
-        metadata: Metadata,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;InsertableMediaFile&gt; {
-        <span class="kw">let </span>target_file = file.to_str().ok_or(Error::NonUnicodeFile)<span class="question-mark">?</span>.to_owned();
+        <span class="ident">file</span>: <span class="ident">PathBuf</span>,
+        <span class="ident">metadata</span>: <span class="ident">Metadata</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">InsertableMediaFile</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">target_file</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">to_str</span>().<span class="ident">ok_or</span>(<span class="ident">Error::NonUnicodeFile</span>)<span class="question-mark">?</span>.<span class="ident">to_owned</span>();
 
-        <span class="comment">// NOTE: This is intended to be a fast-path in-case we have inserted the file into the
-        // database a long time ago. Downstream consumers of `InsertableMediaFile` should still
-        // double-check that the file isnt in the database already.
-        </span>{
-            <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="self">self
-                </span>.conn
-                .read()
-                .begin()
-                .<span class="kw">await
-                </span>.map_err(|e| Error::FailedToAcquireReader(e.into()))<span class="question-mark">?</span>;
+        <span class="comment">// NOTE: This is intended to be a fast-path in-case we have inserted the file into the</span>
+        <span class="comment">// database a long time ago. Downstream consumers of `InsertableMediaFile` should still</span>
+        <span class="comment">// double-check that the file isnt in the database already.</span>
+        {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="self">self</span>
+                .<span class="ident">conn</span>
+                .<span class="ident">read</span>()
+                .<span class="ident">begin</span>()
+                .<span class="kw">await</span>
+                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">Error::FailedToAcquireReader</span>(<span class="ident">e</span>.<span class="ident">into</span>()))<span class="question-mark">?</span>;
 
-            <span class="kw">if </span>MediaFile::exists_by_file(<span class="kw-2">&amp;mut </span>tx, <span class="kw-2">&amp;</span>target_file).<span class="kw">await </span>{
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::FileExists);
+            <span class="kw">if</span> <span class="ident">MediaFile::exists_by_file</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">target_file</span>).<span class="kw">await</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::FileExists</span>);
             }
         }
 
-        <span class="comment">// FIXME: This is a huge bottleneck. FFProbe is slow. I&#39;m guessing one of the reasons is
-        // that it is not embedded but rather we access an on-disk binary, and the second reason is
-        // that we are io-bound here.
-        //
-        // To fix this we could have a actor that populates metadata information at its own pace
-        // and does its scheduling. If a user ever needs to obtain the metadata, we can request it
-        // and patch it immediately. This would add a initial cost to the API call, but subsequent
-        // API calls will be cheap.
-        </span><span class="kw">let </span>video_metadata = <span class="kw">match </span>FFProbeCtx::new(<span class="string">&quot;/usr/bin/ffprobe&quot;</span>)
-            .get_meta(<span class="kw-2">&amp;</span>target_file)
-            .<span class="kw">await
-        </span>{
-            <span class="prelude-val">Ok</span>(x) =&gt; x,
-            <span class="prelude-val">Err</span>(error) =&gt; {
-                <span class="macro">error!</span>(<span class="question-mark">?</span>error, <span class="string">&quot;Couldn&#39;t extract media information with ffprobe&quot;</span>);
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::FfprobeError(error.into()));
+        <span class="comment">// FIXME: This is a huge bottleneck. FFProbe is slow. I&#39;m guessing one of the reasons is</span>
+        <span class="comment">// that it is not embedded but rather we access an on-disk binary, and the second reason is</span>
+        <span class="comment">// that we are io-bound here.</span>
+        <span class="comment">//</span>
+        <span class="comment">// To fix this we could have a actor that populates metadata information at its own pace</span>
+        <span class="comment">// and does its scheduling. If a user ever needs to obtain the metadata, we can request it</span>
+        <span class="comment">// and patch it immediately. This would add a initial cost to the API call, but subsequent</span>
+        <span class="comment">// API calls will be cheap.</span>
+        <span class="kw">let</span> <span class="ident">video_metadata</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">FFProbeCtx::new</span>(<span class="string">&quot;/usr/bin/ffprobe&quot;</span>)
+            .<span class="ident">get_meta</span>(<span class="kw-2">&amp;</span><span class="ident">target_file</span>)
+            .<span class="kw">await</span>
+        {
+            <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">error</span>) =&gt; {
+                <span class="macro">error!</span>(<span class="question-mark">?</span><span class="ident">error</span>, <span class="string">&quot;Couldn&#39;t extract media information with ffprobe&quot;</span>);
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::FfprobeError</span>(<span class="ident">error</span>.<span class="ident">into</span>()));
             }
         };
 
-        <span class="prelude-val">Ok</span>(InsertableMediaFile {
-            library_id: <span class="self">self</span>.library_id,
-            media_id: <span class="prelude-val">None</span>,
-            target_file,
+        <span class="prelude-val">Ok</span>(<span class="ident">InsertableMediaFile</span> {
+            <span class="ident">library_id</span>: <span class="self">self</span>.<span class="ident">library_id</span>,
+            <span class="ident">media_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">target_file</span>,
 
-            raw_name: metadata.name,
-            raw_year: metadata.year,
-            season: metadata.season,
-            episode: metadata.episode,
+            <span class="ident">raw_name</span>: <span class="ident">metadata</span>.<span class="ident">name</span>,
+            <span class="ident">raw_year</span>: <span class="ident">metadata</span>.<span class="ident">year</span>,
+            <span class="ident">season</span>: <span class="ident">metadata</span>.<span class="ident">season</span>,
+            <span class="ident">episode</span>: <span class="ident">metadata</span>.<span class="ident">episode</span>,
 
-            quality: video_metadata.get_height().map(|x| x.to_string()),
-            codec: video_metadata.get_video_codec(),
-            container: video_metadata.get_container(),
-            audio: video_metadata
-                .get_primary_codec(<span class="string">&quot;audio&quot;</span>)
-                .map(ToOwned::to_owned),
-            original_resolution: Default::default(),
-            duration: video_metadata.get_duration().map(|x| x <span class="kw">as </span>i64),
-            corrupt: <span class="prelude-val">None</span>,
-            channels: video_metadata.get_primary_channels(),
-            profile: video_metadata.get_video_profile(),
-            audio_language: video_metadata
-                .get_audio_lang()
-                .or_else(|| video_metadata.get_video_lang())
-                .as_deref()
-                .and_then(<span class="kw">crate</span>::utils::lang_from_iso639)
-                .map(ToString::to_string),
+            <span class="ident">quality</span>: <span class="ident">video_metadata</span>.<span class="ident">get_height</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>()),
+            <span class="ident">codec</span>: <span class="ident">video_metadata</span>.<span class="ident">get_video_codec</span>(),
+            <span class="ident">container</span>: <span class="ident">video_metadata</span>.<span class="ident">get_container</span>(),
+            <span class="ident">audio</span>: <span class="ident">video_metadata</span>
+                .<span class="ident">get_primary_codec</span>(<span class="string">&quot;audio&quot;</span>)
+                .<span class="ident">map</span>(<span class="ident">ToOwned::to_owned</span>),
+            <span class="ident">original_resolution</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">duration</span>: <span class="ident">video_metadata</span>.<span class="ident">get_duration</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span> <span class="kw">as</span> <span class="ident">i64</span>),
+            <span class="ident">corrupt</span>: <span class="prelude-val">None</span>,
+            <span class="ident">channels</span>: <span class="ident">video_metadata</span>.<span class="ident">get_primary_channels</span>(),
+            <span class="ident">profile</span>: <span class="ident">video_metadata</span>.<span class="ident">get_video_profile</span>(),
+            <span class="ident">audio_language</span>: <span class="ident">video_metadata</span>
+                .<span class="ident">get_audio_lang</span>()
+                .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">video_metadata</span>.<span class="ident">get_video_lang</span>())
+                .<span class="ident">as_deref</span>()
+                .<span class="ident">and_then</span>(<span class="ident"><span class="kw">crate</span>::utils::lang_from_iso639</span>)
+                .<span class="ident">map</span>(<span class="ident">ToString::to_string</span>),
         })
     }
 
-    <span class="doccomment">/// Method will insert a batch of `InsertableMediaFile` within the context of one transaction.
-    /// Before inserting a file it will attempt to look up if it is already in the database, and if
-    /// so it will skip it.
-    ///
-    /// For better parallelism, this method can be called through the `Actor` interface.
-    ///
-    /// # Return
-    /// Method will return a list of mediafiles that should now be in the database.
-    ///
-    /// # Tracing spans
-    /// Method instruments several futures:
-    ///
-    /// * `mediafile_insert` - tracks when a insert operation is called.
-    /// * `mediafile_select` - tracks the select for a mediafile that happens after a insert.
-    /// * `database_commit` - tracks when a database commit happens.
-    </span><span class="attribute">#[tracing::instrument(skip(<span class="self">self</span>, batch))]
-    </span><span class="kw">pub async fn </span>insert_batch&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        batch: <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>InsertableMediaFile&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;MediaFile&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>work_done = <span class="macro">vec!</span>[];
+    <span class="doccomment">/// Method will insert a batch of `InsertableMediaFile` within the context of one transaction.</span>
+    <span class="doccomment">/// Before inserting a file it will attempt to look up if it is already in the database, and if</span>
+    <span class="doccomment">/// so it will skip it.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For better parallelism, this method can be called through the `Actor` interface.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Return</span>
+    <span class="doccomment">/// Method will return a list of mediafiles that should now be in the database.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Tracing spans</span>
+    <span class="doccomment">/// Method instruments several futures:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * `mediafile_insert` - tracks when a insert operation is called.</span>
+    <span class="doccomment">/// * `mediafile_select` - tracks the select for a mediafile that happens after a insert.</span>
+    <span class="doccomment">/// * `database_commit` - tracks when a database commit happens.</span>
+    <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>, <span class="ident">batch</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_batch</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">batch</span>: <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">InsertableMediaFile</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MediaFile</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">work_done</span> <span class="op">=</span> <span class="macro">vec!</span>[];
 
-        <span class="kw">let </span><span class="kw-2">mut </span>lock = <span class="self">self</span>.conn.writer().lock_owned().<span class="kw">await</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock)
-            .<span class="kw">await
-            </span>.map_err(|e| Error::FailedToAcquireWriter(e.into()))<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">Error::FailedToAcquireWriter</span>(<span class="ident">e</span>.<span class="ident">into</span>()))<span class="question-mark">?</span>;
 
-        <span class="kw">for </span>mediafile <span class="kw">in </span>batch {
-            <span class="kw">if </span>mediafile
-                .exists(<span class="kw-2">&amp;mut </span>tx)
-                .<span class="kw">await
-                </span>.map_err(Error::ExistanceCheckFailed)<span class="question-mark">?
-            </span>{
-                <span class="macro">warn!</span>(<span class="question-mark">?</span>mediafile, <span class="string">&quot;Mediafile already exists in the database.&quot;</span>);
+        <span class="kw">for</span> <span class="ident">mediafile</span> <span class="kw">in</span> <span class="ident">batch</span> {
+            <span class="kw">if</span> <span class="ident">mediafile</span>
+                .<span class="ident">exists</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+                .<span class="kw">await</span>
+                .<span class="ident">map_err</span>(<span class="ident">Error::ExistanceCheckFailed</span>)<span class="question-mark">?</span>
+            {
+                <span class="macro">warn!</span>(<span class="question-mark">?</span><span class="ident">mediafile</span>, <span class="string">&quot;Mediafile already exists in the database.&quot;</span>);
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">let </span>id = mediafile
-                .insert(<span class="kw-2">&amp;mut </span>tx)
-                .instrument(<span class="macro">debug_span!</span>(<span class="string">&quot;mediafile_insert&quot;</span>))
-                .<span class="kw">await
-                </span>.map_err(Error::InsertFailed)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">mediafile</span>
+                .<span class="ident">insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+                .<span class="ident">instrument</span>(<span class="macro">debug_span!</span>(<span class="string">&quot;mediafile_insert&quot;</span>))
+                .<span class="kw">await</span>
+                .<span class="ident">map_err</span>(<span class="ident">Error::InsertFailed</span>)<span class="question-mark">?</span>;
 
-            work_done.push(
-                MediaFile::get_one(<span class="kw-2">&amp;mut </span>tx, id)
-                    .instrument(<span class="macro">debug_span!</span>(<span class="string">&quot;mediafile_select&quot;</span>))
-                    .<span class="kw">await
-                    </span>.map_err(Error::SelectFailed)<span class="question-mark">?</span>,
+            <span class="ident">work_done</span>.<span class="ident">push</span>(
+                <span class="ident">MediaFile::get_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>)
+                    .<span class="ident">instrument</span>(<span class="macro">debug_span!</span>(<span class="string">&quot;mediafile_select&quot;</span>))
+                    .<span class="kw">await</span>
+                    .<span class="ident">map_err</span>(<span class="ident">Error::SelectFailed</span>)<span class="question-mark">?</span>,
             );
         }
 
-        tx.commit()
-            .instrument(<span class="macro">debug_span!</span>(<span class="string">&quot;database_commit&quot;</span>))
-            .<span class="kw">await
-            </span>.map_err(|e| Error::CommitFailed(e.into()))<span class="question-mark">?</span>;
+        <span class="ident">tx</span>.<span class="ident">commit</span>()
+            .<span class="ident">instrument</span>(<span class="macro">debug_span!</span>(<span class="string">&quot;database_commit&quot;</span>))
+            .<span class="kw">await</span>
+            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">Error::CommitFailed</span>(<span class="ident">e</span>.<span class="ident">into</span>()))<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(work_done)
+        <span class="prelude-val">Ok</span>(<span class="ident">work_done</span>)
     }
 }
 
-<span class="attribute">#[async_trait]
-</span><span class="kw">impl </span>Actor <span class="kw">for </span>MediafileCreator {
-    <span class="kw">type </span>Stop = ();
+<span class="attribute">#[<span class="ident">async_trait</span>]</span>
+<span class="kw">impl</span> <span class="ident">Actor</span> <span class="kw">for</span> <span class="ident">MediafileCreator</span> {
+    <span class="kw">type</span> <span class="ident">Stop</span> <span class="op">=</span> ();
 
-    <span class="kw">async fn </span>stopped(<span class="self">self</span>) {}
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">stopped</span>(<span class="self">self</span>) {}
 }
 
-<span class="kw">pub struct </span>InsertBatch(<span class="kw">pub </span>Vec&lt;InsertableMediaFile&gt;);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InsertBatch</span>(<span class="kw">pub</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">InsertableMediaFile</span><span class="op">&gt;</span>);
 
-<span class="attribute">#[async_trait]
-</span><span class="kw">impl </span>Handler&lt;InsertBatch&gt; <span class="kw">for </span>MediafileCreator {
-    <span class="kw">type </span>Return = <span class="prelude-ty">Result</span>&lt;Vec&lt;MediaFile&gt;&gt;;
+<span class="attribute">#[<span class="ident">async_trait</span>]</span>
+<span class="kw">impl</span> <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">InsertBatch</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MediafileCreator</span> {
+    <span class="kw">type</span> <span class="ident">Return</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MediaFile</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="kw">async fn </span>handle(<span class="kw-2">&amp;mut </span><span class="self">self</span>, batch: InsertBatch, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Context&lt;<span class="self">Self</span>&gt;) -&gt; <span class="self">Self</span>::Return {
-        <span class="self">self</span>.insert_batch(batch.<span class="number">0</span>.iter()).<span class="kw">await
-    </span>}
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">InsertBatch</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="ident"><span class="self">Self</span>::Return</span> {
+        <span class="self">self</span>.<span class="ident">insert_batch</span>(<span class="ident">batch</span>.<span class="number">0</span>.<span class="ident">iter</span>()).<span class="kw">await</span>
+    }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>

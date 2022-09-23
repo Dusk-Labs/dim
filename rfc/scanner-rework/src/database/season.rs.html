@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/season.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>season.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/season.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>season.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -223,230 +230,231 @@
 <span id="223">223</span>
 <span id="224">224</span>
 <span id="225">225</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::opt_update;
-<span class="kw">use </span><span class="kw">crate</span>::DatabaseError;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::opt_update</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DatabaseError</span>;
 
-<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="doccomment">/// Struct represents a season entry in the database.
-</span><span class="attribute">#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
-</span><span class="kw">pub struct </span>Season {
-    <span class="kw">pub </span>id: i64,
-    <span class="doccomment">/// Season number
-    </span><span class="kw">pub </span>season_number: i64,
-    <span class="doccomment">/// Foreign key to the tv show we&#39;d like to link against
-    </span><span class="kw">pub </span>tvshowid: i64,
-    <span class="doccomment">/// String holding the date when the season was added to the database.
-    </span><span class="kw">pub </span>added: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="doccomment">/// Id of the asset pointing to the poster.
-    </span><span class="kw">pub </span>poster: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<span class="doccomment">/// Struct represents a season entry in the database.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Season</span> {
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i64</span>,
+    <span class="doccomment">/// Season number</span>
+    <span class="kw">pub</span> <span class="ident">season_number</span>: <span class="ident">i64</span>,
+    <span class="doccomment">/// Foreign key to the tv show we&#39;d like to link against</span>
+    <span class="kw">pub</span> <span class="ident">tvshowid</span>: <span class="ident">i64</span>,
+    <span class="doccomment">/// String holding the date when the season was added to the database.</span>
+    <span class="kw">pub</span> <span class="ident">added</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Id of the asset pointing to the poster.</span>
+    <span class="kw">pub</span> <span class="ident">poster</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl </span>Season {
-    <span class="doccomment">/// Method returns all of the seasons that are linked to a tv show based on a tvshow id
-    ///
-    /// # Arguments
-    /// * `conn` - mutable reference to a sqlx transaction.
-    /// * `tv_id` - id of the tv show we&#39;d like to discriminate against.
-    </span><span class="kw">pub async fn </span>get_all(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        tv_id: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;, DatabaseError&gt; {
+<span class="kw">impl</span> <span class="ident">Season</span> {
+    <span class="doccomment">/// Method returns all of the seasons that are linked to a tv show based on a tvshow id</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Arguments</span>
+    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
+    <span class="doccomment">/// * `tv_id` - id of the tv show we&#39;d like to discriminate against.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">tv_id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
             <span class="self">Self</span>,
             <span class="string">r#&quot;SELECT id as &quot;id!&quot;, season_number, tvshowid, added, poster as &quot;poster?&quot; FROM season WHERE tvshowid = ?&quot;#</span>,
-            tv_id
+            <span class="ident">tv_id</span>
         )
-        .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Method returns the season based on the season number belonging to a tv show.
-    ///
-    /// # Arguments
-    /// * `conn` - mutable reference to a sqlx transaction.
-    /// * `tv_id` - id of the tv show we&#39;d like to discriminate against.
-    /// * `season_num` - season number we&#39;d like to fetch.
-    </span><span class="kw">pub async fn </span>get(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        tv_id: i64,
-        season_num: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Season, DatabaseError&gt; {
+    <span class="doccomment">/// Method returns the season based on the season number belonging to a tv show.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Arguments</span>
+    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
+    <span class="doccomment">/// * `tv_id` - id of the tv show we&#39;d like to discriminate against.</span>
+    <span class="doccomment">/// * `season_num` - season number we&#39;d like to fetch.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">tv_id</span>: <span class="ident">i64</span>,
+        <span class="ident">season_num</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Season</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
             <span class="self">Self</span>,
             <span class="string">r#&quot;SELECT id as &quot;id!&quot;, season_number ,
                     tvshowid , added, poster as &quot;poster?&quot;
                FROM season WHERE id = ? AND season_number = ?&quot;#</span>,
-            tv_id,
-            season_num
+            <span class="ident">tv_id</span>,
+            <span class="ident">season_num</span>
         )
-        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Method deletes a season entry that belongs to a tv show.
-    ///
-    /// # Arguments
-    /// * `conn` - mutable reference to a sqlx transaction.
-    /// * `tv_id` - id of the tv show we&#39;d like to discriminate against.
-    /// * `season_num` - season number we&#39;d like to fetch.
-    </span><span class="kw">pub async fn </span>delete(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        tv_id: i64,
-        season_num: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
+    <span class="doccomment">/// Method deletes a season entry that belongs to a tv show.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Arguments</span>
+    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
+    <span class="doccomment">/// * `tv_id` - id of the tv show we&#39;d like to discriminate against.</span>
+    <span class="doccomment">/// * `season_num` - season number we&#39;d like to fetch.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">tv_id</span>: <span class="ident">i64</span>,
+        <span class="ident">season_num</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">&quot;DELETE FROM season where tvshowid = ? AND season_number = ?&quot;</span>,
-            tv_id,
-            season_num
+            <span class="ident">tv_id</span>,
+            <span class="ident">season_num</span>
         )
-        .execute(<span class="kw-2">&amp;mut *</span>conn)
-        .<span class="kw">await</span><span class="question-mark">?
-        </span>.rows_affected() <span class="kw">as </span>usize)
+        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>)
     }
 
-    <span class="kw">pub async fn </span>delete_by_id(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        season_id: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_by_id</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">season_id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(
-            <span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM _tblseason where id = ?&quot;</span>, season_id)
-                .execute(<span class="kw-2">&amp;mut *</span>conn)
-                .<span class="kw">await</span><span class="question-mark">?
-                </span>.rows_affected() <span class="kw">as </span>usize,
+            <span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM _tblseason where id = ?&quot;</span>, <span class="ident">season_id</span>)
+                .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+                .<span class="kw">await</span><span class="question-mark">?</span>
+                .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>,
         )
     }
 
-    <span class="doccomment">/// Method will return the oldest season for a tv show that is available.
-    ///
-    /// # Arguments
-    /// * `conn` - mutable reference to a sqlx transaction.
-    /// * `tv_id` - id of the tv show.
-    </span><span class="kw">pub async fn </span>get_first(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        tv_id: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DatabaseError&gt; {
+    <span class="doccomment">/// Method will return the oldest season for a tv show that is available.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Arguments</span>
+    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
+    <span class="doccomment">/// * `tv_id` - id of the tv show.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_first</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">tv_id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
             <span class="self">Self</span>,
             <span class="string">r#&quot;SELECT id as &quot;id!&quot;, season_number, tvshowid, added, poster as &quot;poster?&quot;
             FROM season
             WHERE tvshowid = ?
             ORDER BY season_number ASC&quot;#</span>,
-            tv_id,
+            <span class="ident">tv_id</span>,
         )
-        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="kw">pub async fn </span>get_by_id(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        season_id: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DatabaseError&gt; {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">season_id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
             <span class="self">Self</span>,
             <span class="string">r#&quot;SELECT id, season_number, tvshowid, added, poster as &quot;poster?&quot;
             FROM season WHERE id = ?&quot;#</span>,
-            season_id,
+            <span class="ident">season_id</span>,
         )
-        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="kw">pub async fn </span>get_tvshowid(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        season_id: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;i64, DatabaseError&gt; {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_tvshowid</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">season_id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(
-            <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT tvshowid FROM season WHERE id = ?&quot;</span>, season_id)
-                .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
-                .<span class="kw">await</span><span class="question-mark">?
-                </span>.tvshowid,
+            <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT tvshowid FROM season WHERE id = ?&quot;</span>, <span class="ident">season_id</span>)
+                .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+                .<span class="kw">await</span><span class="question-mark">?</span>
+                .<span class="ident">tvshowid</span>,
         )
     }
 
-    <span class="kw">pub async fn </span>count_children(
-        tx: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        season_id: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;i64, DatabaseError&gt; {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">count_children</span>(
+        <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">season_id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">&quot;SELECT COUNT(episode.id) AS count FROM episode WHERE episode.seasonid = ?&quot;</span>,
-            season_id
+            <span class="ident">season_id</span>
         )
-        .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
-        .<span class="kw">await</span><span class="question-mark">?
-        </span>.count <span class="kw">as _</span>)
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">tx</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">count</span> <span class="kw">as</span> <span class="kw">_</span>)
     }
 }
 
-<span class="doccomment">/// Struct representing a insertable season
-/// Its exactly the same as [`Season`](Season) except it misses the tvshowid field and the id
-/// field.
-</span><span class="attribute">#[derive(Clone, Serialize, Deserialize, Default)]
-</span><span class="kw">pub struct </span>InsertableSeason {
-    <span class="kw">pub </span>season_number: i64,
-    <span class="kw">pub </span>added: String,
-    <span class="kw">pub </span>poster: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+<span class="doccomment">/// Struct representing a insertable season</span>
+<span class="doccomment">/// Its exactly the same as [`Season`](Season) except it misses the tvshowid field and the id</span>
+<span class="doccomment">/// field.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Default</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InsertableSeason</span> {
+    <span class="kw">pub</span> <span class="ident">season_number</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">added</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">poster</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl </span>InsertableSeason {
-    <span class="doccomment">/// Method inserts a new season and links it to a tv show based on the id specified.
-    ///
-    /// # Arguments
-    /// * `conn` - mutable reference to a sqlx transaction.
-    /// * `id` - id of the tv show we&#39;d like to link this season to
-    </span><span class="kw">pub async fn </span>insert(
+<span class="kw">impl</span> <span class="ident">InsertableSeason</span> {
+    <span class="doccomment">/// Method inserts a new season and links it to a tv show based on the id specified.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Arguments</span>
+    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
+    <span class="doccomment">/// * `id` - id of the tv show we&#39;d like to link this season to</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        id: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;i64, DatabaseError&gt; {
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">r#&quot;INSERT INTO _tblseason (season_number, added, poster, tvshowid)
             VALUES ($1, $2, $3, $4)
             ON CONFLICT DO UPDATE
             SET poster = $3
             RETURNING id as &quot;id!: i64&quot;&quot;#</span>,
-            <span class="self">self</span>.season_number,
-            <span class="self">self</span>.added,
-            <span class="self">self</span>.poster,
-            id
+            <span class="self">self</span>.<span class="ident">season_number</span>,
+            <span class="self">self</span>.<span class="ident">added</span>,
+            <span class="self">self</span>.<span class="ident">poster</span>,
+            <span class="ident">id</span>
         )
-        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
-        .<span class="kw">await</span><span class="question-mark">?
-        </span>.id)
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">id</span>)
     }
 }
 
-<span class="doccomment">/// Struct used to update information about a season in the database.
-/// All fields are updateable and optional except the primary key id
-</span><span class="attribute">#[derive(Clone, Default, Deserialize, PartialEq, Debug)]
-</span><span class="kw">pub struct </span>UpdateSeason {
-    <span class="kw">pub </span>season_number: <span class="prelude-ty">Option</span>&lt;i64&gt;,
-    <span class="kw">pub </span>tvshowid: <span class="prelude-ty">Option</span>&lt;i64&gt;,
-    <span class="kw">pub </span>added: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>poster: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+<span class="doccomment">/// Struct used to update information about a season in the database.</span>
+<span class="doccomment">/// All fields are updateable and optional except the primary key id</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UpdateSeason</span> {
+    <span class="kw">pub</span> <span class="ident">season_number</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tvshowid</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">added</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">poster</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl </span>UpdateSeason {
-    <span class="doccomment">/// Method updates a seasons entry based on tv show id and season number.
-    ///
-    /// # Arguments
-    /// * `conn` - mutable reference to a sqlx transaction.
-    /// * `id` - id of the tv show we&#39;d like to discriminate against.
-    /// * `season_num` - Season number we&#39;d like to update.
-    </span><span class="kw">pub async fn </span>update(
+<span class="kw">impl</span> <span class="ident">UpdateSeason</span> {
+    <span class="doccomment">/// Method updates a seasons entry based on tv show id and season number.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Arguments</span>
+    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
+    <span class="doccomment">/// * `id` - id of the tv show we&#39;d like to discriminate against.</span>
+    <span class="doccomment">/// * `season_num` - Season number we&#39;d like to update.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(
         <span class="self">self</span>,
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        id: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
-        <span class="macro">opt_update!</span>(conn,
-            <span class="string">&quot;UPDATE _tblseason SET season_number = $1 WHERE id = ?2&quot; </span>=&gt; (<span class="self">self</span>.season_number, id),
-            <span class="string">&quot;UPDATE _tblseason SET tvshowid = $1 WHERE id = ?2&quot; </span>=&gt; (<span class="self">self</span>.tvshowid, id),
-            <span class="string">&quot;UPDATE _tblseason SET added = $1 WHERE id = ?2&quot; </span>=&gt; (<span class="self">self</span>.added, id),
-            <span class="string">&quot;UPDATE _tblseason SET poster = $1 WHERE id = ?2&quot; </span>=&gt; (<span class="self">self</span>.poster, id)
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+        <span class="macro">opt_update!</span>(<span class="ident">conn</span>,
+            <span class="string">&quot;UPDATE _tblseason SET season_number = $1 WHERE id = ?2&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">season_number</span>, <span class="ident">id</span>),
+            <span class="string">&quot;UPDATE _tblseason SET tvshowid = $1 WHERE id = ?2&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">tvshowid</span>, <span class="ident">id</span>),
+            <span class="string">&quot;UPDATE _tblseason SET added = $1 WHERE id = ?2&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">added</span>, <span class="ident">id</span>),
+            <span class="string">&quot;UPDATE _tblseason SET poster = $1 WHERE id = ?2&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">poster</span>, <span class="ident">id</span>)
         );
 
         <span class="prelude-val">Ok</span>(<span class="number">1</span>)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>

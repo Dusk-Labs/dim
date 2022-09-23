@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/library.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>library.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/library.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>library.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -219,226 +226,227 @@
 <span id="219">219</span>
 <span id="220">220</span>
 <span id="221">221</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::DatabaseError;
-<span class="kw">use </span>serde::Deserialize;
-<span class="kw">use </span>serde::Serialize;
-<span class="kw">use </span>std::convert::TryFrom;
-<span class="kw">use </span>std::fmt;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DatabaseError</span>;
+<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
+<span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
 
-<span class="doccomment">/// Enum represents a media type and can be used on a library or on a media.
-/// When returned in a http response, the fields are lowercase.
-</span><span class="attribute">#[derive(Copy, Serialize, Debug, Clone, Eq, PartialEq, Deserialize, Hash, sqlx::Type)]
-#[serde(rename_all = <span class="string">&quot;lowercase&quot;</span>)]
-#[sqlx(rename_all = <span class="string">&quot;lowercase&quot;</span>)]
-</span><span class="kw">pub enum </span>MediaType {
-    Movie,
-    Tv,
-    Episode,
+<span class="doccomment">/// Enum represents a media type and can be used on a library or on a media.</span>
+<span class="doccomment">/// When returned in a http response, the fields are lowercase.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Serialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Deserialize</span>, <span class="ident">Hash</span>, <span class="ident">sqlx::Type</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;lowercase&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;lowercase&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MediaType</span> {
+    <span class="ident">Movie</span>,
+    <span class="ident">Tv</span>,
+    <span class="ident">Episode</span>,
 }
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>MediaType {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">MediaType</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(
-            f,
+            <span class="ident">f</span>,
             <span class="string">&quot;{}&quot;</span>,
-            <span class="kw">match </span><span class="self">self </span>{
-                <span class="self">Self</span>::Movie =&gt; <span class="string">&quot;movie&quot;</span>,
-                <span class="self">Self</span>::Tv =&gt; <span class="string">&quot;tv&quot;</span>,
-                <span class="self">Self</span>::Episode =&gt; <span class="string">&quot;episode&quot;</span>,
+            <span class="kw">match</span> <span class="self">self</span> {
+                <span class="ident"><span class="self">Self</span>::Movie</span> =&gt; <span class="string">&quot;movie&quot;</span>,
+                <span class="ident"><span class="self">Self</span>::Tv</span> =&gt; <span class="string">&quot;tv&quot;</span>,
+                <span class="ident"><span class="self">Self</span>::Episode</span> =&gt; <span class="string">&quot;episode&quot;</span>,
             }
         )
     }
 }
 
-<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>str&gt; <span class="kw">for </span>MediaType {
-    <span class="kw">type </span>Error = ();
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MediaType</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> ();
 
-    <span class="kw">fn </span>try_from(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">match </span>s {
-            <span class="string">&quot;movie&quot; </span>| <span class="string">&quot;movies&quot; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Movie),
-            <span class="string">&quot;tv&quot; </span>| <span class="string">&quot;tv_show&quot; </span>| <span class="string">&quot;tv show&quot; </span>| <span class="string">&quot;tv shows&quot; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Tv),
-            <span class="string">&quot;episode&quot; </span>| <span class="string">&quot;episodes&quot; </span>| <span class="string">&quot;ep&quot; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Episode),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(()),
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="ident">s</span> {
+            <span class="string">&quot;movie&quot;</span> <span class="op">|</span> <span class="string">&quot;movies&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Movie</span>),
+            <span class="string">&quot;tv&quot;</span> <span class="op">|</span> <span class="string">&quot;tv_show&quot;</span> <span class="op">|</span> <span class="string">&quot;tv show&quot;</span> <span class="op">|</span> <span class="string">&quot;tv shows&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Tv</span>),
+            <span class="string">&quot;episode&quot;</span> <span class="op">|</span> <span class="string">&quot;episodes&quot;</span> <span class="op">|</span> <span class="string">&quot;ep&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Episode</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(()),
         }
     }
 }
 
-<span class="kw">impl </span>TryFrom&lt;String&gt; <span class="kw">for </span>MediaType {
-    <span class="kw">type </span>Error = ();
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MediaType</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> ();
 
-    <span class="kw">fn </span>try_from(s: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        s.as_str().try_into()
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">s</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+        <span class="ident">s</span>.<span class="ident">as_str</span>().<span class="ident">try_into</span>()
     }
 }
 
-<span class="kw">impl </span>Default <span class="kw">for </span>MediaType {
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::Movie
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">MediaType</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Movie</span>
     }
 }
 
-<span class="doccomment">/// Library struct which we can use to deserialize database queries into.
-</span><span class="attribute">#[derive(Serialize, Deserialize, Clone)]
-</span><span class="kw">pub struct </span>Library {
-    <span class="kw">pub </span>id: i64,
-    <span class="doccomment">/// unique name of the library
-    </span><span class="kw">pub </span>name: String,
+<span class="doccomment">/// Library struct which we can use to deserialize database queries into.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Library</span> {
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i64</span>,
+    <span class="doccomment">/// unique name of the library</span>
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
 
-    <span class="doccomment">/// a path on the filesystem that holds media. ie /home/user/media/movies
-    </span><span class="attribute">#[serde(skip_serializing_if = <span class="string">&quot;Vec::is_empty&quot;</span>)]
-    </span><span class="kw">pub </span>locations: Vec&lt;String&gt;,
+    <span class="doccomment">/// a path on the filesystem that holds media. ie /home/user/media/movies</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Vec::is_empty&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">locations</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 
-    <span class="doccomment">/// Enum used to identify the media type that this library contains. At the
-    /// moment only `movie` and `tv` are supported
-    </span><span class="comment">// TODO: support mixed content, music
-    </span><span class="kw">pub </span>media_type: MediaType,
+    <span class="doccomment">/// Enum used to identify the media type that this library contains. At the</span>
+    <span class="doccomment">/// moment only `movie` and `tv` are supported</span>
+    <span class="comment">// TODO: support mixed content, music</span>
+    <span class="kw">pub</span> <span class="ident">media_type</span>: <span class="ident">MediaType</span>,
 }
 
-<span class="kw">impl </span>Library {
-    <span class="doccomment">/// Method returns all libraries that exist in the database in the form of a Vec.
-    /// If no libraries are found the the Vec will just be empty.
-    ///
-    /// This method will not return the locations indexed for this library, if you need those you
-    /// must query for them separately.
-    </span><span class="kw">pub async fn </span>get_all(conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Vec&lt;<span class="self">Self</span>&gt; {
+<span class="kw">impl</span> <span class="ident">Library</span> {
+    <span class="doccomment">/// Method returns all libraries that exist in the database in the form of a Vec.</span>
+    <span class="doccomment">/// If no libraries are found the the Vec will just be empty.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method will not return the locations indexed for this library, if you need those you</span>
+    <span class="doccomment">/// must query for them separately.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="macro">sqlx::query!</span>(<span class="string">r#&quot;SELECT id, name, media_type as &quot;media_type: MediaType&quot; FROM library WHERE NOT hidden&quot;#</span>)
-            .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
-            .<span class="kw">await
-            </span>.unwrap_or_default()
-            .into_iter()
-            .map(|x| <span class="self">Self </span>{
-                id: x.id,
-                name: x.name,
-                media_type: x.media_type,
-                locations: <span class="macro">vec!</span>[],
+            .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap_or_default</span>()
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="self">Self</span> {
+                <span class="ident">id</span>: <span class="ident">x</span>.<span class="ident">id</span>,
+                <span class="ident">name</span>: <span class="ident">x</span>.<span class="ident">name</span>,
+                <span class="ident">media_type</span>: <span class="ident">x</span>.<span class="ident">media_type</span>,
+                <span class="ident">locations</span>: <span class="macro">vec!</span>[],
             })
-            .collect()
+            .<span class="ident">collect</span>()
     }
 
-    <span class="kw">pub async fn </span>get_locations(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        id: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;String&gt;, DatabaseError&gt; {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_locations</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_scalar!</span>(
             <span class="string">&quot;SELECT location FROM indexed_paths
             WHERE library_id = ?&quot;</span>,
-            id
+            <span class="ident">id</span>
         )
-        .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Method filters the database for a library with the id supplied and returns it.
-    /// This method will also fetch the indexed locations for this library.
-    ///
-    /// # Arguments
-    /// * `conn` - mutable reference to a sqlx transaction.
-    /// * `lib_id` - a integer that is the id of the library we are trying to query
-    </span><span class="kw">pub async fn </span>get_one(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        lib_id: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DatabaseError&gt; {
-        <span class="kw">let </span>library = <span class="macro">sqlx::query!</span>(
+    <span class="doccomment">/// Method filters the database for a library with the id supplied and returns it.</span>
+    <span class="doccomment">/// This method will also fetch the indexed locations for this library.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Arguments</span>
+    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
+    <span class="doccomment">/// * `lib_id` - a integer that is the id of the library we are trying to query</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_one</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">lib_id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">library</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
             <span class="string">r#&quot;SELECT id, name, media_type as &quot;media_type: MediaType&quot; FROM library
             WHERE id = ?&quot;#</span>,
-            lib_id
+            <span class="ident">lib_id</span>
         )
-        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span>locations = <span class="macro">sqlx::query_scalar!</span>(
+        <span class="kw">let</span> <span class="ident">locations</span> <span class="op">=</span> <span class="macro">sqlx::query_scalar!</span>(
             <span class="string">r#&quot;SELECT location FROM indexed_paths
             WHERE library_id = ?&quot;#</span>,
-            lib_id
+            <span class="ident">lib_id</span>
         )
-        .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            id: library.id,
-            name: library.name,
-            media_type: library.media_type,
-            locations,
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
+            <span class="ident">id</span>: <span class="ident">library</span>.<span class="ident">id</span>,
+            <span class="ident">name</span>: <span class="ident">library</span>.<span class="ident">name</span>,
+            <span class="ident">media_type</span>: <span class="ident">library</span>.<span class="ident">media_type</span>,
+            <span class="ident">locations</span>,
         })
     }
 
-    <span class="doccomment">/// Method filters the database for a library with the id supplied and deletes it.
-    ///
-    /// # Arguments
-    /// * `conn` - mutable reference to a sqlx transaction.
-    /// * `lib_id` - a integer that is the id of the library we are trying to query
-    </span><span class="kw">pub async fn </span>delete(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        id_to_del: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
-        <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM library WHERE id = ?&quot;</span>, id_to_del)
-            .execute(<span class="kw-2">&amp;mut *</span>conn)
-            .<span class="kw">await</span><span class="question-mark">?
-            </span>.rows_affected() <span class="kw">as </span>usize)
+    <span class="doccomment">/// Method filters the database for a library with the id supplied and deletes it.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Arguments</span>
+    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
+    <span class="doccomment">/// * `lib_id` - a integer that is the id of the library we are trying to query</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">id_to_del</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM library WHERE id = ?&quot;</span>, <span class="ident">id_to_del</span>)
+            .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>
+            .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>)
     }
 
-    <span class="kw">pub async fn </span>mark_hidden(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        id: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">mark_hidden</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(
-            <span class="macro">sqlx::query!</span>(<span class="string">&quot;UPDATE library SET hidden = 1 WHERE id = ?&quot;</span>, id)
-                .execute(<span class="kw-2">&amp;mut *</span>conn)
-                .<span class="kw">await</span><span class="question-mark">?
-                </span>.rows_affected() <span class="kw">as </span>usize,
+            <span class="macro">sqlx::query!</span>(<span class="string">&quot;UPDATE library SET hidden = 1 WHERE id = ?&quot;</span>, <span class="ident">id</span>)
+                .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+                .<span class="kw">await</span><span class="question-mark">?</span>
+                .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>,
         )
     }
 
-    <span class="kw">pub async fn </span>get_size(
-        tx: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        id: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_size</span>(
+        <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">&quot;SELECT COUNT(id) as size FROM _tblmedia WHERE library_id = ?&quot;</span>,
-            id
+            <span class="ident">id</span>
         )
-        .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
-        .<span class="kw">await</span><span class="question-mark">?
-        </span>.size <span class="kw">as </span>usize)
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">tx</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">size</span> <span class="kw">as</span> <span class="ident">usize</span>)
     }
 }
 
-<span class="doccomment">/// InsertableLibrary struct, same as [`Library`](Library) but without the id field.
-</span><span class="attribute">#[derive(Clone, Serialize, Deserialize)]
-</span><span class="kw">pub struct </span>InsertableLibrary {
-    <span class="kw">pub </span>name: String,
-    <span class="kw">pub </span>locations: Vec&lt;String&gt;,
-    <span class="kw">pub </span>media_type: MediaType,
+<span class="doccomment">/// InsertableLibrary struct, same as [`Library`](Library) but without the id field.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InsertableLibrary</span> {
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">locations</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">media_type</span>: <span class="ident">MediaType</span>,
 }
 
-<span class="kw">impl </span>InsertableLibrary {
-    <span class="doccomment">/// Method inserts a InsertableLibrary object into the database (makes a new library).
-    ///
-    /// # Arguments
-    /// * `conn` - mutable reference to a sqlx transaction.
-    </span><span class="kw">pub async fn </span>insert(<span class="kw-2">&amp;</span><span class="self">self</span>, conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;i64, DatabaseError&gt; {
-        <span class="kw">let </span>lib_id = <span class="macro">sqlx::query!</span>(
+<span class="kw">impl</span> <span class="ident">InsertableLibrary</span> {
+    <span class="doccomment">/// Method inserts a InsertableLibrary object into the database (makes a new library).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Arguments</span>
+    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">lib_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
             <span class="string">r#&quot;INSERT INTO library (name, media_type) VALUES ($1, $2)&quot;#</span>,
-            <span class="self">self</span>.name,
-            <span class="self">self</span>.media_type
+            <span class="self">self</span>.<span class="ident">name</span>,
+            <span class="self">self</span>.<span class="ident">media_type</span>
         )
-        .execute(<span class="kw-2">&amp;mut *</span>conn)
-        .<span class="kw">await</span><span class="question-mark">?
-        </span>.last_insert_rowid();
+        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">last_insert_rowid</span>();
 
-        <span class="kw">for </span>location <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.locations {
+        <span class="kw">for</span> <span class="ident">location</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">locations</span> {
             <span class="macro">sqlx::query!</span>(
                 <span class="string">r#&quot;INSERT into indexed_paths(location, library_id)
                 VALUES ($1, $2)&quot;#</span>,
-                location,
-                lib_id
+                <span class="ident">location</span>,
+                <span class="ident">lib_id</span>
             )
-            .execute(<span class="kw-2">&amp;mut *</span>conn)
+            .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         }
 
-        <span class="prelude-val">Ok</span>(lib_id)
+        <span class="prelude-val">Ok</span>(<span class="ident">lib_id</span>)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>

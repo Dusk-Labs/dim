@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/streaming/ffprobe.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ffprobe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/streaming/ffprobe.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ffprobe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -296,303 +303,304 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
-</pre><pre class="rust"><code><span class="kw">use </span>serde_derive::{Deserialize, Serialize};
-<span class="kw">use </span>std::collections::VecDeque;
-<span class="kw">use </span>std::process::Stdio;
-<span class="kw">use </span>tokio::process::Command;
-<span class="kw">use </span>tracing::error;
-<span class="kw">use </span>tracing::trace;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde_derive</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
+<span class="kw">use</span> <span class="ident">std::process::Stdio</span>;
+<span class="kw">use</span> <span class="ident">tokio::process::Command</span>;
+<span class="kw">use</span> <span class="ident">tracing::error</span>;
+<span class="kw">use</span> <span class="ident">tracing::trace</span>;
 
-<span class="attribute">#[derive(Clone, Copy, Debug, displaydoc::Display, thiserror::Error)]
-</span><span class="kw">pub enum </span>Error {
-    <span class="doccomment">/// ffprobe exited early with an error.
-    </span>FfprobeError,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">displaydoc::Display</span>, <span class="ident">thiserror::Error</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
+    <span class="doccomment">/// ffprobe exited early with an error.</span>
+    <span class="ident">FfprobeError</span>,
 }
 
-<span class="attribute">#[derive(Default, Debug, Clone, PartialEq)]
-</span><span class="kw">pub struct </span>FFPWrapper {
-    ffpstream: <span class="prelude-ty">Option</span>&lt;FFPStream&gt;,
-    corrupt: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FFPWrapper</span> {
+    <span class="ident">ffpstream</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">FFPStream</span><span class="op">&gt;</span>,
+    <span class="ident">corrupt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
 }
 
-<span class="attribute">#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-</span><span class="kw">struct </span>FFPStream {
-    streams: Vec&lt;Stream&gt;,
-    format: Format,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">FFPStream</span> {
+    <span class="ident">streams</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Stream</span><span class="op">&gt;</span>,
+    <span class="ident">format</span>: <span class="ident">Format</span>,
 }
 
-<span class="attribute">#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-</span><span class="kw">pub struct </span>Stream {
-    <span class="kw">pub </span>index: i64,
-    <span class="kw">pub </span>codec_name: String,
-    <span class="kw">pub </span>profile: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>codec_type: String,
-    <span class="kw">pub </span>codec_time_base: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>width: <span class="prelude-ty">Option</span>&lt;i64&gt;,
-    <span class="kw">pub </span>height: <span class="prelude-ty">Option</span>&lt;i64&gt;,
-    <span class="kw">pub </span>coded_width: <span class="prelude-ty">Option</span>&lt;i64&gt;,
-    <span class="kw">pub </span>coded_height: <span class="prelude-ty">Option</span>&lt;i64&gt;,
-    <span class="kw">pub </span>display_aspect_ratio: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>is_avc: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>has_b_frames: <span class="prelude-ty">Option</span>&lt;u64&gt;,
-    <span class="kw">pub </span>pix_fmt: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>level: <span class="prelude-ty">Option</span>&lt;i64&gt;,
-    <span class="kw">pub </span>tags: <span class="prelude-ty">Option</span>&lt;Tags&gt;,
-    <span class="kw">pub </span>sample_rate: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>channels: <span class="prelude-ty">Option</span>&lt;i64&gt;,
-    <span class="kw">pub </span>channel_layout: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>bit_rate: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>duration_ts: <span class="prelude-ty">Option</span>&lt;i64&gt;,
-    <span class="kw">pub </span>duration: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>color_range: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>color_space: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>disposition: <span class="prelude-ty">Option</span>&lt;Disposition&gt;,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Stream</span> {
+    <span class="kw">pub</span> <span class="ident">index</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">codec_name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">profile</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">codec_type</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">codec_time_base</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">height</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">coded_width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">coded_height</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">display_aspect_ratio</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">is_avc</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">has_b_frames</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">pix_fmt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">level</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">tags</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Tags</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">sample_rate</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">channels</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">channel_layout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">bit_rate</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">duration_ts</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">color_range</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">color_space</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">disposition</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Disposition</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl </span>Stream {
-    <span class="kw">pub fn </span>get_bitrate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
-        <span class="self">self</span>.tags.as_ref()<span class="question-mark">?</span>.bps_eng.as_ref()<span class="question-mark">?</span>.parse::&lt;u64&gt;().ok()
+<span class="kw">impl</span> <span class="ident">Stream</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_bitrate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">tags</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>.<span class="ident">bps_eng</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()
     }
 
-    <span class="kw">pub fn </span>get_codec(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.codec_name
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_codec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">codec_name</span>
     }
 
-    <span class="kw">pub fn </span>get_language(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
-        <span class="self">self</span>.tags.as_ref()<span class="question-mark">?</span>.language.clone()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_language</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">tags</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>.<span class="ident">language</span>.<span class="ident">clone</span>()
     }
 
-    <span class="kw">pub fn </span>get_title(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
-        <span class="self">self</span>.tags.as_ref()<span class="question-mark">?</span>.title.clone()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_title</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">tags</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>.<span class="ident">title</span>.<span class="ident">clone</span>()
     }
 }
 
-<span class="kw">impl </span>From&lt;Stream&gt; <span class="kw">for </span>nightfall::profiles::InputCtx {
-    <span class="kw">fn </span>from(stream: Stream) -&gt; nightfall::profiles::InputCtx {
-        nightfall::profiles::InputCtx {
-            stream: stream.index <span class="kw">as </span>usize,
-            codec: stream.codec_name,
-            pix_fmt: stream.pix_fmt.unwrap_or_default(),
-            profile: stream.profile.unwrap_or_default(),
-            bitrate: stream
-                .tags
-                .and_then(|x| x.bps_eng<span class="question-mark">?</span>.parse::&lt;u64&gt;().ok())
-                .unwrap_or_default(),
-            bframes: stream.has_b_frames,
-            audio_channels: stream.channels.unwrap_or(<span class="number">2</span>) <span class="kw">as </span>u64,
-            ..Default::default()
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Stream</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">nightfall::profiles::InputCtx</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">stream</span>: <span class="ident">Stream</span>) -&gt; <span class="ident">nightfall::profiles::InputCtx</span> {
+        <span class="ident">nightfall::profiles::InputCtx</span> {
+            <span class="ident">stream</span>: <span class="ident">stream</span>.<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>,
+            <span class="ident">codec</span>: <span class="ident">stream</span>.<span class="ident">codec_name</span>,
+            <span class="ident">pix_fmt</span>: <span class="ident">stream</span>.<span class="ident">pix_fmt</span>.<span class="ident">unwrap_or_default</span>(),
+            <span class="ident">profile</span>: <span class="ident">stream</span>.<span class="ident">profile</span>.<span class="ident">unwrap_or_default</span>(),
+            <span class="ident">bitrate</span>: <span class="ident">stream</span>
+                .<span class="ident">tags</span>
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">bps_eng</span><span class="question-mark">?</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>().<span class="ident">ok</span>())
+                .<span class="ident">unwrap_or_default</span>(),
+            <span class="ident">bframes</span>: <span class="ident">stream</span>.<span class="ident">has_b_frames</span>,
+            <span class="ident">audio_channels</span>: <span class="ident">stream</span>.<span class="ident">channels</span>.<span class="ident">unwrap_or</span>(<span class="number">2</span>) <span class="kw">as</span> <span class="ident">u64</span>,
+            ..<span class="ident">Default::default</span>()
         }
     }
 }
 
-<span class="attribute">#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-</span><span class="kw">pub struct </span>Tags {
-    <span class="kw">pub </span>language: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>title: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="attribute">#[serde(rename = <span class="string">&quot;BPS-eng&quot;</span>)]
-    </span><span class="kw">pub </span>bps_eng: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="attribute">#[serde(rename = <span class="string">&quot;DURATION-eng&quot;</span>)]
-    </span>duration_eng: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="attribute">#[serde(rename = <span class="string">&quot;NUMBER_OF_FRAMES-eng&quot;</span>)]
-    </span>number_of_frames_eng: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="attribute">#[serde(rename = <span class="string">&quot;_STATISTICS_WRITING_APP-eng&quot;</span>)]
-    </span>statistics_writing_app_eng: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="attribute">#[serde(rename = <span class="string">&quot;_STATISTICS_WRITING_DATE_UTC-eng&quot;</span>)]
-    </span>statistics_writing_date_utc_eng: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="attribute">#[serde(rename = <span class="string">&quot;_STATISTICS_TAGS-eng&quot;</span>)]
-    </span>statistics_tags_eng: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    filename: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    mimetype: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Tags</span> {
+    <span class="kw">pub</span> <span class="ident">language</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">title</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;BPS-eng&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">bps_eng</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;DURATION-eng&quot;</span>)]</span>
+    <span class="ident">duration_eng</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;NUMBER_OF_FRAMES-eng&quot;</span>)]</span>
+    <span class="ident">number_of_frames_eng</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;_STATISTICS_WRITING_APP-eng&quot;</span>)]</span>
+    <span class="ident">statistics_writing_app_eng</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;_STATISTICS_WRITING_DATE_UTC-eng&quot;</span>)]</span>
+    <span class="ident">statistics_writing_date_utc_eng</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;_STATISTICS_TAGS-eng&quot;</span>)]</span>
+    <span class="ident">statistics_tags_eng</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">filename</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">mimetype</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
-<span class="attribute">#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-</span><span class="kw">struct </span>Format {
-    <span class="kw">pub </span>filename: String,
-    <span class="kw">pub </span>nb_streams: i64,
-    <span class="kw">pub </span>nb_programs: i64,
-    <span class="kw">pub </span>format_name: String,
-    <span class="kw">pub </span>format_long_name: String,
-    <span class="kw">pub </span>start_time: String,
-    <span class="kw">pub </span>duration: String,
-    <span class="kw">pub </span>size: String,
-    <span class="kw">pub </span>bit_rate: String,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Format</span> {
+    <span class="kw">pub</span> <span class="ident">filename</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">nb_streams</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">nb_programs</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">format_name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">format_long_name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">start_time</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">duration</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">size</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">bit_rate</span>: <span class="ident">String</span>,
 }
 
-<span class="kw">pub struct </span>FFProbeCtx {
-    ffprobe_bin: String,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FFProbeCtx</span> {
+    <span class="ident">ffprobe_bin</span>: <span class="ident">String</span>,
 }
 
-<span class="kw">impl </span>FFProbeCtx {
-    <span class="kw">pub fn </span>new(ffprobe_bin: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            ffprobe_bin: ffprobe_bin.to_owned(),
+<span class="kw">impl</span> <span class="ident">FFProbeCtx</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ffprobe_bin</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">ffprobe_bin</span>: <span class="ident">ffprobe_bin</span>.<span class="ident">to_owned</span>(),
         }
     }
 
-    <span class="attribute">#[tracing::instrument(skip(<span class="self">self</span>, file))]
-    </span><span class="kw">pub async fn </span>get_meta(<span class="kw-2">&amp;</span><span class="self">self</span>, file: <span class="kw">impl </span>ToString) -&gt; <span class="prelude-ty">Result</span>&lt;FFPWrapper, std::io::Error&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>probe = Command::new(<span class="self">self</span>.ffprobe_bin.clone());
+    <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>, <span class="ident">file</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_meta</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">file</span>: <span class="kw">impl</span> <span class="ident">ToString</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">FFPWrapper</span>, <span class="ident">std::io::Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">probe</span> <span class="op">=</span> <span class="ident">Command::new</span>(<span class="self">self</span>.<span class="ident">ffprobe_bin</span>.<span class="ident">clone</span>());
 
-        probe
-            .arg(file.to_string())
-            .arg(<span class="string">&quot;-v&quot;</span>)
-            .arg(<span class="string">&quot;quiet&quot;</span>)
-            .arg(<span class="string">&quot;-print_format&quot;</span>)
-            .arg(<span class="string">&quot;json&quot;</span>)
-            .arg(<span class="string">&quot;-show_streams&quot;</span>)
-            .arg(<span class="string">&quot;-show_format&quot;</span>)
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
+        <span class="ident">probe</span>
+            .<span class="ident">arg</span>(<span class="ident">file</span>.<span class="ident">to_string</span>())
+            .<span class="ident">arg</span>(<span class="string">&quot;-v&quot;</span>)
+            .<span class="ident">arg</span>(<span class="string">&quot;quiet&quot;</span>)
+            .<span class="ident">arg</span>(<span class="string">&quot;-print_format&quot;</span>)
+            .<span class="ident">arg</span>(<span class="string">&quot;json&quot;</span>)
+            .<span class="ident">arg</span>(<span class="string">&quot;-show_streams&quot;</span>)
+            .<span class="ident">arg</span>(<span class="string">&quot;-show_format&quot;</span>)
+            .<span class="ident">stdout</span>(<span class="ident">Stdio::piped</span>())
+            .<span class="ident">stderr</span>(<span class="ident">Stdio::piped</span>());
 
         <span class="macro">trace!</span>(
-            binary = <span class="self">self</span>.ffprobe_bin.as_str(),
-            args = %probe.as_std().get_args().filter_map(|x| x.to_str()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">&quot; &quot;</span>),
-            <span class="string">&quot;Spawning ffprobe.&quot;
-        </span>);
+            <span class="ident">binary</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ffprobe_bin</span>.<span class="ident">as_str</span>(),
+            <span class="ident">args</span> <span class="op">=</span> <span class="op">%</span><span class="ident">probe</span>.<span class="ident">as_std</span>().<span class="ident">get_args</span>().<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_str</span>()).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">join</span>(<span class="string">&quot; &quot;</span>),
+            <span class="string">&quot;Spawning ffprobe.&quot;</span>
+        );
 
-        <span class="kw">let </span>output = probe.spawn()<span class="question-mark">?</span>.wait_with_output().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">probe</span>.<span class="ident">spawn</span>()<span class="question-mark">?</span>.<span class="ident">wait_with_output</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">if </span>!output.status.success() {
-            <span class="kw">let </span>stderr = String::from_utf8_lossy(output.stderr.as_slice());
-            <span class="macro">error!</span>(status = <span class="question-mark">?</span>output.status, stderr = %stderr, <span class="string">&quot;ffprobe exited with an error status.&quot;</span>);
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">output</span>.<span class="ident">status</span>.<span class="ident">success</span>() {
+            <span class="kw">let</span> <span class="ident">stderr</span> <span class="op">=</span> <span class="ident">String::from_utf8_lossy</span>(<span class="ident">output</span>.<span class="ident">stderr</span>.<span class="ident">as_slice</span>());
+            <span class="macro">error!</span>(<span class="ident">status</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">output</span>.<span class="ident">status</span>, <span class="ident">stderr</span> <span class="op">=</span> <span class="op">%</span><span class="ident">stderr</span>, <span class="string">&quot;ffprobe exited with an error status.&quot;</span>);
         }
 
-        <span class="kw">let </span>json = String::from_utf8_lossy(output.stdout.as_slice());
+        <span class="kw">let</span> <span class="ident">json</span> <span class="op">=</span> <span class="ident">String::from_utf8_lossy</span>(<span class="ident">output</span>.<span class="ident">stdout</span>.<span class="ident">as_slice</span>());
 
-        <span class="kw">let </span>de: FFPWrapper = serde_json::from_str(<span class="kw-2">&amp;</span>json).map_or_else(
-            |<span class="kw">_</span>| FFPWrapper {
-                ffpstream: <span class="prelude-val">None</span>,
-                corrupt: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
+        <span class="kw">let</span> <span class="ident">de</span>: <span class="ident">FFPWrapper</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">json</span>).<span class="ident">map_or_else</span>(
+            <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">FFPWrapper</span> {
+                <span class="ident">ffpstream</span>: <span class="prelude-val">None</span>,
+                <span class="ident">corrupt</span>: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
             },
-            |x| FFPWrapper {
-                ffpstream: <span class="prelude-val">Some</span>(x),
-                corrupt: <span class="prelude-val">None</span>,
+            <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">FFPWrapper</span> {
+                <span class="ident">ffpstream</span>: <span class="prelude-val">Some</span>(<span class="ident">x</span>),
+                <span class="ident">corrupt</span>: <span class="prelude-val">None</span>,
             },
         );
 
-        <span class="prelude-val">Ok</span>(de)
+        <span class="prelude-val">Ok</span>(<span class="ident">de</span>)
     }
 }
 
-<span class="kw">impl </span>FFPWrapper {
-    <span class="kw">pub fn </span>get_container(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(ctx) = <span class="self">self</span>.ffpstream.clone() {
-            <span class="prelude-val">Some</span>(ctx.format.format_name)
-        } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>}
+<span class="kw">impl</span> <span class="ident">FFPWrapper</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_container</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ctx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">ffpstream</span>.<span class="ident">clone</span>() {
+            <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">format</span>.<span class="ident">format_name</span>)
+        } <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
+        }
     }
 
-    <span class="kw">pub fn </span>get_primary_channels(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
-        <span class="self">self</span>.get_primary(<span class="string">&quot;audio&quot;</span>)<span class="question-mark">?</span>.channels
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_primary_channels</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">get_primary</span>(<span class="string">&quot;audio&quot;</span>)<span class="question-mark">?</span>.<span class="ident">channels</span>
     }
 
-    <span class="kw">pub fn </span>get_audio_lang(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
-        <span class="self">self</span>.get_primary(<span class="string">&quot;audio&quot;</span>)<span class="question-mark">?</span>.get_language()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_audio_lang</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">get_primary</span>(<span class="string">&quot;audio&quot;</span>)<span class="question-mark">?</span>.<span class="ident">get_language</span>()
     }
 
-    <span class="kw">pub fn </span>get_video_lang(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
-        <span class="self">self</span>.get_primary(<span class="string">&quot;video&quot;</span>)<span class="question-mark">?</span>.get_language()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_video_lang</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">get_primary</span>(<span class="string">&quot;video&quot;</span>)<span class="question-mark">?</span>.<span class="ident">get_language</span>()
     }
 
-    <span class="kw">pub fn </span>get_container_bitrate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
-        <span class="self">self</span>.ffpstream.as_ref()<span class="question-mark">?</span>.format.bit_rate.parse::&lt;u64&gt;().ok()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_container_bitrate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">ffpstream</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>.<span class="ident">format</span>.<span class="ident">bit_rate</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()
     }
 
-    <span class="kw">pub fn </span>get_video_codec(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.find_by_type(<span class="string">&quot;video&quot;</span>).first()<span class="question-mark">?</span>.codec_name.clone())
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_video_codec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">find_by_type</span>(<span class="string">&quot;video&quot;</span>).<span class="ident">first</span>()<span class="question-mark">?</span>.<span class="ident">codec_name</span>.<span class="ident">clone</span>())
     }
 
-    <span class="kw">pub fn </span>get_video_profile(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
-        <span class="self">self</span>.find_by_type(<span class="string">&quot;video&quot;</span>).first()<span class="question-mark">?</span>.profile.clone()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_video_profile</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">find_by_type</span>(<span class="string">&quot;video&quot;</span>).<span class="ident">first</span>()<span class="question-mark">?</span>.<span class="ident">profile</span>.<span class="ident">clone</span>()
     }
 
-    <span class="kw">pub fn </span>get_height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
-        <span class="self">self</span>.find_by_type(<span class="string">&quot;video&quot;</span>).first()<span class="question-mark">?</span>.height
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">find_by_type</span>(<span class="string">&quot;video&quot;</span>).<span class="ident">first</span>()<span class="question-mark">?</span>.<span class="ident">height</span>
     }
 
-    <span class="kw">pub fn </span>get_width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
-        <span class="self">self</span>.find_by_type(<span class="string">&quot;video&quot;</span>).first()<span class="question-mark">?</span>.width
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">find_by_type</span>(<span class="string">&quot;video&quot;</span>).<span class="ident">first</span>()<span class="question-mark">?</span>.<span class="ident">width</span>
     }
 
-    <span class="kw">pub fn </span>get_primary(<span class="kw-2">&amp;</span><span class="self">self</span>, codec_type: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Stream&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>streams: VecDeque&lt;<span class="kw">_</span>&gt; = <span class="self">self</span>.find_by_type(codec_type).into();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_primary</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">codec_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Stream</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">streams</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_by_type</span>(<span class="ident">codec_type</span>).<span class="ident">into</span>();
 
-        <span class="kw">if </span>streams.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">None</span>;
+        <span class="kw">if</span> <span class="ident">streams</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
-        <span class="kw">if </span>streams.len() == <span class="number">1 </span>{
-            <span class="kw">return </span>streams.pop_front();
+        <span class="kw">if</span> <span class="ident">streams</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+            <span class="kw">return</span> <span class="ident">streams</span>.<span class="ident">pop_front</span>();
         }
 
-        <span class="kw">let </span>primary_stream = streams.iter().find_map(|x| {
-            <span class="kw">if </span>x.disposition.as_ref()<span class="question-mark">?</span>.default == <span class="number">1 </span>{
-                <span class="prelude-val">Some</span>(<span class="kw-2">*</span>x)
-            } <span class="kw">else </span>{
-                <span class="prelude-val">None
-            </span>}
+        <span class="kw">let</span> <span class="ident">primary_stream</span> <span class="op">=</span> <span class="ident">streams</span>.<span class="ident">iter</span>().<span class="ident">find_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">disposition</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>.<span class="ident">default</span> <span class="op">==</span> <span class="number">1</span> {
+                <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">x</span>)
+            } <span class="kw">else</span> {
+                <span class="prelude-val">None</span>
+            }
         });
 
-        primary_stream.or_else(|| streams.pop_front())
+        <span class="ident">primary_stream</span>.<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">streams</span>.<span class="ident">pop_front</span>())
     }
 
-    <span class="kw">pub fn </span>get_primary_codec(<span class="kw-2">&amp;</span><span class="self">self</span>, codec_type: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.get_primary(codec_type)<span class="question-mark">?</span>.codec_name)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_primary_codec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">codec_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">get_primary</span>(<span class="ident">codec_type</span>)<span class="question-mark">?</span>.<span class="ident">codec_name</span>)
     }
 
-    <span class="kw">pub fn </span>get_duration(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i32&gt; {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_duration</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(
-            <span class="self">self</span>.ffpstream
-                .as_ref()<span class="question-mark">?
-                </span>.format
-                .duration
-                .parse::&lt;f64&gt;()
-                .ok()<span class="question-mark">? </span><span class="kw">as </span>i32,
+            <span class="self">self</span>.<span class="ident">ffpstream</span>
+                .<span class="ident">as_ref</span>()<span class="question-mark">?</span>
+                .<span class="ident">format</span>
+                .<span class="ident">duration</span>
+                .<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()
+                .<span class="ident">ok</span>()<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">i32</span>,
         )
     }
 
-    <span class="kw">pub fn </span>get_ms(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u128&gt; {
-        <span class="self">self</span>.ffpstream
-            .as_ref()<span class="question-mark">?
-            </span>.format
-            .duration
-            .parse::&lt;f64&gt;()
-            .map(|x| (x.trunc() * <span class="number">1_000_000.0</span>) <span class="kw">as </span>u128)
-            .ok()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ms</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u128</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">ffpstream</span>
+            .<span class="ident">as_ref</span>()<span class="question-mark">?</span>
+            .<span class="ident">format</span>
+            .<span class="ident">duration</span>
+            .<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">x</span>.<span class="ident">trunc</span>() <span class="op">*</span> <span class="number">1_000_000.0</span>) <span class="kw">as</span> <span class="ident">u128</span>)
+            .<span class="ident">ok</span>()
     }
 
-    <span class="kw">pub fn </span>is_corrupt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt; {
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.corrupt.unwrap_or(<span class="bool-val">false</span>))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_corrupt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">corrupt</span>.<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>))
     }
 
-    <span class="kw">pub fn </span>is_codec_type(<span class="kw-2">&amp;</span><span class="self">self</span>, codec_type: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt; {
-        <span class="prelude-val">Some</span>(!<span class="self">self</span>.find_by_type(codec_type).is_empty())
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_codec_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">codec_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">find_by_type</span>(<span class="ident">codec_type</span>).<span class="ident">is_empty</span>())
     }
 
-    <span class="kw">pub fn </span>find_by_type(<span class="kw-2">&amp;</span><span class="self">self</span>, codec_type: <span class="kw-2">&amp;</span>str) -&gt; Vec&lt;<span class="kw-2">&amp;</span>Stream&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = <span class="self">self</span>.ffpstream.as_ref() {
-            x.streams
-                .iter()
-                .filter(|x| x.codec_type == <span class="kw-2">*</span>codec_type)
-                .collect()
-        } <span class="kw">else </span>{
-            Vec::new()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_by_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">codec_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Stream</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">ffpstream</span>.<span class="ident">as_ref</span>() {
+            <span class="ident">x</span>.<span class="ident">streams</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">codec_type</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">codec_type</span>)
+                .<span class="ident">collect</span>()
+        } <span class="kw">else</span> {
+            <span class="ident">Vec::new</span>()
         }
     }
 }
 
-<span class="attribute">#[derive(Debug, Deserialize, Clone, PartialEq, Eq, Serialize)]
-</span><span class="kw">pub struct </span>Disposition {
-    <span class="kw">pub </span>default: i64,
-    <span class="kw">pub </span>dub: i64,
-    <span class="kw">pub </span>original: i64,
-    <span class="kw">pub </span>comment: i64,
-    <span class="kw">pub </span>lyrics: i64,
-    <span class="kw">pub </span>karaoke: i64,
-    <span class="kw">pub </span>forced: i64,
-    <span class="kw">pub </span>hearing_impaired: i64,
-    <span class="kw">pub </span>visual_impaired: i64,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Disposition</span> {
+    <span class="kw">pub</span> <span class="ident">default</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">dub</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">original</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">comment</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">lyrics</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">karaoke</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">forced</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">hearing_impaired</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">visual_impaired</span>: <span class="ident">i64</span>,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>

@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/external/tmdb/cache_control.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cache_control.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../dim/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/external/tmdb/cache_control.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cache_control.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../dim/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -199,206 +206,207 @@
 <span id="199">199</span>
 <span id="200">200</span>
 <span id="201">201</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::external::MediaSearchType;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external::MediaSearchType</span>;
 
-<span class="kw">use </span>std::sync::atomic::AtomicUsize;
-<span class="kw">use </span>std::sync::atomic::Ordering;
-<span class="kw">use </span>std::sync::Arc;
-<span class="kw">use </span>std::thread;
-<span class="kw">use </span>std::time::Duration;
-<span class="kw">use </span>std::time::Instant;
+<span class="kw">use</span> <span class="ident">std::sync::atomic::AtomicUsize</span>;
+<span class="kw">use</span> <span class="ident">std::sync::atomic::Ordering</span>;
+<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
+<span class="kw">use</span> <span class="ident">std::thread</span>;
+<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span class="kw">use</span> <span class="ident">std::time::Instant</span>;
 
-<span class="kw">use </span>tokio::sync::broadcast;
-<span class="kw">use </span>tokio::task::spawn_blocking;
-<span class="kw">use </span>tokio::task::JoinHandle;
+<span class="kw">use</span> <span class="ident">tokio::sync::broadcast</span>;
+<span class="kw">use</span> <span class="ident">tokio::task::spawn_blocking</span>;
+<span class="kw">use</span> <span class="ident">tokio::task::JoinHandle</span>;
 
-<span class="kw">use </span>rand::rngs::SmallRng;
-<span class="kw">use </span>rand::{Rng, SeedableRng};
+<span class="kw">use</span> <span class="ident">rand::rngs::SmallRng</span>;
+<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
 
-<span class="comment">// How long we should sleep in-between cache evictions. Defaults to 15 seconds.
-</span><span class="kw">const </span>EVICT_EVERY: Duration = Duration::from_millis(<span class="number">15_000</span>);
+<span class="comment">// How long we should sleep in-between cache evictions. Defaults to 15 seconds.</span>
+<span class="kw">const</span> <span class="ident">EVICT_EVERY</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration::from_millis</span>(<span class="number">15_000</span>);
 
-<span class="doccomment">/// The type of our hashmap we use for caching.
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>CacheMap = Arc&lt;dashmap::DashMap&lt;CacheKey, <span class="prelude-ty">Option</span>&lt;CacheValue&gt;&gt;&gt;;
+<span class="doccomment">/// The type of our hashmap we use for caching.</span>
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type</span> <span class="ident">CacheMap</span> <span class="op">=</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">dashmap::DashMap</span><span class="op">&lt;</span><span class="ident">CacheKey</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CacheValue</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-<span class="doccomment">/// The key type used within the [CacheMap], refers to [CacheValue]s.
-</span><span class="attribute">#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum </span>CacheKey {
-    <span class="doccomment">/// A search result
-    </span>Search { title: String, year: <span class="prelude-ty">Option</span>&lt;i32&gt; },
-    <span class="doccomment">/// Genre List
-    </span>GenreList { media_type: MediaSearchType },
-    <span class="doccomment">/// Searching by ID
-    </span>ById { id: String, ty: MediaSearchType },
-    <span class="doccomment">/// Search for an actor by id
-    </span>ActorById { id: String },
-    <span class="doccomment">/// Get all episodes for a season
-    </span>Episodes { id: String, season_number: u64 },
+<span class="doccomment">/// The key type used within the [CacheMap], refers to [CacheValue]s.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum</span> <span class="ident">CacheKey</span> {
+    <span class="doccomment">/// A search result</span>
+    <span class="ident">Search</span> { <span class="ident">title</span>: <span class="ident">String</span>, <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> },
+    <span class="doccomment">/// Genre List</span>
+    <span class="ident">GenreList</span> { <span class="ident">media_type</span>: <span class="ident">MediaSearchType</span> },
+    <span class="doccomment">/// Searching by ID</span>
+    <span class="ident">ById</span> { <span class="ident">id</span>: <span class="ident">String</span>, <span class="ident">ty</span>: <span class="ident">MediaSearchType</span> },
+    <span class="doccomment">/// Search for an actor by id</span>
+    <span class="ident">ActorById</span> { <span class="ident">id</span>: <span class="ident">String</span> },
+    <span class="doccomment">/// Get all episodes for a season</span>
+    <span class="ident">Episodes</span> { <span class="ident">id</span>: <span class="ident">String</span>, <span class="ident">season_number</span>: <span class="ident">u64</span> },
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>PendingRequestTx =
-    broadcast::Sender&lt;<span class="prelude-ty">Result</span>&lt;Arc&lt;str&gt;, <span class="kw">super</span>::TMDBClientRequestError&gt;&gt;;
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type</span> <span class="ident">PendingRequestTx</span> <span class="op">=</span>
+    <span class="ident">broadcast::Sender</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident"><span class="kw">super</span>::TMDBClientRequestError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-<span class="doccomment">/// The value type used within the [CacheMap], refered to by [CacheKey]s.
-</span><span class="attribute">#[derive(Clone)]
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum </span>CacheValue {
-    <span class="doccomment">/// The request responsible for fulfilling this data is currently in flight.
-    </span>RequestInFlight { tx: PendingRequestTx },
-    <span class="doccomment">/// The responses body as UTF-8, cached. This also has a TTL. Once the TTL is reached, the
-    /// value should be ignored/discarded.
-    </span>Body { text: Arc&lt;str&gt;, ttl: Instant },
+<span class="doccomment">/// The value type used within the [CacheMap], refered to by [CacheKey]s.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum</span> <span class="ident">CacheValue</span> {
+    <span class="doccomment">/// The request responsible for fulfilling this data is currently in flight.</span>
+    <span class="ident">RequestInFlight</span> { <span class="ident">tx</span>: <span class="ident">PendingRequestTx</span> },
+    <span class="doccomment">/// The responses body as UTF-8, cached. This also has a TTL. Once the TTL is reached, the</span>
+    <span class="doccomment">/// value should be ignored/discarded.</span>
+    <span class="ident">Body</span> { <span class="ident">text</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">ttl</span>: <span class="ident">Instant</span> },
 }
 
-<span class="kw">impl </span>CacheValue {
-    <span class="doccomment">/// get the data out of the value, if it is still pending, wait for it and turn errors into None.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Arc&lt;str&gt;, <span class="kw">super</span>::TMDBClientRequestError&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            CacheValue::RequestInFlight { tx } =&gt; tx
-                .subscribe()
-                .recv()
-                .<span class="kw">await
-                </span>.map_err(<span class="kw">super</span>::TMDBClientRequestError::RecvError)<span class="question-mark">?</span>,
+<span class="kw">impl</span> <span class="ident">CacheValue</span> {
+    <span class="doccomment">/// get the data out of the value, if it is still pending, wait for it and turn errors into None.</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident"><span class="kw">super</span>::TMDBClientRequestError</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">CacheValue::RequestInFlight</span> { <span class="ident">tx</span> } =&gt; <span class="ident">tx</span>
+                .<span class="ident">subscribe</span>()
+                .<span class="ident">recv</span>()
+                .<span class="kw">await</span>
+                .<span class="ident">map_err</span>(<span class="ident"><span class="kw">super</span>::TMDBClientRequestError::RecvError</span>)<span class="question-mark">?</span>,
 
-            CacheValue::Body { text, .. } =&gt; <span class="prelude-val">Ok</span>(Arc::clone(text)),
+            <span class="ident">CacheValue::Body</span> { <span class="ident">text</span>, .. } =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Arc::clone</span>(<span class="ident">text</span>)),
         }
     }
 
-    <span class="kw">pub fn </span>mem_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="kw">let </span>body_size = <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Body { text, .. } =&gt; text.as_bytes().len(),
-            <span class="kw">_ </span>=&gt; <span class="number">0</span>,
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mem_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="kw">let</span> <span class="ident">body_size</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Body</span> { <span class="ident">text</span>, .. } =&gt; <span class="ident">text</span>.<span class="ident">as_bytes</span>().<span class="ident">len</span>(),
+            <span class="kw">_</span> =&gt; <span class="number">0</span>,
         };
 
-        core::mem::size_of::&lt;CacheValue&gt;() + body_size
+        <span class="ident">core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">CacheValue</span><span class="op">&gt;</span>() <span class="op">+</span> <span class="ident">body_size</span>
     }
 }
 
-<span class="doccomment">/// Simple worker which handles cache eviction. It doesn&#39;t promise that our memory usage will
-/// always be below our max target, but it does promise eventual consistency.
-///
-/// The policy is that expelling TTL&#39;d items should be handled lazily, however it will randomly
-/// evict items when our usage reaches our max.
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>CacheEviction {
-    cache: CacheMap,
-    usage: Arc&lt;AtomicUsize&gt;,
-    max_usage: usize,
+<span class="doccomment">/// Simple worker which handles cache eviction. It doesn&#39;t promise that our memory usage will</span>
+<span class="doccomment">/// always be below our max target, but it does promise eventual consistency.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The policy is that expelling TTL&#39;d items should be handled lazily, however it will randomly</span>
+<span class="doccomment">/// evict items when our usage reaches our max.</span>
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">CacheEviction</span> {
+    <span class="ident">cache</span>: <span class="ident">CacheMap</span>,
+    <span class="ident">usage</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">AtomicUsize</span><span class="op">&gt;</span>,
+    <span class="ident">max_usage</span>: <span class="ident">usize</span>,
 }
 
-<span class="kw">impl </span>CacheEviction {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(cache: CacheMap, usage: Arc&lt;AtomicUsize&gt;, max_usage: usize) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            cache,
-            usage,
-            max_usage,
+<span class="kw">impl</span> <span class="ident">CacheEviction</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">cache</span>: <span class="ident">CacheMap</span>, <span class="ident">usage</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">AtomicUsize</span><span class="op">&gt;</span>, <span class="ident">max_usage</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">cache</span>,
+            <span class="ident">usage</span>,
+            <span class="ident">max_usage</span>,
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>start_policy(<span class="self">self</span>) -&gt; AbortOnDropHandle {
-        <span class="kw">let </span>(stop_tx, <span class="kw-2">mut </span>rx) = broadcast::channel(<span class="number">1</span>);
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">start_policy</span>(<span class="self">self</span>) -&gt; <span class="ident">AbortOnDropHandle</span> {
+        <span class="kw">let</span> (<span class="ident">stop_tx</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">broadcast::channel</span>(<span class="number">1</span>);
 
-        <span class="kw">let </span>handle = spawn_blocking(<span class="kw">move </span>|| {
-            <span class="kw">while </span><span class="macro">matches!</span>(rx.try_recv(), <span class="prelude-val">Err</span>(broadcast::error::TryRecvError::Empty)) {
-                <span class="kw">let </span>now = Instant::now();
-                <span class="kw">let </span>items = <span class="self">self</span>.evict();
-                <span class="kw">let </span>duration = now.elapsed().as_millis();
+        <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+            <span class="kw">while</span> <span class="macro">matches!</span>(<span class="ident">rx</span>.<span class="ident">try_recv</span>(), <span class="prelude-val">Err</span>(<span class="ident">broadcast::error::TryRecvError::Empty</span>)) {
+                <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
+                <span class="kw">let</span> <span class="ident">items</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">evict</span>();
+                <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="ident">now</span>.<span class="ident">elapsed</span>().<span class="ident">as_millis</span>();
 
                 <span class="macro">tracing::info!</span>(
-                    items = items,
-                    duration_ms = duration,
-                    <span class="string">&quot;tmdb cache eviction finished.&quot;
-                </span>);
+                    <span class="ident">items</span> <span class="op">=</span> <span class="ident">items</span>,
+                    <span class="ident">duration_ms</span> <span class="op">=</span> <span class="ident">duration</span>,
+                    <span class="string">&quot;tmdb cache eviction finished.&quot;</span>
+                );
 
-                thread::sleep(EVICT_EVERY);
+                <span class="ident">thread::sleep</span>(<span class="ident">EVICT_EVERY</span>);
             }
         });
 
-        AbortOnDropHandle { handle, stop_tx }
+        <span class="ident">AbortOnDropHandle</span> { <span class="ident">handle</span>, <span class="ident">stop_tx</span> }
     }
 
-    <span class="kw">fn </span>evict(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="kw">if </span><span class="self">self</span>.usage.fetch_min(<span class="self">self</span>.max_usage, Ordering::Relaxed) &lt; <span class="self">self</span>.max_usage {
-            <span class="kw">return </span><span class="number">0</span>;
+    <span class="kw">fn</span> <span class="ident">evict</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">usage</span>.<span class="ident">fetch_min</span>(<span class="self">self</span>.<span class="ident">max_usage</span>, <span class="ident">Ordering::Relaxed</span>) <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">max_usage</span> {
+            <span class="kw">return</span> <span class="number">0</span>;
         }
 
-        <span class="comment">// This is probably gonna be very slow as our cache grows.
-        // we want to evict 5% of our items.
-        // FIXME: Absolutely not ideal
-        </span><span class="kw">let </span>cache_len = <span class="self">self</span>.cache.len();
-        <span class="kw">let </span>to_delete = cache_len / <span class="number">20</span>;
+        <span class="comment">// This is probably gonna be very slow as our cache grows.</span>
+        <span class="comment">// we want to evict 5% of our items.</span>
+        <span class="comment">// FIXME: Absolutely not ideal</span>
+        <span class="kw">let</span> <span class="ident">cache_len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="ident">to_delete</span> <span class="op">=</span> <span class="ident">cache_len</span> <span class="op">/</span> <span class="number">20</span>;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>rng = SmallRng::from_entropy();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">SmallRng::from_entropy</span>();
 
-        <span class="self">self</span>.cache.retain(|<span class="kw">_</span>, v| {
-            <span class="kw">let </span>size = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>v) = v {
-                v.mem_size()
-            } <span class="kw">else </span>{
-                <span class="kw">return </span><span class="bool-val">true</span>;
+        <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">v</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">v</span>) <span class="op">=</span> <span class="ident">v</span> {
+                <span class="ident">v</span>.<span class="ident">mem_size</span>()
+            } <span class="kw">else</span> {
+                <span class="kw">return</span> <span class="bool-val">true</span>;
             };
 
-            <span class="kw">if </span>size == <span class="number">0 </span>{
-                <span class="kw">return </span><span class="bool-val">true</span>;
+            <span class="kw">if</span> <span class="ident">size</span> <span class="op">==</span> <span class="number">0</span> {
+                <span class="kw">return</span> <span class="bool-val">true</span>;
             }
 
-            <span class="kw">if </span>rng.gen_range(<span class="number">0</span>, cache_len) &lt; to_delete {
-                <span class="self">self</span>.usage.fetch_sub(size, Ordering::Relaxed);
-                <span class="kw">return </span><span class="bool-val">false</span>;
+            <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>, <span class="ident">cache_len</span>) <span class="op">&lt;</span> <span class="ident">to_delete</span> {
+                <span class="self">self</span>.<span class="ident">usage</span>.<span class="ident">fetch_sub</span>(<span class="ident">size</span>, <span class="ident">Ordering::Relaxed</span>);
+                <span class="kw">return</span> <span class="bool-val">false</span>;
             }
 
-            <span class="bool-val">true
-        </span>});
+            <span class="bool-val">true</span>
+        });
 
-        <span class="kw">let </span>new_cache_len = <span class="self">self</span>.cache.len();
+        <span class="kw">let</span> <span class="ident">new_cache_len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">len</span>();
 
-        cache_len - new_cache_len
+        <span class="ident">cache_len</span> <span class="op">-</span> <span class="ident">new_cache_len</span>
     }
 }
 
-<span class="kw">pub struct </span>AbortOnDropHandle {
-    handle: JoinHandle&lt;()&gt;,
-    stop_tx: broadcast::Sender&lt;()&gt;,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AbortOnDropHandle</span> {
+    <span class="ident">handle</span>: <span class="ident">JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
+    <span class="ident">stop_tx</span>: <span class="ident">broadcast::Sender</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
 }
 
-<span class="kw">impl </span>Drop <span class="kw">for </span>AbortOnDropHandle {
-    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">let _ </span>= <span class="self">self</span>.stop_tx.send(());
-        <span class="self">self</span>.handle.abort();
+<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">AbortOnDropHandle</span> {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">stop_tx</span>.<span class="ident">send</span>(());
+        <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">abort</span>();
     }
 }
 
-<span class="attribute">#[cfg(test)]
-</span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>test_cache_eviction() {
-        <span class="kw">let </span>cache = CacheMap::default();
-        <span class="comment">// pretend we already have 100 items in the cache.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>usage = <span class="number">0</span>;
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_cache_eviction</span>() {
+        <span class="kw">let</span> <span class="ident">cache</span> <span class="op">=</span> <span class="ident">CacheMap::default</span>();
+        <span class="comment">// pretend we already have 100 items in the cache.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">usage</span> <span class="op">=</span> <span class="number">0</span>;
 
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..=<span class="number">10000 </span>{
-            <span class="kw">let </span>value = CacheValue::Body {
-                text: <span class="macro">format!</span>(<span class="string">&quot;{i}&quot;</span>).into(),
-                ttl: Instant::now(),
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="number">10000</span> {
+            <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">CacheValue::Body</span> {
+                <span class="ident">text</span>: <span class="macro">format!</span>(<span class="string">&quot;{i}&quot;</span>).<span class="ident">into</span>(),
+                <span class="ident">ttl</span>: <span class="ident">Instant::now</span>(),
             };
 
-            usage += value.mem_size();
+            <span class="ident">usage</span> <span class="op">+</span><span class="op">=</span> <span class="ident">value</span>.<span class="ident">mem_size</span>();
 
-            cache.insert(
-                CacheKey::Search {
-                    title: <span class="macro">format!</span>(<span class="string">&quot;{i}&quot;</span>).into(),
-                    year: <span class="prelude-val">None</span>,
+            <span class="ident">cache</span>.<span class="ident">insert</span>(
+                <span class="ident">CacheKey::Search</span> {
+                    <span class="ident">title</span>: <span class="macro">format!</span>(<span class="string">&quot;{i}&quot;</span>).<span class="ident">into</span>(),
+                    <span class="ident">year</span>: <span class="prelude-val">None</span>,
                 },
-                <span class="prelude-val">Some</span>(value),
+                <span class="prelude-val">Some</span>(<span class="ident">value</span>),
             );
         }
 
-        <span class="kw">let </span>usage = Arc::new(AtomicUsize::new(usage));
-        <span class="kw">let </span>policy = CacheEviction::new(cache.clone(), usage.clone(), <span class="number">0</span>);
-        <span class="kw">let </span>evicted = policy.evict();
+        <span class="kw">let</span> <span class="ident">usage</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">AtomicUsize::new</span>(<span class="ident">usage</span>));
+        <span class="kw">let</span> <span class="ident">policy</span> <span class="op">=</span> <span class="ident">CacheEviction::new</span>(<span class="ident">cache</span>.<span class="ident">clone</span>(), <span class="ident">usage</span>.<span class="ident">clone</span>(), <span class="number">0</span>);
+        <span class="kw">let</span> <span class="ident">evicted</span> <span class="op">=</span> <span class="ident">policy</span>.<span class="ident">evict</span>();
 
-        <span class="macro">assert!</span>(evicted &lt; <span class="number">10000</span>);
-        <span class="macro">assert!</span>(evicted &gt; <span class="number">0</span>);
+        <span class="macro">assert!</span>(<span class="ident">evicted</span> <span class="op">&lt;</span> <span class="number">10000</span>);
+        <span class="macro">assert!</span>(<span class="ident">evicted</span> <span class="op">&gt;</span> <span class="number">0</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>

@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/external/tmdb/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../dim/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/external/tmdb/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../dim/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -240,247 +247,248 @@
 <span id="240">240</span>
 <span id="241">241</span>
 <span id="242">242</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A TMDB client implementation with request coalescing and client-side rate-limiting.
+</pre><pre class="rust"><code><span class="doccomment">//! A TMDB client implementation with request coalescing and client-side rate-limiting.</span>
 
-</span><span class="kw">use </span>std::sync::Arc;
+<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 
-<span class="doccomment">/// The User-Agent is generated from the package name &quot;dim&quot; and the version so &quot;dim/0.x.y.z&quot;
-</span><span class="kw">pub const </span>APP_USER_AGENT: <span class="kw-2">&amp;</span>str = <span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_NAME&quot;</span>), <span class="string">&quot;/&quot;</span>, <span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>),);
+<span class="doccomment">/// The User-Agent is generated from the package name &quot;dim&quot; and the version so &quot;dim/0.x.y.z&quot;</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">APP_USER_AGENT</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_NAME&quot;</span>), <span class="string">&quot;/&quot;</span>, <span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>),);
 
-<span class="doccomment">/// The base url used to access TMDB;
-</span><span class="kw">pub const </span>TMDB_BASE_URL: <span class="kw-2">&amp;</span>str = <span class="string">&quot;https://api.themoviedb.org/3&quot;</span>;
+<span class="doccomment">/// The base url used to access TMDB;</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">TMDB_BASE_URL</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;https://api.themoviedb.org/3&quot;</span>;
 
-<span class="kw">mod </span>cache_control;
-<span class="kw">mod </span>metadata_provider;
-<span class="kw">mod </span>raw_client;
+<span class="kw">mod</span> <span class="ident">cache_control</span>;
+<span class="kw">mod</span> <span class="ident">metadata_provider</span>;
+<span class="kw">mod</span> <span class="ident">raw_client</span>;
 
-<span class="kw">pub use </span>metadata_provider::{MetadataProviderOf, Movies, TMDBMetadataProvider, TvShows};
-<span class="kw">use </span>raw_client::{Cast, Genre, GenreList, SearchResponse, TMDBMediaObject, TvEpisodes, TvSeasons};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">metadata_provider</span>::{<span class="ident">MetadataProviderOf</span>, <span class="ident">Movies</span>, <span class="ident">TMDBMetadataProvider</span>, <span class="ident">TvShows</span>};
+<span class="kw">use</span> <span class="ident">raw_client</span>::{<span class="ident">Cast</span>, <span class="ident">Genre</span>, <span class="ident">GenreList</span>, <span class="ident">SearchResponse</span>, <span class="ident">TMDBMediaObject</span>, <span class="ident">TvEpisodes</span>, <span class="ident">TvSeasons</span>};
 
-<span class="attribute">#[derive(Debug, displaydoc::Display, Clone, thiserror::Error)]
-</span><span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">enum </span>TMDBClientRequestError {
-    <span class="doccomment">/// The body of a response was not value UTF-8.
-    </span>InvalidUTF8Body,
-    <span class="doccomment">/// the error comes from reqwest.
-    </span>ReqwestError(<span class="attribute">#[from] </span>Arc&lt;reqwest::Error&gt;),
-    <span class="doccomment">/// Failed to receive result over channel: {0:?}
-    </span>RecvError(<span class="attribute">#[from] </span>tokio::sync::broadcast::error::RecvError),
-    <span class="doccomment">/// Received {status:?} response code: {body:?}
-    </span>NonOkResponse {
-        status: reqwest::StatusCode,
-        body: String,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">displaydoc::Display</span>, <span class="ident">Clone</span>, <span class="ident">thiserror::Error</span>)]</span>
+<span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">enum</span> <span class="ident">TMDBClientRequestError</span> {
+    <span class="doccomment">/// The body of a response was not value UTF-8.</span>
+    <span class="ident">InvalidUTF8Body</span>,
+    <span class="doccomment">/// the error comes from reqwest.</span>
+    <span class="ident">ReqwestError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">reqwest::Error</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// Failed to receive result over channel: {0:?}</span>
+    <span class="ident">RecvError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">tokio::sync::broadcast::error::RecvError</span>),
+    <span class="doccomment">/// Received {status:?} response code: {body:?}</span>
+    <span class="ident">NonOkResponse</span> {
+        <span class="ident">status</span>: <span class="ident">reqwest::StatusCode</span>,
+        <span class="ident">body</span>: <span class="ident">String</span>,
     },
 }
 
-<span class="kw">impl </span>TMDBClientRequestError {
-    <span class="kw">fn </span>reqwest(err: reqwest::Error) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::ReqwestError(Arc::new(err))
+<span class="kw">impl</span> <span class="ident">TMDBClientRequestError</span> {
+    <span class="kw">fn</span> <span class="ident">reqwest</span>(<span class="ident">err</span>: <span class="ident">reqwest::Error</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::ReqwestError</span>(<span class="ident">Arc::new</span>(<span class="ident">err</span>))
     }
 }
 
-<span class="kw">impl </span>From&lt;TMDBClientRequestError&gt; <span class="kw">for </span><span class="kw">super</span>::Error {
-    <span class="kw">fn </span>from(this: TMDBClientRequestError) -&gt; <span class="kw">super</span>::Error {
-        <span class="kw">use </span>TMDBClientRequestError::<span class="kw-2">*</span>;
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TMDBClientRequestError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident"><span class="kw">super</span>::Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">this</span>: <span class="ident">TMDBClientRequestError</span>) -&gt; <span class="ident"><span class="kw">super</span>::Error</span> {
+        <span class="kw">use</span> <span class="ident">TMDBClientRequestError</span>::<span class="kw-2">*</span>;
 
-        <span class="kw">match </span>this {
-            <span class="comment">// We can generalize some errors into common ones from the upstream enum, but some have to
-            // do with internal logic and are this mapped into `OtherError`. `OtherError` generally
-            // indicates unexpected errors that cannot be handled. These usually mean something broke.
-            //
-            // FIXME: `InternalError` might be a more appropriate name.
-            </span>InvalidUTF8Body | ReqwestError(<span class="kw">_</span>) | RecvError(<span class="kw">_</span>) =&gt; {
-                <span class="kw">super</span>::Error::OtherError(Arc::new(this))
+        <span class="kw">match</span> <span class="ident">this</span> {
+            <span class="comment">// We can generalize some errors into common ones from the upstream enum, but some have to</span>
+            <span class="comment">// do with internal logic and are this mapped into `OtherError`. `OtherError` generally</span>
+            <span class="comment">// indicates unexpected errors that cannot be handled. These usually mean something broke.</span>
+            <span class="comment">//</span>
+            <span class="comment">// FIXME: `InternalError` might be a more appropriate name.</span>
+            <span class="ident">InvalidUTF8Body</span> <span class="op">|</span> <span class="ident">ReqwestError</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">RecvError</span>(<span class="kw">_</span>) =&gt; {
+                <span class="ident"><span class="kw">super</span>::Error::OtherError</span>(<span class="ident">Arc::new</span>(<span class="ident">this</span>))
             }
 
-            NonOkResponse { status, body } =&gt; {
-                <span class="kw">let </span>message = serde_json::from_str::&lt;raw_client::TmdbError&gt;(<span class="kw-2">&amp;</span>body)
-                    .map(|x| x.status_message)
-                    .unwrap_or(body);
+            <span class="ident">NonOkResponse</span> { <span class="ident">status</span>, <span class="ident">body</span> } =&gt; {
+                <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">raw_client::TmdbError</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>)
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">status_message</span>)
+                    .<span class="ident">unwrap_or</span>(<span class="ident">body</span>);
 
-                <span class="kw">super</span>::Error::RemoteApiError {
-                    code: status.as_u16(),
-                    message,
+                <span class="ident"><span class="kw">super</span>::Error::RemoteApiError</span> {
+                    <span class="ident">code</span>: <span class="ident">status</span>.<span class="ident">as_u16</span>(),
+                    <span class="ident">message</span>,
                 }
             }
         }
     }
 }
 
-<span class="attribute">#[cfg(test)]
-</span><span class="kw">mod </span>tests {
-    <span class="kw">use </span>chrono::{Datelike, Timelike};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">Datelike</span>, <span class="ident">Timelike</span>};
 
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::external::{
-        ExternalActor, ExternalEpisode, ExternalMedia, ExternalQuery, ExternalQueryShow,
-        ExternalSeason,
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external</span>::{
+        <span class="ident">ExternalActor</span>, <span class="ident">ExternalEpisode</span>, <span class="ident">ExternalMedia</span>, <span class="ident">ExternalQuery</span>, <span class="ident">ExternalQueryShow</span>,
+        <span class="ident">ExternalSeason</span>,
     };
 
-    <span class="kw">fn </span>make_letterkenny() -&gt; ExternalMedia {
-        <span class="kw">let </span>dt = chrono::Utc::now()
-            .with_day(<span class="number">7</span>)
-            .unwrap()
-            .with_month(<span class="number">2</span>)
-            .unwrap()
-            .with_year(<span class="number">2016</span>)
-            .unwrap()
-            .with_minute(<span class="number">0</span>)
-            .unwrap()
-            .with_second(<span class="number">0</span>)
-            .unwrap()
-            .with_nanosecond(<span class="number">0</span>)
-            .unwrap()
-            .with_hour(<span class="number">0</span>)
-            .unwrap();
+    <span class="kw">fn</span> <span class="ident">make_letterkenny</span>() -&gt; <span class="ident">ExternalMedia</span> {
+        <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">chrono::Utc::now</span>()
+            .<span class="ident">with_day</span>(<span class="number">7</span>)
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">with_month</span>(<span class="number">2</span>)
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">with_year</span>(<span class="number">2016</span>)
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">with_minute</span>(<span class="number">0</span>)
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">with_second</span>(<span class="number">0</span>)
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">with_nanosecond</span>(<span class="number">0</span>)
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">with_hour</span>(<span class="number">0</span>)
+            .<span class="ident">unwrap</span>();
 
-        ExternalMedia {
-            external_id: <span class="string">&quot;65798&quot;</span>.into(),
-            title: <span class="string">&quot;Letterkenny&quot;</span>.into(),
-            description: <span class="prelude-val">Some</span>(<span class="string">&quot;Letterkenny follows Wayne, a good-ol’ country boy in Letterkenny, Ontario trying to protect his homegrown way of life on the farm, against a world that is constantly evolving around him. The residents of Letterkenny belong to one of three groups: Hicks, Skids, and Hockey Players. The three groups are constantly feuding with each other over seemingly trivial matters; often ending with someone getting their ass kicked.&quot;</span>.into()),
-            release_date: <span class="prelude-val">Some</span>(dt),
-            posters: <span class="macro">vec!</span>[<span class="string">&quot;https://image.tmdb.org/t/p/w600_and_h900_bestv2/yvQGoc9GGTfOyPty5ASShT9tPBD.jpg&quot;</span>.into()], 
-            backdrops: <span class="macro">vec!</span>[<span class="string">&quot;https://image.tmdb.org/t/p/original/wdHK7RZNIGfskbGCIusSKN3vto6.jpg&quot;</span>.into()], 
-            genres: <span class="macro">vec!</span>[<span class="string">&quot;Comedy&quot;</span>.into()], 
-            rating: <span class="prelude-val">Some</span>(<span class="number">8.0</span>),
-            duration: <span class="prelude-val">None
-        </span>}
+        <span class="ident">ExternalMedia</span> {
+            <span class="ident">external_id</span>: <span class="string">&quot;65798&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;Letterkenny&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">description</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Letterkenny follows Wayne, a good-ol’ country boy in Letterkenny, Ontario trying to protect his homegrown way of life on the farm, against a world that is constantly evolving around him. The residents of Letterkenny belong to one of three groups: Hicks, Skids, and Hockey Players. The three groups are constantly feuding with each other over seemingly trivial matters; often ending with someone getting their ass kicked.&quot;</span>.<span class="ident">into</span>()),
+            <span class="ident">release_date</span>: <span class="prelude-val">Some</span>(<span class="ident">dt</span>),
+            <span class="ident">posters</span>: <span class="macro">vec!</span>[<span class="string">&quot;https://image.tmdb.org/t/p/w600_and_h900_bestv2/yvQGoc9GGTfOyPty5ASShT9tPBD.jpg&quot;</span>.<span class="ident">into</span>()], 
+            <span class="ident">backdrops</span>: <span class="macro">vec!</span>[<span class="string">&quot;https://image.tmdb.org/t/p/original/wdHK7RZNIGfskbGCIusSKN3vto6.jpg&quot;</span>.<span class="ident">into</span>()], 
+            <span class="ident">genres</span>: <span class="macro">vec!</span>[<span class="string">&quot;Comedy&quot;</span>.<span class="ident">into</span>()], 
+            <span class="ident">rating</span>: <span class="prelude-val">Some</span>(<span class="number">8.0</span>),
+            <span class="ident">duration</span>: <span class="prelude-val">None</span>
+        }
     }
 
-    <span class="attribute">#[tokio::test]
-    </span><span class="kw">async fn </span>tmdb_search() {
-        <span class="kw">let </span>provider = TMDBMetadataProvider::new(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
-        <span class="kw">let </span>provider_shows: MetadataProviderOf&lt;TvShows&gt; = provider.tv_shows();
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">tmdb_search</span>() {
+        <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">TMDBMetadataProvider::new</span>(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
+        <span class="kw">let</span> <span class="ident">provider_shows</span>: <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">TvShows</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">provider</span>.<span class="ident">tv_shows</span>();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>metadata = provider_shows
-            .search(<span class="string">&quot;letterkenny&quot;</span>, <span class="prelude-val">None</span>)
-            .<span class="kw">await
-            </span>.expect(<span class="string">&quot;search results should exist&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">metadata</span> <span class="op">=</span> <span class="ident">provider_shows</span>
+            .<span class="ident">search</span>(<span class="string">&quot;letterkenny&quot;</span>, <span class="prelude-val">None</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;search results should exist&quot;</span>);
 
-        <span class="kw">let </span>letterkenny = make_letterkenny();
+        <span class="kw">let</span> <span class="ident">letterkenny</span> <span class="op">=</span> <span class="ident">make_letterkenny</span>();
 
-        metadata[<span class="number">0</span>].rating.as_mut().map(|x| <span class="kw-2">*</span>x = <span class="number">8.0</span>);
+        <span class="ident">metadata</span>[<span class="number">0</span>].<span class="ident">rating</span>.<span class="ident">as_mut</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span> <span class="number">8.0</span>);
 
-        <span class="macro">assert_eq!</span>(metadata, <span class="macro">vec!</span>[letterkenny]);
+        <span class="macro">assert_eq!</span>(<span class="ident">metadata</span>, <span class="macro">vec!</span>[<span class="ident">letterkenny</span>]);
     }
 
-    <span class="attribute">#[tokio::test]
-    </span><span class="kw">async fn </span>tmdb_get_details() {
-        <span class="kw">let </span>provider = TMDBMetadataProvider::new(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
-        <span class="kw">let </span>provider_shows: MetadataProviderOf&lt;TvShows&gt; = provider.tv_shows();
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">tmdb_get_details</span>() {
+        <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">TMDBMetadataProvider::new</span>(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
+        <span class="kw">let</span> <span class="ident">provider_shows</span>: <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">TvShows</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">provider</span>.<span class="ident">tv_shows</span>();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>media = provider_shows
-            .search_by_id(<span class="string">&quot;65798&quot;</span>)
-            .<span class="kw">await
-            </span>.expect(<span class="string">&quot;search results should exist&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">media</span> <span class="op">=</span> <span class="ident">provider_shows</span>
+            .<span class="ident">search_by_id</span>(<span class="string">&quot;65798&quot;</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;search results should exist&quot;</span>);
 
-        <span class="kw">let </span>letterkenny = make_letterkenny();
+        <span class="kw">let</span> <span class="ident">letterkenny</span> <span class="op">=</span> <span class="ident">make_letterkenny</span>();
 
-        media.rating.as_mut().map(|x| <span class="kw-2">*</span>x = <span class="number">8.0</span>);
+        <span class="ident">media</span>.<span class="ident">rating</span>.<span class="ident">as_mut</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span> <span class="number">8.0</span>);
 
-        <span class="macro">assert_eq!</span>(letterkenny, media);
+        <span class="macro">assert_eq!</span>(<span class="ident">letterkenny</span>, <span class="ident">media</span>);
     }
 
-    <span class="attribute">#[tokio::test]
-    </span><span class="kw">async fn </span>tmdb_get_cast() {
-        <span class="kw">let </span>provider = TMDBMetadataProvider::new(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
-        <span class="kw">let </span>provider_movies: MetadataProviderOf&lt;Movies&gt; = provider.movies();
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">tmdb_get_cast</span>() {
+        <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">TMDBMetadataProvider::new</span>(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
+        <span class="kw">let</span> <span class="ident">provider_movies</span>: <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">Movies</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">provider</span>.<span class="ident">movies</span>();
 
-        <span class="kw">let </span>cast = provider_movies
-            .cast(<span class="string">&quot;335984&quot;</span>)
-            .<span class="kw">await
-            </span>.expect(<span class="string">&quot;cast should exist&quot;</span>);
+        <span class="kw">let</span> <span class="ident">cast</span> <span class="op">=</span> <span class="ident">provider_movies</span>
+            .<span class="ident">cast</span>(<span class="string">&quot;335984&quot;</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;cast should exist&quot;</span>);
 
-        <span class="macro">assert_eq!</span>(cast[<span class="number">0</span>].external_id, <span class="string">&quot;30614&quot;</span>.to_string());
-        <span class="macro">assert_eq!</span>(cast[<span class="number">0</span>].name, <span class="string">&quot;Ryan Gosling&quot;</span>.to_string());
+        <span class="macro">assert_eq!</span>(<span class="ident">cast</span>[<span class="number">0</span>].<span class="ident">external_id</span>, <span class="string">&quot;30614&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">cast</span>[<span class="number">0</span>].<span class="ident">name</span>, <span class="string">&quot;Ryan Gosling&quot;</span>.<span class="ident">to_string</span>());
         <span class="macro">assert_eq!</span>(
-            cast[<span class="number">0</span>].profile_path,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;https://image.tmdb.org/t/p/original/lyUyVARQKhGxaxy0FbPJCQRpiaW.jpg&quot;</span>.to_string())
+            <span class="ident">cast</span>[<span class="number">0</span>].<span class="ident">profile_path</span>,
+            <span class="prelude-val">Some</span>(<span class="string">&quot;https://image.tmdb.org/t/p/original/lyUyVARQKhGxaxy0FbPJCQRpiaW.jpg&quot;</span>.<span class="ident">to_string</span>())
         );
-        <span class="macro">assert!</span>(<span class="macro">matches!</span>(cast[<span class="number">0</span>].character.as_str(), <span class="string">&quot;K&quot; </span>| <span class="string">&quot;\&#39;K\&#39;&quot;</span>));
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="ident">cast</span>[<span class="number">0</span>].<span class="ident">character</span>.<span class="ident">as_str</span>(), <span class="string">&quot;K&quot;</span> <span class="op">|</span> <span class="string">&quot;\&#39;K\&#39;&quot;</span>));
     }
 
-    <span class="attribute">#[tokio::test]
-    </span><span class="kw">async fn </span>tmdb_get_seasons() {
-        <span class="kw">let </span>provider = TMDBMetadataProvider::new(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
-        <span class="kw">let </span>provider_shows: MetadataProviderOf&lt;TvShows&gt; = provider.tv_shows();
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">tmdb_get_seasons</span>() {
+        <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">TMDBMetadataProvider::new</span>(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
+        <span class="kw">let</span> <span class="ident">provider_shows</span>: <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">TvShows</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">provider</span>.<span class="ident">tv_shows</span>();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>media = provider_shows
-            .seasons_for_id(<span class="string">&quot;63639&quot;</span>)
-            .<span class="kw">await
-            </span>.expect(<span class="string">&quot;search results should exist&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">media</span> <span class="op">=</span> <span class="ident">provider_shows</span>
+            .<span class="ident">seasons_for_id</span>(<span class="string">&quot;63639&quot;</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;search results should exist&quot;</span>);
 
-        <span class="macro">assert_eq!</span>(media.len(), <span class="number">7</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">media</span>.<span class="ident">len</span>(), <span class="number">7</span>);
 
-        <span class="kw">let </span>last = media.pop().unwrap();
+        <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="ident">media</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq!</span>(last.season_number, <span class="number">6</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">last</span>.<span class="ident">season_number</span>, <span class="number">6</span>);
 
-        <span class="kw">let </span>expected = ExternalSeason {
-            external_id: <span class="string">&quot;214858&quot;</span>.into(),
-            title: <span class="prelude-val">Some</span>(<span class="string">&quot;Season 6&quot;</span>.into()),
-            description: <span class="prelude-val">Some</span>(<span class="string">&quot;Holden and the crew of the Rocinante fight alongside the Combined Fleet of Earth and Mars to protect the Inner Planets from Marco Inaros and his Free Navy&#39;s campaign of death and destruction. Meanwhile, on a distant planet beyond the Rings, a new power rises.&quot;</span>.into()),
-            posters: <span class="macro">vec!</span>[<span class="string">&quot;https://image.tmdb.org/t/p/w600_and_h900_bestv2/smJPN02aTJcMVQ4z02CINKjg6L0.jpg&quot;</span>.into()],
-            season_number: <span class="number">6
-        </span>};
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">ExternalSeason</span> {
+            <span class="ident">external_id</span>: <span class="string">&quot;214858&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">title</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Season 6&quot;</span>.<span class="ident">into</span>()),
+            <span class="ident">description</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Holden and the crew of the Rocinante fight alongside the Combined Fleet of Earth and Mars to protect the Inner Planets from Marco Inaros and his Free Navy&#39;s campaign of death and destruction. Meanwhile, on a distant planet beyond the Rings, a new power rises.&quot;</span>.<span class="ident">into</span>()),
+            <span class="ident">posters</span>: <span class="macro">vec!</span>[<span class="string">&quot;https://image.tmdb.org/t/p/w600_and_h900_bestv2/smJPN02aTJcMVQ4z02CINKjg6L0.jpg&quot;</span>.<span class="ident">into</span>()],
+            <span class="ident">season_number</span>: <span class="number">6</span>
+        };
 
-        <span class="macro">assert_eq!</span>(last, expected);
+        <span class="macro">assert_eq!</span>(<span class="ident">last</span>, <span class="ident">expected</span>);
     }
 
-    <span class="attribute">#[tokio::test]
-    </span><span class="kw">async fn </span>tmdb_get_episodes() {
-        <span class="kw">let </span>provider = TMDBMetadataProvider::new(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
-        <span class="kw">let </span>provider_shows: MetadataProviderOf&lt;TvShows&gt; = provider.tv_shows();
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">tmdb_get_episodes</span>() {
+        <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">TMDBMetadataProvider::new</span>(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
+        <span class="kw">let</span> <span class="ident">provider_shows</span>: <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">TvShows</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">provider</span>.<span class="ident">tv_shows</span>();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>media = provider_shows
-            .episodes_for_season(<span class="string">&quot;63639&quot;</span>, <span class="number">3</span>)
-            .<span class="kw">await
-            </span>.expect(<span class="string">&quot;search results should exist&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">media</span> <span class="op">=</span> <span class="ident">provider_shows</span>
+            .<span class="ident">episodes_for_season</span>(<span class="string">&quot;63639&quot;</span>, <span class="number">3</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;search results should exist&quot;</span>);
 
-        <span class="macro">assert_eq!</span>(media.len(), <span class="number">13</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">media</span>.<span class="ident">len</span>(), <span class="number">13</span>);
 
-        <span class="kw">let </span>last = media.pop().unwrap();
+        <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="ident">media</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
 
-        <span class="kw">let </span>expected = ExternalEpisode {
-            external_id: <span class="string">&quot;1503262&quot;</span>.into(), 
-            title: <span class="prelude-val">Some</span>(<span class="string">&quot;Abaddon&#39;s Gate&quot;</span>.into()),
-            description: <span class="prelude-val">Some</span>(<span class="string">&quot;Holden and his allies must stop Ashford and his team from destroying the Ring, and perhaps all of humanity.&quot;</span>.into()),
-            episode_number: <span class="number">13</span>,
-            stills: <span class="macro">vec!</span>[<span class="string">&quot;https://image.tmdb.org/t/p/original/nE5kS7hHGmv3bTGVL1hlsVQKXo4.jpg&quot;</span>.into()],
-            duration: <span class="prelude-val">None
-        </span>};
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">ExternalEpisode</span> {
+            <span class="ident">external_id</span>: <span class="string">&quot;1503262&quot;</span>.<span class="ident">into</span>(), 
+            <span class="ident">title</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Abaddon&#39;s Gate&quot;</span>.<span class="ident">into</span>()),
+            <span class="ident">description</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Holden and his allies must stop Ashford and his team from destroying the Ring, and perhaps all of humanity.&quot;</span>.<span class="ident">into</span>()),
+            <span class="ident">episode_number</span>: <span class="number">13</span>,
+            <span class="ident">stills</span>: <span class="macro">vec!</span>[<span class="string">&quot;https://image.tmdb.org/t/p/original/nE5kS7hHGmv3bTGVL1hlsVQKXo4.jpg&quot;</span>.<span class="ident">into</span>()],
+            <span class="ident">duration</span>: <span class="prelude-val">None</span>
+        };
 
-        <span class="macro">assert_eq!</span>(last, expected);
+        <span class="macro">assert_eq!</span>(<span class="ident">last</span>, <span class="ident">expected</span>);
     }
 
-    <span class="attribute">#[tokio::test]
-    </span><span class="kw">async fn </span>once_upon_get_year() {
-        <span class="kw">let </span>provider = TMDBMetadataProvider::new(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
-        <span class="kw">let </span>provider_movies: MetadataProviderOf&lt;Movies&gt; = provider.movies();
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">once_upon_get_year</span>() {
+        <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">TMDBMetadataProvider::new</span>(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
+        <span class="kw">let</span> <span class="ident">provider_movies</span>: <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">Movies</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">provider</span>.<span class="ident">movies</span>();
 
-        <span class="kw">let </span>res = provider_movies
-            .search_by_id(<span class="string">&quot;466272&quot;</span>)
-            .<span class="kw">await
-            </span>.expect(<span class="string">&quot;movie should exist&quot;</span>);
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">provider_movies</span>
+            .<span class="ident">search_by_id</span>(<span class="string">&quot;466272&quot;</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;movie should exist&quot;</span>);
 
-        <span class="macro">assert_eq!</span>(res.release_date.unwrap().year(), <span class="number">2019</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">release_date</span>.<span class="ident">unwrap</span>().<span class="ident">year</span>(), <span class="number">2019</span>);
     }
 
-    <span class="attribute">#[tokio::test]
-    </span><span class="kw">async fn </span>johhny_test_seasons() {
-        <span class="kw">let </span>provider = TMDBMetadataProvider::new(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
-        <span class="kw">let </span>provider_shows: MetadataProviderOf&lt;TvShows&gt; = provider.tv_shows();
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">johhny_test_seasons</span>() {
+        <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">TMDBMetadataProvider::new</span>(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
+        <span class="kw">let</span> <span class="ident">provider_shows</span>: <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">TvShows</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">provider</span>.<span class="ident">tv_shows</span>();
 
-        provider_shows
-            .seasons_for_id(<span class="string">&quot;1769&quot;</span>)
-            .<span class="kw">await
-            </span>.expect(<span class="string">&quot;Failed to get seasons.&quot;</span>);
+        <span class="ident">provider_shows</span>
+            .<span class="ident">seasons_for_id</span>(<span class="string">&quot;1769&quot;</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;Failed to get seasons.&quot;</span>);
     }
 
-    <span class="attribute">#[tokio::test]
-    </span><span class="kw">async fn </span>deserialize_letterkenny() {
-        <span class="kw">let </span>body = <span class="string">r#&quot;{&quot;id&quot;: 1234,&quot;name&quot;: &quot;letter kenny&quot;}&quot;#</span>;
-        serde_json::from_str::&lt;TMDBMediaObject&gt;(<span class="kw-2">&amp;</span>body).unwrap();
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">deserialize_letterkenny</span>() {
+        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="string">r#&quot;{&quot;id&quot;: 1234,&quot;name&quot;: &quot;letter kenny&quot;}&quot;#</span>;
+        <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">TMDBMediaObject</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>).<span class="ident">unwrap</span>();
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>

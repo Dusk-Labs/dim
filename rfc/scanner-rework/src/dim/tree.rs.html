@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/tree.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tree.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/tree.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tree.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -267,185 +274,185 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
-</pre><pre class="rust"><code><span class="doccomment">/// Module contains a data structure that represents a file-tree.
-</span><span class="kw">use </span>serde::Serialize;
-<span class="kw">use </span>std::fmt::Debug;
+</pre><pre class="rust"><code><span class="doccomment">/// Module contains a data structure that represents a file-tree.</span>
+<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
+<span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 
-<span class="attribute">#[derive(Debug, PartialEq, Eq, Serialize)]
-#[serde(tag = <span class="string">&quot;type&quot;</span>)]
-#[serde(rename_all = <span class="string">&quot;lowercase&quot;</span>)]
-</span><span class="doccomment">/// Represents a entry which can either be a directory with more entries, or a singular file.
-</span><span class="kw">pub enum </span>Entry&lt;T&gt; {
-    Directory {
-        folder: String,
-        files: Vec&lt;Entry&lt;T&gt;&gt;,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">tag</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;lowercase&quot;</span>)]</span>
+<span class="doccomment">/// Represents a entry which can either be a directory with more entries, or a singular file.</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">Directory</span> {
+        <span class="ident">folder</span>: <span class="ident">String</span>,
+        <span class="ident">files</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     },
-    File(T),
+    <span class="ident">File</span>(<span class="ident">T</span>),
 }
 
-<span class="kw">impl</span>&lt;T&gt; Entry&lt;T&gt; {
-    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::Directory {
-            folder: <span class="string">&quot;/&quot;</span>.into(),
-            files: <span class="macro">vec!</span>[],
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Directory</span> {
+            <span class="ident">folder</span>: <span class="string">&quot;/&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">files</span>: <span class="macro">vec!</span>[],
         }
     }
 
-    <span class="doccomment">/// Helper which can turn a collection of values into a tree. The caller must supply a closure
-    /// which extracts a key from a value.
-    </span><span class="kw">pub fn </span>build_with&lt;U&gt;(
-        values: <span class="kw">impl </span>IntoIterator&lt;Item = U&gt;,
-        k: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>U) -&gt; Vec&lt;String&gt;,
-        v: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>str, U) -&gt; T,
-    ) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>entry = <span class="self">Self</span>::new();
+    <span class="doccomment">/// Helper which can turn a collection of values into a tree. The caller must supply a closure</span>
+    <span class="doccomment">/// which extracts a key from a value.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_with</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>(
+        <span class="ident">values</span>: <span class="kw">impl</span> <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">U</span><span class="op">&gt;</span>,
+        <span class="ident">k</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">U</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">v</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">U</span>) -&gt; <span class="ident">T</span>,
+    ) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entry</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new</span>();
 
-        <span class="kw">for </span>value <span class="kw">in </span>values.into_iter() {
-            <span class="kw">let </span><span class="kw-2">mut </span>components = k(<span class="kw-2">&amp;</span>value);
+        <span class="kw">for</span> <span class="ident">value</span> <span class="kw">in</span> <span class="ident">values</span>.<span class="ident">into_iter</span>() {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">components</span> <span class="op">=</span> <span class="ident">k</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>);
 
-            <span class="kw">let </span>filename = <span class="kw">match </span>components.pop() {
-                <span class="prelude-val">Some</span>(x) =&gt; x,
-                <span class="prelude-val">None </span>=&gt; <span class="kw">continue</span>,
+            <span class="kw">let</span> <span class="ident">filename</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">components</span>.<span class="ident">pop</span>() {
+                <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
+                <span class="prelude-val">None</span> =&gt; <span class="kw">continue</span>,
             };
 
-            entry.insert(components.iter(), v(filename.as_ref(), value));
+            <span class="ident">entry</span>.<span class="ident">insert</span>(<span class="ident">components</span>.<span class="ident">iter</span>(), <span class="ident">v</span>(<span class="ident">filename</span>.<span class="ident">as_ref</span>(), <span class="ident">value</span>));
         }
 
-        <span class="comment">// remove root-directories with only one folder inside.
-        </span>entry.compress();
+        <span class="comment">// remove root-directories with only one folder inside.</span>
+        <span class="ident">entry</span>.<span class="ident">compress</span>();
 
-        entry
+        <span class="ident">entry</span>
     }
 
-    <span class="doccomment">/// Method inserts a value in the current entry by recursively scanning it based on the keys
-    /// supplied. The supplied value will be associated with the last key in the collection of keys
-    /// supplied.
-    </span><span class="kw">pub fn </span>insert&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>keys: <span class="kw">impl </span>Iterator&lt;Item = <span class="kw">impl </span>AsRef&lt;str&gt;&gt;, value: T) {
-        <span class="kw">if </span><span class="self">self</span>.is_file() {
+    <span class="doccomment">/// Method inserts a value in the current entry by recursively scanning it based on the keys</span>
+    <span class="doccomment">/// supplied. The supplied value will be associated with the last key in the collection of keys</span>
+    <span class="doccomment">/// supplied.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">keys</span>: <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">value</span>: <span class="ident">T</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_file</span>() {
             <span class="kw">return</span>;
         }
 
-        <span class="comment">// NOTE: If the key is None, we&#39;ve reached the max depth, so we can safely insert the
-        // record into our current self.
-        </span><span class="kw">let </span>key = <span class="kw">match </span>keys.next() {
-            <span class="prelude-val">Some</span>(x) =&gt; x,
-            <span class="prelude-val">None </span>=&gt; {
-                <span class="self">self</span>.insert_inner(<span class="self">Self</span>::File(value));
+        <span class="comment">// NOTE: If the key is None, we&#39;ve reached the max depth, so we can safely insert the</span>
+        <span class="comment">// record into our current self.</span>
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">keys</span>.<span class="ident">next</span>() {
+            <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
+            <span class="prelude-val">None</span> =&gt; {
+                <span class="self">self</span>.<span class="ident">insert_inner</span>(<span class="ident"><span class="self">Self</span>::File</span>(<span class="ident">value</span>));
                 <span class="kw">return</span>;
             }
         };
 
-        <span class="kw">if </span>key.as_ref() == <span class="string">&quot;/&quot; </span>{
-            <span class="self">self</span>.insert(keys, value);
+        <span class="kw">if</span> <span class="ident">key</span>.<span class="ident">as_ref</span>() <span class="op">==</span> <span class="string">&quot;/&quot;</span> {
+            <span class="self">self</span>.<span class="ident">insert</span>(<span class="ident">keys</span>, <span class="ident">value</span>);
             <span class="kw">return</span>;
         }
 
-        <span class="comment">// If we get a key, we want to create a new entry in self for this key, or access it and
-        // insert `value` recursively.
-        </span><span class="kw">let </span>files = <span class="self">self</span>.files();
-        <span class="kw">let </span>folder = <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = files.iter_mut().find(|x| x.is_dir(key.as_ref())) {
-            x
-        } <span class="kw">else </span>{
-            files.push(<span class="self">Self</span>::Directory {
-                folder: key.as_ref().to_owned(),
-                files: <span class="macro">vec!</span>[],
+        <span class="comment">// If we get a key, we want to create a new entry in self for this key, or access it and</span>
+        <span class="comment">// insert `value` recursively.</span>
+        <span class="kw">let</span> <span class="ident">files</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">files</span>();
+        <span class="kw">let</span> <span class="ident">folder</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">files</span>.<span class="ident">iter_mut</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">is_dir</span>(<span class="ident">key</span>.<span class="ident">as_ref</span>())) {
+            <span class="ident">x</span>
+        } <span class="kw">else</span> {
+            <span class="ident">files</span>.<span class="ident">push</span>(<span class="ident"><span class="self">Self</span>::Directory</span> {
+                <span class="ident">folder</span>: <span class="ident">key</span>.<span class="ident">as_ref</span>().<span class="ident">to_owned</span>(),
+                <span class="ident">files</span>: <span class="macro">vec!</span>[],
             });
-            <span class="comment">// SAFETY: Last element will always exist, because we push it above.
-            </span><span class="kw">match </span>files.last_mut() {
-                <span class="prelude-val">Some</span>(x) =&gt; x,
-                <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Entry::insert: failed to get last file&quot;</span>),
+            <span class="comment">// SAFETY: Last element will always exist, because we push it above.</span>
+            <span class="kw">match</span> <span class="ident">files</span>.<span class="ident">last_mut</span>() {
+                <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
+                <span class="prelude-val">None</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Entry::insert: failed to get last file&quot;</span>),
             }
         };
 
-        folder.insert(keys, value);
+        <span class="ident">folder</span>.<span class="ident">insert</span>(<span class="ident">keys</span>, <span class="ident">value</span>);
     }
 
-    <span class="doccomment">/// Changes the root to the first folder that has children.
-    </span><span class="kw">pub fn </span>compress(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">while let </span>Entry::Directory { files, .. } = <span class="self">self </span>{
-            <span class="kw">if </span>files.len() != <span class="number">1 </span>{
+    <span class="doccomment">/// Changes the root to the first folder that has children.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compress</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="kw">while</span> <span class="kw">let</span> <span class="ident">Entry::Directory</span> { <span class="ident">files</span>, .. } <span class="op">=</span> <span class="self">self</span> {
+            <span class="kw">if</span> <span class="ident">files</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
                 <span class="kw">return</span>;
             }
 
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(Entry::File(<span class="kw">_</span>)) = files.first() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Entry::File</span>(<span class="kw">_</span>)) <span class="op">=</span> <span class="ident">files</span>.<span class="ident">first</span>() {
                 <span class="kw">return</span>;
             }
 
-            <span class="kw">let </span><span class="kw-2">mut </span>new_root = files.pop().unwrap();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_root</span> <span class="op">=</span> <span class="ident">files</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
 
-            core::mem::swap(<span class="self">self</span>, <span class="kw-2">&amp;mut </span>new_root);
+            <span class="ident">core::mem::swap</span>(<span class="self">self</span>, <span class="kw-2">&amp;mut</span> <span class="ident">new_root</span>);
         }
     }
 
-    <span class="doccomment">/// Insert a new entry into the current entry.
-    ///
-    /// # Panics
-    /// This method will panic if the current entry is not a directory.
-    </span><span class="kw">fn </span>insert_inner(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="self">Self</span>) {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Directory { files, .. } =&gt; files.push(value),
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Attempted to insert a new entry into a entry that isnt a directory&quot;</span>),
+    <span class="doccomment">/// Insert a new entry into the current entry.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// This method will panic if the current entry is not a directory.</span>
+    <span class="kw">fn</span> <span class="ident">insert_inner</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="self">Self</span>) {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Directory</span> { <span class="ident">files</span>, .. } =&gt; <span class="ident">files</span>.<span class="ident">push</span>(<span class="ident">value</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Attempted to insert a new entry into a entry that isnt a directory&quot;</span>),
         }
     }
 
-    <span class="doccomment">/// Will return a mutable reference to a vec of entries.
-    ///
-    /// # Panics
-    /// This method will panic if the current entry is not a directory.
-    </span><span class="kw">fn </span>files(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Vec&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Directory { files, .. } =&gt; files,
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Attempted to get all files of a entry that isnt a directory&quot;</span>),
+    <span class="doccomment">/// Will return a mutable reference to a vec of entries.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// This method will panic if the current entry is not a directory.</span>
+    <span class="kw">fn</span> <span class="ident">files</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Directory</span> { <span class="ident">files</span>, .. } =&gt; <span class="ident">files</span>,
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Attempted to get all files of a entry that isnt a directory&quot;</span>),
         }
     }
 
-    <span class="doccomment">/// Method indicates whether the current entry is a directory with the name `k`.
-    </span><span class="kw">fn </span>is_dir(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>str) -&gt; bool {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::File(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
-            <span class="self">Self</span>::Directory { folder, .. } =&gt; folder == k,
+    <span class="doccomment">/// Method indicates whether the current entry is a directory with the name `k`.</span>
+    <span class="kw">fn</span> <span class="ident">is_dir</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">k</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::File</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
+            <span class="ident"><span class="self">Self</span>::Directory</span> { <span class="ident">folder</span>, .. } =&gt; <span class="ident">folder</span> <span class="op">==</span> <span class="ident">k</span>,
         }
     }
 
-    <span class="doccomment">/// Method indicates whether the current entry is a file.
-    </span><span class="kw">fn </span>is_file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::File(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+    <span class="doccomment">/// Method indicates whether the current entry is a file.</span>
+    <span class="kw">fn</span> <span class="ident">is_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::File</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 }
 
-<span class="attribute">#[cfg(test)]
-</span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[derive(Debug, PartialEq, Eq)]
-    </span><span class="kw">struct </span>Record(String);
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+    <span class="kw">struct</span> <span class="ident">Record</span>(<span class="ident">String</span>);
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>insert_some() {
-        <span class="kw">let </span><span class="kw-2">mut </span>entry = Entry::new();
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">insert_some</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entry</span> <span class="op">=</span> <span class="ident">Entry::new</span>();
 
-        <span class="comment">// file located at /a/b/c
-        </span><span class="kw">let </span>keys = [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>];
+        <span class="comment">// file located at /a/b/c</span>
+        <span class="kw">let</span> <span class="ident">keys</span> <span class="op">=</span> [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>];
 
-        entry.insert(IntoIterator::into_iter(keys), Record(<span class="string">&quot;d.txt&quot;</span>.to_string()));
-        entry.insert(IntoIterator::into_iter(keys), Record(<span class="string">&quot;d.txt&quot;</span>.to_string()));
+        <span class="ident">entry</span>.<span class="ident">insert</span>(<span class="ident">IntoIterator::into_iter</span>(<span class="ident">keys</span>), <span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">to_string</span>()));
+        <span class="ident">entry</span>.<span class="ident">insert</span>(<span class="ident">IntoIterator::into_iter</span>(<span class="ident">keys</span>), <span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">to_string</span>()));
 
         <span class="macro">assert_eq!</span>(
-            entry,
-            Entry::Directory {
-                folder: <span class="string">&quot;/&quot;</span>.into(),
-                files: <span class="macro">vec!</span>[Entry::Directory {
-                    folder: <span class="string">&quot;a&quot;</span>.into(),
-                    files: <span class="macro">vec!</span>[Entry::Directory {
-                        folder: <span class="string">&quot;b&quot;</span>.into(),
-                        files: <span class="macro">vec!</span>[Entry::Directory {
-                            folder: <span class="string">&quot;c&quot;</span>.into(),
-                            files: <span class="macro">vec!</span>[
-                                Entry::File(Record(<span class="string">&quot;d.txt&quot;</span>.to_string())),
-                                Entry::File(Record(<span class="string">&quot;d.txt&quot;</span>.to_string()))
+            <span class="ident">entry</span>,
+            <span class="ident">Entry::Directory</span> {
+                <span class="ident">folder</span>: <span class="string">&quot;/&quot;</span>.<span class="ident">into</span>(),
+                <span class="ident">files</span>: <span class="macro">vec!</span>[<span class="ident">Entry::Directory</span> {
+                    <span class="ident">folder</span>: <span class="string">&quot;a&quot;</span>.<span class="ident">into</span>(),
+                    <span class="ident">files</span>: <span class="macro">vec!</span>[<span class="ident">Entry::Directory</span> {
+                        <span class="ident">folder</span>: <span class="string">&quot;b&quot;</span>.<span class="ident">into</span>(),
+                        <span class="ident">files</span>: <span class="macro">vec!</span>[<span class="ident">Entry::Directory</span> {
+                            <span class="ident">folder</span>: <span class="string">&quot;c&quot;</span>.<span class="ident">into</span>(),
+                            <span class="ident">files</span>: <span class="macro">vec!</span>[
+                                <span class="ident">Entry::File</span>(<span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">to_string</span>())),
+                                <span class="ident">Entry::File</span>(<span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">to_string</span>()))
                             ]
                         }]
                     }]
@@ -454,61 +461,61 @@
         );
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>insert_different_folders() {
-        <span class="kw">let </span><span class="kw-2">mut </span>entry = Entry::new();
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">insert_different_folders</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entry</span> <span class="op">=</span> <span class="ident">Entry::new</span>();
 
-        entry.insert(
-            IntoIterator::into_iter([<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]),
-            Record(<span class="string">&quot;d.txt&quot;</span>.to_string()),
+        <span class="ident">entry</span>.<span class="ident">insert</span>(
+            <span class="ident">IntoIterator::into_iter</span>([<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]),
+            <span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">to_string</span>()),
         );
-        entry.insert(
-            IntoIterator::into_iter([<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;d&quot;</span>]),
-            Record(<span class="string">&quot;d.txt&quot;</span>.to_string()),
+        <span class="ident">entry</span>.<span class="ident">insert</span>(
+            <span class="ident">IntoIterator::into_iter</span>([<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;d&quot;</span>]),
+            <span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">to_string</span>()),
         );
-        entry.insert(
-            IntoIterator::into_iter([<span class="string">&quot;z&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;d&quot;</span>]),
-            Record(<span class="string">&quot;d.txt&quot;</span>.to_string()),
+        <span class="ident">entry</span>.<span class="ident">insert</span>(
+            <span class="ident">IntoIterator::into_iter</span>([<span class="string">&quot;z&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;d&quot;</span>]),
+            <span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">to_string</span>()),
         );
-        entry.insert(
-            IntoIterator::into_iter([<span class="string">&quot;a&quot;</span>, <span class="string">&quot;z&quot;</span>]),
-            Record(<span class="string">&quot;d.txt&quot;</span>.to_string()),
+        <span class="ident">entry</span>.<span class="ident">insert</span>(
+            <span class="ident">IntoIterator::into_iter</span>([<span class="string">&quot;a&quot;</span>, <span class="string">&quot;z&quot;</span>]),
+            <span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">to_string</span>()),
         );
 
         <span class="macro">assert_eq!</span>(
-            entry,
-            Entry::Directory {
-                folder: <span class="string">&quot;/&quot;</span>.into(),
-                files: <span class="macro">vec!</span>[
-                    Entry::Directory {
-                        folder: <span class="string">&quot;a&quot;</span>.into(),
-                        files: <span class="macro">vec!</span>[
-                            Entry::Directory {
-                                folder: <span class="string">&quot;b&quot;</span>.into(),
-                                files: <span class="macro">vec!</span>[
-                                    Entry::Directory {
-                                        folder: <span class="string">&quot;c&quot;</span>.into(),
-                                        files: <span class="macro">vec!</span>[Entry::File(Record(<span class="string">&quot;d.txt&quot;</span>.to_string())),]
+            <span class="ident">entry</span>,
+            <span class="ident">Entry::Directory</span> {
+                <span class="ident">folder</span>: <span class="string">&quot;/&quot;</span>.<span class="ident">into</span>(),
+                <span class="ident">files</span>: <span class="macro">vec!</span>[
+                    <span class="ident">Entry::Directory</span> {
+                        <span class="ident">folder</span>: <span class="string">&quot;a&quot;</span>.<span class="ident">into</span>(),
+                        <span class="ident">files</span>: <span class="macro">vec!</span>[
+                            <span class="ident">Entry::Directory</span> {
+                                <span class="ident">folder</span>: <span class="string">&quot;b&quot;</span>.<span class="ident">into</span>(),
+                                <span class="ident">files</span>: <span class="macro">vec!</span>[
+                                    <span class="ident">Entry::Directory</span> {
+                                        <span class="ident">folder</span>: <span class="string">&quot;c&quot;</span>.<span class="ident">into</span>(),
+                                        <span class="ident">files</span>: <span class="macro">vec!</span>[<span class="ident">Entry::File</span>(<span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">to_string</span>())),]
                                     },
-                                    Entry::Directory {
-                                        folder: <span class="string">&quot;d&quot;</span>.into(),
-                                        files: <span class="macro">vec!</span>[Entry::File(Record(<span class="string">&quot;d.txt&quot;</span>.to_string())),]
+                                    <span class="ident">Entry::Directory</span> {
+                                        <span class="ident">folder</span>: <span class="string">&quot;d&quot;</span>.<span class="ident">into</span>(),
+                                        <span class="ident">files</span>: <span class="macro">vec!</span>[<span class="ident">Entry::File</span>(<span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">to_string</span>())),]
                                     }
                                 ]
                             },
-                            Entry::Directory {
-                                folder: <span class="string">&quot;z&quot;</span>.into(),
-                                files: <span class="macro">vec!</span>[Entry::File(Record(<span class="string">&quot;d.txt&quot;</span>.to_string())),]
+                            <span class="ident">Entry::Directory</span> {
+                                <span class="ident">folder</span>: <span class="string">&quot;z&quot;</span>.<span class="ident">into</span>(),
+                                <span class="ident">files</span>: <span class="macro">vec!</span>[<span class="ident">Entry::File</span>(<span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">to_string</span>())),]
                             }
                         ]
                     },
-                    Entry::Directory {
-                        folder: <span class="string">&quot;z&quot;</span>.into(),
-                        files: <span class="macro">vec!</span>[Entry::Directory {
-                            folder: <span class="string">&quot;b&quot;</span>.into(),
-                            files: <span class="macro">vec!</span>[Entry::Directory {
-                                folder: <span class="string">&quot;d&quot;</span>.into(),
-                                files: <span class="macro">vec!</span>[Entry::File(Record(<span class="string">&quot;d.txt&quot;</span>.to_string())),]
+                    <span class="ident">Entry::Directory</span> {
+                        <span class="ident">folder</span>: <span class="string">&quot;z&quot;</span>.<span class="ident">into</span>(),
+                        <span class="ident">files</span>: <span class="macro">vec!</span>[<span class="ident">Entry::Directory</span> {
+                            <span class="ident">folder</span>: <span class="string">&quot;b&quot;</span>.<span class="ident">into</span>(),
+                            <span class="ident">files</span>: <span class="macro">vec!</span>[<span class="ident">Entry::Directory</span> {
+                                <span class="ident">folder</span>: <span class="string">&quot;d&quot;</span>.<span class="ident">into</span>(),
+                                <span class="ident">files</span>: <span class="macro">vec!</span>[<span class="ident">Entry::File</span>(<span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">to_string</span>())),]
                             }]
                         }]
                     },
@@ -517,24 +524,25 @@
         );
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>test_compression() {
-        <span class="kw">let </span><span class="kw-2">mut </span>entry = Entry::new();
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_compression</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entry</span> <span class="op">=</span> <span class="ident">Entry::new</span>();
 
-        entry.insert(
-            IntoIterator::into_iter([<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]),
-            Record(<span class="string">&quot;d.txt&quot;</span>.into()),
+        <span class="ident">entry</span>.<span class="ident">insert</span>(
+            <span class="ident">IntoIterator::into_iter</span>([<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]),
+            <span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">into</span>()),
         );
-        entry.compress();
+        <span class="ident">entry</span>.<span class="ident">compress</span>();
 
         <span class="macro">assert_eq!</span>(
-            entry,
-            Entry::Directory {
-                folder: <span class="string">&quot;c&quot;</span>.into(),
-                files: <span class="macro">vec!</span>[Entry::File(Record(<span class="string">&quot;d.txt&quot;</span>.into()))]
+            <span class="ident">entry</span>,
+            <span class="ident">Entry::Directory</span> {
+                <span class="ident">folder</span>: <span class="string">&quot;c&quot;</span>.<span class="ident">into</span>(),
+                <span class="ident">files</span>: <span class="macro">vec!</span>[<span class="ident">Entry::File</span>(<span class="ident">Record</span>(<span class="string">&quot;d.txt&quot;</span>.<span class="ident">into</span>()))]
             }
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>

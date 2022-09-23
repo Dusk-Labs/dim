@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Error",""]],"struct":[["TvMatcher",""]]};
+initSidebarItems({"enum":[["Error",""]],"struct":[["TvMatcher",""]]});

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ContentType",""]],"struct":[["StreamTracking",""],["VirtualManifest",""]]};
+initSidebarItems({"enum":[["ContentType",""]],"struct":[["StreamTracking",""],["VirtualManifest",""]]});

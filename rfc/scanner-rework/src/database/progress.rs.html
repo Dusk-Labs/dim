@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/progress.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>progress.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/progress.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>progress.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -173,113 +180,113 @@
 <span id="173">173</span>
 <span id="174">174</span>
 <span id="175">175</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::library::MediaType;
-<span class="kw">use </span><span class="kw">crate</span>::media::Media;
-<span class="kw">use </span><span class="kw">crate</span>::user::UserID;
-<span class="kw">use </span><span class="kw">crate</span>::DatabaseError <span class="kw">as </span>DieselError;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::library::MediaType</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::media::Media</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::user::UserID</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DatabaseError</span> <span class="kw">as</span> <span class="ident">DieselError</span>;
 
-<span class="kw">use </span>serde::Serialize;
-<span class="kw">use </span>std::time::SystemTime;
+<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
+<span class="kw">use</span> <span class="ident">std::time::SystemTime</span>;
 
-<span class="attribute">#[derive(Debug, Serialize)]
-</span><span class="kw">pub struct </span>Progress {
-    <span class="kw">pub </span>id: i64,
-    <span class="kw">pub </span>delta: i64,
-    <span class="kw">pub </span>media_id: i64,
-    <span class="kw">pub </span>user_id: UserID,
-    <span class="kw">pub </span>populated: i64,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Progress</span> {
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">delta</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">media_id</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">UserID</span>,
+    <span class="kw">pub</span> <span class="ident">populated</span>: <span class="ident">i64</span>,
 }
 
-<span class="kw">impl </span>Progress {
-    <span class="kw">pub async fn </span>set(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        delta: i64,
-        uid: UserID,
-        mid: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DieselError&gt; {
-        <span class="kw">let </span>timestamp = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs() <span class="kw">as </span>i64;
+<span class="kw">impl</span> <span class="ident">Progress</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">delta</span>: <span class="ident">i64</span>,
+        <span class="ident">uid</span>: <span class="ident">UserID</span>,
+        <span class="ident">mid</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DieselError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">timestamp</span> <span class="op">=</span> <span class="ident">SystemTime::now</span>()
+            .<span class="ident">duration_since</span>(<span class="ident">SystemTime::UNIX_EPOCH</span>)
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">as_secs</span>() <span class="kw">as</span> <span class="ident">i64</span>;
 
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">&quot;INSERT OR REPLACE INTO progress (delta, media_id, user_id, populated)
             VALUES ($1, $2, $3, $4)&quot;</span>,
-            delta,
-            mid,
-            uid,
-            timestamp
+            <span class="ident">delta</span>,
+            <span class="ident">mid</span>,
+            <span class="ident">uid</span>,
+            <span class="ident">timestamp</span>
         )
-        .execute(<span class="kw-2">&amp;mut *</span>conn)
-        .<span class="kw">await</span><span class="question-mark">?
-        </span>.rows_affected() <span class="kw">as </span>usize)
+        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>)
     }
 
-    <span class="kw">pub async fn </span>get_for_media_user(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        uid: UserID,
-        mid: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DieselError&gt; {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_for_media_user</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">uid</span>: <span class="ident">UserID</span>,
+        <span class="ident">mid</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DieselError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
-            Progress,
+            <span class="ident">Progress</span>,
             <span class="string">r#&quot;SELECT id, user_id as &quot;user_id: UserID&quot;, delta, media_id, populated FROM progress
             WHERE user_id = ?
             AND media_id = ?&quot;#</span>,
-            uid,
-            mid
+            <span class="ident">uid</span>,
+            <span class="ident">mid</span>
         )
-        .fetch_optional(<span class="kw-2">&amp;mut *</span>conn)
-        .<span class="kw">await</span><span class="question-mark">?
-        </span>.unwrap_or(<span class="self">Self </span>{
-            id: Default::default(),
-            media_id: mid,
-            user_id: uid,
-            delta: Default::default(),
-            populated: Default::default(),
+        .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">unwrap_or</span>(<span class="self">Self</span> {
+            <span class="ident">id</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">media_id</span>: <span class="ident">mid</span>,
+            <span class="ident">user_id</span>: <span class="ident">uid</span>,
+            <span class="ident">delta</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">populated</span>: <span class="ident">Default::default</span>(),
         }))
     }
 
-    <span class="kw">pub async fn </span>get_total_time_spent_watching(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        uid: UserID,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;i32, DieselError&gt; {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_total_time_spent_watching</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">uid</span>: <span class="ident">UserID</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="ident">DieselError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">&quot;SELECT COALESCE(SUM(progress.delta), 0) as total FROM progress
                 WHERE progress.user_id = ?&quot;</span>,
-            uid
+            <span class="ident">uid</span>
         )
-        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
-        .<span class="kw">await</span><span class="question-mark">?
-        </span>.total
-        .unwrap_or_default())
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">total</span>
+        .<span class="ident">unwrap_or_default</span>())
     }
 
-    <span class="kw">pub async fn </span>get_total_for_media(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        media: <span class="kw-2">&amp;</span>Media,
-        uid: UserID,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;i64, DieselError&gt; {
-        <span class="kw">match </span>media.media_type {
-            MediaType::Tv =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::get_total_for_tv(conn, uid, media.id).<span class="kw">await</span><span class="question-mark">? </span><span class="kw">as </span>i64),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::get_for_media_user(conn, uid, media.id)
-                .<span class="kw">await
-                </span>.map(|x| x.delta)<span class="question-mark">?</span>),
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_total_for_media</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">media</span>: <span class="kw-2">&amp;</span><span class="ident">Media</span>,
+        <span class="ident">uid</span>: <span class="ident">UserID</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DieselError</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="ident">media</span>.<span class="ident">media_type</span> {
+            <span class="ident">MediaType::Tv</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::get_total_for_tv</span>(<span class="ident">conn</span>, <span class="ident">uid</span>, <span class="ident">media</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">i64</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::get_for_media_user</span>(<span class="ident">conn</span>, <span class="ident">uid</span>, <span class="ident">media</span>.<span class="ident">id</span>)
+                .<span class="kw">await</span>
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">delta</span>)<span class="question-mark">?</span>),
         }
     }
 
-    <span class="kw">pub async fn </span>get_progress_for_media(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        id: i64,
-        uid: UserID,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(i64, i64), DieselError&gt; {
-        <span class="attribute">#[derive(sqlx::FromRow)]
-        </span><span class="kw">struct </span>Record {
-            delta: i64,
-            duration: i64,
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_progress_for_media</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">id</span>: <span class="ident">i64</span>,
+        <span class="ident">uid</span>: <span class="ident">UserID</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">i64</span>, <span class="ident">i64</span>), <span class="ident">DieselError</span><span class="op">&gt;</span> {
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx::FromRow</span>)]</span>
+        <span class="kw">struct</span> <span class="ident">Record</span> {
+            <span class="ident">delta</span>: <span class="ident">i64</span>,
+            <span class="ident">duration</span>: <span class="ident">i64</span>,
         }
 
-        <span class="comment">// FIXME: Use query_as macro instead of query_as function when https://github.com/launchbadge/sqlx/issues/1249 is fixed.
-        </span><span class="kw">let </span>record = sqlx::query_as::&lt;<span class="kw">_</span>, Record&gt;(
+        <span class="comment">// FIXME: Use query_as macro instead of query_as function when https://github.com/launchbadge/sqlx/issues/1249 is fixed.</span>
+        <span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="ident">sqlx::query_as</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">Record</span><span class="op">&gt;</span>(
             <span class="string">&quot;SELECT progress.delta, MAX(mediafile.duration) duration FROM _tblmedia
             INNER JOIN mediafile ON mediafile.media_id = _tblmedia.id
             LEFT OUTER JOIN progress ON progress.media_id = _tblmedia.id AND progress.user_id = ?
@@ -287,25 +294,25 @@
             GROUP BY _tblmedia.id
             LIMIT 1&quot;</span>,
         )
-        .bind(uid)
-        .bind(id)
-        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="ident">bind</span>(<span class="ident">uid</span>)
+        .<span class="ident">bind</span>(<span class="ident">id</span>)
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>((record.delta, record.duration))
+        <span class="prelude-val">Ok</span>((<span class="ident">record</span>.<span class="ident">delta</span>, <span class="ident">record</span>.<span class="ident">duration</span>))
     }
 
-    <span class="kw">pub async fn </span>get_total_for_tv(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        uid: UserID,
-        tv_id: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;i32, DieselError&gt; {
-        <span class="attribute">#[derive(sqlx::FromRow)]
-        </span><span class="kw">struct </span>Row {
-            total: i32,
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_total_for_tv</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">uid</span>: <span class="ident">UserID</span>,
+        <span class="ident">tv_id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="ident">DieselError</span><span class="op">&gt;</span> {
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx::FromRow</span>)]</span>
+        <span class="kw">struct</span> <span class="ident">Row</span> {
+            <span class="ident">total</span>: <span class="ident">i32</span>,
         }
 
-        <span class="prelude-val">Ok</span>(sqlx::query_as::&lt;<span class="kw">_</span>, Row&gt;(
+        <span class="prelude-val">Ok</span>(<span class="ident">sqlx::query_as</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">Row</span><span class="op">&gt;</span>(
             <span class="string">&quot;SELECT COALESCE(SUM(progress.delta), 0) as total FROM _tblmedia
             JOIN progress ON progress.media_id = _tblmedia.id
             JOIN episode ON episode.id = _tblmedia.id
@@ -314,19 +321,19 @@
             WHERE season.tvshowid = ?
             AND progress.user_id = ?&quot;</span>,
         )
-        .bind(tv_id)
-        .bind(uid)
-        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
-        .<span class="kw">await</span><span class="question-mark">?
-        </span>.total)
+        .<span class="ident">bind</span>(<span class="ident">tv_id</span>)
+        .<span class="ident">bind</span>(<span class="ident">uid</span>)
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">total</span>)
     }
 
-    <span class="kw">pub async fn </span>get_continue_watching(
-        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
-        uid: UserID,
-        count: i64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;i64&gt;, DieselError&gt; {
-        <span class="prelude-val">Ok</span>(sqlx::query_scalar(
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_continue_watching</span>(
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">uid</span>: <span class="ident">UserID</span>,
+        <span class="ident">count</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>, <span class="ident">DieselError</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">sqlx::query_scalar</span>(
             <span class="string">r#&quot;SELECT _tblmedia.id  FROM _tblmedia
 
             JOIN season on season.tvshowid = _tblmedia.id
@@ -342,11 +349,12 @@
             ORDER BY progress.populated DESC
             LIMIT ?&quot;#</span>,
         )
-        .bind(uid)
-        .bind(count)
-        .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="ident">bind</span>(<span class="ident">uid</span>)
+        .<span class="ident">bind</span>(<span class="ident">count</span>)
+        .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>

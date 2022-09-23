@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ClientActions",""],["CtrlEvent",""]],"fn":[["event_socket",""]],"trait":[["IntoCtrlEvent",""]]};
+initSidebarItems({"enum":[["ClientActions",""],["CtrlEvent",""]],"fn":[["event_socket",""]],"trait":[["IntoCtrlEvent",""]]});

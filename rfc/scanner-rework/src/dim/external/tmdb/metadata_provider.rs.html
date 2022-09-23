@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/external/tmdb/metadata_provider.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>metadata_provider.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../dim/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/external/tmdb/metadata_provider.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>metadata_provider.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../dim/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -558,301 +565,301 @@
 <span id="558">558</span>
 <span id="559">559</span>
 <span id="560">560</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
-<span class="kw">use </span>std::future::Future;
-<span class="kw">use </span>std::marker::PhantomData;
-<span class="kw">use </span>std::num::NonZeroU32;
-<span class="kw">use </span>std::sync::atomic::AtomicUsize;
-<span class="kw">use </span>std::sync::atomic::Ordering;
-<span class="kw">use </span>std::time::Duration;
-<span class="kw">use </span>std::time::Instant;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+<span class="kw">use</span> <span class="ident">std::future::Future</span>;
+<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
+<span class="kw">use</span> <span class="ident">std::num::NonZeroU32</span>;
+<span class="kw">use</span> <span class="ident">std::sync::atomic::AtomicUsize</span>;
+<span class="kw">use</span> <span class="ident">std::sync::atomic::Ordering</span>;
+<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span class="kw">use</span> <span class="ident">std::time::Instant</span>;
 
-<span class="kw">use </span>async_trait::async_trait;
+<span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 
-<span class="kw">use </span>tokio::sync::broadcast;
-<span class="kw">use </span>tracing::instrument;
+<span class="kw">use</span> <span class="ident">tokio::sync::broadcast</span>;
+<span class="kw">use</span> <span class="ident">tracing::instrument</span>;
 
-<span class="kw">use </span><span class="kw">crate</span>::external::{<span class="prelude-ty">Result </span><span class="kw">as </span>QueryResult, <span class="kw-2">*</span>};
-<span class="kw">use </span>core::result::Result;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external</span>::{<span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">QueryResult</span>, <span class="kw-2">*</span>};
+<span class="kw">use</span> <span class="ident">core::result::Result</span>;
 
-<span class="kw">use </span>governor::clock::DefaultClock;
-<span class="kw">use </span>governor::middleware::NoOpMiddleware;
-<span class="kw">use </span>governor::state::direct::NotKeyed;
-<span class="kw">use </span>governor::state::InMemoryState;
-<span class="kw">use </span>governor::Quota;
-<span class="kw">use </span>governor::RateLimiter;
+<span class="kw">use</span> <span class="ident">governor::clock::DefaultClock</span>;
+<span class="kw">use</span> <span class="ident">governor::middleware::NoOpMiddleware</span>;
+<span class="kw">use</span> <span class="ident">governor::state::direct::NotKeyed</span>;
+<span class="kw">use</span> <span class="ident">governor::state::InMemoryState</span>;
+<span class="kw">use</span> <span class="ident">governor::Quota</span>;
+<span class="kw">use</span> <span class="ident">governor::RateLimiter</span>;
 
-<span class="kw">use </span><span class="kw">super</span>::cache_control::{AbortOnDropHandle, CacheEviction, CacheKey, CacheMap, CacheValue};
-<span class="kw">use </span><span class="kw">super</span>::raw_client::TMDBClient;
-<span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::cache_control</span>::{<span class="ident">AbortOnDropHandle</span>, <span class="ident">CacheEviction</span>, <span class="ident">CacheKey</span>, <span class="ident">CacheMap</span>, <span class="ident">CacheValue</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::raw_client::TMDBClient</span>;
+<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-<span class="doccomment">/// How long items should be cached for. Defaults to 12 hours.
-</span><span class="kw">const </span>CACHED_ITEM_TTL: Duration = Duration::from_secs(<span class="number">60 </span>* <span class="number">60 </span>* <span class="number">12</span>);
-<span class="doccomment">/// How many requests we can send per second.
-</span><span class="kw">const </span>REQ_QUOTA: NonZeroU32 = <span class="kw">unsafe </span>{ NonZeroU32::new_unchecked(<span class="number">128</span>) };
+<span class="doccomment">/// How long items should be cached for. Defaults to 12 hours.</span>
+<span class="kw">const</span> <span class="ident">CACHED_ITEM_TTL</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration::from_secs</span>(<span class="number">60</span> <span class="op">*</span> <span class="number">60</span> <span class="op">*</span> <span class="number">12</span>);
+<span class="doccomment">/// How many requests we can send per second.</span>
+<span class="kw">const</span> <span class="ident">REQ_QUOTA</span>: <span class="ident">NonZeroU32</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">NonZeroU32::new_unchecked</span>(<span class="number">128</span>) };
 
-<span class="kw">type </span>Governor = RateLimiter&lt;NotKeyed, InMemoryState, DefaultClock, NoOpMiddleware&gt;;
+<span class="kw">type</span> <span class="ident">Governor</span> <span class="op">=</span> <span class="ident">RateLimiter</span><span class="op">&lt;</span><span class="ident">NotKeyed</span>, <span class="ident">InMemoryState</span>, <span class="ident">DefaultClock</span>, <span class="ident">NoOpMiddleware</span><span class="op">&gt;</span>;
 
-<span class="doccomment">/// TMDB Metadata Provider produces `ExternalQuery` implementors, and handles request coalescing and caching locally.
-///
-/// This type is already internally full of Arc&#39;s, there is no need to wrap it in another one.
-</span><span class="kw">pub struct </span>TMDBMetadataProvider {
-    <span class="kw">pub</span>(<span class="kw">super</span>) api_key: Arc&lt;str&gt;,
-    <span class="kw">pub</span>(<span class="kw">super</span>) http_client: reqwest::Client,
-    cache: CacheMap,
-    cache_size: Arc&lt;AtomicUsize&gt;,
-    cache_eviction: Arc&lt;AbortOnDropHandle&gt;,
-    <span class="kw">pub</span>(<span class="self">self</span>) governor: Arc&lt;Governor&gt;,
+<span class="doccomment">/// TMDB Metadata Provider produces `ExternalQuery` implementors, and handles request coalescing and caching locally.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This type is already internally full of Arc&#39;s, there is no need to wrap it in another one.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TMDBMetadataProvider</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">api_key</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">http_client</span>: <span class="ident">reqwest::Client</span>,
+    <span class="ident">cache</span>: <span class="ident">CacheMap</span>,
+    <span class="ident">cache_size</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">AtomicUsize</span><span class="op">&gt;</span>,
+    <span class="ident">cache_eviction</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">AbortOnDropHandle</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="self">self</span>) <span class="ident">governor</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Governor</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl </span>Clone <span class="kw">for </span>TMDBMetadataProvider {
-    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            api_key: <span class="self">self</span>.api_key.clone(),
-            http_client: <span class="self">self</span>.http_client.clone(),
-            cache: <span class="self">self</span>.cache.clone(),
-            cache_size: <span class="self">self</span>.cache_size.clone(),
-            cache_eviction: <span class="self">self</span>.cache_eviction.clone(),
-            governor: <span class="self">self</span>.governor.clone(),
+<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">TMDBMetadataProvider</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">api_key</span>: <span class="self">self</span>.<span class="ident">api_key</span>.<span class="ident">clone</span>(),
+            <span class="ident">http_client</span>: <span class="self">self</span>.<span class="ident">http_client</span>.<span class="ident">clone</span>(),
+            <span class="ident">cache</span>: <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">clone</span>(),
+            <span class="ident">cache_size</span>: <span class="self">self</span>.<span class="ident">cache_size</span>.<span class="ident">clone</span>(),
+            <span class="ident">cache_eviction</span>: <span class="self">self</span>.<span class="ident">cache_eviction</span>.<span class="ident">clone</span>(),
+            <span class="ident">governor</span>: <span class="self">self</span>.<span class="ident">governor</span>.<span class="ident">clone</span>(),
         }
     }
 }
 
-<span class="kw">impl </span>TMDBMetadataProvider {
-    <span class="doccomment">/// Create a new metadata provider instance with this API key.
-    </span><span class="kw">pub fn </span>new(api_key: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>http_client = reqwest::ClientBuilder::new()
-            .user_agent(APP_USER_AGENT)
-            .brotli(<span class="bool-val">true</span>)
-            .tcp_keepalive(<span class="prelude-val">Some</span>(Duration::from_millis(<span class="number">16_000</span>)))
-            .tcp_nodelay(<span class="bool-val">true</span>)
-            .http1_only()
-            .build()
-            .expect(<span class="string">&quot;building this client should never fail.&quot;</span>);
+<span class="kw">impl</span> <span class="ident">TMDBMetadataProvider</span> {
+    <span class="doccomment">/// Create a new metadata provider instance with this API key.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">api_key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">http_client</span> <span class="op">=</span> <span class="ident">reqwest::ClientBuilder::new</span>()
+            .<span class="ident">user_agent</span>(<span class="ident">APP_USER_AGENT</span>)
+            .<span class="ident">brotli</span>(<span class="bool-val">true</span>)
+            .<span class="ident">tcp_keepalive</span>(<span class="prelude-val">Some</span>(<span class="ident">Duration::from_millis</span>(<span class="number">16_000</span>)))
+            .<span class="ident">tcp_nodelay</span>(<span class="bool-val">true</span>)
+            .<span class="ident">http1_only</span>()
+            .<span class="ident">build</span>()
+            .<span class="ident">expect</span>(<span class="string">&quot;building this client should never fail.&quot;</span>);
 
-        <span class="kw">let </span>api_key: Arc&lt;str&gt; = api_key.to_owned().into_boxed_str().into();
+        <span class="kw">let</span> <span class="ident">api_key</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">api_key</span>.<span class="ident">to_owned</span>().<span class="ident">into_boxed_str</span>().<span class="ident">into</span>();
 
-        <span class="kw">let </span>cache: CacheMap = Default::default();
-        <span class="kw">let </span>cache_size = Arc::new(AtomicUsize::new(<span class="number">0</span>));
+        <span class="kw">let</span> <span class="ident">cache</span>: <span class="ident">CacheMap</span> <span class="op">=</span> <span class="ident">Default::default</span>();
+        <span class="kw">let</span> <span class="ident">cache_size</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">AtomicUsize::new</span>(<span class="number">0</span>));
 
-        <span class="kw">let </span>cache_eviction = Arc::new(
-            CacheEviction::new(cache.clone(), cache_size.clone(), <span class="number">102_400_000</span>).start_policy(),
+        <span class="kw">let</span> <span class="ident">cache_eviction</span> <span class="op">=</span> <span class="ident">Arc::new</span>(
+            <span class="ident">CacheEviction::new</span>(<span class="ident">cache</span>.<span class="ident">clone</span>(), <span class="ident">cache_size</span>.<span class="ident">clone</span>(), <span class="number">102_400_000</span>).<span class="ident">start_policy</span>(),
         );
 
-        <span class="kw">let </span>governor = Arc::new(Governor::direct(Quota::per_second(REQ_QUOTA)));
+        <span class="kw">let</span> <span class="ident">governor</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">Governor::direct</span>(<span class="ident">Quota::per_second</span>(<span class="ident">REQ_QUOTA</span>)));
 
-        <span class="self">Self </span>{
-            <span class="comment">// FIXME: Make max cache size configurable at start-time.
-            </span>api_key,
-            http_client,
-            cache,
-            cache_size,
-            cache_eviction,
-            governor,
+        <span class="self">Self</span> {
+            <span class="comment">// FIXME: Make max cache size configurable at start-time.</span>
+            <span class="ident">api_key</span>,
+            <span class="ident">http_client</span>,
+            <span class="ident">cache</span>,
+            <span class="ident">cache_size</span>,
+            <span class="ident">cache_eviction</span>,
+            <span class="ident">governor</span>,
         }
     }
 
-    <span class="doccomment">/// curry this metadata provider to supply search results for TV shows.
-    </span><span class="attribute">#[inline(always)]
-    </span><span class="kw">pub fn </span>tv_shows(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MetadataProviderOf&lt;TvShows&gt; {
-        MetadataProviderOf {
-            provider: <span class="self">self</span>.clone(),
-            _key: PhantomData,
+    <span class="doccomment">/// curry this metadata provider to supply search results for TV shows.</span>
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tv_shows</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">TvShows</span><span class="op">&gt;</span> {
+        <span class="ident">MetadataProviderOf</span> {
+            <span class="ident">provider</span>: <span class="self">self</span>.<span class="ident">clone</span>(),
+            <span class="ident">_key</span>: <span class="ident">PhantomData</span>,
         }
     }
 
-    <span class="doccomment">/// curry this metadata provider to supply search results for movies.
-    </span><span class="attribute">#[inline(always)]
-    </span><span class="kw">pub fn </span>movies(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MetadataProviderOf&lt;Movies&gt; {
-        MetadataProviderOf {
-            provider: <span class="self">self</span>.clone(),
-            _key: PhantomData,
+    <span class="doccomment">/// curry this metadata provider to supply search results for movies.</span>
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">movies</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">Movies</span><span class="op">&gt;</span> {
+        <span class="ident">MetadataProviderOf</span> {
+            <span class="ident">provider</span>: <span class="self">self</span>.<span class="ident">clone</span>(),
+            <span class="ident">_key</span>: <span class="ident">PhantomData</span>,
         }
     }
 
-    <span class="doccomment">/// insert a default [CacheValue] if the slot at a given key is not present or it has expired.
-    </span><span class="kw">fn </span>insert_value_if_empty(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>CacheKey) -&gt; (CacheValue, bool) {
-        <span class="comment">// grab the entry or instert RwLock::new(None) if not present.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>entry = <span class="self">self</span>.cache.entry(key.clone()).or_default();
+    <span class="doccomment">/// insert a default [CacheValue] if the slot at a given key is not present or it has expired.</span>
+    <span class="kw">fn</span> <span class="ident">insert_value_if_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">CacheKey</span>) -&gt; (<span class="ident">CacheValue</span>, <span class="ident">bool</span>) {
+        <span class="comment">// grab the entry or instert RwLock::new(None) if not present.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entry</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">entry</span>(<span class="ident">key</span>.<span class="ident">clone</span>()).<span class="ident">or_default</span>();
 
-        <span class="comment">// fast path: cache hits, no writers, the value is present and it hasn&#39;t TTL&#39;d
-        // TODO: Test TTL mechanism.
-        </span><span class="kw">let </span>needs_cleanup = {
-            <span class="kw">let </span>read_guard = entry.value();
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = read_guard.as_ref() {
-                <span class="kw">if </span><span class="macro">matches!</span>(value, CacheValue::Body { ttl, .. } <span class="kw">if </span><span class="kw-2">*</span>ttl &gt; Instant::now()) {
-                    <span class="kw">return </span>(value.clone(), <span class="bool-val">false</span>);
+        <span class="comment">// fast path: cache hits, no writers, the value is present and it hasn&#39;t TTL&#39;d</span>
+        <span class="comment">// TODO: Test TTL mechanism.</span>
+        <span class="kw">let</span> <span class="ident">needs_cleanup</span> <span class="op">=</span> {
+            <span class="kw">let</span> <span class="ident">read_guard</span> <span class="op">=</span> <span class="ident">entry</span>.<span class="ident">value</span>();
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">read_guard</span>.<span class="ident">as_ref</span>() {
+                <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">value</span>, <span class="ident">CacheValue::Body</span> { <span class="ident">ttl</span>, .. } <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">ttl</span> <span class="op">&gt;</span> <span class="ident">Instant::now</span>()) {
+                    <span class="kw">return</span> (<span class="ident">value</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>);
                 }
 
-                <span class="bool-val">true
-            </span>} <span class="kw">else </span>{
-                <span class="bool-val">false
-            </span>}
+                <span class="bool-val">true</span>
+            } <span class="kw">else</span> {
+                <span class="bool-val">false</span>
+            }
         };
 
-        <span class="comment">// slow path: get a write guard, if the slot is still uninit when we acquire; initialize it.s
-        </span><span class="kw">let </span>slot = entry.value_mut();
+        <span class="comment">// slow path: get a write guard, if the slot is still uninit when we acquire; initialize it.s</span>
+        <span class="kw">let</span> <span class="ident">slot</span> <span class="op">=</span> <span class="ident">entry</span>.<span class="ident">value_mut</span>();
 
-        <span class="kw">match </span>slot.as_ref() {
-            <span class="comment">// someone initialized the slot before we got the write guard, use their value.
-            </span><span class="prelude-val">Some</span>(value) <span class="kw">if </span>!needs_cleanup =&gt; <span class="kw">return </span>(value.clone(), <span class="bool-val">false</span>),
-            <span class="kw">_ </span>=&gt; {}
+        <span class="kw">match</span> <span class="ident">slot</span>.<span class="ident">as_ref</span>() {
+            <span class="comment">// someone initialized the slot before we got the write guard, use their value.</span>
+            <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="kw">if</span> <span class="op">!</span><span class="ident">needs_cleanup</span> =&gt; <span class="kw">return</span> (<span class="ident">value</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>),
+            <span class="kw">_</span> =&gt; {}
         }
 
-        <span class="comment">// we&#39;re still first or the old value needs to be cleaned, get rid of it.
-        </span><span class="kw">let </span>(tx, <span class="kw">_</span>) = broadcast::channel(<span class="number">1</span>);
-        <span class="kw">let </span>value = CacheValue::RequestInFlight { tx };
+        <span class="comment">// we&#39;re still first or the old value needs to be cleaned, get rid of it.</span>
+        <span class="kw">let</span> (<span class="ident">tx</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">broadcast::channel</span>(<span class="number">1</span>);
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">CacheValue::RequestInFlight</span> { <span class="ident">tx</span> };
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(old) = slot.replace(value.clone()) {
-            <span class="comment">// Unsure how relaxed ordering will hold up on non-x86 targets.
-            </span><span class="self">self</span>.cache_size.fetch_sub(old.mem_size(), Ordering::Relaxed);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">old</span>) <span class="op">=</span> <span class="ident">slot</span>.<span class="ident">replace</span>(<span class="ident">value</span>.<span class="ident">clone</span>()) {
+            <span class="comment">// Unsure how relaxed ordering will hold up on non-x86 targets.</span>
+            <span class="self">self</span>.<span class="ident">cache_size</span>.<span class="ident">fetch_sub</span>(<span class="ident">old</span>.<span class="ident">mem_size</span>(), <span class="ident">Ordering::Relaxed</span>);
         }
 
-        (value, <span class="bool-val">true</span>)
+        (<span class="ident">value</span>, <span class="bool-val">true</span>)
     }
 
-    <span class="doccomment">/// perform request coalescing; when two futures are made with the same key the duplicates wait for the original to broadcast the results.
-    </span><span class="kw">async fn </span>coalesce_request&lt;F, Fut&gt;(
+    <span class="doccomment">/// perform request coalescing; when two futures are made with the same key the duplicates wait for the original to broadcast the results.</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">coalesce_request</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Fut</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        key: <span class="kw-2">&amp;</span>CacheKey,
-        make_request_future: F,
-        ttl: Duration,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Arc&lt;str&gt;, Error&gt;
-    <span class="kw">where
-        </span>F: FnOnce(TMDBClient) -&gt; Fut,
-        Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Arc&lt;str&gt;, TMDBClientRequestError&gt;&gt; + Send + <span class="lifetime">&#39;static</span>,
+        <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">CacheKey</span>,
+        <span class="ident">make_request_future</span>: <span class="ident">F</span>,
+        <span class="ident">ttl</span>: <span class="ident">Duration</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">TMDBClient</span>) -&gt; <span class="ident">Fut</span>,
+        <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">TMDBClientRequestError</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
-        <span class="kw">let </span>(value, we_own_future) = { <span class="self">self</span>.insert_value_if_empty(key) };
+        <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">we_own_future</span>) <span class="op">=</span> { <span class="self">self</span>.<span class="ident">insert_value_if_empty</span>(<span class="ident">key</span>) };
 
-        <span class="kw">match </span>(we_own_future, value) {
-            <span class="comment">// only if we own the future that was spawned should we upate the
-            // value once we get the response.
-            </span>(<span class="bool-val">true</span>, CacheValue::RequestInFlight { tx }) =&gt; {
-                <span class="kw">let </span>client = TMDBClient {
-                    provider: <span class="self">self</span>.clone(),
+        <span class="kw">match</span> (<span class="ident">we_own_future</span>, <span class="ident">value</span>) {
+            <span class="comment">// only if we own the future that was spawned should we upate the</span>
+            <span class="comment">// value once we get the response.</span>
+            (<span class="bool-val">true</span>, <span class="ident">CacheValue::RequestInFlight</span> { <span class="ident">tx</span> }) =&gt; {
+                <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">TMDBClient</span> {
+                    <span class="ident">provider</span>: <span class="self">self</span>.<span class="ident">clone</span>(),
                 };
 
-                <span class="kw">let </span>tx_ = tx.clone();
-                <span class="kw">let </span>fut = make_request_future(client);
+                <span class="kw">let</span> <span class="ident">tx_</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">clone</span>();
+                <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">make_request_future</span>(<span class="ident">client</span>);
 
-                <span class="comment">// we want to ratelimit locally. Thus we wait for a permit until we spawn the
-                // request future.
-                </span><span class="self">self</span>.governor.until_ready().<span class="kw">await</span>;
+                <span class="comment">// we want to ratelimit locally. Thus we wait for a permit until we spawn the</span>
+                <span class="comment">// request future.</span>
+                <span class="self">self</span>.<span class="ident">governor</span>.<span class="ident">until_ready</span>().<span class="kw">await</span>;
 
-                tokio::spawn(<span class="kw">async move </span>{
-                    <span class="kw">let </span>output = fut.<span class="kw">await</span>;
-                    <span class="kw">let _ </span>= tx_.send(output);
+                <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
+                    <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">fut</span>.<span class="kw">await</span>;
+                    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">tx_</span>.<span class="ident">send</span>(<span class="ident">output</span>);
                 });
 
-                <span class="kw">match </span>{ CacheValue::RequestInFlight { tx } }.data().<span class="kw">await </span>{
-                    <span class="prelude-val">Ok</span>(text) =&gt; {
-                        <span class="kw">let </span>body = Arc::clone(<span class="kw-2">&amp;</span>text);
+                <span class="kw">match</span> { <span class="ident">CacheValue::RequestInFlight</span> { <span class="ident">tx</span> } }.<span class="ident">data</span>().<span class="kw">await</span> {
+                    <span class="prelude-val">Ok</span>(<span class="ident">text</span>) =&gt; {
+                        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">text</span>);
 
-                        <span class="kw">let </span>value = CacheValue::Body {
-                            text,
-                            ttl: Instant::now() + ttl,
+                        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">CacheValue::Body</span> {
+                            <span class="ident">text</span>,
+                            <span class="ident">ttl</span>: <span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">ttl</span>,
                         };
 
-                        <span class="comment">// Increase our memory usage tracker.
-                        </span><span class="self">self</span>.cache_size
-                            .fetch_add(value.mem_size(), Ordering::Relaxed);
+                        <span class="comment">// Increase our memory usage tracker.</span>
+                        <span class="self">self</span>.<span class="ident">cache_size</span>
+                            .<span class="ident">fetch_add</span>(<span class="ident">value</span>.<span class="ident">mem_size</span>(), <span class="ident">Ordering::Relaxed</span>);
 
-                        <span class="kw">match </span><span class="self">self</span>.cache.get_mut(key) {
-                            <span class="prelude-val">Some</span>(<span class="kw-2">mut </span>entry_ref) =&gt; entry_ref.replace(value),
-                            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;slot was None when original task got its result&quot;</span>),
+                        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">get_mut</span>(<span class="ident">key</span>) {
+                            <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">entry_ref</span>) =&gt; <span class="ident">entry_ref</span>.<span class="ident">replace</span>(<span class="ident">value</span>),
+                            <span class="prelude-val">None</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;slot was None when original task got its result&quot;</span>),
                         };
 
-                        <span class="prelude-val">Ok</span>(body)
+                        <span class="prelude-val">Ok</span>(<span class="ident">body</span>)
                     }
-                    <span class="comment">// if an error was yeeted back during the request then purge the cache entry.
-                    </span><span class="prelude-val">Err</span>(error) =&gt; {
-                        <span class="comment">// clear the cache for values that could not be populated.
-                        </span><span class="kw">let _ </span>= <span class="self">self</span>.cache.remove(<span class="kw-2">&amp;</span>key);
-                        <span class="prelude-val">Err</span>(error.into())
+                    <span class="comment">// if an error was yeeted back during the request then purge the cache entry.</span>
+                    <span class="prelude-val">Err</span>(<span class="ident">error</span>) =&gt; {
+                        <span class="comment">// clear the cache for values that could not be populated.</span>
+                        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>);
+                        <span class="prelude-val">Err</span>(<span class="ident">error</span>.<span class="ident">into</span>())
                     }
                 }
             }
 
-            (<span class="kw">_</span>, value) =&gt; <span class="prelude-val">Ok</span>(value.data().<span class="kw">await</span><span class="question-mark">?</span>),
+            (<span class="kw">_</span>, <span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">value</span>.<span class="ident">data</span>().<span class="kw">await</span><span class="question-mark">?</span>),
         }
     }
 
-    <span class="doccomment">/// perform a TMDB search for `title` and optionally `year` of a specific search type (movies or TV shows.)
-    ///
-    /// request coalescing is applied internally.
-    </span><span class="kw">async fn </span>search(
+    <span class="doccomment">/// perform a TMDB search for `title` and optionally `year` of a specific search type (movies or TV shows.)</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// request coalescing is applied internally.</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        title: <span class="kw-2">&amp;</span>str,
-        year: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-        media_type: MediaSearchType,
-    ) -&gt; QueryResult&lt;Vec&lt;ExternalMedia&gt;&gt; {
-        <span class="kw">let </span>title = title.to_string();
-        <span class="kw">let </span>key = CacheKey::Search {
-            title: title.clone(),
-            year,
+        <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+        <span class="ident">media_type</span>: <span class="ident">MediaSearchType</span>,
+    ) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalMedia</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">title</span> <span class="op">=</span> <span class="ident">title</span>.<span class="ident">to_string</span>();
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">CacheKey::Search</span> {
+            <span class="ident">title</span>: <span class="ident">title</span>.<span class="ident">clone</span>(),
+            <span class="ident">year</span>,
         };
 
-        <span class="kw">let </span>st = <span class="self">self
-            </span>.coalesce_request(
-                <span class="kw-2">&amp;</span>key,
-                |client| <span class="kw">async move </span>{
-                    client
-                        .search(media_type, <span class="kw-2">&amp;</span>title, year)
-                        .<span class="kw">await
-                        </span>.map(|st| st.into())
+        <span class="kw">let</span> <span class="ident">st</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">coalesce_request</span>(
+                <span class="kw-2">&amp;</span><span class="ident">key</span>,
+                <span class="op">|</span><span class="ident">client</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                    <span class="ident">client</span>
+                        .<span class="ident">search</span>(<span class="ident">media_type</span>, <span class="kw-2">&amp;</span><span class="ident">title</span>, <span class="ident">year</span>)
+                        .<span class="kw">await</span>
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">into</span>())
                 },
-                CACHED_ITEM_TTL,
+                <span class="ident">CACHED_ITEM_TTL</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>search = serde_json::from_str::&lt;SearchResponse&gt;(<span class="kw-2">&amp;</span>st).map_err(|error| {
-            <span class="kw">crate</span>::external::Error::DeserializationError {
-                body: st,
-                error: <span class="macro">format!</span>(<span class="string">&quot;{error}&quot;</span>),
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">search</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">SearchResponse</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">st</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+            <span class="ident"><span class="kw">crate</span>::external::Error::DeserializationError</span> {
+                <span class="ident">body</span>: <span class="ident">st</span>,
+                <span class="ident">error</span>: <span class="macro">format!</span>(<span class="string">&quot;{error}&quot;</span>),
             }
         })<span class="question-mark">?</span>;
 
-        <span class="comment">// fill in the genre names for the search results.
-        </span>{
-            <span class="kw">let </span>key = CacheKey::GenreList { media_type };
-            <span class="kw">let </span>st = <span class="self">self
-                </span>.coalesce_request(
-                    <span class="kw-2">&amp;</span>key,
-                    |client| <span class="kw">async move </span>{ client.genre_list(media_type).<span class="kw">await</span>.map(|st| st.into()) },
-                    CACHED_ITEM_TTL,
+        <span class="comment">// fill in the genre names for the search results.</span>
+        {
+            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">CacheKey::GenreList</span> { <span class="ident">media_type</span> };
+            <span class="kw">let</span> <span class="ident">st</span> <span class="op">=</span> <span class="self">self</span>
+                .<span class="ident">coalesce_request</span>(
+                    <span class="kw-2">&amp;</span><span class="ident">key</span>,
+                    <span class="op">|</span><span class="ident">client</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> { <span class="ident">client</span>.<span class="ident">genre_list</span>(<span class="ident">media_type</span>).<span class="kw">await</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">into</span>()) },
+                    <span class="ident">CACHED_ITEM_TTL</span>,
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let </span>genre_list = serde_json::from_str::&lt;GenreList&gt;(<span class="kw-2">&amp;</span>st).map_err(|error| {
-                <span class="kw">crate</span>::external::Error::DeserializationError {
-                    body: st,
-                    error: <span class="macro">format!</span>(<span class="string">&quot;{error}&quot;</span>),
+            <span class="kw">let</span> <span class="ident">genre_list</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">GenreList</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">st</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+                <span class="ident"><span class="kw">crate</span>::external::Error::DeserializationError</span> {
+                    <span class="ident">body</span>: <span class="ident">st</span>,
+                    <span class="ident">error</span>: <span class="macro">format!</span>(<span class="string">&quot;{error}&quot;</span>),
                 }
             })<span class="question-mark">?</span>;
 
-            <span class="kw">let </span><span class="kw-2">mut </span>genre_id_cache = HashMap::&lt;u64, Genre&gt;::with_capacity(search.results.len());
-            <span class="kw">for </span>media <span class="kw">in </span>search.results.iter_mut() {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(TMDBMediaObject {
-                    genre_ids: <span class="prelude-val">Some</span>(ids),
-                    genres,
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">genre_id_cache</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="op">&lt;</span><span class="ident">u64</span>, <span class="ident">Genre</span><span class="op">&gt;</span><span class="ident">::with_capacity</span>(<span class="ident">search</span>.<span class="ident">results</span>.<span class="ident">len</span>());
+            <span class="kw">for</span> <span class="ident">media</span> <span class="kw">in</span> <span class="ident">search</span>.<span class="ident">results</span>.<span class="ident">iter_mut</span>() {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">TMDBMediaObject</span> {
+                    <span class="ident">genre_ids</span>: <span class="prelude-val">Some</span>(<span class="ident">ids</span>),
+                    <span class="ident">genres</span>,
                     ..
-                }) = media
+                }) <span class="op">=</span> <span class="ident">media</span>
                 {
-                    <span class="kw">let </span>genre_vec = genres.insert(<span class="macro">vec!</span>[]);
+                    <span class="kw">let</span> <span class="ident">genre_vec</span> <span class="op">=</span> <span class="ident">genres</span>.<span class="ident">insert</span>(<span class="macro">vec!</span>[]);
 
-                    <span class="kw">for </span>genre_id <span class="kw">in </span>ids.iter().cloned() {
-                        <span class="kw">if let </span><span class="prelude-val">Some</span>(genre) = genre_id_cache.get(<span class="kw-2">&amp;</span>genre_id) {
-                            genre_vec.push(Genre {
-                                id: genre_id,
-                                name: genre.name.clone(),
+                    <span class="kw">for</span> <span class="ident">genre_id</span> <span class="kw">in</span> <span class="ident">ids</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>() {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">genre</span>) <span class="op">=</span> <span class="ident">genre_id_cache</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">genre_id</span>) {
+                            <span class="ident">genre_vec</span>.<span class="ident">push</span>(<span class="ident">Genre</span> {
+                                <span class="ident">id</span>: <span class="ident">genre_id</span>,
+                                <span class="ident">name</span>: <span class="ident">genre</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
                             });
-                        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(genre) =
-                            genre_list.genres.iter().find(|x| x.id == genre_id)
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">genre</span>) <span class="op">=</span>
+                            <span class="ident">genre_list</span>.<span class="ident">genres</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">genre_id</span>)
                         {
-                            genre_id_cache.insert(genre_id, genre.clone());
-                            genre_vec.push(Genre {
-                                id: genre_id,
-                                name: genre.name.clone(),
+                            <span class="ident">genre_id_cache</span>.<span class="ident">insert</span>(<span class="ident">genre_id</span>, <span class="ident">genre</span>.<span class="ident">clone</span>());
+                            <span class="ident">genre_vec</span>.<span class="ident">push</span>(<span class="ident">Genre</span> {
+                                <span class="ident">id</span>: <span class="ident">genre_id</span>,
+                                <span class="ident">name</span>: <span class="ident">genre</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
                             });
                         }
                     }
@@ -860,263 +867,264 @@
             }
         }
 
-        <span class="kw">let </span>media = search
-            .results
-            .into_iter()
-            .flatten()
-            .map(ExternalMedia::from)
-            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let</span> <span class="ident">media</span> <span class="op">=</span> <span class="ident">search</span>
+            .<span class="ident">results</span>
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">flatten</span>()
+            .<span class="ident">map</span>(<span class="ident">ExternalMedia::from</span>)
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
-        <span class="prelude-val">Ok</span>(media)
+        <span class="prelude-val">Ok</span>(<span class="ident">media</span>)
     }
 
-    <span class="kw">async fn </span>search_by_id(
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search_by_id</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        external_id: <span class="kw-2">&amp;</span>str,
-        media_type: MediaSearchType,
-    ) -&gt; QueryResult&lt;ExternalMedia&gt; {
-        <span class="kw">let </span>external_id = external_id.to_string();
-        <span class="kw">let </span>key = CacheKey::ById {
-            id: external_id.clone(),
-            ty: media_type,
+        <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">media_type</span>: <span class="ident">MediaSearchType</span>,
+    ) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">ExternalMedia</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">external_id</span> <span class="op">=</span> <span class="ident">external_id</span>.<span class="ident">to_string</span>();
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">CacheKey::ById</span> {
+            <span class="ident">id</span>: <span class="ident">external_id</span>.<span class="ident">clone</span>(),
+            <span class="ident">ty</span>: <span class="ident">media_type</span>,
         };
 
-        <span class="kw">let </span>response_body = <span class="self">self
-            </span>.coalesce_request(
-                <span class="kw-2">&amp;</span>key,
-                |client| <span class="kw">async move </span>{
-                    client
-                        .get_details(media_type, <span class="kw-2">&amp;</span>external_id)
-                        .<span class="kw">await
-                        </span>.map(|st| st.into())
+        <span class="kw">let</span> <span class="ident">response_body</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">coalesce_request</span>(
+                <span class="kw-2">&amp;</span><span class="ident">key</span>,
+                <span class="op">|</span><span class="ident">client</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                    <span class="ident">client</span>
+                        .<span class="ident">get_details</span>(<span class="ident">media_type</span>, <span class="kw-2">&amp;</span><span class="ident">external_id</span>)
+                        .<span class="kw">await</span>
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">into</span>())
                 },
-                CACHED_ITEM_TTL,
+                <span class="ident">CACHED_ITEM_TTL</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span>details = serde_json::from_str::&lt;TMDBMediaObject&gt;(<span class="kw-2">&amp;</span>response_body).map_err(|err| {
-            <span class="kw">crate</span>::external::Error::DeserializationError {
-                body: response_body,
-                error: <span class="macro">format!</span>(<span class="string">&quot;{err}&quot;</span>),
+        <span class="kw">let</span> <span class="ident">details</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">TMDBMediaObject</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">response_body</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+            <span class="ident"><span class="kw">crate</span>::external::Error::DeserializationError</span> {
+                <span class="ident">body</span>: <span class="ident">response_body</span>,
+                <span class="ident">error</span>: <span class="macro">format!</span>(<span class="string">&quot;{err}&quot;</span>),
             }
         })<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(details.into())
+        <span class="prelude-val">Ok</span>(<span class="ident">details</span>.<span class="ident">into</span>())
     }
 
-    <span class="kw">async fn </span>cast(
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">cast</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        external_id: <span class="kw-2">&amp;</span>str,
-        media_type: MediaSearchType,
-    ) -&gt; QueryResult&lt;Vec&lt;ExternalActor&gt;&gt; {
-        <span class="kw">let </span>external_id = external_id.to_string();
-        <span class="kw">let </span>key = CacheKey::ActorById {
-            id: external_id.clone(),
+        <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">media_type</span>: <span class="ident">MediaSearchType</span>,
+    ) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalActor</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">external_id</span> <span class="op">=</span> <span class="ident">external_id</span>.<span class="ident">to_string</span>();
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">CacheKey::ActorById</span> {
+            <span class="ident">id</span>: <span class="ident">external_id</span>.<span class="ident">clone</span>(),
         };
 
-        <span class="kw">let </span>resp = <span class="self">self
-            </span>.coalesce_request(
-                <span class="kw-2">&amp;</span>key,
-                |client| <span class="kw">async move </span>{
-                    client
-                        .get_actor(media_type, <span class="kw-2">&amp;</span>external_id)
-                        .<span class="kw">await
-                        </span>.map(|st| st.into())
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">coalesce_request</span>(
+                <span class="kw-2">&amp;</span><span class="ident">key</span>,
+                <span class="op">|</span><span class="ident">client</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                    <span class="ident">client</span>
+                        .<span class="ident">get_actor</span>(<span class="ident">media_type</span>, <span class="kw-2">&amp;</span><span class="ident">external_id</span>)
+                        .<span class="kw">await</span>
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">into</span>())
                 },
-                CACHED_ITEM_TTL,
+                <span class="ident">CACHED_ITEM_TTL</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span>actor = serde_json::from_str::&lt;Cast&gt;(<span class="kw-2">&amp;</span>resp).map_err(|error| {
-            <span class="kw">crate</span>::external::Error::DeserializationError {
-                body: resp,
-                error: <span class="macro">format!</span>(<span class="string">&quot;{error}&quot;</span>),
+        <span class="kw">let</span> <span class="ident">actor</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">Cast</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+            <span class="ident"><span class="kw">crate</span>::external::Error::DeserializationError</span> {
+                <span class="ident">body</span>: <span class="ident">resp</span>,
+                <span class="ident">error</span>: <span class="macro">format!</span>(<span class="string">&quot;{error}&quot;</span>),
             }
         })<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(actor.cast.into_iter().map(|x| x.into()).collect())
+        <span class="prelude-val">Ok</span>(<span class="ident">actor</span>.<span class="ident">cast</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">into</span>()).<span class="ident">collect</span>())
     }
 
-    <span class="kw">async fn </span>seasons_by_id(<span class="kw-2">&amp;</span><span class="self">self</span>, external_id: <span class="kw-2">&amp;</span>str) -&gt; QueryResult&lt;Vec&lt;ExternalSeason&gt;&gt; {
-        <span class="kw">let </span>external_id = external_id.to_string();
-        <span class="kw">let </span>key = CacheKey::ById {
-            id: external_id.clone(),
-            ty: MediaSearchType::Tv,
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">seasons_by_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalSeason</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">external_id</span> <span class="op">=</span> <span class="ident">external_id</span>.<span class="ident">to_string</span>();
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">CacheKey::ById</span> {
+            <span class="ident">id</span>: <span class="ident">external_id</span>.<span class="ident">clone</span>(),
+            <span class="ident">ty</span>: <span class="ident">MediaSearchType::Tv</span>,
         };
 
-        <span class="comment">// NOTE: We share the same key as search by id because the seasons are returned inline with
-        // that response but the interface requires that theyre decoupled.
-        </span><span class="kw">let </span>response_body = <span class="self">self
-            </span>.coalesce_request(
-                <span class="kw-2">&amp;</span>key,
-                |client| <span class="kw">async move </span>{
-                    client
-                        .get_details(MediaSearchType::Tv, <span class="kw-2">&amp;</span>external_id)
-                        .<span class="kw">await
-                        </span>.map(|st| st.into())
+        <span class="comment">// NOTE: We share the same key as search by id because the seasons are returned inline with</span>
+        <span class="comment">// that response but the interface requires that theyre decoupled.</span>
+        <span class="kw">let</span> <span class="ident">response_body</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">coalesce_request</span>(
+                <span class="kw-2">&amp;</span><span class="ident">key</span>,
+                <span class="op">|</span><span class="ident">client</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                    <span class="ident">client</span>
+                        .<span class="ident">get_details</span>(<span class="ident">MediaSearchType::Tv</span>, <span class="kw-2">&amp;</span><span class="ident">external_id</span>)
+                        .<span class="kw">await</span>
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">into</span>())
                 },
-                CACHED_ITEM_TTL,
+                <span class="ident">CACHED_ITEM_TTL</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span>tv_details = serde_json::from_str::&lt;TvSeasons&gt;(<span class="kw-2">&amp;</span>response_body).map_err(|err| {
-            <span class="kw">crate</span>::external::Error::DeserializationError {
-                body: response_body,
-                error: <span class="macro">format!</span>(<span class="string">&quot;{err}&quot;</span>),
+        <span class="kw">let</span> <span class="ident">tv_details</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">TvSeasons</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">response_body</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+            <span class="ident"><span class="kw">crate</span>::external::Error::DeserializationError</span> {
+                <span class="ident">body</span>: <span class="ident">response_body</span>,
+                <span class="ident">error</span>: <span class="macro">format!</span>(<span class="string">&quot;{err}&quot;</span>),
             }
         })<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(tv_details.into())
+        <span class="prelude-val">Ok</span>(<span class="ident">tv_details</span>.<span class="ident">into</span>())
     }
 
-    <span class="kw">async fn </span>episodes_by_id(
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">episodes_by_id</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        external_id: <span class="kw-2">&amp;</span>str,
-        season_number: u64,
-    ) -&gt; QueryResult&lt;Vec&lt;ExternalEpisode&gt;&gt; {
-        <span class="kw">let </span>external_id = external_id.to_string();
-        <span class="kw">let </span>key = CacheKey::Episodes {
-            id: external_id.clone(),
-            season_number,
+        <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">season_number</span>: <span class="ident">u64</span>,
+    ) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalEpisode</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">external_id</span> <span class="op">=</span> <span class="ident">external_id</span>.<span class="ident">to_string</span>();
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">CacheKey::Episodes</span> {
+            <span class="ident">id</span>: <span class="ident">external_id</span>.<span class="ident">clone</span>(),
+            <span class="ident">season_number</span>,
         };
 
-        <span class="kw">let </span>response_body = <span class="self">self
-            </span>.coalesce_request(
-                <span class="kw-2">&amp;</span>key,
-                |client| <span class="kw">async move </span>{
-                    client
-                        .get_episodes(<span class="kw-2">&amp;</span>external_id, season_number)
-                        .<span class="kw">await
-                        </span>.map(|st| st.into())
+        <span class="kw">let</span> <span class="ident">response_body</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">coalesce_request</span>(
+                <span class="kw-2">&amp;</span><span class="ident">key</span>,
+                <span class="op">|</span><span class="ident">client</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                    <span class="ident">client</span>
+                        .<span class="ident">get_episodes</span>(<span class="kw-2">&amp;</span><span class="ident">external_id</span>, <span class="ident">season_number</span>)
+                        .<span class="kw">await</span>
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">into</span>())
                 },
-                CACHED_ITEM_TTL,
+                <span class="ident">CACHED_ITEM_TTL</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span>tv_details = serde_json::from_str::&lt;TvEpisodes&gt;(<span class="kw-2">&amp;</span>response_body).map_err(|err| {
-            <span class="kw">crate</span>::external::Error::DeserializationError {
-                body: response_body,
-                error: <span class="macro">format!</span>(<span class="string">&quot;{err}&quot;</span>),
+        <span class="kw">let</span> <span class="ident">tv_details</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">TvEpisodes</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">response_body</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+            <span class="ident"><span class="kw">crate</span>::external::Error::DeserializationError</span> {
+                <span class="ident">body</span>: <span class="ident">response_body</span>,
+                <span class="ident">error</span>: <span class="macro">format!</span>(<span class="string">&quot;{err}&quot;</span>),
             }
         })<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(tv_details.into())
+        <span class="prelude-val">Ok</span>(<span class="ident">tv_details</span>.<span class="ident">into</span>())
     }
 }
 
-<span class="comment">// -- TMDBMetadataProviderRef&lt;T&gt;
+<span class="comment">// -- TMDBMetadataProviderRef&lt;T&gt;</span>
 
-</span><span class="doccomment">/// Used to key [TMDBMetadataProviderRef] to search for TV shows, compliments [Movies].
-</span><span class="kw">pub struct </span>TvShows;
+<span class="doccomment">/// Used to key [TMDBMetadataProviderRef] to search for TV shows, compliments [Movies].</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TvShows</span>;
 
-<span class="doccomment">/// Used to key [TMDBMetadataProviderRef] to search for movies, compliments [TvShows].
-</span><span class="kw">pub struct </span>Movies;
+<span class="doccomment">/// Used to key [TMDBMetadataProviderRef] to search for movies, compliments [TvShows].</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Movies</span>;
 
-<span class="doccomment">/// An instance of [TMDBMetadataProvider] with a generic parameter to infer the [MediaType] for searches.
-</span><span class="kw">pub struct </span>MetadataProviderOf&lt;K&gt;
-<span class="kw">where
-    </span>K: sealed::AssocMediaTypeConst + Send + Sync + <span class="lifetime">&#39;static</span>,
+<span class="doccomment">/// An instance of [TMDBMetadataProvider] with a generic parameter to infer the [MediaType] for searches.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">K</span>: <span class="ident">sealed::AssocMediaTypeConst</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">pub </span>provider: TMDBMetadataProvider,
-    _key: PhantomData&lt;K&gt;,
+    <span class="kw">pub</span> <span class="ident">provider</span>: <span class="ident">TMDBMetadataProvider</span>,
+    <span class="ident">_key</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span>&lt;K: sealed::AssocMediaTypeConst + Send + Sync + <span class="lifetime">&#39;static</span>&gt; std::fmt::Debug
-    <span class="kw">for </span>MetadataProviderOf&lt;K&gt;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">sealed::AssocMediaTypeConst</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">std::fmt::Debug</span>
+    <span class="kw">for</span> <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        fmt.debug_struct(<span class="string">&quot;TMDBMetadataProviderOf&lt;K&gt;&quot;</span>)
-            .field(<span class="string">&quot;key&quot;</span>, <span class="kw-2">&amp;</span>K::MEDIA_TYPE)
-            .finish()
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
+        <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;TMDBMetadataProviderOf&lt;K&gt;&quot;</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;key&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">K::MEDIA_TYPE</span>)
+            .<span class="ident">finish</span>()
     }
 }
 
-<span class="kw">mod </span>sealed {
-    <span class="kw">use super</span>::{MediaSearchType, Movies, TvShows};
+<span class="kw">mod</span> <span class="ident">sealed</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">MediaSearchType</span>, <span class="ident">Movies</span>, <span class="ident">TvShows</span>};
 
-    <span class="doccomment">/// Used to associate a constant [MediaType] with another type.
-    </span><span class="kw">pub trait </span>AssocMediaTypeConst {
-        <span class="kw">const </span>MEDIA_TYPE: MediaSearchType;
+    <span class="doccomment">/// Used to associate a constant [MediaType] with another type.</span>
+    <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">AssocMediaTypeConst</span> {
+        <span class="kw">const</span> <span class="ident">MEDIA_TYPE</span>: <span class="ident">MediaSearchType</span>;
     }
 
-    <span class="kw">impl </span>AssocMediaTypeConst <span class="kw">for </span>TvShows {
-        <span class="kw">const </span>MEDIA_TYPE: MediaSearchType = MediaSearchType::Tv;
+    <span class="kw">impl</span> <span class="ident">AssocMediaTypeConst</span> <span class="kw">for</span> <span class="ident">TvShows</span> {
+        <span class="kw">const</span> <span class="ident">MEDIA_TYPE</span>: <span class="ident">MediaSearchType</span> <span class="op">=</span> <span class="ident">MediaSearchType::Tv</span>;
     }
 
-    <span class="kw">impl </span>AssocMediaTypeConst <span class="kw">for </span>Movies {
-        <span class="kw">const </span>MEDIA_TYPE: MediaSearchType = MediaSearchType::Movie;
+    <span class="kw">impl</span> <span class="ident">AssocMediaTypeConst</span> <span class="kw">for</span> <span class="ident">Movies</span> {
+        <span class="kw">const</span> <span class="ident">MEDIA_TYPE</span>: <span class="ident">MediaSearchType</span> <span class="op">=</span> <span class="ident">MediaSearchType::Movie</span>;
     }
 }
 
-<span class="attribute">#[async_trait]
-</span><span class="kw">impl</span>&lt;K&gt; ExternalQuery <span class="kw">for </span>MetadataProviderOf&lt;K&gt;
-<span class="kw">where
-    </span>K: sealed::AssocMediaTypeConst + Send + Sync + <span class="lifetime">&#39;static</span>,
+<span class="attribute">#[<span class="ident">async_trait</span>]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span> <span class="ident">ExternalQuery</span> <span class="kw">for</span> <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">K</span>: <span class="ident">sealed::AssocMediaTypeConst</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="attribute">#[instrument]
-    </span><span class="kw">async fn </span>search(<span class="kw-2">&amp;</span><span class="self">self</span>, title: <span class="kw-2">&amp;</span>str, year: <span class="prelude-ty">Option</span>&lt;i32&gt;) -&gt; QueryResult&lt;Vec&lt;ExternalMedia&gt;&gt; {
-        <span class="self">self</span>.provider.search(title, year, K::MEDIA_TYPE).<span class="kw">await
-    </span>}
+    <span class="attribute">#[<span class="ident">instrument</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalMedia</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">search</span>(<span class="ident">title</span>, <span class="ident">year</span>, <span class="ident">K::MEDIA_TYPE</span>).<span class="kw">await</span>
+    }
 
-    <span class="attribute">#[instrument]
-    </span><span class="kw">async fn </span>search_by_id(<span class="kw-2">&amp;</span><span class="self">self</span>, external_id: <span class="kw-2">&amp;</span>str) -&gt; QueryResult&lt;ExternalMedia&gt; {
-        <span class="self">self</span>.provider.search_by_id(external_id, K::MEDIA_TYPE).<span class="kw">await
-    </span>}
+    <span class="attribute">#[<span class="ident">instrument</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search_by_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">ExternalMedia</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">search_by_id</span>(<span class="ident">external_id</span>, <span class="ident">K::MEDIA_TYPE</span>).<span class="kw">await</span>
+    }
 
-    <span class="attribute">#[instrument]
-    </span><span class="kw">async fn </span>cast(<span class="kw-2">&amp;</span><span class="self">self</span>, external_id: <span class="kw-2">&amp;</span>str) -&gt; QueryResult&lt;Vec&lt;ExternalActor&gt;&gt; {
-        <span class="self">self</span>.provider.cast(external_id, K::MEDIA_TYPE).<span class="kw">await
-    </span>}
+    <span class="attribute">#[<span class="ident">instrument</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">cast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalActor</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">cast</span>(<span class="ident">external_id</span>, <span class="ident">K::MEDIA_TYPE</span>).<span class="kw">await</span>
+    }
 }
 
-<span class="kw">impl</span>&lt;K&gt; IntoQueryShow <span class="kw">for </span>MetadataProviderOf&lt;K&gt;
-<span class="kw">where
-    </span>K: sealed::AssocMediaTypeConst + Send + Sync + <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span> <span class="ident">IntoQueryShow</span> <span class="kw">for</span> <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">K</span>: <span class="ident">sealed::AssocMediaTypeConst</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    default <span class="kw">fn </span>as_query_show&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>ExternalQueryShow&gt; {
-        <span class="prelude-val">None
-    </span>}
+    <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">as_query_show</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw">dyn</span> <span class="ident">ExternalQueryShow</span><span class="op">&gt;</span> {
+        <span class="prelude-val">None</span>
+    }
 
-    default <span class="kw">fn </span>into_query_show(<span class="self">self</span>: Arc&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Arc&lt;<span class="kw">dyn </span>ExternalQueryShow&gt;&gt; {
-        <span class="prelude-val">None
-    </span>}
+    <span class="ident">default</span> <span class="kw">fn</span> <span class="ident">into_query_show</span>(<span class="self">self</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ExternalQueryShow</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="prelude-val">None</span>
+    }
 }
 
-<span class="kw">impl </span>IntoQueryShow <span class="kw">for </span>MetadataProviderOf&lt;TvShows&gt; {
-    <span class="kw">fn </span>as_query_show(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>ExternalQueryShow&gt; {
+<span class="kw">impl</span> <span class="ident">IntoQueryShow</span> <span class="kw">for</span> <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">TvShows</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">as_query_show</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ExternalQueryShow</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="self">self</span>)
     }
 
-    <span class="kw">fn </span>into_query_show(<span class="self">self</span>: Arc&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Arc&lt;<span class="kw">dyn </span>ExternalQueryShow&gt;&gt; {
+    <span class="kw">fn</span> <span class="ident">into_query_show</span>(<span class="self">self</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ExternalQueryShow</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="self">self</span>)
     }
 }
 
-<span class="attribute">#[async_trait]
-</span><span class="kw">impl </span>ExternalQueryShow <span class="kw">for </span>MetadataProviderOf&lt;TvShows&gt; {
-    <span class="attribute">#[instrument]
-    </span><span class="kw">async fn </span>seasons_for_id(<span class="kw-2">&amp;</span><span class="self">self</span>, external_id: <span class="kw-2">&amp;</span>str) -&gt; QueryResult&lt;Vec&lt;ExternalSeason&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>seasons = <span class="self">self</span>.provider.seasons_by_id(external_id).<span class="kw">await</span><span class="question-mark">?</span>;
-        seasons.sort_by(|a, b| a.season_number.cmp(<span class="kw-2">&amp;</span>b.season_number));
+<span class="attribute">#[<span class="ident">async_trait</span>]</span>
+<span class="kw">impl</span> <span class="ident">ExternalQueryShow</span> <span class="kw">for</span> <span class="ident">MetadataProviderOf</span><span class="op">&lt;</span><span class="ident">TvShows</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">instrument</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">seasons_for_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalSeason</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seasons</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">seasons_by_id</span>(<span class="ident">external_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">seasons</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">season_number</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">season_number</span>));
 
-        <span class="prelude-val">Ok</span>(seasons)
+        <span class="prelude-val">Ok</span>(<span class="ident">seasons</span>)
     }
 
-    <span class="attribute">#[instrument]
-    </span><span class="kw">async fn </span>episodes_for_season(
+    <span class="attribute">#[<span class="ident">instrument</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">episodes_for_season</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        external_id: <span class="kw-2">&amp;</span>str,
-        season_number: u64,
-    ) -&gt; QueryResult&lt;Vec&lt;ExternalEpisode&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>episodes = <span class="self">self
-            </span>.provider
-            .episodes_by_id(external_id, season_number)
+        <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">season_number</span>: <span class="ident">u64</span>,
+    ) -&gt; <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalEpisode</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">episodes</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">provider</span>
+            .<span class="ident">episodes_by_id</span>(<span class="ident">external_id</span>, <span class="ident">season_number</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        episodes.sort_by(|a, b| a.episode_number.cmp(<span class="kw-2">&amp;</span>b.episode_number));
+        <span class="ident">episodes</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">episode_number</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">episode_number</span>));
 
-        <span class="prelude-val">Ok</span>(episodes)
+        <span class="prelude-val">Ok</span>(<span class="ident">episodes</span>)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>

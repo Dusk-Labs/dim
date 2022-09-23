@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/streaming/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/streaming/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -240,247 +247,248 @@
 <span id="240">240</span>
 <span id="241">241</span>
 <span id="242">242</span>
-</pre><pre class="rust"><code><span class="kw">pub mod </span>ffprobe;
+</pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ffprobe</span>;
 
-<span class="kw">use </span>cfg_if::cfg_if;
+<span class="kw">use</span> <span class="ident">cfg_if::cfg_if</span>;
 
-<span class="kw">use </span>std::collections::HashMap;
-<span class="kw">use </span>std::sync::Arc;
-<span class="kw">use </span>std::sync::RwLock;
+<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
+<span class="kw">use</span> <span class="ident">std::sync::RwLock</span>;
 
-<span class="kw">use </span><span class="kw">crate</span>::utils::ffpath;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::ffpath</span>;
 
-<span class="macro">lazy_static::lazy_static! </span>{
-    <span class="kw">pub static </span><span class="kw-2">ref </span>STREAMING_SESSION: Arc&lt;RwLock&lt;HashMap&lt;String, HashMap&lt;String, String&gt;&gt;&gt;&gt; = Arc::new(RwLock::new(HashMap::new()));
-    <span class="kw">pub static </span><span class="kw-2">ref </span>FFMPEG_BIN: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = Box::leak(ffpath(<span class="string">&quot;utils/ffmpeg&quot;</span>).into_boxed_str());
-    <span class="kw">pub static </span><span class="kw-2">ref </span>FFPROBE_BIN: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = {
-        <span class="macro">cfg_if! </span>{
-            <span class="kw">if </span><span class="attribute">#[cfg(test)] </span>{
-                <span class="string">&quot;/usr/bin/ffprobe&quot;
-            </span>} <span class="kw">else if </span><span class="attribute">#[cfg(bench)] </span>{
-                <span class="string">&quot;/usr/bin/ffprobe&quot;
-            </span>} <span class="kw">else </span>{
-                Box::leak(ffpath(<span class="string">&quot;utils/ffprobe&quot;</span>).into_boxed_str())
+<span class="macro">lazy_static::lazy_static!</span> {
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">STREAMING_SESSION</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">RwLock::new</span>(<span class="ident">HashMap::new</span>()));
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">FFMPEG_BIN</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="ident">Box::leak</span>(<span class="ident">ffpath</span>(<span class="string">&quot;utils/ffmpeg&quot;</span>).<span class="ident">into_boxed_str</span>());
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">FFPROBE_BIN</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> {
+        <span class="macro">cfg_if!</span> {
+            <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span> {
+                <span class="string">&quot;/usr/bin/ffprobe&quot;</span>
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">bench</span>)]</span> {
+                <span class="string">&quot;/usr/bin/ffprobe&quot;</span>
+            } <span class="kw">else</span> {
+                <span class="ident">Box::leak</span>(<span class="ident">ffpath</span>(<span class="string">&quot;utils/ffprobe&quot;</span>).<span class="ident">into_boxed_str</span>())
             }
         }
     };
 }
 
-<span class="kw">use </span>std::process::Command;
+<span class="kw">use</span> <span class="ident">std::process::Command</span>;
 
-<span class="doccomment">/// ffcheck - Check if &quot;ffmpeg&quot; and &quot;ffprobe&quot; are accessable through `std::process::Command`.
-///
-/// This will run `ffmpeg -version` and `ffprobe -version` and return a vec of the stdout
-/// output if successfull or the binaries name if not.
-///
-/// # Example
-///
-/// ```ignore
-/// use streaming::ffcheck;
-///
-/// for result in ffcheck() {
-///     match result {
-///         Ok(stdout) =&gt; println!(&quot;{:?}&quot;, stdout),
-///         Err(program) =&gt; eprintln!(&quot;Failed to get the `-version` output of {:?}&quot;, program),
-///     }
-/// }
-/// ```
-</span><span class="kw">pub fn </span>ffcheck() -&gt; Vec&lt;<span class="prelude-ty">Result</span>&lt;Box&lt;str&gt;, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>results = <span class="macro">vec!</span>[];
+<span class="doccomment">/// ffcheck - Check if &quot;ffmpeg&quot; and &quot;ffprobe&quot; are accessable through `std::process::Command`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This will run `ffmpeg -version` and `ffprobe -version` and return a vec of the stdout</span>
+<span class="doccomment">/// output if successfull or the binaries name if not.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```ignore</span>
+<span class="doccomment">/// use streaming::ffcheck;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// for result in ffcheck() {</span>
+<span class="doccomment">///     match result {</span>
+<span class="doccomment">///         Ok(stdout) =&gt; println!(&quot;{:?}&quot;, stdout),</span>
+<span class="doccomment">///         Err(program) =&gt; eprintln!(&quot;Failed to get the `-version` output of {:?}&quot;, program),</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ffcheck</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="macro">vec!</span>[];
 
-    <span class="kw">for </span>program <span class="kw">in </span>[<span class="kw-2">*</span>FFMPEG_BIN, <span class="kw-2">*</span>FFPROBE_BIN].iter() {
-        <span class="kw">if let </span><span class="prelude-val">Ok</span>(output) = Command::new(program).arg(<span class="string">&quot;-version&quot;</span>).output() {
-            <span class="kw">let </span>stdout = String::from_utf8(output.stdout)
-                .expect(<span class="string">&quot;Failed to decode subprocess stdout.&quot;</span>)
-                .into_boxed_str();
+    <span class="kw">for</span> <span class="ident">program</span> <span class="kw">in</span> [<span class="kw-2">*</span><span class="ident">FFMPEG_BIN</span>, <span class="kw-2">*</span><span class="ident">FFPROBE_BIN</span>].<span class="ident">iter</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">output</span>) <span class="op">=</span> <span class="ident">Command::new</span>(<span class="ident">program</span>).<span class="ident">arg</span>(<span class="string">&quot;-version&quot;</span>).<span class="ident">output</span>() {
+            <span class="kw">let</span> <span class="ident">stdout</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">output</span>.<span class="ident">stdout</span>)
+                .<span class="ident">expect</span>(<span class="string">&quot;Failed to decode subprocess stdout.&quot;</span>)
+                .<span class="ident">into_boxed_str</span>();
 
-            results.push(<span class="prelude-val">Ok</span>(stdout));
-        } <span class="kw">else </span>{
-            results.push(<span class="prelude-val">Err</span>(<span class="kw-2">*</span>program));
+            <span class="ident">results</span>.<span class="ident">push</span>(<span class="prelude-val">Ok</span>(<span class="ident">stdout</span>));
+        } <span class="kw">else</span> {
+            <span class="ident">results</span>.<span class="ident">push</span>(<span class="prelude-val">Err</span>(<span class="kw-2">*</span><span class="ident">program</span>));
         }
     }
 
-    results
+    <span class="ident">results</span>
 }
 
-<span class="attribute">#[derive(Clone, Copy)]
-</span><span class="kw">pub struct </span>Quality {
-    <span class="kw">pub </span>height: u64,
-    <span class="kw">pub </span>bitrate: u64,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Quality</span> {
+    <span class="kw">pub</span> <span class="ident">height</span>: <span class="ident">u64</span>,
+    <span class="kw">pub</span> <span class="ident">bitrate</span>: <span class="ident">u64</span>,
 }
 
-<span class="kw">pub fn </span>get_qualities(_height: u64, _bitrate: u64) -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Quality&gt; {
-    VIDEO_QUALITIES.iter().collect()
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_qualities</span>(<span class="ident">_height</span>: <span class="ident">u64</span>, <span class="ident">_bitrate</span>: <span class="ident">u64</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Quality</span><span class="op">&gt;</span> {
+    <span class="ident">VIDEO_QUALITIES</span>.<span class="ident">iter</span>().<span class="ident">collect</span>()
 }
 
-<span class="kw">pub const </span>VIDEO_QUALITIES: [Quality; <span class="number">3</span>] = [
-    Quality {
-        height: <span class="number">1080</span>,
-        bitrate: <span class="number">10_000_000</span>,
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">VIDEO_QUALITIES</span>: [<span class="ident">Quality</span>; <span class="number">3</span>] <span class="op">=</span> [
+    <span class="ident">Quality</span> {
+        <span class="ident">height</span>: <span class="number">1080</span>,
+        <span class="ident">bitrate</span>: <span class="number">10_000_000</span>,
     },
-    Quality {
-        height: <span class="number">720</span>,
-        bitrate: <span class="number">5_000_000</span>,
+    <span class="ident">Quality</span> {
+        <span class="ident">height</span>: <span class="number">720</span>,
+        <span class="ident">bitrate</span>: <span class="number">5_000_000</span>,
     },
-    Quality {
-        height: <span class="number">480</span>,
-        bitrate: <span class="number">1_000_000</span>,
+    <span class="ident">Quality</span> {
+        <span class="ident">height</span>: <span class="number">480</span>,
+        <span class="ident">bitrate</span>: <span class="number">1_000_000</span>,
     },
 ];
 
-<span class="attribute">#[derive(Clone)]
-</span><span class="kw">pub struct </span>Avc1Level {
-    <span class="kw">pub </span>level: u64,
-    <span class="kw">pub </span>macro_blocks_rate: u64,
-    <span class="kw">pub </span>max_frame_size: u64,
-    <span class="kw">pub </span>max_bitrate: u64,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Avc1Level</span> {
+    <span class="kw">pub</span> <span class="ident">level</span>: <span class="ident">u64</span>,
+    <span class="kw">pub</span> <span class="ident">macro_blocks_rate</span>: <span class="ident">u64</span>,
+    <span class="kw">pub</span> <span class="ident">max_frame_size</span>: <span class="ident">u64</span>,
+    <span class="kw">pub</span> <span class="ident">max_bitrate</span>: <span class="ident">u64</span>,
 }
 
-<span class="kw">impl </span>ToString <span class="kw">for </span>Avc1Level {
-    <span class="kw">fn </span>to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
-        <span class="macro">format!</span>(<span class="string">&quot;avc1.6400{:x}&quot;</span>, <span class="self">self</span>.level)
+<span class="kw">impl</span> <span class="ident">ToString</span> <span class="kw">for</span> <span class="ident">Avc1Level</span> {
+    <span class="kw">fn</span> <span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
+        <span class="macro">format!</span>(<span class="string">&quot;avc1.6400{:x}&quot;</span>, <span class="self">self</span>.<span class="ident">level</span>)
     }
 }
 
-<span class="kw">pub fn </span>level_to_tag(level: i64) -&gt; <span class="prelude-ty">Option</span>&lt;Avc1Level&gt; {
-    <span class="kw">let </span>level = level <span class="kw">as </span>u64;
-    AVC1_LEVELS.iter().find(|<span class="kw-2">&amp;</span>x| x.level == level).cloned()
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">level_to_tag</span>(<span class="ident">level</span>: <span class="ident">i64</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Avc1Level</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">level</span> <span class="op">=</span> <span class="ident">level</span> <span class="kw">as</span> <span class="ident">u64</span>;
+    <span class="ident">AVC1_LEVELS</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">level</span> <span class="op">==</span> <span class="ident">level</span>).<span class="ident">cloned</span>()
 }
 
-<span class="kw">pub fn </span>get_avc1_tag(width: u64, height: u64, bitrate: u64, framerate: u64) -&gt; Avc1Level {
-    <span class="kw">let </span>macro_blocks = (width <span class="kw">as </span>f64 / <span class="number">16.0</span>) * (height <span class="kw">as </span>f64 / <span class="number">16.0</span>);
-    <span class="kw">let </span>blocks_per_sec = macro_blocks * framerate <span class="kw">as </span>f64;
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_avc1_tag</span>(<span class="ident">width</span>: <span class="ident">u64</span>, <span class="ident">height</span>: <span class="ident">u64</span>, <span class="ident">bitrate</span>: <span class="ident">u64</span>, <span class="ident">framerate</span>: <span class="ident">u64</span>) -&gt; <span class="ident">Avc1Level</span> {
+    <span class="kw">let</span> <span class="ident">macro_blocks</span> <span class="op">=</span> (<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">16.0</span>) <span class="op">*</span> (<span class="ident">height</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">16.0</span>);
+    <span class="kw">let</span> <span class="ident">blocks_per_sec</span> <span class="op">=</span> <span class="ident">macro_blocks</span> <span class="op">*</span> <span class="ident">framerate</span> <span class="kw">as</span> <span class="ident">f64</span>;
 
-    <span class="kw">let </span><span class="kw-2">mut </span>avc1_levels = AVC1_LEVELS.iter().filter(|<span class="kw-2">&amp;</span>x| {
-        x.max_bitrate &gt; bitrate
-            &amp;&amp; (macro_blocks <span class="kw">as </span>u64) &lt; x.max_frame_size
-            &amp;&amp; blocks_per_sec &lt; x.macro_blocks_rate <span class="kw">as </span>f64
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">avc1_levels</span> <span class="op">=</span> <span class="ident">AVC1_LEVELS</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">x</span><span class="op">|</span> {
+        <span class="ident">x</span>.<span class="ident">max_bitrate</span> <span class="op">&gt;</span> <span class="ident">bitrate</span>
+            <span class="op">&amp;&amp;</span> (<span class="ident">macro_blocks</span> <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">&lt;</span> <span class="ident">x</span>.<span class="ident">max_frame_size</span>
+            <span class="op">&amp;&amp;</span> <span class="ident">blocks_per_sec</span> <span class="op">&lt;</span> <span class="ident">x</span>.<span class="ident">macro_blocks_rate</span> <span class="kw">as</span> <span class="ident">f64</span>
     });
 
-    avc1_levels.next().cloned().unwrap()
+    <span class="ident">avc1_levels</span>.<span class="ident">next</span>().<span class="ident">cloned</span>().<span class="ident">unwrap</span>()
 }
 
-<span class="kw">pub const </span>AVC1_LEVELS: [Avc1Level; <span class="number">20</span>] = [
-    Avc1Level {
-        level: <span class="number">9</span>,
-        macro_blocks_rate: <span class="number">1_485</span>,
-        max_frame_size: <span class="number">99</span>,
-        max_bitrate: <span class="number">128_000</span>,
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">AVC1_LEVELS</span>: [<span class="ident">Avc1Level</span>; <span class="number">20</span>] <span class="op">=</span> [
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">9</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">1_485</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">99</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">128_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">10</span>,
-        macro_blocks_rate: <span class="number">1_485</span>,
-        max_frame_size: <span class="number">99</span>,
-        max_bitrate: <span class="number">64_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">10</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">1_485</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">99</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">64_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">11</span>,
-        macro_blocks_rate: <span class="number">3_000</span>,
-        max_frame_size: <span class="number">396</span>,
-        max_bitrate: <span class="number">192_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">11</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">3_000</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">396</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">192_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">12</span>,
-        macro_blocks_rate: <span class="number">6_000</span>,
-        max_frame_size: <span class="number">396</span>,
-        max_bitrate: <span class="number">384_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">12</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">6_000</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">396</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">384_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">13</span>,
-        macro_blocks_rate: <span class="number">11_880</span>,
-        max_frame_size: <span class="number">396</span>,
-        max_bitrate: <span class="number">768_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">13</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">11_880</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">396</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">768_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">20</span>,
-        macro_blocks_rate: <span class="number">11_880</span>,
-        max_frame_size: <span class="number">396</span>,
-        max_bitrate: <span class="number">2_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">20</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">11_880</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">396</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">2_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">21</span>,
-        macro_blocks_rate: <span class="number">19_800</span>,
-        max_frame_size: <span class="number">792</span>,
-        max_bitrate: <span class="number">4_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">21</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">19_800</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">792</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">4_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">22</span>,
-        macro_blocks_rate: <span class="number">20_250</span>,
-        max_frame_size: <span class="number">1_620</span>,
-        max_bitrate: <span class="number">4_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">22</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">20_250</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">1_620</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">4_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">30</span>,
-        macro_blocks_rate: <span class="number">40_500</span>,
-        max_frame_size: <span class="number">1_620</span>,
-        max_bitrate: <span class="number">10_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">30</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">40_500</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">1_620</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">10_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">31</span>,
-        macro_blocks_rate: <span class="number">108_000</span>,
-        max_frame_size: <span class="number">3600</span>,
-        max_bitrate: <span class="number">14_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">31</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">108_000</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">3600</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">14_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">32</span>,
-        macro_blocks_rate: <span class="number">216_000</span>,
-        max_frame_size: <span class="number">5_120</span>,
-        max_bitrate: <span class="number">20_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">32</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">216_000</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">5_120</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">20_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">40</span>,
-        macro_blocks_rate: <span class="number">245_760</span>,
-        max_frame_size: <span class="number">8_192</span>,
-        max_bitrate: <span class="number">20_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">40</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">245_760</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">8_192</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">20_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">41</span>,
-        macro_blocks_rate: <span class="number">245_760</span>,
-        max_frame_size: <span class="number">8_192</span>,
-        max_bitrate: <span class="number">50_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">41</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">245_760</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">8_192</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">50_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">42</span>,
-        macro_blocks_rate: <span class="number">522_240</span>,
-        max_frame_size: <span class="number">8_704</span>,
-        max_bitrate: <span class="number">50_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">42</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">522_240</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">8_704</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">50_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">50</span>,
-        macro_blocks_rate: <span class="number">589_824</span>,
-        max_frame_size: <span class="number">22_080</span>,
-        max_bitrate: <span class="number">135_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">50</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">589_824</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">22_080</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">135_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">51</span>,
-        macro_blocks_rate: <span class="number">983_040</span>,
-        max_frame_size: <span class="number">36_864</span>,
-        max_bitrate: <span class="number">240_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">51</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">983_040</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">36_864</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">240_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">52</span>,
-        macro_blocks_rate: <span class="number">2_073_600</span>,
-        max_frame_size: <span class="number">36_864</span>,
-        max_bitrate: <span class="number">240_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">52</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">2_073_600</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">36_864</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">240_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">60</span>,
-        macro_blocks_rate: <span class="number">4_177_920</span>,
-        max_frame_size: <span class="number">139_264</span>,
-        max_bitrate: <span class="number">240_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">60</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">4_177_920</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">139_264</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">240_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">61</span>,
-        macro_blocks_rate: <span class="number">8_355_840</span>,
-        max_frame_size: <span class="number">139_264</span>,
-        max_bitrate: <span class="number">480_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">61</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">8_355_840</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">139_264</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">480_000_000</span>,
     },
-    Avc1Level {
-        level: <span class="number">62</span>,
-        macro_blocks_rate: <span class="number">16_711_680</span>,
-        max_frame_size: <span class="number">139_264</span>,
-        max_bitrate: <span class="number">800_000_000</span>,
+    <span class="ident">Avc1Level</span> {
+        <span class="ident">level</span>: <span class="number">62</span>,
+        <span class="ident">macro_blocks_rate</span>: <span class="number">16_711_680</span>,
+        <span class="ident">max_frame_size</span>: <span class="number">139_264</span>,
+        <span class="ident">max_bitrate</span>: <span class="number">800_000_000</span>,
     },
 ];
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>
