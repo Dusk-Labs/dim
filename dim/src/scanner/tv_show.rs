@@ -32,8 +32,8 @@ use database::Transaction;
 use chrono::prelude::Utc;
 use chrono::Datelike;
 
+use serde::Serialize;
 use std::sync::Arc;
-use tracing::debug;
 use tracing::error;
 use tracing::info;
 use tracing::instrument;
@@ -41,36 +41,40 @@ use tracing::instrument;
 use displaydoc::Display;
 use thiserror::Error;
 
-#[derive(Clone, Debug, Display, Error)]
+#[derive(Clone, Debug, Display, Error, Serialize)]
 pub enum Error {
     /// Failed to insert poster into database: {0:?}
-    PosterInsert(database::DatabaseError),
+    PosterInsert(#[serde(skip)] database::DatabaseError),
     /// Failed to insert backdrop into database: {0:?}
-    BackdropInsert(database::DatabaseError),
+    BackdropInsert(#[serde(skip)] database::DatabaseError),
     /// Failed to decouple genres from media: {0:?}
-    GenreDecouple(database::DatabaseError),
+    GenreDecouple(#[serde(skip)] database::DatabaseError),
     /// Failed to create or get genre: {0:?}
-    GetOrInsertGenre(database::DatabaseError),
+    GetOrInsertGenre(#[serde(skip)] database::DatabaseError),
     /// Failed to attach genre to media object: {0:?}
-    CoupleGenre(database::DatabaseError),
+    CoupleGenre(#[serde(skip)] database::DatabaseError),
     /// Failed to update mediafile to point to new parent: {0:?}
-    UpdateMediafile(database::DatabaseError),
+    UpdateMediafile(#[serde(skip)] database::DatabaseError),
     /// Failed to get children count for movie: {0:?}
-    ChildrenCount(database::DatabaseError),
+    ChildrenCount(#[serde(skip)] database::DatabaseError),
     /// Failed to cleanup child-less parent: {0:?}
-    ChildCleanup(database::DatabaseError),
+    ChildCleanup(#[serde(skip)] database::DatabaseError),
     /// Failed to insert or get tv object: {0:?}
-    GetOrInsertMedia(database::DatabaseError),
+    GetOrInsertMedia(#[serde(skip)] database::DatabaseError),
     /// Failed to insert or get season: {0:?}
-    GetOrInsertSeason(database::DatabaseError),
+    GetOrInsertSeason(#[serde(skip)] database::DatabaseError),
     /// Failed to insert media object for episode: {0:?}
-    GetOrInsertMediaEpisode(database::DatabaseError),
+    GetOrInsertMediaEpisode(#[serde(skip)] database::DatabaseError),
     /// Failed to insert episode object: {0:?}
-    GetOrInsertEpisode(database::DatabaseError),
+    GetOrInsertEpisode(#[serde(skip)] database::DatabaseError),
     /// Failed to get season id for episode: {0:?}
-    GetSeasonId(database::DatabaseError),
+    GetSeasonId(#[serde(skip)] database::DatabaseError),
     /// Failed to get tvshowid for season: {0:?}
-    GetTvId(database::DatabaseError),
+    GetTvId(#[serde(skip)] database::DatabaseError),
+    /// Season not found
+    SeasonNotFound,
+    /// Episode not found
+    EpisodeNotFound,
 }
 
 #[derive(Clone, Copy)]
@@ -82,7 +86,7 @@ impl TvMatcher {
         tx: &mut Transaction<'life0>,
         file: MediaFile,
         result: (ExternalMedia, ExternalSeason, ExternalEpisode),
-    ) -> Result<(i64, i64, i64), Box<dyn std::error::Error>> {
+    ) -> Result<(i64, i64, i64), Error> {
         // TODO: insert poster and backdrops.
         let (emedia, eseason, eepisode) = result;
 
@@ -239,7 +243,7 @@ impl TvMatcher {
         tx: &mut Transaction<'_>,
         parent_id: i64,
         result: ExternalSeason,
-    ) -> Result<i64, Box<dyn std::error::Error>> {
+    ) -> Result<i64, Error> {
         let posters = result
             .posters
             .iter()
@@ -279,7 +283,7 @@ impl TvMatcher {
         file: MediaFile,
         seasonid: i64,
         result: ExternalEpisode,
-    ) -> Result<i64, Box<dyn std::error::Error>> {
+    ) -> Result<i64, Error> {
         let stills = result
             .stills
             .iter()
@@ -314,7 +318,7 @@ impl TvMatcher {
             media,
         };
 
-        let episode_id = episode
+        episode
             .media
             .insert_blind(&mut *tx)
             .await
@@ -410,7 +414,7 @@ impl MediaMatcher for TvMatcher {
         tx: &mut Transaction<'_>,
         provider: Arc<dyn ExternalQuery>,
         work: Vec<WorkUnit>,
-    ) {
+    ) -> Result<(), super::Error> {
         let provider_show: Arc<dyn ExternalQueryShow> = provider
             .into_query_show()
             .expect("Scanner needs a show provider");
@@ -425,14 +429,15 @@ impl MediaMatcher for TvMatcher {
 
         let metadata = futures::future::join_all(metadata_futs).await;
 
-        // FIXME: Propagate errors.
         for meta in metadata.into_iter() {
             if let Ok(Some((file, provided))) = meta {
                 self.match_to_result(tx, file, provided)
                     .await
-                    .inspect_err(|error| error!(?error, "failed to match to result"));
+                    .inspect_err(|error| error!(?error, "failed to match to result"))?;
             }
         }
+
+        Ok(())
     }
 
     async fn match_to_id(
@@ -441,7 +446,7 @@ impl MediaMatcher for TvMatcher {
         provider: Arc<dyn ExternalQuery>,
         work: WorkUnit,
         external_id: &str,
-    ) {
+    ) -> Result<(), super::Error> {
         let provider: Arc<dyn ExternalQueryShow> = provider
             .into_query_show()
             .expect("Scanner needs a show provider");
@@ -452,7 +457,7 @@ impl MediaMatcher for TvMatcher {
             Ok(provided) => provided,
             Err(e) => {
                 error!(%external_id, error = ?e, "Failed to find a movie match.");
-                return;
+                return Err(super::Error::InvalidExternalId);
             }
         };
 
@@ -496,12 +501,14 @@ impl MediaMatcher for TvMatcher {
             episode_result = Some(episode);
         }
 
-        let Some(season_result) = season_result else { return; };
-        let Some(episode_result) = episode_result else { return; };
+        let Some(season_result) = season_result else { return Err(Error::SeasonNotFound.into()); };
+        let Some(episode_result) = episode_result else { return Err(Error::EpisodeNotFound.into()); };
 
         self.match_to_result(tx, file, (provided, season_result, episode_result))
             .await
-            .inspect_err(|error| error!(?error, "failed to match to result"));
+            .inspect_err(|error| error!(?error, "failed to match to result"))?;
+
+        Ok(())
     }
 }
 

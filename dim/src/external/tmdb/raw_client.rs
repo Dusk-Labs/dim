@@ -3,8 +3,6 @@ use futures::FutureExt;
 use retry_block::async_retry;
 use retry_block::delay::Fixed;
 use retry_block::OperationResult;
-use std::error::Error;
-use std::future::Future;
 use std::time::Duration;
 
 use serde::Deserialize;

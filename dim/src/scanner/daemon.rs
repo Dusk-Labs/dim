@@ -115,9 +115,14 @@ impl FsWatcher {
                 let mut lock = self.conn.writer().lock_owned().await;
                 let mut tx = database::write_tx(&mut lock).await.unwrap();
 
-                self.matcher
+                if let Err(e) = self
+                    .matcher
                     .batch_match(&mut tx, self.provider.clone(), mfile)
-                    .await;
+                    .await
+                {
+                    error!(error=?e, "Failed to match new file");
+                    return;
+                }
 
                 tx.commit().await.unwrap();
             }
@@ -142,10 +147,7 @@ impl FsWatcher {
         let path = match path.to_str() {
             Some(x) => x,
             None => {
-                warn!(
-                    "Received path thats not unicode {}",
-                    path = format!("{:?}", path)
-                );
+                warn!(?path, "Received path thats not unicode",);
                 return;
             }
         };
@@ -197,8 +199,8 @@ impl FsWatcher {
             Some(x) => x,
             None => {
                 warn!(
-                    "Received path thats not unicode {}",
-                    path = format!("{:?}", from)
+                    path=?from,
+                    "Received path thats not unicode",
                 );
                 return;
             }
@@ -208,8 +210,8 @@ impl FsWatcher {
             Some(x) => x,
             None => {
                 warn!(
-                    "Received path thats not unicode {}",
-                    path = format!("{:?}", to)
+                    path=?to,
+                    "Received path thats not unicode",
                 );
                 return;
             }

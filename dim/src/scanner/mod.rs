@@ -36,12 +36,13 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use torrent_name_parser::Metadata as TorrentMetadata;
+use tracing::error;
 use tracing::info;
 use tracing::instrument;
 use tracing::warn;
 use walkdir::WalkDir;
 
-pub type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
+pub use error::Error;
 
 pub(super) static SUPPORTED_EXTS: &[&str] = &["mp4", "mkv", "avi", "webm"];
 
@@ -124,7 +125,7 @@ pub trait MediaMatcher: Send + Sync {
         tx: &mut database::Transaction<'_>,
         provider: Arc<dyn ExternalQuery>,
         work: Vec<WorkUnit>,
-    );
+    ) -> Result<(), Error>;
 
     /// Match a WorkUnit to a specific external id.
     async fn match_to_id(
@@ -133,7 +134,7 @@ pub trait MediaMatcher: Send + Sync {
         provider: Arc<dyn ExternalQuery>,
         work: WorkUnit,
         external_id: &str,
-    );
+    ) -> Result<(), Error>;
 }
 
 pub async fn insert_mediafiles(
@@ -212,7 +213,8 @@ pub async fn start_custom(
             event_type: events::PushEventType::EventStartedScanning,
         }
         .to_string(),
-    )?;
+    )
+    .map_err(|x| Error::EventDispatch(x.into()))?;
 
     let matcher = match media_type {
         MediaType::Movie => Arc::new(movie::MovieMatcher) as Arc<dyn MediaMatcher>,
@@ -246,11 +248,17 @@ pub async fn start_custom(
     // and match objects.
     for unit in chunk_iter.into_iter() {
         let mut lock = conn.writer().lock_owned().await;
-        let mut tx = database::write_tx(&mut lock).await?;
+        let mut tx = database::write_tx(&mut lock)
+            .await
+            .map_err(|e| Error::DatabaseError(e.into()))?;
 
-        matcher.batch_match(&mut tx, provider.clone(), unit).await;
+        if let Err(e) = matcher.batch_match(&mut tx, provider.clone(), unit).await {
+            error!(error = ?e, "Failed to match batch of mediafiles.");
+        }
 
-        tx.commit().await?;
+        tx.commit()
+            .await
+            .map_err(|e| Error::DatabaseError(e.into()))?;
     }
 
     info!(
@@ -265,7 +273,8 @@ pub async fn start_custom(
             event_type: events::PushEventType::EventStoppedScanning,
         }
         .to_string(),
-    )?;
+    )
+    .map_err(|e| Error::EventDispatch(e.into()))?;
 
     Ok(())
 }
@@ -276,9 +285,15 @@ pub async fn start(
     tx: EventTx,
     provider: Arc<dyn ExternalQuery>,
 ) -> Result<(), Error> {
-    let mut tx_ = conn.read().begin().await?;
+    let mut tx_ = conn
+        .read()
+        .begin()
+        .await
+        .map_err(|e| Error::DatabaseError(e.into()))?;
 
-    let lib = Library::get_one(&mut tx_, library_id).await?;
+    let lib = Library::get_one(&mut tx_, library_id)
+        .await
+        .map_err(|e| Error::LibraryNotFound(e))?;
 
     start_custom(
         conn,

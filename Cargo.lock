@@ -732,7 +732,6 @@ dependencies = [
  "xmlwriter",
  "xtra 0.5.2",
  "xtra 0.6.0",
- "xtra_proc",
  "zip",
 ]
 

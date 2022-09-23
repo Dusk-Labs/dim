@@ -70,8 +70,7 @@ pub async fn get_conn() -> sqlx::Result<crate::DbConnection> {
 
     if !MIGRATIONS_FLAG.load(Ordering::SeqCst) {
         if let Err(err) = run_migrations(conn).await {
-            // FIXME: Make this a panic.
-            dbg!(err);
+            panic!("Failed to run migrations (maybe you need to delete the old database?): {:?}", err);
         } else {
             MIGRATIONS_FLAG.store(true, Ordering::SeqCst);
         }

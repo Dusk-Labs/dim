@@ -24,6 +24,7 @@ use database::mediafile::UpdateMediaFile;
 use database::movie::Movie;
 use database::Transaction;
 
+use serde::Serialize;
 use std::sync::Arc;
 use tracing::error;
 use tracing::warn;
@@ -33,26 +34,26 @@ use url::Url;
 use displaydoc::Display;
 use thiserror::Error;
 
-#[derive(Clone, Debug, Display, Error)]
+#[derive(Clone, Debug, Display, Error, Serialize)]
 pub enum Error {
     /// Failed to insert poster into database: {0:?}
-    PosterInsert(database::DatabaseError),
+    PosterInsert(#[serde(skip)] database::DatabaseError),
     /// Failed to insert backdrop into database: {0:?}
-    BackdropInsert(database::DatabaseError),
+    BackdropInsert(#[serde(skip)] database::DatabaseError),
     /// Failed to decouple genres from media: {0:?}
-    GenreDecouple(database::DatabaseError),
+    GenreDecouple(#[serde(skip)] database::DatabaseError),
     /// Failed to create or get genre: {0:?}
-    GetOrInsertGenre(database::DatabaseError),
+    GetOrInsertGenre(#[serde(skip)] database::DatabaseError),
     /// Failed to attach genre to media object: {0:?}
-    CoupleGenre(database::DatabaseError),
+    CoupleGenre(#[serde(skip)] database::DatabaseError),
     /// Failed to update mediafile to point to new parent: {0:?}
-    UpdateMediafile(database::DatabaseError),
+    UpdateMediafile(#[serde(skip)] database::DatabaseError),
     /// Failed to get children count for movie: {0:?}
-    ChildrenCount(database::DatabaseError),
+    ChildrenCount(#[serde(skip)] database::DatabaseError),
     /// Failed to cleanup child-less parent: {0:?}
-    ChildCleanup(database::DatabaseError),
+    ChildCleanup(#[serde(skip)] database::DatabaseError),
     /// Failed to insert or get media object: {0:?}
-    GetOrInsertMedia(database::DatabaseError),
+    GetOrInsertMedia(#[serde(skip)] database::DatabaseError),
 }
 
 pub fn asset_from_url(url: &str) -> Option<InsertableAsset> {
@@ -220,7 +221,7 @@ impl MediaMatcher for MovieMatcher {
         tx: &mut Transaction<'_>,
         provider: Arc<dyn ExternalQuery>,
         work: Vec<WorkUnit>,
-    ) {
+    ) -> Result<(), super::Error> {
         let metadata_futs = work
             .into_iter()
             .map(|WorkUnit(file, metadata)| async {
@@ -246,10 +247,12 @@ impl MediaMatcher for MovieMatcher {
                 if let Some(provided) = provided.first() {
                     self.match_to_result(tx, file, provided.clone())
                         .await
-                        .inspect_err(|error| error!(?error, "failed to match to result"));
+                        .inspect_err(|error| error!(?error, "failed to match to result"))?;
                 }
             }
         }
+
+        Ok(())
     }
 
     async fn match_to_id(
@@ -258,21 +261,22 @@ impl MediaMatcher for MovieMatcher {
         provider: Arc<dyn ExternalQuery>,
         work: WorkUnit,
         external_id: &str,
-    ) {
+    ) -> Result<(), super::Error> {
         let WorkUnit(file, _) = work;
 
         let provided = match provider.search_by_id(external_id).await {
             Ok(provided) => provided,
             Err(e) => {
                 error!(%external_id, error = ?e, "Failed to find a movie match.");
-                return;
+                return Err(super::Error::InvalidExternalId);
             }
         };
 
-        let _ = self
-            .match_to_result(tx, file, provided)
+        self.match_to_result(tx, file, provided)
             .await
-            .inspect_err(|error| error!(?error, "failed to match file to external id."));
+            .inspect_err(|error| error!(?error, "failed to match file to external id."))?;
+
+        Ok(())
     }
 }
 

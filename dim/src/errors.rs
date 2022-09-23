@@ -6,7 +6,6 @@ use serde::Serialize;
 use serde_json::json;
 
 use crate::routes::mediafile;
-//use crate::scanners::base::ScannerError;
 use nightfall::error::NightfallError;
 
 use http::StatusCode;
@@ -40,10 +39,8 @@ pub enum DimError {
     StreamingError(#[from] StreamingErrors),
     /// User has no permission to access this route.
     Unauthorized,
-    /*
-    /// Error has occured when matching.
-    ScannerError(#[from] ScannerError),
-    */
+    /// Error has occured when matching: {0:?}
+    ScannerError(#[from] crate::scanner::Error),
     /// Upload failed.
     UploadFailed,
     /// Failed to deserialize request body: {description:?}.
@@ -102,7 +99,6 @@ impl warp::reject::Reject for DimError {}
 
 impl warp::Reply for DimError {
     fn into_response(self) -> warp::reply::Response {
-        //| Self::ScannerError(_)
         let status = match self {
             Self::LibraryNotFound
             | Self::NoneError
@@ -113,7 +109,8 @@ impl warp::Reply for DimError {
             | Self::UnknownError
             | Self::IOError
             | Self::InternalServerError
-            | Self::UploadFailed => StatusCode::INTERNAL_SERVER_ERROR,
+            | Self::UploadFailed
+            | Self::ScannerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::Unauthenticated
             | Self::Unauthorized
             | Self::InvalidCredentials
@@ -125,7 +122,6 @@ impl warp::Reply for DimError {
                 StatusCode::NOT_ACCEPTABLE
             }
             Self::MediafileRouteError(ref e) => e.status_code(),
-            // | Self::ScannerError(_)
         };
 
         let resp = json!({

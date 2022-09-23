@@ -4,7 +4,9 @@ use crate::external::tmdb::TMDBMetadataProvider;
 use crate::external::ExternalQuery;
 use crate::json;
 use crate::tree;
+use crate::utils::secs_to_pretty;
 
+use chrono::Datelike;
 use database::user::User;
 
 use database::compact_mediafile::CompactMediafile;
@@ -516,13 +518,13 @@ pub async fn tmdb_search(
     media_type: String,
     _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    use crate::utils::secs_to_pretty;
+    let Ok(media_type) = media_type.to_lowercase().try_into() else {
+        return Err(errors::DimError::InvalidMediaType);
+    };
 
-    use chrono::Datelike;
-
-    let provider = match media_type.to_lowercase().as_ref() {
-        "movie" | "movies" => (*MOVIES_PROVIDER).clone(),
-        "tv" | "tv_show" | "tv show" | "tv shows" => (*TV_PROVIDER).clone(),
+    let provider = match media_type {
+        MediaType::Movie => (*MOVIES_PROVIDER).clone(),
+        MediaType::Tv => (*TV_PROVIDER).clone(),
         _ => return Err(errors::DimError::InvalidMediaType),
     };
 

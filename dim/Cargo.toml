@@ -42,7 +42,6 @@ tokio = { version = "1", features = ["rt", "signal", "full", "tracing"] }
 uuid = { version = "0.8.2", features = ["v4"] }
 futures = "0.3.14"
 xtra = { version = "0.5.1", features = ["with-tokio-1"] }
-xtra_proc = "0.1.0"
 async-trait = "0.1.50"
 async-recursion = "0.3.2"
 anitomy = "0.1.2"

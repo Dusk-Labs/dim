@@ -1,22 +1,25 @@
 use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors::*;
-use crate::external::tmdb::MetadataProviderOf;
 use crate::external::ExternalQuery;
-use crate::external::ExternalQueryShow;
-use crate::scanner::movie::MovieMatcher;
-use crate::scanner::tv_show::TvMatcher;
+use crate::scanner::movie;
+use crate::scanner::parse_filenames;
+use crate::scanner::tv_show;
+use crate::scanner::MediaMatcher;
+use crate::scanner::WorkUnit;
+
+use super::media::MOVIES_PROVIDER;
+use super::media::TV_PROVIDER;
+
+use std::sync::Arc;
 
 use database::library::MediaType;
-use database::media::Media;
 use database::mediafile::MediaFile;
 
 use tracing::error;
 use tracing::info;
 
 use http::status::StatusCode;
-
-const API_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
 
 pub mod filters {
     use crate::core::EventTx;
@@ -71,21 +74,12 @@ pub mod filters {
 /// TODO: Add ability to specify overrides like episode and season ranges.
 pub async fn rematch_media(
     conn: DbConnection,
-    event_tx: EventTx,
+    _event_tx: EventTx,
     id: i64,
     external_id: String,
     media_type: String,
 ) -> Result<impl warp::Reply, DimError> {
-    use super::media::MOVIES_PROVIDER;
-    use super::media::TV_PROVIDER;
-    use crate::scanner::movie;
-    use crate::scanner::parse_filenames;
-    use crate::scanner::tv_show;
-    use crate::scanner::MediaMatcher;
-    use crate::scanner::WorkUnit;
-    use std::sync::Arc;
-
-    let Ok(media_type): Result<MediaType, ()> = media_type.to_lowercase().try_into() else {
+    let Ok(media_type) = media_type.to_lowercase().try_into() else {
         return Err(DimError::InvalidMediaType);
     };
 
@@ -135,7 +129,7 @@ pub async fn rematch_media(
                 WorkUnit(mediafile.clone(), metadata),
                 &external_id,
             )
-            .await;
+            .await?;
     }
 
     tx.commit().await?;

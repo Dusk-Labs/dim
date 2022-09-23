@@ -1,9 +1,15 @@
 use crate::core::DbConnection;
 use crate::errors;
 use crate::errors::ErrorStatusCode;
+use crate::external::ExternalQuery;
+use crate::scanner::movie;
+use crate::scanner::parse_filenames;
+use crate::scanner::tv_show;
+use crate::scanner::MediaMatcher;
+use crate::scanner::WorkUnit;
 
-use futures::future;
-use futures::stream::FuturesUnordered;
+use super::media::MOVIES_PROVIDER;
+use super::media::TV_PROVIDER;
 
 use database::library::MediaType;
 use database::mediafile::MediaFile;
@@ -11,6 +17,7 @@ use database::user::User;
 
 use serde::Serialize;
 use serde_json::json;
+use std::sync::Arc;
 
 use warp::reject::Reject;
 use warp::reply;
@@ -18,7 +25,6 @@ use warp::reply;
 use http::StatusCode;
 use tracing::error;
 use tracing::info;
-use tracing::warn;
 
 #[derive(Clone, Debug, thiserror::Error, Serialize, displaydoc::Display)]
 pub enum Error {
@@ -133,16 +139,6 @@ pub async fn rematch_mediafile(
     external_id: String,
     media_type: String,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    use super::media::MOVIES_PROVIDER;
-    use super::media::TV_PROVIDER;
-    use crate::external::ExternalQuery;
-    use crate::scanner::movie;
-    use crate::scanner::parse_filenames;
-    use crate::scanner::tv_show;
-    use crate::scanner::MediaMatcher;
-    use crate::scanner::WorkUnit;
-    use std::sync::Arc;
-
     if mediafiles.is_empty() {
         return Err(Error::NoMediafiles.into());
     }
@@ -190,7 +186,7 @@ pub async fn rematch_mediafile(
                 WorkUnit(mediafile.clone(), metadata),
                 &external_id,
             )
-            .await;
+            .await?;
     }
 
     tx.commit().await?;

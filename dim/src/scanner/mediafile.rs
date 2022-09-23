@@ -2,7 +2,6 @@
 
 use crate::external::filename::Metadata;
 use crate::streaming::ffprobe::FFProbeCtx;
-use crate::streaming::FFPROBE_BIN;
 
 use async_trait::async_trait;
 
@@ -12,6 +11,7 @@ use database::DatabaseError;
 use database::DbConnection;
 use displaydoc::Display;
 
+use serde::Serialize;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -35,26 +35,26 @@ static SEMPAHORE: Semaphore = Semaphore::const_new(12);
 pub type Result<T> = ::core::result::Result<T, Error>;
 pub type SqlxError = Arc<sqlx::Error>;
 
-#[derive(Clone, Debug, Display, Error)]
+#[derive(Clone, Debug, Display, Error, Serialize)]
 pub enum Error {
     /// The file already exists in the database.
     FileExists,
     /// Failed to acquire a read-only database transaction: {0:?}
-    FailedToAcquireReader(SqlxError),
+    FailedToAcquireReader(#[serde(skip)] SqlxError),
     /// Failed to acquire a read-write database transaction: {0:?}
-    FailedToAcquireWriter(SqlxError),
+    FailedToAcquireWriter(#[serde(skip)] SqlxError),
     /// File passed is non-unicode.
     NonUnicodeFile,
     /// Failed to extract media information with ffprobe: {0:?}
-    FfprobeError(Arc<std::io::Error>),
+    FfprobeError(#[serde(skip)] Arc<std::io::Error>),
     /// Failed to write mediafile to the database: {0:?}
-    InsertFailed(DatabaseError),
+    InsertFailed(#[serde(skip)] DatabaseError),
     /// Failed to select written mediafile from the database: {0:?}
-    SelectFailed(DatabaseError),
+    SelectFailed(#[serde(skip)] DatabaseError),
     /// Failed to commit mediafiles to the database: {0:?}
-    CommitFailed(SqlxError),
+    CommitFailed(#[serde(skip)] SqlxError),
     /// Failed to check if mediafile exists in the database: {0:?}
-    ExistanceCheckFailed(DatabaseError),
+    ExistanceCheckFailed(#[serde(skip)] DatabaseError),
 }
 
 /// Struct is responsible for creating `InsertableMediaFile`'s and preparing them for insertions
