@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/user.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>user.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/user.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>user.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -558,455 +553,455 @@
 <span id="553">553</span>
 <span id="554">554</span>
 <span id="555">555</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DatabaseError</span>;
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
-<span class="kw">use</span> <span class="ident">std::num::NonZeroU32</span>;
-<span class="kw">use</span> <span class="ident">std::time::SystemTime</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::DatabaseError;
+<span class="kw">use </span>std::collections::HashMap;
+<span class="kw">use </span>std::num::NonZeroU32;
+<span class="kw">use </span>std::time::SystemTime;
 
-<span class="kw">use</span> <span class="ident">auth::user_cookie_decode</span>;
-<span class="kw">use</span> <span class="ident">auth::user_cookie_generate</span>;
-<span class="kw">use</span> <span class="ident">auth::AuthError</span>;
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
-<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
+<span class="kw">use </span>auth::user_cookie_decode;
+<span class="kw">use </span>auth::user_cookie_generate;
+<span class="kw">use </span>auth::AuthError;
+<span class="kw">use </span>serde::Deserialize;
+<span class="kw">use </span>serde::Serialize;
 
-<span class="kw">use</span> <span class="ident">ring::digest</span>;
-<span class="kw">use</span> <span class="ident">ring::pbkdf2</span>;
-<span class="kw">use</span> <span class="ident">sqlx::Decode</span>;
-<span class="kw">use</span> <span class="ident">sqlx::Encode</span>;
+<span class="kw">use </span>ring::digest;
+<span class="kw">use </span>ring::pbkdf2;
+<span class="kw">use </span>sqlx::Decode;
+<span class="kw">use </span>sqlx::Encode;
 
-<span class="kw">static</span> <span class="ident">PBKDF2_ALG</span>: <span class="ident">pbkdf2::Algorithm</span> <span class="op">=</span> <span class="ident">pbkdf2::PBKDF2_HMAC_SHA256</span>;
-<span class="kw">const</span> <span class="ident">CREDENTIAL_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">digest::SHA256_OUTPUT_LEN</span>;
-<span class="kw">const</span> <span class="ident">HASH_ROUNDS</span>: <span class="ident">NonZeroU32</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">NonZeroU32::new_unchecked</span>(<span class="number">1_000</span>) };
+<span class="kw">static </span>PBKDF2_ALG: pbkdf2::Algorithm = pbkdf2::PBKDF2_HMAC_SHA256;
+<span class="kw">const </span>CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
+<span class="kw">const </span>HASH_ROUNDS: NonZeroU32 = <span class="kw">unsafe </span>{ NonZeroU32::new_unchecked(<span class="number">1_000</span>) };
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Credential</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="ident">CREDENTIAL_LEN</span>];
+<span class="kw">pub type </span>Credential = [u8; CREDENTIAL_LEN];
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">sqlx::Type</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Theme</span> {
-    <span class="ident">Light</span>,
-    <span class="ident">Dark</span>,
-    <span class="ident">Black</span>,
+<span class="attribute">#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type)]
+</span><span class="kw">pub enum </span>Theme {
+    Light,
+    Dark,
+    Black,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_theme</span>() -&gt; <span class="ident">Theme</span> {
-    <span class="ident">Theme::Dark</span>
+<span class="kw">pub fn </span>default_theme() -&gt; Theme {
+    Theme::Dark
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_true</span>() -&gt; <span class="ident">bool</span> {
-    <span class="bool-val">true</span>
+<span class="kw">pub fn </span>default_true() -&gt; bool {
+    <span class="bool-val">true
+</span>}
+
+<span class="kw">pub fn </span>default_false() -&gt; bool {
+    <span class="bool-val">false
+</span>}
+
+<span class="attribute">#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = <span class="string">&quot;lowercase&quot;</span>)]
+</span><span class="kw">pub enum </span>DefaultVideoQuality {
+    <span class="doccomment">/// Represents DirectPlay quality
+    </span>DirectPlay,
+    <span class="doccomment">/// Represents a default video quality made up of resolution and bitrate.
+    </span>Resolution(u64, u64),
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_false</span>() -&gt; <span class="ident">bool</span> {
-    <span class="bool-val">false</span>
+<span class="attribute">#[derive(Debug, Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>UserSettings {
+    <span class="doccomment">/// Theme of the app
+    </span><span class="attribute">#[serde(default = <span class="string">&quot;default_theme&quot;</span>)]
+    </span>theme: Theme,
+    <span class="doccomment">/// Defines whether the sidebar should be collapsed or not
+    </span><span class="attribute">#[serde(default = <span class="string">&quot;default_false&quot;</span>)]
+    </span>is_sidebar_compact: bool,
+    <span class="attribute">#[serde(default = <span class="string">&quot;default_true&quot;</span>)]
+    </span>show_card_names: bool,
+    <span class="doccomment">/// If this contains a string then the filebrowser/explorer will default to this path instead of `/`.
+    </span>filebrowser_default_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="attribute">#[serde(default = <span class="string">&quot;default_true&quot;</span>)]
+    </span>filebrowser_list_view: bool,
+    <span class="doccomment">/// If a file has subtitles then the subtitles with this language will be selected.
+    </span>default_subtitle_language: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// If a file has audio then the audio track with this language will be selected, otherwise the first one.
+    </span>default_audio_language: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// Represents the default video quality for user.
+    </span><span class="kw">pub </span>default_video_quality: DefaultVideoQuality,
+    <span class="doccomment">/// Any other external args.
+    </span><span class="attribute">#[serde(default)]
+    </span>external_args: HashMap&lt;String, String&gt;,
+    <span class="doccomment">/// Whether hovercards are hidden or not
+    </span><span class="attribute">#[serde(default)]
+    </span>show_hovercards: bool,
+    <span class="doccomment">/// Whether to auto play next video
+    </span>enable_autoplay: bool,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;lowercase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DefaultVideoQuality</span> {
-    <span class="doccomment">/// Represents DirectPlay quality</span>
-    <span class="ident">DirectPlay</span>,
-    <span class="doccomment">/// Represents a default video quality made up of resolution and bitrate.</span>
-    <span class="ident">Resolution</span>(<span class="ident">u64</span>, <span class="ident">u64</span>),
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserSettings</span> {
-    <span class="doccomment">/// Theme of the app</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span> <span class="op">=</span> <span class="string">&quot;default_theme&quot;</span>)]</span>
-    <span class="ident">theme</span>: <span class="ident">Theme</span>,
-    <span class="doccomment">/// Defines whether the sidebar should be collapsed or not</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span> <span class="op">=</span> <span class="string">&quot;default_false&quot;</span>)]</span>
-    <span class="ident">is_sidebar_compact</span>: <span class="ident">bool</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span> <span class="op">=</span> <span class="string">&quot;default_true&quot;</span>)]</span>
-    <span class="ident">show_card_names</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// If this contains a string then the filebrowser/explorer will default to this path instead of `/`.</span>
-    <span class="ident">filebrowser_default_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span> <span class="op">=</span> <span class="string">&quot;default_true&quot;</span>)]</span>
-    <span class="ident">filebrowser_list_view</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// If a file has subtitles then the subtitles with this language will be selected.</span>
-    <span class="ident">default_subtitle_language</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// If a file has audio then the audio track with this language will be selected, otherwise the first one.</span>
-    <span class="ident">default_audio_language</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Represents the default video quality for user.</span>
-    <span class="kw">pub</span> <span class="ident">default_video_quality</span>: <span class="ident">DefaultVideoQuality</span>,
-    <span class="doccomment">/// Any other external args.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
-    <span class="ident">external_args</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Whether hovercards are hidden or not</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
-    <span class="ident">show_hovercards</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Whether to auto play next video</span>
-    <span class="ident">enable_autoplay</span>: <span class="ident">bool</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">sqlx::Database</span><span class="op">&gt;</span> <span class="ident">sqlx::Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UserSettings</span>
-<span class="kw">where</span>
-    <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>: <span class="ident">sqlx::Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;DB: sqlx::Database&gt; sqlx::Type&lt;DB&gt; <span class="kw">for </span>UserSettings
+<span class="kw">where
+    </span>Vec&lt;u8&gt;: sqlx::Type&lt;DB&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">DB::TypeInfo</span> {
-        <span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">sqlx::Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::type_info</span>()
+    <span class="kw">fn </span>type_info() -&gt; DB::TypeInfo {
+        &lt;Vec&lt;u8&gt; <span class="kw">as </span>sqlx::Type&lt;DB&gt;&gt;::type_info()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">DB</span>: <span class="ident">sqlx::Database</span><span class="op">&gt;</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UserSettings</span>
-<span class="kw">where</span>
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> [<span class="ident">u8</span>]: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">DB</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, DB: sqlx::Database&gt; Decode&lt;<span class="lifetime">&#39;r</span>, DB&gt; <span class="kw">for </span>UserSettings
+<span class="kw">where
+    </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8]: Decode&lt;<span class="lifetime">&#39;r</span>, DB&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">decode</span>(
-        <span class="ident">value</span>: <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">sqlx::database::HasValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ValueRef</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">sqlx::error::BoxDynError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="kw">as</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">value</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">serde_json::from_slice</span>(<span class="ident">value</span>).<span class="ident">unwrap_or_default</span>())
+    <span class="kw">fn </span>decode(
+        value: &lt;DB <span class="kw">as </span>sqlx::database::HasValueRef&lt;<span class="lifetime">&#39;r</span>&gt;&gt;::ValueRef,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, sqlx::error::BoxDynError&gt; {
+        <span class="kw">let </span>value = &lt;<span class="kw-2">&amp;</span>[u8] <span class="kw">as </span>Decode&lt;DB&gt;&gt;::decode(value)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(serde_json::from_slice(value).unwrap_or_default())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>: <span class="ident">sqlx::Database</span><span class="op">&gt;</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UserSettings</span>
-<span class="kw">where</span>
-    <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>: <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;q</span>, DB: sqlx::Database&gt; Encode&lt;<span class="lifetime">&#39;q</span>, DB&gt; <span class="kw">for </span>UserSettings
+<span class="kw">where
+    </span>Vec&lt;u8&gt;: Encode&lt;<span class="lifetime">&#39;q</span>, DB&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">encode_by_ref</span>(
+    <span class="kw">fn </span>encode_by_ref(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">sqlx::database::HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ArgumentBuffer</span>,
-    ) -&gt; <span class="ident">sqlx::encode::IsNull</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">serde_json::to_vec</span>(<span class="self">self</span>).<span class="ident">unwrap_or_default</span>();
-        <span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::encode</span>(<span class="ident">val</span>, <span class="ident">buf</span>)
+        buf: <span class="kw-2">&amp;mut </span>&lt;DB <span class="kw">as </span>sqlx::database::HasArguments&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::ArgumentBuffer,
+    ) -&gt; sqlx::encode::IsNull {
+        <span class="kw">let </span>val = serde_json::to_vec(<span class="self">self</span>).unwrap_or_default();
+        &lt;Vec&lt;u8&gt; <span class="kw">as </span>Encode&lt;DB&gt;&gt;::encode(val, buf)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">UserSettings</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">theme</span>: <span class="ident">Theme::Dark</span>,
-            <span class="ident">is_sidebar_compact</span>: <span class="bool-val">false</span>,
-            <span class="ident">show_card_names</span>: <span class="bool-val">true</span>,
-            <span class="ident">filebrowser_default_path</span>: <span class="prelude-val">None</span>,
-            <span class="ident">filebrowser_list_view</span>: <span class="bool-val">true</span>,
-            <span class="ident">default_subtitle_language</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;english&quot;</span>.<span class="ident">into</span>()),
-            <span class="ident">default_audio_language</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;english&quot;</span>.<span class="ident">into</span>()),
-            <span class="ident">external_args</span>: <span class="ident">HashMap::new</span>(),
-            <span class="ident">show_hovercards</span>: <span class="bool-val">true</span>,
-            <span class="ident">default_video_quality</span>: <span class="ident">DefaultVideoQuality::DirectPlay</span>,
-            <span class="ident">enable_autoplay</span>: <span class="bool-val">true</span>,
+<span class="kw">impl </span>Default <span class="kw">for </span>UserSettings {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            theme: Theme::Dark,
+            is_sidebar_compact: <span class="bool-val">false</span>,
+            show_card_names: <span class="bool-val">true</span>,
+            filebrowser_default_path: <span class="prelude-val">None</span>,
+            filebrowser_list_view: <span class="bool-val">true</span>,
+            default_subtitle_language: <span class="prelude-val">Some</span>(<span class="string">&quot;english&quot;</span>.into()),
+            default_audio_language: <span class="prelude-val">Some</span>(<span class="string">&quot;english&quot;</span>.into()),
+            external_args: HashMap::new(),
+            show_hovercards: <span class="bool-val">true</span>,
+            default_video_quality: DefaultVideoQuality::DirectPlay,
+            enable_autoplay: <span class="bool-val">true</span>,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Role</span> {
-    <span class="ident">Owner</span>,
-    <span class="ident">User</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+</span><span class="kw">pub enum </span>Role {
+    Owner,
+    User,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">sqlx::Type</span>)]</span>
-<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">transparent</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserID</span>(<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">i64</span>);
+<span class="attribute">#[derive(Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize, sqlx::Type)]
+#[sqlx(transparent)]
+</span><span class="kw">pub struct </span>UserID(<span class="kw">pub</span>(<span class="kw">crate</span>) i64);
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">transparent</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Roles</span>(<span class="kw">pub</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>);
+<span class="attribute">#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
+#[serde(transparent)]
+</span><span class="kw">pub struct </span>Roles(<span class="kw">pub </span>Vec&lt;String&gt;);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">sqlx::Database</span><span class="op">&gt;</span> <span class="ident">sqlx::Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Roles</span>
-<span class="kw">where</span>
-    <span class="ident">String</span>: <span class="ident">sqlx::Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;DB: sqlx::Database&gt; sqlx::Type&lt;DB&gt; <span class="kw">for </span>Roles
+<span class="kw">where
+    </span>String: sqlx::Type&lt;DB&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">DB::TypeInfo</span> {
-        <span class="op">&lt;</span><span class="ident">String</span> <span class="kw">as</span> <span class="ident">sqlx::Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::type_info</span>()
+    <span class="kw">fn </span>type_info() -&gt; DB::TypeInfo {
+        &lt;String <span class="kw">as </span>sqlx::Type&lt;DB&gt;&gt;::type_info()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">DB</span>: <span class="ident">sqlx::Database</span><span class="op">&gt;</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Roles</span>
-<span class="kw">where</span>
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">str</span>: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">DB</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, DB: sqlx::Database&gt; Decode&lt;<span class="lifetime">&#39;r</span>, DB&gt; <span class="kw">for </span>Roles
+<span class="kw">where
+    </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str: Decode&lt;<span class="lifetime">&#39;r</span>, DB&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">decode</span>(
-        <span class="ident">value</span>: <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">sqlx::database::HasValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ValueRef</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">sqlx::error::BoxDynError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span> <span class="kw">as</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">value</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">serde_json::from_str</span>(<span class="ident">value</span>).<span class="ident">unwrap_or_default</span>())
+    <span class="kw">fn </span>decode(
+        value: &lt;DB <span class="kw">as </span>sqlx::database::HasValueRef&lt;<span class="lifetime">&#39;r</span>&gt;&gt;::ValueRef,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, sqlx::error::BoxDynError&gt; {
+        <span class="kw">let </span>value = &lt;<span class="kw-2">&amp;</span>str <span class="kw">as </span>Decode&lt;DB&gt;&gt;::decode(value)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(serde_json::from_str(value).unwrap_or_default())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>: <span class="ident">sqlx::Database</span><span class="op">&gt;</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Roles</span>
-<span class="kw">where</span>
-    <span class="ident">String</span>: <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;q</span>, DB: sqlx::Database&gt; Encode&lt;<span class="lifetime">&#39;q</span>, DB&gt; <span class="kw">for </span>Roles
+<span class="kw">where
+    </span>String: Encode&lt;<span class="lifetime">&#39;q</span>, DB&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">encode_by_ref</span>(
+    <span class="kw">fn </span>encode_by_ref(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">sqlx::database::HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ArgumentBuffer</span>,
-    ) -&gt; <span class="ident">sqlx::encode::IsNull</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">serde_json::to_string</span>(<span class="self">self</span>).<span class="ident">unwrap_or_default</span>();
-        <span class="op">&lt;</span><span class="ident">String</span> <span class="kw">as</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::encode</span>(<span class="ident">val</span>, <span class="ident">buf</span>)
+        buf: <span class="kw-2">&amp;mut </span>&lt;DB <span class="kw">as </span>sqlx::database::HasArguments&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::ArgumentBuffer,
+    ) -&gt; sqlx::encode::IsNull {
+        <span class="kw">let </span>val = serde_json::to_string(<span class="self">self</span>).unwrap_or_default();
+        &lt;String <span class="kw">as </span>Encode&lt;DB&gt;&gt;::encode(val, buf)
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">User</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">UserID</span>,
-    <span class="kw">pub</span> <span class="ident">username</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">roles</span>: <span class="ident">Roles</span>,
-    <span class="kw">pub</span> <span class="ident">prefs</span>: <span class="ident">UserSettings</span>,
-    <span class="kw">pub</span> <span class="ident">picture</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>User {
+    <span class="kw">pub </span>id: UserID,
+    <span class="kw">pub </span>username: String,
+    <span class="kw">pub </span>roles: Roles,
+    <span class="kw">pub </span>prefs: UserSettings,
+    <span class="kw">pub </span>picture: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">User</span> {
-    <span class="doccomment">/// Method gets all entries from the table users.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>User {
+    <span class="doccomment">/// Method gets all entries from the table users.
+    </span><span class="kw">pub async fn </span>get_all(conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(
             <span class="macro">sqlx::query!</span>(
-                <span class="string">r#&quot;SELECT id as &quot;id: UserID&quot;, username, roles as &quot;roles: Roles&quot;, prefs as &quot;prefs: UserSettings&quot;, picture FROM users&quot;#</span>
-            )
-            .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">user</span><span class="op">|</span> <span class="self">Self</span> {
-                <span class="ident">id</span>: <span class="ident">user</span>.<span class="ident">id</span>,
-                <span class="ident">username</span>: <span class="ident">user</span>.<span class="ident">username</span>,
-                <span class="ident">roles</span>: <span class="ident">user</span>.<span class="ident">roles</span>,
-                <span class="ident">prefs</span>: <span class="ident">user</span>.<span class="ident">prefs</span>,
-                <span class="ident">picture</span>: <span class="ident">user</span>.<span class="ident">picture</span>,
+                <span class="string">r#&quot;SELECT id as &quot;id: UserID&quot;, username, roles as &quot;roles: Roles&quot;, prefs as &quot;prefs: UserSettings&quot;, picture FROM users&quot;#
+            </span>)
+            .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.into_iter()
+            .map(|user| <span class="self">Self </span>{
+                id: user.id,
+                username: user.username,
+                roles: user.roles,
+                prefs: user.prefs,
+                picture: user.picture,
             })
-            .<span class="ident">collect</span>(),
+            .collect(),
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">uid</span>: <span class="ident">UserID</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="kw">pub async fn </span>get_by_id(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        uid: UserID,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">r#&quot;SELECT id as &quot;id: UserID&quot;, username, roles as &quot;roles: Roles&quot;, prefs as &quot;prefs: UserSettings&quot;, picture from users
                 WHERE id = ?&quot;#</span>,
-            <span class="ident">uid</span>
+            uid
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="self">Self</span> {
-            <span class="ident">id</span>: <span class="ident">u</span>.<span class="ident">id</span>,
-            <span class="ident">username</span>: <span class="ident">u</span>.<span class="ident">username</span>,
-            <span class="ident">roles</span>: <span class="ident">u</span>.<span class="ident">roles</span>,
-            <span class="ident">prefs</span>: <span class="ident">u</span>.<span class="ident">prefs</span>,
-            <span class="ident">picture</span>: <span class="ident">u</span>.<span class="ident">picture</span>,
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await
+        </span>.map(|u| <span class="self">Self </span>{
+            id: u.id,
+            username: u.username,
+            roles: u.roles,
+            prefs: u.prefs,
+            picture: u.picture,
         })<span class="question-mark">?</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="kw">pub async fn </span>get(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        username: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">r#&quot;SELECT id as &quot;id: UserID&quot;, username, roles as &quot;roles: Roles&quot;, prefs as &quot;prefs: UserSettings&quot;, picture from users
                 WHERE username = ?&quot;#</span>,
-            <span class="ident">username</span>
+            username
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="self">Self</span> {
-            <span class="ident">id</span>: <span class="ident">u</span>.<span class="ident">id</span>,
-            <span class="ident">username</span>: <span class="ident">u</span>.<span class="ident">username</span>,
-            <span class="ident">roles</span>: <span class="ident">u</span>.<span class="ident">roles</span>,
-            <span class="ident">prefs</span>: <span class="ident">u</span>.<span class="ident">prefs</span>,
-            <span class="ident">picture</span>: <span class="ident">u</span>.<span class="ident">picture</span>,
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await
+        </span>.map(|u| <span class="self">Self </span>{
+            id: u.id,
+            username: u.username,
+            roles: u.roles,
+            prefs: u.prefs,
+            picture: u.picture,
         })<span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Method gets one entry from the table users based on the username supplied and password.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `uname` - username we wish to target and delete</span>
-    <span class="doccomment">/// * `pw_hash` - hash of the password for the user we are trying to access</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">authenticate</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">uname</span>: <span class="ident">String</span>,
-        <span class="ident">pw</span>: <span class="ident">String</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">hash</span>(<span class="ident">uname</span>.<span class="ident">clone</span>(), <span class="ident">pw</span>);
-        <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+    <span class="doccomment">/// Method gets one entry from the table users based on the username supplied and password.
+    ///
+    /// # Arguments
+    /// * `uname` - username we wish to target and delete
+    /// * `pw_hash` - hash of the password for the user we are trying to access
+    </span><span class="kw">pub async fn </span>authenticate(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        uname: String,
+        pw: String,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DatabaseError&gt; {
+        <span class="kw">let </span>hash = hash(uname.clone(), pw);
+        <span class="kw">let </span>user = <span class="macro">sqlx::query!</span>(
             <span class="string">r#&quot;SELECT id as &quot;id: UserID&quot;, username, roles as &quot;roles: Roles&quot;, prefs as &quot;prefs: UserSettings&quot;, picture FROM users WHERE username = ? AND password = ?&quot;#</span>,
-            <span class="ident">uname</span>,
-            <span class="ident">hash</span>,
+            uname,
+            hash,
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">id</span>: <span class="ident">user</span>.<span class="ident">id</span>,
-            <span class="ident">username</span>: <span class="ident">user</span>.<span class="ident">username</span>,
-            <span class="ident">roles</span>: <span class="ident">user</span>.<span class="ident">roles</span>,
-            <span class="ident">prefs</span>: <span class="ident">user</span>.<span class="ident">prefs</span>,
-            <span class="ident">picture</span>: <span class="ident">user</span>.<span class="ident">picture</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            id: user.id,
+            username: user.username,
+            roles: user.roles,
+            prefs: user.prefs,
+            picture: user.picture,
         })
     }
 
-    <span class="doccomment">/// Method gets users password from the table users based on the user</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - DBTransaction</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_pass</span>(
+    <span class="doccomment">/// Method gets users password from the table users based on the user
+    ///
+    /// # Arguments
+    /// * `conn` - DBTransaction
+    </span><span class="kw">pub async fn </span>get_pass(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">pass</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT password FROM users WHERE id = ?&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>,)
-            .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">password</span>)<span class="question-mark">?</span>;
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;String, DatabaseError&gt; {
+        <span class="kw">let </span>pass = <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT password FROM users WHERE id = ?&quot;</span>, <span class="self">self</span>.id,)
+            .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
+            .<span class="kw">await
+            </span>.map(|r| r.password)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">pass</span>)
+        <span class="prelude-val">Ok</span>(pass)
     }
 
-    <span class="doccomment">/// Method deletes a entry from the table users and returns the number of rows deleted.</span>
-    <span class="doccomment">/// NOTE: Return should always be 1</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `uname` - username we wish to target and delete</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">uid</span>: <span class="ident">UserID</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM users WHERE id = ?&quot;</span>, <span class="ident">uid</span>)
-            .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>)
+    <span class="doccomment">/// Method deletes a entry from the table users and returns the number of rows deleted.
+    /// NOTE: Return should always be 1
+    ///
+    /// # Arguments
+    /// * `uname` - username we wish to target and delete
+    </span><span class="kw">pub async fn </span>delete(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        uid: UserID,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
+        <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM users WHERE id = ?&quot;</span>, uid)
+            .execute(<span class="kw-2">&amp;mut *</span>conn)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.rows_affected() <span class="kw">as </span>usize)
     }
 
-    <span class="doccomment">/// Method resets the password for a user to a new password.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `&amp;` - db &amp;ection</span>
-    <span class="doccomment">/// * `password` - new password.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_password</span>(
+    <span class="doccomment">/// Method resets the password for a user to a new password.
+    ///
+    /// # Arguments
+    /// * `&amp;` - db &amp;ection
+    /// * `password` - new password.
+    </span><span class="kw">pub async fn </span>set_password(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">password</span>: <span class="ident">String</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">hash</span>(<span class="self">self</span>.<span class="ident">username</span>.<span class="ident">clone</span>(), <span class="ident">password</span>);
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        password: String,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
+        <span class="kw">let </span>hash = hash(<span class="self">self</span>.username.clone(), password);
 
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">&quot;UPDATE users SET password = $1 WHERE username = ?2&quot;</span>,
-            <span class="ident">hash</span>,
-            <span class="self">self</span>.<span class="ident">username</span>
+            hash,
+            <span class="self">self</span>.username
         )
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>)
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.rows_affected() <span class="kw">as </span>usize)
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_username</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">old_username</span>: <span class="ident">String</span>,
-        <span class="ident">new_username</span>: <span class="ident">String</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="kw">pub async fn </span>set_username(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        old_username: String,
+        new_username: String,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">&quot;UPDATE users SET username = $1 WHERE users.username = ?2&quot;</span>,
-            <span class="ident">new_username</span>,
-            <span class="ident">old_username</span>
+            new_username,
+            old_username
         )
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>)
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.rows_affected() <span class="kw">as </span>usize)
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_picture</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">uid</span>: <span class="ident">UserID</span>,
-        <span class="ident">asset_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="kw">pub async fn </span>set_picture(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        uid: UserID,
+        asset_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">&quot;UPDATE users SET picture = $1 WHERE users.id = ?2&quot;</span>,
-            <span class="ident">asset_id</span>,
-            <span class="ident">uid</span>
+            asset_id,
+            uid
         )
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>)
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.rows_affected() <span class="kw">as </span>usize)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_role</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">role</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">roles</span>.<span class="number">0</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">role</span>.<span class="ident">to_string</span>())
+    <span class="kw">pub fn </span>has_role(<span class="kw-2">&amp;</span><span class="self">self</span>, role: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        <span class="self">self</span>.roles.<span class="number">0</span>.contains(<span class="kw-2">&amp;</span>role.to_string())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">roles</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Roles</span> {
-        <span class="self">self</span>.<span class="ident">roles</span>.<span class="ident">clone</span>()
+    <span class="kw">pub fn </span>roles(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Roles {
+        <span class="self">self</span>.roles.clone()
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InsertableUser</span> {
-    <span class="kw">pub</span> <span class="ident">username</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">password</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">roles</span>: <span class="ident">Roles</span>,
-    <span class="kw">pub</span> <span class="ident">prefs</span>: <span class="ident">UserSettings</span>,
-    <span class="kw">pub</span> <span class="ident">claimed_invite</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">pub struct </span>InsertableUser {
+    <span class="kw">pub </span>username: String,
+    <span class="kw">pub </span>password: String,
+    <span class="kw">pub </span>roles: Roles,
+    <span class="kw">pub </span>prefs: UserSettings,
+    <span class="kw">pub </span>claimed_invite: String,
 }
 
-<span class="kw">impl</span> <span class="ident">InsertableUser</span> {
-    <span class="doccomment">/// Method consumes a InsertableUser object and inserts the values under it into database</span>
-    <span class="doccomment">/// table as a new user</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="self">self</span>, <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">User</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="self">Self</span> {
-            <span class="ident">username</span>,
-            <span class="ident">password</span>,
-            <span class="ident">roles</span>,
-            <span class="ident">prefs</span>,
-            <span class="ident">claimed_invite</span>,
-        } <span class="op">=</span> <span class="self">self</span>;
+<span class="kw">impl </span>InsertableUser {
+    <span class="doccomment">/// Method consumes a InsertableUser object and inserts the values under it into database
+    /// table as a new user
+    </span><span class="kw">pub async fn </span>insert(<span class="self">self</span>, conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;User, DatabaseError&gt; {
+        <span class="kw">let </span><span class="self">Self </span>{
+            username,
+            password,
+            roles,
+            prefs,
+            claimed_invite,
+        } = <span class="self">self</span>;
 
-        <span class="kw">let</span> <span class="ident">password</span> <span class="op">=</span> <span class="ident">hash</span>(<span class="ident">username</span>.<span class="ident">clone</span>(), <span class="ident">password</span>);
+        <span class="kw">let </span>password = hash(username.clone(), password);
 
-        <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">User</span>,
+        <span class="kw">let </span>user = <span class="macro">sqlx::query_as!</span>(
+            User,
             <span class="string">r#&quot;INSERT INTO users (username, password, prefs, claimed_invite, roles) VALUES ($1, $2, $3, $4, $5) returning id as &quot;id: UserID&quot;,username,roles as &quot;roles: Roles&quot;,prefs as &quot;prefs: UserSettings&quot;,picture&quot;#</span>,
-            <span class="ident">username</span>,
-            <span class="ident">password</span>,
-            <span class="ident">prefs</span>,
-            <span class="ident">claimed_invite</span>,
-            <span class="ident">roles</span>
-        ).<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+            username,
+            password,
+            prefs,
+            claimed_invite,
+            roles
+        ).fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">user</span>)
+        <span class="prelude-val">Ok</span>(user)
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UpdateableUser</span> {
-    <span class="kw">pub</span> <span class="ident">prefs</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserSettings</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">pub struct </span>UpdateableUser {
+    <span class="kw">pub </span>prefs: <span class="prelude-ty">Option</span>&lt;UserSettings&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">UpdateableUser</span> {
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(
+<span class="kw">impl </span>UpdateableUser {
+    <span class="kw">pub async fn </span>update(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">user</span>: <span class="ident">UserID</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prefs</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prefs</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        user: UserID,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(prefs) = <span class="kw-2">&amp;</span><span class="self">self</span>.prefs {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
                 <span class="string">&quot;UPDATE users SET prefs = $1 WHERE users.id = ?&quot;</span>,
-                <span class="ident">prefs</span>,
-                <span class="ident">user</span>
+                prefs,
+                user
             )
-            .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>);
+            .execute(<span class="kw-2">&amp;mut *</span>conn)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.rows_affected() <span class="kw">as </span>usize);
         }
 
         <span class="prelude-val">Ok</span>(<span class="number">0</span>)
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Login</span> {
-    <span class="kw">pub</span> <span class="ident">username</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">password</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">invite_token</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Deserialize, Default)]
+</span><span class="kw">pub struct </span>Login {
+    <span class="kw">pub </span>username: String,
+    <span class="kw">pub </span>password: String,
+    <span class="kw">pub </span>invite_token: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Login</span> {
-    <span class="doccomment">/// Will return whether the token is valid and hasnt been claimed yet.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">invite_token_valid</span>(
+<span class="kw">impl </span>Login {
+    <span class="doccomment">/// Will return whether the token is valid and hasnt been claimed yet.
+    </span><span class="kw">pub async fn </span>invite_token_valid(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">tok</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">invite_token</span> {
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>,
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;bool, DatabaseError&gt; {
+        <span class="kw">let </span>tok = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.invite_token {
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
+            <span class="prelude-val">Some</span>(t) =&gt; t,
         };
 
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
@@ -1015,104 +1010,103 @@
                               SELECT claimed_invite FROM users
                           )
                           AND id = ?&quot;</span>,
-            <span class="ident">tok</span>
+            tok
         )
-        .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">is_some</span>())
+        .fetch_optional(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.is_some())
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">invalidate_token</span>(
+    <span class="kw">pub async fn </span>invalidate_token(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tok</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">invite_token</span> {
-            <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM invites WHERE id = ?&quot;</span>, <span class="ident">tok</span>)
-                .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-                .<span class="kw">await</span><span class="question-mark">?</span>
-                .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>)
-        } <span class="kw">else</span> {
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(tok) = <span class="kw-2">&amp;</span><span class="self">self</span>.invite_token {
+            <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM invites WHERE id = ?&quot;</span>, tok)
+                .execute(<span class="kw-2">&amp;mut *</span>conn)
+                .<span class="kw">await</span><span class="question-mark">?
+                </span>.rows_affected() <span class="kw">as </span>usize)
+        } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(<span class="number">0</span>)
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new_invite</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">SystemTime::now</span>()
-            .<span class="ident">duration_since</span>(<span class="ident">SystemTime::UNIX_EPOCH</span>)
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">as_secs</span>() <span class="kw">as</span> <span class="ident">i64</span>;
-        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">uuid::Uuid::new_v4</span>().<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+    <span class="kw">pub async fn </span>new_invite(conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;String, DatabaseError&gt; {
+        <span class="kw">let </span>ts = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() <span class="kw">as </span>i64;
+        <span class="kw">let </span>token = uuid::Uuid::new_v4().to_hyphenated().to_string();
+        <span class="kw">let _ </span>= <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;INSERT INTO invites (id, date_added) VALUES ($1, $2)&quot;</span>,
-            <span class="ident">token</span>,
-            <span class="ident">ts</span>
+            token,
+            ts
         )
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">token</span>)
+        <span class="prelude-val">Ok</span>(token)
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_invites</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="kw">pub async fn </span>get_all_invites(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;String&gt;, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT id from invites&quot;</span>)
-            .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>)
-            .<span class="ident">collect</span>())
+            .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.into_iter()
+            .map(|t| t.id)
+            .collect())
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_token</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">token</span>: <span class="ident">String</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="kw">pub async fn </span>delete_token(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        token: String,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">&quot;DELETE FROM invites
                 WHERE id NOT IN (
                     SELECT claimed_invite FROM users
                 ) AND id = ?&quot;</span>,
-            <span class="ident">token</span>
+            token
         )
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>)
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.rows_affected() <span class="kw">as </span>usize)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_cookie</span>(<span class="ident">id</span>: <span class="ident">UserID</span>) -&gt; <span class="ident">String</span> {
-        <span class="ident">user_cookie_generate</span>(<span class="ident">id</span>.<span class="number">0</span>)
+    <span class="kw">pub fn </span>create_cookie(id: UserID) -&gt; String {
+        user_cookie_generate(id.<span class="number">0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify_cookie</span>(<span class="ident">cookie</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">UserID</span>, <span class="ident">AuthError</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">UserID</span>(<span class="ident">user_cookie_decode</span>(<span class="ident">cookie</span>)<span class="question-mark">?</span>))
+    <span class="kw">pub fn </span>verify_cookie(cookie: String) -&gt; <span class="prelude-ty">Result</span>&lt;UserID, AuthError&gt; {
+        <span class="prelude-val">Ok</span>(UserID(user_cookie_decode(cookie)<span class="question-mark">?</span>))
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash</span>(<span class="ident">salt</span>: <span class="ident">String</span>, <span class="ident">s</span>: <span class="ident">String</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">to_store</span>: <span class="ident">Credential</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="ident">CREDENTIAL_LEN</span>];
-    <span class="ident">pbkdf2::derive</span>(
-        <span class="ident">PBKDF2_ALG</span>,
-        <span class="ident">HASH_ROUNDS</span>,
-        <span class="kw-2">&amp;</span><span class="ident">salt</span>.<span class="ident">as_bytes</span>(),
-        <span class="ident">s</span>.<span class="ident">as_bytes</span>(),
-        <span class="kw-2">&amp;mut</span> <span class="ident">to_store</span>,
+<span class="kw">pub fn </span>hash(salt: String, s: String) -&gt; String {
+    <span class="kw">let </span><span class="kw-2">mut </span>to_store: Credential = [<span class="number">0u8</span>; CREDENTIAL_LEN];
+    pbkdf2::derive(
+        PBKDF2_ALG,
+        HASH_ROUNDS,
+        <span class="kw-2">&amp;</span>salt.as_bytes(),
+        s.as_bytes(),
+        <span class="kw-2">&amp;mut </span>to_store,
     );
-    <span class="ident">base64::encode</span>(<span class="kw-2">&amp;</span><span class="ident">to_store</span>)
+    base64::encode(<span class="kw-2">&amp;</span>to_store)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify</span>(<span class="ident">salt</span>: <span class="ident">String</span>, <span class="ident">password</span>: <span class="ident">String</span>, <span class="ident">attempted_password</span>: <span class="ident">String</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">let</span> <span class="ident">real_pwd</span> <span class="op">=</span> <span class="ident">base64::decode</span>(<span class="kw-2">&amp;</span><span class="ident">password</span>).<span class="ident">unwrap</span>();
+<span class="kw">pub fn </span>verify(salt: String, password: String, attempted_password: String) -&gt; bool {
+    <span class="kw">let </span>real_pwd = base64::decode(<span class="kw-2">&amp;</span>password).unwrap();
 
-    <span class="ident">pbkdf2::verify</span>(
-        <span class="ident">PBKDF2_ALG</span>,
-        <span class="ident">HASH_ROUNDS</span>,
-        <span class="kw-2">&amp;</span><span class="ident">salt</span>.<span class="ident">as_bytes</span>(),
-        <span class="ident">attempted_password</span>.<span class="ident">as_bytes</span>(),
-        <span class="ident">real_pwd</span>.<span class="ident">as_slice</span>(),
+    pbkdf2::verify(
+        PBKDF2_ALG,
+        HASH_ROUNDS,
+        <span class="kw-2">&amp;</span>salt.as_bytes(),
+        attempted_password.as_bytes(),
+        real_pwd.as_slice(),
     )
-    .<span class="ident">is_ok</span>()
+    .is_ok()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>

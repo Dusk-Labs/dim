@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -108,111 +103,110 @@
 <span id="103">103</span>
 <span id="104">104</span>
 <span id="105">105</span>
-</pre><pre class="rust"><code><span class="doccomment">//! This module contains all the routes supported by the API.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Errors</span>
-<span class="doccomment">//! All routes can error out. If some unexpected behavior has occured, the server will return a non</span>
-<span class="doccomment">//! 2XX HTTP code, alongside the error and error description encoded with the following format:</span>
-<span class="doccomment">//! ```no_compile</span>
-<span class="doccomment">//! {</span>
-<span class="doccomment">//!   &quot;error&quot;: &quot;&lt;error type&gt;&quot;,</span>
-<span class="doccomment">//!   &quot;message&quot;: &quot;&lt;error message&gt;&quot;</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Common errors</span>
-<span class="doccomment">//! * [`DatabaseError`] - All routes can spurriously fail</span>
-<span class="doccomment">//! when making a database transaction, or trying to acquire a database connection. When this</span>
-<span class="doccomment">//! happens [`DatabaseError`] will be returned.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [`DatabaseError`]: crate::errors::DimError::DatabaseError</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">auth</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dashboard</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">general</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">host</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">invites</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">library</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">media</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">mediafile</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">rematch_media</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">settings</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">statik</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">stream</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">tv</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">user</span>;
+</pre><pre class="rust"><code><span class="doccomment">//! This module contains all the routes supported by the API.
+//!
+//! # Errors
+//! All routes can error out. If some unexpected behavior has occured, the server will return a non
+//! 2XX HTTP code, alongside the error and error description encoded with the following format:
+//! ```no_compile
+//! {
+//!   &quot;error&quot;: &quot;&lt;error type&gt;&quot;,
+//!   &quot;message&quot;: &quot;&lt;error message&gt;&quot;
+//! }
+//! ```
+//!
+//! ## Common errors
+//! * [`DatabaseError`] - All routes can spurriously fail
+//! when making a database transaction, or trying to acquire a database connection. When this
+//! happens [`DatabaseError`] will be returned.
+//!
+//! [`DatabaseError`]: crate::errors::DimError::DatabaseError
+</span><span class="kw">pub mod </span>auth;
+<span class="kw">pub mod </span>dashboard;
+<span class="kw">pub mod </span>general;
+<span class="kw">pub mod </span>host;
+<span class="kw">pub mod </span>invites;
+<span class="kw">pub mod </span>library;
+<span class="kw">pub mod </span>media;
+<span class="kw">pub mod </span>mediafile;
+<span class="kw">pub mod </span>rematch_media;
+<span class="kw">pub mod </span>settings;
+<span class="kw">pub mod </span>statik;
+<span class="kw">pub mod </span>stream;
+<span class="kw">pub mod </span>tv;
+<span class="kw">pub mod </span>user;
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">global_filters</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors::DimError</span>;
-    <span class="kw">use</span> <span class="ident">database::user::User</span>;
-    <span class="kw">use</span> <span class="ident">database::DbConnection</span>;
-    <span class="kw">use</span> <span class="ident">http::header::AUTHORIZATION</span>;
-    <span class="kw">use</span> <span class="ident">warp::reject</span>;
-    <span class="kw">use</span> <span class="ident">warp::Rejection</span>;
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub mod </span>global_filters {
+    <span class="kw">use </span><span class="kw">crate</span>::errors;
+    <span class="kw">use </span><span class="kw">crate</span>::errors::DimError;
+    <span class="kw">use </span>database::user::User;
+    <span class="kw">use </span>database::DbConnection;
+    <span class="kw">use </span>http::header::AUTHORIZATION;
+    <span class="kw">use </span>warp::reject;
+    <span class="kw">use </span>warp::Rejection;
 
-    <span class="kw">use</span> <span class="ident">std::convert::Infallible</span>;
-    <span class="kw">use</span> <span class="ident">std::error::Error</span>;
-    <span class="kw">use</span> <span class="ident">warp::Filter</span>;
-    <span class="kw">use</span> <span class="ident">warp::Reply</span>;
+    <span class="kw">use </span>std::convert::Infallible;
+    <span class="kw">use </span>std::error::Error;
+    <span class="kw">use </span>warp::Filter;
+    <span class="kw">use </span>warp::Reply;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_db</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> (<span class="ident">DbConnection</span>,), <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="ident">warp::any</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="ident">conn</span>.<span class="ident">clone</span>())
+    <span class="kw">pub fn </span>with_db(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = (DbConnection,), Error = Infallible&gt; + Clone {
+        warp::any().map(<span class="kw">move </span>|| conn.clone())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_state</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span>(
-        <span class="ident">state</span>: <span class="ident">T</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> (<span class="ident">T</span>,), <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="ident">warp::any</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="ident">state</span>.<span class="ident">clone</span>())
+    <span class="kw">pub fn </span>with_state&lt;T: Send + Clone&gt;(
+        state: T,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = (T,), Error = Infallible&gt; + Clone {
+        warp::any().map(<span class="kw">move </span>|| state.clone())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_auth</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> (<span class="ident">User</span>,), <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="ident">warp::header</span>(<span class="ident">AUTHORIZATION</span>.<span class="ident">as_str</span>())
-            .<span class="ident">and</span>(<span class="ident">warp::any</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span>, <span class="ident">c</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">c</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">tx</span>) =&gt; <span class="ident">tx</span>,
+    <span class="kw">pub fn </span>with_auth(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = (User,), Error = Rejection&gt; + Clone {
+        warp::header(AUTHORIZATION.as_str())
+            .and(warp::any().map(<span class="kw">move </span>|| conn.clone()))
+            .and_then(|x, c: DbConnection| <span class="kw">async move </span>{
+                <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="kw">match </span>c.read().begin().<span class="kw">await </span>{
+                    <span class="prelude-val">Ok</span>(tx) =&gt; tx,
                     <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">reject::custom</span>(<span class="ident">DimError::DatabaseError</span> {
-                            <span class="ident">description</span>: <span class="ident">String::from</span>(<span class="string">&quot;Failed to start transaction&quot;</span>),
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(reject::custom(DimError::DatabaseError {
+                            description: String::from(<span class="string">&quot;Failed to start transaction&quot;</span>),
                         }))
                     }
                 };
-                <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">database::user::Login::verify_cookie</span>(<span class="ident">x</span>)
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">DimError::CookieError</span>(<span class="ident">e</span>)))<span class="question-mark">?</span>;
+                <span class="kw">let </span>id = database::user::Login::verify_cookie(x)
+                    .map_err(|e| reject::custom(DimError::CookieError(e)))<span class="question-mark">?</span>;
 
-                <span class="ident">User::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">DimError::UserNotFound</span>))
+                User::get_by_id(<span class="kw-2">&amp;mut </span>tx, id)
+                    .<span class="kw">await
+                    </span>.map_err(|<span class="kw">_</span>| reject::custom(DimError::UserNotFound))
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_rejection</span>(
-        <span class="ident">err</span>: <span class="ident">warp::reject::Rejection</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">warp::reject::Rejection</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">err</span>.<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">errors::DimError</span><span class="op">&gt;</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">e</span>.<span class="ident">clone</span>().<span class="ident">into_response</span>());
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">err</span>.<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">warp::filters::body::BodyDeserializeError</span><span class="op">&gt;</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">errors::DimError::MissingFieldInBody</span> {
-                <span class="ident">description</span>: <span class="ident">e</span>.<span class="ident">source</span>().<span class="ident">unwrap</span>().<span class="ident">to_string</span>(),
+    <span class="kw">pub async fn </span>handle_rejection(
+        err: warp::reject::Rejection,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, warp::reject::Rejection&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(e) = err.find::&lt;errors::DimError&gt;() {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(e.clone().into_response());
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(e) = err.find::&lt;warp::filters::body::BodyDeserializeError&gt;() {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(errors::DimError::MissingFieldInBody {
+                description: e.source().unwrap().to_string(),
             }
-            .<span class="ident">into_response</span>());
+            .into_response());
         }
 
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>)
+        <span class="prelude-val">Err</span>(err)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">api_not_found</span>(
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> ..)
-            .<span class="ident">and</span>(<span class="ident">warp::any</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="op">|</span> <span class="ident"><span class="kw">crate</span>::errors::DimError::NotFoundError</span>)
+    <span class="kw">pub fn </span>api_not_found(
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ ..)
+            .and(warp::any())
+            .map(|| <span class="kw">crate</span>::errors::DimError::NotFoundError)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>

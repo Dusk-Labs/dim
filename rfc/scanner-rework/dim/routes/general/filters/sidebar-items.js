@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["get_directory_structure",""],["search",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["get_directory_structure",""],["search",""]]};

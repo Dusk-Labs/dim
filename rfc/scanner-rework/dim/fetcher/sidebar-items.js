@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["insert_into_queue",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["insert_into_queue",""]]};

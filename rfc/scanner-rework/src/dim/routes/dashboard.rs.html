@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/dashboard.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dashboard.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/dashboard.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dashboard.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -271,274 +266,273 @@
 <span id="266">266</span>
 <span id="267">267</span>
 <span id="268">268</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::json</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
+<span class="kw">use </span><span class="kw">crate</span>::errors;
+<span class="kw">use </span><span class="kw">crate</span>::json;
 
-<span class="kw">use</span> <span class="ident">database::episode::Episode</span>;
-<span class="kw">use</span> <span class="ident">database::genre</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">database::library::MediaType</span>;
-<span class="kw">use</span> <span class="ident">database::media::Media</span>;
-<span class="kw">use</span> <span class="ident">database::mediafile::MediaFile</span>;
-<span class="kw">use</span> <span class="ident">database::progress::Progress</span>;
+<span class="kw">use </span>database::episode::Episode;
+<span class="kw">use </span>database::genre::<span class="kw-2">*</span>;
+<span class="kw">use </span>database::library::MediaType;
+<span class="kw">use </span>database::media::Media;
+<span class="kw">use </span>database::mediafile::MediaFile;
+<span class="kw">use </span>database::progress::Progress;
 
-<span class="kw">use</span> <span class="ident">database::user::User</span>;
-<span class="kw">use</span> <span class="ident">serde_json::Value</span>;
+<span class="kw">use </span>database::user::User;
+<span class="kw">use </span>serde_json::Value;
 
-<span class="kw">use</span> <span class="ident">warp::reply</span>;
+<span class="kw">use </span>warp::reply;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filters</span> {
-    <span class="kw">use</span> <span class="ident">database::DbConnection</span>;
+<span class="kw">pub mod </span>filters {
+    <span class="kw">use </span>database::DbConnection;
 
-    <span class="kw">use</span> <span class="ident">database::user::User</span>;
-    <span class="kw">use</span> <span class="ident">warp::reject</span>;
-    <span class="kw">use</span> <span class="ident">warp::Filter</span>;
+    <span class="kw">use </span>database::user::User;
+    <span class="kw">use </span>warp::reject;
+    <span class="kw">use </span>warp::Filter;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::routes::global_filters::with_auth</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::routes::global_filters::with_auth;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state</span>;
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state;
 
-    <span class="kw">use</span> <span class="ident">tokio::runtime::Handle</span> <span class="kw">as</span> <span class="ident">TokioHandle</span>;
+    <span class="kw">use </span>tokio::runtime::Handle <span class="kw">as </span>TokioHandle;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dashboard</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-        <span class="ident">rt</span>: <span class="ident">tokio::runtime::Handle</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;dashboard&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">TokioHandle</span><span class="op">&gt;</span>(<span class="ident">rt</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">user</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span>, <span class="ident">rt</span>: <span class="ident">TokioHandle</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="ident"><span class="kw">super</span>::dashboard</span>(<span class="ident">conn</span>, <span class="ident">user</span>, <span class="ident">rt</span>)
-                        .<span class="kw">await</span>
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>dashboard(
+        conn: DbConnection,
+        rt: tokio::runtime::Handle,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;dashboard&quot;</span>)
+            .and(warp::get())
+            .and(with_auth(conn.clone()))
+            .and(with_state::&lt;DbConnection&gt;(conn))
+            .and(with_state::&lt;TokioHandle&gt;(rt))
+            .and_then(
+                |user: User, conn: DbConnection, rt: TokioHandle| <span class="kw">async move </span>{
+                    <span class="kw">super</span>::dashboard(conn, user, rt)
+                        .<span class="kw">await
+                        </span>.map_err(|e| reject::custom(e))
                 },
             )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">banners</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;dashboard&quot;</span> <span class="op">/</span> <span class="string">&quot;banner&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">user</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::banners</span>(<span class="ident">conn</span>, <span class="ident">user</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>banners(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;dashboard&quot; </span>/ <span class="string">&quot;banner&quot;</span>)
+            .and(warp::get())
+            .and(with_auth(conn.clone()))
+            .and(with_state::&lt;DbConnection&gt;(conn))
+            .and_then(|user: User, conn: DbConnection| <span class="kw">async move </span>{
+                <span class="kw">super</span>::banners(conn, user)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">dashboard</span>(
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">user</span>: <span class="ident">User</span>,
-    <span class="ident">_rt</span>: <span class="ident">tokio::runtime::Handle</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">pub async fn </span>dashboard(
+    conn: DbConnection,
+    user: User,
+    _rt: tokio::runtime::Handle,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">top_rated</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">media</span> <span class="kw">in</span> <span class="ident">Media::get_top_rated</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="number">10</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">sqlx::query!</span>(
+    <span class="kw">let </span><span class="kw-2">mut </span>top_rated = Vec::new();
+    <span class="kw">for </span>media <span class="kw">in </span>Media::get_top_rated(<span class="kw-2">&amp;mut </span>tx, <span class="number">10</span>).<span class="kw">await</span><span class="question-mark">? </span>{
+        <span class="kw">let </span>item = <span class="kw">match </span><span class="macro">sqlx::query!</span>(
             <span class="string">&quot;SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?&quot;</span>,
-            <span class="ident">media</span>
-        ).<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
+            media
+        ).fetch_one(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await </span>{
+            <span class="prelude-val">Ok</span>(x) =&gt; x,
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
         };
 
-        <span class="ident">top_rated</span>.<span class="ident">push</span>(<span class="macro">json!</span>({
-            <span class="string">&quot;id&quot;</span>: <span class="ident">media</span>,
-            <span class="string">&quot;poster_path&quot;</span>: <span class="ident">item</span>.<span class="ident">local_path</span>,
-            <span class="string">&quot;name&quot;</span>: <span class="ident">item</span>.<span class="ident">name</span>
+        top_rated.push(<span class="macro">json!</span>({
+            <span class="string">&quot;id&quot;</span>: media,
+            <span class="string">&quot;poster_path&quot;</span>: item.local_path,
+            <span class="string">&quot;name&quot;</span>: item.name
         }));
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recently_added</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">media</span> <span class="kw">in</span> <span class="ident">Media::get_recently_added</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="number">10</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">sqlx::query!</span>(
+    <span class="kw">let </span><span class="kw-2">mut </span>recently_added = Vec::new();
+    <span class="kw">for </span>media <span class="kw">in </span>Media::get_recently_added(<span class="kw-2">&amp;mut </span>tx, <span class="number">10</span>).<span class="kw">await</span><span class="question-mark">? </span>{
+        <span class="kw">let </span>item = <span class="kw">match </span><span class="macro">sqlx::query!</span>(
             <span class="string">&quot;SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?&quot;</span>,
-            <span class="ident">media</span>
-        ).<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
+            media
+        ).fetch_one(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await </span>{
+            <span class="prelude-val">Ok</span>(x) =&gt; x,
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
         };
 
-        <span class="ident">recently_added</span>.<span class="ident">push</span>(<span class="macro">json!</span>({
-            <span class="string">&quot;id&quot;</span>: <span class="ident">media</span>,
-            <span class="string">&quot;poster_path&quot;</span>: <span class="ident">item</span>.<span class="ident">local_path</span>,
-            <span class="string">&quot;name&quot;</span>: <span class="ident">item</span>.<span class="ident">name</span>
+        recently_added.push(<span class="macro">json!</span>({
+            <span class="string">&quot;id&quot;</span>: media,
+            <span class="string">&quot;poster_path&quot;</span>: item.local_path,
+            <span class="string">&quot;name&quot;</span>: item.name
         }));
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">continue_watching</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">media</span> <span class="kw">in</span> <span class="ident">Progress::get_continue_watching</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="number">10</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">sqlx::query!</span>(
+    <span class="kw">let </span><span class="kw-2">mut </span>continue_watching = Vec::new();
+    <span class="kw">for </span>media <span class="kw">in </span>Progress::get_continue_watching(<span class="kw-2">&amp;mut </span>tx, user.id, <span class="number">10</span>).<span class="kw">await</span><span class="question-mark">? </span>{
+        <span class="kw">let </span>item = <span class="kw">match </span><span class="macro">sqlx::query!</span>(
             <span class="string">&quot;SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?&quot;</span>,
-            <span class="ident">media</span>
-        ).<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
+            media
+        ).fetch_one(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await </span>{
+            <span class="prelude-val">Ok</span>(x) =&gt; x,
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
         };
 
-        <span class="ident">continue_watching</span>.<span class="ident">push</span>(<span class="macro">json!</span>({
-            <span class="string">&quot;id&quot;</span>: <span class="ident">media</span>,
-            <span class="string">&quot;poster_path&quot;</span>: <span class="ident">item</span>.<span class="ident">local_path</span>,
-            <span class="string">&quot;name&quot;</span>: <span class="ident">item</span>.<span class="ident">name</span>
+        continue_watching.push(<span class="macro">json!</span>({
+            <span class="string">&quot;id&quot;</span>: media,
+            <span class="string">&quot;poster_path&quot;</span>: item.local_path,
+            <span class="string">&quot;name&quot;</span>: item.name
         }));
     }
 
-    <span class="kw">let</span> <span class="ident">continue_watching</span> <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">continue_watching</span>.<span class="ident">is_empty</span>() {
+    <span class="kw">let </span>continue_watching = <span class="kw">if </span>!continue_watching.is_empty() {
         <span class="prelude-val">Some</span>(<span class="macro">json!</span>({
-            <span class="string">&quot;CONTINUE WATCHING&quot;</span>: <span class="ident">continue_watching</span>,
+            <span class="string">&quot;CONTINUE WATCHING&quot;</span>: continue_watching,
         }))
-    } <span class="kw">else</span> {
-        <span class="prelude-val">None</span>
-    };
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>};
 
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
-        ..<span class="question-mark">?</span><span class="ident">continue_watching</span>,
-        <span class="string">&quot;TOP RATED&quot;</span>: <span class="ident">top_rated</span>,
-        <span class="string">&quot;FRESHLY ADDED&quot;</span>: <span class="ident">recently_added</span>,
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
+        ..<span class="question-mark">?</span>continue_watching,
+        <span class="string">&quot;TOP RATED&quot;</span>: top_rated,
+        <span class="string">&quot;FRESHLY ADDED&quot;</span>: recently_added,
     })))
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">banners</span>(<span class="ident">conn</span>: <span class="ident">DbConnection</span>, <span class="ident">user</span>: <span class="ident">User</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">banners</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">media</span> <span class="kw">in</span> <span class="ident">Media::get_random_with</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="number">10</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">media</span>.<span class="ident">media_type</span> {
-            <span class="ident">MediaType::Tv</span> =&gt; <span class="ident">banner_for_show</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">user</span>, <span class="kw-2">&amp;</span><span class="ident">media</span>).<span class="kw">await</span>,
-            <span class="ident">MediaType::Movie</span> =&gt; <span class="ident">banner_for_movie</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">user</span>, <span class="kw-2">&amp;</span><span class="ident">media</span>).<span class="kw">await</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+<span class="kw">pub async fn </span>banners(conn: DbConnection, user: User) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>banners = Vec::new();
+    <span class="kw">for </span>media <span class="kw">in </span>Media::get_random_with(<span class="kw-2">&amp;mut </span>tx, <span class="number">10</span>).<span class="kw">await</span><span class="question-mark">? </span>{
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(x) = <span class="kw">match </span>media.media_type {
+            MediaType::Tv =&gt; banner_for_show(<span class="kw-2">&amp;mut </span>tx, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>media).<span class="kw">await</span>,
+            MediaType::Movie =&gt; banner_for_movie(<span class="kw-2">&amp;mut </span>tx, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>media).<span class="kw">await</span>,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         } {
-            <span class="ident">banners</span>.<span class="ident">push</span>(<span class="ident">x</span>);
+            banners.push(x);
         }
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">banners</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="number">3</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()))
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span>banners.iter().take(<span class="number">3</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()))
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">banner_for_movie</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">database::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="kw-2">&amp;</span><span class="ident">User</span>,
-    <span class="ident">media</span>: <span class="kw-2">&amp;</span><span class="ident">Media</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Value</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">progress</span> <span class="op">=</span> <span class="ident">Progress::get_for_media_user</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">media</span>.<span class="ident">id</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">delta</span>)
-        .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
+<span class="kw">async fn </span>banner_for_movie(
+    conn: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    user: <span class="kw-2">&amp;</span>User,
+    media: <span class="kw-2">&amp;</span>Media,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Value, errors::DimError&gt; {
+    <span class="kw">let </span>progress = Progress::get_for_media_user(<span class="kw-2">&amp;mut *</span>conn, user.id, media.id)
+        .<span class="kw">await
+        </span>.map(|x| x.delta)
+        .unwrap_or(<span class="number">0</span>);
 
-    <span class="kw">let</span> <span class="ident">mediafiles</span> <span class="op">=</span> <span class="ident">MediaFile::get_of_media</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">media</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">media_duration</span> <span class="op">=</span> <span class="ident">MediaFile::get_largest_duration</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">media</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>mediafiles = MediaFile::get_of_media(<span class="kw-2">&amp;mut *</span>conn, media.id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>media_duration = MediaFile::get_largest_duration(<span class="kw-2">&amp;mut *</span>conn, media.id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">genres</span> <span class="op">=</span> <span class="ident">Genre::get_by_media</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">media</span>.<span class="ident">id</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">name</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>())
-        .<span class="ident">unwrap_or_default</span>();
+    <span class="kw">let </span>genres = Genre::get_by_media(<span class="kw-2">&amp;mut *</span>conn, media.id)
+        .<span class="kw">await
+        </span>.map(|x| x.into_iter().map(|x| x.name).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;())
+        .unwrap_or_default();
 
-    <span class="kw">let</span> <span class="ident">caption</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">progress</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="string">&quot;CONTINUE WATCHING&quot;</span>
-    } <span class="kw">else</span> {
-        <span class="string">&quot;WATCH SOMETHING FRESH&quot;</span>
-    };
+    <span class="kw">let </span>caption = <span class="kw">if </span>progress &gt; <span class="number">0 </span>{
+        <span class="string">&quot;CONTINUE WATCHING&quot;
+    </span>} <span class="kw">else </span>{
+        <span class="string">&quot;WATCH SOMETHING FRESH&quot;
+    </span>};
 
     <span class="prelude-val">Ok</span>(<span class="macro">json!</span>({
-        <span class="string">&quot;id&quot;</span>: <span class="ident">media</span>.<span class="ident">id</span>,
-        <span class="string">&quot;title&quot;</span>: <span class="ident">media</span>.<span class="ident">name</span>,
-        <span class="string">&quot;year&quot;</span>: <span class="ident">media</span>.<span class="ident">year</span>,
-        <span class="string">&quot;synopsis&quot;</span>: <span class="ident">media</span>.<span class="ident">description</span>,
-        <span class="string">&quot;backdrop&quot;</span>: <span class="ident">media</span>.<span class="ident">backdrop_path</span>,
-        <span class="string">&quot;duration&quot;</span>: <span class="ident">media_duration</span>,
-        <span class="string">&quot;genres&quot;</span>: <span class="ident">genres</span>,
-        <span class="string">&quot;delta&quot;</span>: <span class="ident">progress</span>,
-        <span class="string">&quot;banner_caption&quot;</span>: <span class="ident">caption</span>,
-        <span class="string">&quot;versions&quot;</span>: <span class="ident">mediafiles</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">json!</span>({
-            <span class="string">&quot;id&quot;</span>: <span class="ident">x</span>.<span class="ident">id</span>,
-            <span class="string">&quot;file&quot;</span>: <span class="ident">x</span>.<span class="ident">target_file</span>,
+        <span class="string">&quot;id&quot;</span>: media.id,
+        <span class="string">&quot;title&quot;</span>: media.name,
+        <span class="string">&quot;year&quot;</span>: media.year,
+        <span class="string">&quot;synopsis&quot;</span>: media.description,
+        <span class="string">&quot;backdrop&quot;</span>: media.backdrop_path,
+        <span class="string">&quot;duration&quot;</span>: media_duration,
+        <span class="string">&quot;genres&quot;</span>: genres,
+        <span class="string">&quot;delta&quot;</span>: progress,
+        <span class="string">&quot;banner_caption&quot;</span>: caption,
+        <span class="string">&quot;versions&quot;</span>: mediafiles.iter().map(|x| <span class="macro">json!</span>({
+            <span class="string">&quot;id&quot;</span>: x.id,
+            <span class="string">&quot;file&quot;</span>: x.target_file,
             <span class="string">&quot;display_name&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;{} - {} - {} - Library {}&quot;</span>,
-                                    <span class="ident">x</span>.<span class="ident">codec</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="string">&quot;Unknown VC&quot;</span>.<span class="ident">to_string</span>()),
-                                    <span class="ident">x</span>.<span class="ident">audio</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="string">&quot;Unknwon AC&quot;</span>.<span class="ident">to_string</span>()),
-                                    <span class="ident">x</span>.<span class="ident">original_resolution</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="string">&quot;Unknown res&quot;</span>.<span class="ident">to_string</span>()),
-                                    <span class="ident">x</span>.<span class="ident">library_id</span>)
-        })).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+                                    x.codec.as_ref().unwrap_or(<span class="kw-2">&amp;</span><span class="string">&quot;Unknown VC&quot;</span>.to_string()),
+                                    x.audio.as_ref().unwrap_or(<span class="kw-2">&amp;</span><span class="string">&quot;Unknwon AC&quot;</span>.to_string()),
+                                    x.original_resolution.as_ref().unwrap_or(<span class="kw-2">&amp;</span><span class="string">&quot;Unknown res&quot;</span>.to_string()),
+                                    x.library_id)
+        })).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
     }))
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">banner_for_show</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">database::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="kw-2">&amp;</span><span class="ident">User</span>,
-    <span class="ident">media</span>: <span class="kw-2">&amp;</span><span class="ident">Media</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Value</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">episode</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">ep</span>)) <span class="op">=</span>
-        <span class="ident">Episode::get_last_watched_episode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">media</span>.<span class="ident">id</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span>
-    {
-        <span class="kw">let</span> (<span class="ident">delta</span>, <span class="ident">duration</span>) <span class="op">=</span> <span class="ident">Progress::get_progress_for_media</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">ep</span>.<span class="ident">id</span>, <span class="ident">user</span>.<span class="ident">id</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap_or</span>((<span class="number">0</span>, <span class="number">1</span>));
+<span class="kw">async fn </span>banner_for_show(
+    conn: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    user: <span class="kw-2">&amp;</span>User,
+    media: <span class="kw-2">&amp;</span>Media,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Value, errors::DimError&gt; {
+    <span class="kw">let </span>episode = <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(ep)) =
+        Episode::get_last_watched_episode(<span class="kw-2">&amp;mut *</span>conn, media.id, user.id).<span class="kw">await
+    </span>{
+        <span class="kw">let </span>(delta, duration) = Progress::get_progress_for_media(<span class="kw-2">&amp;mut *</span>conn, ep.id, user.id)
+            .<span class="kw">await
+            </span>.unwrap_or((<span class="number">0</span>, <span class="number">1</span>));
 
-        <span class="kw">if</span> (<span class="ident">delta</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">duration</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">&gt;</span> <span class="number">0.90</span> {
-            <span class="ident">ep</span>.<span class="ident">get_next_episode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>).<span class="kw">await</span>.<span class="ident">unwrap_or</span>(<span class="ident">ep</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">ep</span>
+        <span class="kw">if </span>(delta <span class="kw">as </span>f64 / duration <span class="kw">as </span>f64) &gt; <span class="number">0.90 </span>{
+            ep.get_next_episode(<span class="kw-2">&amp;mut *</span>conn).<span class="kw">await</span>.unwrap_or(ep)
+        } <span class="kw">else </span>{
+            ep
         }
-    } <span class="kw">else</span> {
-        <span class="ident">Episode::get_first_for_show</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">media</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>
-    };
+    } <span class="kw">else </span>{
+        Episode::get_first_for_show(<span class="kw-2">&amp;mut *</span>conn, media.id).<span class="kw">await</span><span class="question-mark">?
+    </span>};
 
-    <span class="kw">let</span> <span class="ident">genres</span> <span class="op">=</span> <span class="ident">Genre::get_by_media</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">media</span>.<span class="ident">id</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap_or_default</span>()
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">name</span>)
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+    <span class="kw">let </span>genres = Genre::get_by_media(<span class="kw-2">&amp;mut *</span>conn, media.id)
+        .<span class="kw">await
+        </span>.unwrap_or_default()
+        .into_iter()
+        .map(|x| x.name)
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-    <span class="kw">let</span> <span class="ident">progress</span> <span class="op">=</span> <span class="ident">Progress::get_for_media_user</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">episode</span>.<span class="ident">id</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">delta</span>)
-        .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
+    <span class="kw">let </span>progress = Progress::get_for_media_user(<span class="kw-2">&amp;mut *</span>conn, user.id, episode.id)
+        .<span class="kw">await
+        </span>.map(|x| x.delta)
+        .unwrap_or(<span class="number">0</span>);
 
-    <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="ident">MediaFile::get_largest_duration</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">episode</span>.<span class="ident">id</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
+    <span class="kw">let </span>duration = MediaFile::get_largest_duration(<span class="kw-2">&amp;mut *</span>conn, episode.id)
+        .<span class="kw">await
+        </span>.unwrap_or(<span class="number">0</span>);
 
-    <span class="kw">let</span> <span class="ident">mediafiles</span> <span class="op">=</span> <span class="ident">MediaFile::get_of_media</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">episode</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>mediafiles = MediaFile::get_of_media(<span class="kw-2">&amp;mut *</span>conn, episode.id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">caption</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">progress</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="string">&quot;CONTINUE WATCHING&quot;</span>
-    } <span class="kw">else</span> {
-        <span class="string">&quot;WATCH SOMETHING FRESH&quot;</span>
-    };
+    <span class="kw">let </span>caption = <span class="kw">if </span>progress &gt; <span class="number">0 </span>{
+        <span class="string">&quot;CONTINUE WATCHING&quot;
+    </span>} <span class="kw">else </span>{
+        <span class="string">&quot;WATCH SOMETHING FRESH&quot;
+    </span>};
 
     <span class="prelude-val">Ok</span>(<span class="macro">json!</span>({
-        <span class="string">&quot;id&quot;</span>: <span class="ident">episode</span>.<span class="ident">id</span>,
-        <span class="string">&quot;title&quot;</span>: <span class="ident">media</span>.<span class="ident">name</span>,
-        <span class="string">&quot;year&quot;</span>: <span class="ident">media</span>.<span class="ident">year</span>,
-        <span class="string">&quot;synopsis&quot;</span>: <span class="ident">media</span>.<span class="ident">description</span>,
-        <span class="string">&quot;backdrop&quot;</span>: <span class="ident">media</span>.<span class="ident">backdrop_path</span>,
-        <span class="string">&quot;duration&quot;</span>: <span class="ident">duration</span>,
-        <span class="string">&quot;genres&quot;</span>: <span class="ident">genres</span>,
-        <span class="string">&quot;delta&quot;</span>: <span class="ident">progress</span>,
-        <span class="string">&quot;banner_caption&quot;</span>: <span class="ident">caption</span>,
-        <span class="string">&quot;episode&quot;</span>: <span class="ident">episode</span>.<span class="ident">episode</span>,
-        <span class="string">&quot;season&quot;</span>: <span class="ident">episode</span>.<span class="ident">get_season_number</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>).<span class="kw">await</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>),
-        <span class="string">&quot;versions&quot;</span>: <span class="ident">mediafiles</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">json!</span>({
-            <span class="string">&quot;id&quot;</span>: <span class="ident">x</span>.<span class="ident">id</span>,
-            <span class="string">&quot;file&quot;</span>: <span class="ident">x</span>.<span class="ident">target_file</span>,
+        <span class="string">&quot;id&quot;</span>: episode.id,
+        <span class="string">&quot;title&quot;</span>: media.name,
+        <span class="string">&quot;year&quot;</span>: media.year,
+        <span class="string">&quot;synopsis&quot;</span>: media.description,
+        <span class="string">&quot;backdrop&quot;</span>: media.backdrop_path,
+        <span class="string">&quot;duration&quot;</span>: duration,
+        <span class="string">&quot;genres&quot;</span>: genres,
+        <span class="string">&quot;delta&quot;</span>: progress,
+        <span class="string">&quot;banner_caption&quot;</span>: caption,
+        <span class="string">&quot;episode&quot;</span>: episode.episode,
+        <span class="string">&quot;season&quot;</span>: episode.get_season_number(<span class="kw-2">&amp;mut *</span>conn).<span class="kw">await</span>.unwrap_or(<span class="number">0</span>),
+        <span class="string">&quot;versions&quot;</span>: mediafiles.iter().map(|x| <span class="macro">json!</span>({
+            <span class="string">&quot;id&quot;</span>: x.id,
+            <span class="string">&quot;file&quot;</span>: x.target_file,
             <span class="string">&quot;display_name&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;{} - {} - {} - Library {}&quot;</span>,
-                                    <span class="ident">x</span>.<span class="ident">codec</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="string">&quot;Unknown VC&quot;</span>.<span class="ident">to_string</span>()),
-                                    <span class="ident">x</span>.<span class="ident">audio</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="string">&quot;Unknwon AC&quot;</span>.<span class="ident">to_string</span>()),
-                                    <span class="ident">x</span>.<span class="ident">original_resolution</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="string">&quot;Unknown res&quot;</span>.<span class="ident">to_string</span>()),
-                                    <span class="ident">x</span>.<span class="ident">library_id</span>)
-        })).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+                                    x.codec.as_ref().unwrap_or(<span class="kw-2">&amp;</span><span class="string">&quot;Unknown VC&quot;</span>.to_string()),
+                                    x.audio.as_ref().unwrap_or(<span class="kw-2">&amp;</span><span class="string">&quot;Unknwon AC&quot;</span>.to_string()),
+                                    x.original_resolution.as_ref().unwrap_or(<span class="kw-2">&amp;</span><span class="string">&quot;Unknown res&quot;</span>.to_string()),
+                                    x.library_id)
+        })).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
     }))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>

@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Error",""]],"struct":[["Disposition",""],["FFPWrapper",""],["FFProbeCtx",""],["Stream",""],["Tags",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["Error",""]],"struct":[["Disposition",""],["FFPWrapper",""],["FFProbeCtx",""],["Stream",""],["Tags",""]]};
