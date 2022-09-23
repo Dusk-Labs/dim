@@ -201,19 +201,6 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This module contains all docs and APIs related to authentication and user creation.
 //!
 //! # Request Authentication and Authorization
@@ -265,19 +252,6 @@
             .and(with_db(conn))
             .and_then(|new_login: Login, conn: DbConnection| <span class="kw">async move </span>{
                 <span class="kw">super</span>::login(new_login, conn)
-                    .<span class="kw">await
-                    </span>.map_err(|e| reject::custom(e))
-            })
-    }
-
-    <span class="kw">pub fn </span>admin_exists(
-        conn: DbConnection,
-    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;auth&quot; </span>/ <span class="string">&quot;admin_exists&quot;</span>)
-            .and(warp::get())
-            .and(with_db(conn))
-            .and_then(|conn: DbConnection| <span class="kw">async move </span>{
-                <span class="kw">super</span>::admin_exists(conn)
                     .<span class="kw">await
                     </span>.map_err(|e| reject::custom(e))
             })
