@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/fetcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>fetcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/fetcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>fetcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
@@ -73,8 +74,6 @@
 <span id="67">67</span>
 <span id="68">68</span>
 <span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core</span>::<span class="kw-2">*</span>;
 
 <span class="kw">use</span> <span class="ident">tokio::sync::mpsc::unbounded_channel</span>;
@@ -91,10 +90,10 @@
 <span class="kw">use</span> <span class="ident">once_cell::sync::OnceCell</span>;
 
 <span class="attribute">#[<span class="ident">instrument</span>]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_into_queue</span>(<span class="ident">poster</span>: <span class="ident">String</span>, <span class="ident">priority</span>: <span class="ident">usize</span>) {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_into_queue</span>(<span class="ident">poster</span>: <span class="ident">String</span>, <span class="ident">outfile</span>: <span class="ident">String</span>, <span class="ident">priority</span>: <span class="ident">usize</span>) {
     <span class="comment">// FIXME: We might want to figure out a way to make this a const generic param.</span>
     <span class="kw">const</span> <span class="ident">PARTITIONS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">5</span>;
-    <span class="kw">static</span> <span class="ident">SENDER_PARTITIONS</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span>[<span class="ident">UnboundedSender</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>; <span class="ident">PARTITIONS</span>]<span class="op">&gt;</span> <span class="op">=</span>
+    <span class="kw">static</span> <span class="ident">SENDER_PARTITIONS</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span>[<span class="ident">UnboundedSender</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>; <span class="ident">PARTITIONS</span>]<span class="op">&gt;</span> <span class="op">=</span>
         <span class="ident">OnceCell::new</span>();
 
     <span class="kw">let</span> <span class="ident">partitions</span> <span class="op">=</span> <span class="ident">SENDER_PARTITIONS</span>.<span class="ident">get_or_init</span>(<span class="op">|</span><span class="op">|</span> {
@@ -107,30 +106,28 @@
     });
 
     <span class="ident">partitions</span>[<span class="ident">priority</span> <span class="op">%</span> <span class="ident">PARTITIONS</span>]
-        .<span class="ident">send</span>((<span class="ident">poster</span>.<span class="ident">clone</span>(), <span class="ident">priority</span>))
+        .<span class="ident">send</span>((<span class="ident">poster</span>.<span class="ident">clone</span>(), <span class="ident">outfile</span>, <span class="ident">priority</span>))
         .<span class="ident">expect</span>(<span class="string">&quot;Failed to send poster request&quot;</span>);
 }
 
 <span class="attribute">#[<span class="ident">instrument</span>]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">process_queue</span>(<span class="kw-2">mut</span> <span class="ident">rx</span>: <span class="ident">UnboundedReceiver</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>) {
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">url</span>, <span class="ident">_priority</span>)) <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>().<span class="kw">await</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">process_queue</span>(<span class="kw-2">mut</span> <span class="ident">rx</span>: <span class="ident">UnboundedReceiver</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>) {
+    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">url</span>, <span class="ident">outfile</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>().<span class="kw">await</span> {
         <span class="macro">debug!</span>(<span class="string">&quot;Trying to cache {}&quot;</span>, <span class="ident">url</span>);
 
         <span class="kw">match</span> <span class="ident">reqwest::get</span>(<span class="ident">url</span>.<span class="ident">as_str</span>()).<span class="kw">await</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">resp</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">fname</span>) <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">url</span>().<span class="ident">path_segments</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">segs</span><span class="op">|</span> <span class="ident">segs</span>.<span class="ident">last</span>()) {
-                    <span class="kw">let</span> <span class="ident">meta_path</span> <span class="op">=</span> <span class="ident">METADATA_PATH</span>.<span class="ident">get</span>().<span class="ident">unwrap</span>();
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out_path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="ident">meta_path</span>);
-                    <span class="ident">out_path</span>.<span class="ident">push</span>(<span class="ident">fname</span>);
+                <span class="kw">let</span> <span class="ident">meta_path</span> <span class="op">=</span> <span class="ident">METADATA_PATH</span>.<span class="ident">get</span>().<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out_path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="ident">meta_path</span>);
+                <span class="ident">out_path</span>.<span class="ident">push</span>(<span class="ident">outfile</span>);
 
-                    <span class="macro">debug!</span>(<span class="string">&quot;Caching {} -&gt; {:?}&quot;</span>, <span class="ident">url</span>, <span class="ident">out_path</span>);
+                <span class="macro">debug!</span>(<span class="string">&quot;Caching {} -&gt; {:?}&quot;</span>, <span class="ident">url</span>, <span class="ident">out_path</span>);
 
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">file</span>) <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">out_path</span>) {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>) <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">bytes</span>().<span class="kw">await</span> {
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">Cursor::new</span>(<span class="ident">bytes</span>);
-                            <span class="kw">if</span> <span class="ident">copy</span>(<span class="kw-2">&amp;mut</span> <span class="ident">content</span>, <span class="kw-2">&amp;mut</span> <span class="ident">file</span>).<span class="ident">is_ok</span>() {
-                                <span class="kw">continue</span>;
-                            }
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">file</span>) <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">out_path</span>) {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>) <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">bytes</span>().<span class="kw">await</span> {
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">Cursor::new</span>(<span class="ident">bytes</span>);
+                        <span class="kw">if</span> <span class="ident">copy</span>(<span class="kw-2">&amp;mut</span> <span class="ident">content</span>, <span class="kw-2">&amp;mut</span> <span class="ident">file</span>).<span class="ident">is_ok</span>() {
+                            <span class="kw">continue</span>;
                         }
                     }
                 }
@@ -147,5 +144,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
 </body></html>

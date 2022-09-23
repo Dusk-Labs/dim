@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["rematch_media_by_id",""]]};
+initSidebarItems({"fn":[["rematch_media_by_id",""]]});

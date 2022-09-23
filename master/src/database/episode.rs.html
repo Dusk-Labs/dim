@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/episode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>episode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/episode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>episode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
@@ -426,6 +427,13 @@
 <span id="420">420</span>
 <span id="421">421</span>
 <span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::media::InsertableMedia</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::media::Media</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::media::UpdateMedia</span>;
@@ -438,7 +446,6 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Episode</span> {
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>)]</span>
-    <span class="doccomment">/// Unique id provided by postgres</span>
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i64</span>,
     <span class="doccomment">/// Season id foreign_key</span>
     <span class="kw">pub</span> <span class="ident">seasonid</span>: <span class="ident">i64</span>,
@@ -519,8 +526,8 @@
             <span class="ident">EpisodeWrapper</span>,
             <span class="string">r#&quot;SELECT episode.id as &quot;id!&quot;, episode.episode_, episode.seasonid FROM episode
                 INNER JOIN season ON season.id = episode.seasonid
-                INNER JOIN tv_show ON tv_show.id = season.tvshowid
-                WHERE tv_show.id = ?
+                INNER JOIN _tblmedia ON _tblmedia.id = season.tvshowid
+                WHERE _tblmedia.id = ?
                 ORDER BY season.season_number, episode.episode_&quot;#</span>,
             <span class="ident">tv_show_id</span>
         )
@@ -749,10 +756,22 @@
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">result</span>.<span class="ident">into_episode</span>(<span class="ident">ep</span>)))
     }
 
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_seasonid</span>(
+        <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">episodeid</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
+            <span class="string">&quot;SELECT episode.seasonid FROM episode WHERE episode.id = ?&quot;</span>,
+            <span class="ident">episodeid</span>
+        )
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">tx</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">seasonid</span>)
+    }
+
     <span class="doccomment">/// Method deletes a episode based on the tv show id, season number, and episode number</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `&amp;` - diesel &amp;ection reference to postgres</span>
     <span class="doccomment">/// * `id` - The id of a tv show we target</span>
     <span class="doccomment">/// * `season_num` - The season we are targetting</span>
     <span class="doccomment">/// * `ep_num` - Episode we are targetting</span>
@@ -775,9 +794,6 @@
 
 <span class="kw">impl</span> <span class="ident">InsertableEpisode</span> {
     <span class="doccomment">/// Method inserts a new episode into the database</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `&amp;` - diesel &amp;ection reference to postgres</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="macro">sqlx::query!</span>(
             <span class="string">r#&quot;SELECT id as &quot;id!&quot; FROM episode WHERE episode.seasonid = ? AND episode.episode_ = ?&quot;#</span>,
@@ -831,7 +847,6 @@
     <span class="doccomment">/// Method updates the rows of a episode.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `&amp;` - diesel &amp;ection reference to postgres</span>
     <span class="doccomment">/// * `id` - id of the episode we wish to update.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -849,5 +864,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
 </body></html>
