@@ -73,6 +73,7 @@ new_xtra = { package = "xtra", git = "https://github.com/Restioson/xtra", featur
 url = "2.2.2"
 retry-block = "1.0.0"
 hyper = "0.14.20"
+rusqlite = { version = "0.27.0", features = ["hooks"] }
 
 [build-dependencies]
 fs_extra = "1.1.0"

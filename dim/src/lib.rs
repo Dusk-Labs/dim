@@ -32,6 +32,8 @@ pub mod core;
 pub mod errors;
 /// Module contains our external api interfaces
 pub mod external;
+/// Sqlite CDC implementation
+pub mod events;
 /// Contains the code for fetching assets like posters and stills.
 pub mod fetcher;
 /// Inspect api for Result type

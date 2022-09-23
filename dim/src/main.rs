@@ -84,6 +84,24 @@ fn main() {
     nightfall::profiles::profiles_init(crate::streaming::FFMPEG_BIN.to_string());
 
     let async_main = async move {
+        // Before we start making DB-calls we need to initialize our CDC pipeline.
+        {
+            let pool = database::get_conn().await.unwrap();
+            let mut lock = pool.writer().lock_owned().await;
+            dim::events::ReactorCore::new().register(&mut lock).await;
+
+            let mut tx = database::write_tx(&mut lock).await.unwrap();
+
+            database::library::InsertableLibrary {
+                name: "abccc".into(),
+                locations: vec![],
+                media_type: database::library::MediaType::Movie,
+            }.insert(&mut tx).await.unwrap();
+
+
+            tx.commit().await.unwrap();
+        }
+
         let (event_tx, event_rx) = tokio::sync::mpsc::unbounded_channel();
 
         let stream_manager = nightfall::StateManager::new(
