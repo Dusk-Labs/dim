@@ -1,11 +1,10 @@
-use futures::future::BoxFuture;
-use futures::FutureExt;
 use retry_block::async_retry;
 use retry_block::delay::Fixed;
 use retry_block::OperationResult;
-use std::time::Duration;
 
 use serde::Deserialize;
+use std::future::Future;
+use std::time::Duration;
 
 use crate::external::{
     ExternalActor, ExternalEpisode, ExternalMedia, ExternalSeason, MediaSearchType,
@@ -235,7 +234,7 @@ impl TMDBClient {
         &self,
         args: A,
         path: String,
-    ) -> BoxFuture<Result<String, TMDBClientRequestError>>
+    ) -> impl Future<Output = Result<String, TMDBClientRequestError>>
     where
         A: IntoIterator<Item = (T, T)>,
         T: ToString,
@@ -291,7 +290,6 @@ impl TMDBClient {
 
             result
         }
-        .boxed()
     }
 
     pub async fn genre_list(
