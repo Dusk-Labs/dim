@@ -11,7 +11,7 @@ use std::iter::repeat;
 /// information which the video player on the front end might require.
 #[derive(Serialize, PartialEq, Debug, Clone, sqlx::FromRow)]
 pub struct MediaFile {
-    /// Unique identifier provided by postgres
+    /// Unique identifier of a mediafile.
     pub id: i64,
     /// Foreign key linking this entry to the media table or [`Media`](Media) struct
     pub media_id: Option<i64>,
@@ -129,7 +129,7 @@ impl MediaFile {
                 INNER JOIN episode ON _tblseason.id = episode.seasonid
                 INNER JOIN mediafile ON mediafile.media_id = episode.id
                 WHERE _tblseason.tvshowid = ?
-                GROUP BY episode.id",
+                GROUP BY mediafile.id",
             id
         )
         .fetch_all(&mut *conn)
@@ -274,6 +274,17 @@ pub struct InsertableMediaFile {
 }
 
 impl InsertableMediaFile {
+    /// Method checks if a mediafile with the the target file exists in the database.
+    pub async fn exists(&self, conn: &mut crate::Transaction<'_>) -> Result<bool, DatabaseError> {
+        let result: Option<i64> =
+            sqlx::query_scalar("SELECT 1 FROM mediafile WHERE target_file = ?")
+                .bind(&self.target_file)
+                .fetch_optional(&mut *conn)
+                .await?;
+
+        Ok(result == Some(1))
+    }
+
     /// Method inserts a new mediafile into the database.
     ///
     /// # Arguments

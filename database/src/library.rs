@@ -1,6 +1,7 @@
 use crate::DatabaseError;
 use serde::Deserialize;
 use serde::Serialize;
+use std::convert::TryFrom;
 use std::fmt;
 
 /// Enum represents a media type and can be used on a library or on a media.
@@ -28,6 +29,27 @@ impl fmt::Display for MediaType {
     }
 }
 
+impl TryFrom<&str> for MediaType {
+    type Error = ();
+
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "movie" | "movies" => Ok(Self::Movie),
+            "tv" | "tv_show" | "tv show" | "tv shows" => Ok(Self::Tv),
+            "episode" | "episodes" | "ep" => Ok(Self::Episode),
+            _ => Err(()),
+        }
+    }
+}
+
+impl TryFrom<String> for MediaType {
+    type Error = ();
+
+    fn try_from(s: String) -> Result<Self, Self::Error> {
+        s.as_str().try_into()
+    }
+}
+
 impl Default for MediaType {
     fn default() -> Self {
         Self::Movie
@@ -37,7 +59,6 @@ impl Default for MediaType {
 /// Library struct which we can use to deserialize database queries into.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Library {
-    /// unique id provided by postgres
     pub id: i64,
     /// unique name of the library
     pub name: String,

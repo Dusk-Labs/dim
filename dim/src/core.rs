@@ -1,9 +1,13 @@
 use crate::balanced_or_tree;
+use crate::external::tmdb::TMDBMetadataProvider;
 use crate::logger::RequestLogger;
 use crate::routes;
-use crate::scanners;
+use crate::routes::*;
+use crate::scanner;
 use crate::stream_tracking::StreamTracking;
 use crate::websocket;
+
+use database::library::MediaType;
 
 use once_cell::sync::OnceCell;
 
@@ -14,7 +18,7 @@ use tracing::{info, instrument};
 use warp::http::status::StatusCode;
 use warp::Filter;
 
-use crate::routes::*;
+use std::sync::Arc;
 
 pub type StateManager = nightfall::StateManager;
 pub type DbConnection = database::DbConnection;
@@ -42,14 +46,30 @@ pub async fn run_scanners(tx: EventTx) {
                 let library_id = lib.id;
                 let tx_clone = tx.clone();
                 let media_type = lib.media_type;
-                let watcher = scanners::scanner_daemon::FsWatcher::new(
+
+                let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
+
+                let provider = match media_type {
+                    MediaType::Movie => Arc::new(provider.movies()) as Arc<_>,
+                    MediaType::Tv => Arc::new(provider.tv_shows()) as Arc<_>,
+                    _ => unreachable!(),
+                };
+
+                let mut watcher = scanner::daemon::FsWatcher::new(
                     conn.clone(),
                     library_id,
                     media_type,
                     tx_clone.clone(),
+                    Arc::clone(&provider),
                 );
 
-                tokio::spawn(scanners::start(conn.clone(), library_id, tx_clone.clone()));
+                let conn_clone = conn.clone();
+
+                tokio::spawn(async move {
+                    let mut conn = conn_clone;
+                    scanner::start(&mut conn, library_id, tx_clone.clone(), provider).await
+                });
+
                 tokio::spawn(async move {
                     watcher
                         .start_daemon()
@@ -152,6 +172,7 @@ pub async fn warp_core(
         warp::path!("api" / "stream" / ..)
             .and(warp::any())
             .map(|| StatusCode::NOT_FOUND),
+        routes::statik::filters::get_image(conn.clone()),
     ]
     .recover(routes::global_filters::handle_rejection);
 
@@ -170,7 +191,6 @@ pub async fn warp_core(
             .recover(routes::global_filters::handle_rejection),
         /* static routes */
         routes::statik::filters::dist_static(),
-        routes::statik::filters::get_image(conn.clone()),
         routes::statik::filters::react_routes(),
     ]
     .recover(routes::global_filters::handle_rejection)

@@ -166,8 +166,10 @@ pub async fn get_image(
     // return 200 OK.
     if !Path::new(&file_path).exists() {
         if let Ok(x) = asset::Asset::get_url_by_file(&mut tx, &url_path).await {
-            insert_into_queue(x, 5).await;
+            insert_into_queue(x, path.as_str().into(), 5).await;
         }
+
+        return Err(errors::DimError::NotFoundError);
     }
 
     let image = tokio::fs::read(file_path).await.ok();

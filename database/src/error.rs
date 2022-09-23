@@ -1,16 +1,17 @@
 pub use auth::AuthError;
 
 use displaydoc::Display;
+use std::sync::Arc;
 use thiserror::Error;
 
-#[derive(Debug, Display, Error)]
+#[derive(Clone, Debug, Display, Error)]
 pub enum DatabaseError {
     /// Generic database error: {0:?}
-    DatabaseError(sqlx::error::Error),
+    DatabaseError(Arc<sqlx::error::Error>),
 }
 
 impl From<sqlx::error::Error> for DatabaseError {
     fn from(e: sqlx::error::Error) -> DatabaseError {
-        Self::DatabaseError(e)
+        Self::DatabaseError(e.into())
     }
 }

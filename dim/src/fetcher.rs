@@ -14,10 +14,10 @@ use std::path::PathBuf;
 use once_cell::sync::OnceCell;
 
 #[instrument]
-pub async fn insert_into_queue(poster: String, priority: usize) {
+pub async fn insert_into_queue(poster: String, outfile: String, priority: usize) {
     // FIXME: We might want to figure out a way to make this a const generic param.
     const PARTITIONS: usize = 5;
-    static SENDER_PARTITIONS: OnceCell<[UnboundedSender<(String, usize)>; PARTITIONS]> =
+    static SENDER_PARTITIONS: OnceCell<[UnboundedSender<(String, String, usize)>; PARTITIONS]> =
         OnceCell::new();
 
     let partitions = SENDER_PARTITIONS.get_or_init(|| {
@@ -30,30 +30,28 @@ pub async fn insert_into_queue(poster: String, priority: usize) {
     });
 
     partitions[priority % PARTITIONS]
-        .send((poster.clone(), priority))
+        .send((poster.clone(), outfile, priority))
         .expect("Failed to send poster request");
 }
 
 #[instrument]
-async fn process_queue(mut rx: UnboundedReceiver<(String, usize)>) {
-    while let Some((url, _priority)) = rx.recv().await {
+async fn process_queue(mut rx: UnboundedReceiver<(String, String, usize)>) {
+    while let Some((url, outfile, _)) = rx.recv().await {
         debug!("Trying to cache {}", url);
 
         match reqwest::get(url.as_str()).await {
             Ok(resp) => {
-                if let Some(fname) = resp.url().path_segments().and_then(|segs| segs.last()) {
-                    let meta_path = METADATA_PATH.get().unwrap();
-                    let mut out_path = PathBuf::from(meta_path);
-                    out_path.push(fname);
+                let meta_path = METADATA_PATH.get().unwrap();
+                let mut out_path = PathBuf::from(meta_path);
+                out_path.push(outfile);
 
-                    debug!("Caching {} -> {:?}", url, out_path);
+                debug!("Caching {} -> {:?}", url, out_path);
 
-                    if let Ok(mut file) = File::create(out_path) {
-                        if let Ok(bytes) = resp.bytes().await {
-                            let mut content = Cursor::new(bytes);
-                            if copy(&mut content, &mut file).is_ok() {
-                                continue;
-                            }
+                if let Ok(mut file) = File::create(out_path) {
+                    if let Ok(bytes) = resp.bytes().await {
+                        let mut content = Cursor::new(bytes);
+                        if copy(&mut content, &mut file).is_ok() {
+                            continue;
                         }
                     }
                 }

@@ -93,6 +93,20 @@ impl Genre {
             .await?
             .rows_affected() as usize)
     }
+
+    /// Decouple media from all genres passed in
+    pub async fn decouple_all(
+        conn: &mut crate::Transaction<'_>,
+        media_id: i64,
+    ) -> Result<usize, DatabaseError> {
+        Ok(sqlx::query!(
+            "DELETE FROM genre_media WHERE genre_media.media_id = ?",
+            media_id
+        )
+        .execute(&mut *conn)
+        .await?
+        .rows_affected() as usize)
+    }
 }
 
 /// Genre entry that can be inserted into the db.
