@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/events/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/reactor/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -150,28 +150,62 @@
 <span id="143">143</span>
 <span id="144">144</span>
 <span id="145">145</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">tokio::sync::OwnedMutexGuard</span>;
-<span class="kw">use</span> <span class="ident">sqlx::SqliteConnection</span>;
-<span class="kw">use</span> <span class="ident">rusqlite::Connection</span>;
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+</pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">handler</span>;
+<span class="kw">mod</span> <span class="ident">types</span>;
+
+<span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
+
 <span class="kw">use</span> <span class="ident">rusqlite::hooks::Action</span>;
+<span class="kw">use</span> <span class="ident">rusqlite::Connection</span>;
+<span class="kw">use</span> <span class="ident">sqlx::SqliteConnection</span>;
+<span class="kw">use</span> <span class="ident">tokio::sync::OwnedMutexGuard</span>;
 
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 <span class="kw">use</span> <span class="ident">std::sync::Mutex</span>;
+<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span class="kw">use</span> <span class="ident">std::time::Instant</span>;
 
+<span class="kw">use</span> <span class="ident">tokio::sync::mpsc::unbounded_channel</span>;
+<span class="kw">use</span> <span class="ident">tokio::sync::mpsc::UnboundedReceiver</span>;
+<span class="kw">use</span> <span class="ident">tokio::sync::mpsc::UnboundedSender</span>;
+
+<span class="kw">use</span> <span class="ident">tracing::error</span>;
+<span class="kw">use</span> <span class="ident">tracing::warn</span>;
+
+<span class="kw">use</span> <span class="ident">types::Event</span>;
+<span class="kw">use</span> <span class="ident">types::Table</span>;
+
+<span class="kw">const</span> <span class="ident">MAX_COMMIT_DURATION</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration::from_millis</span>(<span class="number">5</span>);
+
+<span class="attribute">#[<span class="ident">async_trait</span>]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Reactor</span> {
-    <span class="kw">type</span> <span class="ident">Error</span>;
+    <span class="kw">type</span> <span class="ident">Error</span>: <span class="ident">::std::error::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">react</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">event</span>: <span class="ident">Event</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">react</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">event</span>: <span class="ident">Event</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">struct</span> <span class="ident">Context</span> {
     <span class="ident">uncommited_buffer</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">tx</span>: <span class="ident">UnboundedSender</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Context</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">tx</span>: <span class="ident">UnboundedSender</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">tx</span>,
             <span class="ident">uncommited_buffer</span>: <span class="ident">Arc::new</span>(<span class="ident">Mutex::new</span>(<span class="ident">Vec::new</span>())),
         }
     }
@@ -179,16 +213,20 @@
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ReactorCore</span> {
     <span class="ident">hook_ctx</span>: <span class="ident">Context</span>,
+    <span class="ident">recvr</span>: <span class="ident">UnboundedReceiver</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ReactorCore</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>  {
-            <span class="ident">hook_ctx</span>: <span class="ident">Context::new</span>()
+        <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">unbounded_channel</span>();
+
+        <span class="self">Self</span> {
+            <span class="ident">hook_ctx</span>: <span class="ident">Context::new</span>(<span class="ident">tx</span>),
+            <span class="ident">recvr</span>: <span class="ident">rx</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">register</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lock</span>: <span class="kw-2">&amp;mut</span> <span class="ident">OwnedMutexGuard</span><span class="op">&lt;</span><span class="ident">SqliteConnection</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">register</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">lock</span>: <span class="kw-2">&amp;mut</span> <span class="ident">OwnedMutexGuard</span><span class="op">&lt;</span><span class="ident">SqliteConnection</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle_lock</span> <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">lock_handle</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">handle_lock</span>.<span class="ident">as_raw_handle</span>();
 
@@ -205,8 +243,12 @@
         <span class="ident">core::mem::forget</span>(<span class="ident">conn</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">react</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">reactor</span>: <span class="kw">impl</span> <span class="ident">Reactor</span><span class="op">&lt;</span><span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>) {
-        <span class="kw">return</span>;
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">react</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">::std::error::Error</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">reactor</span>: <span class="kw">impl</span> <span class="ident">Reactor</span><span class="op">&lt;</span><span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>) {
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">recvr</span>.<span class="ident">recv</span>().<span class="kw">await</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">reactor</span>.<span class="ident">react</span>(<span class="ident">event</span>).<span class="kw">await</span> {
+                <span class="macro">error!</span>(<span class="ident">error</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">e</span>, <span class="question-mark">?</span><span class="ident">event</span>, <span class="string">&quot;Reactor returned an when processing event.&quot;</span>);
+            }
+        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_hook</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">Action</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">i64</span>) <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
@@ -238,7 +280,31 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">commit_hook</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>() -&gt; <span class="ident">bool</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
-        <span class="op">|</span><span class="op">|</span> { <span class="bool-val">true</span> }
+        <span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hook_ctx</span>.<span class="ident">clone</span>();
+
+        <span class="comment">// NOTE: If we get a commit we can assume our buffer of events is valid and can be reacted</span>
+        <span class="comment">// on because they are going to be written to the disk.</span>
+        <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">uncommited_buffer</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">buffer_len</span> <span class="op">=</span> <span class="ident">buffer</span>.<span class="ident">len</span>();
+
+            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>) <span class="op">=</span> <span class="ident">buffer</span>.<span class="ident">pop</span>() {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">context</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">event</span>) {
+                    <span class="macro">error!</span>(<span class="string">&quot;Failed to send database event.&quot;</span>);
+                }
+            }
+
+            <span class="kw">let</span> <span class="ident">elapsed</span> <span class="op">=</span> <span class="ident">now</span>.<span class="ident">elapsed</span>();
+            <span class="kw">if</span> <span class="ident">elapsed</span> <span class="op">&gt;</span> <span class="ident">MAX_COMMIT_DURATION</span> {
+                <span class="macro">warn!</span>(
+                    <span class="ident">elapsed_ms</span> <span class="op">=</span> <span class="ident">elapsed</span>.<span class="ident">as_millis</span>(),
+                    <span class="ident">buffer_len</span>, <span class="string">&quot;Commit hook took too long&quot;</span>
+                );
+            }
+
+            <span class="bool-val">false</span>
+        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rollback_hook</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>() <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
@@ -252,48 +318,6 @@
             <span class="ident">buffer</span>.<span class="ident">clear</span>();
         }
     }
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Table</span> {
-    <span class="ident">Library</span>,
-    <span class="ident">Media</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Table</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> ();
-
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">s</span> {
-            <span class="string">&quot;library&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Library</span>),
-            <span class="string">&quot;media&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Media</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(())
-        }
-    }
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EventType</span> {
-    <span class="ident">Insert</span>,
-    <span class="ident">Update</span>,
-    <span class="ident">Delete</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Action</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EventType</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">action</span>: <span class="ident">Action</span>) -&gt; <span class="ident">EventType</span> {
-        <span class="kw">match</span> <span class="ident">action</span> {
-            <span class="ident">Action::SQLITE_INSERT</span> =&gt; <span class="ident">EventType::Insert</span>,
-            <span class="ident">Action::SQLITE_UPDATE</span> =&gt; <span class="ident">EventType::Update</span>,
-            <span class="ident">Action::SQLITE_DELETE</span> =&gt; <span class="ident">EventType::Delete</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>()
-        }
-    }
-}
-
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Event</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="kw">pub</span> <span class="ident">event_type</span>: <span class="ident">EventType</span>,
-    <span class="kw">pub</span> <span class="ident">table</span>: <span class="ident">Table</span>,
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>

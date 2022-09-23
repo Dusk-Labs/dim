@@ -457,14 +457,6 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::EventTx</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>;
@@ -711,13 +703,6 @@
     <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="ident">fs_watcher</span>.<span class="ident">start_daemon</span>().<span class="kw">await</span> });
     <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="ident">scanner::start</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">id</span>, <span class="ident">tx_clone</span>, <span class="ident">provider</span>).<span class="kw">await</span> });
 
-    <span class="kw">let</span> <span class="ident">event</span> <span class="op">=</span> <span class="ident">Message</span> {
-        <span class="ident">id</span>,
-        <span class="ident">event_type</span>: <span class="ident">PushEventType::EventNewLibrary</span>,
-    };
-
-    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">event_tx</span>.<span class="ident">send</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>).<span class="ident">unwrap</span>());
-
     <span class="prelude-val">Ok</span>(<span class="ident">StatusCode::CREATED</span>)
 }
 
@@ -752,10 +737,16 @@
 
     <span class="kw">let</span> <span class="ident">delete_lib_fut</span> <span class="op">=</span> <span class="kw">async</span> <span class="kw">move</span> {
         <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">async</span> {
+            <span class="comment">// TODO: Need to do this in two transactions to trigger the CDC event.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="ident">Library::delete</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+            <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
             <span class="ident">Media::delete_by_lib_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="ident">MediaFile::delete_by_lib_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -770,13 +761,6 @@
             <span class="macro">info!</span>(<span class="string">&quot;Deleted library&quot;</span>);
         }
     };
-
-    <span class="kw">let</span> <span class="ident">event</span> <span class="op">=</span> <span class="ident">Message</span> {
-        <span class="ident">id</span>,
-        <span class="ident">event_type</span>: <span class="ident">PushEventType::EventRemoveLibrary</span>,
-    };
-
-    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">event_tx</span>.<span class="ident">send</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>).<span class="ident">unwrap</span>());
 
     <span class="ident">tokio::spawn</span>(<span class="ident">delete_lib_fut</span>);
 
