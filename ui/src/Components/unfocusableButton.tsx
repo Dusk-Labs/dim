@@ -1,14 +1,14 @@
 import { useCallback } from "react";
 
-type buttonProps = {
+type ButtonProps = {
   onClick: () => void;
   children: any;
   className: string | null;
 };
 
-// this function allows you to blur a button and make it unfocusable, this is done by creating a component and calling it on the files that are needed
+// this component allows you to blur a button and make it unfocusable, this is done by creating a component and calling it on the files that are needed
 
-export function UnfocusableButton(props: buttonProps) {
+export function UnfocusableButton(props: ButtonProps) {
   const { onClick, children, className } = props;
 
   const callback = useCallback(
