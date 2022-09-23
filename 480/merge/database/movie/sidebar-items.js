@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["InsertableMovie","Struct reperesents a insertable movie entry"]]};
