@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["delete_media_by_id",""],["get_media_by_id",""],["get_media_files",""],["get_mediafile_tree",""],["map_progress",""],["tmdb_search",""],["update_media_by_id",""]]});
