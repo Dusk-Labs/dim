@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { checkAdminExists } from "../../actions/auth.js";
 import RegisterBtn from "./RegisterBtn";
@@ -9,7 +9,15 @@ import DimLogo from "../../assets/DimLogo";
 
 import "./AuthForm.scss";
 
-function Register() {
+function useQuery() {
+  const { search } = useLocation();
+
+  return React.useMemo(() => new URLSearchParams(search), [search]);
+}
+
+function Register(props) {
+  let token = useQuery()?.get("token");
+
   const dispatch = useDispatch();
   const auth = useSelector((store) => store.auth);
 
@@ -32,6 +40,10 @@ function Register() {
   useEffect(() => {
     dispatch(checkAdminExists());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (token) setInvite(token);
+  }, [setInvite, token]);
 
   return (
     <div className="authForm">

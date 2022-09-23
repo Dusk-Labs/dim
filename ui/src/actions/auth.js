@@ -222,7 +222,7 @@ export const delAccount = (password) => async (dispatch, getState) => {
 
 export const checkAdminExists = () => async (dispatch) => {
   try {
-    const res = await fetch("/api/v1/auth/admin_exists");
+    const res = await fetch("/api/v1/host/admin_exists");
 
     if (res.status !== 200) {
       return dispatch({
