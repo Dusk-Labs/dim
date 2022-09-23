@@ -32,15 +32,12 @@ function VideoActionNextVideo() {
     setEnable(true);
   }, [nextEpisodeId]);
 
-  const nextVideo = useCallback(
-    (e) => {
-      const item = nextMediaFiles[0];
-      if (!item) return;
+  const nextVideo = useCallback(() => {
+    const item = nextMediaFiles[0];
+    if (!item) return;
 
-      history.replace(`/play/${item.id}`, { from: history.location.pathname });
-    },
-    [history, nextMediaFiles]
-  );
+    history.replace(`/play/${item.id}`, { from: history.location.pathname });
+  }, [history, nextMediaFiles]);
 
   return (
     <UnfocusableButton
