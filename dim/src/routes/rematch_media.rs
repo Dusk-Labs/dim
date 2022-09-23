@@ -1,19 +1,25 @@
 use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors::*;
-use crate::scanners::base::patch_tv_metadata;
-use crate::scanners::movie::MovieMatcher;
-use crate::scanners::tmdb::MediaType as ExternalMediaType;
-use crate::scanners::tmdb::Tmdb;
-use crate::scanners::tv_show::TvShowMatcher;
+use crate::external::ExternalQuery;
+use crate::scanner::movie;
+use crate::scanner::parse_filenames;
+use crate::scanner::tv_show;
+use crate::scanner::MediaMatcher;
+use crate::scanner::WorkUnit;
+
+use super::media::MOVIES_PROVIDER;
+use super::media::TV_PROVIDER;
+
+use std::sync::Arc;
 
 use database::library::MediaType;
-use database::media::Media;
 use database::mediafile::MediaFile;
 
-use http::status::StatusCode;
+use tracing::error;
+use tracing::info;
 
-const API_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
+use http::status::StatusCode;
 
 pub mod filters {
     use crate::core::EventTx;
@@ -32,7 +38,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         #[derive(Deserialize)]
         struct RouteArgs {
-            external_id: i32,
+            external_id: String,
             media_type: String,
         }
 
@@ -59,99 +65,71 @@ pub mod filters {
     }
 }
 
+/// FIXME: Merge this function into rematch_mediafile as theyre functionally the same fucking thing
+/// except here we are matching whole media objects rather than mediafiles. This was a different
+/// api in the past because the scanner wasnt intelligent enough to decouple and clean up stale
+/// media objects but now that it can do that we can just rematch a matched mediafile and it will
+/// work as it should.
+///
+/// TODO: Add ability to specify overrides like episode and season ranges.
 pub async fn rematch_media(
     conn: DbConnection,
-    event_tx: EventTx,
+    _event_tx: EventTx,
     id: i64,
-    external_id: i32,
+    external_id: String,
     media_type: String,
 ) -> Result<impl warp::Reply, DimError> {
-    // first fetch the data from tmdb
-    let target_type = match media_type.to_lowercase().as_ref() {
-        "movie" => ExternalMediaType::Movie,
-        "tv" => ExternalMediaType::Tv,
+    let Ok(media_type) = media_type.to_lowercase().try_into() else {
+        return Err(DimError::InvalidMediaType);
+    };
+
+    let provider: Arc<dyn ExternalQuery> = match media_type {
+        MediaType::Movie => (*MOVIES_PROVIDER).clone(),
+        MediaType::Tv => (*TV_PROVIDER).clone(),
         _ => return Err(DimError::InvalidMediaType),
     };
 
-    let mut tmdb = Tmdb::new(API_KEY.into(), target_type);
-    let mut result: crate::scanners::ApiMedia = tmdb
-        .search_by_id(external_id)
-        .await
-        .map_err(|_| DimError::NotFoundError)?
-        .into();
+    let matcher = match media_type {
+        MediaType::Movie => Arc::new(movie::MovieMatcher) as Arc<dyn MediaMatcher>,
+        MediaType::Tv => Arc::new(tv_show::TvMatcher) as Arc<dyn MediaMatcher>,
+        _ => unreachable!(),
+    };
 
-    if let ExternalMediaType::Tv = target_type {
-        let mut seasons: Vec<crate::scanners::ApiSeason> = tmdb
-            .get_seasons_for(result.id)
-            .await
-            .unwrap_or_default()
-            .into_iter()
-            .map(Into::into)
-            .collect();
+    let mut tx = conn.read().begin().await?;
 
-        for season in seasons.iter_mut() {
-            season.episodes = tmdb
-                .get_episodes_for(result.id, season.season_number)
-                .await
-                .unwrap_or_default()
-                .into_iter()
-                .map(Into::into)
-                .collect();
-        }
+    let mediafiles = match media_type {
+        MediaType::Movie => MediaFile::get_of_media(&mut tx, id).await?,
+        MediaType::Tv => MediaFile::get_of_show(&mut tx, id).await?,
+        _ => unreachable!(),
+    };
 
-        result.seasons = seasons;
-    }
+    let mediafile_ids = mediafiles.iter().map(|x| x.id).collect::<Vec<_>>();
 
-    // second decouple the media and its mediafiles.
+    info!(?media_type, mediafiles = ?&mediafile_ids, "Rematching media");
+
+    provider.search_by_id(&external_id).await.map_err(|e| {
+        error!(?e, "Failed to search for tmdb_id when rematching.");
+        DimError::ExternalSearchError(e)
+    })?;
+
+    drop(tx);
+
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = database::write_tx(&mut lock).await?;
 
-    let target = Media::get(&mut tx, id).await?;
+    for mediafile in mediafiles {
+        let Some((_, metadata)) = parse_filenames(IntoIterator::into_iter([&mediafile.target_file])).pop() else {
+            continue;
+        };
 
-    use database::episode::Episode;
-
-    let orphans = match target.media_type {
-        MediaType::Movie | MediaType::Episode => Media::decouple_mediafiles(&mut tx, id).await?,
-        MediaType::Tv => {
-            let mut orphans = vec![];
-            for episode in Episode::get_all_of_tv(&mut tx, id).await? {
-                orphans.append(&mut Media::decouple_mediafiles(&mut tx, episode.id).await?);
-                Episode::delete(&mut tx, id).await?;
-            }
-
-            orphans
-        }
-    };
-
-    Media::delete(&mut tx, id).await?;
-
-    for orphan in orphans {
-        let mut orphan = MediaFile::get_one(&mut tx, orphan).await?;
-        match target_type {
-            MediaType::Movie => {
-                let matcher = MovieMatcher {
-                    conn: &conn,
-                    event_tx: &event_tx,
-                };
-
-                matcher
-                    .inner_match(result.clone(), &orphan, &mut tx, Some(id))
-                    .await?;
-            }
-            MediaType::Tv => {
-                let matcher = TvShowMatcher {
-                    conn: &conn,
-                    event_tx: &event_tx,
-                };
-
-                patch_tv_metadata(&mut orphan, &mut tx).await?;
-                matcher
-                    .inner_match(result.clone(), &orphan, &mut tx, Some(id))
-                    .await?;
-            }
-
-            _ => {}
-        }
+        matcher
+            .match_to_id(
+                &mut tx,
+                provider.clone(),
+                WorkUnit(mediafile.clone(), metadata),
+                &external_id,
+            )
+            .await?;
     }
 
     tx.commit().await?;

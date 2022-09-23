@@ -2,13 +2,11 @@
 name = "database"
 version = "0.1.0"
 authors = ["Valerian G. <valerian.garleanu@pm.me>"]
-edition = "2018"
+edition = "2021"
 build = "src/build.rs"
 
 [features]
 default = ["sqlite"]
-
-postgres = ["sqlx/postgres"]
 sqlite = ["sqlx/sqlite"]
 
 [dependencies]
@@ -21,7 +19,7 @@ tracing = "0.1.29"
 ring = "^0.16.11"
 uuid = { version = "0.8.1", features = ["v4"] }
 cfg-if = "1.0.0"
-sqlx = { version = "=0.5.13", features = ["runtime-tokio-rustls"] }
+sqlx = { version = "0.5", features = ["runtime-tokio-rustls"] }
 once_cell = "1.8.0"
 tokio = "1.14.0"
 base64 = "0.13.0"
@@ -34,6 +32,6 @@ displaydoc = "0.2.3"
 tokio = { version = "1", default-features = false, features = ["rt", "macros"] }
 
 [build-dependencies]
-sqlx = { version = "=0.5.13" }
+sqlx = { version = "0.5", features = ["runtime-tokio-rustls"] }
 tokio = "1.12.0"
 dotenv = "0.15.0"

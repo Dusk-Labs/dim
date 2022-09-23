@@ -1,9 +1,12 @@
 use crate::core::DbConnection;
 use crate::errors;
+use crate::external::tmdb::TMDBMetadataProvider;
+use crate::external::ExternalQuery;
 use crate::json;
-use crate::scanners::ApiMedia;
 use crate::tree;
+use crate::utils::secs_to_pretty;
 
+use chrono::Datelike;
 use database::user::User;
 
 use database::compact_mediafile::CompactMediafile;
@@ -19,8 +22,16 @@ use warp::http::status::StatusCode;
 use warp::reply;
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
+use once_cell::sync::Lazy;
 use serde::Serialize;
+
+pub const API_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
+pub const MOVIES_PROVIDER: Lazy<Arc<dyn ExternalQuery>> =
+    Lazy::new(|| Arc::new(TMDBMetadataProvider::new(&API_KEY).movies()));
+pub const TV_PROVIDER: Lazy<Arc<dyn ExternalQuery>> =
+    Lazy::new(|| Arc::new(TMDBMetadataProvider::new(&API_KEY).tv_shows()));
 
 pub mod filters {
     use database::user::User;
@@ -291,11 +302,16 @@ pub async fn get_media_by_id(
                     .first()
                     .map(mediafile_tags)
         }),
-        MediaType::Tv => json!(MediaFile::get_of_show(&mut tx, media.id)
-            .await?
-            .iter()
-            .map(|x| (x.media_id.unwrap(), mediafile_tags(x)))
-            .collect::<HashMap<_, _>>()),
+        MediaType::Tv => {
+            let mut result = MediaFile::get_of_show(&mut tx, media.id).await?;
+
+            result.dedup_by_key(|x| x.media_id);
+
+            json!(result
+                .iter()
+                .map(|x| (x.media_id.unwrap(), mediafile_tags(x)))
+                .collect::<HashMap<_, _>>())
+        }
     };
 
     let season_episode_tag = match media.media_type {
@@ -502,17 +518,18 @@ pub async fn tmdb_search(
     media_type: String,
     _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
-    use crate::scanners::tmdb::Tmdb;
+    let Ok(media_type) = media_type.to_lowercase().try_into() else {
+        return Err(errors::DimError::InvalidMediaType);
+    };
 
-    let media_type = match media_type.to_lowercase().as_ref() {
-        "movie" | "movies" => MediaType::Movie,
-        "tv" | "tv_show" | "tv show" | "tv shows" => MediaType::Tv,
+    let provider = match media_type {
+        MediaType::Movie => (*MOVIES_PROVIDER).clone(),
+        MediaType::Tv => (*TV_PROVIDER).clone(),
         _ => return Err(errors::DimError::InvalidMediaType),
     };
 
-    let mut tmdb_session = Tmdb::new("38c372f5bc572c8aadde7a802638534e".to_string(), media_type);
-    let results = tmdb_session
-        .search_by_name(query, year, None)
+    let results = provider
+        .search(&query, year)
         .await
         .map_err(|_| errors::DimError::NotFoundError)?;
 
@@ -520,7 +537,23 @@ pub async fn tmdb_search(
         return Err(errors::DimError::NotFoundError);
     }
 
-    Ok(ApiMedia::search_response(results.into_iter()))
+    let resp = results
+        .into_iter()
+        .map(|x| {
+            json!({
+                "id": x.external_id,
+                "title": x.title,
+                "year": x.release_date.map(|x| x.year()),
+                "overview": x.description,
+                "poster_path": x.posters.first(),
+                "genres": x.genres,
+                "rating": x.rating,
+                "duration": x.duration.map(|x| secs_to_pretty(x.as_secs())),
+            })
+        })
+        .collect::<Vec<_>>();
+
+    Ok(reply::json(&resp))
 }
 
 /// Method mapped to `POST /api/v1/media/<id>/progress` is used to map progress for a certain media

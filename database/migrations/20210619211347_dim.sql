@@ -26,7 +26,7 @@ CREATE TABLE _tblmedia (
 
     name TEXT NOT NULL,
     description TEXT,
-    rating INTEGER,
+    rating REAL,
     year INTEGER,
     added TEXT,
     poster INTEGER,
@@ -55,18 +55,6 @@ END;
 CREATE UNIQUE INDEX media_idx ON _tblmedia(library_id, name, media_type) WHERE NOT _tblmedia.media_type = "episode";
 CREATE INDEX media_excl_ep_idx ON _tblmedia(name) WHERE NOT _tblmedia.media_type = "episode";
 
-CREATE TABLE movie (
-    id INTEGER,
-    PRIMARY KEY (id),
-    FOREIGN KEY(id) REFERENCES _tblmedia (id) ON DELETE CASCADE
-);
-
-CREATE TABLE tv_show (
-    id INTEGER,
-    PRIMARY KEY (id),
-    FOREIGN KEY(id) REFERENCES _tblmedia (id) ON DELETE CASCADE
-);
-
 CREATE TABLE _tblseason (
     id INTEGER,
     season_number INTEGER NOT NULL,
@@ -76,7 +64,7 @@ CREATE TABLE _tblseason (
     PRIMARY KEY (id),
     
     FOREIGN KEY(poster) REFERENCES assets(id),
-    FOREIGN KEY(tvshowid) REFERENCES tv_show (id) ON DELETE CASCADE
+    FOREIGN KEY(tvshowid) REFERENCES _tblmedia (id) ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX season_idx ON _tblseason(season_number, tvshowid);
@@ -206,4 +194,3 @@ CREATE TABLE media_backdrops (
 );
 
 CREATE UNIQUE INDEX media_backdrops_idx ON media_backdrops(media_id, asset_id);
-

@@ -13,10 +13,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         println!("cargo:error=CARGO_MANIFEST_DIR is not set");
         e
     })?);
+
     let mut db_file = env::var("DATABASE_URL").map_err(|e| {
         println!("cargo:error=DATABASE_URL is not set");
         e
     })?;
+
     if db_file.starts_with("sqlite://") {
         db_file = db_file.split_off(9);
     }
