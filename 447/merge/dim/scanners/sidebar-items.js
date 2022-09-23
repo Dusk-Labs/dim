@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["format_path","Function formats the path where assets are stored."],["get_extractor",""],["get_matcher",""],["get_matcher_unchecked",""],["start",""],["start_custom",""]],"mod":[["base",""],["movie",""],["scanner_daemon",""],["tmdb",""],["tv_show",""]],"struct":[["ApiEpisode",""],["ApiMedia",""],["ApiSeason",""]]});

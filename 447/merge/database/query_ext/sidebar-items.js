@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["QueryExt","Trait contains some extensions for `sqlx`."]]});
+window.SIDEBAR_ITEMS = {"trait":[["QueryExt","Trait contains some extensions for `sqlx`."]]};

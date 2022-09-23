@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/settings.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>settings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/settings.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>settings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -235,238 +230,237 @@
 <span id="230">230</span>
 <span id="231">231</span>
 <span id="232">232</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::ffpath</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
+<span class="kw">use </span><span class="kw">crate</span>::errors;
+<span class="kw">use </span><span class="kw">crate</span>::utils::ffpath;
 
-<span class="kw">use</span> <span class="ident">database::user::UpdateableUser</span>;
-<span class="kw">use</span> <span class="ident">database::user::User</span>;
-<span class="kw">use</span> <span class="ident">database::user::UserSettings</span>;
+<span class="kw">use </span>database::user::UpdateableUser;
+<span class="kw">use </span>database::user::User;
+<span class="kw">use </span>database::user::UserSettings;
 
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
-<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
+<span class="kw">use </span>serde::Deserialize;
+<span class="kw">use </span>serde::Serialize;
 
-<span class="kw">use</span> <span class="ident">std::error::Error</span>;
-<span class="kw">use</span> <span class="ident">std::fs::File</span>;
-<span class="kw">use</span> <span class="ident">std::fs::OpenOptions</span>;
-<span class="kw">use</span> <span class="ident">std::io::Read</span>;
-<span class="kw">use</span> <span class="ident">std::io::Write</span>;
-<span class="kw">use</span> <span class="ident">std::sync::Mutex</span>;
+<span class="kw">use </span>std::error::Error;
+<span class="kw">use </span>std::fs::File;
+<span class="kw">use </span>std::fs::OpenOptions;
+<span class="kw">use </span>std::io::Read;
+<span class="kw">use </span>std::io::Write;
+<span class="kw">use </span>std::sync::Mutex;
 
-<span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
-<span class="kw">use</span> <span class="ident">once_cell::sync::OnceCell</span>;
+<span class="kw">use </span>once_cell::sync::Lazy;
+<span class="kw">use </span>once_cell::sync::OnceCell;
 
-<span class="kw">use</span> <span class="ident">warp::reply</span>;
+<span class="kw">use </span>warp::reply;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GlobalSettings</span> {
-    <span class="kw">pub</span> <span class="ident">enable_ssl</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">port</span>: <span class="ident">u16</span>,
-    <span class="kw">pub</span> <span class="ident">priv_key</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">ssl_cert</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Clone)]
+</span><span class="kw">pub struct </span>GlobalSettings {
+    <span class="kw">pub </span>enable_ssl: bool,
+    <span class="kw">pub </span>port: u16,
+    <span class="kw">pub </span>priv_key: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>ssl_cert: <span class="prelude-ty">Option</span>&lt;String&gt;,
 
-    <span class="kw">pub</span> <span class="ident">cache_dir</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">metadata_dir</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">quiet_boot</span>: <span class="ident">bool</span>,
+    <span class="kw">pub </span>cache_dir: String,
+    <span class="kw">pub </span>metadata_dir: String,
+    <span class="kw">pub </span>quiet_boot: bool,
 
-    <span class="kw">pub</span> <span class="ident">disable_auth</span>: <span class="ident">bool</span>,
+    <span class="kw">pub </span>disable_auth: bool,
 
-    <span class="kw">pub</span> <span class="ident">verbose</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">secret_key</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">enable_hwaccel</span>: <span class="ident">bool</span>,
+    <span class="kw">pub </span>verbose: bool,
+    <span class="kw">pub </span>secret_key: <span class="prelude-ty">Option</span>&lt;[u8; <span class="number">32</span>]&gt;,
+    <span class="kw">pub </span>enable_hwaccel: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">GlobalSettings</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">enable_ssl</span>: <span class="bool-val">false</span>,
-            <span class="ident">port</span>: <span class="number">8000</span>,
-            <span class="ident">priv_key</span>: <span class="prelude-val">None</span>,
-            <span class="ident">ssl_cert</span>: <span class="prelude-val">None</span>,
-            <span class="ident">cache_dir</span>: {
-                <span class="macro">cfg_if::cfg_if!</span> {
-                    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_family</span> <span class="op">=</span> <span class="string">&quot;unix&quot;</span>)]</span> {
-                        <span class="string">&quot;/tmp/streaming_cache&quot;</span>.<span class="ident">into</span>()
-                    } <span class="kw">else</span> {
-                        <span class="string">&quot;./streaming_cache&quot;</span>.<span class="ident">into</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>GlobalSettings {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            enable_ssl: <span class="bool-val">false</span>,
+            port: <span class="number">8000</span>,
+            priv_key: <span class="prelude-val">None</span>,
+            ssl_cert: <span class="prelude-val">None</span>,
+            cache_dir: {
+                <span class="macro">cfg_if::cfg_if! </span>{
+                    <span class="kw">if </span><span class="attribute">#[cfg(target_family = <span class="string">&quot;unix&quot;</span>)] </span>{
+                        <span class="string">&quot;/tmp/streaming_cache&quot;</span>.into()
+                    } <span class="kw">else </span>{
+                        <span class="string">&quot;./streaming_cache&quot;</span>.into()
                     }
                 }
             },
-            <span class="ident">metadata_dir</span>: <span class="ident">ffpath</span>(<span class="string">&quot;config/metadata&quot;</span>),
-            <span class="ident">quiet_boot</span>: <span class="bool-val">false</span>,
-            <span class="ident">disable_auth</span>: <span class="bool-val">false</span>,
-            <span class="ident">verbose</span>: <span class="bool-val">false</span>,
-            <span class="ident">secret_key</span>: <span class="prelude-val">None</span>,
-            <span class="ident">enable_hwaccel</span>: <span class="bool-val">true</span>,
+            metadata_dir: ffpath(<span class="string">&quot;config/metadata&quot;</span>),
+            quiet_boot: <span class="bool-val">false</span>,
+            disable_auth: <span class="bool-val">false</span>,
+            verbose: <span class="bool-val">false</span>,
+            secret_key: <span class="prelude-val">None</span>,
+            enable_hwaccel: <span class="bool-val">true</span>,
         }
     }
 }
 
-<span class="kw">static</span> <span class="ident">GLOBAL_SETTINGS</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">GlobalSettings</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Default::default</span>());
-<span class="kw">static</span> <span class="ident">SETTINGS_PATH</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">OnceCell::new</span>();
+<span class="kw">static </span>GLOBAL_SETTINGS: Lazy&lt;Mutex&lt;GlobalSettings&gt;&gt; = Lazy::new(|| Default::default());
+<span class="kw">static </span>SETTINGS_PATH: OnceCell&lt;String&gt; = OnceCell::new();
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_global_settings</span>() -&gt; <span class="ident">GlobalSettings</span> {
-    <span class="kw">let</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">GLOBAL_SETTINGS</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-    <span class="ident">lock</span>.<span class="ident">clone</span>()
+<span class="kw">pub fn </span>get_global_settings() -&gt; GlobalSettings {
+    <span class="kw">let </span>lock = GLOBAL_SETTINGS.lock().unwrap();
+    lock.clone()
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">init_global_settings</span>(<span class="ident">path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">unwrap_or</span>(<span class="ident">ffpath</span>(<span class="string">&quot;config/config.toml&quot;</span>));
-    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">SETTINGS_PATH</span>.<span class="ident">set</span>(<span class="ident">path</span>.<span class="ident">clone</span>());
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">String::new</span>();
+<span class="kw">pub fn </span>init_global_settings(path: <span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
+    <span class="kw">let </span>path = path.unwrap_or(ffpath(<span class="string">&quot;config/config.toml&quot;</span>));
+    <span class="kw">let _ </span>= SETTINGS_PATH.set(path.clone());
+    <span class="kw">let </span><span class="kw-2">mut </span>content = String::new();
 
-    <span class="ident">OpenOptions::new</span>()
-        .<span class="ident">write</span>(<span class="bool-val">true</span>)
-        .<span class="ident">create</span>(<span class="bool-val">true</span>)
-        .<span class="ident">read</span>(<span class="bool-val">true</span>)
-        .<span class="ident">open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>
-        .<span class="ident">read_to_string</span>(<span class="kw-2">&amp;mut</span> <span class="ident">content</span>)<span class="question-mark">?</span>;
+    OpenOptions::new()
+        .write(<span class="bool-val">true</span>)
+        .create(<span class="bool-val">true</span>)
+        .read(<span class="bool-val">true</span>)
+        .open(path)<span class="question-mark">?
+        </span>.read_to_string(<span class="kw-2">&amp;mut </span>content)<span class="question-mark">?</span>;
 
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">GLOBAL_SETTINGS</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-        <span class="kw-2">*</span><span class="ident">lock</span> <span class="op">=</span> <span class="ident">toml::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">content</span>).<span class="ident">unwrap_or_default</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>lock = GLOBAL_SETTINGS.lock().unwrap();
+        <span class="kw-2">*</span>lock = toml::from_str(<span class="kw-2">&amp;</span>content).unwrap_or_default();
     }
 
-    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">set_global_settings</span>(<span class="ident">get_global_settings</span>());
+    <span class="kw">let _ </span>= set_global_settings(get_global_settings());
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_global_settings</span>(<span class="ident">settings</span>: <span class="ident">GlobalSettings</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">SETTINGS_PATH</span>
-        .<span class="ident">get</span>()
-        .<span class="ident">cloned</span>()
-        .<span class="ident">unwrap_or</span>(<span class="ident">ffpath</span>(<span class="string">&quot;config/config.toml&quot;</span>));
+<span class="kw">pub fn </span>set_global_settings(settings: GlobalSettings) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
+    <span class="kw">let </span>path = SETTINGS_PATH
+        .get()
+        .cloned()
+        .unwrap_or(ffpath(<span class="string">&quot;config/config.toml&quot;</span>));
 
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">GLOBAL_SETTINGS</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-        <span class="kw-2">*</span><span class="ident">lock</span> <span class="op">=</span> <span class="ident">settings</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>lock = GLOBAL_SETTINGS.lock().unwrap();
+        <span class="kw-2">*</span>lock = settings;
     }
 
-    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">get_global_settings</span>();
-    <span class="ident">File::create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>
-        .<span class="ident">write</span>(<span class="ident">toml::to_string_pretty</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>).<span class="ident">unwrap</span>().<span class="ident">as_ref</span>())
-        .<span class="ident">unwrap</span>();
+    <span class="kw">let </span>settings = get_global_settings();
+    File::create(path)<span class="question-mark">?
+        </span>.write(toml::to_string_pretty(<span class="kw-2">&amp;</span>settings).unwrap().as_ref())
+        .unwrap();
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filters</span> {
-    <span class="kw">use</span> <span class="ident">database::user::User</span>;
-    <span class="kw">use</span> <span class="ident">database::user::UserSettings</span>;
-    <span class="kw">use</span> <span class="ident">database::DbConnection</span>;
+<span class="kw">pub mod </span>filters {
+    <span class="kw">use </span>database::user::User;
+    <span class="kw">use </span>database::user::UserSettings;
+    <span class="kw">use </span>database::DbConnection;
 
-    <span class="kw">use</span> <span class="ident">warp::reject</span>;
-    <span class="kw">use</span> <span class="ident">warp::Filter</span>;
-    <span class="kw">use</span> <span class="ident">warp::Rejection</span>;
+    <span class="kw">use </span>warp::reject;
+    <span class="kw">use </span>warp::Filter;
+    <span class="kw">use </span>warp::Rejection;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_auth</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state</span>;
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_auth;
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_user_settings</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;user&quot;</span> <span class="op">/</span> <span class="string">&quot;settings&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">auth</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::get_user_settings</span>(<span class="ident">conn</span>, <span class="ident">auth</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>get_user_settings(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;user&quot; </span>/ <span class="string">&quot;settings&quot;</span>)
+            .and(warp::get())
+            .and(with_auth(conn.clone()))
+            .and(with_state::&lt;DbConnection&gt;(conn))
+            .and_then(|auth: User, conn: DbConnection| <span class="kw">async move </span>{
+                <span class="kw">super</span>::get_user_settings(conn, auth)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">post_user_settings</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;user&quot;</span> <span class="op">/</span> <span class="string">&quot;settings&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::post</span>())
-            .<span class="ident">and</span>(<span class="ident">warp::body::json</span>::<span class="op">&lt;</span><span class="ident">UserSettings</span><span class="op">&gt;</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">settings</span>: <span class="ident">UserSettings</span>, <span class="ident">auth</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+    <span class="kw">pub fn </span>post_user_settings(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;user&quot; </span>/ <span class="string">&quot;settings&quot;</span>)
+            .and(warp::post())
+            .and(warp::body::json::&lt;UserSettings&gt;())
+            .and(with_auth(conn.clone()))
+            .and(with_state::&lt;DbConnection&gt;(conn))
+            .and_then(
+                |settings: UserSettings, auth: User, conn: DbConnection| <span class="kw">async move </span>{
                     <span class="macro">println!</span>(<span class="string">&quot;saving user settings&quot;</span>);
-                    <span class="ident"><span class="kw">super</span>::post_user_settings</span>(<span class="ident">conn</span>, <span class="ident">auth</span>, <span class="ident">settings</span>)
-                        .<span class="kw">await</span>
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+                    <span class="kw">super</span>::post_user_settings(conn, auth, settings)
+                        .<span class="kw">await
+                        </span>.map_err(|e| reject::custom(e))
                 },
             )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_global_settings</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;host&quot;</span> <span class="op">/</span> <span class="string">&quot;settings&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">auth</span>: <span class="ident">User</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::http_get_global_settings</span>(<span class="ident">auth</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>get_global_settings(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;host&quot; </span>/ <span class="string">&quot;settings&quot;</span>)
+            .and(warp::get())
+            .and(with_auth(conn))
+            .and_then(|auth: User| <span class="kw">async move </span>{
+                <span class="kw">super</span>::http_get_global_settings(auth)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_global_settings</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;host&quot;</span> <span class="op">/</span> <span class="string">&quot;settings&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::post</span>())
-            .<span class="ident">and</span>(<span class="ident">warp::body::json</span>::<span class="op">&lt;</span><span class="ident"><span class="kw">super</span>::GlobalSettings</span><span class="op">&gt;</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">settings</span>: <span class="ident"><span class="kw">super</span>::GlobalSettings</span>, <span class="ident">auth</span>: <span class="ident">User</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::http_set_global_settings</span>(<span class="ident">auth</span>, <span class="ident">settings</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>set_global_settings(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;host&quot; </span>/ <span class="string">&quot;settings&quot;</span>)
+            .and(warp::post())
+            .and(warp::body::json::&lt;<span class="kw">super</span>::GlobalSettings&gt;())
+            .and(with_auth(conn))
+            .and_then(|settings: <span class="kw">super</span>::GlobalSettings, auth: User| <span class="kw">async move </span>{
+                <span class="kw">super</span>::http_set_global_settings(auth, settings)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_settings</span>(
-    <span class="ident">db</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">user</span>: <span class="ident">User</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">db</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">User::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">prefs</span>))
+<span class="kw">pub async fn </span>get_user_settings(
+    db: DbConnection,
+    user: User,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = db.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span>User::get_by_id(<span class="kw-2">&amp;mut </span>tx, user.id).<span class="kw">await</span><span class="question-mark">?</span>.prefs))
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_user_settings</span>(
-    <span class="ident">db</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">user</span>: <span class="ident">User</span>,
-    <span class="ident">new_settings</span>: <span class="ident">UserSettings</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">db</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">update_user</span> <span class="op">=</span> <span class="ident">UpdateableUser</span> {
-        <span class="ident">prefs</span>: <span class="prelude-val">Some</span>(<span class="ident">new_settings</span>.<span class="ident">clone</span>()),
+<span class="kw">pub async fn </span>post_user_settings(
+    db: DbConnection,
+    user: User,
+    new_settings: UserSettings,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>lock = db.writer().lock_owned().<span class="kw">await</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>update_user = UpdateableUser {
+        prefs: <span class="prelude-val">Some</span>(new_settings.clone()),
     };
 
-    <span class="ident">update_user</span>.<span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    update_user.update(<span class="kw-2">&amp;mut </span>tx, user.id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">drop</span>(<span class="ident">lock</span>);
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    drop(lock);
 
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">new_settings</span>))
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span>new_settings))
 }
 
-<span class="comment">// TODO: Hide secret key.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">http_get_global_settings</span>(<span class="ident">_user</span>: <span class="ident">User</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">get_global_settings</span>()))
+<span class="comment">// TODO: Hide secret key.
+</span><span class="kw">pub async fn </span>http_get_global_settings(_user: User) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span>get_global_settings()))
 }
 
-<span class="comment">// TODO: Disallow setting secret key over http.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">http_set_global_settings</span>(
-    <span class="ident">user</span>: <span class="ident">User</span>,
-    <span class="ident">new_settings</span>: <span class="ident">GlobalSettings</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">user</span>.<span class="ident">has_role</span>(<span class="string">&quot;owner&quot;</span>) {
-        <span class="ident">set_global_settings</span>(<span class="ident">new_settings</span>).<span class="ident">unwrap</span>();
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">get_global_settings</span>()));
+<span class="comment">// TODO: Disallow setting secret key over http.
+</span><span class="kw">pub async fn </span>http_set_global_settings(
+    user: User,
+    new_settings: GlobalSettings,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">if </span>user.has_role(<span class="string">&quot;owner&quot;</span>) {
+        set_global_settings(new_settings).unwrap();
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span>get_global_settings()));
     }
 
-    <span class="prelude-val">Err</span>(<span class="ident">errors::DimError::Unauthorized</span>)
+    <span class="prelude-val">Err</span>(errors::DimError::Unauthorized)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>

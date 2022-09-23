@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/external/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/external/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -120,123 +115,240 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
-</pre><pre class="rust"><code><span class="doccomment">/// Module contains a common interface for extracting and obtaining filename metadata.</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filename</span>;
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+</pre><pre class="rust"><code><span class="doccomment">/// Module contains a common interface for extracting and obtaining filename metadata.
+</span><span class="kw">pub mod </span>filename;
+<span class="kw">pub mod </span>mock;
 
-<span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
+<span class="kw">use </span>async_trait::async_trait;
 
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span class="kw">use </span>std::fmt::Debug;
+<span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use</span> <span class="ident">displaydoc::Display</span>;
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
-<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
-<span class="kw">use</span> <span class="ident">thiserror::Error</span>;
+<span class="kw">use </span>displaydoc::Display;
+<span class="kw">use </span>serde::Deserialize;
+<span class="kw">use </span>serde::Serialize;
+<span class="kw">use </span>thiserror::Error;
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="kw">pub mod </span>tmdb;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Display</span>, <span class="ident">Debug</span>, <span class="ident">Error</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
-    <span class="doccomment">/// The request timeouted</span>
-    <span class="ident">Timeout</span>,
-    <span class="doccomment">/// Max retry count reached</span>
-    <span class="ident">ReachedMaxTries</span>,
-    <span class="doccomment">/// The API response could not be deserialized: {0:?}</span>
-    <span class="ident">DeserializationError</span>(<span class="ident">String</span>),
-    <span class="doccomment">/// No results are found: query={query} year={year:?}</span>
-    <span class="ident">NoResults</span> { <span class="ident">query</span>: <span class="ident">String</span>, <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> },
-    <span class="doccomment">/// No seasons found for the id supplied: {id}</span>
-    <span class="ident">NoSeasonsFound</span> { <span class="ident">id</span>: <span class="ident">u64</span> },
-    <span class="doccomment">/// No episodes found for the id supplied: id={id} season={season}</span>
-    <span class="ident">NoEpisodesFound</span> { <span class="ident">id</span>: <span class="ident">u64</span>, <span class="ident">season</span>: <span class="ident">u64</span> },
-    <span class="doccomment">/// Could not find genre with supplied id: {id}</span>
-    <span class="ident">NoGenreFound</span> { <span class="ident">id</span>: <span class="ident">u64</span> },
-    <span class="doccomment">/// Other error</span>
-    <span class="ident">OtherError</span>(<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip</span>)]</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span>),
+<span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = ::core::result::Result&lt;T, Error&gt;;
+
+<span class="attribute">#[derive(Clone, Display, Debug, Error, Serialize)]
+</span><span class="kw">pub enum </span>Error {
+    <span class="doccomment">/// The request timeouted
+    </span>Timeout,
+    <span class="doccomment">/// Max retry count reached
+    </span>ReachedMaxTries,
+    <span class="doccomment">/// The API response could not be deserialized: {error}
+    </span>DeserializationError { body: Arc&lt;str&gt;, error: String },
+    <span class="doccomment">/// No results are found: query={query} year={year:?}
+    </span>NoResults { query: String, year: <span class="prelude-ty">Option</span>&lt;i32&gt; },
+    <span class="doccomment">/// No seasons found for the id supplied: {id}
+    </span>NoSeasonsFound { id: u64 },
+    <span class="doccomment">/// No episodes found for the id supplied: id={id} season={season}
+    </span>NoEpisodesFound { id: u64, season: u64 },
+    <span class="doccomment">/// Could not find genre with supplied id: {id}
+    </span>NoGenreFound { id: u64 },
+    <span class="doccomment">/// Other error, usually contains an error that shouldn&#39;t happen unless theres a bug.
+    </span><span class="comment">// This error wont be ever serialized and sent over the wire, however it should still be
+    // printed in logs somewhere as its very unexpected.
+    </span>OtherError(<span class="attribute">#[serde(skip)] </span>Arc&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync + <span class="lifetime">&#39;static</span>&gt;),
+    <span class="doccomment">/// The remote API returned an error ({code}): {message}
+    </span>RemoteApiError { code: u16, message: String },
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExternalMedia</span> {
-    <span class="doccomment">/// String representation of the id for this media object.</span>
-    <span class="kw">pub</span> <span class="ident">external_id</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The title of this media object.</span>
-    <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The description or overview of this media object.</span>
-    <span class="kw">pub</span> <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The release date or first air date of this media object.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;chrono::serde::ts_seconds_option&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">release_date</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// A list of posters for this media object.</span>
-    <span class="kw">pub</span> <span class="ident">posters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// A list of backdrops for this media object.</span>
-    <span class="kw">pub</span> <span class="ident">backdrops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// A list of genres for this media object.</span>
-    <span class="kw">pub</span> <span class="ident">genres</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The rating for this media object normalized in the range 0 to 1.</span>
-    <span class="kw">pub</span> <span class="ident">rating</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The duration for this media object.</span>
-    <span class="kw">pub</span> <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExternalSeason</span> {
-    <span class="doccomment">/// String representation of the id for this season object.</span>
-    <span class="kw">pub</span> <span class="ident">external_id</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The title of this season.</span>
-    <span class="kw">pub</span> <span class="ident">title</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The description of this season.</span>
-    <span class="kw">pub</span> <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// A list of posters for this season object.</span>
-    <span class="kw">pub</span> <span class="ident">posters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The season number for this season.</span>
-    <span class="kw">pub</span> <span class="ident">season_number</span>: <span class="ident">u64</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExternalEpisode</span> {
-    <span class="kw">pub</span> <span class="ident">external_id</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">title</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">episode_number</span>: <span class="ident">u64</span>,
-    <span class="kw">pub</span> <span class="ident">stills</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExternalActor</span> {
-    <span class="kw">pub</span> <span class="ident">external_id</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">character</span>: <span class="ident">String</span>,
-}
-
-<span class="doccomment">/// Trait that must be implemented by external metadata agents which allows the scanners to query</span>
-<span class="doccomment">/// for data.</span>
-<span class="attribute">#[<span class="ident">async_trait</span>]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ExternalQuery</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> {
-    <span class="doccomment">/// Search by title and year. This must return a Vec of `ExternalMedia` sorted by the search</span>
-    <span class="doccomment">/// score.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalMedia</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-    <span class="doccomment">/// Search by external id. This must return a singular `ExternalMedia` which has the id passed</span>
-    <span class="doccomment">/// in.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search_by_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ExternalMedia</span><span class="op">&gt;</span>;
-    <span class="doccomment">/// Get all actors for an external id. Actors must be ordered in order of importance.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">actors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalActor</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-
-    <span class="doccomment">/// Upcast `self` into `ExternalQueryShow`. It is important that providers that can query for</span>
-    <span class="doccomment">/// tv shows, implements this to return `Some(self)`.</span>
-    <span class="kw">fn</span> <span class="ident">as_query_show</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ExternalQueryShow</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
+<span class="kw">impl </span>Error {
+    <span class="kw">pub fn </span>other(error: <span class="kw">impl </span>std::error::Error + Send + Sync + <span class="lifetime">&#39;static</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>err = Arc::new(error);
+        <span class="self">Self</span>::OtherError(err)
     }
 }
 
-<span class="doccomment">/// Trait must be implemented by all external metadata agents which support querying for tv shows.</span>
-<span class="attribute">#[<span class="ident">async_trait</span>]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ExternalQueryShow</span>: <span class="ident">ExternalQuery</span> {
-    <span class="doccomment">/// Get all seasons for an external id. Seasons must be ranked in order by their number.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">seasons_for_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalSeason</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-    <span class="doccomment">/// Get all episodes for a season ranked in order of the episode number.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">episodes_for_season</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">season_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalEpisode</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="attribute">#[derive(Default, Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd)]
+</span><span class="kw">pub struct </span>ExternalMedia {
+    <span class="doccomment">/// String representation of the id for this media object.
+    </span><span class="kw">pub </span>external_id: String,
+    <span class="doccomment">/// The title of this media object.
+    </span><span class="kw">pub </span>title: String,
+    <span class="doccomment">/// The description or overview of this media object.
+    </span><span class="kw">pub </span>description: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// The release date or first air date of this media object.
+    </span><span class="attribute">#[serde(with = <span class="string">&quot;chrono::serde::ts_seconds_option&quot;</span>)]
+    </span><span class="kw">pub </span>release_date: <span class="prelude-ty">Option</span>&lt;chrono::DateTime&lt;chrono::Utc&gt;&gt;,
+    <span class="doccomment">/// A list of posters for this media object.
+    </span><span class="kw">pub </span>posters: Vec&lt;String&gt;,
+    <span class="doccomment">/// A list of backdrops for this media object.
+    </span><span class="kw">pub </span>backdrops: Vec&lt;String&gt;,
+    <span class="doccomment">/// A list of genres for this media object.
+    </span><span class="kw">pub </span>genres: Vec&lt;String&gt;,
+    <span class="doccomment">/// The rating for this media object normalized in the range 0 to 1.
+    </span><span class="kw">pub </span>rating: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+    <span class="doccomment">/// The duration for this media object.
+    </span><span class="kw">pub </span>duration: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+}
+
+<span class="attribute">#[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]
+</span><span class="kw">pub struct </span>ExternalSeason {
+    <span class="doccomment">/// String representation of the id for this season object.
+    </span><span class="kw">pub </span>external_id: String,
+    <span class="doccomment">/// The title of this season.
+    </span><span class="kw">pub </span>title: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// The description of this season.
+    </span><span class="kw">pub </span>description: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// A list of posters for this season object.
+    </span><span class="kw">pub </span>posters: Vec&lt;String&gt;,
+    <span class="doccomment">/// The season number for this season.
+    </span><span class="kw">pub </span>season_number: u64,
+}
+
+<span class="attribute">#[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]
+</span><span class="kw">pub struct </span>ExternalEpisode {
+    <span class="kw">pub </span>external_id: String,
+    <span class="kw">pub </span>title: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>description: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>episode_number: u64,
+    <span class="kw">pub </span>stills: Vec&lt;String&gt;,
+    <span class="kw">pub </span>duration: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+}
+
+<span class="kw">impl </span>ExternalEpisode {
+    <span class="kw">pub fn </span>title_or_episode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="self">self</span>.title
+            .clone()
+            .unwrap_or_else(|| <span class="self">self</span>.episode_number.to_string())
+    }
+}
+
+<span class="attribute">#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]
+</span><span class="kw">pub struct </span>ExternalActor {
+    <span class="kw">pub </span>external_id: String,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>profile_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>character: String,
+}
+
+<span class="attribute">#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
+</span><span class="kw">pub enum </span>MediaSearchType {
+    Movie,
+    Tv,
+}
+
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>MediaSearchType {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            MediaSearchType::Movie =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;movie&quot;</span>),
+            MediaSearchType::Tv =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;tv&quot;</span>),
+        }
+    }
+}
+
+<span class="doccomment">/// Trait that must be implemented by external metadata agents which allows the scanners to query
+/// for data.
+</span><span class="attribute">#[async_trait]
+</span><span class="kw">pub trait </span>ExternalQuery: IntoQueryShow + Debug + Send + Sync {
+    <span class="doccomment">/// Search by title and year. This must return a Vec of `ExternalMedia` sorted by the search
+    /// score.
+    </span><span class="kw">async fn </span>search(<span class="kw-2">&amp;</span><span class="self">self</span>, title: <span class="kw-2">&amp;</span>str, year: <span class="prelude-ty">Option</span>&lt;i32&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;ExternalMedia&gt;&gt;;
+    <span class="doccomment">/// Search by external id. This must return a singular `ExternalMedia` which has the id passed
+    /// in.
+    </span><span class="kw">async fn </span>search_by_id(<span class="kw-2">&amp;</span><span class="self">self</span>, external_id: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;ExternalMedia&gt;;
+    <span class="doccomment">/// Get all actors for a media by external id. Actors must be ordered in order of importance.
+    </span><span class="kw">async fn </span>cast(<span class="kw-2">&amp;</span><span class="self">self</span>, external_id: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;ExternalActor&gt;&gt;;
+}
+
+<span class="kw">pub trait </span>IntoQueryShow {
+    <span class="doccomment">/// Upcast `self` into `ExternalQueryShow`. It is important that providers that can query for
+    /// tv shows, implements this to return `Some(self)`.
+    </span><span class="kw">fn </span>as_query_show&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>ExternalQueryShow&gt; {
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">fn </span>into_query_show(<span class="self">self</span>: Arc&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Arc&lt;<span class="kw">dyn </span>ExternalQueryShow&gt;&gt; {
+        <span class="prelude-val">None
+    </span>}
+}
+
+<span class="doccomment">/// Trait must be implemented by all external metadata agents which support querying for tv shows.
+</span><span class="attribute">#[async_trait]
+</span><span class="kw">pub trait </span>ExternalQueryShow: ExternalQuery {
+    <span class="doccomment">/// Get all seasons for an external id. Seasons must be ranked in order by their number.
+    </span><span class="kw">async fn </span>seasons_for_id(<span class="kw-2">&amp;</span><span class="self">self</span>, external_id: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;ExternalSeason&gt;&gt;;
+    <span class="doccomment">/// Get all episodes for a season ranked in order of the episode number.
+    </span><span class="comment">// FIXME: TMDB doesnt support fetching by season id, but rather by season number and tv show
+    // id. However other backends could have the opposite situation
+    // As such its ideal that we have all external ids follow a standard scheme, for instance a
+    // tmdb movie id would look like this `tmdb://12345`, an imdb media id would be similar
+    // `imdb://tt1234556`. Season ids would also track their parent media id, so a season id would
+    // be like this `tmdb://12345?season_id=32&amp;season=2`, similarly episodes would also track their
+    // parent ids, including season id, number, tv show id, episode number and episode id. This is
+    // not ideal but it should cover all of the cases.
+    //
+    // For now this API accepts a external id and season number but this is subject to change.
+    </span><span class="kw">async fn </span>episodes_for_season(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        external_id: <span class="kw-2">&amp;</span>str,
+        season_number: u64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;ExternalEpisode&gt;&gt;;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>

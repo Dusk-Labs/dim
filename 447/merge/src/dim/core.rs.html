@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/core.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>core.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/core.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>core.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -194,197 +189,236 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::balanced_or_tree</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::logger::RequestLogger</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::routes</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scanners</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream_tracking::StreamTracking</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::websocket</span>;
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::balanced_or_tree;
+<span class="kw">use </span><span class="kw">crate</span>::external::tmdb::TMDBMetadataProvider;
+<span class="kw">use </span><span class="kw">crate</span>::logger::RequestLogger;
+<span class="kw">use </span><span class="kw">crate</span>::routes;
+<span class="kw">use </span><span class="kw">crate</span>::routes::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::scanner;
+<span class="kw">use </span><span class="kw">crate</span>::stream_tracking::StreamTracking;
+<span class="kw">use </span><span class="kw">crate</span>::websocket;
 
-<span class="kw">use</span> <span class="ident">once_cell::sync::OnceCell</span>;
+<span class="kw">use </span>database::library::MediaType;
 
-<span class="kw">use</span> <span class="ident">tokio::sync::mpsc::UnboundedReceiver</span>;
-<span class="kw">use</span> <span class="ident">tokio::sync::mpsc::UnboundedSender</span>;
-<span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">info</span>, <span class="ident">instrument</span>};
+<span class="kw">use </span>once_cell::sync::OnceCell;
 
-<span class="kw">use</span> <span class="ident">warp::http::status::StatusCode</span>;
-<span class="kw">use</span> <span class="ident">warp::Filter</span>;
+<span class="kw">use </span>tokio::sync::mpsc::UnboundedReceiver;
+<span class="kw">use </span>tokio::sync::mpsc::UnboundedSender;
+<span class="kw">use </span>tracing::{info, instrument};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::routes</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span>warp::http::status::StatusCode;
+<span class="kw">use </span>warp::Filter;
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">StateManager</span> <span class="op">=</span> <span class="ident">nightfall::StateManager</span>;
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">DbConnection</span> <span class="op">=</span> <span class="ident">database::DbConnection</span>;
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">EventTx</span> <span class="op">=</span> <span class="ident">UnboundedSender</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>;
+<span class="kw">use </span>std::sync::Arc;
 
-<span class="doccomment">/// Path to where metadata is stored and should be fetched to.</span>
-<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">METADATA_PATH</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">OnceCell::new</span>();
+<span class="kw">pub type </span>StateManager = nightfall::StateManager;
+<span class="kw">pub type </span>DbConnection = database::DbConnection;
+<span class="kw">pub type </span>EventTx = UnboundedSender&lt;String&gt;;
 
-<span class="doccomment">/// Function dumps a list of all libraries in the database and starts a scanner for each which</span>
-<span class="doccomment">/// monitors for new files using fsnotify. It also scans all orphans on boot.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Arguments</span>
-<span class="doccomment">/// * `log` - Logger to which to log shit</span>
-<span class="doccomment">/// * `tx` - this is the websocket channel to which we can send websocket events to which get</span>
-<span class="doccomment">/// dispatched to clients.</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip_all</span>)]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">run_scanners</span>(<span class="ident">tx</span>: <span class="ident">EventTx</span>) {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">conn</span>) <span class="op">=</span> <span class="ident">database::get_conn_logged</span>().<span class="kw">await</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">db_tx</span>) <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">libs</span> <span class="op">=</span> <span class="ident">database::library::Library::get_all</span>(<span class="kw-2">&amp;mut</span> <span class="ident">db_tx</span>).<span class="kw">await</span>;
+<span class="doccomment">/// Path to where metadata is stored and should be fetched to.
+</span><span class="kw">pub static </span>METADATA_PATH: OnceCell&lt;String&gt; = OnceCell::new();
 
-            <span class="kw">for</span> <span class="ident">lib</span> <span class="kw">in</span> <span class="ident">libs</span>.<span class="ident">drain</span>(..) {
-                <span class="macro">info!</span>(<span class="string">&quot;Starting scanner for {} with id: {}&quot;</span>, <span class="ident">lib</span>.<span class="ident">name</span>, <span class="ident">lib</span>.<span class="ident">id</span>);
+<span class="doccomment">/// Function dumps a list of all libraries in the database and starts a scanner for each which
+/// monitors for new files using fsnotify. It also scans all orphans on boot.
+///
+/// # Arguments
+/// * `log` - Logger to which to log shit
+/// * `tx` - this is the websocket channel to which we can send websocket events to which get
+/// dispatched to clients.
+</span><span class="attribute">#[instrument(skip_all)]
+</span><span class="kw">pub async fn </span>run_scanners(tx: EventTx) {
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(conn) = database::get_conn_logged().<span class="kw">await </span>{
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>db_tx) = conn.read().begin().<span class="kw">await </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>libs = database::library::Library::get_all(<span class="kw-2">&amp;mut </span>db_tx).<span class="kw">await</span>;
 
-                <span class="kw">let</span> <span class="ident">library_id</span> <span class="op">=</span> <span class="ident">lib</span>.<span class="ident">id</span>;
-                <span class="kw">let</span> <span class="ident">tx_clone</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">clone</span>();
-                <span class="kw">let</span> <span class="ident">media_type</span> <span class="op">=</span> <span class="ident">lib</span>.<span class="ident">media_type</span>;
-                <span class="kw">let</span> <span class="ident">watcher</span> <span class="op">=</span> <span class="ident">scanners::scanner_daemon::FsWatcher::new</span>(
-                    <span class="ident">conn</span>.<span class="ident">clone</span>(),
-                    <span class="ident">library_id</span>,
-                    <span class="ident">media_type</span>,
-                    <span class="ident">tx_clone</span>.<span class="ident">clone</span>(),
+            <span class="kw">for </span>lib <span class="kw">in </span>libs.drain(..) {
+                <span class="macro">info!</span>(<span class="string">&quot;Starting scanner for {} with id: {}&quot;</span>, lib.name, lib.id);
+
+                <span class="kw">let </span>library_id = lib.id;
+                <span class="kw">let </span>tx_clone = tx.clone();
+                <span class="kw">let </span>media_type = lib.media_type;
+
+                <span class="kw">let </span>provider = TMDBMetadataProvider::new(<span class="string">&quot;38c372f5bc572c8aadde7a802638534e&quot;</span>);
+
+                <span class="kw">let </span>provider = <span class="kw">match </span>media_type {
+                    MediaType::Movie =&gt; Arc::new(provider.movies()) <span class="kw">as </span>Arc&lt;<span class="kw">_</span>&gt;,
+                    MediaType::Tv =&gt; Arc::new(provider.tv_shows()) <span class="kw">as </span>Arc&lt;<span class="kw">_</span>&gt;,
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
+                };
+
+                <span class="kw">let </span><span class="kw-2">mut </span>watcher = scanner::daemon::FsWatcher::new(
+                    conn.clone(),
+                    library_id,
+                    media_type,
+                    tx_clone.clone(),
+                    Arc::clone(<span class="kw-2">&amp;</span>provider),
                 );
 
-                <span class="ident">tokio::spawn</span>(<span class="ident">scanners::start</span>(<span class="ident">conn</span>.<span class="ident">clone</span>(), <span class="ident">library_id</span>, <span class="ident">tx_clone</span>.<span class="ident">clone</span>()));
-                <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="ident">watcher</span>
-                        .<span class="ident">start_daemon</span>()
-                        .<span class="kw">await</span>
-                        .<span class="ident">expect</span>(<span class="string">&quot;Something went wrong with the fs-watcher&quot;</span>);
+                <span class="kw">let </span>conn_clone = conn.clone();
+
+                tokio::spawn(<span class="kw">async move </span>{
+                    <span class="kw">let </span><span class="kw-2">mut </span>conn = conn_clone;
+                    scanner::start(<span class="kw-2">&amp;mut </span>conn, library_id, tx_clone.clone(), provider).<span class="kw">await
+                </span>});
+
+                tokio::spawn(<span class="kw">async move </span>{
+                    watcher
+                        .start_daemon()
+                        .<span class="kw">await
+                        </span>.expect(<span class="string">&quot;Something went wrong with the fs-watcher&quot;</span>);
                 });
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">stream_manager</span>, <span class="ident">event_tx</span>, <span class="ident">rt</span>, <span class="ident">event_rx</span>))]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">warp_core</span>(
-    <span class="ident">event_tx</span>: <span class="ident">EventTx</span>,
-    <span class="ident">stream_manager</span>: <span class="ident">StateManager</span>,
-    <span class="ident">rt</span>: <span class="ident">tokio::runtime::Handle</span>,
-    <span class="ident">port</span>: <span class="ident">u16</span>,
-    <span class="ident">event_rx</span>: <span class="ident">UnboundedReceiver</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="attribute">#[instrument(skip(stream_manager, event_tx, rt, event_rx))]
+</span><span class="kw">pub async fn </span>warp_core(
+    event_tx: EventTx,
+    stream_manager: StateManager,
+    rt: tokio::runtime::Handle,
+    port: u16,
+    event_rx: UnboundedReceiver&lt;String&gt;,
 ) {
-    <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">stream_manager</span>;
-    <span class="kw">let</span> <span class="ident">stream_tracking</span> <span class="op">=</span> <span class="ident">StreamTracking::default</span>();
-    <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">database::get_conn</span>()
-        .<span class="kw">await</span>
-        .<span class="ident">expect</span>(<span class="string">&quot;Failed to grab a handle to the connection pool.&quot;</span>);
+    <span class="kw">let </span>state = stream_manager;
+    <span class="kw">let </span>stream_tracking = StreamTracking::default();
+    <span class="kw">let </span>conn = database::get_conn()
+        .<span class="kw">await
+        </span>.expect(<span class="string">&quot;Failed to grab a handle to the connection pool.&quot;</span>);
 
-    <span class="kw">let</span> <span class="ident">request_logger</span> <span class="op">=</span> <span class="ident">RequestLogger::new</span>();
+    <span class="kw">let </span>request_logger = RequestLogger::new();
 
-    <span class="kw">let</span> <span class="ident">api_routes</span> <span class="op">=</span> <span class="macro">balanced_or_tree!</span>[
-        <span class="comment">/* NOTE: v1 REST API routes start HERE */</span>
-        <span class="comment">/* /api/v1/auth routes*/</span>
-        <span class="ident">auth::filters::login</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">user::filters::whoami</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">host::filters::admin_exists</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">auth::filters::register</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">invites::filters::get_all_invites</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">invites::filters::generate_invite</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">invites::filters::delete_token</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="comment">/* /api/v1/user routes */</span>
-        <span class="ident">user::filters::change_password</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">user::filters::delete</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">user::filters::change_username</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">user::filters::upload_avatar</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="comment">/* general routes */</span>
-        <span class="ident">routes::general::filters::search</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::general::filters::get_directory_structure</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="comment">/* library routes */</span>
-        <span class="ident">routes::library::filters::library_get</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::library::filters::library_post</span>(<span class="ident">conn</span>.<span class="ident">clone</span>(), <span class="ident">event_tx</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::library::filters::library_delete</span>(<span class="ident">conn</span>.<span class="ident">clone</span>(), <span class="ident">event_tx</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::library::filters::library_get_self</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::library::filters::get_all_of_library</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::library::filters::get_all_unmatched_media</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="comment">/* dashboard routes */</span>
-        <span class="ident">routes::dashboard::filters::dashboard</span>(<span class="ident">conn</span>.<span class="ident">clone</span>(), <span class="ident">rt</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::dashboard::filters::banners</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="comment">/* media routes */</span>
-        <span class="ident">routes::media::filters::get_media_by_id</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::media::filters::get_media_files</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::media::filters::update_media_by_id</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::media::filters::delete_media_by_id</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::media::filters::tmdb_search</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::media::filters::map_progress</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::media::filters::get_mediafile_tree</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::rematch_media::filters::rematch_media_by_id</span>(<span class="ident">conn</span>.<span class="ident">clone</span>(), <span class="ident">event_tx</span>.<span class="ident">clone</span>()),
-        <span class="comment">/* tv routes */</span>
-        <span class="ident">routes::tv::filters::get_tv_seasons</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::tv::filters::patch_episode_by_id</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::tv::filters::delete_season_by_id</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::tv::filters::get_season_episodes</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::tv::filters::patch_episode_by_id</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::tv::filters::delete_episode_by_id</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="comment">/* mediafile routes */</span>
-        <span class="ident">routes::mediafile::filters::get_mediafile_info</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::mediafile::filters::rematch_mediafile</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="comment">/* settings routes */</span>
-        <span class="ident">routes::settings::filters::get_user_settings</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::settings::filters::post_user_settings</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::settings::filters::get_global_settings</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::settings::filters::set_global_settings</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="comment">/* stream routes */</span>
-        <span class="ident">routes::stream::filters::return_virtual_manifest</span>(
-            <span class="ident">conn</span>.<span class="ident">clone</span>(),
-            <span class="ident">state</span>.<span class="ident">clone</span>(),
-            <span class="ident">stream_tracking</span>.<span class="ident">clone</span>()
+    <span class="kw">let </span>api_routes = <span class="macro">balanced_or_tree!</span>[
+        <span class="comment">/* NOTE: v1 REST API routes start HERE */
+        /* /api/v1/auth routes*/
+        </span>auth::filters::login(conn.clone()),
+        user::filters::whoami(conn.clone()),
+        host::filters::admin_exists(conn.clone()),
+        auth::filters::register(conn.clone()),
+        invites::filters::get_all_invites(conn.clone()),
+        invites::filters::generate_invite(conn.clone()),
+        invites::filters::delete_token(conn.clone()),
+        <span class="comment">/* /api/v1/user routes */
+        </span>user::filters::change_password(conn.clone()),
+        user::filters::delete(conn.clone()),
+        user::filters::change_username(conn.clone()),
+        user::filters::upload_avatar(conn.clone()),
+        <span class="comment">/* general routes */
+        </span>routes::general::filters::search(conn.clone()),
+        routes::general::filters::get_directory_structure(conn.clone()),
+        <span class="comment">/* library routes */
+        </span>routes::library::filters::library_get(conn.clone()),
+        routes::library::filters::library_post(conn.clone(), event_tx.clone()),
+        routes::library::filters::library_delete(conn.clone(), event_tx.clone()),
+        routes::library::filters::library_get_self(conn.clone()),
+        routes::library::filters::get_all_of_library(conn.clone()),
+        routes::library::filters::get_all_unmatched_media(conn.clone()),
+        <span class="comment">/* dashboard routes */
+        </span>routes::dashboard::filters::dashboard(conn.clone(), rt.clone()),
+        routes::dashboard::filters::banners(conn.clone()),
+        <span class="comment">/* media routes */
+        </span>routes::media::filters::get_media_by_id(conn.clone()),
+        routes::media::filters::get_media_files(conn.clone()),
+        routes::media::filters::update_media_by_id(conn.clone()),
+        routes::media::filters::delete_media_by_id(conn.clone()),
+        routes::media::filters::tmdb_search(conn.clone()),
+        routes::media::filters::map_progress(conn.clone()),
+        routes::media::filters::get_mediafile_tree(conn.clone()),
+        routes::rematch_media::filters::rematch_media_by_id(conn.clone(), event_tx.clone()),
+        <span class="comment">/* tv routes */
+        </span>routes::tv::filters::get_tv_seasons(conn.clone()),
+        routes::tv::filters::patch_episode_by_id(conn.clone()),
+        routes::tv::filters::delete_season_by_id(conn.clone()),
+        routes::tv::filters::get_season_episodes(conn.clone()),
+        routes::tv::filters::patch_episode_by_id(conn.clone()),
+        routes::tv::filters::delete_episode_by_id(conn.clone()),
+        <span class="comment">/* mediafile routes */
+        </span>routes::mediafile::filters::get_mediafile_info(conn.clone()),
+        routes::mediafile::filters::rematch_mediafile(conn.clone()),
+        <span class="comment">/* settings routes */
+        </span>routes::settings::filters::get_user_settings(conn.clone()),
+        routes::settings::filters::post_user_settings(conn.clone()),
+        routes::settings::filters::get_global_settings(conn.clone()),
+        routes::settings::filters::set_global_settings(conn.clone()),
+        <span class="comment">/* stream routes */
+        </span>routes::stream::filters::return_virtual_manifest(
+            conn.clone(),
+            state.clone(),
+            stream_tracking.clone()
         ),
-        <span class="ident">routes::stream::filters::return_manifest</span>(
-            <span class="ident">conn</span>.<span class="ident">clone</span>(),
-            <span class="ident">state</span>.<span class="ident">clone</span>(),
-            <span class="ident">stream_tracking</span>.<span class="ident">clone</span>()
+        routes::stream::filters::return_manifest(
+            conn.clone(),
+            state.clone(),
+            stream_tracking.clone()
         ),
-        <span class="ident">routes::stream::filters::get_init</span>(<span class="ident">state</span>.<span class="ident">clone</span>())
-            .<span class="ident">recover</span>(<span class="ident">routes::global_filters::handle_rejection</span>),
-        <span class="ident">routes::stream::filters::should_client_hard_seek</span>(<span class="ident">state</span>.<span class="ident">clone</span>(), <span class="ident">stream_tracking</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::stream::filters::session_get_stderr</span>(<span class="ident">state</span>.<span class="ident">clone</span>(), <span class="ident">stream_tracking</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::stream::filters::kill_session</span>(<span class="ident">state</span>.<span class="ident">clone</span>(), <span class="ident">stream_tracking</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::stream::filters::get_subtitle</span>(<span class="ident">state</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::stream::filters::get_subtitle_ass</span>(<span class="ident">state</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::stream::filters::get_chunk</span>(<span class="ident">state</span>.<span class="ident">clone</span>())
-            .<span class="ident">recover</span>(<span class="ident">routes::global_filters::handle_rejection</span>),
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;stream&quot;</span> <span class="op">/</span> ..)
-            .<span class="ident">and</span>(<span class="ident">warp::any</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">StatusCode::NOT_FOUND</span>),
+        routes::stream::filters::get_init(state.clone())
+            .recover(routes::global_filters::handle_rejection),
+        routes::stream::filters::should_client_hard_seek(state.clone(), stream_tracking.clone()),
+        routes::stream::filters::session_get_stderr(state.clone(), stream_tracking.clone()),
+        routes::stream::filters::kill_session(state.clone(), stream_tracking.clone()),
+        routes::stream::filters::get_subtitle(state.clone()),
+        routes::stream::filters::get_subtitle_ass(state.clone()),
+        routes::stream::filters::get_chunk(state.clone())
+            .recover(routes::global_filters::handle_rejection),
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;stream&quot; </span>/ ..)
+            .and(warp::any())
+            .map(|| StatusCode::NOT_FOUND),
+        routes::statik::filters::get_image(conn.clone()),
     ]
-    .<span class="ident">recover</span>(<span class="ident">routes::global_filters::handle_rejection</span>);
+    .recover(routes::global_filters::handle_rejection);
 
-    <span class="macro">cfg_if::cfg_if!</span> {
-        <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span> {
-            <span class="kw">let</span> <span class="ident">api_routes</span> <span class="op">=</span> <span class="ident">api_routes</span>.<span class="ident">boxed</span>();
+    <span class="macro">cfg_if::cfg_if! </span>{
+        <span class="kw">if </span><span class="attribute">#[cfg(debug_assertions)] </span>{
+            <span class="kw">let </span>api_routes = api_routes.boxed();
         }
     }
 
-    <span class="kw">let</span> <span class="ident">routes</span> <span class="op">=</span> <span class="macro">balanced_or_tree!</span>[
-        <span class="ident">api_routes</span>,
-        <span class="comment">/* NOTE: This is a barrier to 404 any rest api calls that dont match till here */</span>
-        <span class="ident">routes::global_filters::api_not_found</span>(),
-        <span class="comment">/* websocket route */</span>
-        <span class="ident">websocket::event_socket</span>(<span class="ident">tokio::runtime::Handle::current</span>(), <span class="ident">event_rx</span>, <span class="ident">conn</span>.<span class="ident">clone</span>())
-            .<span class="ident">recover</span>(<span class="ident">routes::global_filters::handle_rejection</span>),
-        <span class="comment">/* static routes */</span>
-        <span class="ident">routes::statik::filters::dist_static</span>(),
-        <span class="ident">routes::statik::filters::get_image</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()),
-        <span class="ident">routes::statik::filters::react_routes</span>(),
+    <span class="kw">let </span>routes = <span class="macro">balanced_or_tree!</span>[
+        api_routes,
+        <span class="comment">/* NOTE: This is a barrier to 404 any rest api calls that dont match till here */
+        </span>routes::global_filters::api_not_found(),
+        <span class="comment">/* websocket route */
+        </span>websocket::event_socket(tokio::runtime::Handle::current(), event_rx, conn.clone())
+            .recover(routes::global_filters::handle_rejection),
+        <span class="comment">/* static routes */
+        </span>routes::statik::filters::dist_static(),
+        routes::statik::filters::react_routes(),
     ]
-    .<span class="ident">recover</span>(<span class="ident">routes::global_filters::handle_rejection</span>)
-    .<span class="ident">with</span>(<span class="ident">warp::filters::log::custom</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
-        <span class="ident">request_logger</span>.<span class="ident">on_response</span>(<span class="ident">x</span>);
+    .recover(routes::global_filters::handle_rejection)
+    .with(warp::filters::log::custom(<span class="kw">move </span>|x| {
+        request_logger.on_response(x);
     }))
-    .<span class="ident">with</span>(<span class="ident">warp::cors</span>().<span class="ident">allow_any_origin</span>())
-    .<span class="ident">boxed</span>();
+    .with(warp::cors().allow_any_origin())
+    .boxed();
 
-    <span class="macro">info!</span>(<span class="string">&quot;Webserver is listening on 0.0.0.0:{}&quot;</span>, <span class="ident">port</span>);
+    <span class="macro">info!</span>(<span class="string">&quot;Webserver is listening on 0.0.0.0:{}&quot;</span>, port);
 
-    <span class="macro">tokio::select!</span> {
-        <span class="kw">_</span> <span class="op">=</span> <span class="ident">warp::serve</span>(<span class="ident">routes</span>).<span class="ident">run</span>(([<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>], <span class="ident">port</span>)) =&gt; {},
-        <span class="kw">_</span> <span class="op">=</span> <span class="ident">tokio::signal::ctrl_c</span>() =&gt; {
-            <span class="ident">std::process::exit</span>(<span class="number">0</span>);
+    <span class="macro">tokio::select! </span>{
+        <span class="kw">_ </span>= warp::serve(routes).run(([<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>], port)) =&gt; {},
+        <span class="kw">_ </span>= tokio::signal::ctrl_c() =&gt; {
+            std::process::exit(<span class="number">0</span>);
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>

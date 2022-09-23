@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["admin_exists",""],["login",""],["register",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["login",""],["register",""]]};

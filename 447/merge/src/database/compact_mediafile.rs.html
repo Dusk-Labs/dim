@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/compact_mediafile.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>compact_mediafile.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/compact_mediafile.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>compact_mediafile.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -105,108 +100,107 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DatabaseError</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Transaction</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::DatabaseError;
+<span class="kw">use </span><span class="kw">crate</span>::Transaction;
 
-<span class="kw">use</span> <span class="ident">std::path::Path</span>;
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
+<span class="kw">use </span>std::path::Path;
+<span class="kw">use </span>std::path::PathBuf;
 
-<span class="doccomment">/// A compact version of `MediaFile`. Useful in cases where we need to request some basic info for</span>
-<span class="doccomment">/// a lot of mediafiles, and as such a `SELECT *` is not viable.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompactMediafile</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">target_file</span>: <span class="ident">PathBuf</span>,
+<span class="doccomment">/// A compact version of `MediaFile`. Useful in cases where we need to request some basic info for
+/// a lot of mediafiles, and as such a `SELECT *` is not viable.
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>CompactMediafile {
+    <span class="kw">pub </span>id: i64,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>duration: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="kw">pub </span>target_file: PathBuf,
 }
 
-<span class="doccomment">/// Intermediary record which is later converted into a `CompactMediafile`. This is needed because</span>
-<span class="doccomment">/// sqlx doesnt support deserializing into a `PathBuf`.</span>
-<span class="kw">struct</span> <span class="ident">Record</span> {
-    <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="ident">target_file</span>: <span class="ident">String</span>,
+<span class="doccomment">/// Intermediary record which is later converted into a `CompactMediafile`. This is needed because
+/// sqlx doesnt support deserializing into a `PathBuf`.
+</span><span class="kw">struct </span>Record {
+    id: i64,
+    name: String,
+    duration: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    target_file: String,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Record</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CompactMediafile</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(
-        <span class="ident">Record</span> {
-            <span class="ident">id</span>,
-            <span class="ident">name</span>,
-            <span class="ident">duration</span>,
-            <span class="ident">target_file</span>,
-        }: <span class="ident">Record</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">id</span>,
-            <span class="ident">name</span>,
-            <span class="ident">duration</span>,
-            <span class="ident">target_file</span>: <span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">target_file</span>).<span class="ident">to_path_buf</span>(),
+<span class="kw">impl </span>From&lt;Record&gt; <span class="kw">for </span>CompactMediafile {
+    <span class="kw">fn </span>from(
+        Record {
+            id,
+            name,
+            duration,
+            target_file,
+        }: Record,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            id,
+            name,
+            duration,
+            target_file: Path::new(<span class="kw-2">&amp;</span>target_file).to_path_buf(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">CompactMediafile</span> {
-    <span class="doccomment">/// Method will return all the unmatched mediafiles for a specific library.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">unmatched_for_library</span>(
-        <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">library_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>CompactMediafile {
+    <span class="doccomment">/// Method will return all the unmatched mediafiles for a specific library.
+    </span><span class="kw">pub async fn </span>unmatched_for_library(
+        tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        library_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
-            <span class="ident">Record</span>,
+            Record,
             <span class="string">r#&quot;SELECT id, raw_name as name, duration, target_file FROM mediafile
                WHERE library_id = ? AND media_id IS NULL&quot;#</span>,
-            <span class="ident">library_id</span>
+            library_id
         )
-        .<span class="ident">fetch_all</span>(<span class="ident">tx</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="ident">Into::into</span>)
-        .<span class="ident">collect</span>())
+        .fetch_all(tx)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.into_iter()
+        .map(Into::into)
+        .collect())
     }
 
-    <span class="doccomment">/// Method will return all mediafiles for a media id.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">all_for_media</span>(
-        <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">media_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Method will return all mediafiles for a media id.
+    </span><span class="kw">pub async fn </span>all_for_media(
+        tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        media_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
-            <span class="ident">Record</span>,
+            Record,
             <span class="string">r#&quot;SELECT id, raw_name as name, duration, target_file FROM mediafile
                WHERE mediafile.media_id = ?&quot;#</span>,
-            <span class="ident">media_id</span>
+            media_id
         )
-        .<span class="ident">fetch_all</span>(<span class="ident">tx</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="ident">Into::into</span>)
-        .<span class="ident">collect</span>())
+        .fetch_all(tx)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.into_iter()
+        .map(Into::into)
+        .collect())
     }
 
-    <span class="doccomment">/// Method will return all mediafiles for a tv show.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">all_for_tv</span>(
-        <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">tv_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Method will return all mediafiles for a tv show.
+    </span><span class="kw">pub async fn </span>all_for_tv(
+        tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        tv_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
-            <span class="ident">Record</span>,
+            Record,
             <span class="string">&quot;SELECT mediafile.id, raw_name as name, duration, target_file FROM mediafile
              INNER JOIN episode ON mediafile.media_id = episode.id
              INNER JOIN _tblseason ON episode.seasonid = _tblseason.id
              WHERE _tblseason.tvshowid = ?
              GROUP BY episode.id
              &quot;</span>,
-            <span class="ident">tv_id</span>
+            tv_id
         )
-        .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">tx</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="ident">Into::into</span>)
-        .<span class="ident">collect</span>())
+        .fetch_all(<span class="kw-2">&amp;mut *</span>tx)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.into_iter()
+        .map(Into::into)
+        .collect())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>

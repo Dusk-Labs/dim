@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["ScannerError",""]],"fn":[["patch_tv_metadata",""]],"struct":[["MetadataExtractor",""],["MetadataMatcher",""]]});

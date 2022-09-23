@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/user.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>user.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/user.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>user.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -415,418 +410,417 @@
 <span id="410">410</span>
 <span id="411">411</span>
 <span id="412">412</span>
-</pre><pre class="rust"><code><span class="doccomment">//! This module contains all docs and APIs related to users and user metadata.</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>;
-<span class="kw">use</span> <span class="ident">bytes::BufMut</span>;
+</pre><pre class="rust"><code><span class="doccomment">//! This module contains all docs and APIs related to users and user metadata.
+</span><span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
+<span class="kw">use </span><span class="kw">crate</span>::errors;
+<span class="kw">use </span>bytes::BufMut;
 
-<span class="kw">use</span> <span class="ident">database::asset::Asset</span>;
-<span class="kw">use</span> <span class="ident">database::asset::InsertableAsset</span>;
-<span class="kw">use</span> <span class="ident">database::progress::Progress</span>;
-<span class="kw">use</span> <span class="ident">database::user::User</span>;
+<span class="kw">use </span>database::asset::Asset;
+<span class="kw">use </span>database::asset::InsertableAsset;
+<span class="kw">use </span>database::progress::Progress;
+<span class="kw">use </span>database::user::User;
 
-<span class="kw">use</span> <span class="ident">serde_json::json</span>;
+<span class="kw">use </span>serde_json::json;
 
-<span class="kw">use</span> <span class="ident">warp::reply</span>;
+<span class="kw">use </span>warp::reply;
 
-<span class="kw">use</span> <span class="ident">http::StatusCode</span>;
+<span class="kw">use </span>http::StatusCode;
 
-<span class="kw">use</span> <span class="ident">futures::TryStreamExt</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+<span class="kw">use </span>futures::TryStreamExt;
+<span class="kw">use </span>uuid::Uuid;
 
-<span class="doccomment">/// # GET `/api/v1/user`</span>
-<span class="doccomment">/// Method returns metadata about the currently logged in user.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Request</span>
-<span class="doccomment">/// This method takes in no additional parameters or data.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Authorization</span>
-<span class="doccomment">/// This method requires a valid authentication token.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Example</span>
-<span class="doccomment">/// ```text</span>
-<span class="doccomment">/// curl -X GET http://127.0.0.1:8000/api/v1/user -H &quot;Authorization: ...&quot;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Response</span>
-<span class="doccomment">/// This method will return a JSON payload with the following schema:</span>
-<span class="doccomment">/// ```no_compile</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///   &quot;picture&quot;: Option&lt;String&gt;,</span>
-<span class="doccomment">///   &quot;spentWatching&quot;: i64,</span>
-<span class="doccomment">///   &quot;username&quot;: String,</span>
-<span class="doccomment">///   &quot;roles&quot;: [String]</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Example</span>
-<span class="doccomment">/// ```no_compile</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///   &quot;picture&quot;: &quot;/images/avatar.jpg&quot;,</span>
-<span class="doccomment">///   &quot;spentWatching&quot;: 12,</span>
-<span class="doccomment">///   &quot;username&quot;: &quot;admin&quot;,</span>
-<span class="doccomment">///   &quot;roles&quot;: [&quot;owner&quot;],</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">whoami</span>(<span class="ident">user</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="doccomment">/// # GET `/api/v1/user`
+/// Method returns metadata about the currently logged in user.
+///
+/// # Request
+/// This method takes in no additional parameters or data.
+///
+/// ## Authorization
+/// This method requires a valid authentication token.
+///
+/// ## Example
+/// ```text
+/// curl -X GET http://127.0.0.1:8000/api/v1/user -H &quot;Authorization: ...&quot;
+/// ```
+///
+/// # Response
+/// This method will return a JSON payload with the following schema:
+/// ```no_compile
+/// {
+///   &quot;picture&quot;: Option&lt;String&gt;,
+///   &quot;spentWatching&quot;: i64,
+///   &quot;username&quot;: String,
+///   &quot;roles&quot;: [String]
+/// }
+/// ```
+///
+/// ## Example
+/// ```no_compile
+/// {
+///   &quot;picture&quot;: &quot;/images/avatar.jpg&quot;,
+///   &quot;spentWatching&quot;: 12,
+///   &quot;username&quot;: &quot;admin&quot;,
+///   &quot;roles&quot;: [&quot;owner&quot;],
+/// }
+/// ```
+</span><span class="kw">pub async fn </span>whoami(user: User, conn: DbConnection) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
-        <span class="string">&quot;picture&quot;</span>: <span class="ident">Asset::get_of_user</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span>.<span class="ident">ok</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;/images/{}&quot;</span>, <span class="ident">x</span>.<span class="ident">local_path</span>)),
-        <span class="string">&quot;spentWatching&quot;</span>: <span class="ident">Progress::get_total_time_spent_watching</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user</span>.<span class="ident">id</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap_or</span>(<span class="number">0</span>) <span class="op">/</span> <span class="number">3600</span>,
-        <span class="string">&quot;username&quot;</span>: <span class="ident">user</span>.<span class="ident">username</span>,
-        <span class="string">&quot;roles&quot;</span>: <span class="ident">user</span>.<span class="ident">roles</span>()
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
+        <span class="string">&quot;picture&quot;</span>: Asset::get_of_user(<span class="kw-2">&amp;mut </span>tx, user.id).<span class="kw">await</span>.ok().map(|x| <span class="macro">format!</span>(<span class="string">&quot;/images/{}&quot;</span>, x.local_path)),
+        <span class="string">&quot;spentWatching&quot;</span>: Progress::get_total_time_spent_watching(<span class="kw-2">&amp;mut </span>tx, user.id)
+            .<span class="kw">await
+            </span>.unwrap_or(<span class="number">0</span>) / <span class="number">3600</span>,
+        <span class="string">&quot;username&quot;</span>: user.username,
+        <span class="string">&quot;roles&quot;</span>: user.roles()
     })))
 }
 
-<span class="doccomment">/// # POST `/api/v1/user/password`</span>
-<span class="doccomment">/// Method changes the password for a logged in account.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Request</span>
-<span class="doccomment">/// This method accepts a JSON body with the following schema:</span>
-<span class="doccomment">/// ```no_compile</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///   &quot;old_password&quot;: String,</span>
-<span class="doccomment">///   &quot;new_password&quot;: String,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// The `old_password` field in the JSON payload must be the currently registered password for this</span>
-<span class="doccomment">/// user. The `new_password` field is the new password that we want to set.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Example</span>
-<span class="doccomment">/// ```text</span>
-<span class="doccomment">/// curl -X POST http://127.0.0.1:8000/api/v1/user/password -H &quot;Content-type: application/json&quot;</span>
-<span class="doccomment">/// -H &quot;Authroization: ...&quot; -d &#39;{&quot;old_password&quot;: &quot;testPass&quot;, &quot;new_password&quot;: &quot;newTestPass&quot;}&#39;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Response</span>
-<span class="doccomment">/// If the password is successfully changed, the method will simply return `200 0K`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">/// * [`InvalidCredentials`] - The provided `old_password` is incorrect or the authentication token</span>
-<span class="doccomment">/// is invalid.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`InvalidCredentials`]: crate::errors::DimError::InvalidCredentials</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">change_password</span>(
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">user</span>: <span class="ident">User</span>,
-    <span class="ident">old_password</span>: <span class="ident">String</span>,
-    <span class="ident">new_password</span>: <span class="ident">String</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="doccomment">/// # POST `/api/v1/user/password`
+/// Method changes the password for a logged in account.
+///
+/// # Request
+/// This method accepts a JSON body with the following schema:
+/// ```no_compile
+/// {
+///   &quot;old_password&quot;: String,
+///   &quot;new_password&quot;: String,
+/// }
+/// ```
+/// The `old_password` field in the JSON payload must be the currently registered password for this
+/// user. The `new_password` field is the new password that we want to set.
+///
+/// ## Example
+/// ```text
+/// curl -X POST http://127.0.0.1:8000/api/v1/user/password -H &quot;Content-type: application/json&quot;
+/// -H &quot;Authroization: ...&quot; -d &#39;{&quot;old_password&quot;: &quot;testPass&quot;, &quot;new_password&quot;: &quot;newTestPass&quot;}&#39;
+/// ```
+///
+/// # Response
+/// If the password is successfully changed, the method will simply return `200 0K`.
+///
+/// # Errors
+/// * [`InvalidCredentials`] - The provided `old_password` is incorrect or the authentication token
+/// is invalid.
+///
+/// [`InvalidCredentials`]: crate::errors::DimError::InvalidCredentials
+</span><span class="kw">pub async fn </span>change_password(
+    conn: DbConnection,
+    user: User,
+    old_password: String,
+    new_password: String,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">User::authenticate</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user</span>.<span class="ident">username</span>, <span class="ident">old_password</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">errors::DimError::InvalidCredentials</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>user = User::authenticate(<span class="kw-2">&amp;mut </span>tx, user.username, old_password)
+        .<span class="kw">await
+        </span>.map_err(|<span class="kw">_</span>| errors::DimError::InvalidCredentials)<span class="question-mark">?</span>;
 
-    <span class="ident">user</span>.<span class="ident">set_password</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">new_password</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    user.set_password(<span class="kw-2">&amp;mut </span>tx, new_password).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">StatusCode::OK</span>)
+    <span class="prelude-val">Ok</span>(StatusCode::OK)
 }
 
-<span class="doccomment">/// # DELETE `/api/v1/user`</span>
-<span class="doccomment">/// Method deletes the currently logged in account.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Request</span>
-<span class="doccomment">/// This method accepts a JSON body with the following schema:</span>
-<span class="doccomment">/// ```no_compile</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///   &quot;password&quot;: String,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// The `password` field in the JSON payload must be the currently registered password for this</span>
-<span class="doccomment">/// user. This is required as a safety mechanism to avoid accidental account deletion.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Example</span>
-<span class="doccomment">/// ```text</span>
-<span class="doccomment">/// curl -X DELETE http://127.0.0.1:8000/api/v1/user -H &quot;Content-type: application/json&quot; -H &quot;Authroization: ...&quot;</span>
-<span class="doccomment">/// -d &#39;{&quot;password&quot;: &quot;testPass&quot;}&#39;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Response</span>
-<span class="doccomment">/// If the account is successfully deleted, the method will simply return `200 0K`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # SAFETY and caveats</span>
-<span class="doccomment">/// Because Dim uses JWTs for authorization, deleting an account doesnt mean the authorization</span>
-<span class="doccomment">/// token is also revoked as JWTs are stateless by design. Because of this, users must ensure that</span>
-<span class="doccomment">/// the token is cleared from memory and is not *EVER* reused.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">/// * [`InvalidCredentials`] - The provided `old_password` is incorrect or the authentication token</span>
-<span class="doccomment">/// is invalid.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`InvalidCredentials`]: crate::errors::DimError::InvalidCredentials</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">user</span>: <span class="ident">User</span>,
-    <span class="ident">password</span>: <span class="ident">String</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="doccomment">/// # DELETE `/api/v1/user`
+/// Method deletes the currently logged in account.
+///
+/// # Request
+/// This method accepts a JSON body with the following schema:
+/// ```no_compile
+/// {
+///   &quot;password&quot;: String,
+/// }
+/// ```
+/// The `password` field in the JSON payload must be the currently registered password for this
+/// user. This is required as a safety mechanism to avoid accidental account deletion.
+///
+/// ## Example
+/// ```text
+/// curl -X DELETE http://127.0.0.1:8000/api/v1/user -H &quot;Content-type: application/json&quot; -H &quot;Authroization: ...&quot;
+/// -d &#39;{&quot;password&quot;: &quot;testPass&quot;}&#39;
+/// ```
+///
+/// # Response
+/// If the account is successfully deleted, the method will simply return `200 0K`.
+///
+/// # SAFETY and caveats
+/// Because Dim uses JWTs for authorization, deleting an account doesnt mean the authorization
+/// token is also revoked as JWTs are stateless by design. Because of this, users must ensure that
+/// the token is cleared from memory and is not *EVER* reused.
+///
+/// # Errors
+/// * [`InvalidCredentials`] - The provided `old_password` is incorrect or the authentication token
+/// is invalid.
+///
+/// [`InvalidCredentials`]: crate::errors::DimError::InvalidCredentials
+</span><span class="kw">pub async fn </span>delete(
+    conn: DbConnection,
+    user: User,
+    password: String,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">User::authenticate</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user</span>.<span class="ident">username</span>, <span class="ident">password</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">errors::DimError::InvalidCredentials</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>user = User::authenticate(<span class="kw-2">&amp;mut </span>tx, user.username, password)
+        .<span class="kw">await
+        </span>.map_err(|<span class="kw">_</span>| errors::DimError::InvalidCredentials)<span class="question-mark">?</span>;
 
-    <span class="ident">User::delete</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    User::delete(<span class="kw-2">&amp;mut </span>tx, user.id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">StatusCode::OK</span>)
+    <span class="prelude-val">Ok</span>(StatusCode::OK)
 }
 
-<span class="doccomment">/// # POST `/api/v1/user/username`</span>
-<span class="doccomment">/// Method changes the username of the current account.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Request</span>
-<span class="doccomment">/// This method accepts a JSON payload with the following schema:</span>
-<span class="doccomment">/// ```no_compile</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///   &quot;new_username&quot;: String</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Example</span>
-<span class="doccomment">/// ```text</span>
-<span class="doccomment">/// curl -X POST http://127.0.0.1:8000/api/v1/user/username -H &quot;Content-type: application/json&quot; -H</span>
-<span class="doccomment">/// &quot;Authorization: ...&quot; -d &#39;{&quot;new_username&quot;: &quot;testUsername&quot;}&#39;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Response</span>
-<span class="doccomment">/// If the username is successfully changed this method will simply return `200 OK`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">/// * [`UsernameNotAvailable`] - THe provided username has already been claimed by another user.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`UsernameNotAvailable`]: crate::errors::DimError::UsernameNotAvailable</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">change_username</span>(
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">user</span>: <span class="ident">User</span>,
-    <span class="ident">new_username</span>: <span class="ident">String</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="ident">User::get</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">new_username</span>).<span class="kw">await</span>.<span class="ident">is_ok</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">errors::DimError::UsernameNotAvailable</span>);
+<span class="doccomment">/// # POST `/api/v1/user/username`
+/// Method changes the username of the current account.
+///
+/// # Request
+/// This method accepts a JSON payload with the following schema:
+/// ```no_compile
+/// {
+///   &quot;new_username&quot;: String
+/// }
+/// ```
+///
+/// ## Example
+/// ```text
+/// curl -X POST http://127.0.0.1:8000/api/v1/user/username -H &quot;Content-type: application/json&quot; -H
+/// &quot;Authorization: ...&quot; -d &#39;{&quot;new_username&quot;: &quot;testUsername&quot;}&#39;
+/// ```
+///
+/// # Response
+/// If the username is successfully changed this method will simply return `200 OK`.
+///
+/// # Errors
+/// * [`UsernameNotAvailable`] - THe provided username has already been claimed by another user.
+///
+/// [`UsernameNotAvailable`]: crate::errors::DimError::UsernameNotAvailable
+</span><span class="kw">pub async fn </span>change_username(
+    conn: DbConnection,
+    user: User,
+    new_username: String,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if </span>User::get(<span class="kw-2">&amp;mut </span>tx, <span class="kw-2">&amp;</span>new_username).<span class="kw">await</span>.is_ok() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(errors::DimError::UsernameNotAvailable);
     }
 
-    <span class="ident">User::set_username</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user</span>.<span class="ident">username</span>.<span class="ident">clone</span>(), <span class="ident">new_username</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    User::set_username(<span class="kw-2">&amp;mut </span>tx, user.username.clone(), new_username).<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">StatusCode::OK</span>)
+    <span class="prelude-val">Ok</span>(StatusCode::OK)
 }
 
-<span class="doccomment">/// # POST `/api/v1/user/avatar`</span>
-<span class="doccomment">/// This method can be used to set a new avatar for a user.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Request</span>
-<span class="doccomment">/// This method accepts a multipart file upload. Only `jpg` and `png` files are supported.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Example</span>
-<span class="doccomment">/// ```text</span>
-<span class="doccomment">/// curl -X POST http://127.0.0.1:8000/api/v1/user/avatar -H &quot;Authorization: ...&quot; --form</span>
-<span class="doccomment">/// file=&#39;@newAvatar.png&#39;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Response</span>
-<span class="doccomment">/// If the avatar is successfully uploaded, this route will return `200 OK`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">/// * [`UploadFailed`] - No file has been uploaded correctly or the `file` form field has not been</span>
-<span class="doccomment">/// * [`UnsupportedFile`] - The file uploaded is not supported.</span>
-<span class="doccomment">/// found.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`UploadFailed`]: crate::errors::DimError::UploadFailed</span>
-<span class="doccomment">/// [`UnsupportedFile`]: crate::errors::DimError::UnsupportedFile</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload_avatar</span>(
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">user</span>: <span class="ident">User</span>,
-    <span class="ident">form</span>: <span class="ident">warp::multipart::FormData</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">warp::multipart::Part</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">form</span>
-        .<span class="ident">try_collect</span>()
-        .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">errors::DimError::UploadFailed</span>)<span class="question-mark">?</span>;
+<span class="doccomment">/// # POST `/api/v1/user/avatar`
+/// This method can be used to set a new avatar for a user.
+///
+/// # Request
+/// This method accepts a multipart file upload. Only `jpg` and `png` files are supported.
+///
+/// ## Example
+/// ```text
+/// curl -X POST http://127.0.0.1:8000/api/v1/user/avatar -H &quot;Authorization: ...&quot; --form
+/// file=&#39;@newAvatar.png&#39;
+/// ```
+///
+/// # Response
+/// If the avatar is successfully uploaded, this route will return `200 OK`.
+///
+/// # Errors
+/// * [`UploadFailed`] - No file has been uploaded correctly or the `file` form field has not been
+/// * [`UnsupportedFile`] - The file uploaded is not supported.
+/// found.
+///
+/// [`UploadFailed`]: crate::errors::DimError::UploadFailed
+/// [`UnsupportedFile`]: crate::errors::DimError::UnsupportedFile
+</span><span class="kw">pub async fn </span>upload_avatar(
+    conn: DbConnection,
+    user: User,
+    form: warp::multipart::FormData,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span>parts: Vec&lt;warp::multipart::Part&gt; = form
+        .try_collect()
+        .<span class="kw">await
+        </span>.map_err(|_e| errors::DimError::UploadFailed)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">asset</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">into_iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">name</span>() <span class="op">==</span> <span class="string">&quot;file&quot;</span>).<span class="ident">next</span>() {
-        <span class="ident">process_part</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">p</span>).<span class="kw">await</span>
-    } <span class="kw">else</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">errors::DimError::UploadFailed</span>)
+    <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>asset = <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = parts.into_iter().filter(|x| x.name() == <span class="string">&quot;file&quot;</span>).next() {
+        process_part(<span class="kw-2">&amp;mut </span>tx, p).<span class="kw">await
+    </span>} <span class="kw">else </span>{
+        <span class="prelude-val">Err</span>(errors::DimError::UploadFailed)
     };
 
-    <span class="ident">User::set_picture</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">asset</span><span class="question-mark">?</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    User::set_picture(<span class="kw-2">&amp;mut </span>tx, user.id, asset<span class="question-mark">?</span>.id).<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">StatusCode::OK</span>)
+    <span class="prelude-val">Ok</span>(StatusCode::OK)
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">process_part</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">database::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    <span class="ident">p</span>: <span class="ident">warp::multipart::Part</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Asset</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">name</span>() <span class="op">!</span><span class="op">=</span> <span class="string">&quot;file&quot;</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">errors::DimError::UploadFailed</span>);
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub async fn </span>process_part(
+    conn: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    p: warp::multipart::Part,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Asset, errors::DimError&gt; {
+    <span class="kw">if </span>p.name() != <span class="string">&quot;file&quot; </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(errors::DimError::UploadFailed);
     }
 
-    <span class="kw">let</span> <span class="ident">file_ext</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">content_type</span>() {
-        <span class="prelude-val">Some</span>(<span class="string">&quot;image/jpeg&quot;</span> <span class="op">|</span> <span class="string">&quot;image/jpg&quot;</span>) =&gt; <span class="string">&quot;jpg&quot;</span>,
+    <span class="kw">let </span>file_ext = <span class="kw">match </span>p.content_type() {
+        <span class="prelude-val">Some</span>(<span class="string">&quot;image/jpeg&quot; </span>| <span class="string">&quot;image/jpg&quot;</span>) =&gt; <span class="string">&quot;jpg&quot;</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;image/png&quot;</span>) =&gt; <span class="string">&quot;png&quot;</span>,
-        <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">errors::DimError::UnsupportedFile</span>),
+        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(errors::DimError::UnsupportedFile),
     };
 
-    <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">p</span>
-        .<span class="ident">stream</span>()
-        .<span class="ident">try_fold</span>(<span class="ident">Vec::new</span>(), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">vec</span>, <span class="ident">data</span><span class="op">|</span> {
-            <span class="ident">vec</span>.<span class="ident">put</span>(<span class="ident">data</span>);
-            <span class="kw">async</span> <span class="kw">move</span> { <span class="prelude-val">Ok</span>(<span class="ident">vec</span>) }
+    <span class="kw">let </span>contents = p
+        .stream()
+        .try_fold(Vec::new(), |<span class="kw-2">mut </span>vec, data| {
+            vec.put(data);
+            <span class="kw">async move </span>{ <span class="prelude-val">Ok</span>(vec) }
         })
-        .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">errors::DimError::UploadFailed</span>)<span class="question-mark">?</span>;
+        .<span class="kw">await
+        </span>.map_err(|<span class="kw">_</span>| errors::DimError::UploadFailed)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">local_file</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}.{}&quot;</span>, <span class="ident">Uuid::new_v4</span>().<span class="ident">to_string</span>(), <span class="ident">file_ext</span>);
-    <span class="kw">let</span> <span class="ident">local_path</span> <span class="op">=</span> <span class="macro">format!</span>(
+    <span class="kw">let </span>local_file = <span class="macro">format!</span>(<span class="string">&quot;{}.{}&quot;</span>, Uuid::new_v4().to_string(), file_ext);
+    <span class="kw">let </span>local_path = <span class="macro">format!</span>(
         <span class="string">&quot;{}/{}&quot;</span>,
-        <span class="ident"><span class="kw">crate</span>::core::METADATA_PATH</span>.<span class="ident">get</span>().<span class="ident">unwrap</span>(),
-        <span class="kw-2">&amp;</span><span class="ident">local_file</span>
+        <span class="kw">crate</span>::core::METADATA_PATH.get().unwrap(),
+        <span class="kw-2">&amp;</span>local_file
     );
 
-    <span class="ident">tokio::fs::write</span>(<span class="kw-2">&amp;</span><span class="ident">local_path</span>, <span class="ident">contents</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">errors::DimError::UploadFailed</span>)<span class="question-mark">?</span>;
+    tokio::fs::write(<span class="kw-2">&amp;</span>local_path, contents)
+        .<span class="kw">await
+        </span>.map_err(|<span class="kw">_</span>| errors::DimError::UploadFailed)<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">InsertableAsset</span> {
-        <span class="ident">local_path</span>: <span class="ident">local_file</span>,
-        <span class="ident">file_ext</span>: <span class="ident">file_ext</span>.<span class="ident">into</span>(),
-        ..<span class="ident">Default::default</span>()
+    <span class="prelude-val">Ok</span>(InsertableAsset {
+        local_path: local_file,
+        file_ext: file_ext.into(),
+        ..Default::default()
     }
-    .<span class="ident">insert</span>(<span class="ident">conn</span>)
+    .insert(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>)
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">filters</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
-    <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>filters {
+    <span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
+    <span class="kw">use </span>serde::Deserialize;
 
-    <span class="kw">use</span> <span class="ident">database::user::User</span>;
+    <span class="kw">use </span>database::user::User;
 
-    <span class="kw">use</span> <span class="ident">warp::reject</span>;
-    <span class="kw">use</span> <span class="ident">warp::Filter</span>;
+    <span class="kw">use </span>warp::reject;
+    <span class="kw">use </span>warp::Filter;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_auth</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state</span>;
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_auth;
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">whoami</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span>
-            <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;user&quot;</span>).<span class="ident">or</span>(<span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;auth&quot;</span> <span class="op">/</span> <span class="string">&quot;whoami&quot;</span>));
+    <span class="kw">pub fn </span>whoami(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="kw">let </span>path =
+            <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;user&quot;</span>).or(<span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;auth&quot; </span>/ <span class="string">&quot;whoami&quot;</span>));
 
-        <span class="ident">path</span>.<span class="ident">unify</span>()
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">auth</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::whoami</span>(<span class="ident">auth</span>, <span class="ident">conn</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+        path.unify()
+            .and(warp::get())
+            .and(with_auth(conn.clone()))
+            .and(with_state(conn))
+            .and_then(|auth: User, conn: DbConnection| <span class="kw">async move </span>{
+                <span class="kw">super</span>::whoami(auth, conn)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">change_password</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Params</span> {
-            <span class="ident">old_password</span>: <span class="ident">String</span>,
-            <span class="ident">new_password</span>: <span class="ident">String</span>,
+    <span class="kw">pub fn </span>change_password(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="attribute">#[derive(Deserialize)]
+        </span><span class="kw">pub struct </span>Params {
+            old_password: String,
+            new_password: String,
         }
 
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;user&quot;</span> <span class="op">/</span> <span class="string">&quot;password&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::patch</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">warp::body::json</span>::<span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>())
-            .<span class="ident">and</span>(<span class="ident">with_state</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">user</span>: <span class="ident">User</span>,
-                 <span class="ident">Params</span> {
-                     <span class="ident">old_password</span>,
-                     <span class="ident">new_password</span>,
-                 }: <span class="ident">Params</span>,
-                 <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="ident"><span class="kw">super</span>::change_password</span>(<span class="ident">conn</span>, <span class="ident">user</span>, <span class="ident">old_password</span>, <span class="ident">new_password</span>)
-                        .<span class="kw">await</span>
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;user&quot; </span>/ <span class="string">&quot;password&quot;</span>)
+            .and(warp::patch())
+            .and(with_auth(conn.clone()))
+            .and(warp::body::json::&lt;Params&gt;())
+            .and(with_state(conn))
+            .and_then(
+                |user: User,
+                 Params {
+                     old_password,
+                     new_password,
+                 }: Params,
+                 conn: DbConnection| <span class="kw">async move </span>{
+                    <span class="kw">super</span>::change_password(conn, user, old_password, new_password)
+                        .<span class="kw">await
+                        </span>.map_err(|e| reject::custom(e))
                 },
             )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Params</span> {
-            <span class="ident">password</span>: <span class="ident">String</span>,
+    <span class="kw">pub fn </span>delete(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="attribute">#[derive(Deserialize)]
+        </span><span class="kw">pub struct </span>Params {
+            password: String,
         }
 
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;user&quot;</span> <span class="op">/</span> <span class="string">&quot;delete&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::delete</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">warp::body::json</span>::<span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>())
-            .<span class="ident">and</span>(<span class="ident">with_state</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">auth</span>: <span class="ident">User</span>, <span class="ident">Params</span> { <span class="ident">password</span> }: <span class="ident">Params</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="ident"><span class="kw">super</span>::delete</span>(<span class="ident">conn</span>, <span class="ident">auth</span>, <span class="ident">password</span>)
-                        .<span class="kw">await</span>
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;user&quot; </span>/ <span class="string">&quot;delete&quot;</span>)
+            .and(warp::delete())
+            .and(with_auth(conn.clone()))
+            .and(warp::body::json::&lt;Params&gt;())
+            .and(with_state(conn))
+            .and_then(
+                |auth: User, Params { password }: Params, conn: DbConnection| <span class="kw">async move </span>{
+                    <span class="kw">super</span>::delete(conn, auth, password)
+                        .<span class="kw">await
+                        </span>.map_err(|e| reject::custom(e))
                 },
             )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">change_username</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Params</span> {
-            <span class="ident">new_username</span>: <span class="ident">String</span>,
+    <span class="kw">pub fn </span>change_username(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="attribute">#[derive(Deserialize)]
+        </span><span class="kw">pub struct </span>Params {
+            new_username: String,
         }
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;user&quot;</span> <span class="op">/</span> <span class="string">&quot;username&quot;</span>)
-            .<span class="ident">or</span>(<span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;auth&quot;</span> <span class="op">/</span> <span class="string">&quot;username&quot;</span>))
-            .<span class="ident">unify</span>()
-            .<span class="ident">and</span>(<span class="ident">warp::patch</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">warp::body::json</span>::<span class="op">&lt;</span><span class="ident">Params</span><span class="op">&gt;</span>())
-            .<span class="ident">and</span>(<span class="ident">with_state</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">user</span>, <span class="ident">Params</span> { <span class="ident">new_username</span> }: <span class="ident">Params</span>, <span class="ident">conn</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::change_username</span>(<span class="ident">conn</span>, <span class="ident">user</span>, <span class="ident">new_username</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;user&quot; </span>/ <span class="string">&quot;username&quot;</span>)
+            .or(<span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;auth&quot; </span>/ <span class="string">&quot;username&quot;</span>))
+            .unify()
+            .and(warp::patch())
+            .and(with_auth(conn.clone()))
+            .and(warp::body::json::&lt;Params&gt;())
+            .and(with_state(conn))
+            .and_then(|user, Params { new_username }: Params, conn| <span class="kw">async move </span>{
+                <span class="kw">super</span>::change_username(conn, user, new_username)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upload_avatar</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;user&quot;</span> <span class="op">/</span> <span class="string">&quot;avatar&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::post</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">warp::multipart::form</span>().<span class="ident">max_length</span>(<span class="number">5_000_000</span>))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">user</span>, <span class="ident">form</span>, <span class="ident">conn</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::upload_avatar</span>(<span class="ident">conn</span>, <span class="ident">user</span>, <span class="ident">form</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>upload_avatar(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;user&quot; </span>/ <span class="string">&quot;avatar&quot;</span>)
+            .and(warp::post())
+            .and(with_auth(conn.clone()))
+            .and(warp::multipart::form().max_length(<span class="number">5_000_000</span>))
+            .and(with_state(conn))
+            .and_then(|user, form, conn| <span class="kw">async move </span>{
+                <span class="kw">super</span>::upload_avatar(conn, user, form)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>

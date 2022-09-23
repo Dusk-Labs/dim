@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/episode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>episode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/episode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>episode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -419,240 +414,253 @@
 <span id="414">414</span>
 <span id="415">415</span>
 <span id="416">416</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::media::InsertableMedia</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::media::Media</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::media::UpdateMedia</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::user::UserID</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DatabaseError</span>;
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::media::InsertableMedia;
+<span class="kw">use </span><span class="kw">crate</span>::media::Media;
+<span class="kw">use </span><span class="kw">crate</span>::media::UpdateMedia;
+<span class="kw">use </span><span class="kw">crate</span>::user::UserID;
+<span class="kw">use </span><span class="kw">crate</span>::DatabaseError;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="doccomment">/// Episode struct encapsulates a media entry representing a episode</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Episode</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="doccomment">/// Season id foreign_key</span>
-    <span class="kw">pub</span> <span class="ident">seasonid</span>: <span class="ident">i64</span>,
-    <span class="doccomment">/// episode number</span>
-    <span class="kw">pub</span> <span class="ident">episode</span>: <span class="ident">i64</span>,
+<span class="doccomment">/// Episode struct encapsulates a media entry representing a episode
+</span><span class="attribute">#[derive(Clone, Serialize, Debug)]
+</span><span class="kw">pub struct </span>Episode {
+    <span class="attribute">#[serde(skip_serializing)]
+    </span><span class="kw">pub </span>id: i64,
+    <span class="doccomment">/// Season id foreign_key
+    </span><span class="kw">pub </span>seasonid: i64,
+    <span class="doccomment">/// episode number
+    </span><span class="kw">pub </span>episode: i64,
 
-    <span class="doccomment">/// Regerence to a media object which represents this epsiode.</span>
-    <span class="doccomment">/// We are essnetially aliasing and wrapping around Media transparently, behind the</span>
-    <span class="doccomment">/// scene in the db episode inherits all fields from media.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">media</span>: <span class="ident">Media</span>,
+    <span class="doccomment">/// Regerence to a media object which represents this epsiode.
+    /// We are essnetially aliasing and wrapping around Media transparently, behind the
+    /// scene in the db episode inherits all fields from media.
+    </span><span class="attribute">#[serde(flatten)]
+    </span><span class="kw">pub </span>media: Media,
 }
 
-<span class="doccomment">/// This struct is purely used for querying episodes which later gets converted into a Episode</span>
-<span class="doccomment">/// struct</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">sqlx::FromRow</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EpisodeWrapper</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="kw">pub</span> <span class="ident">seasonid</span>: <span class="ident">i64</span>,
-    <span class="kw">pub</span> <span class="ident">episode_</span>: <span class="ident">i64</span>,
+<span class="doccomment">/// This struct is purely used for querying episodes which later gets converted into a Episode
+/// struct
+</span><span class="attribute">#[derive(PartialEq, Debug, Copy, Clone, sqlx::FromRow)]
+</span><span class="kw">pub struct </span>EpisodeWrapper {
+    <span class="kw">pub </span>id: i64,
+    <span class="kw">pub </span>seasonid: i64,
+    <span class="kw">pub </span>episode_: i64,
 }
 
-<span class="kw">impl</span> <span class="ident">Episode</span> {
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_first_for_season</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">season_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">wrapper</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">EpisodeWrapper</span>,
+<span class="kw">impl </span>Episode {
+    <span class="kw">pub async fn </span>get_first_for_season(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        season_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DatabaseError&gt; {
+        <span class="kw">let </span>wrapper = <span class="macro">sqlx::query_as!</span>(
+            EpisodeWrapper,
             <span class="string">r#&quot;SELECT id as &quot;id!&quot;, seasonid, episode_
             FROM episode
             WHERE seasonid = ?
             ORDER BY episode_ ASC&quot;#</span>,
-            <span class="ident">season_id</span>
+            season_id
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">ep</span> <span class="op">=</span> <span class="ident">Media::get</span>(<span class="ident">conn</span>, <span class="ident">wrapper</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>ep = Media::get(conn, wrapper.id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">wrapper</span>.<span class="ident">into_episode</span>(<span class="ident">ep</span>))
+        <span class="prelude-val">Ok</span>(wrapper.into_episode(ep))
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_first_for_show</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">tv_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">wrapper</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">EpisodeWrapper</span>,
+    <span class="kw">pub async fn </span>get_first_for_show(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        tv_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DatabaseError&gt; {
+        <span class="kw">let </span>wrapper = <span class="macro">sqlx::query_as!</span>(
+            EpisodeWrapper,
             <span class="string">r#&quot;SELECT episode.id as &quot;id!&quot;, seasonid, episode_
             FROM episode
             INNER JOIN season on season.id = episode.seasonid
             WHERE season.tvshowid = ?
             ORDER BY episode_ ASC, season.season_number ASC
             LIMIT 1&quot;#</span>,
-            <span class="ident">tv_id</span>
+            tv_id
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">ep</span> <span class="op">=</span> <span class="ident">Media::get</span>(<span class="ident">conn</span>, <span class="ident">wrapper</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>ep = Media::get(conn, wrapper.id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">wrapper</span>.<span class="ident">into_episode</span>(<span class="ident">ep</span>))
+        <span class="prelude-val">Ok</span>(wrapper.into_episode(ep))
     }
 
-    <span class="doccomment">/// Method returns all of the episodes belonging to a tv show.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - a mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `media` - reference to a media object which should be a tv show.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_of_tv</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">tv_show_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">episodes</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+    <span class="doccomment">/// Method returns all of the episodes belonging to a tv show.
+    ///
+    /// # Arguments
+    /// * `conn` - a mutable reference to a sqlx transaction.
+    /// * `media` - reference to a media object which should be a tv show.
+    </span><span class="kw">pub async fn </span>get_all_of_tv(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        tv_show_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;, DatabaseError&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>episodes = <span class="macro">vec!</span>[];
 
-        <span class="kw">let</span> <span class="ident">wrappers</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">EpisodeWrapper</span>,
+        <span class="kw">let </span>wrappers = <span class="macro">sqlx::query_as!</span>(
+            EpisodeWrapper,
             <span class="string">r#&quot;SELECT episode.id as &quot;id!&quot;, episode.episode_, episode.seasonid FROM episode
                 INNER JOIN season ON season.id = episode.seasonid
-                INNER JOIN tv_show ON tv_show.id = season.tvshowid
-                WHERE tv_show.id = ?
+                INNER JOIN _tblmedia ON _tblmedia.id = season.tvshowid
+                WHERE _tblmedia.id = ?
                 ORDER BY season.season_number, episode.episode_&quot;#</span>,
-            <span class="ident">tv_show_id</span>
+            tv_show_id
         )
-        .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">for</span> <span class="ident">wrapper</span> <span class="kw">in</span> <span class="ident">wrappers</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">episode</span>) <span class="op">=</span> <span class="ident">Media::get</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">wrapper</span>.<span class="ident">id</span> <span class="kw">as</span> <span class="ident">i64</span>).<span class="kw">await</span> {
-                <span class="ident">episodes</span>.<span class="ident">push</span>(<span class="ident">wrapper</span>.<span class="ident">into_episode</span>(<span class="ident">episode</span>))
+        <span class="kw">for </span>wrapper <span class="kw">in </span>wrappers {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(episode) = Media::get(<span class="kw-2">&amp;mut *</span>conn, wrapper.id <span class="kw">as </span>i64).<span class="kw">await </span>{
+                episodes.push(wrapper.into_episode(episode))
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">episodes</span>)
+        <span class="prelude-val">Ok</span>(episodes)
     }
 
-    <span class="comment">// FIXME: This function might be especially heavy on the DB.</span>
-    <span class="doccomment">/// Method returns all of the episodes belonging to a season.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `media` - reference to a season object/entry.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_of_season</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">season_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Episode</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">wrappers</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">EpisodeWrapper</span>,
+    <span class="comment">// FIXME: This function might be especially heavy on the DB.
+    </span><span class="doccomment">/// Method returns all of the episodes belonging to a season.
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `media` - reference to a season object/entry.
+    </span><span class="kw">pub async fn </span>get_all_of_season(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        season_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Episode&gt;, DatabaseError&gt; {
+        <span class="kw">let </span>wrappers = <span class="macro">sqlx::query_as!</span>(
+            EpisodeWrapper,
             <span class="string">r#&quot;SELECT id as &quot;id!&quot;, episode_, seasonid FROM episode WHERE seasonid = ?&quot;#</span>,
-            <span class="ident">season_id</span>
+            season_id
         )
-        .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">episodes</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+        <span class="kw">let </span><span class="kw-2">mut </span>episodes = <span class="macro">vec!</span>[];
 
-        <span class="kw">for</span> <span class="ident">wrapper</span> <span class="kw">in</span> <span class="ident">wrappers</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">episode</span>) <span class="op">=</span> <span class="ident">Media::get</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">wrapper</span>.<span class="ident">id</span> <span class="kw">as</span> <span class="ident">i64</span>).<span class="kw">await</span> {
-                <span class="ident">episodes</span>.<span class="ident">push</span>(<span class="ident">wrapper</span>.<span class="ident">into_episode</span>(<span class="ident">episode</span>))
+        <span class="kw">for </span>wrapper <span class="kw">in </span>wrappers {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(episode) = Media::get(<span class="kw-2">&amp;mut *</span>conn, wrapper.id <span class="kw">as </span>i64).<span class="kw">await </span>{
+                episodes.push(wrapper.into_episode(episode))
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">episodes</span>)
+        <span class="prelude-val">Ok</span>(episodes)
     }
 
-    <span class="doccomment">/// Method returns a episodes discriminated by episode number, season number and tv show id</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `id` - The id of a tv show we target</span>
-    <span class="doccomment">/// * `season_num` - The season we are targetting</span>
-    <span class="doccomment">/// * `ep_num` - Episode we are targetting</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">tv_id</span>: <span class="ident">i64</span>,
-        <span class="ident">season_num</span>: <span class="ident">i64</span>,
-        <span class="ident">ep_num</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Episode</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">wrapper</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">EpisodeWrapper</span>,
+    <span class="doccomment">/// Method returns a episodes discriminated by episode number, season number and tv show id
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `id` - The id of a tv show we target
+    /// * `season_num` - The season we are targetting
+    /// * `ep_num` - Episode we are targetting
+    </span><span class="kw">pub async fn </span>get(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        tv_id: i64,
+        season_num: i64,
+        ep_num: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Episode, DatabaseError&gt; {
+        <span class="kw">let </span>wrapper = <span class="macro">sqlx::query_as!</span>(
+            EpisodeWrapper,
             <span class="string">r#&quot;SELECT episode.id as &quot;id!&quot;, episode.episode_, episode.seasonid  FROM episode
             INNER JOIN season ON season.id = episode.seasonid
             WHERE season.tvshowid = ?
             AND season.season_number = ?
             AND episode.episode_ = ?&quot;#</span>,
-            <span class="ident">tv_id</span>,
-            <span class="ident">season_num</span>,
-            <span class="ident">ep_num</span>
+            tv_id,
+            season_num,
+            ep_num
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">ep</span> <span class="op">=</span> <span class="ident">Media::get</span>(<span class="ident">conn</span>, <span class="ident">wrapper</span>.<span class="ident">id</span> <span class="kw">as</span> <span class="ident">i64</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>ep = Media::get(conn, wrapper.id <span class="kw">as </span>i64).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">wrapper</span>.<span class="ident">into_episode</span>(<span class="ident">ep</span>))
+        <span class="prelude-val">Ok</span>(wrapper.into_episode(ep))
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">episode_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Episode</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">wrapper</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">EpisodeWrapper</span>,
+    <span class="kw">pub async fn </span>get_by_id(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        episode_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Episode, DatabaseError&gt; {
+        <span class="kw">let </span>wrapper = <span class="macro">sqlx::query_as!</span>(
+            EpisodeWrapper,
             <span class="string">r#&quot;SELECT episode.*  FROM episode
             WHERE episode.id = ?&quot;#</span>,
-            <span class="ident">episode_id</span>
+            episode_id
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">ep</span> <span class="op">=</span> <span class="ident">Media::get</span>(<span class="ident">conn</span>, <span class="ident">wrapper</span>.<span class="ident">id</span> <span class="kw">as</span> <span class="ident">i64</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>ep = Media::get(conn, wrapper.id <span class="kw">as </span>i64).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">wrapper</span>.<span class="ident">into_episode</span>(<span class="ident">ep</span>))
+        <span class="prelude-val">Ok</span>(wrapper.into_episode(ep))
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_season_episode_by_id</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">episode_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">i64</span>, <span class="ident">i64</span>), <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">struct</span> <span class="ident">Record</span> {
-            <span class="ident">episode</span>: <span class="ident">i64</span>,
-            <span class="ident">season</span>: <span class="ident">i64</span>,
+    <span class="kw">pub async fn </span>get_season_episode_by_id(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        episode_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(i64, i64), DatabaseError&gt; {
+        <span class="kw">struct </span>Record {
+            episode: i64,
+            season: i64,
         }
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">Record</span>,
+        <span class="kw">let </span>result = <span class="macro">sqlx::query_as!</span>(
+            Record,
             <span class="string">&quot;SELECT episode_ as episode, season.season_number as season FROM episode
             INNER JOIN season ON season.id = episode.seasonid
             WHERE episode.id = ?&quot;</span>,
-            <span class="ident">episode_id</span>
+            episode_id
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>((<span class="ident">result</span>.<span class="ident">season</span>, <span class="ident">result</span>.<span class="ident">episode</span>))
+        <span class="prelude-val">Ok</span>((result.season, result.episode))
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_season_number</span>(
+    <span class="kw">pub async fn </span>get_season_number(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;i64, DatabaseError&gt; {
+        <span class="kw">let </span>record = <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;SELECT season.season_number FROM season
             WHERE season.id = ?&quot;</span>,
-            <span class="self">self</span>.<span class="ident">seasonid</span>
+            <span class="self">self</span>.seasonid
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">record</span>.<span class="ident">season_number</span>)
+        <span class="prelude-val">Ok</span>(record.season_number)
     }
 
-    <span class="doccomment">/// Function will query for the episode after the episode passed in.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_episode</span>(
+    <span class="doccomment">/// Function will query for the episode after the episode passed in.
+    </span><span class="kw">pub async fn </span>get_next_episode(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Episode</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">season_number</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_season_number</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Episode, DatabaseError&gt; {
+        <span class="kw">let </span>season_number = <span class="self">self</span>.get_season_number(<span class="kw-2">&amp;mut *</span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">EpisodeWrapper</span>,
+        <span class="kw">let </span>record = <span class="macro">sqlx::query_as!</span>(
+            EpisodeWrapper,
             <span class="string">r#&quot;SELECT episode.id as &quot;id!&quot;, episode.seasonid, episode.episode_ FROM episode
             INNER JOIN season ON season.id = episode.seasonid
             WHERE season.tvshowid = (
@@ -664,28 +672,28 @@
             ) OR season.season_number &gt; ?)
             ORDER BY season.season_number, episode.episode_
             LIMIT 1&quot;#</span>,
-            <span class="self">self</span>.<span class="ident">seasonid</span>,
-            <span class="self">self</span>.<span class="ident">episode</span>,
-            <span class="ident">season_number</span>,
-            <span class="ident">season_number</span>
+            <span class="self">self</span>.seasonid,
+            <span class="self">self</span>.episode,
+            season_number,
+            season_number
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">ep</span> <span class="op">=</span> <span class="ident">Media::get</span>(<span class="ident">conn</span>, <span class="ident">record</span>.<span class="ident">id</span> <span class="kw">as</span> <span class="ident">i64</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>ep = Media::get(conn, record.id <span class="kw">as </span>i64).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">record</span>.<span class="ident">into_episode</span>(<span class="ident">ep</span>))
+        <span class="prelude-val">Ok</span>(record.into_episode(ep))
     }
 
-    <span class="doccomment">/// Function will query for the episode after the episode passed in.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_prev_episode</span>(
+    <span class="doccomment">/// Function will query for the episode after the episode passed in.
+    </span><span class="kw">pub async fn </span>get_prev_episode(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Episode</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">season_number</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_season_number</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Episode, DatabaseError&gt; {
+        <span class="kw">let </span>season_number = <span class="self">self</span>.get_season_number(<span class="kw-2">&amp;mut *</span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">EpisodeWrapper</span>,
+        <span class="kw">let </span>record = <span class="macro">sqlx::query_as!</span>(
+            EpisodeWrapper,
             <span class="string">r#&quot;SELECT episode.id as &quot;id!&quot;, episode.seasonid, episode.episode_ FROM episode
             INNER JOIN season ON season.id = episode.seasonid
             WHERE season.tvshowid = (
@@ -697,28 +705,28 @@
             ) OR season.season_number &lt; ?)
             ORDER BY season.season_number DESC, episode.episode_ DESC
             LIMIT 1&quot;#</span>,
-            <span class="self">self</span>.<span class="ident">seasonid</span>,
-            <span class="self">self</span>.<span class="ident">episode</span>,
-            <span class="ident">season_number</span>,
-            <span class="ident">season_number</span>
+            <span class="self">self</span>.seasonid,
+            <span class="self">self</span>.episode,
+            season_number,
+            season_number
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">ep</span> <span class="op">=</span> <span class="ident">Media::get</span>(<span class="ident">conn</span>, <span class="ident">record</span>.<span class="ident">id</span> <span class="kw">as</span> <span class="ident">i64</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>ep = Media::get(conn, record.id <span class="kw">as </span>i64).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">record</span>.<span class="ident">into_episode</span>(<span class="ident">ep</span>))
+        <span class="prelude-val">Ok</span>(record.into_episode(ep))
     }
 
-    <span class="doccomment">/// Function will query the last episode that was watched for a show.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_last_watched_episode</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">tvid</span>: <span class="ident">i64</span>,
-        <span class="ident">uid</span>: <span class="ident">UserID</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Episode</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="comment">// FIXME: We&#39;re using the query_as function instead of macro because `LEFT OUTER JOIN`</span>
-        <span class="comment">// crashes the proc macro.</span>
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">sqlx::query_as</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">EpisodeWrapper</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Function will query the last episode that was watched for a show.
+    </span><span class="kw">pub async fn </span>get_last_watched_episode(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        tvid: i64,
+        uid: UserID,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Episode&gt;, DatabaseError&gt; {
+        <span class="comment">// FIXME: We&#39;re using the query_as function instead of macro because `LEFT OUTER JOIN`
+        // crashes the proc macro.
+        </span><span class="kw">let </span>result = sqlx::query_as::&lt;<span class="kw">_</span>, EpisodeWrapper&gt;(
             <span class="string">&quot;SELECT episode.* FROM episode
             INNER JOIN season ON season.id = episode.seasonid
             INNER JOIN progress ON progress.media_id = episode.id AND progress.user_id = ?
@@ -726,115 +734,127 @@
             ORDER BY progress.populated DESC
             LIMIT 1&quot;</span>,
         )
-        .<span class="ident">bind</span>(<span class="ident">uid</span>)
-        .<span class="ident">bind</span>(<span class="ident">tvid</span>)
-        .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .bind(uid)
+        .bind(tvid)
+        .fetch_optional(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="ident">result</span> {
-            <span class="ident">r</span>
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+        <span class="kw">let </span>result = <span class="kw">if let </span><span class="prelude-val">Some</span>(r) = result {
+            r
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         };
 
-        <span class="kw">let</span> <span class="ident">ep</span> <span class="op">=</span> <span class="ident">Media::get</span>(<span class="ident">conn</span>, <span class="ident">result</span>.<span class="ident">id</span> <span class="kw">as</span> <span class="ident">i64</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">result</span>.<span class="ident">into_episode</span>(<span class="ident">ep</span>)))
+        <span class="kw">let </span>ep = Media::get(conn, result.id <span class="kw">as </span>i64).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(result.into_episode(ep)))
     }
 
-    <span class="doccomment">/// Method deletes a episode based on the tv show id, season number, and episode number</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `id` - The id of a tv show we target</span>
-    <span class="doccomment">/// * `season_num` - The season we are targetting</span>
-    <span class="doccomment">/// * `ep_num` - Episode we are targetting</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">episode_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="comment">// NOTE: no need to manually delete the episode entry from `episode` because of the</span>
-        <span class="comment">// cascade delete.</span>
-        <span class="prelude-val">Ok</span>(<span class="ident">Media::delete</span>(<span class="ident">conn</span>, <span class="ident">episode_id</span>).<span class="kw">await</span><span class="question-mark">?</span>)
-    }
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InsertableEpisode</span> {
-    <span class="kw">pub</span> <span class="ident">media</span>: <span class="ident">InsertableMedia</span>,
-    <span class="kw">pub</span> <span class="ident">seasonid</span>: <span class="ident">i64</span>,
-    <span class="kw">pub</span> <span class="ident">episode</span>: <span class="ident">i64</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">InsertableEpisode</span> {
-    <span class="doccomment">/// Method inserts a new episode into the database</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-            <span class="string">r#&quot;SELECT id as &quot;id!&quot; FROM episode WHERE episode.seasonid = ? AND episode.episode_ = ?&quot;#</span>,
-            <span class="self">self</span>.<span class="ident">seasonid</span>,
-            <span class="self">self</span>.<span class="ident">episode</span>
+    <span class="kw">pub async fn </span>get_seasonid(
+        tx: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        episodeid: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;i64, DatabaseError&gt; {
+        <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
+            <span class="string">&quot;SELECT episode.seasonid FROM episode WHERE episode.id = ?&quot;</span>,
+            episodeid
         )
-        .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">r</span>.<span class="ident">id</span>);
+        .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.seasonid)
+    }
+
+    <span class="doccomment">/// Method deletes a episode based on the tv show id, season number, and episode number
+    ///
+    /// # Arguments
+    /// * `id` - The id of a tv show we target
+    /// * `season_num` - The season we are targetting
+    /// * `ep_num` - Episode we are targetting
+    </span><span class="kw">pub async fn </span>delete(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        episode_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
+        <span class="comment">// NOTE: no need to manually delete the episode entry from `episode` because of the
+        // cascade delete.
+        </span><span class="prelude-val">Ok</span>(Media::delete(conn, episode_id).<span class="kw">await</span><span class="question-mark">?</span>)
+    }
+}
+
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>InsertableEpisode {
+    <span class="kw">pub </span>media: InsertableMedia,
+    <span class="kw">pub </span>seasonid: i64,
+    <span class="kw">pub </span>episode: i64,
+}
+
+<span class="kw">impl </span>InsertableEpisode {
+    <span class="doccomment">/// Method inserts a new episode into the database
+    </span><span class="kw">pub async fn </span>insert(<span class="kw-2">&amp;</span><span class="self">self</span>, conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;i64, DatabaseError&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(r) = <span class="macro">sqlx::query!</span>(
+            <span class="string">r#&quot;SELECT id as &quot;id!&quot; FROM episode WHERE episode.seasonid = ? AND episode.episode_ = ?&quot;#</span>,
+            <span class="self">self</span>.seasonid,
+            <span class="self">self</span>.episode
+        )
+        .fetch_optional(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(r.id);
         }
 
-        <span class="comment">// NOTE: use insert blind here just in case we have conflicts between episode names.</span>
-        <span class="kw">let</span> <span class="ident">media_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">media</span>.<span class="ident">insert_blind</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+        <span class="comment">// NOTE: use insert blind here just in case we have conflicts between episode names.
+        </span><span class="kw">let </span>media_id = <span class="self">self</span>.media.insert_blind(<span class="kw-2">&amp;mut *</span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>result = <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;INSERT INTO episode (id, episode_, seasonid)
             VALUES ($1, $2, $3)&quot;</span>,
-            <span class="ident">media_id</span>,
-            <span class="self">self</span>.<span class="ident">episode</span>,
-            <span class="self">self</span>.<span class="ident">seasonid</span>
+            media_id,
+            <span class="self">self</span>.episode,
+            <span class="self">self</span>.seasonid
         )
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">last_insert_rowid</span>();
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.last_insert_rowid();
 
-        <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
+        <span class="prelude-val">Ok</span>(result)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">EpisodeWrapper</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_episode</span>(<span class="self">self</span>, <span class="ident">media</span>: <span class="ident">Media</span>) -&gt; <span class="ident">Episode</span> {
-        <span class="ident">Episode</span> {
-            <span class="ident">id</span>: <span class="self">self</span>.<span class="ident">id</span>,
-            <span class="ident">seasonid</span>: <span class="self">self</span>.<span class="ident">seasonid</span>,
-            <span class="ident">episode</span>: <span class="self">self</span>.<span class="ident">episode_</span>,
-            <span class="ident">media</span>,
+<span class="kw">impl </span>EpisodeWrapper {
+    <span class="kw">pub fn </span>into_episode(<span class="self">self</span>, media: Media) -&gt; Episode {
+        Episode {
+            id: <span class="self">self</span>.id,
+            seasonid: <span class="self">self</span>.seasonid,
+            episode: <span class="self">self</span>.episode_,
+            media,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Default</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UpdateEpisode</span> {
-    <span class="kw">pub</span> <span class="ident">seasonid</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">episode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Deserialize, Default, Debug)]
+</span><span class="kw">pub struct </span>UpdateEpisode {
+    <span class="kw">pub </span>seasonid: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="kw">pub </span>episode: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">media</span>: <span class="ident">UpdateMedia</span>,
+    <span class="attribute">#[serde(flatten)]
+    </span><span class="kw">pub </span>media: UpdateMedia,
 }
 
-<span class="kw">impl</span> <span class="ident">UpdateEpisode</span> {
-    <span class="doccomment">/// Method updates the rows of a episode.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `id` - id of the episode we wish to update.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(
+<span class="kw">impl </span>UpdateEpisode {
+    <span class="doccomment">/// Method updates the rows of a episode.
+    ///
+    /// # Arguments
+    /// * `id` - id of the episode we wish to update.
+    </span><span class="kw">pub async fn </span>update(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">media</span>.<span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
+        <span class="self">self</span>.media.update(<span class="kw-2">&amp;mut *</span>conn, id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="macro">crate::opt_update!</span>(<span class="ident">conn</span>,
-            <span class="string">&quot;UPDATE episode SET seasonid = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">seasonid</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE episode SET episode_ = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">episode</span>, <span class="ident">id</span>)
+        <span class="macro">crate::opt_update!</span>(conn,
+            <span class="string">&quot;UPDATE episode SET seasonid = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.seasonid, id),
+            <span class="string">&quot;UPDATE episode SET episode_ = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.episode, id)
         );
 
         <span class="prelude-val">Ok</span>(<span class="number">1</span>)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>

@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/rw_pool.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rw_pool.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/rw_pool.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rw_pool.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -50,53 +45,52 @@
 <span id="45">45</span>
 <span id="46">46</span>
 <span id="47">47</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">sqlx::Pool</span>;
-<span class="kw">use</span> <span class="ident">sqlx::Sqlite</span>;
-<span class="kw">use</span> <span class="ident">sqlx::SqliteConnection</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>sqlx::Pool;
+<span class="kw">use </span>sqlx::Sqlite;
+<span class="kw">use </span>sqlx::SqliteConnection;
 
-<span class="kw">use</span> <span class="ident">tracing::debug_span</span>;
-<span class="kw">use</span> <span class="ident">tracing::Instrument</span>;
+<span class="kw">use </span>tracing::debug_span;
+<span class="kw">use </span>tracing::Instrument;
 
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
-<span class="kw">use</span> <span class="ident">tokio::sync::Mutex</span>;
-<span class="kw">use</span> <span class="ident">tokio::sync::OwnedMutexGuard</span>;
+<span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>tokio::sync::Mutex;
+<span class="kw">use </span>tokio::sync::OwnedMutexGuard;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SqlitePool</span> {
-    <span class="kw">pub</span> <span class="ident">writer</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">SqliteConnection</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">reader</span>: <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Sqlite</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>SqlitePool {
+    <span class="kw">pub </span>writer: Arc&lt;Mutex&lt;SqliteConnection&gt;&gt;,
+    reader: Pool&lt;Sqlite&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">SqlitePool</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">writer</span>: <span class="ident">SqliteConnection</span>, <span class="ident">reader</span>: <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Sqlite</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">writer</span>: <span class="ident">Arc::new</span>(<span class="ident">Mutex::new</span>(<span class="ident">writer</span>)),
-            <span class="ident">reader</span>,
+<span class="kw">impl </span>SqlitePool {
+    <span class="kw">pub fn </span>new(writer: SqliteConnection, reader: Pool&lt;Sqlite&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            writer: Arc::new(Mutex::new(writer)),
+            reader,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Sqlite</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">clone</span>()
+    <span class="kw">pub fn </span>read(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Pool&lt;Sqlite&gt; {
+        <span class="self">self</span>.reader.clone()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">writer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">SqliteConnection</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">clone</span>()
+    <span class="kw">pub fn </span>writer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Arc&lt;Mutex&lt;SqliteConnection&gt;&gt; {
+        <span class="self">self</span>.writer.clone()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Sqlite</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">reader</span>
+    <span class="kw">pub fn </span>read_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Pool&lt;Sqlite&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.reader
     }
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">write_tx</span>(
-    <span class="ident">lock</span>: <span class="kw-2">&amp;mut</span> <span class="ident">OwnedMutexGuard</span><span class="op">&lt;</span><span class="ident">SqliteConnection</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">sqlx::Error</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident">sqlx::Connection</span>;
+<span class="kw">pub async fn </span>write_tx(
+    lock: <span class="kw-2">&amp;mut </span>OwnedMutexGuard&lt;SqliteConnection&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;, sqlx::Error&gt; {
+    <span class="kw">use </span>sqlx::Connection;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">begin</span>().<span class="ident">instrument</span>(<span class="macro">debug_span!</span>(<span class="string">&quot;TxBegin&quot;</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>tx = lock.begin().instrument(<span class="macro">debug_span!</span>(<span class="string">&quot;TxBegin&quot;</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">tx</span>)
+    <span class="prelude-val">Ok</span>(tx)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
