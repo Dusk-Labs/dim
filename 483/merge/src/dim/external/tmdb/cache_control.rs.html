@@ -309,7 +309,7 @@
                 <span class="kw">let</span> <span class="ident">items</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">evict</span>();
                 <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="ident">now</span>.<span class="ident">elapsed</span>().<span class="ident">as_millis</span>();
 
-                <span class="macro">tracing::info!</span>(
+                <span class="macro">tracing::debug!</span>(
                     <span class="ident">items</span> <span class="op">=</span> <span class="ident">items</span>,
                     <span class="ident">duration_ms</span> <span class="op">=</span> <span class="ident">duration</span>,
                     <span class="string">&quot;tmdb cache eviction finished.&quot;</span>

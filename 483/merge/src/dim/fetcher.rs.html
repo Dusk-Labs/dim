@@ -74,6 +74,24 @@
 <span id="67">67</span>
 <span id="68">68</span>
 <span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core</span>::<span class="kw-2">*</span>;
 
 <span class="kw">use</span> <span class="ident">tokio::sync::mpsc::unbounded_channel</span>;
@@ -82,19 +100,30 @@
 
 <span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">debug</span>, <span class="ident">error</span>, <span class="ident">instrument</span>};
 
+<span class="kw">use</span> <span class="ident">std::collections::hash_map::DefaultHasher</span>;
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
+<span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
+<span class="kw">use</span> <span class="ident">std::hash::Hasher</span>;
 <span class="kw">use</span> <span class="ident">std::io::copy</span>;
 <span class="kw">use</span> <span class="ident">std::io::Cursor</span>;
 <span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
 
 <span class="kw">use</span> <span class="ident">once_cell::sync::OnceCell</span>;
 
+<span class="kw">const</span> <span class="ident">PARTITIONS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">5</span>;
+<span class="kw">static</span> <span class="ident">SENDER_PARTITIONS</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span>[<span class="ident">UnboundedSender</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>; <span class="ident">PARTITIONS</span>]<span class="op">&gt;</span> <span class="op">=</span>
+    <span class="ident">OnceCell::new</span>();
+
 <span class="attribute">#[<span class="ident">instrument</span>]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_into_queue</span>(<span class="ident">poster</span>: <span class="ident">String</span>, <span class="ident">outfile</span>: <span class="ident">String</span>, <span class="ident">priority</span>: <span class="ident">usize</span>) {
-    <span class="comment">// FIXME: We might want to figure out a way to make this a const generic param.</span>
-    <span class="kw">const</span> <span class="ident">PARTITIONS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">5</span>;
-    <span class="kw">static</span> <span class="ident">SENDER_PARTITIONS</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span>[<span class="ident">UnboundedSender</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>; <span class="ident">PARTITIONS</span>]<span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">OnceCell::new</span>();
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_into_queue</span>(<span class="ident">poster</span>: <span class="ident">String</span>, <span class="ident">outfile</span>: <span class="ident">String</span>, <span class="ident">immediate</span>: <span class="ident">bool</span>) {
+    <span class="kw">let</span> <span class="ident">partition</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">immediate</span> {
+        <span class="ident">PARTITIONS</span> <span class="op">-</span> <span class="number">1</span>
+    } <span class="kw">else</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> <span class="ident">DefaultHasher::new</span>();
+        <span class="ident">poster</span>.<span class="ident">as_str</span>().<span class="ident">hash</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>);
+
+        (<span class="ident">hasher</span>.<span class="ident">finish</span>() <span class="op">%</span> (<span class="ident">PARTITIONS</span> <span class="kw">as</span> <span class="ident">u64</span> <span class="op">-</span> <span class="number">1</span>)) <span class="kw">as</span> <span class="ident">usize</span>
+    };
 
     <span class="kw">let</span> <span class="ident">partitions</span> <span class="op">=</span> <span class="ident">SENDER_PARTITIONS</span>.<span class="ident">get_or_init</span>(<span class="op">|</span><span class="op">|</span> {
         [(); <span class="ident">PARTITIONS</span>].<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
@@ -105,14 +134,14 @@
         })
     });
 
-    <span class="ident">partitions</span>[<span class="ident">priority</span> <span class="op">%</span> <span class="ident">PARTITIONS</span>]
-        .<span class="ident">send</span>((<span class="ident">poster</span>.<span class="ident">clone</span>(), <span class="ident">outfile</span>, <span class="ident">priority</span>))
+    <span class="ident">partitions</span>[<span class="ident">partition</span>]
+        .<span class="ident">send</span>((<span class="ident">poster</span>.<span class="ident">clone</span>(), <span class="ident">outfile</span>))
         .<span class="ident">expect</span>(<span class="string">&quot;Failed to send poster request&quot;</span>);
 }
 
-<span class="attribute">#[<span class="ident">instrument</span>]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">process_queue</span>(<span class="kw-2">mut</span> <span class="ident">rx</span>: <span class="ident">UnboundedReceiver</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>) {
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">url</span>, <span class="ident">outfile</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>().<span class="kw">await</span> {
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip_all</span>)]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">process_queue</span>(<span class="kw-2">mut</span> <span class="ident">rx</span>: <span class="ident">UnboundedReceiver</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>) {
+    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">url</span>, <span class="ident">outfile</span>)) <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>().<span class="kw">await</span> {
         <span class="macro">debug!</span>(<span class="string">&quot;Trying to cache {}&quot;</span>, <span class="ident">url</span>);
 
         <span class="kw">match</span> <span class="ident">reqwest::get</span>(<span class="ident">url</span>.<span class="ident">as_str</span>()).<span class="kw">await</span> {
@@ -123,19 +152,26 @@
 
                 <span class="macro">debug!</span>(<span class="string">&quot;Caching {} -&gt; {:?}&quot;</span>, <span class="ident">url</span>, <span class="ident">out_path</span>);
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">file</span>) <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">out_path</span>) {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>) <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">bytes</span>().<span class="kw">await</span> {
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">Cursor::new</span>(<span class="ident">bytes</span>);
-                        <span class="kw">if</span> <span class="ident">copy</span>(<span class="kw-2">&amp;mut</span> <span class="ident">content</span>, <span class="kw-2">&amp;mut</span> <span class="ident">file</span>).<span class="ident">is_ok</span>() {
-                            <span class="kw">continue</span>;
-                        }
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">File::create</span>(<span class="ident">out_path</span>) {
+                    <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
+                        <span class="macro">error!</span>(<span class="ident">error</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">e</span>, <span class="ident">url</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">url</span>, <span class="string">&quot;Failed to create local file.&quot;</span>);
+                        <span class="kw">continue</span>;
                     }
-                }
+                };
 
-                <span class="macro">error!</span>(
-                    <span class="string">&quot;Failed to cache {} locally, appending back into queue&quot;</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">url</span>
-                );
+                <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">resp</span>.<span class="ident">bytes</span>().<span class="kw">await</span> {
+                    <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>) =&gt; <span class="ident">bytes</span>,
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
+                        <span class="macro">error!</span>(<span class="ident">error</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">e</span>, <span class="ident">url</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">url</span>, <span class="string">&quot;Failed to acquire handle on bytes from stream.&quot;</span>);
+                        <span class="kw">continue</span>;
+                    }
+                };
+
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">Cursor::new</span>(<span class="ident">bytes</span>);
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">copy</span>(<span class="kw-2">&amp;mut</span> <span class="ident">content</span>, <span class="kw-2">&amp;mut</span> <span class="ident">file</span>) {
+                    <span class="macro">error!</span>(<span class="ident">error</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">e</span>, <span class="ident">url</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">url</span>, <span class="string">&quot;Failed to copy bytes into file.&quot;</span>);
+                }
             }
             <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
                 <span class="macro">error!</span>(<span class="ident">e</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">e</span>, <span class="string">&quot;Failed to cache URL locally: {}&quot;</span>, <span class="ident">url</span>);
