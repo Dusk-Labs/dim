@@ -1,5 +1,10 @@
+/// Module contains a common interface for extracting and obtaining filename metadata.
+pub mod filename;
+pub mod mock;
+
 use async_trait::async_trait;
 
+use std::fmt::Debug;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -31,19 +36,19 @@ pub enum Error {
     /// Other error, usually contains an error that shouldn't happen unless theres a bug.
     // This error wont be ever serialized and sent over the wire, however it should still be
     // printed in logs somewhere as its very unexpected.
-    OtherError(#[serde(skip)] Arc<dyn std::error::Error>),
+    OtherError(#[serde(skip)] Arc<dyn std::error::Error + Send + Sync + 'static>),
     /// The remote API returned an error ({code}): {message}
     RemoteApiError { code: u16, message: String },
 }
 
 impl Error {
-    pub fn other(error: impl std::error::Error + 'static) -> Self {
+    pub fn other(error: impl std::error::Error + Send + Sync + 'static) -> Self {
         let err = Arc::new(error);
         Self::OtherError(err)
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd)]
+#[derive(Default, Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub struct ExternalMedia {
     /// String representation of the id for this media object.
     pub external_id: String,
@@ -66,7 +71,7 @@ pub struct ExternalMedia {
     pub duration: Option<Duration>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]
 pub struct ExternalSeason {
     /// String representation of the id for this season object.
     pub external_id: String,
@@ -80,7 +85,7 @@ pub struct ExternalSeason {
     pub season_number: u64,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]
 pub struct ExternalEpisode {
     pub external_id: String,
     pub title: Option<String>,
@@ -88,6 +93,14 @@ pub struct ExternalEpisode {
     pub episode_number: u64,
     pub stills: Vec<String>,
     pub duration: Option<Duration>,
+}
+
+impl ExternalEpisode {
+    pub fn title_or_episode(&self) -> String {
+        self.title
+            .clone()
+            .unwrap_or_else(|| self.episode_number.to_string())
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd)]
@@ -116,7 +129,7 @@ impl std::fmt::Display for MediaSearchType {
 /// Trait that must be implemented by external metadata agents which allows the scanners to query
 /// for data.
 #[async_trait]
-pub trait ExternalQuery {
+pub trait ExternalQuery: IntoQueryShow + Debug + Send + Sync {
     /// Search by title and year. This must return a Vec of `ExternalMedia` sorted by the search
     /// score.
     async fn search(&self, title: &str, year: Option<i32>) -> Result<Vec<ExternalMedia>>;
@@ -125,6 +138,18 @@ pub trait ExternalQuery {
     async fn search_by_id(&self, external_id: &str) -> Result<ExternalMedia>;
     /// Get all actors for a media by external id. Actors must be ordered in order of importance.
     async fn cast(&self, external_id: &str) -> Result<Vec<ExternalActor>>;
+}
+
+pub trait IntoQueryShow {
+    /// Upcast `self` into `ExternalQueryShow`. It is important that providers that can query for
+    /// tv shows, implements this to return `Some(self)`.
+    fn as_query_show<'a>(&'a self) -> Option<&'a dyn ExternalQueryShow> {
+        None
+    }
+
+    fn into_query_show(self: Arc<Self>) -> Option<Arc<dyn ExternalQueryShow>> {
+        None
+    }
 }
 
 /// Trait must be implemented by all external metadata agents which support querying for tv shows.

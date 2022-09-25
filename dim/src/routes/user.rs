@@ -33,7 +33,7 @@ use uuid::Uuid;
 ///
 /// # Response
 /// This method will return a JSON payload with the following schema:
-/// ```
+/// ```no_compile
 /// {
 ///   "picture": Option<String>,
 ///   "spentWatching": i64,
@@ -43,7 +43,7 @@ use uuid::Uuid;
 /// ```
 ///
 /// ## Example
-/// ```
+/// ```no_compile
 /// {
 ///   "picture": "/images/avatar.jpg",
 ///   "spentWatching": 12,
@@ -69,7 +69,7 @@ pub async fn whoami(user: User, conn: DbConnection) -> Result<impl warp::Reply, 
 ///
 /// # Request
 /// This method accepts a JSON body with the following schema:
-/// ```
+/// ```no_compile
 /// {
 ///   "old_password": String,
 ///   "new_password": String,
@@ -117,7 +117,7 @@ pub async fn change_password(
 ///
 /// # Request
 /// This method accepts a JSON body with the following schema:
-/// ```
+/// ```no_compile
 /// {
 ///   "password": String,
 /// }
@@ -168,7 +168,7 @@ pub async fn delete(
 ///
 /// # Request
 /// This method accepts a JSON payload with the following schema:
-/// ```
+/// ```no_compile
 /// {
 ///   "new_username": String
 /// }

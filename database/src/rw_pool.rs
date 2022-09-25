@@ -41,10 +41,7 @@ pub async fn write_tx(
 ) -> Result<crate::Transaction<'_>, sqlx::Error> {
     use sqlx::Connection;
 
-    let mut tx = lock.begin().instrument(debug_span!("TxBegin")).await?;
-
-    sqlx::query("END").execute(&mut tx).await?;
-    sqlx::query("BEGIN EXCLUSIVE").execute(&mut tx).await?;
+    let tx = lock.begin().instrument(debug_span!("TxBegin")).await?;
 
     Ok(tx)
 }

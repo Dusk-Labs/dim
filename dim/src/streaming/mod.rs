@@ -1,5 +1,7 @@
 pub mod ffprobe;
 
+use cfg_if::cfg_if;
+
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::RwLock;
@@ -9,7 +11,17 @@ use crate::utils::ffpath;
 lazy_static::lazy_static! {
     pub static ref STREAMING_SESSION: Arc<RwLock<HashMap<String, HashMap<String, String>>>> = Arc::new(RwLock::new(HashMap::new()));
     pub static ref FFMPEG_BIN: &'static str = Box::leak(ffpath("utils/ffmpeg").into_boxed_str());
-    pub static ref FFPROBE_BIN: &'static str = Box::leak(ffpath("utils/ffprobe").into_boxed_str());
+    pub static ref FFPROBE_BIN: &'static str = {
+        cfg_if! {
+            if #[cfg(test)] {
+                "/usr/bin/ffprobe"
+            } else if #[cfg(bench)] {
+                "/usr/bin/ffprobe"
+            } else {
+                Box::leak(ffpath("utils/ffprobe").into_boxed_str())
+            }
+        }
+    };
 }
 
 use std::process::Command;

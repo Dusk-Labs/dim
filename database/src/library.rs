@@ -1,6 +1,7 @@
 use crate::DatabaseError;
 use serde::Deserialize;
 use serde::Serialize;
+use std::convert::TryFrom;
 use std::fmt;
 
 /// Enum represents a media type and can be used on a library or on a media.
@@ -28,6 +29,27 @@ impl fmt::Display for MediaType {
     }
 }
 
+impl TryFrom<&str> for MediaType {
+    type Error = ();
+
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s {
+            "movie" | "movies" => Ok(Self::Movie),
+            "tv" | "tv_show" | "tv show" | "tv shows" => Ok(Self::Tv),
+            "episode" | "episodes" | "ep" => Ok(Self::Episode),
+            _ => Err(()),
+        }
+    }
+}
+
+impl TryFrom<String> for MediaType {
+    type Error = ();
+
+    fn try_from(s: String) -> Result<Self, Self::Error> {
+        s.as_str().try_into()
+    }
+}
+
 impl Default for MediaType {
     fn default() -> Self {
         Self::Movie
@@ -37,7 +59,6 @@ impl Default for MediaType {
 /// Library struct which we can use to deserialize database queries into.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Library {
-    /// unique id provided by postgres
     pub id: i64,
     /// unique name of the library
     pub name: String,
@@ -50,6 +71,8 @@ pub struct Library {
     /// moment only `movie` and `tv` are supported
     // TODO: support mixed content, music
     pub media_type: MediaType,
+    /// Is library hidden?
+    pub hidden: bool,
 }
 
 impl Library {
@@ -59,7 +82,7 @@ impl Library {
     /// This method will not return the locations indexed for this library, if you need those you
     /// must query for them separately.
     pub async fn get_all(conn: &mut crate::Transaction<'_>) -> Vec<Self> {
-        sqlx::query!(r#"SELECT id, name, media_type as "media_type: MediaType" FROM library WHERE NOT hidden"#)
+        sqlx::query!(r#"SELECT id, name, media_type as "media_type: MediaType", hidden as "hidden: bool" FROM library WHERE NOT hidden"#)
             .fetch_all(&mut *conn)
             .await
             .unwrap_or_default()
@@ -68,6 +91,7 @@ impl Library {
                 id: x.id,
                 name: x.name,
                 media_type: x.media_type,
+                hidden: x.hidden,
                 locations: vec![],
             })
             .collect()
@@ -97,7 +121,7 @@ impl Library {
         lib_id: i64,
     ) -> Result<Self, DatabaseError> {
         let library = sqlx::query!(
-            r#"SELECT id, name, media_type as "media_type: MediaType" FROM library
+            r#"SELECT id, name, media_type as "media_type: MediaType", hidden as "hidden: bool" FROM library
             WHERE id = ?"#,
             lib_id
         )
@@ -116,6 +140,7 @@ impl Library {
             id: library.id,
             name: library.name,
             media_type: library.media_type,
+            hidden: library.hidden,
             locations,
         })
     }

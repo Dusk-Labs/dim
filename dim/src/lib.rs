@@ -19,6 +19,8 @@
 //! To test run `make test` in the root, or `cargo test` in the root of each module including the
 //! root dir.
 
+#![feature(min_specialization, let_else)]
+
 use std::fs::create_dir_all;
 use tracing_subscriber::fmt;
 use tracing_subscriber::layer::SubscriberExt;
@@ -32,12 +34,16 @@ pub mod errors;
 pub mod external;
 /// Contains the code for fetching assets like posters and stills.
 pub mod fetcher;
+/// Inspect api for Result type
+pub mod inspect;
 /// Contains our custom logger for rocket
 pub mod logger;
+/// Sqlite CDC implementation
+pub mod reactor;
 /// Contains all of the routes exposed by the webapi.
 pub mod routes;
-/// Contains our media scanners and so on.
-pub mod scanners;
+/// New generation scanner infrastructure.
+pub mod scanner;
 /// Contains the fairing which tracks streams across rest api
 pub mod stream_tracking;
 /// Contains all the logic needed for streaming and on-the-fly transcoding.
@@ -69,13 +75,25 @@ pub fn setup_logging(_debug: bool) {
 
     let subscriber = tracing_subscriber::registry()
         .with(EnvFilter::from_default_env())
+        .with(fmt::layer().with_writer(std::io::stdout))
+        .with(fmt::layer().json().with_writer(non_blocking_file));
+
+    let _ = tracing::subscriber::set_global_default(subscriber);
+}
+
+#[cfg(test)]
+pub fn setup_test_logging() {
+    if std::env::var("RUST_LOG").is_err() {
+        std::env::set_var("RUST_LOG", "info");
+    }
+
+    let subscriber = tracing_subscriber::registry()
+        .with(EnvFilter::from_default_env())
         .with(
             fmt::layer()
                 .with_span_events(fmt::format::FmtSpan::CLOSE | fmt::format::FmtSpan::NEW)
-                .with_line_number(true)
-                .with_writer(std::io::stdout),
-        )
-        .with(fmt::layer().json().with_writer(non_blocking_file));
+                .with_writer(tracing_subscriber::fmt::TestWriter::new()),
+        );
 
     let _ = tracing::subscriber::set_global_default(subscriber);
 }

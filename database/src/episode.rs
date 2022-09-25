@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Serialize, Debug)]
 pub struct Episode {
     #[serde(skip_serializing)]
-    /// Unique id provided by postgres
     pub id: i64,
     /// Season id foreign_key
     pub seasonid: i64,
@@ -91,8 +90,8 @@ impl Episode {
             EpisodeWrapper,
             r#"SELECT episode.id as "id!", episode.episode_, episode.seasonid FROM episode
                 INNER JOIN season ON season.id = episode.seasonid
-                INNER JOIN tv_show ON tv_show.id = season.tvshowid
-                WHERE tv_show.id = ?
+                INNER JOIN _tblmedia ON _tblmedia.id = season.tvshowid
+                WHERE _tblmedia.id = ?
                 ORDER BY season.season_number, episode.episode_"#,
             tv_show_id
         )
@@ -321,10 +320,22 @@ impl Episode {
         Ok(Some(result.into_episode(ep)))
     }
 
+    pub async fn get_seasonid(
+        tx: &mut crate::Transaction<'_>,
+        episodeid: i64,
+    ) -> Result<i64, DatabaseError> {
+        Ok(sqlx::query!(
+            "SELECT episode.seasonid FROM episode WHERE episode.id = ?",
+            episodeid
+        )
+        .fetch_one(&mut *tx)
+        .await?
+        .seasonid)
+    }
+
     /// Method deletes a episode based on the tv show id, season number, and episode number
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
     /// * `id` - The id of a tv show we target
     /// * `season_num` - The season we are targetting
     /// * `ep_num` - Episode we are targetting
@@ -347,9 +358,6 @@ pub struct InsertableEpisode {
 
 impl InsertableEpisode {
     /// Method inserts a new episode into the database
-    ///
-    /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
     pub async fn insert(&self, conn: &mut crate::Transaction<'_>) -> Result<i64, DatabaseError> {
         if let Some(r) = sqlx::query!(
             r#"SELECT id as "id!" FROM episode WHERE episode.seasonid = ? AND episode.episode_ = ?"#,
@@ -403,7 +411,6 @@ impl UpdateEpisode {
     /// Method updates the rows of a episode.
     ///
     /// # Arguments
-    /// * `&` - diesel &ection reference to postgres
     /// * `id` - id of the episode we wish to update.
     pub async fn update(
         &self,

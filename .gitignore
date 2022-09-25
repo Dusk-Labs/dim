@@ -10,7 +10,6 @@ target/*
 expanded.rs
 *.db
 build
-Cargo.lock
 logs/
 metadata/
 streaming_cache/

@@ -12,7 +12,7 @@ pub async fn insert_media(conn: &mut crate::Transaction<'_>) -> i64 {
         library_id: 1,
         name: "TestMedia".into(),
         description: None,
-        rating: Some(10),
+        rating: Some(10.0),
         year: Some(2020),
         added: "Test".into(),
         poster: None,
@@ -29,7 +29,7 @@ pub async fn insert_many(conn: &mut crate::Transaction<'_>, n: usize) {
             library_id: 1,
             name: format!("TestMedia{}", i),
             description: None,
-            rating: Some(10),
+            rating: Some(10.0),
             year: Some(2020),
             added: "Test".into(),
             poster: None,
@@ -144,7 +144,7 @@ async fn test_blind_insert() {
         library_id: 1,
         name: "TestMedia".into(),
         description: None,
-        rating: Some(10),
+        rating: Some(10.0),
         year: Some(2020),
         added: "Test".into(),
         poster: None,
@@ -169,7 +169,7 @@ async fn test_update() {
         library_id: 1,
         name: "TestMedia".into(),
         description: None,
-        rating: Some(10),
+        rating: Some(10.0),
         year: Some(2020),
         added: "Test".into(),
         poster: None,
@@ -181,7 +181,7 @@ async fn test_update() {
 
     let update = media::UpdateMedia {
         name: Some("TestMedia2".into()),
-        rating: Some(5),
+        rating: Some(5.0),
         ..Default::default()
     };
 
@@ -189,5 +189,5 @@ async fn test_update() {
 
     let result = media::Media::get(&mut tx, media_id).await.unwrap();
     assert_eq!(result.name, "TestMedia2".to_string());
-    assert_eq!(result.rating, Some(5));
+    assert_eq!(result.rating, Some(5.0));
 }

@@ -1,22 +1,23 @@
 use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors;
+use crate::external::tmdb::TMDBMetadataProvider;
 use crate::json;
-use crate::scanners;
-use crate::scanners::scanner_daemon::FsWatcher;
+use crate::scanner;
+use crate::scanner::daemon::FsWatcher;
 use crate::tree;
 
 use database::compact_mediafile::CompactMediafile;
 use database::library::InsertableLibrary;
 use database::library::Library;
+use database::library::MediaType;
 use database::media::Media;
 use database::mediafile::MediaFile;
 
 use database::user::User;
-use events::Message;
-use events::PushEventType;
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use warp::http::StatusCode;
 use warp::reply;
@@ -83,20 +84,16 @@ pub mod filters {
 
     pub fn library_delete(
         conn: DbConnection,
-        event_tx: EventTx,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "library" / i64)
             .and(warp::delete())
             .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and(with_state::<EventTx>(event_tx))
-            .and_then(
-                |id: i64, user: User, conn: DbConnection, event_tx: EventTx| async move {
-                    super::library_delete(id, user, conn, event_tx)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
+            .and_then(|id: i64, user: User, conn: DbConnection| async move {
+                super::library_delete(id, user, conn)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
     }
 
     pub fn library_get_self(
@@ -209,7 +206,7 @@ pub async fn library_get(
 /// * `log` - logger
 /// * `_user` - Auth middleware
 pub async fn library_post(
-    conn: DbConnection,
+    mut conn: DbConnection,
     new_library: InsertableLibrary,
     event_tx: EventTx,
     _user: User,
@@ -222,16 +219,24 @@ pub async fn library_post(
 
     let tx_clone = event_tx.clone();
 
-    let fs_watcher = FsWatcher::new(conn.clone(), id, new_library.media_type, tx_clone.clone());
-    tokio::spawn(async move { fs_watcher.start_daemon().await });
-    tokio::spawn(scanners::start(conn, id, tx_clone));
+    let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
 
-    let event = Message {
-        id,
-        event_type: PushEventType::EventNewLibrary,
+    let provider = match new_library.media_type {
+        MediaType::Movie => Arc::new(provider.movies()) as Arc<_>,
+        MediaType::Tv => Arc::new(provider.tv_shows()) as Arc<_>,
+        _ => unreachable!(),
     };
 
-    let _ = event_tx.send(serde_json::to_string(&event).unwrap());
+    let mut fs_watcher = FsWatcher::new(
+        conn.clone(),
+        id,
+        new_library.media_type,
+        tx_clone.clone(),
+        Arc::clone(&provider),
+    );
+
+    tokio::spawn(async move { fs_watcher.start_daemon().await });
+    tokio::spawn(async move { scanner::start(&mut conn, id, tx_clone, provider).await });
 
     Ok(StatusCode::CREATED)
 }
@@ -247,12 +252,11 @@ pub async fn library_post(
 /// * `event_tx` - channel over which to dispatch events
 /// * `_user` - Auth middleware
 // NOTE: Should we only allow the owner to add/remove libraries?
-#[instrument(err, skip(conn, event_tx, _user), fields(auth.user = _user.username.as_str()))]
+#[instrument(err, skip(conn, _user), fields(auth.user = _user.username.as_str()))]
 pub async fn library_delete(
     id: i64,
     _user: User,
     conn: DbConnection,
-    event_tx: EventTx,
 ) -> Result<impl warp::Reply, errors::DimError> {
     // First we mark the library as scheduled for deletion which will make the library and all its
     // content hidden. This is necessary because huge libraries take a long time to delete.
@@ -285,13 +289,6 @@ pub async fn library_delete(
             info!("Deleted library");
         }
     };
-
-    let event = Message {
-        id,
-        event_type: PushEventType::EventRemoveLibrary,
-    };
-
-    let _ = event_tx.send(serde_json::to_string(&event).unwrap());
 
     tokio::spawn(delete_lib_fut);
 

@@ -18,7 +18,6 @@ async fn test_insert_and_get_methods() {
     assert!(result.is_empty());
 
     let tv = insert_media(&mut tx).await;
-    tv::TVShow::insert(&mut tx, tv).await.unwrap();
 
     let result = season::Season::get(&mut tx, 1, 1).await;
     assert!(result.is_err());
