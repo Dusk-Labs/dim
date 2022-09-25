@@ -701,7 +701,7 @@ dependencies = [
  "lazy_static",
  "libsqlite3-sys",
  "nightfall",
- "nix 0.20.0",
+ "nix 0.23.1",
  "notify",
  "once_cell",
  "parking_lot 0.12.1",
