@@ -2,7 +2,7 @@ name: Build Dim Bin and Dockerize
 
 on:
   push:
-    branches: [ 'master' ]
+    branches: [ 'master','docker-build' ]
     tags: 'v*' 
   pull_request:
     branches: [ 'master' ] 
