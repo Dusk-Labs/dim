@@ -10,7 +10,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  DATABASE_URL: "sqlite://./dim_dev.db"
+  DATABASE_URL: "sqlite://./target/dim_dev.db"
   # OpenSSL Tweak
   
 jobs:
@@ -42,7 +42,6 @@ jobs:
         OPENSSL_INCLUDE_DIR: "/usr/include/openssl/"
         OPENSSL_LIB_DIR: "/usr/lib/arm-linux-gnueabihf/"
         CARGO_TERM_COLOR: always
-        DATABASE_URL: "sqlite://./dim_dev.db"
     steps:
       - name: add armhf architecture
         run: dpkg --add-architecture armhf
@@ -90,7 +89,6 @@ jobs:
         OPENSSL_INCLUDE_DIR: "/usr/include/openssl/"
         OPENSSL_LIB_DIR: "/usr/lib/aarch64-linux-gnu/"
         CARGO_TERM_COLOR: always
-        DATABASE_URL: "sqlite://./dim_dev.db"
     steps:
       - name: add arm64 architecture
         run: dpkg --add-architecture arm64
@@ -135,7 +133,6 @@ jobs:
       image: rust:1.63
       env:
         CARGO_TERM_COLOR: always
-        DATABASE_URL: "sqlite://./dim_dev.db"
     steps:
       - name: install runtime
         run: apt update && apt install -y gcc-x86-64-linux-gnu g++-x86-64-linux-gnu libc6-dev libssl-dev libva-dev libva-drm2 libva2
