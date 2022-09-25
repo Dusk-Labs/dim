@@ -142,6 +142,18 @@
 <span id="135">135</span>
 <span id="136">136</span>
 <span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::types::EventType</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::types::Table</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Event</span>;
@@ -149,6 +161,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::EventTx</span>;
 
 <span class="kw">use</span> <span class="ident">database::asset::Asset</span>;
+<span class="kw">use</span> <span class="ident">database::library::Library</span>;
 <span class="kw">use</span> <span class="ident">database::library::MediaType</span>;
 <span class="kw">use</span> <span class="ident">database::media::Media</span>;
 <span class="kw">use</span> <span class="ident">database::rw_pool::SqlitePool</span>;
@@ -190,7 +203,18 @@
         <span class="kw">let</span> <span class="ident">event_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">event</span>.<span class="ident">event_type</span> {
             <span class="ident">EventType::Insert</span> =&gt; <span class="ident">PushEventType::EventNewLibrary</span>,
             <span class="ident">EventType::Delete</span> =&gt; <span class="ident">PushEventType::EventRemoveLibrary</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">EventType::Update</span> =&gt; {
+                <span class="comment">// NOTE: Library usually get marked as hidden before being deleted as a UX</span>
+                <span class="comment">// optimization. Sometimes library deletes can take a while.</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">read_ref</span>().<span class="ident">begin</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">Library</span> { <span class="ident">hidden</span>, .. } <span class="op">=</span> <span class="ident">Library::get_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">event</span>.<span class="ident">id</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">hidden</span> {
+                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+                }
+
+                <span class="ident">PushEventType::EventRemoveLibrary</span>
+            }
         };
 
         <span class="kw">let</span> <span class="ident">event</span> <span class="op">=</span> <span class="ident">Message</span> {
