@@ -2,6 +2,7 @@ cargo-features = ["workspace-inheritance"]
 
 [package]
 name = "database"
+build = "src/build.rs"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

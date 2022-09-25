@@ -1,42 +1,24 @@
 use std::env;
 use std::error::Error;
 use std::fs;
-use std::path::PathBuf;
 use std::str::FromStr;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    // The env vars are not necessarily provided by a .env file, so ignore err.
-    dotenv::dotenv().ok();
+    let out_dir = env::var("CARGO_TARGET_DIR").unwrap();
 
-    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").map_err(|e| {
-        println!("cargo:error=CARGO_MANIFEST_DIR is not set");
-        e
-    })?);
-
-    let mut db_file = env::var("DATABASE_URL").map_err(|e| {
-        println!("cargo:error=DATABASE_URL is not set");
-        e
-    })?;
-
-    if db_file.starts_with("sqlite://") {
-        db_file = db_file.split_off(9);
-    }
-
-    let mut db_path = manifest_dir.clone();
-    db_path.pop();
-    db_path.push(&db_file);
-
+    let db_file = format!("{out_dir}/dim_dev.db");
+    println!("cargo:rustc-env=DATABASE_URL=sqlite://{db_file}");
     println!(
         "cargo:warning=Generating {:?} from latest migrations.",
         db_file
     );
 
-    let _ = fs::remove_file(db_path.to_string_lossy().as_ref());
+    let _ = fs::remove_file(&db_file);
+
     let pool = sqlx::sqlite::SqlitePoolOptions::new()
         .connect_with(
-            sqlx::sqlite::SqliteConnectOptions::from_str(db_path.to_string_lossy().as_ref())?
-                .create_if_missing(true),
+            sqlx::sqlite::SqliteConnectOptions::from_str(db_file.as_ref())?.create_if_missing(true),
         )
         .await?;
 
@@ -45,10 +27,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         e
     })?;
 
-    println!(
-        "cargo:warning=Built database {}.",
-        db_path.to_string_lossy().as_ref()
-    );
+    println!("cargo:warning=Built database {}.", db_file);
 
     println!("cargo:rerun-if-changed=database/src/build.rs");
     println!("cargo:rerun-if-changed=database/migrations");
