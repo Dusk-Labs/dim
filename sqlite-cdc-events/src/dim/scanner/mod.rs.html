@@ -544,15 +544,14 @@
 
     <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
     <span class="kw">let</span> <span class="ident">workunits</span> <span class="op">=</span> <span class="ident">insert_mediafiles</span>(<span class="ident">conn</span>, <span class="ident">library_id</span>, <span class="ident">dirs</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">workunits_size</span> <span class="op">=</span> <span class="ident">workunits</span>.<span class="ident">len</span>();
 
     <span class="macro">info!</span>(
         <span class="ident">library_id</span>,
-        <span class="ident">units</span> <span class="op">=</span> <span class="ident">workunits</span>.<span class="ident">len</span>(),
+        <span class="ident">units</span> <span class="op">=</span> <span class="ident">workunits_size</span>,
         <span class="ident">elapsed_ms</span> <span class="op">=</span> <span class="ident">now</span>.<span class="ident">elapsed</span>().<span class="ident">as_millis</span>(),
         <span class="string">&quot;Walked and inserted mediafiles.&quot;</span>
     );
-
-    <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
 
     <span class="comment">// NOTE: itertools::GroupBy is used across an await point and thus must also be Sync. This</span>
     <span class="comment">// breaks some of our higher-level logic where we spawn this task. Thus we collect it before</span>
@@ -583,6 +582,7 @@
 
     <span class="macro">info!</span>(
         <span class="ident">library_id</span>,
+        <span class="ident">units</span> <span class="op">=</span> <span class="ident">workunits_size</span>,
         <span class="ident">elapsed_ms</span> <span class="op">=</span> <span class="ident">now</span>.<span class="ident">elapsed</span>().<span class="ident">as_millis</span>(),
         <span class="string">&quot;Finished scanning library.&quot;</span>
     );
