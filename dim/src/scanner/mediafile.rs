@@ -143,7 +143,8 @@ impl MediafileCreator {
             Ok(x) => x,
             Err(error) => {
                 error!(?error, "Couldn't extract media information with ffprobe");
-                return Err(Error::FfprobeError(error.into()));
+                error!(file = &target_file, "Assuming file is corrupted.");
+                Default::default()
             }
         };
 
@@ -159,13 +160,13 @@ impl MediafileCreator {
 
             quality: video_metadata.get_height().map(|x| x.to_string()),
             codec: video_metadata.get_video_codec(),
-            container: video_metadata.get_container(),
+            container: Some(video_metadata.get_container()),
             audio: video_metadata
                 .get_primary_codec("audio")
                 .map(ToOwned::to_owned),
             original_resolution: Default::default(),
             duration: video_metadata.get_duration().map(|x| x as i64),
-            corrupt: None,
+            corrupt: Some(video_metadata.is_corrupt()),
             channels: video_metadata.get_primary_channels(),
             profile: video_metadata.get_video_profile(),
             audio_language: video_metadata
