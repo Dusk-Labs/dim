@@ -1,10 +1,12 @@
+cargo-features = ["workspace-inheritance"]
+
 [package]
 name = "dim"
-version = "0.4.0-dev"
 build = "src/build.rs"
-authors = ["Valerian G. <valerian@dusklabs.io>"]
-edition = "2021"
-license = "AGPL-3.0-only"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
 
 [features]
 default = ["sqlite"]
@@ -75,6 +77,7 @@ retry-block = "1.0.0"
 hyper = "0.14.20"
 rusqlite = { version = "0.27.0", features = ["hooks"] }
 libsqlite3-sys = { version = "^0.24.0" }
+fdlimit = "0.2.1"
 
 [build-dependencies]
 fs_extra = "1.1.0"

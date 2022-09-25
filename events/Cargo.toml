@@ -1,8 +1,11 @@
+cargo-features = ["workspace-inheritance"]
+
 [package]
 name = "events"
-version = "0.1.0"
-authors = ["Valerian G. <valerian.garleanu@pm.me>"]
-edition = "2018"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
 
 [dependencies]
 serde = { version = "1.0.105", features = ["derive"] }
