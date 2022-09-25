@@ -134,7 +134,7 @@ jobs:
     needs: [create-ui]
     runs-on: ubuntu-latest
     container: 
-      image: rust:1.62
+      image: rust:1.63
       env:
         CARGO_TERM_COLOR: always
         DATABASE_URL: "sqlite://./dim_dev.db"
