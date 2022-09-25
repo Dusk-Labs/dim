@@ -948,7 +948,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream_tracking::ContentType</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream_tracking::StreamTracking</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream_tracking::VirtualManifest</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::streaming::ffprobe::FFPWrapper</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::streaming::ffprobe::FFPStream</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::streaming::ffprobe::FFProbeCtx</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::streaming::get_avc1_tag</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::streaming::get_qualities</span>;
@@ -1296,7 +1296,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_create_dstream</span>(
-    <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">FFPWrapper</span>,
+    <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">FFPStream</span>,
     <span class="ident">media</span>: <span class="kw-2">&amp;</span><span class="ident">MediaFile</span>,
     <span class="ident">stream_tracking</span>: <span class="kw-2">&amp;</span><span class="ident">StreamTracking</span>,
     <span class="ident">gid</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
@@ -1385,7 +1385,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_video</span>(
-    <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">FFPWrapper</span>,
+    <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">FFPStream</span>,
     <span class="ident">media</span>: <span class="kw-2">&amp;</span><span class="ident">MediaFile</span>,
     <span class="ident">stream_tracking</span>: <span class="kw-2">&amp;</span><span class="ident">StreamTracking</span>,
     <span class="ident">gid</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
@@ -1485,7 +1485,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_audio</span>(
-    <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">FFPWrapper</span>,
+    <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">FFPStream</span>,
     <span class="ident">media</span>: <span class="kw-2">&amp;</span><span class="ident">MediaFile</span>,
     <span class="ident">stream_tracking</span>: <span class="kw-2">&amp;</span><span class="ident">StreamTracking</span>,
     <span class="ident">gid</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
@@ -1545,7 +1545,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_subtitles</span>(
-    <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">FFPWrapper</span>,
+    <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">FFPStream</span>,
     <span class="ident">media</span>: <span class="kw-2">&amp;</span><span class="ident">MediaFile</span>,
     <span class="ident">stream_tracking</span>: <span class="kw-2">&amp;</span><span class="ident">StreamTracking</span>,
     <span class="ident">gid</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
