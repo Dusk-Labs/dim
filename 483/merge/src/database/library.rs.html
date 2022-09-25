@@ -226,6 +226,10 @@
 <span id="219">219</span>
 <span id="220">220</span>
 <span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DatabaseError</span>;
 <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
@@ -299,6 +303,8 @@
     <span class="doccomment">/// moment only `movie` and `tv` are supported</span>
     <span class="comment">// TODO: support mixed content, music</span>
     <span class="kw">pub</span> <span class="ident">media_type</span>: <span class="ident">MediaType</span>,
+    <span class="doccomment">/// Is library hidden?</span>
+    <span class="kw">pub</span> <span class="ident">hidden</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Library</span> {
@@ -308,7 +314,7 @@
     <span class="doccomment">/// This method will not return the locations indexed for this library, if you need those you</span>
     <span class="doccomment">/// must query for them separately.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="macro">sqlx::query!</span>(<span class="string">r#&quot;SELECT id, name, media_type as &quot;media_type: MediaType&quot; FROM library WHERE NOT hidden&quot;#</span>)
+        <span class="macro">sqlx::query!</span>(<span class="string">r#&quot;SELECT id, name, media_type as &quot;media_type: MediaType&quot;, hidden as &quot;hidden: bool&quot; FROM library WHERE NOT hidden&quot;#</span>)
             .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap_or_default</span>()
@@ -317,6 +323,7 @@
                 <span class="ident">id</span>: <span class="ident">x</span>.<span class="ident">id</span>,
                 <span class="ident">name</span>: <span class="ident">x</span>.<span class="ident">name</span>,
                 <span class="ident">media_type</span>: <span class="ident">x</span>.<span class="ident">media_type</span>,
+                <span class="ident">hidden</span>: <span class="ident">x</span>.<span class="ident">hidden</span>,
                 <span class="ident">locations</span>: <span class="macro">vec!</span>[],
             })
             .<span class="ident">collect</span>()
@@ -346,7 +353,7 @@
         <span class="ident">lib_id</span>: <span class="ident">i64</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">library</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-            <span class="string">r#&quot;SELECT id, name, media_type as &quot;media_type: MediaType&quot; FROM library
+            <span class="string">r#&quot;SELECT id, name, media_type as &quot;media_type: MediaType&quot;, hidden as &quot;hidden: bool&quot; FROM library
             WHERE id = ?&quot;#</span>,
             <span class="ident">lib_id</span>
         )
@@ -365,6 +372,7 @@
             <span class="ident">id</span>: <span class="ident">library</span>.<span class="ident">id</span>,
             <span class="ident">name</span>: <span class="ident">library</span>.<span class="ident">name</span>,
             <span class="ident">media_type</span>: <span class="ident">library</span>.<span class="ident">media_type</span>,
+            <span class="ident">hidden</span>: <span class="ident">library</span>.<span class="ident">hidden</span>,
             <span class="ident">locations</span>,
         })
     }
