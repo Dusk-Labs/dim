@@ -6,19 +6,30 @@ use tokio::sync::mpsc::UnboundedSender;
 
 use tracing::{debug, error, instrument};
 
+use std::collections::hash_map::DefaultHasher;
 use std::fs::File;
+use std::hash::Hash;
+use std::hash::Hasher;
 use std::io::copy;
 use std::io::Cursor;
 use std::path::PathBuf;
 
 use once_cell::sync::OnceCell;
 
+const PARTITIONS: usize = 5;
+static SENDER_PARTITIONS: OnceCell<[UnboundedSender<(String, String)>; PARTITIONS]> =
+    OnceCell::new();
+
 #[instrument]
-pub async fn insert_into_queue(poster: String, outfile: String, priority: usize) {
-    // FIXME: We might want to figure out a way to make this a const generic param.
-    const PARTITIONS: usize = 5;
-    static SENDER_PARTITIONS: OnceCell<[UnboundedSender<(String, String, usize)>; PARTITIONS]> =
-        OnceCell::new();
+pub async fn insert_into_queue(poster: String, outfile: String, immediate: bool) {
+    let partition = if immediate {
+        PARTITIONS - 1
+    } else {
+        let mut hasher = DefaultHasher::new();
+        poster.as_str().hash(&mut hasher);
+
+        (hasher.finish() % (PARTITIONS as u64 - 1)) as usize
+    };
 
     let partitions = SENDER_PARTITIONS.get_or_init(|| {
         [(); PARTITIONS].map(|_| {
@@ -29,14 +40,14 @@ pub async fn insert_into_queue(poster: String, outfile: String, priority: usize)
         })
     });
 
-    partitions[priority % PARTITIONS]
-        .send((poster.clone(), outfile, priority))
+    partitions[partition]
+        .send((poster.clone(), outfile))
         .expect("Failed to send poster request");
 }
 
-#[instrument]
-async fn process_queue(mut rx: UnboundedReceiver<(String, String, usize)>) {
-    while let Some((url, outfile, _)) = rx.recv().await {
+#[instrument(skip_all)]
+async fn process_queue(mut rx: UnboundedReceiver<(String, String)>) {
+    while let Some((url, outfile)) = rx.recv().await {
         debug!("Trying to cache {}", url);
 
         match reqwest::get(url.as_str()).await {
@@ -47,19 +58,26 @@ async fn process_queue(mut rx: UnboundedReceiver<(String, String, usize)>) {
 
                 debug!("Caching {} -> {:?}", url, out_path);
 
-                if let Ok(mut file) = File::create(out_path) {
-                    if let Ok(bytes) = resp.bytes().await {
-                        let mut content = Cursor::new(bytes);
-                        if copy(&mut content, &mut file).is_ok() {
-                            continue;
-                        }
+                let mut file = match File::create(out_path) {
+                    Ok(x) => x,
+                    Err(e) => {
+                        error!(error = ?e, url = &url, "Failed to create local file.");
+                        continue;
                     }
-                }
+                };
 
-                error!(
-                    "Failed to cache {} locally, appending back into queue",
-                    &url
-                );
+                let bytes = match resp.bytes().await {
+                    Ok(bytes) => bytes,
+                    Err(e) => {
+                        error!(error = ?e, url = &url, "Failed to acquire handle on bytes from stream.");
+                        continue;
+                    }
+                };
+
+                let mut content = Cursor::new(bytes);
+                if let Err(e) = copy(&mut content, &mut file) {
+                    error!(error = ?e, url = &url, "Failed to copy bytes into file.");
+                }
             }
             Err(e) => {
                 error!(e = ?e, "Failed to cache URL locally: {}", url);

@@ -699,6 +699,7 @@ dependencies = [
  "image",
  "itertools",
  "lazy_static",
+ "libsqlite3-sys",
  "nightfall",
  "nix 0.20.0",
  "notify",

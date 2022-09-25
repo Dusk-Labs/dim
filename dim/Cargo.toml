@@ -74,6 +74,7 @@ url = "2.2.2"
 retry-block = "1.0.0"
 hyper = "0.14.20"
 rusqlite = { version = "0.27.0", features = ["hooks"] }
+libsqlite3-sys = { version = "^0.24.0" }
 
 [build-dependencies]
 fs_extra = "1.1.0"

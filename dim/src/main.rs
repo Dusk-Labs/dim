@@ -85,15 +85,16 @@ fn main() {
 
     let async_main = async move {
         let (event_tx, event_rx) = tokio::sync::mpsc::unbounded_channel();
+        let pool = database::get_conn().await.unwrap();
 
         // Before we start making DB-calls we need to initialize our CDC pipeline.
-        let reactor = dim::reactor::handler::EventReactor::new().with_websocket(event_tx.clone());
-
         {
-            let pool = database::get_conn().await.unwrap();
             let mut lock = pool.writer().lock_owned().await;
             let mut reactor_core = dim::reactor::ReactorCore::new();
             reactor_core.register(&mut lock).await;
+
+            let reactor = dim::reactor::handler::EventReactor::new(pool.clone())
+                .with_websocket(event_tx.clone());
 
             tokio::spawn(reactor_core.react(reactor));
         }

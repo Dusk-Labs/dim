@@ -71,6 +71,8 @@ pub struct Library {
     /// moment only `movie` and `tv` are supported
     // TODO: support mixed content, music
     pub media_type: MediaType,
+    /// Is library hidden?
+    pub hidden: bool,
 }
 
 impl Library {
@@ -80,7 +82,7 @@ impl Library {
     /// This method will not return the locations indexed for this library, if you need those you
     /// must query for them separately.
     pub async fn get_all(conn: &mut crate::Transaction<'_>) -> Vec<Self> {
-        sqlx::query!(r#"SELECT id, name, media_type as "media_type: MediaType" FROM library WHERE NOT hidden"#)
+        sqlx::query!(r#"SELECT id, name, media_type as "media_type: MediaType", hidden as "hidden: bool" FROM library WHERE NOT hidden"#)
             .fetch_all(&mut *conn)
             .await
             .unwrap_or_default()
@@ -89,6 +91,7 @@ impl Library {
                 id: x.id,
                 name: x.name,
                 media_type: x.media_type,
+                hidden: x.hidden,
                 locations: vec![],
             })
             .collect()
@@ -118,7 +121,7 @@ impl Library {
         lib_id: i64,
     ) -> Result<Self, DatabaseError> {
         let library = sqlx::query!(
-            r#"SELECT id, name, media_type as "media_type: MediaType" FROM library
+            r#"SELECT id, name, media_type as "media_type: MediaType", hidden as "hidden: bool" FROM library
             WHERE id = ?"#,
             lib_id
         )
@@ -137,6 +140,7 @@ impl Library {
             id: library.id,
             name: library.name,
             media_type: library.media_type,
+            hidden: library.hidden,
             locations,
         })
     }

@@ -4,6 +4,7 @@ use rusqlite::hooks::Action;
 pub enum Table {
     Library,
     Media,
+    Assets,
 }
 
 impl TryFrom<&str> for Table {
@@ -12,7 +13,8 @@ impl TryFrom<&str> for Table {
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s {
             "library" => Ok(Self::Library),
-            "media" => Ok(Self::Media),
+            "_tblmedia" => Ok(Self::Media),
+            "assets" => Ok(Self::Assets),
             _ => Err(()),
         }
     }

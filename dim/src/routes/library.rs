@@ -15,8 +15,6 @@ use database::media::Media;
 use database::mediafile::MediaFile;
 
 use database::user::User;
-use events::Message;
-use events::PushEventType;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -86,20 +84,16 @@ pub mod filters {
 
     pub fn library_delete(
         conn: DbConnection,
-        event_tx: EventTx,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "library" / i64)
             .and(warp::delete())
             .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and(with_state::<EventTx>(event_tx))
-            .and_then(
-                |id: i64, user: User, conn: DbConnection, event_tx: EventTx| async move {
-                    super::library_delete(id, user, conn, event_tx)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
+            .and_then(|id: i64, user: User, conn: DbConnection| async move {
+                super::library_delete(id, user, conn)
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
     }
 
     pub fn library_get_self(
@@ -258,12 +252,11 @@ pub async fn library_post(
 /// * `event_tx` - channel over which to dispatch events
 /// * `_user` - Auth middleware
 // NOTE: Should we only allow the owner to add/remove libraries?
-#[instrument(err, skip(conn, event_tx, _user), fields(auth.user = _user.username.as_str()))]
+#[instrument(err, skip(conn, _user), fields(auth.user = _user.username.as_str()))]
 pub async fn library_delete(
     id: i64,
     _user: User,
     conn: DbConnection,
-    event_tx: EventTx,
 ) -> Result<impl warp::Reply, errors::DimError> {
     // First we mark the library as scheduled for deletion which will make the library and all its
     // content hidden. This is necessary because huge libraries take a long time to delete.
@@ -278,16 +271,10 @@ pub async fn library_delete(
 
     let delete_lib_fut = async move {
         let inner = async {
-            // TODO: Need to do this in two transactions to trigger the CDC event.
             let mut lock = conn.writer().lock_owned().await;
             let mut tx = database::write_tx(&mut lock).await?;
 
             Library::delete(&mut tx, id).await?;
-
-            tx.commit().await?;
-
-            let mut tx = database::write_tx(&mut lock).await?;
-
             Media::delete_by_lib_id(&mut tx, id).await?;
             MediaFile::delete_by_lib_id(&mut tx, id).await?;
 
