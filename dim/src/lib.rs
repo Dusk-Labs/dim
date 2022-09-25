@@ -38,6 +38,8 @@ pub mod fetcher;
 pub mod inspect;
 /// Contains our custom logger for rocket
 pub mod logger;
+/// Sqlite CDC implementation
+pub mod reactor;
 /// Contains all of the routes exposed by the webapi.
 pub mod routes;
 /// New generation scanner infrastructure.

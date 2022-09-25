@@ -300,6 +300,22 @@ impl Media {
                 .rows_affected() as usize,
         )
     }
+
+    /// Get compact representation of a media object. This returns the library_id and
+    /// media_type of the media object.
+    pub async fn get_compact(
+        tx: &mut crate::Transaction<'_>,
+        id: i64,
+    ) -> Result<(i64, MediaType), DatabaseError> {
+        type Record = (i64, MediaType);
+
+        Ok(sqlx::query_as::<_, Record>(
+            r#"SELECT library_id, media_type AS "media_type: _" FROM _tblmedia WHERE id = ?"#,
+        )
+        .bind(id)
+        .fetch_one(&mut *tx)
+        .await?)
+    }
 }
 
 impl Into<super::tv::TVShow> for Media {

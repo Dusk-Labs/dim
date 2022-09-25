@@ -1,0 +1,16 @@
+use displaydoc::Display;
+use thiserror::Error;
+
+#[derive(Debug, Display, Error)]
+pub enum Error {
+    /// Failed to dispatch event to websocket clients: {0:?}
+    EventDispatch(tokio::sync::mpsc::error::SendError<String>),
+    /// Failed to open read-only transaction: {0:?}
+    ReadTransaction(sqlx::Error),
+    /// Failed to query library: {0:?}
+    LibraryQuery(database::DatabaseError),
+    /// Failed to query asset: {0:?}
+    AssetQuery(database::DatabaseError),
+    /// Failed to query media: {0:?}
+    MediaQuery(database::DatabaseError),
+}

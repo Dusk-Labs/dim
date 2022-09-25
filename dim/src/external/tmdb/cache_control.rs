@@ -101,7 +101,7 @@ impl CacheEviction {
                 let items = self.evict();
                 let duration = now.elapsed().as_millis();
 
-                tracing::info!(
+                tracing::debug!(
                     items = items,
                     duration_ms = duration,
                     "tmdb cache eviction finished."
