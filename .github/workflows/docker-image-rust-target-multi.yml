@@ -49,7 +49,7 @@ jobs:
       - name: install runtime
         run: apt update && apt install -y pkg-config gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libc6-armhf-cross libc6-dev-armhf-cross tar ca-certificates
       - name: add armhf target
-        run: rustup target add armv7-unknown-linux-gnueabihf
+        run: rustup default stable && rustup target add armv7-unknown-linux-gnueabihf
       - name: smoke test
         run: rustc --version
       - name: Checkout repository
@@ -97,7 +97,7 @@ jobs:
       - name: install runtime
         run: apt update && apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-arm64-cross libc6-dev-arm64-cross libssl-dev:arm64
       - name: add arm64 target
-        run: rustup target add aarch64-unknown-linux-gnu
+        run: rustup default stable && rustup target add aarch64-unknown-linux-gnu
       - name: smoke test
         run: rustc --version
       - name: Checkout repository
