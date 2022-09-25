@@ -80,7 +80,7 @@ libsqlite3-sys = { version = "^0.24.0" }
 fs_extra = "1.1.0"
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.20.0"
+nix = "0.23.1"
 
 [target.'cfg(windows)'.dependencies]
 zip = "0.5.10"
