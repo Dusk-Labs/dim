@@ -102,6 +102,8 @@
 <span id="95">95</span>
 <span id="96">96</span>
 <span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Dim is a media manager written in rust.</span>
 <span class="doccomment">//! It uses Diesel as the ORM and rocket for the http/s server</span>
 <span class="doccomment">//!</span>
@@ -142,6 +144,8 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">inspect</span>;
 <span class="doccomment">/// Contains our custom logger for rocket</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">logger</span>;
+<span class="doccomment">/// Sqlite CDC implementation</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">reactor</span>;
 <span class="doccomment">/// Contains all of the routes exposed by the webapi.</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">routes</span>;
 <span class="doccomment">/// New generation scanner infrastructure.</span>
