@@ -224,15 +224,14 @@ pub async fn start_custom(
 
     let now = Instant::now();
     let workunits = insert_mediafiles(conn, library_id, dirs).await?;
+    let workunits_size = workunits.len();
 
     info!(
         library_id,
-        units = workunits.len(),
+        units = workunits_size,
         elapsed_ms = now.elapsed().as_millis(),
         "Walked and inserted mediafiles."
     );
-
-    let now = Instant::now();
 
     // NOTE: itertools::GroupBy is used across an await point and thus must also be Sync. This
     // breaks some of our higher-level logic where we spawn this task. Thus we collect it before
@@ -263,6 +262,7 @@ pub async fn start_custom(
 
     info!(
         library_id,
+        units = workunits_size,
         elapsed_ms = now.elapsed().as_millis(),
         "Finished scanning library."
     );

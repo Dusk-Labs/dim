@@ -118,7 +118,7 @@ pub async fn warp_core(
         /* library routes */
         routes::library::filters::library_get(conn.clone()),
         routes::library::filters::library_post(conn.clone(), event_tx.clone()),
-        routes::library::filters::library_delete(conn.clone(), event_tx.clone()),
+        routes::library::filters::library_delete(conn.clone()),
         routes::library::filters::library_get_self(conn.clone()),
         routes::library::filters::get_all_of_library(conn.clone()),
         routes::library::filters::get_all_unmatched_media(conn.clone()),
