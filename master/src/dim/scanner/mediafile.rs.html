@@ -261,9 +261,6 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Module contains all the code that creates and inserts basic mediafiles into the database.</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external::filename::Metadata</span>;
@@ -405,10 +402,7 @@
         <span class="comment">// and does its scheduling. If a user ever needs to obtain the metadata, we can request it</span>
         <span class="comment">// and patch it immediately. This would add a initial cost to the API call, but subsequent</span>
         <span class="comment">// API calls will be cheap.</span>
-        <span class="kw">let</span> <span class="ident">video_metadata</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">FFProbeCtx::new</span>(<span class="kw-2">&amp;</span><span class="ident">FFPROBE_BIN</span>)
-            .<span class="ident">get_meta</span>(<span class="kw-2">&amp;</span><span class="ident">target_file</span>)
-            .<span class="kw">await</span>
-        {
+        <span class="kw">let</span> <span class="ident">video_metadata</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">FFProbeCtx::new</span>(<span class="kw-2">&amp;</span><span class="ident">FFPROBE_BIN</span>).<span class="ident">get_meta</span>(<span class="kw-2">&amp;</span><span class="ident">target_file</span>).<span class="kw">await</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
             <span class="prelude-val">Err</span>(<span class="ident">error</span>) =&gt; {
                 <span class="macro">error!</span>(<span class="question-mark">?</span><span class="ident">error</span>, <span class="string">&quot;Couldn&#39;t extract media information with ffprobe&quot;</span>);
