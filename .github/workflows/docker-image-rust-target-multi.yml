@@ -60,6 +60,17 @@ jobs:
         with:
           name: ui
           path: ui/build
+      - uses: actions/cache@v3
+        with:
+          path: |
+            .cargo/bin
+            .cargo/registry/index
+            .cargo/registry/cache
+            .cargo/git/db
+            target
+          key: lldap-bin-armhf-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            lldap-bin-armhf-
       - name: compile armhf
         run: cargo build --target=armv7-unknown-linux-gnueabihf --release
       - name: check path
@@ -100,6 +111,17 @@ jobs:
         with:
           name: ui
           path: ui/build
+      - uses: actions/cache@v3
+        with:
+          path: |
+            .cargo/bin
+            .cargo/registry/index
+            .cargo/registry/cache
+            .cargo/git/db
+            target
+          key: lldap-bin-aarch64-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            lldap-bin-aarch64-
       - name: compile aarch64
         run: cargo build --target=aarch64-unknown-linux-gnu --release
       - name: check path
@@ -132,6 +154,17 @@ jobs:
         with:
           name: ui
           path: ui/build
+      - uses: actions/cache@v3
+        with:
+          path: |
+            .cargo/bin
+            .cargo/registry/index
+            .cargo/registry/cache
+            .cargo/git/db
+            target
+          key: lldap-bin-amd64-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            lldap-bin-amd64-
       - name: compile amd64
         run: cargo build --features vaapi --target=x86_64-unknown-linux-gnu --release
       - name: check path
