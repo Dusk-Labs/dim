@@ -2,6 +2,7 @@
 
 use crate::external::filename::Metadata;
 use crate::streaming::ffprobe::FFProbeCtx;
+use crate::streaming::FFPROBE_BIN;
 
 use async_trait::async_trait;
 
@@ -138,7 +139,7 @@ impl MediafileCreator {
         // and does its scheduling. If a user ever needs to obtain the metadata, we can request it
         // and patch it immediately. This would add a initial cost to the API call, but subsequent
         // API calls will be cheap.
-        let video_metadata = match FFProbeCtx::new("/usr/bin/ffprobe")
+        let video_metadata = match FFProbeCtx::new(&FFPROBE_BIN)
             .get_meta(&target_file)
             .await
         {
