@@ -138,7 +138,7 @@ impl FFProbeCtx {
         probe
             .arg(file.to_string())
             .arg("-v")
-            .arg("quiet")
+            .arg("error")
             .arg("-print_format")
             .arg("json")
             .arg("-show_streams")
