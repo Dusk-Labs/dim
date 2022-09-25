@@ -81,6 +81,11 @@ fn main() {
         }
     }
 
+    // The mediafile scanner is super hungry for fds. Increase our limits here as much as possible.
+    if let Some(limit) = fdlimit::raise_fd_limit() {
+        info!(limit, "Raising fd limit.");
+    }
+
     nightfall::profiles::profiles_init(crate::streaming::FFMPEG_BIN.to_string());
 
     let async_main = async move {

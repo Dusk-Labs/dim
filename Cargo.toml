@@ -1,5 +1,13 @@
+cargo-features = ["workspace-inheritance"]
+
 [workspace]
 members = ["dim", "database", "auth", "events"]
+
+[workspace.package]
+version = "0.4.0-dev"
+authors = ["Valerian G. <valerian@dusklabs.io>"]
+edition = "2021"
+license = "AGPL-3.0-only"
 
 [profile.dev]
 codegen-units = 16
