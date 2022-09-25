@@ -98,8 +98,6 @@ jobs:
         run: apt update && apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-arm64-cross libc6-dev-arm64-cross libssl-dev:arm64
       - name: add arm64 target
         run: rustup target add aarch64-unknown-linux-gnu
-      - name: set default nightly
-        run: rustup default nightly
       - name: smoke test
         run: rustc --version
       - name: Checkout repository
@@ -141,8 +139,6 @@ jobs:
     steps:
       - name: install runtime
         run: apt update && apt install -y gcc-x86-64-linux-gnu g++-x86-64-linux-gnu libc6-dev libssl-dev libva-dev libva-drm2 libva2
-      - name: set default nightly
-        run: rustup default nightly
       - name: smoke test
         run: rustc --version
       - name: Checkout repository
