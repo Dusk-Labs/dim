@@ -444,7 +444,6 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
-<span id="440">440</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::EventTx</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>;
@@ -718,7 +717,6 @@
 
     <span class="kw">let</span> <span class="ident">delete_lib_fut</span> <span class="op">=</span> <span class="kw">async</span> <span class="kw">move</span> {
         <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">async</span> {
-            <span class="comment">// TODO: Need to do this in two transactions to trigger the CDC event.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
