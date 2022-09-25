@@ -209,7 +209,6 @@
 <span id="202">202</span>
 <span id="203">203</span>
 <span id="204">204</span>
-<span id="205">205</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">handler</span>;
 <span class="kw">mod</span> <span class="ident">types</span>;
 
@@ -219,13 +218,11 @@
 <span class="kw">use</span> <span class="ident">rusqlite::hooks::Action</span>;
 <span class="kw">use</span> <span class="ident">rusqlite::Connection</span>;
 <span class="kw">use</span> <span class="ident">sqlx::SqliteConnection</span>;
-<span class="kw">use</span> <span class="ident">tokio::sync::OwnedMutexGuard</span>;
 
 <span class="kw">use</span> <span class="ident">std::os::raw::c_char</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw::c_void</span>;
 <span class="kw">use</span> <span class="ident">std::panic::catch_unwind</span>;
-
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 <span class="kw">use</span> <span class="ident">std::sync::Mutex</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
@@ -234,6 +231,7 @@
 <span class="kw">use</span> <span class="ident">tokio::sync::mpsc::unbounded_channel</span>;
 <span class="kw">use</span> <span class="ident">tokio::sync::mpsc::UnboundedReceiver</span>;
 <span class="kw">use</span> <span class="ident">tokio::sync::mpsc::UnboundedSender</span>;
+<span class="kw">use</span> <span class="ident">tokio::sync::OwnedMutexGuard</span>;
 
 <span class="kw">use</span> <span class="ident">tracing::error</span>;
 <span class="kw">use</span> <span class="ident">tracing::instrument</span>;
