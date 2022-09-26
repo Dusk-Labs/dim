@@ -15,22 +15,19 @@ function VideoActionSeekForward() {
 
   const { seekTo } = useContext(VideoPlayerContext);
 
-  const seekForward = useCallback(
-    (e) => {
-      dispatch(
-        updateVideo({
-          idleCount: 0,
-        })
-      );
+  const seekForward = useCallback(() => {
+    dispatch(
+      updateVideo({
+        idleCount: 0,
+      })
+    );
 
-      if (video.currentTime + 15 >= video.duration) {
-        seekTo(video.duration);
-      } else {
-        seekTo(video.currentTime + 15);
-      }
-    },
-    [dispatch, seekTo, video.currentTime, video.duration]
-  );
+    if (video.currentTime + 15 >= video.duration) {
+      seekTo(video.duration);
+    } else {
+      seekTo(video.currentTime + 15);
+    }
+  }, [dispatch, seekTo, video.currentTime, video.duration]);
 
   const handleKeyDown = useCallback(
     (e) => {
