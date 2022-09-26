@@ -1,4 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/media.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>media.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/media.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>media.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -449,21 +456,83 @@
 <span id="449">449</span>
 <span id="450">450</span>
 <span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::library::MediaType</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DatabaseError</span>;
 
 <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
-<span class="doccomment">/// Marker trait used to mark media types that inherit from Media.</span>
-<span class="doccomment">/// Used internally by InsertableTVShow.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MediaTrait</span> {}
+<span class="kw">use</span> <span class="ident">tracing::error</span>;
 
 <span class="doccomment">/// Media struct that represents a media object, usually a movie, tv show or a episode of a tv</span>
 <span class="doccomment">/// show. This struct is returned by several methods and can be serialized to json.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Media</span> {
-    <span class="doccomment">/// unique id automatically assigned by postgres.</span>
+    <span class="doccomment">/// unique id.</span>
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i64</span>,
     <span class="doccomment">/// id of the library that this media objects belongs to.</span>
     <span class="kw">pub</span> <span class="ident">library_id</span>: <span class="ident">i64</span>,
@@ -472,7 +541,7 @@
     <span class="doccomment">/// description of this media object. Usually overview of a movie etc.</span>
     <span class="kw">pub</span> <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="doccomment">/// rating provided by any API that is encoded as a signed integer. Usually TMDB rating.</span>
-    <span class="kw">pub</span> <span class="ident">rating</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">rating</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Year in which this movie/tv show/episode was released/aired.</span>
     <span class="kw">pub</span> <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Date when this media object was created and inserted into the database. Used by several</span>
@@ -509,7 +578,7 @@
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
                 <span class="ident">Media</span>,
-                <span class="string">r#&quot;SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as &quot;media_type: _&quot; FROM media WHERE library_id = ? AND NOT media_type = &quot;episode&quot;&quot;#</span>,
+                <span class="string">r#&quot;SELECT id, library_id, name, description, rating as &quot;rating: _&quot;, year, added, poster_path, backdrop_path, media_type as &quot;media_type: _&quot; FROM media WHERE library_id = ? AND NOT media_type = &quot;episode&quot;&quot;#</span>,
                 <span class="ident">library_id</span>
             )
             .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
@@ -524,7 +593,7 @@
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">id</span>: <span class="ident">i64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
                 <span class="ident">Media</span>,
-                <span class="string">r#&quot;SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as &quot;media_type: _&quot; FROM media WHERE id = ?&quot;#</span>,
+                <span class="string">r#&quot;SELECT id, library_id, name, description, rating as &quot;rating: _&quot;, year, added, poster_path, backdrop_path, media_type as &quot;media_type: _&quot; FROM media WHERE id = ?&quot;#</span>,
                 <span class="ident">id</span>
             )
             .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
@@ -544,7 +613,7 @@
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
                 <span class="ident">Media</span>,
-                <span class="string">r#&quot;SELECT id, library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as &quot;media_type: _&quot; FROM media WHERE library_id = ? AND name = ? AND NOT media_type = &quot;episode&quot;&quot;#</span>,
+                <span class="string">r#&quot;SELECT id, library_id, name, description, rating as &quot;rating: _&quot;, year, added, poster_path, backdrop_path, media_type as &quot;media_type: _&quot; FROM media WHERE library_id = ? AND name = ? AND NOT media_type = &quot;episode&quot;&quot;#</span>,
                 <span class="ident">library_id</span>,
                 <span class="ident">name</span>,
             )
@@ -558,7 +627,7 @@
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
                 <span class="ident">Media</span>,
-                <span class="string">r#&quot;SELECT media.id, media.library_id, name, description, rating, year, added, poster_path, backdrop_path, media_type as &quot;media_type: _&quot;
+                <span class="string">r#&quot;SELECT media.id, media.library_id, name, description, rating as &quot;rating: _&quot;, year, added, poster_path, backdrop_path, media_type as &quot;media_type: _&quot;
                 FROM media
                 INNER JOIN mediafile ON mediafile.media_id = media.id
                 WHERE mediafile.id = ?&quot;#</span>,
@@ -608,7 +677,7 @@
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
                 <span class="ident">Media</span>,
-                <span class="string">r#&quot;SELECT media.id, media.library_id, media.name, description, rating, year, added, poster_path as &quot;poster_path?&quot;, backdrop_path as &quot;backdrop_path?&quot;, media.media_type as &quot;media_type: _&quot;
+                <span class="string">r#&quot;SELECT media.id, media.library_id, media.name, description, rating as &quot;rating: _&quot;, year, added, poster_path as &quot;poster_path?&quot;, backdrop_path as &quot;backdrop_path?&quot;, media.media_type as &quot;media_type: _&quot;
                 FROM media
                 JOIN library ON media.library_id = library.id
                 WHERE NOT media.media_type = &quot;episode&quot; AND NOT library.hidden
@@ -628,7 +697,7 @@
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;%{}%&quot;</span>, <span class="ident">query</span>);
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
                 <span class="ident">Media</span>,
-                <span class="string">r#&quot;SELECT media.id, media.library_id, media.name, description, rating, year, added, poster_path, backdrop_path, media.media_type as &quot;media_type: _&quot;
+                <span class="string">r#&quot;SELECT media.id, media.library_id, media.name, description, rating as &quot;rating: _&quot;, year, added, poster_path, backdrop_path, media.media_type as &quot;media_type: _&quot;
                 FROM media
                 JOIN library ON library.id = media.library_id
                 WHERE NOT media.media_type = &quot;episode&quot; AND NOT library.hidden
@@ -646,7 +715,7 @@
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
                 <span class="ident">Media</span>,
-                <span class="string">r#&quot;SELECT media.id, media.library_id, media.name, description, rating, year, added, poster_path, backdrop_path, media.media_type as &quot;media_type: _&quot;
+                <span class="string">r#&quot;SELECT media.id, media.library_id, media.name, description, rating as &quot;rating: _&quot;, year, added, poster_path, backdrop_path, media.media_type as &quot;media_type: _&quot;
                 FROM media
                 INNER JOIN genre_media ON genre_media.media_id = media.id
                 JOIN library ON library.id = media.library_id
@@ -663,7 +732,7 @@
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
                 <span class="ident">Media</span>,
-                <span class="string">r#&quot;SELECT media.id, media.library_id, media.name, description, rating, year, added, poster_path, backdrop_path, media.media_type as &quot;media_type: _&quot;
+                <span class="string">r#&quot;SELECT media.id, media.library_id, media.name, description, rating as &quot;rating: _&quot;, year, added, poster_path, backdrop_path, media.media_type as &quot;media_type: _&quot;
                 FROM media
                 JOIN library ON library.id = media.library_id
                 WHERE NOT media.media_type = &quot;episode&quot; AND NOT library.hidden
@@ -687,6 +756,18 @@
         .<span class="kw">await</span>
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">duration</span>)
         .<span class="ident">unwrap_or</span>(<span class="number">0</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_id_by_name</span>(
+        <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(
+            <span class="macro">sqlx::query!</span>(<span class="string">r#&quot;SELECT id FROM _tblmedia where name = ?&quot;#</span>, <span class="ident">name</span>)
+                .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">tx</span>)
+                .<span class="kw">await</span><span class="question-mark">?</span>
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">id</span>),
+        )
     }
 
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">media_mediatype</span>(
@@ -741,6 +822,22 @@
                 .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>,
         )
     }
+
+    <span class="doccomment">/// Get compact representation of a media object. This returns the library_id and</span>
+    <span class="doccomment">/// media_type of the media object.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_compact</span>(
+        <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">id</span>: <span class="ident">i64</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">i64</span>, <span class="ident">MediaType</span>), <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+        <span class="kw">type</span> <span class="ident">Record</span> <span class="op">=</span> (<span class="ident">i64</span>, <span class="ident">MediaType</span>);
+
+        <span class="prelude-val">Ok</span>(<span class="ident">sqlx::query_as</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">Record</span><span class="op">&gt;</span>(
+            <span class="string">r#&quot;SELECT library_id, media_type AS &quot;media_type: _&quot; FROM _tblmedia WHERE id = ?&quot;#</span>,
+        )
+        .<span class="ident">bind</span>(<span class="ident">id</span>)
+        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">tx</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>)
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident"><span class="kw">super</span>::tv::TVShow</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Media</span> {
@@ -757,7 +854,7 @@
     <span class="kw">pub</span> <span class="ident">library_id</span>: <span class="ident">i64</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">rating</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">rating</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">added</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">poster</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
@@ -766,25 +863,15 @@
 }
 
 <span class="kw">impl</span> <span class="ident">InsertableMedia</span> {
-    <span class="doccomment">/// Method used to insert a new media object.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
+    <span class="doccomment">/// Method used to insert a new media object. Caller can optionally specify a media id if they</span>
+    <span class="doccomment">/// wish to reuse a media object.</span>
     <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>, <span class="ident">conn</span>), <span class="ident">fields</span>(<span class="self">self</span>.<span class="ident">name</span> <span class="op">=</span> <span class="op">%</span><span class="self">self</span>.<span class="ident">name</span>, <span class="self">self</span>.<span class="ident">library_id</span> <span class="op">=</span> <span class="op">%</span><span class="self">self</span>.<span class="ident">library_id</span>))]</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">record</span>) <span class="op">=</span> <span class="macro">sqlx::query!</span>(<span class="string">r#&quot;SELECT id FROM _tblmedia where name = ?&quot;#</span>, <span class="self">self</span>.<span class="ident">name</span>)
-            .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-        {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">record</span>.<span class="ident">id</span>);
-        }
-
+        <span class="comment">// NOTE: ON CONFLICT is removed as conflicts cant happen because writes are serialized.</span>
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
             <span class="string">r#&quot;INSERT INTO _tblmedia (library_id, name, description, rating, year, added, poster, backdrop, media_type)
             VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)
-            ON CONFLICT DO UPDATE
-            SET name = $2
-            RETURNING _tblmedia.id as &quot;id!: i64&quot;
+            RETURNING id
             &quot;#</span>,
             <span class="self">self</span>.<span class="ident">library_id</span>,
             <span class="self">self</span>.<span class="ident">name</span>,
@@ -810,16 +897,20 @@
         <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">id</span>: <span class="ident">i64</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">record</span>) <span class="op">=</span> <span class="macro">sqlx::query!</span>(<span class="string">r#&quot;SELECT id FROM _tblmedia where name = ?&quot;#</span>, <span class="self">self</span>.<span class="ident">name</span>)
-            .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-        {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">record</span>.<span class="ident">id</span>);
-        }
-
         <span class="macro">sqlx::query!</span>(
             <span class="string">r#&quot;INSERT INTO _tblmedia (id, library_id, name, description, rating, year, added, poster, backdrop, media_type)
             VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10)
+            ON CONFLICT(id) DO UPDATE SET
+            id = excluded.id,
+            library_id = excluded.library_id,
+            name = excluded.name,
+            description = excluded.description,
+            rating = excluded.rating,
+            year = excluded.year,
+            added = excluded.added,
+            poster = excluded.poster,
+            backdrop = excluded.backdrop,
+            media_type = excluded.media_type
             &quot;#</span>,
             <span class="ident">id</span>,
             <span class="self">self</span>.<span class="ident">library_id</span>,
@@ -857,6 +948,38 @@
             <span class="self">self</span>.<span class="ident">media_type</span>
         ).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">last_insert_rowid</span>())
     }
+
+    <span class="doccomment">/// Lazily inserts the media object passed in with the following behavior.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the media id exists in the database and has one child, the media id is</span>
+    <span class="doccomment">/// reused and the media object passed in is re-inserted. If the media object</span>
+    <span class="doccomment">/// has more than one child, we create a new media object and recouple.</span>
+    <span class="doccomment">/// FIXME: How will this behave with cross-mediatype rematches??</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns a tuple of the id and whether the media object has been in place modified</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">lazy_insert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+        <span class="comment">// Maybe a media object that can be linked against this file already exists and we want</span>
+        <span class="comment">// to bind to it?</span>
+        <span class="comment">// FIXME: Libraries can be of mixed type, and some movies and shows share the same</span>
+        <span class="comment">// name. As such we should add an extra param for more accurate matching, year or</span>
+        <span class="comment">// mediatype can be considered.</span>
+        <span class="kw">match</span> <span class="ident">Media::get_id_by_name</span>(<span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">inspect_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> <span class="macro">error!</span>(<span class="question-mark">?</span><span class="ident">error</span>, <span class="op">%</span><span class="self">self</span>.<span class="ident">name</span>, <span class="string">&quot;Failed to get a media by name&quot;</span>))<span class="question-mark">?</span>
+        {
+            <span class="prelude-val">Some</span>(<span class="ident">id</span>) =&gt; {
+                <span class="ident">UpdateMedia::from</span>(<span class="self">self</span>.<span class="ident">clone</span>())
+                    .<span class="ident">update</span>(<span class="ident">tx</span>, <span class="ident">id</span>)
+                    .<span class="kw">await</span>
+                    .<span class="ident">inspect_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> <span class="macro">error!</span>(<span class="question-mark">?</span><span class="ident">error</span>, <span class="op">%</span><span class="ident">id</span>, <span class="string">&quot;Failed to update media metadata&quot;</span>))<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(<span class="ident">id</span>)
+            }
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>
+                .<span class="ident">insert</span>(<span class="ident">tx</span>)
+                .<span class="kw">await</span>
+                .<span class="ident">inspect_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> <span class="macro">error!</span>(<span class="question-mark">?</span><span class="ident">error</span>, <span class="string">&quot;Failed to insert media object.&quot;</span>))<span class="question-mark">?</span>),
+        }
+    }
 }
 
 <span class="doccomment">/// Struct which is used when we need to update information about a media object. Same as</span>
@@ -866,7 +989,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UpdateMedia</span> {
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">rating</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">rating</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">added</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">poster</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
@@ -900,5 +1023,18 @@
         <span class="prelude-val">Ok</span>(<span class="number">1</span>)
     }
 }
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InsertableMedia</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UpdateMedia</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">other</span>: <span class="ident">InsertableMedia</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">description</span>: <span class="ident">other</span>.<span class="ident">description</span>,
+            <span class="ident">rating</span>: <span class="ident">other</span>.<span class="ident">rating</span>,
+            <span class="ident">poster</span>: <span class="ident">other</span>.<span class="ident">poster</span>,
+            <span class="ident">backdrop</span>: <span class="ident">other</span>.<span class="ident">backdrop</span>,
+            ..<span class="ident">Default::default</span>()
+        }
+    }
+}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>

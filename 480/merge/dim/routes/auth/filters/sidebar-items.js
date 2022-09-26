@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["login",""],["register",""]]};
+initSidebarItems({"fn":[["login",""],["register",""]]});

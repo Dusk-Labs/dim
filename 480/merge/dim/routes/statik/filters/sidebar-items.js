@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["dist_static",""],["get_image",""],["react_routes",""],["ui_manifest",""]]};
+initSidebarItems({"fn":[["dist_static",""],["get_image",""],["react_routes",""],["ui_manifest",""]]});
