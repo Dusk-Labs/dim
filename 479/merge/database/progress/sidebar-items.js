@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Progress",""]]};
+initSidebarItems({"struct":[["Progress",""]]});

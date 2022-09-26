@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["banners",""],["dashboard",""]]};
+initSidebarItems({"fn":[["banners",""],["dashboard",""]]});

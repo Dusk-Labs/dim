@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":[["TmdbError",""]],"struct":[["Episode",""],["Genre",""],["Media",""],["Season",""],["ServerError",""],["Tmdb",""]]};
