@@ -259,7 +259,7 @@ function VideoPlayer() {
     videoRef.current.pause();
   }, [dispatch, videoRef]);
 
-  const playerPause = useCallback(
+  const togglePlayer = useCallback(
     (e) => {
       if (!videoRef.current) return;
       if (
@@ -305,7 +305,7 @@ function VideoPlayer() {
 
   return (
     <VideoPlayerContext.Provider value={initialValue}>
-      <div className="videoPlayer" ref={videoPlayer} onClick={playerPause}>
+      <div className="videoPlayer" ref={videoPlayer} onClick={togglePlayer}>
         <VideoEvents />
         <VideoMediaData />
         <video ref={videoRef} />
