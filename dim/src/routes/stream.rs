@@ -4,7 +4,7 @@ use crate::errors;
 use crate::stream_tracking::ContentType;
 use crate::stream_tracking::StreamTracking;
 use crate::stream_tracking::VirtualManifest;
-use crate::streaming::ffprobe::FFPWrapper;
+use crate::streaming::ffprobe::FFPStream;
 use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::get_avc1_tag;
 use crate::streaming::get_qualities;
@@ -352,7 +352,7 @@ pub async fn return_virtual_manifest(
 }
 
 pub async fn try_create_dstream(
-    info: &FFPWrapper,
+    info: &FFPStream,
     media: &MediaFile,
     stream_tracking: &StreamTracking,
     gid: &Uuid,
@@ -441,7 +441,7 @@ pub async fn try_create_dstream(
 }
 
 pub async fn create_video(
-    info: &FFPWrapper,
+    info: &FFPStream,
     media: &MediaFile,
     stream_tracking: &StreamTracking,
     gid: &Uuid,
@@ -541,7 +541,7 @@ pub async fn create_video(
 }
 
 pub async fn create_audio(
-    info: &FFPWrapper,
+    info: &FFPStream,
     media: &MediaFile,
     stream_tracking: &StreamTracking,
     gid: &Uuid,
@@ -601,7 +601,7 @@ pub async fn create_audio(
 }
 
 pub async fn create_subtitles(
-    info: &FFPWrapper,
+    info: &FFPStream,
     media: &MediaFile,
     stream_tracking: &StreamTracking,
     gid: &Uuid,

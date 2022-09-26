@@ -11,16 +11,22 @@ pub enum Error {
     FfprobeError,
 }
 
-#[derive(Default, Debug, Clone, PartialEq)]
-pub struct FFPWrapper {
-    ffpstream: Option<FFPStream>,
-    corrupt: Option<bool>,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-struct FFPStream {
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct FFPStream {
     streams: Vec<Stream>,
     format: Format,
+    #[serde(default)]
+    corrupt: bool,
+}
+
+impl Default for FFPStream {
+    fn default() -> Self {
+        Self {
+            corrupt: true,
+            streams: Default::default(),
+            format: Default::default(),
+        }
+    }
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -132,13 +138,13 @@ impl FFProbeCtx {
     }
 
     #[tracing::instrument(skip(self, file))]
-    pub async fn get_meta(&self, file: impl ToString) -> Result<FFPWrapper, std::io::Error> {
+    pub async fn get_meta(&self, file: impl ToString) -> Result<FFPStream, std::io::Error> {
         let mut probe = Command::new(self.ffprobe_bin.clone());
 
         probe
             .arg(file.to_string())
             .arg("-v")
-            .arg("quiet")
+            .arg("error")
             .arg("-print_format")
             .arg("json")
             .arg("-show_streams")
@@ -161,28 +167,15 @@ impl FFProbeCtx {
 
         let json = String::from_utf8_lossy(output.stdout.as_slice());
 
-        let de: FFPWrapper = serde_json::from_str(&json).map_or_else(
-            |_| FFPWrapper {
-                ffpstream: None,
-                corrupt: Some(true),
-            },
-            |x| FFPWrapper {
-                ffpstream: Some(x),
-                corrupt: None,
-            },
-        );
+        let de = serde_json::from_str(&json).unwrap_or_default();
 
         Ok(de)
     }
 }
 
-impl FFPWrapper {
-    pub fn get_container(&self) -> Option<String> {
-        if let Some(ctx) = self.ffpstream.clone() {
-            Some(ctx.format.format_name)
-        } else {
-            None
-        }
+impl FFPStream {
+    pub fn get_container(&self) -> String {
+        self.format.format_name.clone()
     }
 
     pub fn get_primary_channels(&self) -> Option<i64> {
@@ -198,7 +191,7 @@ impl FFPWrapper {
     }
 
     pub fn get_container_bitrate(&self) -> Option<u64> {
-        self.ffpstream.as_ref()?.format.bit_rate.parse::<u64>().ok()
+        self.format.bit_rate.parse::<u64>().ok()
     }
 
     pub fn get_video_codec(&self) -> Option<String> {
@@ -244,28 +237,19 @@ impl FFPWrapper {
     }
 
     pub fn get_duration(&self) -> Option<i32> {
-        Some(
-            self.ffpstream
-                .as_ref()?
-                .format
-                .duration
-                .parse::<f64>()
-                .ok()? as i32,
-        )
+        Some(self.format.duration.parse::<f64>().ok()? as i32)
     }
 
     pub fn get_ms(&self) -> Option<u128> {
-        self.ffpstream
-            .as_ref()?
-            .format
+        self.format
             .duration
             .parse::<f64>()
             .map(|x| (x.trunc() * 1_000_000.0) as u128)
             .ok()
     }
 
-    pub fn is_corrupt(&self) -> Option<bool> {
-        Some(self.corrupt.unwrap_or(false))
+    pub fn is_corrupt(&self) -> bool {
+        self.corrupt
     }
 
     pub fn is_codec_type(&self, codec_type: &str) -> Option<bool> {
@@ -273,14 +257,10 @@ impl FFPWrapper {
     }
 
     pub fn find_by_type(&self, codec_type: &str) -> Vec<&Stream> {
-        if let Some(x) = self.ffpstream.as_ref() {
-            x.streams
-                .iter()
-                .filter(|x| x.codec_type == *codec_type)
-                .collect()
-        } else {
-            Vec::new()
-        }
+        self.streams
+            .iter()
+            .filter(|x| x.codec_type == *codec_type)
+            .collect()
     }
 }
 
