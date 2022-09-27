@@ -67,3 +67,12 @@
     }
   }
 }
+
+@media only screen and (max-height: 768px) {
+  .select-mediatype > .select-options > .option {
+    & > svg {
+      font-size: 2em;
+      padding-top: 2vh;
+    }
+  }
+}
