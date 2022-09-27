@@ -7,13 +7,19 @@
     padding: 30px;
     grid-column-start: 1;
     grid-column-end: 3;
+  }
+}
 
-    &.open-true {
-      height: 46vh;
-    }
+@media only screen and (min-width: 720px) {
+  .library {
+    & > .match-media {
+      &.open-true {
+        height: 46vh;
+      }
 
-    &.open-false {
-      height: 16vh;
+      &.open-false {
+        height: 16vh;
+      }
     }
   }
 }
@@ -22,6 +28,22 @@
   .library {
     & > .match-media {
       padding: 60px 90px;
+    }
+  }
+}
+
+@media only screen and (max-height: 720px) {
+  .library {
+    & > .match-media {
+      padding: 60px 90px;
+
+      &.open-true {
+        height: 70vh;
+      }
+
+      &.open-false {
+        height: 27vh;
+      }
     }
   }
 }
