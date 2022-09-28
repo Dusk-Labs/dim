@@ -238,7 +238,7 @@ pub async fn library_post(
     tokio::spawn(async move { fs_watcher.start_daemon().await });
     tokio::spawn(async move { scanner::start(&mut conn, id, tx_clone, provider).await });
 
-    Ok(StatusCode::CREATED)
+    Ok(reply::json(&json!({ "id": id })))
 }
 
 /// Method mapped to `DELETE /api/v1/library/<id>` is used to delete a library from the database.
