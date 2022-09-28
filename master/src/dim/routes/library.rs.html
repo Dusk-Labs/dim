@@ -684,7 +684,7 @@
     <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="ident">fs_watcher</span>.<span class="ident">start_daemon</span>().<span class="kw">await</span> });
     <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="ident">scanner::start</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">id</span>, <span class="ident">tx_clone</span>, <span class="ident">provider</span>).<span class="kw">await</span> });
 
-    <span class="prelude-val">Ok</span>(<span class="ident">StatusCode::CREATED</span>)
+    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({ <span class="string">&quot;id&quot;</span>: <span class="ident">id</span> })))
 }
 
 <span class="doccomment">/// Method mapped to `DELETE /api/v1/library/&lt;id&gt;` is used to delete a library from the database.</span>
