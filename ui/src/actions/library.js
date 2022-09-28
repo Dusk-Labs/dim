@@ -111,8 +111,11 @@ export const newLibrary = (data) => async (dispatch, getState) => {
         payload: res.statusText,
       });
     }
-
-    dispatch({ type: NEW_LIBRARY_OK });
+    const payload = await res.json();
+    dispatch({
+      type: NEW_LIBRARY_OK,
+      payload: payload,
+    });
   } catch (err) {
     dispatch({
       type: NEW_LIBRARY_ERR,

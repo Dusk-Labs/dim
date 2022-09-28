@@ -34,6 +34,7 @@ const fetch_library_unmatched = {
 };
 
 const new_library = {
+  last_id: null,
   creating: false,
   created: false,
   error: null,
@@ -128,6 +129,7 @@ export default function libraryReducer(state = initialState, action) {
           creating: true,
           created: false,
           error: null,
+          last_id: null,
         },
       };
     case NEW_LIBRARY_OK:
@@ -137,6 +139,7 @@ export default function libraryReducer(state = initialState, action) {
           ...new_library,
           creating: false,
           created: true,
+          last_id: action.payload.id,
         },
       };
     case NEW_LIBRARY_ERR:
@@ -146,6 +149,7 @@ export default function libraryReducer(state = initialState, action) {
           creating: false,
           created: false,
           error: action.payload,
+          last_id: null,
         },
       };
     case DEL_LIBRARY_START:

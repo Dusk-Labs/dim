@@ -1,6 +1,7 @@
 import { cloneElement, useCallback, useEffect, useState } from "react";
 import Modal from "react-modal";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 
 import { newLibrary } from "../../actions/library.js";
 import MediaTypeSelection from "./MediaTypeSelection";
@@ -13,6 +14,8 @@ import "./Index.scss";
 Modal.setAppElement("body");
 
 function NewLibraryModal(props) {
+  const library = useSelector((store) => store.library.new_library);
+  const history = useHistory();
   const dispatch = useDispatch();
   const [visible, setVisible] = useState(false);
 
@@ -84,10 +87,24 @@ function NewLibraryModal(props) {
       };
 
       dispatch(newLibrary(data));
-
-      close();
     }
-  }, [close, dispatch, mediaType, name, selectedFolders]);
+  }, [dispatch, mediaType, name, selectedFolders]);
+
+  //checks if the modal is open then you redirect.
+
+  const redirectToLibrary = useCallback(
+    (id) => {
+      if (visible) {
+        close();
+        history.push(`/library/${id}`);
+      }
+    },
+    [close, visible, history]
+  );
+
+  useEffect(() => {
+    if (library.last_id) redirectToLibrary(library.last_id);
+  }, [redirectToLibrary, library.last_id]);
 
   return (
     <div className="modalBoxContainer">
