@@ -4,7 +4,6 @@ import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { MediaPlayer, Debug } from "dashjs";
-
 import {
   setTracks,
   setGID,
@@ -241,6 +240,40 @@ function VideoPlayer() {
     setPlayer,
   ]);
 
+  const play = useCallback(() => {
+    dispatch(
+      updateVideo({
+        idleCount: 0,
+      })
+    );
+
+    videoRef.current.play();
+  }, [dispatch, videoRef]);
+
+  const pause = useCallback(() => {
+    dispatch(
+      updateVideo({
+        idleCount: 0,
+      })
+    );
+    videoRef.current.pause();
+  }, [dispatch, videoRef]);
+
+  const togglePlayer = useCallback(
+    (e) => {
+      if (!videoRef.current) return;
+      if (
+        e.target.closest(
+          ".videoMenus, .videoControls, .modalBoxContainer, .ReactModalPortal"
+        )
+      )
+        return;
+
+      videoRef.current.paused ? play() : pause();
+    },
+    [play, pause, videoRef]
+  );
+
   const seekTo = useCallback(
     (newTime) => {
       player.seek(newTime);
@@ -272,11 +305,11 @@ function VideoPlayer() {
 
   return (
     <VideoPlayerContext.Provider value={initialValue}>
-      <div className="videoPlayer" ref={videoPlayer}>
+      <div className="videoPlayer" ref={videoPlayer} onClick={togglePlayer}>
         <VideoEvents />
         <VideoMediaData />
         <video ref={videoRef} />
-        <VttSubtitles />
+        <VttSubtitles />+
         <SsaSubtitles />
         <div className="overlay" ref={overlay}>
           {!error && manifest.loaded && video.canPlay && <Menus />}
