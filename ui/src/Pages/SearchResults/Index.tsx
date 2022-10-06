@@ -11,21 +11,25 @@ function SearchResults() {
   const searchParams = new URLSearchParams(search);
   const query = searchParams.get("query");
   const genre = searchParams.get("genre");
+  const year = searchParams.get("year");
   const [title, setTitle] = useState(document.title);
   const {
     data: items,
     error,
     isFetching,
-  } = useSearchQuery(query || genre ? search : skipToken);
+  } = useSearchQuery(query || genre || year ? search : skipToken);
 
   useEffect(() => {
+    if (year) {
+      setTitle(`Dim - Query results for year:'${year}'`);
+    }
     if (genre) {
       setTitle(`Dim - Query results for genre:'${genre}'`);
     }
     if (query) {
       setTitle(`Dim - Query results for '${query}'`);
     }
-  }, [query, genre]);
+  }, [query, genre, year]);
 
   useEffect(() => {
     document.title = title;
