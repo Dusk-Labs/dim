@@ -21,6 +21,7 @@ function SearchResults() {
 
   useEffect(() => {
     if (year) {
+      console.log(year);
       setTitle(`Dim - Query results for year:'${year}'`);
     }
     if (genre) {
@@ -33,9 +34,9 @@ function SearchResults() {
 
   useEffect(() => {
     document.title = title;
-  }, [title, genre]);
+  }, [title, genre, year]);
 
-  if (!query && !genre) {
+  if (!query && !genre && !year) {
     return (
       <div className="card_list">
         No search query. Use the search box in the sidebar to search for media.
