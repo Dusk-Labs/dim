@@ -20,7 +20,7 @@ function SearchResults() {
 
   useEffect(() => {
     if (genre) {
-      setTitle(`Dim - Query results for '${genre}'`);
+      setTitle(`Dim - Query results for genre:'${genre}'`);
     }
     if (query) {
       setTitle(`Dim - Query results for '${query}'`);
