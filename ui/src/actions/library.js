@@ -111,6 +111,7 @@ export const newLibrary = (data) => async (dispatch, getState) => {
         payload: res.statusText,
       });
     }
+
     const payload = await res.json();
     dispatch({
       type: NEW_LIBRARY_OK,

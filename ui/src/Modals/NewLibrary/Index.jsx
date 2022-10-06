@@ -90,8 +90,7 @@ function NewLibraryModal(props) {
     }
   }, [dispatch, mediaType, name, selectedFolders]);
 
-  //checks if the modal is open then you redirect.
-
+  // checks if the modal is open then you redirect.
   const redirectToLibrary = useCallback(
     (id) => {
       if (visible) {
