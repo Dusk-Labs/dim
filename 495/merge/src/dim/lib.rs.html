@@ -1,0 +1,208 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Dim is a media manager written in rust.</span>
+<span class="doccomment">//! It uses Diesel as the ORM and rocket for the http/s server</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The project is split up into several crates:</span>
+<span class="doccomment">//! * [`database`](database) - Holds all the database models including some frequently used db operations</span>
+<span class="doccomment">//! * [`routes`](routes) - All of the routes that we expose over http are stored in there</span>
+<span class="doccomment">//! * [`scanners`](scanners) - The filesystem scanner and daemon code is located here</span>
+<span class="doccomment">//! ffmpeg that is used by several parts of dim</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Building</span>
+<span class="doccomment">//! Dim can easily be built with cargo build --release.</span>
+<span class="doccomment">//! When built with --release, build.rs will compile the web ui and embed it into dim.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # To run</span>
+<span class="doccomment">//! Dim can be ran using docker, by pulling vgarleanu/dim-server, or locally.</span>
+<span class="doccomment">//! If ran locally, make sure PostgreSQL is running with the password for postgres: dimpostgres</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Testing</span>
+<span class="doccomment">//! To test run `make test` in the root, or `cargo test` in the root of each module including the</span>
+<span class="doccomment">//! root dir.</span>
+
+<span class="attribute">#![<span class="ident">feature</span>(<span class="ident">min_specialization</span>, <span class="ident">let_else</span>)]</span>
+
+<span class="kw">use</span> <span class="ident">std::fs::create_dir_all</span>;
+<span class="kw">use</span> <span class="ident">tracing_subscriber::fmt</span>;
+<span class="kw">use</span> <span class="ident">tracing_subscriber::layer::SubscriberExt</span>;
+<span class="kw">use</span> <span class="ident">tracing_subscriber::EnvFilter</span>;
+
+<span class="doccomment">/// Module contains our core initialization logic.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">core</span>;
+<span class="doccomment">/// Module contains all the error definitions used in dim, and returned by the web-service.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">errors</span>;
+<span class="doccomment">/// Module contains our external api interfaces</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">external</span>;
+<span class="doccomment">/// Contains the code for fetching assets like posters and stills.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">fetcher</span>;
+<span class="doccomment">/// Inspect api for Result type</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">inspect</span>;
+<span class="doccomment">/// Contains our custom logger for rocket</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">logger</span>;
+<span class="doccomment">/// Sqlite CDC implementation</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">reactor</span>;
+<span class="doccomment">/// Contains all of the routes exposed by the webapi.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">routes</span>;
+<span class="doccomment">/// New generation scanner infrastructure.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">scanner</span>;
+<span class="doccomment">/// Contains the fairing which tracks streams across rest api</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">stream_tracking</span>;
+<span class="doccomment">/// Contains all the logic needed for streaming and on-the-fly transcoding.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">streaming</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span>;
+<span class="doccomment">/// Tree-like structure for representing directories of files.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">tree</span>;
+<span class="doccomment">/// Various utilities</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">utils</span>;
+<span class="doccomment">/// Websocket related logic.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">websocket</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">routes::settings::get_global_settings</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">routes::settings::init_global_settings</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">routes::settings::set_global_settings</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">routes::settings::GlobalSettings</span>;
+
+<span class="doccomment">/// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup_logging</span>(<span class="ident">_debug</span>: <span class="ident">bool</span>) {
+    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">create_dir_all</span>(<span class="string">&quot;logs&quot;</span>);
+
+    <span class="kw">if</span> <span class="ident">std::env::var</span>(<span class="string">&quot;RUST_LOG&quot;</span>).<span class="ident">is_err</span>() {
+        <span class="ident">std::env::set_var</span>(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info&quot;</span>);
+    }
+
+    <span class="kw">let</span> <span class="ident">log_appender</span> <span class="op">=</span> <span class="ident">tracing_appender::rolling::daily</span>(<span class="string">&quot;./logs&quot;</span>, <span class="string">&quot;dim-log.log&quot;</span>);
+    <span class="kw">let</span> (<span class="ident">non_blocking_file</span>, <span class="ident">_guard</span>) <span class="op">=</span> <span class="ident">tracing_appender::non_blocking</span>(<span class="ident">log_appender</span>);
+
+    <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="ident">tracing_subscriber::registry</span>()
+        .<span class="ident">with</span>(<span class="ident">EnvFilter::from_default_env</span>())
+        .<span class="ident">with</span>(<span class="ident">fmt::layer</span>().<span class="ident">with_writer</span>(<span class="ident">std::io::stdout</span>))
+        .<span class="ident">with</span>(<span class="ident">fmt::layer</span>().<span class="ident">json</span>().<span class="ident">with_writer</span>(<span class="ident">non_blocking_file</span>));
+
+    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">tracing::subscriber::set_global_default</span>(<span class="ident">subscriber</span>);
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup_test_logging</span>() {
+    <span class="kw">if</span> <span class="ident">std::env::var</span>(<span class="string">&quot;RUST_LOG&quot;</span>).<span class="ident">is_err</span>() {
+        <span class="ident">std::env::set_var</span>(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info&quot;</span>);
+    }
+
+    <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="ident">tracing_subscriber::registry</span>()
+        .<span class="ident">with</span>(<span class="ident">EnvFilter::from_default_env</span>())
+        .<span class="ident">with</span>(
+            <span class="ident">fmt::layer</span>()
+                .<span class="ident">with_span_events</span>(<span class="ident">fmt::format::FmtSpan::CLOSE</span> <span class="op">|</span> <span class="ident">fmt::format::FmtSpan::NEW</span>)
+                .<span class="ident">with_writer</span>(<span class="ident">tracing_subscriber::fmt::TestWriter::new</span>()),
+        );
+
+    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">tracing::subscriber::set_global_default</span>(<span class="ident">subscriber</span>);
+}
+</code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
+</body></html>
