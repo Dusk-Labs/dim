@@ -19,8 +19,9 @@ function NewLibraryModal(props) {
   const [current, setCurrent] = useState("");
   const [name, setName] = useState("");
   const [nameErr, setNameErr] = useState("");
-  const [mediaType, setMediaType] = useState("movie");
+  const [mediaType, setMediaType] = useState("");
   const [selectedFolders, setSelectedFolders] = useState([]);
+  const [placeHolderName, setPlaceHolderName] = useState("Untitled");
 
   // prevent scrolling behind Modal
   useEffect(() => {
@@ -30,10 +31,11 @@ function NewLibraryModal(props) {
   }, [visible]);
 
   const clear = useCallback(() => {
+    setPlaceHolderName("Untitled");
     setName("");
     setCurrent("");
     setSelectedFolders([]);
-    setMediaType("movie");
+    setMediaType("");
   }, []);
 
   const close = useCallback(() => {
@@ -89,6 +91,15 @@ function NewLibraryModal(props) {
     }
   }, [close, dispatch, mediaType, name, selectedFolders]);
 
+  useEffect(() => {
+    if (mediaType === "tv") {
+      setPlaceHolderName("Tv/Shows Library");
+    }
+    if (mediaType === "movie") {
+      setPlaceHolderName("Movie Library");
+    }
+  }, [mediaType, setMediaType]);
+
   return (
     <div className="modalBoxContainer">
       {cloneElement(props.children, { onClick: () => open() })}
@@ -107,7 +118,7 @@ function NewLibraryModal(props) {
           <div className="fields">
             <Field
               name="Name"
-              placeholder="Untitled"
+              placeholder={placeHolderName}
               data={[name, setName]}
               error={[nameErr, setNameErr]}
             />
