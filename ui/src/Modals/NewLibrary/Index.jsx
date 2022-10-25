@@ -1,6 +1,6 @@
 import { cloneElement, useCallback, useEffect, useState } from "react";
 import Modal from "react-modal";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { newLibrary } from "../../actions/library.js";
 import MediaTypeSelection from "./MediaTypeSelection";
@@ -14,6 +14,8 @@ Modal.setAppElement("body");
 
 function NewLibraryModal(props) {
   const dispatch = useDispatch();
+  const libraryNames = useSelector((store) => store.library.fetch_libraries);
+  const allNames = libraryNames.items;
   const [visible, setVisible] = useState(false);
 
   const [current, setCurrent] = useState("");
@@ -22,7 +24,6 @@ function NewLibraryModal(props) {
   const [mediaType, setMediaType] = useState("");
   const [selectedFolders, setSelectedFolders] = useState([]);
   const [placeHolderName, setPlaceHolderName] = useState("Untitled");
-
   // prevent scrolling behind Modal
   useEffect(() => {
     visible
@@ -74,6 +75,13 @@ function NewLibraryModal(props) {
   }, [name]);
 
   const add = useCallback(async () => {
+    if (mediaType === "tv") {
+      setName(placeHolderName);
+    }
+    if (mediaType === "movie") {
+      setName(placeHolderName);
+    }
+
     if (!name) {
       setNameErr("Label your library");
     }
@@ -89,16 +97,46 @@ function NewLibraryModal(props) {
 
       close();
     }
-  }, [close, dispatch, mediaType, name, selectedFolders]);
+  }, [close, dispatch, mediaType, name, selectedFolders, placeHolderName]);
+
+  const checkIfName = useCallback(() => {
+    let label;
+
+    if (mediaType === "tv") {
+      label = "TV shows library";
+    } else {
+      label = "Movie library";
+    }
+
+    const repeatedNames = allNames.filter((i) => i.name.includes(label));
+
+    setPlaceHolderName(label);
+
+    if (repeatedNames.length && allNames.length > 0) {
+      for (var i = 0; i < repeatedNames.length; i++) {
+        var libName = repeatedNames[i].name;
+
+        if (libName === repeatedNames[repeatedNames.length - 1].name) {
+          setPlaceHolderName(`${label} ${i + 1}`);
+
+          break;
+        }
+      }
+    }
+  }, [allNames, mediaType, setPlaceHolderName]);
 
   useEffect(() => {
-    if (mediaType === "tv") {
-      setPlaceHolderName("Tv/Shows Library");
+    const checkName = libraryNames.items.filter(
+      (value) => value.name === placeHolderName
+    );
+
+    if (mediaType === "tv" && checkName.length >= 0) {
+      checkIfName();
     }
-    if (mediaType === "movie") {
-      setPlaceHolderName("Movie Library");
+    if (mediaType === "movie" && checkName.length >= 0) {
+      checkIfName();
     }
-  }, [mediaType, setMediaType]);
+  }, [mediaType, setMediaType, checkIfName, placeHolderName, libraryNames]);
 
   return (
     <div className="modalBoxContainer">
@@ -137,10 +175,7 @@ function NewLibraryModal(props) {
             <Button type="secondary" onClick={close}>
               Nevermind
             </Button>
-            <Button
-              disabled={!name || selectedFolders.length === 0}
-              onClick={add}
-            >
+            <Button disabled={selectedFolders.length === 0} onClick={add}>
               Add library
             </Button>
           </div>
