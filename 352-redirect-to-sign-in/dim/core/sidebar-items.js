@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["run_scanners","Function dumps a list of all libraries in the database and starts a scanner for each which monitors for new files using fsnotify. It also scans all orphans on boot."],["warp_core",""]],"static":[["METADATA_PATH","Path to where metadata is stored and should be fetched to."]],"type":[["DbConnection",""],["EventTx",""],["StateManager",""]]});
