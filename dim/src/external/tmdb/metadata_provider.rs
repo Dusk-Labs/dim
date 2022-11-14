@@ -509,21 +509,8 @@ where
     }
 }
 
-impl<K> IntoQueryShow for MetadataProviderOf<K>
-where
-    K: sealed::AssocMediaTypeConst + Send + Sync + 'static,
-{
-    default fn as_query_show<'a>(&'a self) -> Option<&'a dyn ExternalQueryShow> {
-        None
-    }
-
-    default fn into_query_show(self: Arc<Self>) -> Option<Arc<dyn ExternalQueryShow>> {
-        None
-    }
-}
-
 impl IntoQueryShow for MetadataProviderOf<TvShows> {
-    fn as_query_show(&self) -> Option<&dyn ExternalQueryShow> {
+    fn as_query_show<'a>(&'a self) -> Option<&'a dyn ExternalQueryShow> {
         Some(self)
     }
 
@@ -531,6 +518,19 @@ impl IntoQueryShow for MetadataProviderOf<TvShows> {
         Some(self)
     }
 }
+
+impl IntoQueryShow for MetadataProviderOf<Movies> {
+    fn as_query_show<'a>(&'a self) -> Option<&'a dyn ExternalQueryShow> {
+        None
+    }
+
+    fn into_query_show(self: Arc<Self>) -> Option<Arc<dyn ExternalQueryShow>> {
+        None
+    }
+}
+
+impl ExternalQueryIntoShow for MetadataProviderOf<TvShows> {}
+impl ExternalQueryIntoShow for MetadataProviderOf<Movies> {}
 
 #[async_trait]
 impl ExternalQueryShow for MetadataProviderOf<TvShows> {

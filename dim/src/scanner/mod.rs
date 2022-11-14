@@ -13,8 +13,8 @@ use self::mediafile::MediafileCreator;
 use super::external::filename::CombinedExtractor;
 use super::external::filename::FilenameMetadata;
 use super::external::filename::Metadata;
-use super::external::ExternalQuery;
 use crate::core::EventTx;
+use crate::external::ExternalQueryIntoShow;
 
 use anitomy::Anitomy;
 use async_trait::async_trait;
@@ -123,7 +123,7 @@ pub trait MediaMatcher: Send + Sync {
     async fn batch_match(
         &self,
         tx: &mut database::Transaction<'_>,
-        provider: Arc<dyn ExternalQuery>,
+        provider: Arc<dyn ExternalQueryIntoShow>,
         work: Vec<WorkUnit>,
     ) -> Result<(), Error>;
 
@@ -131,7 +131,7 @@ pub trait MediaMatcher: Send + Sync {
     async fn match_to_id(
         &self,
         tx: &mut database::Transaction<'_>,
-        provider: Arc<dyn ExternalQuery>,
+        provider: Arc<dyn ExternalQueryIntoShow>,
         work: WorkUnit,
         external_id: &str,
     ) -> Result<(), Error>;
@@ -203,7 +203,7 @@ pub async fn start_custom(
     dirs: Vec<impl AsRef<Path> + Send + 'static>,
     tx: EventTx,
     media_type: MediaType,
-    provider: Arc<dyn ExternalQuery>,
+    provider: Arc<dyn ExternalQueryIntoShow>,
 ) -> Result<(), Error> {
     info!(library_id, "Scanning library");
 
@@ -283,7 +283,7 @@ pub async fn start(
     conn: &mut database::DbConnection,
     library_id: i64,
     tx: EventTx,
-    provider: Arc<dyn ExternalQuery>,
+    provider: Arc<dyn ExternalQueryIntoShow>,
 ) -> Result<(), Error> {
     let mut tx_ = conn
         .read()

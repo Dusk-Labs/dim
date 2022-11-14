@@ -1,7 +1,7 @@
 use crate::core::DbConnection;
 use crate::errors;
 use crate::errors::ErrorStatusCode;
-use crate::external::ExternalQuery;
+use crate::external::ExternalQueryIntoShow;
 use crate::scanner::movie;
 use crate::scanner::parse_filenames;
 use crate::scanner::tv_show;
@@ -150,7 +150,7 @@ pub async fn rematch_mediafile(
     let mut tx = conn.read().begin().await?;
 
     // FIXME: impl FromStr for MediaType
-    let provider: Arc<dyn ExternalQuery> = match media_type {
+    let provider: Arc<dyn ExternalQueryIntoShow> = match media_type {
         MediaType::Movie => (*MOVIES_PROVIDER).clone(),
         MediaType::Tv => (*TV_PROVIDER).clone(),
         _ => return Err(errors::DimError::InvalidMediaType),
