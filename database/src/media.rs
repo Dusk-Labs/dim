@@ -443,19 +443,24 @@ impl InsertableMedia {
         // mediatype can be considered.
         match Media::get_id_by_name(tx, &self.name)
             .await
-            .inspect_err(|error| error!(?error, %self.name, "Failed to get a media by name"))?
-        {
+            .map_err(|error| {
+                error!(?error, %self.name, "Failed to get a media by name");
+                error
+            })? {
             Some(id) => {
                 UpdateMedia::from(self.clone())
                     .update(tx, id)
                     .await
-                    .inspect_err(|error| error!(?error, %id, "Failed to update media metadata"))?;
+                    .map_err(|error| {
+                        error!(?error, %id, "Failed to update media metadata");
+                        error
+                    })?;
                 Ok(id)
             }
-            None => Ok(self
-                .insert(tx)
-                .await
-                .inspect_err(|error| error!(?error, "Failed to insert media object."))?),
+            None => Ok(self.insert(tx).await.map_err(|error| {
+                error!(?error, "Failed to insert media object.");
+                error
+            })?),
         }
     }
 }

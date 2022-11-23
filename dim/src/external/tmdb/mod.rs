@@ -70,8 +70,7 @@ mod tests {
 
     use super::*;
     use crate::external::{
-        ExternalActor, ExternalEpisode, ExternalMedia, ExternalQuery, ExternalQueryShow,
-        ExternalSeason,
+        ExternalEpisode, ExternalMedia, ExternalQuery, ExternalQueryShow, ExternalSeason,
     };
 
     fn make_letterkenny() -> ExternalMedia {

@@ -1,5 +1,5 @@
 use crate::core::EventTx;
-use crate::external::ExternalQuery;
+use crate::external::ExternalQueryIntoShow;
 
 use super::movie;
 use super::tv_show;
@@ -44,7 +44,7 @@ pub struct FsWatcher {
     tx: EventTx,
     conn: DbConnection,
     matcher: Arc<dyn MediaMatcher>,
-    provider: Arc<dyn ExternalQuery>,
+    provider: Arc<dyn ExternalQueryIntoShow>,
 }
 
 impl FsWatcher {
@@ -53,7 +53,7 @@ impl FsWatcher {
         library_id: i64,
         media_type: MediaType,
         tx: EventTx,
-        provider: Arc<dyn ExternalQuery>,
+        provider: Arc<dyn ExternalQueryIntoShow>,
     ) -> Self {
         let matcher = match media_type {
             MediaType::Movie => Arc::new(movie::MovieMatcher) as Arc<dyn MediaMatcher>,

@@ -1,7 +1,7 @@
 #![allow(unstable_name_collisions)]
 
 use crate::external::ExternalMedia;
-use crate::external::ExternalQuery;
+use crate::external::ExternalQueryIntoShow;
 use crate::inspect::ResultExt;
 use crate::scanner::format_path;
 
@@ -219,7 +219,7 @@ impl MediaMatcher for MovieMatcher {
     async fn batch_match(
         &self,
         tx: &mut Transaction<'_>,
-        provider: Arc<dyn ExternalQuery>,
+        provider: Arc<dyn ExternalQueryIntoShow>,
         work: Vec<WorkUnit>,
     ) -> Result<(), super::Error> {
         let metadata_futs = work
@@ -258,7 +258,7 @@ impl MediaMatcher for MovieMatcher {
     async fn match_to_id(
         &self,
         tx: &mut Transaction<'_>,
-        provider: Arc<dyn ExternalQuery>,
+        provider: Arc<dyn ExternalQueryIntoShow>,
         work: WorkUnit,
         external_id: &str,
     ) -> Result<(), super::Error> {

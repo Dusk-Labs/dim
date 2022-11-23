@@ -19,8 +19,6 @@
 //! To test run `make test` in the root, or `cargo test` in the root of each module including the
 //! root dir.
 
-#![feature(min_specialization, let_else)]
-
 use std::fs::create_dir_all;
 use tracing_subscriber::fmt;
 use tracing_subscriber::layer::SubscriberExt;

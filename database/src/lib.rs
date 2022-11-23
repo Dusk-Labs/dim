@@ -1,5 +1,4 @@
 // FIXME: We have a shim in dim/utils but we cant depend on dim because itd be a circular dep.
-#![feature(result_option_inspect)]
 
 use crate::utils::ffpath;
 

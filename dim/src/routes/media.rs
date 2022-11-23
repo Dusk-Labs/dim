@@ -1,7 +1,7 @@
 use crate::core::DbConnection;
 use crate::errors;
 use crate::external::tmdb::TMDBMetadataProvider;
-use crate::external::ExternalQuery;
+use crate::external::ExternalQueryIntoShow;
 use crate::json;
 use crate::tree;
 use crate::utils::secs_to_pretty;
@@ -28,9 +28,9 @@ use once_cell::sync::Lazy;
 use serde::Serialize;
 
 pub const API_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
-pub const MOVIES_PROVIDER: Lazy<Arc<dyn ExternalQuery>> =
+pub const MOVIES_PROVIDER: Lazy<Arc<dyn ExternalQueryIntoShow>> =
     Lazy::new(|| Arc::new(TMDBMetadataProvider::new(&API_KEY).movies()));
-pub const TV_PROVIDER: Lazy<Arc<dyn ExternalQuery>> =
+pub const TV_PROVIDER: Lazy<Arc<dyn ExternalQueryIntoShow>> =
     Lazy::new(|| Arc::new(TMDBMetadataProvider::new(&API_KEY).tv_shows()));
 
 pub mod filters {

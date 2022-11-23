@@ -6,7 +6,8 @@ use super::Metadata;
 use super::WorkUnit;
 use crate::external::ExternalEpisode;
 use crate::external::ExternalMedia;
-use crate::external::ExternalQuery;
+
+use crate::external::ExternalQueryIntoShow;
 use crate::external::ExternalQueryShow;
 use crate::external::ExternalSeason;
 use crate::inspect::ResultExt;
@@ -412,7 +413,7 @@ impl MediaMatcher for TvMatcher {
     async fn batch_match(
         &self,
         tx: &mut Transaction<'_>,
-        provider: Arc<dyn ExternalQuery>,
+        provider: Arc<dyn ExternalQueryIntoShow>,
         work: Vec<WorkUnit>,
     ) -> Result<(), super::Error> {
         let provider_show: Arc<dyn ExternalQueryShow> = provider
@@ -443,7 +444,7 @@ impl MediaMatcher for TvMatcher {
     async fn match_to_id(
         &self,
         tx: &mut Transaction<'_>,
-        provider: Arc<dyn ExternalQuery>,
+        provider: Arc<dyn ExternalQueryIntoShow>,
         work: WorkUnit,
         external_id: &str,
     ) -> Result<(), super::Error> {
@@ -675,7 +676,7 @@ mod tests {
         let mfile = MediaFile::get_one(&mut tx, mfile_id).await.unwrap();
         let mfile2 = MediaFile::get_one(&mut tx, mfile2_id).await.unwrap();
 
-        let (t1, s1, e1) = MATCHER
+        let (t1, s1, _e1) = MATCHER
             .match_to_result(&mut tx, mfile.clone(), result.clone())
             .await
             .unwrap();
@@ -692,9 +693,9 @@ mod tests {
         result.1.season_number = 1;
         result.0.title = "Show 2".into();
 
-        let seasons = Season::get_all(&mut tx, t1).await.unwrap();
+        let _seasons = Season::get_all(&mut tx, t1).await.unwrap();
 
-        let (t2, s2, e2) = MATCHER
+        let (t2, s2, _e2) = MATCHER
             .match_to_result(&mut tx, mfile, result.clone())
             .await
             .unwrap();
