@@ -42,7 +42,7 @@ async fn test_construct_mediafile() {
     let files = (0..512)
         .map(|i| format!("Movie{i}.mkv"))
         .collect::<Vec<String>>();
-    let (tempdir, files) = super::temp_dir_symlink(files.into_iter(), super::TEST_MP4_PATH);
+    let (_tempdir, files) = super::temp_dir_symlink(files.into_iter(), super::TEST_MP4_PATH);
 
     let mut conn = database::get_conn_memory()
         .await
@@ -55,7 +55,7 @@ async fn test_construct_mediafile() {
 
     assert_eq!(parsed.len(), files.len());
 
-    let mut insertable_futures =
+    let insertable_futures =
         parsed
             .into_iter()
             .map(|(path, meta)| instance.construct_mediafile(path, meta[0].clone()).boxed())
@@ -117,20 +117,20 @@ async fn test_multiple_instances() {
     let files = (0..2048)
         .map(|i| format!("Movie{i}.mkv"))
         .collect::<Vec<String>>();
-    let (tempdir, files) = super::temp_dir_symlink(files.into_iter(), super::TEST_MP4_PATH);
+    let (_tempdir, files) = super::temp_dir_symlink(files.into_iter(), super::TEST_MP4_PATH);
 
     let mut conn = database::get_conn_memory()
         .await
         .expect("Failed to obtain a in-memory db pool.");
     let library = create_library(&mut conn).await;
 
-    let mut instance = MediafileCreator::new(conn.clone(), library).await;
+    let instance = MediafileCreator::new(conn.clone(), library).await;
 
     let parsed = parse_filenames(files.iter());
 
     assert_eq!(parsed.len(), files.len());
 
-    let mut insertable_futures =
+    let insertable_futures =
         parsed
             .into_iter()
             .map(|(path, meta)| instance.construct_mediafile(path, meta[0].clone()).boxed())

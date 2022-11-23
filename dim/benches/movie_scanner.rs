@@ -1,9 +1,9 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 use database::get_conn_file;
 use database::library::InsertableLibrary;
 use database::library::Library;
 use database::library::MediaType;
-use dim::scanner::*;
+
 use tokio::runtime;
 
 use std::fs::hard_link;
@@ -11,8 +11,6 @@ use std::fs::File;
 use std::path::PathBuf;
 use std::time::Duration;
 use std::time::Instant;
-
-use tempfile::TempDir;
 
 const TEST_MP4_PATH: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
@@ -123,7 +121,7 @@ fn movie_scanner_bench(c: &mut Criterion) {
             .unwrap();
 
         b.to_async(rt).iter_custom(|iters| async move {
-            let path = env!("CARGO_TARGET_TMPDIR").to_string();
+            let _path = env!("CARGO_TARGET_TMPDIR").to_string();
             let mut db = bootstrap().await;
             let mut total_elapsed = Duration::ZERO;
 
@@ -131,7 +129,7 @@ fn movie_scanner_bench(c: &mut Criterion) {
                 let library_id = create_library(&mut db).await;
                 let start = Instant::now();
 
-                scan_directory(&mut db, library_id, vec![path.clone()]).await;
+                // scan_directory(&mut db, library_id, vec![path.clone()]).await;
 
                 total_elapsed += start.elapsed();
                 delete_library(&mut db, library_id).await;

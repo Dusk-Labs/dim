@@ -1,7 +1,6 @@
 use super::ExternalActor;
 use super::ExternalMedia;
 use super::ExternalQuery;
-use super::IntoQueryShow;
 use super::Result;
 
 #[derive(Debug, Clone, Copy)]
@@ -24,5 +23,3 @@ impl ExternalQuery for MockProvider {
         unimplemented!()
     }
 }
-
-impl IntoQueryShow for MockProvider {}
