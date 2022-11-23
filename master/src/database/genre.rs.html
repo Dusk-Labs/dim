@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/genre.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>genre.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/genre.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>genre.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -211,212 +204,211 @@
 <span id="204">204</span>
 <span id="205">205</span>
 <span id="206">206</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DatabaseError</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::DatabaseError;
 
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
-<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
+<span class="kw">use </span>serde::Deserialize;
+<span class="kw">use </span>serde::Serialize;
 
-<span class="doccomment">/// Struct shows a single genre entry</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Genre</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="doccomment">/// Genre name, ie &quot;Action&quot;</span>
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+<span class="doccomment">/// Struct shows a single genre entry
+</span><span class="attribute">#[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
+</span><span class="kw">pub struct </span>Genre {
+    <span class="kw">pub </span>id: i64,
+    <span class="doccomment">/// Genre name, ie &quot;Action&quot;
+    </span><span class="kw">pub </span>name: String,
 }
 
-<span class="doccomment">/// Intermediary table showing the relationship between a media and a genre</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GenreMedia</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="kw">pub</span> <span class="ident">genre_id</span>: <span class="ident">i64</span>,
-    <span class="kw">pub</span> <span class="ident">media_id</span>: <span class="ident">i64</span>,
+<span class="doccomment">/// Intermediary table showing the relationship between a media and a genre
+</span><span class="attribute">#[derive(Clone, Debug, PartialEq)]
+</span><span class="kw">pub struct </span>GenreMedia {
+    <span class="kw">pub </span>id: i64,
+    <span class="kw">pub </span>genre_id: i64,
+    <span class="kw">pub </span>media_id: i64,
 }
 
-<span class="kw">impl</span> <span class="ident">Genre</span> {
-    <span class="doccomment">/// Method returns the entry of a genre if exists based on its name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `query` - genre name</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_name</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">query</span>: <span class="ident">String</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">to_uppercase</span>();
+<span class="kw">impl </span>Genre {
+    <span class="doccomment">/// Method returns the entry of a genre if exists based on its name.
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `query` - genre name
+    </span><span class="kw">pub async fn </span>get_by_name(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        query: String,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DatabaseError&gt; {
+        <span class="kw">let </span>query = query.to_uppercase();
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
-            <span class="ident">Genre</span>,
+            Genre,
             <span class="string">&quot;SELECT * FROM genre WHERE UPPER(genre.name) LIKE ?&quot;</span>,
-            <span class="ident">query</span>
+            query
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Method returns all of the episodes belonging to a tv show.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `media` - reference to a media object which should be a tv show.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_media</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">media_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Method returns all of the episodes belonging to a tv show.
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `media` - reference to a media object which should be a tv show.
+    </span><span class="kw">pub async fn </span>get_by_media(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        media_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
-            <span class="ident">Genre</span>,
+            Genre,
             <span class="string">r#&quot;SELECT genre.id as &quot;id!&quot;, genre.name FROM genre
                 INNER JOIN genre_media ON genre_media.genre_id = genre.id
                 WHERE genre_media.media_id = ?&quot;#</span>,
-            <span class="ident">media_id</span>
+            media_id
         )
-        .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Method returns a genre based on genre_id and media_id</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `genre_id` - id of a genre</span>
-    <span class="doccomment">/// * `media_id` - id of a media object</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">genre_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Method returns a genre based on genre_id and media_id
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `genre_id` - id of a genre
+    /// * `media_id` - id of a media object
+    </span><span class="kw">pub async fn </span>get_by_id(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        genre_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
-            <span class="ident">Genre</span>,
+            Genre,
             <span class="string">&quot;SELECT * FROM genre
             WHERE id = ?&quot;</span>,
-            <span class="ident">genre_id</span>
+            genre_id
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Method removes a genre from the genre table based on its id</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `id` - genre id</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM genre WHERE id = ?&quot;</span>, <span class="ident">id</span>)
-            .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>)
+    <span class="doccomment">/// Method removes a genre from the genre table based on its id
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `id` - genre id
+    </span><span class="kw">pub async fn </span>delete(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
+        <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM genre WHERE id = ?&quot;</span>, id)
+            .execute(<span class="kw-2">&amp;mut *</span>conn)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.rows_affected() <span class="kw">as </span>usize)
     }
 
-    <span class="doccomment">/// Decouple media from all genres passed in</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">decouple_all</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">media_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Decouple media from all genres passed in
+    </span><span class="kw">pub async fn </span>decouple_all(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        media_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">&quot;DELETE FROM genre_media WHERE genre_media.media_id = ?&quot;</span>,
-            <span class="ident">media_id</span>
+            media_id
         )
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>)
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.rows_affected() <span class="kw">as </span>usize)
     }
 }
 
-<span class="doccomment">/// Genre entry that can be inserted into the db.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InsertableGenre</span> {
-    <span class="doccomment">/// Genre name</span>
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+<span class="doccomment">/// Genre entry that can be inserted into the db.
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>InsertableGenre {
+    <span class="doccomment">/// Genre name
+    </span><span class="kw">pub </span>name: String,
 }
 
-<span class="kw">impl</span> <span class="ident">InsertableGenre</span> {
-    <span class="doccomment">/// Method inserts a new genre into the table otherwise returns the id of a existing entry</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">clone</span>().<span class="ident">to_uppercase</span>();
+<span class="kw">impl </span>InsertableGenre {
+    <span class="doccomment">/// Method inserts a new genre into the table otherwise returns the id of a existing entry
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    </span><span class="kw">pub async fn </span>insert(<span class="kw-2">&amp;</span><span class="self">self</span>, conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;i64, DatabaseError&gt; {
+        <span class="kw">let </span>name = <span class="self">self</span>.name.clone().to_uppercase();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">record</span>) <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(record) = <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;SELECT id FROM genre
             WHERE UPPER(genre.name) LIKE ?&quot;</span>,
-            <span class="ident">name</span>
+            name
         )
-        .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">record</span>.<span class="ident">id</span>);
+        .fetch_optional(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(record.id);
         }
 
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(<span class="string">r#&quot;INSERT INTO genre (name) VALUES ($1)&quot;#</span>, <span class="self">self</span>.<span class="ident">name</span>)
-            .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">last_insert_rowid</span>();
+        <span class="kw">let </span>id = <span class="macro">sqlx::query!</span>(<span class="string">r#&quot;INSERT INTO genre (name) VALUES ($1)&quot;#</span>, <span class="self">self</span>.name)
+            .execute(<span class="kw-2">&amp;mut *</span>conn)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.last_insert_rowid();
 
-        <span class="prelude-val">Ok</span>(<span class="ident">id</span>)
+        <span class="prelude-val">Ok</span>(id)
     }
 }
 
-<span class="doccomment">/// Struct which is used to pair a genre to a media</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InsertableGenreMedia</span> {
-    <span class="kw">pub</span> <span class="ident">genre_id</span>: <span class="ident">i64</span>,
-    <span class="kw">pub</span> <span class="ident">media_id</span>: <span class="ident">i64</span>,
+<span class="doccomment">/// Struct which is used to pair a genre to a media
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>InsertableGenreMedia {
+    <span class="kw">pub </span>genre_id: i64,
+    <span class="kw">pub </span>media_id: i64,
 }
 
-<span class="kw">impl</span> <span class="ident">InsertableGenreMedia</span> {
-    <span class="doccomment">/// Method inserts a new entry into the intermediary genre table linking a genre to a media</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">impl </span>InsertableGenreMedia {
+    <span class="doccomment">/// Method inserts a new entry into the intermediary genre table linking a genre to a media
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    </span><span class="kw">pub async fn </span>insert(<span class="kw-2">&amp;</span><span class="self">self</span>, conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;) {
+        <span class="kw">let _ </span>= <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;INSERT INTO genre_media (genre_id, media_id) VALUES ($1, $2)&quot;</span>,
-            <span class="self">self</span>.<span class="ident">genre_id</span>,
-            <span class="self">self</span>.<span class="ident">media_id</span>
+            <span class="self">self</span>.genre_id,
+            <span class="self">self</span>.media_id
         )
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span>;
     }
 
-    <span class="doccomment">/// Method inserts a pair into the genre media table based on a genre_id and media_id.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `genre_id` - id of the genre we are trying to link to a media object.</span>
-    <span class="doccomment">/// * `media_id` - id of the media object we are trying to link to a media.</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_pair</span>(
-        <span class="ident">genre_id</span>: <span class="ident">i64</span>,
-        <span class="ident">media_id</span>: <span class="ident">i64</span>,
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+    <span class="doccomment">/// Method inserts a pair into the genre media table based on a genre_id and media_id.
+    ///
+    /// # Arguments
+    /// * `genre_id` - id of the genre we are trying to link to a media object.
+    /// * `media_id` - id of the media object we are trying to link to a media.
+    /// * `conn` - mutable reference to a sqlx transaction.
+    </span><span class="kw">pub async fn </span>insert_pair(
+        genre_id: i64,
+        media_id: i64,
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;i64, DatabaseError&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(r) = <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;SELECT genre.id FROM genre
             JOIN genre_media
             WHERE genre_media.media_id = ?
             AND genre_media.genre_id = ?&quot;</span>,
-            <span class="ident">media_id</span>,
-            <span class="ident">genre_id</span>
+            media_id,
+            genre_id
         )
-        .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">r</span>.<span class="ident">id</span>);
+        .fetch_optional(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(r.id);
         }
 
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+        <span class="kw">let </span>id = <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;INSERT INTO genre_media (genre_id, media_id)
             VALUES ($1, $2)&quot;</span>,
-            <span class="ident">genre_id</span>,
-            <span class="ident">media_id</span>
+            genre_id,
+            media_id
         )
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">last_insert_rowid</span>();
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.last_insert_rowid();
 
-        <span class="prelude-val">Ok</span>(<span class="ident">id</span>)
+        <span class="prelude-val">Ok</span>(id)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

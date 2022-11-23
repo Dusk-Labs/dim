@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/reactor/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/reactor/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -209,210 +202,209 @@
 <span id="202">202</span>
 <span id="203">203</span>
 <span id="204">204</span>
-</pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">handler</span>;
-<span class="kw">mod</span> <span class="ident">types</span>;
+</pre><pre class="rust"><code><span class="kw">pub mod </span>handler;
+<span class="kw">mod </span>types;
 
-<span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
+<span class="kw">use </span>async_trait::async_trait;
 
-<span class="kw">use</span> <span class="ident">libsqlite3_sys::sqlite3</span>;
-<span class="kw">use</span> <span class="ident">rusqlite::hooks::Action</span>;
-<span class="kw">use</span> <span class="ident">rusqlite::Connection</span>;
-<span class="kw">use</span> <span class="ident">sqlx::SqliteConnection</span>;
+<span class="kw">use </span>libsqlite3_sys::sqlite3;
+<span class="kw">use </span>rusqlite::hooks::Action;
+<span class="kw">use </span>rusqlite::Connection;
+<span class="kw">use </span>sqlx::SqliteConnection;
 
-<span class="kw">use</span> <span class="ident">std::os::raw::c_char</span>;
-<span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
-<span class="kw">use</span> <span class="ident">std::os::raw::c_void</span>;
-<span class="kw">use</span> <span class="ident">std::panic::catch_unwind</span>;
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
-<span class="kw">use</span> <span class="ident">std::sync::Mutex</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
-<span class="kw">use</span> <span class="ident">std::time::Instant</span>;
+<span class="kw">use </span>std::os::raw::c_char;
+<span class="kw">use </span>std::os::raw::c_int;
+<span class="kw">use </span>std::os::raw::c_void;
+<span class="kw">use </span>std::panic::catch_unwind;
+<span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>std::sync::Mutex;
+<span class="kw">use </span>std::time::Duration;
+<span class="kw">use </span>std::time::Instant;
 
-<span class="kw">use</span> <span class="ident">tokio::sync::mpsc::unbounded_channel</span>;
-<span class="kw">use</span> <span class="ident">tokio::sync::mpsc::UnboundedReceiver</span>;
-<span class="kw">use</span> <span class="ident">tokio::sync::mpsc::UnboundedSender</span>;
-<span class="kw">use</span> <span class="ident">tokio::sync::OwnedMutexGuard</span>;
+<span class="kw">use </span>tokio::sync::mpsc::unbounded_channel;
+<span class="kw">use </span>tokio::sync::mpsc::UnboundedReceiver;
+<span class="kw">use </span>tokio::sync::mpsc::UnboundedSender;
+<span class="kw">use </span>tokio::sync::OwnedMutexGuard;
 
-<span class="kw">use</span> <span class="ident">tracing::error</span>;
-<span class="kw">use</span> <span class="ident">tracing::instrument</span>;
-<span class="kw">use</span> <span class="ident">tracing::warn</span>;
+<span class="kw">use </span>tracing::error;
+<span class="kw">use </span>tracing::instrument;
+<span class="kw">use </span>tracing::warn;
 
-<span class="kw">use</span> <span class="ident">types::Event</span>;
-<span class="kw">use</span> <span class="ident">types::Table</span>;
+<span class="kw">use </span>types::Event;
+<span class="kw">use </span>types::Table;
 
-<span class="kw">const</span> <span class="ident">MAX_COMMIT_DURATION</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration::from_millis</span>(<span class="number">1</span>);
+<span class="kw">const </span>MAX_COMMIT_DURATION: Duration = Duration::from_millis(<span class="number">1</span>);
 
-<span class="attribute">#[<span class="ident">async_trait</span>]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Reactor</span> {
-    <span class="kw">type</span> <span class="ident">Error</span>: <span class="ident">::std::error::Error</span>;
+<span class="attribute">#[async_trait]
+</span><span class="kw">pub trait </span>Reactor {
+    <span class="kw">type </span>Error: ::std::error::Error;
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">react</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">event</span>: <span class="ident">Event</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
+    <span class="kw">async fn </span>react(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: Event) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Context</span> {
-    <span class="ident">uncommited_buffer</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">tx</span>: <span class="ident">UnboundedSender</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">struct </span>Context {
+    uncommited_buffer: Arc&lt;Mutex&lt;Vec&lt;Event&gt;&gt;&gt;,
+    tx: UnboundedSender&lt;Event&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Context</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">tx</span>: <span class="ident">UnboundedSender</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">tx</span>,
-            <span class="ident">uncommited_buffer</span>: <span class="ident">Arc::new</span>(<span class="ident">Mutex::new</span>(<span class="ident">Vec::new</span>())),
+<span class="kw">impl </span>Context {
+    <span class="kw">pub fn </span>new(tx: UnboundedSender&lt;Event&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            tx,
+            uncommited_buffer: Arc::new(Mutex::new(Vec::new())),
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ReactorCore</span> {
-    <span class="ident">hook_ctx</span>: <span class="ident">Context</span>,
-    <span class="ident">recvr</span>: <span class="ident">UnboundedReceiver</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>ReactorCore {
+    hook_ctx: Context,
+    recvr: UnboundedReceiver&lt;Event&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ReactorCore</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">unbounded_channel</span>();
+<span class="kw">impl </span>ReactorCore {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>(tx, rx) = unbounded_channel();
 
-        <span class="self">Self</span> {
-            <span class="ident">hook_ctx</span>: <span class="ident">Context::new</span>(<span class="ident">tx</span>),
-            <span class="ident">recvr</span>: <span class="ident">rx</span>,
+        <span class="self">Self </span>{
+            hook_ctx: Context::new(tx),
+            recvr: rx,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">register</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">lock</span>: <span class="kw-2">&amp;mut</span> <span class="ident">OwnedMutexGuard</span><span class="op">&lt;</span><span class="ident">SqliteConnection</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle_lock</span> <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">lock_handle</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">handle_lock</span>.<span class="ident">as_raw_handle</span>();
+    <span class="kw">pub async fn </span>register(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lock: <span class="kw-2">&amp;mut </span>OwnedMutexGuard&lt;SqliteConnection&gt;) {
+        <span class="kw">let </span><span class="kw-2">mut </span>handle_lock = lock.lock_handle().<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>handle = handle_lock.as_raw_handle();
 
-        <span class="ident"><span class="self">Self</span>::wal_commit_hook_raw</span>(<span class="ident">handle</span>.<span class="ident">as_ptr</span>(), <span class="self">self</span>.<span class="ident">wal_hook</span>());
+        <span class="self">Self</span>::wal_commit_hook_raw(handle.as_ptr(), <span class="self">self</span>.wal_hook());
 
-        <span class="comment">// SAFETY: Its safe to construct the connection from a handle because we lock it above</span>
-        <span class="comment">// which ensures the access is synchronized.</span>
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">Connection::from_handle</span>(<span class="ident">handle</span>.<span class="ident">as_ptr</span>()).<span class="ident">unwrap</span>() };
+        <span class="comment">// SAFETY: Its safe to construct the connection from a handle because we lock it above
+        // which ensures the access is synchronized.
+        </span><span class="kw">let </span>conn = <span class="kw">unsafe </span>{ Connection::from_handle(handle.as_ptr()).unwrap() };
 
-        <span class="ident">conn</span>.<span class="ident">update_hook</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">update_hook</span>()));
-        <span class="ident">conn</span>.<span class="ident">rollback_hook</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">rollback_hook</span>()));
+        conn.update_hook(<span class="prelude-val">Some</span>(<span class="self">self</span>.update_hook()));
+        conn.rollback_hook(<span class="prelude-val">Some</span>(<span class="self">self</span>.rollback_hook()));
 
-        <span class="comment">// SAFETY: We need to forget `conn` otherwise its destructor runs and our hooks get</span>
-        <span class="comment">// deleted.</span>
-        <span class="ident">core::mem::forget</span>(<span class="ident">conn</span>);
+        <span class="comment">// SAFETY: We need to forget `conn` otherwise its destructor runs and our hooks get
+        // deleted.
+        </span>core::mem::forget(conn);
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">react</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">::std::error::Error</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">reactor</span>: <span class="kw">impl</span> <span class="ident">Reactor</span><span class="op">&lt;</span><span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>) {
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">recvr</span>.<span class="ident">recv</span>().<span class="kw">await</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">reactor</span>.<span class="ident">react</span>(<span class="ident">event</span>).<span class="kw">await</span> {
-                <span class="macro">error!</span>(<span class="ident">error</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">e</span>, <span class="question-mark">?</span><span class="ident">event</span>, <span class="string">&quot;Reactor returned an when processing event.&quot;</span>);
+    <span class="kw">pub async fn </span>react&lt;E: ::std::error::Error&gt;(<span class="kw-2">mut </span><span class="self">self</span>, <span class="kw-2">mut </span>reactor: <span class="kw">impl </span>Reactor&lt;Error = E&gt;) {
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(event) = <span class="self">self</span>.recvr.recv().<span class="kw">await </span>{
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = reactor.react(event).<span class="kw">await </span>{
+                <span class="macro">error!</span>(error = <span class="question-mark">?</span>e, <span class="question-mark">?</span>event, <span class="string">&quot;Reactor returned an when processing event.&quot;</span>);
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">update_hook</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">Action</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">i64</span>) <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
-        <span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hook_ctx</span>.<span class="ident">clone</span>();
+    <span class="kw">fn </span>update_hook(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>FnMut(Action, <span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str, i64) + Send + <span class="lifetime">&#39;static </span>{
+        <span class="kw">let </span>context = <span class="self">self</span>.hook_ctx.clone();
 
-        <span class="comment">// NOTE: This callback must complete as quickly as it can as it is called directly after</span>
-        <span class="comment">// our database operations and not asynchronously. Sqlite will wait for this function to</span>
-        <span class="comment">// complete executing and then the database operation will also be completed. If this</span>
-        <span class="comment">// function never ends, the clients operating on the database will lock as well.</span>
-        <span class="kw">move</span> <span class="op">|</span><span class="ident">action</span>, <span class="kw">_</span>, <span class="ident">table</span>, <span class="ident">rowid</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">source_table</span>): <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Table</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">table</span>.<span class="ident">try_into</span>() <span class="kw">else</span> {
-                <span class="comment">// Early return because the source table is not something we are watching.</span>
-                <span class="kw">return</span>;
+        <span class="comment">// NOTE: This callback must complete as quickly as it can as it is called directly after
+        // our database operations and not asynchronously. Sqlite will wait for this function to
+        // complete executing and then the database operation will also be completed. If this
+        // function never ends, the clients operating on the database will lock as well.
+        </span><span class="kw">move </span>|action, <span class="kw">_</span>, table, rowid| {
+            <span class="kw">let </span><span class="prelude-val">Ok</span>(source_table): <span class="prelude-ty">Result</span>&lt;Table, <span class="kw">_</span>&gt; = table.try_into() <span class="kw">else </span>{
+                <span class="comment">// Early return because the source table is not something we are watching.
+                </span><span class="kw">return</span>;
             };
 
-            <span class="comment">// Ignore any events which are invalid</span>
-            <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">action</span>, <span class="ident">Action::UNKNOWN</span>) {
+            <span class="comment">// Ignore any events which are invalid
+            </span><span class="kw">if </span><span class="macro">matches!</span>(action, Action::UNKNOWN) {
                 <span class="kw">return</span>;
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">uncommited_buffer</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let </span><span class="kw-2">mut </span>buffer = context.uncommited_buffer.lock().unwrap();
 
-            <span class="ident">buffer</span>.<span class="ident">push</span>(<span class="ident">Event</span> {
-                <span class="ident">id</span>: <span class="ident">rowid</span>,
-                <span class="ident">table</span>: <span class="ident">source_table</span>,
-                <span class="ident">event_type</span>: <span class="ident">action</span>.<span class="ident">into</span>(),
+            buffer.push(Event {
+                id: rowid,
+                table: source_table,
+                event_type: action.into(),
             });
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">rollback_hook</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>() <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
-        <span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hook_ctx</span>.<span class="ident">clone</span>();
+    <span class="kw">fn </span>rollback_hook(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>FnMut() + Send + <span class="lifetime">&#39;static </span>{
+        <span class="kw">let </span>context = <span class="self">self</span>.hook_ctx.clone();
 
-        <span class="comment">// NOTE: If we get a rollback, we automatically assume that our current buffer of</span>
-        <span class="comment">// uncommited events is dirty and will not be applied to the real database, thus we can</span>
-        <span class="comment">// just clear them.</span>
-        <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">uncommited_buffer</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-            <span class="ident">buffer</span>.<span class="ident">clear</span>();
+        <span class="comment">// NOTE: If we get a rollback, we automatically assume that our current buffer of
+        // uncommited events is dirty and will not be applied to the real database, thus we can
+        // just clear them.
+        </span><span class="kw">move </span>|| {
+            <span class="kw">let </span><span class="kw-2">mut </span>buffer = context.uncommited_buffer.lock().unwrap();
+            buffer.clear();
         }
     }
 
-    <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip_all</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">wal_hook</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>() <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
-        <span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hook_ctx</span>.<span class="ident">clone</span>();
+    <span class="attribute">#[instrument(skip_all)]
+    </span><span class="kw">fn </span>wal_hook(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>FnMut() + Send + <span class="lifetime">&#39;static </span>{
+        <span class="kw">let </span>context = <span class="self">self</span>.hook_ctx.clone();
 
-        <span class="comment">// NOTE: If we get a commit we can assume our buffer of events is valid and can be reacted</span>
-        <span class="comment">// on because they are going to be written to the disk.</span>
-        <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">uncommited_buffer</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">buffer_len</span> <span class="op">=</span> <span class="ident">buffer</span>.<span class="ident">len</span>();
+        <span class="comment">// NOTE: If we get a commit we can assume our buffer of events is valid and can be reacted
+        // on because they are going to be written to the disk.
+        </span><span class="kw">move </span>|| {
+            <span class="kw">let </span>now = Instant::now();
+            <span class="kw">let </span><span class="kw-2">mut </span>buffer = context.uncommited_buffer.lock().unwrap();
+            <span class="kw">let </span>buffer_len = buffer.len();
 
-            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>) <span class="op">=</span> <span class="ident">buffer</span>.<span class="ident">pop</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">context</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">event</span>) {
+            <span class="kw">while let </span><span class="prelude-val">Some</span>(event) = buffer.pop() {
+                <span class="kw">if let </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) = context.tx.send(event) {
                     <span class="macro">error!</span>(<span class="string">&quot;Failed to send database event.&quot;</span>);
                 }
             }
 
-            <span class="kw">let</span> <span class="ident">elapsed</span> <span class="op">=</span> <span class="ident">now</span>.<span class="ident">elapsed</span>();
-            <span class="kw">if</span> <span class="ident">elapsed</span> <span class="op">&gt;</span> <span class="ident">MAX_COMMIT_DURATION</span> {
+            <span class="kw">let </span>elapsed = now.elapsed();
+            <span class="kw">if </span>elapsed &gt; MAX_COMMIT_DURATION {
                 <span class="macro">warn!</span>(
-                    <span class="ident">elapsed_ms</span> <span class="op">=</span> <span class="ident">elapsed</span>.<span class="ident">as_millis</span>(),
-                    <span class="ident">buffer_len</span>, <span class="string">&quot;Commit hook took too long&quot;</span>
-                );
+                    elapsed_ms = elapsed.as_millis(),
+                    buffer_len, <span class="string">&quot;Commit hook took too long&quot;
+                </span>);
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">wal_commit_hook_raw</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">FnMut</span>() <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="ident">sqlite</span>: <span class="kw-2">*mut</span> <span class="ident">sqlite3</span>, <span class="ident">hook</span>: <span class="ident">F</span>) {
-        <span class="comment">// Unfortunately libsqlite3-sys doesnt expose this.</span>
-        <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sqlite3_wal_hook</span>(
-                <span class="ident">arg1</span>: <span class="kw-2">*mut</span> <span class="ident">sqlite3</span>,
-                <span class="ident">arg2</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>
-                    <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(
-                        <span class="ident">arg1</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-                        <span class="ident">arg2</span>: <span class="kw-2">*mut</span> <span class="ident">sqlite3</span>,
-                        <span class="ident">arg3</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-                        <span class="ident">arg4</span>: <span class="ident">c_int</span>,
-                    ) -&gt; <span class="ident">c_int</span>,
-                <span class="op">&gt;</span>,
-                <span class="ident">arg3</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-            ) -&gt; <span class="kw-2">*mut</span> <span class="ident">c_void</span>;
+    <span class="kw">fn </span>wal_commit_hook_raw&lt;F: FnMut() + Send + <span class="lifetime">&#39;static</span>&gt;(sqlite: <span class="kw-2">*mut </span>sqlite3, hook: F) {
+        <span class="comment">// Unfortunately libsqlite3-sys doesnt expose this.
+        </span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+            <span class="kw">pub fn </span>sqlite3_wal_hook(
+                arg1: <span class="kw-2">*mut </span>sqlite3,
+                arg2: <span class="prelude-ty">Option</span>&lt;
+                    <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+                        arg1: <span class="kw-2">*mut </span>c_void,
+                        arg2: <span class="kw-2">*mut </span>sqlite3,
+                        arg3: <span class="kw-2">*const </span>c_char,
+                        arg4: c_int,
+                    ) -&gt; c_int,
+                &gt;,
+                arg3: <span class="kw-2">*mut </span>c_void,
+            ) -&gt; <span class="kw-2">*mut </span>c_void;
         }
 
-        <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">call_boxed_closure</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">FnMut</span>()<span class="op">&gt;</span>(
-            <span class="ident">p_arg</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-            <span class="kw">_</span>: <span class="kw-2">*mut</span> <span class="ident">sqlite3</span>,
-            <span class="kw">_</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-            <span class="kw">_</span>: <span class="ident">c_int</span>,
-        ) -&gt; <span class="ident">c_int</span> {
-            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">catch_unwind</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">boxed_hook</span>: <span class="kw-2">*mut</span> <span class="ident">F</span> <span class="op">=</span> <span class="ident">p_arg</span>.<span class="ident">cast</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>();
-                (<span class="kw-2">*</span><span class="ident">boxed_hook</span>)()
+        <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>call_boxed_closure&lt;F: FnMut()&gt;(
+            p_arg: <span class="kw-2">*mut </span>c_void,
+            <span class="kw">_</span>: <span class="kw-2">*mut </span>sqlite3,
+            <span class="kw">_</span>: <span class="kw-2">*const </span>c_char,
+            <span class="kw">_</span>: c_int,
+        ) -&gt; c_int {
+            <span class="kw">let </span>r = catch_unwind(|| {
+                <span class="kw">let </span>boxed_hook: <span class="kw-2">*mut </span>F = p_arg.cast::&lt;F&gt;();
+                (<span class="kw-2">*</span>boxed_hook)()
             });
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(()) <span class="op">=</span> <span class="ident">r</span> {
-                <span class="number">0</span>
-            } <span class="kw">else</span> {
-                <span class="number">1</span>
-            }
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(()) = r {
+                <span class="number">0
+            </span>} <span class="kw">else </span>{
+                <span class="number">1
+            </span>}
         }
 
-        <span class="kw">let</span> <span class="ident">boxed_hook</span>: <span class="kw-2">*mut</span> <span class="ident">F</span> <span class="op">=</span> <span class="ident">Box::into_raw</span>(<span class="ident">Box::new</span>(<span class="ident">hook</span>));
-        <span class="kw">unsafe</span> {
-            <span class="ident">sqlite3_wal_hook</span>(<span class="ident">sqlite</span>, <span class="prelude-val">Some</span>(<span class="ident">call_boxed_closure</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>), <span class="ident">boxed_hook</span>.<span class="ident">cast</span>());
+        <span class="kw">let </span>boxed_hook: <span class="kw-2">*mut </span>F = Box::into_raw(Box::new(hook));
+        <span class="kw">unsafe </span>{
+            sqlite3_wal_hook(sqlite, <span class="prelude-val">Some</span>(call_boxed_closure::&lt;F&gt;), boxed_hook.cast());
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/scanner/daemon.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>daemon.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/scanner/daemon.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>daemon.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -279,280 +272,279 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::EventTx</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external::ExternalQuery</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::core::EventTx;
+<span class="kw">use </span><span class="kw">crate</span>::external::ExternalQueryIntoShow;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::movie</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::tv_show</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::MediaMatcher</span>;
+<span class="kw">use </span><span class="kw">super</span>::movie;
+<span class="kw">use </span><span class="kw">super</span>::tv_show;
+<span class="kw">use </span><span class="kw">super</span>::MediaMatcher;
 
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
-<span class="kw">use</span> <span class="ident">std::sync::mpsc</span>;
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span class="kw">use </span>std::path::PathBuf;
+<span class="kw">use </span>std::sync::mpsc;
+<span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use</span> <span class="ident">database::library::Library</span>;
-<span class="kw">use</span> <span class="ident">database::library::MediaType</span>;
-<span class="kw">use</span> <span class="ident">database::media::Media</span>;
-<span class="kw">use</span> <span class="ident">database::mediafile::MediaFile</span>;
-<span class="kw">use</span> <span class="ident">database::mediafile::UpdateMediaFile</span>;
-<span class="kw">use</span> <span class="ident">database::DbConnection</span>;
+<span class="kw">use </span>database::library::Library;
+<span class="kw">use </span>database::library::MediaType;
+<span class="kw">use </span>database::media::Media;
+<span class="kw">use </span>database::mediafile::MediaFile;
+<span class="kw">use </span>database::mediafile::UpdateMediaFile;
+<span class="kw">use </span>database::DbConnection;
 
-<span class="kw">use</span> <span class="ident">notify::DebouncedEvent</span>;
-<span class="kw">use</span> <span class="ident">notify::RecommendedWatcher</span>;
-<span class="kw">use</span> <span class="ident">notify::RecursiveMode</span>;
-<span class="kw">use</span> <span class="ident">notify::Watcher</span>;
+<span class="kw">use </span>notify::DebouncedEvent;
+<span class="kw">use </span>notify::RecommendedWatcher;
+<span class="kw">use </span>notify::RecursiveMode;
+<span class="kw">use </span>notify::Watcher;
 
-<span class="kw">use</span> <span class="ident">tokio::sync::mpsc::UnboundedReceiver</span>;
+<span class="kw">use </span>tokio::sync::mpsc::UnboundedReceiver;
 
-<span class="kw">use</span> <span class="ident">displaydoc::Display</span>;
-<span class="kw">use</span> <span class="ident">thiserror::Error</span>;
-<span class="kw">use</span> <span class="ident">tracing::debug</span>;
-<span class="kw">use</span> <span class="ident">tracing::error</span>;
-<span class="kw">use</span> <span class="ident">tracing::warn</span>;
+<span class="kw">use </span>displaydoc::Display;
+<span class="kw">use </span>thiserror::Error;
+<span class="kw">use </span>tracing::debug;
+<span class="kw">use </span>tracing::error;
+<span class="kw">use </span>tracing::warn;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Display</span>, <span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">FsWatcherError</span> {
-    <span class="doccomment">/// A database error has occured: {0:?}</span>
-    <span class="ident">DatabaseError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">database::DatabaseError</span>),
-    <span class="doccomment">/// A error with notify has occured&quot;: {0:?}</span>
-    <span class="ident">NotifyError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">notify::Error</span>),
+<span class="attribute">#[derive(Display, Debug, Error)]
+</span><span class="kw">pub enum </span>FsWatcherError {
+    <span class="doccomment">/// A database error has occured: {0:?}
+    </span>DatabaseError(<span class="attribute">#[from] </span>database::DatabaseError),
+    <span class="doccomment">/// A error with notify has occured&quot;: {0:?}
+    </span>NotifyError(<span class="attribute">#[from] </span>notify::Error),
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FsWatcher</span> {
-    <span class="ident">media_type</span>: <span class="ident">MediaType</span>,
-    <span class="ident">library_id</span>: <span class="ident">i64</span>,
-    <span class="ident">tx</span>: <span class="ident">EventTx</span>,
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">matcher</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">MediaMatcher</span><span class="op">&gt;</span>,
-    <span class="ident">provider</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ExternalQuery</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>FsWatcher {
+    media_type: MediaType,
+    library_id: i64,
+    tx: EventTx,
+    conn: DbConnection,
+    matcher: Arc&lt;<span class="kw">dyn </span>MediaMatcher&gt;,
+    provider: Arc&lt;<span class="kw">dyn </span>ExternalQueryIntoShow&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">FsWatcher</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-        <span class="ident">library_id</span>: <span class="ident">i64</span>,
-        <span class="ident">media_type</span>: <span class="ident">MediaType</span>,
-        <span class="ident">tx</span>: <span class="ident">EventTx</span>,
-        <span class="ident">provider</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ExternalQuery</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">matcher</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">media_type</span> {
-            <span class="ident">MediaType::Movie</span> =&gt; <span class="ident">Arc::new</span>(<span class="ident">movie::MovieMatcher</span>) <span class="kw">as</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">MediaMatcher</span><span class="op">&gt;</span>,
-            <span class="ident">MediaType::Tv</span> =&gt; <span class="ident">Arc::new</span>(<span class="ident">tv_show::TvMatcher</span>) <span class="kw">as</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">MediaMatcher</span><span class="op">&gt;</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(),
+<span class="kw">impl </span>FsWatcher {
+    <span class="kw">pub fn </span>new(
+        conn: DbConnection,
+        library_id: i64,
+        media_type: MediaType,
+        tx: EventTx,
+        provider: Arc&lt;<span class="kw">dyn </span>ExternalQueryIntoShow&gt;,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>matcher = <span class="kw">match </span>media_type {
+            MediaType::Movie =&gt; Arc::new(movie::MovieMatcher) <span class="kw">as </span>Arc&lt;<span class="kw">dyn </span>MediaMatcher&gt;,
+            MediaType::Tv =&gt; Arc::new(tv_show::TvMatcher) <span class="kw">as </span>Arc&lt;<span class="kw">dyn </span>MediaMatcher&gt;,
+            <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(),
         };
 
-        <span class="self">Self</span> {
-            <span class="ident">library_id</span>,
-            <span class="ident">media_type</span>,
-            <span class="ident">tx</span>,
-            <span class="ident">conn</span>,
-            <span class="ident">matcher</span>,
-            <span class="ident">provider</span>,
+        <span class="self">Self </span>{
+            library_id,
+            media_type,
+            tx,
+            conn,
+            matcher,
+            provider,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">start_daemon</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FsWatcherError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">library</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-                    <span class="macro">error!</span>(<span class="ident">reason</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">e</span>, <span class="string">&quot;Failed to open a transaction.&quot;</span>);
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+    <span class="kw">pub async fn </span>start_daemon(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), FsWatcherError&gt; {
+        <span class="kw">let </span>library = {
+            <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="kw">match </span><span class="self">self</span>.conn.read().begin().<span class="kw">await </span>{
+                <span class="prelude-val">Ok</span>(x) =&gt; x,
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    <span class="macro">error!</span>(reason = <span class="question-mark">?</span>e, <span class="string">&quot;Failed to open a transaction.&quot;</span>);
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(());
                 }
             };
 
-            <span class="ident">Library::get_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="self">self</span>.<span class="ident">library_id</span>).<span class="kw">await</span><span class="question-mark">?</span>
-        };
+            Library::get_one(<span class="kw-2">&amp;mut </span>tx, <span class="self">self</span>.library_id).<span class="kw">await</span><span class="question-mark">?
+        </span>};
 
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">rx</span>, <span class="ident">_watcher</span>) <span class="op">=</span> <span class="ident">async_watch</span>(<span class="ident">library</span>.<span class="ident">locations</span>.<span class="ident">iter</span>())<span class="question-mark">?</span>;
+        <span class="kw">let </span>(<span class="kw-2">mut </span>rx, _watcher) = async_watch(library.locations.iter())<span class="question-mark">?</span>;
 
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>().<span class="kw">await</span> {
-            <span class="kw">match</span> <span class="ident">e</span> {
-                <span class="ident">DebouncedEvent::Create</span>(<span class="ident">path</span>) =&gt; <span class="self">self</span>.<span class="ident">handle_create</span>(<span class="ident">path</span>).<span class="kw">await</span>,
-                <span class="ident">DebouncedEvent::Rename</span>(<span class="ident">from</span>, <span class="ident">to</span>) =&gt; <span class="self">self</span>.<span class="ident">handle_rename</span>(<span class="ident">from</span>, <span class="ident">to</span>).<span class="kw">await</span>,
-                <span class="ident">DebouncedEvent::Remove</span>(<span class="ident">path</span>) =&gt; <span class="self">self</span>.<span class="ident">handle_remove</span>(<span class="ident">path</span>).<span class="kw">await</span>,
-                <span class="ident">event</span> =&gt; <span class="macro">debug!</span>(<span class="string">&quot;Tried to handle unmatched event {:?}&quot;</span>, <span class="ident">event</span>),
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(e) = rx.recv().<span class="kw">await </span>{
+            <span class="kw">match </span>e {
+                DebouncedEvent::Create(path) =&gt; <span class="self">self</span>.handle_create(path).<span class="kw">await</span>,
+                DebouncedEvent::Rename(from, to) =&gt; <span class="self">self</span>.handle_rename(from, to).<span class="kw">await</span>,
+                DebouncedEvent::Remove(path) =&gt; <span class="self">self</span>.handle_remove(path).<span class="kw">await</span>,
+                event =&gt; <span class="macro">debug!</span>(<span class="string">&quot;Tried to handle unmatched event {:?}&quot;</span>, event),
             }
         }
 
-        <span class="macro">warn!</span>(<span class="ident">library_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">library_id</span>, <span class="string">&quot;Scanning daemon finished.&quot;</span>);
+        <span class="macro">warn!</span>(library_id = <span class="self">self</span>.library_id, <span class="string">&quot;Scanning daemon finished.&quot;</span>);
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_create</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="ident">PathBuf</span>) {
-        <span class="macro">debug!</span>(<span class="string">&quot;Received handle_create event type: {:?}&quot;</span>, <span class="ident">path</span>);
+    <span class="kw">async fn </span>handle_create(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: PathBuf) {
+        <span class="macro">debug!</span>(<span class="string">&quot;Received handle_create event type: {:?}&quot;</span>, path);
 
-        <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_file</span>()
-            <span class="op">&amp;&amp;</span> <span class="ident">path</span>
-                .<span class="ident">extension</span>()
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">to_str</span>())
-                .<span class="ident">map_or</span>(<span class="bool-val">false</span>, <span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident"><span class="kw">super</span>::SUPPORTED_EXTS</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">e</span>))
+        <span class="kw">if </span>path.is_file()
+            &amp;&amp; path
+                .extension()
+                .and_then(|e| e.to_str())
+                .map_or(<span class="bool-val">false</span>, |e| <span class="kw">super</span>::SUPPORTED_EXTS.contains(<span class="kw-2">&amp;</span>e))
         {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">mfile</span>) <span class="op">=</span>
-                <span class="ident"><span class="kw">super</span>::insert_mediafiles</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">conn</span>, <span class="self">self</span>.<span class="ident">library_id</span>, <span class="macro">vec!</span>[<span class="ident">path</span>.<span class="ident">clone</span>()]).<span class="kw">await</span>
-            {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(mfile) =
+                <span class="kw">super</span>::insert_mediafiles(<span class="kw-2">&amp;mut </span><span class="self">self</span>.conn, <span class="self">self</span>.library_id, <span class="macro">vec!</span>[path.clone()]).<span class="kw">await
+            </span>{
+                <span class="kw">let </span><span class="kw-2">mut </span>lock = <span class="self">self</span>.conn.writer().lock_owned().<span class="kw">await</span>;
+                <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span>.unwrap();
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">matcher</span>
-                    .<span class="ident">batch_match</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">clone</span>(), <span class="ident">mfile</span>)
-                    .<span class="kw">await</span>
-                {
-                    <span class="macro">error!</span>(<span class="ident">error</span><span class="op">=</span><span class="question-mark">?</span><span class="ident">e</span>, <span class="string">&quot;Failed to match new file&quot;</span>);
+                <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = <span class="self">self
+                    </span>.matcher
+                    .batch_match(<span class="kw-2">&amp;mut </span>tx, <span class="self">self</span>.provider.clone(), mfile)
+                    .<span class="kw">await
+                </span>{
+                    <span class="macro">error!</span>(error=<span class="question-mark">?</span>e, <span class="string">&quot;Failed to match new file&quot;</span>);
                     <span class="kw">return</span>;
                 }
 
-                <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
+                tx.commit().<span class="kw">await</span>.unwrap();
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_dir</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">path</span>.<span class="ident">to_str</span>() {
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::start_custom</span>(
-                    <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">conn</span>,
-                    <span class="self">self</span>.<span class="ident">library_id</span>,
-                    <span class="macro">vec!</span>[<span class="ident">x</span>.<span class="ident">to_string</span>()],
-                    <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">clone</span>(),
-                    <span class="self">self</span>.<span class="ident">media_type</span>,
-                    <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">clone</span>(),
+        } <span class="kw">else if </span>path.is_dir() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = path.to_str() {
+                <span class="kw">let _ </span>= <span class="kw">super</span>::start_custom(
+                    <span class="kw-2">&amp;mut </span><span class="self">self</span>.conn,
+                    <span class="self">self</span>.library_id,
+                    <span class="macro">vec!</span>[x.to_string()],
+                    <span class="self">self</span>.tx.clone(),
+                    <span class="self">self</span>.media_type,
+                    <span class="self">self</span>.provider.clone(),
                 )
                 .<span class="kw">await</span>;
             }
         }
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_remove</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="ident">PathBuf</span>) {
-        <span class="macro">debug!</span>(<span class="string">&quot;Received handle remove {:?}&quot;</span>, <span class="ident">path</span>);
+    <span class="kw">async fn </span>handle_remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: PathBuf) {
+        <span class="macro">debug!</span>(<span class="string">&quot;Received handle remove {:?}&quot;</span>, path);
 
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">path</span>.<span class="ident">to_str</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-            <span class="prelude-val">None</span> =&gt; {
-                <span class="macro">warn!</span>(<span class="question-mark">?</span><span class="ident">path</span>, <span class="string">&quot;Received path thats not unicode&quot;</span>,);
+        <span class="kw">let </span>path = <span class="kw">match </span>path.to_str() {
+            <span class="prelude-val">Some</span>(x) =&gt; x,
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="macro">warn!</span>(<span class="question-mark">?</span>path, <span class="string">&quot;Received path thats not unicode&quot;</span>,);
                 <span class="kw">return</span>;
             }
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-                <span class="macro">error!</span>(<span class="ident">reason</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">e</span>, <span class="string">&quot;Failed to create transaction.&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>lock = <span class="self">self</span>.conn.writer().lock_owned().<span class="kw">await</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="kw">match </span>database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await </span>{
+            <span class="prelude-val">Ok</span>(x) =&gt; x,
+            <span class="prelude-val">Err</span>(e) =&gt; {
+                <span class="macro">error!</span>(reason = <span class="question-mark">?</span>e, <span class="string">&quot;Failed to create transaction.&quot;</span>);
                 <span class="kw">return</span>;
             }
         };
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">media_file</span>) <span class="op">=</span> <span class="ident">MediaFile::get_by_file</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">path</span>).<span class="kw">await</span> {
-            <span class="kw">let</span> <span class="ident">media</span> <span class="op">=</span> <span class="ident">Media::get_of_mediafile</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">media_file</span>.<span class="ident">id</span>).<span class="kw">await</span>;
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(media_file) = MediaFile::get_by_file(<span class="kw-2">&amp;mut </span>tx, path).<span class="kw">await </span>{
+            <span class="kw">let </span>media = Media::get_of_mediafile(<span class="kw-2">&amp;mut </span>tx, media_file.id).<span class="kw">await</span>;
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">MediaFile::delete</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">media_file</span>.<span class="ident">id</span>).<span class="kw">await</span> {
-                <span class="macro">error!</span>(<span class="ident">reason</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">e</span>, <span class="string">&quot;Failed to remove mediafile&quot;</span>);
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = MediaFile::delete(<span class="kw-2">&amp;mut </span>tx, media_file.id).<span class="kw">await </span>{
+                <span class="macro">error!</span>(reason = <span class="question-mark">?</span>e, <span class="string">&quot;Failed to remove mediafile&quot;</span>);
                 <span class="kw">return</span>;
             }
 
-            <span class="comment">// if we have a media with no mediafiles we want to purge it as it is a ghost media</span>
-            <span class="comment">// entry.</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">media</span>) <span class="op">=</span> <span class="ident">media</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">media_files</span>) <span class="op">=</span> <span class="ident">MediaFile::get_of_media</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">media</span>.<span class="ident">id</span>).<span class="kw">await</span> {
-                    <span class="kw">if</span> <span class="ident">media_files</span>.<span class="ident">is_empty</span>() {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">Media::delete</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">media</span>.<span class="ident">id</span>).<span class="kw">await</span> {
-                            <span class="macro">error!</span>(<span class="ident">reason</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">e</span>, <span class="string">&quot;Failed to delete ghost media&quot;</span>);
+            <span class="comment">// if we have a media with no mediafiles we want to purge it as it is a ghost media
+            // entry.
+            </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(media) = media {
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(media_files) = MediaFile::get_of_media(<span class="kw-2">&amp;mut </span>tx, media.id).<span class="kw">await </span>{
+                    <span class="kw">if </span>media_files.is_empty() {
+                        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = Media::delete(<span class="kw-2">&amp;mut </span>tx, media.id).<span class="kw">await </span>{
+                            <span class="macro">error!</span>(reason = <span class="question-mark">?</span>e, <span class="string">&quot;Failed to delete ghost media&quot;</span>);
                             <span class="kw">return</span>;
                         }
                     }
                 }
             }
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span> {
-                <span class="macro">error!</span>(<span class="ident">reason</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">e</span>, <span class="string">&quot;Failed to commit transaction.&quot;</span>);
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = tx.commit().<span class="kw">await </span>{
+                <span class="macro">error!</span>(reason = <span class="question-mark">?</span>e, <span class="string">&quot;Failed to commit transaction.&quot;</span>);
             }
         }
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_rename</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">from</span>: <span class="ident">PathBuf</span>, <span class="ident">to</span>: <span class="ident">PathBuf</span>) {
+    <span class="kw">async fn </span>handle_rename(<span class="kw-2">&amp;mut </span><span class="self">self</span>, from: PathBuf, to: PathBuf) {
         <span class="macro">debug!</span>(
-            <span class="ident">from</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">from</span>,
-            <span class="ident">to</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">to</span>,
+            from = <span class="question-mark">?</span>from,
+            to = <span class="question-mark">?</span>to,
             <span class="string">&quot;Received handle rename&quot;</span>,
         );
 
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">from</span>.<span class="ident">to_str</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-            <span class="prelude-val">None</span> =&gt; {
+        <span class="kw">let </span>from = <span class="kw">match </span>from.to_str() {
+            <span class="prelude-val">Some</span>(x) =&gt; x,
+            <span class="prelude-val">None </span>=&gt; {
                 <span class="macro">warn!</span>(
-                    <span class="ident">path</span><span class="op">=</span><span class="question-mark">?</span><span class="ident">from</span>,
+                    path=<span class="question-mark">?</span>from,
                     <span class="string">&quot;Received path thats not unicode&quot;</span>,
                 );
                 <span class="kw">return</span>;
             }
         };
 
-        <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">to</span>.<span class="ident">to_str</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-            <span class="prelude-val">None</span> =&gt; {
+        <span class="kw">let </span>to = <span class="kw">match </span>to.to_str() {
+            <span class="prelude-val">Some</span>(x) =&gt; x,
+            <span class="prelude-val">None </span>=&gt; {
                 <span class="macro">warn!</span>(
-                    <span class="ident">path</span><span class="op">=</span><span class="question-mark">?</span><span class="ident">to</span>,
+                    path=<span class="question-mark">?</span>to,
                     <span class="string">&quot;Received path thats not unicode&quot;</span>,
                 );
                 <span class="kw">return</span>;
             }
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-                <span class="macro">error!</span>(<span class="ident">reason</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">e</span>, <span class="string">&quot;Failed to create transaction.&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>lock = <span class="self">self</span>.conn.writer().lock_owned().<span class="kw">await</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="kw">match </span>database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await </span>{
+            <span class="prelude-val">Ok</span>(x) =&gt; x,
+            <span class="prelude-val">Err</span>(e) =&gt; {
+                <span class="macro">error!</span>(reason = <span class="question-mark">?</span>e, <span class="string">&quot;Failed to create transaction.&quot;</span>);
                 <span class="kw">return</span>;
             }
         };
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">media_file</span>) <span class="op">=</span> <span class="ident">MediaFile::get_by_file</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">from</span>).<span class="kw">await</span> {
-            <span class="kw">let</span> <span class="ident">update_query</span> <span class="op">=</span> <span class="ident">UpdateMediaFile</span> {
-                <span class="ident">target_file</span>: <span class="prelude-val">Some</span>(<span class="ident">to</span>.<span class="ident">into</span>()),
-                ..<span class="ident">Default::default</span>()
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(media_file) = MediaFile::get_by_file(<span class="kw-2">&amp;mut </span>tx, from).<span class="kw">await </span>{
+            <span class="kw">let </span>update_query = UpdateMediaFile {
+                target_file: <span class="prelude-val">Some</span>(to.into()),
+                ..Default::default()
             };
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">_e</span>) <span class="op">=</span> <span class="ident">update_query</span>.<span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">media_file</span>.<span class="ident">id</span>).<span class="kw">await</span> {
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(_e) = update_query.update(<span class="kw-2">&amp;mut </span>tx, media_file.id).<span class="kw">await </span>{
                 <span class="macro">error!</span>(
-                    <span class="ident">from</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">from</span>,
-                    <span class="ident">to</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">to</span>,
-                    <span class="ident">mediafile_id</span> <span class="op">=</span> <span class="ident">media_file</span>.<span class="ident">id</span>,
+                    from = <span class="question-mark">?</span>from,
+                    to = <span class="question-mark">?</span>to,
+                    mediafile_id = media_file.id,
                     <span class="string">&quot;Failed to update target file&quot;</span>,
                 );
             }
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span> {
-                <span class="macro">error!</span>(<span class="ident">reason</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">e</span>, <span class="string">&quot;Failed to commit transaction.&quot;</span>);
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = tx.commit().<span class="kw">await </span>{
+                <span class="macro">error!</span>(reason = <span class="question-mark">?</span>e, <span class="string">&quot;Failed to commit transaction.&quot;</span>);
             }
         }
     }
 }
 
-<span class="comment">// FIXME(val): This code is pretty cursed. We should replace this with native async when notify==5.0.0</span>
-<span class="comment">// comes out.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">async_watch</span>(
-    <span class="ident">paths</span>: <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">UnboundedReceiver</span><span class="op">&lt;</span><span class="ident">DebouncedEvent</span><span class="op">&gt;</span>, <span class="ident">RecommendedWatcher</span>), <span class="ident">FsWatcherError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">mpsc::channel</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">watcher</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">RecommendedWatcher</span> <span class="kw">as</span> <span class="ident">Watcher</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">tx</span>, <span class="ident">Duration::from_secs</span>(<span class="number">5</span>))<span class="question-mark">?</span>;
+<span class="comment">// FIXME(val): This code is pretty cursed. We should replace this with native async when notify==5.0.0
+// comes out.
+</span><span class="kw">pub fn </span>async_watch(
+    paths: <span class="kw">impl </span>Iterator&lt;Item = <span class="kw">impl </span>AsRef&lt;str&gt;&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(UnboundedReceiver&lt;DebouncedEvent&gt;, RecommendedWatcher), FsWatcherError&gt; {
+    <span class="kw">let </span>(tx, rx) = mpsc::channel();
+    <span class="kw">let </span><span class="kw-2">mut </span>watcher = &lt;RecommendedWatcher <span class="kw">as </span>Watcher&gt;::new(tx, Duration::from_secs(<span class="number">5</span>))<span class="question-mark">?</span>;
 
-    <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">paths</span> {
-        <span class="ident">watcher</span>.<span class="ident">watch</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>(), <span class="ident">RecursiveMode::Recursive</span>)<span class="question-mark">?</span>;
+    <span class="kw">for </span>path <span class="kw">in </span>paths {
+        watcher.watch(path.as_ref(), RecursiveMode::Recursive)<span class="question-mark">?</span>;
     }
 
-    <span class="kw">let</span> (<span class="ident">async_tx</span>, <span class="ident">async_rx</span>) <span class="op">=</span> <span class="ident">tokio::sync::mpsc::unbounded_channel</span>();
+    <span class="kw">let </span>(async_tx, async_rx) = tokio::sync::mpsc::unbounded_channel();
 
-    <span class="ident">std::thread::spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>() {
-            <span class="kw">if</span> <span class="ident">async_tx</span>.<span class="ident">send</span>(<span class="ident">x</span>).<span class="ident">is_err</span>() {
+    std::thread::spawn(<span class="kw">move </span>|| {
+        <span class="kw">while let </span><span class="prelude-val">Ok</span>(x) = rx.recv() {
+            <span class="kw">if </span>async_tx.send(x).is_err() {
                 <span class="kw">break</span>;
             }
         }
     });
 
-    <span class="prelude-val">Ok</span>((<span class="ident">async_rx</span>, <span class="ident">watcher</span>))
+    <span class="prelude-val">Ok</span>((async_rx, watcher))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

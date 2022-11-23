@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/external/tmdb/raw_client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw_client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../dim/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/external/tmdb/raw_client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw_client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../dim/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -376,377 +369,376 @@
 <span id="369">369</span>
 <span id="370">370</span>
 <span id="371">371</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">retry_block::async_retry</span>;
-<span class="kw">use</span> <span class="ident">retry_block::delay::Fixed</span>;
-<span class="kw">use</span> <span class="ident">retry_block::OperationResult</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>retry_block::async_retry;
+<span class="kw">use </span>retry_block::delay::Fixed;
+<span class="kw">use </span>retry_block::OperationResult;
 
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
-<span class="kw">use</span> <span class="ident">std::future::Future</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span class="kw">use </span>serde::Deserialize;
+<span class="kw">use </span>std::future::Future;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::external</span>::{
-    <span class="ident">ExternalActor</span>, <span class="ident">ExternalEpisode</span>, <span class="ident">ExternalMedia</span>, <span class="ident">ExternalSeason</span>, <span class="ident">MediaSearchType</span>,
+<span class="kw">use </span><span class="kw">crate</span>::external::{
+    ExternalActor, ExternalEpisode, ExternalMedia, ExternalSeason, MediaSearchType,
 };
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">TMDBClientRequestError</span>, <span class="ident">TMDBMetadataProvider</span>, <span class="ident">TMDB_BASE_URL</span>};
+<span class="kw">use super</span>::{TMDBClientRequestError, TMDBMetadataProvider, TMDB_BASE_URL};
 
-<span class="comment">// -- TMDB API Data Models</span>
+<span class="comment">// -- TMDB API Data Models
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SearchResponse</span> {
-    <span class="kw">pub</span> <span class="ident">results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TMDBMediaObject</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+</span><span class="attribute">#[derive(Deserialize, Clone, Debug)]
+</span><span class="kw">pub struct </span>SearchResponse {
+    <span class="kw">pub </span>results: Vec&lt;<span class="prelude-ty">Option</span>&lt;TMDBMediaObject&gt;&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TMDBMediaObject</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">u64</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">alias</span> <span class="op">=</span> <span class="string">&quot;name&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">alias</span> <span class="op">=</span> <span class="string">&quot;first_air_date&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">release_date</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">overview</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">vote_average</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">poster_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">backdrop_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">genre_ids</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">genres</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Genre</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">runtime</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Deserialize, Clone, Debug, Default)]
+</span><span class="kw">pub struct </span>TMDBMediaObject {
+    <span class="kw">pub </span>id: u64,
+    <span class="attribute">#[serde(alias = <span class="string">&quot;name&quot;</span>)]
+    </span><span class="kw">pub </span>title: String,
+    <span class="attribute">#[serde(alias = <span class="string">&quot;first_air_date&quot;</span>)]
+    </span><span class="kw">pub </span>release_date: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>overview: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>vote_average: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+    <span class="kw">pub </span>poster_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>backdrop_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>genre_ids: <span class="prelude-ty">Option</span>&lt;Vec&lt;u64&gt;&gt;,
+    <span class="kw">pub </span>genres: <span class="prelude-ty">Option</span>&lt;Vec&lt;Genre&gt;&gt;,
+    <span class="kw">pub </span>runtime: <span class="prelude-ty">Option</span>&lt;u64&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TMDBMediaObject</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExternalMedia</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">media</span>: <span class="ident">TMDBMediaObject</span>) -&gt; <span class="ident">ExternalMedia</span> {
-        <span class="ident">ExternalMedia</span> {
-            <span class="ident">external_id</span>: <span class="ident">media</span>.<span class="ident">id</span>.<span class="ident">to_string</span>(),
-            <span class="ident">title</span>: <span class="ident">media</span>.<span class="ident">title</span>,
-            <span class="ident">description</span>: <span class="ident">media</span>.<span class="ident">overview</span>,
-            <span class="ident">release_date</span>: <span class="ident">media</span>.<span class="ident">release_date</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">date</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{date} 00:00:00 +0000&quot;</span>);
-                <span class="ident">chrono::DateTime::parse_from_str</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>, <span class="string">&quot;%Y-%m-%d %H:%M:%S %z&quot;</span>)
-                    .<span class="ident">ok</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">dt</span><span class="op">|</span> <span class="ident">dt</span>.<span class="ident">with_timezone</span>(<span class="kw-2">&amp;</span><span class="ident">chrono::Utc</span>))
+<span class="kw">impl </span>From&lt;TMDBMediaObject&gt; <span class="kw">for </span>ExternalMedia {
+    <span class="kw">fn </span>from(media: TMDBMediaObject) -&gt; ExternalMedia {
+        ExternalMedia {
+            external_id: media.id.to_string(),
+            title: media.title,
+            description: media.overview,
+            release_date: media.release_date.and_then(|date| {
+                <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{date} 00:00:00 +0000&quot;</span>);
+                chrono::DateTime::parse_from_str(<span class="kw-2">&amp;</span>s, <span class="string">&quot;%Y-%m-%d %H:%M:%S %z&quot;</span>)
+                    .ok()
+                    .map(|dt| dt.with_timezone(<span class="kw-2">&amp;</span>chrono::Utc))
             }),
-            <span class="ident">posters</span>: <span class="ident">media</span>
-                .<span class="ident">poster_path</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;https://image.tmdb.org/t/p/w600_and_h900_bestv2{x}&quot;</span>))
-                .<span class="ident">collect</span>(),
-            <span class="ident">backdrops</span>: <span class="ident">media</span>
-                .<span class="ident">backdrop_path</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;https://image.tmdb.org/t/p/original{x}&quot;</span>))
-                .<span class="ident">collect</span>(),
-            <span class="ident">genres</span>: <span class="ident">media</span>
-                .<span class="ident">genres</span>
-                .<span class="ident">unwrap_or_default</span>()
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">genre</span><span class="op">|</span> <span class="ident">genre</span>.<span class="ident">name</span>)
-                .<span class="ident">collect</span>(),
-            <span class="ident">rating</span>: <span class="ident">media</span>.<span class="ident">vote_average</span>,
-            <span class="ident">duration</span>: <span class="ident">media</span>.<span class="ident">runtime</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">Duration::from_secs</span>(<span class="ident">n</span>)),
+            posters: media
+                .poster_path
+                .into_iter()
+                .map(|x| <span class="macro">format!</span>(<span class="string">&quot;https://image.tmdb.org/t/p/w600_and_h900_bestv2{x}&quot;</span>))
+                .collect(),
+            backdrops: media
+                .backdrop_path
+                .into_iter()
+                .map(|x| <span class="macro">format!</span>(<span class="string">&quot;https://image.tmdb.org/t/p/original{x}&quot;</span>))
+                .collect(),
+            genres: media
+                .genres
+                .unwrap_or_default()
+                .into_iter()
+                .map(|genre| genre.name)
+                .collect(),
+            rating: media.vote_average,
+            duration: media.runtime.map(|n| Duration::from_secs(n)),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GenreList</span> {
-    <span class="kw">pub</span> <span class="ident">genres</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Genre</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Deserialize, Clone, Debug)]
+</span><span class="kw">pub struct </span>GenreList {
+    <span class="kw">pub </span>genres: Vec&lt;Genre&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Genre</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">u64</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Deserialize, Clone, Debug)]
+</span><span class="kw">pub struct </span>Genre {
+    <span class="kw">pub </span>id: u64,
+    <span class="kw">pub </span>name: String,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CastActor</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">u64</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">original_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">character</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">cast_id</span>: <span class="ident">u64</span>,
-    <span class="kw">pub</span> <span class="ident">gender</span>: <span class="ident">u64</span>,
-    <span class="kw">pub</span> <span class="ident">adult</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">profile_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">order</span>: <span class="ident">u64</span>,
+<span class="attribute">#[derive(Deserialize, Debug)]
+</span><span class="kw">pub struct </span>CastActor {
+    <span class="kw">pub </span>id: u64,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>original_name: String,
+    <span class="kw">pub </span>character: String,
+    <span class="kw">pub </span>cast_id: u64,
+    <span class="kw">pub </span>gender: u64,
+    <span class="kw">pub </span>adult: bool,
+    <span class="kw">pub </span>profile_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>order: u64,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">CastActor</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExternalActor</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">actor</span>: <span class="ident">CastActor</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">CastActor</span> {
-            <span class="ident">id</span>,
-            <span class="ident">name</span>,
-            <span class="ident">profile_path</span>,
-            <span class="ident">character</span>,
+<span class="kw">impl </span>From&lt;CastActor&gt; <span class="kw">for </span>ExternalActor {
+    <span class="kw">fn </span>from(actor: CastActor) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>CastActor {
+            id,
+            name,
+            profile_path,
+            character,
             ..
-        } <span class="op">=</span> <span class="ident">actor</span>;
+        } = actor;
 
-        <span class="ident">ExternalActor</span> {
-            <span class="ident">name</span>,
-            <span class="ident">character</span>,
-            <span class="ident">external_id</span>: <span class="ident">id</span>.<span class="ident">to_string</span>(),
-            <span class="ident">profile_path</span>: <span class="ident">profile_path</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;https://image.tmdb.org/t/p/original{x}&quot;</span>)),
+        ExternalActor {
+            name,
+            character,
+            external_id: id.to_string(),
+            profile_path: profile_path.map(|x| <span class="macro">format!</span>(<span class="string">&quot;https://image.tmdb.org/t/p/original{x}&quot;</span>)),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Cast</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">u64</span>,
-    <span class="kw">pub</span> <span class="ident">cast</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CastActor</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Deserialize, Debug)]
+</span><span class="kw">pub struct </span>Cast {
+    <span class="kw">pub </span>id: u64,
+    <span class="kw">pub </span>cast: Vec&lt;CastActor&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TmdbError</span> {
-    <span class="kw">pub</span> <span class="ident">status_message</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">status_code</span>: <span class="ident">u64</span>,
+<span class="attribute">#[derive(Deserialize, Debug)]
+</span><span class="kw">pub struct </span>TmdbError {
+    <span class="kw">pub </span>status_message: String,
+    <span class="kw">pub </span>status_code: u64,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TvSeasons</span> {
-    <span class="kw">pub</span> <span class="ident">seasons</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TvSeason</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Deserialize, Debug)]
+</span><span class="kw">pub struct </span>TvSeasons {
+    <span class="kw">pub </span>seasons: Vec&lt;TvSeason&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TvSeasons</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalSeason</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">seasons</span>: <span class="ident">TvSeasons</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">TvSeasons</span> { <span class="ident">seasons</span> } <span class="op">=</span> <span class="ident">seasons</span>;
-        <span class="ident">seasons</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Into::into</span>).<span class="ident">collect</span>()
+<span class="kw">impl </span>From&lt;TvSeasons&gt; <span class="kw">for </span>Vec&lt;ExternalSeason&gt; {
+    <span class="kw">fn </span>from(seasons: TvSeasons) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>TvSeasons { seasons } = seasons;
+        seasons.into_iter().map(Into::into).collect()
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TvSeason</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">u64</span>,
-    <span class="kw">pub</span> <span class="ident">air_date</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">episode_count</span>: <span class="ident">u64</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">overview</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">poster_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">season_number</span>: <span class="ident">u64</span>,
+<span class="attribute">#[derive(Deserialize, Debug)]
+</span><span class="kw">pub struct </span>TvSeason {
+    <span class="kw">pub </span>id: u64,
+    <span class="kw">pub </span>air_date: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>episode_count: u64,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>overview: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>poster_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>season_number: u64,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TvSeason</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExternalSeason</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">season</span>: <span class="ident">TvSeason</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">TvSeason</span> {
-            <span class="ident">id</span>,
-            <span class="ident">name</span>,
-            <span class="ident">overview</span>,
-            <span class="ident">poster_path</span>,
-            <span class="ident">season_number</span>,
+<span class="kw">impl </span>From&lt;TvSeason&gt; <span class="kw">for </span>ExternalSeason {
+    <span class="kw">fn </span>from(season: TvSeason) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>TvSeason {
+            id,
+            name,
+            overview,
+            poster_path,
+            season_number,
             ..
-        } <span class="op">=</span> <span class="ident">season</span>;
+        } = season;
 
-        <span class="self">Self</span> {
-            <span class="ident">external_id</span>: <span class="ident">id</span>.<span class="ident">to_string</span>(),
-            <span class="ident">title</span>: <span class="prelude-val">Some</span>(<span class="ident">name</span>),
-            <span class="ident">description</span>: <span class="ident">overview</span>,
-            <span class="ident">posters</span>: <span class="ident">poster_path</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+        <span class="self">Self </span>{
+            external_id: id.to_string(),
+            title: <span class="prelude-val">Some</span>(name),
+            description: overview,
+            posters: poster_path
+                .map(|x| {
                     <span class="macro">vec!</span>[<span class="macro">format!</span>(
-                        <span class="string">&quot;https://image.tmdb.org/t/p/w600_and_h900_bestv2{x}&quot;</span>
-                    )]
+                        <span class="string">&quot;https://image.tmdb.org/t/p/w600_and_h900_bestv2{x}&quot;
+                    </span>)]
                 })
-                .<span class="ident">unwrap_or_default</span>(),
-            <span class="ident">season_number</span>,
+                .unwrap_or_default(),
+            season_number,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TvEpisodes</span> {
-    <span class="kw">pub</span> <span class="ident">episodes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TvEpisode</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Deserialize, Debug)]
+</span><span class="kw">pub struct </span>TvEpisodes {
+    <span class="kw">pub </span>episodes: Vec&lt;TvEpisode&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TvEpisodes</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalEpisode</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">episodes</span>: <span class="ident">TvEpisodes</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">TvEpisodes</span> { <span class="ident">episodes</span> } <span class="op">=</span> <span class="ident">episodes</span>;
+<span class="kw">impl </span>From&lt;TvEpisodes&gt; <span class="kw">for </span>Vec&lt;ExternalEpisode&gt; {
+    <span class="kw">fn </span>from(episodes: TvEpisodes) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>TvEpisodes { episodes } = episodes;
 
-        <span class="ident">episodes</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Into::into</span>).<span class="ident">collect</span>()
+        episodes.into_iter().map(Into::into).collect()
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TvEpisode</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">u64</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">episode_number</span>: <span class="ident">u64</span>,
-    <span class="kw">pub</span> <span class="ident">overview</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">still_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">vote_average</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">vote_count</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Deserialize, Debug)]
+</span><span class="kw">pub struct </span>TvEpisode {
+    <span class="kw">pub </span>id: u64,
+    <span class="kw">pub </span>name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>episode_number: u64,
+    <span class="kw">pub </span>overview: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>still_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>vote_average: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+    <span class="kw">pub </span>vote_count: <span class="prelude-ty">Option</span>&lt;u64&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TvEpisode</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExternalEpisode</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">episode</span>: <span class="ident">TvEpisode</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">TvEpisode</span> {
-            <span class="ident">id</span>,
-            <span class="ident">name</span>,
-            <span class="ident">episode_number</span>,
-            <span class="ident">overview</span>,
-            <span class="ident">still_path</span>,
+<span class="kw">impl </span>From&lt;TvEpisode&gt; <span class="kw">for </span>ExternalEpisode {
+    <span class="kw">fn </span>from(episode: TvEpisode) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>TvEpisode {
+            id,
+            name,
+            episode_number,
+            overview,
+            still_path,
             ..
-        } <span class="op">=</span> <span class="ident">episode</span>;
+        } = episode;
 
-        <span class="self">Self</span> {
-            <span class="ident">external_id</span>: <span class="ident">id</span>.<span class="ident">to_string</span>(),
-            <span class="ident">title</span>: <span class="ident">name</span>,
-            <span class="ident">description</span>: <span class="ident">overview</span>,
-            <span class="ident">stills</span>: <span class="ident">still_path</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;https://image.tmdb.org/t/p/original{x}&quot;</span>)])
-                .<span class="ident">unwrap_or_default</span>(),
-            <span class="ident">episode_number</span>,
-            <span class="ident">duration</span>: <span class="prelude-val">None</span>,
+        <span class="self">Self </span>{
+            external_id: id.to_string(),
+            title: name,
+            description: overview,
+            stills: still_path
+                .map(|x| <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;https://image.tmdb.org/t/p/original{x}&quot;</span>)])
+                .unwrap_or_default(),
+            episode_number,
+            duration: <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="comment">// -- TMDBClient</span>
+<span class="comment">// -- TMDBClient
 
-<span class="doccomment">/// Internal TMDB client type used for building and making requests.</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">TMDBClient</span> {
-    <span class="kw">pub</span> <span class="ident">provider</span>: <span class="ident">TMDBMetadataProvider</span>,
+</span><span class="doccomment">/// Internal TMDB client type used for building and making requests.
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>TMDBClient {
+    <span class="kw">pub </span>provider: TMDBMetadataProvider,
 }
 
-<span class="kw">impl</span> <span class="ident">TMDBClient</span> {
-    <span class="kw">fn</span> <span class="ident">make_request</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span>(
+<span class="kw">impl </span>TMDBClient {
+    <span class="kw">fn </span>make_request&lt;A, T&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">args</span>: <span class="ident">A</span>,
-        <span class="ident">path</span>: <span class="ident">String</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">TMDBClientRequestError</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">A</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">T</span>, <span class="ident">T</span>)<span class="op">&gt;</span>,
-        <span class="ident">T</span>: <span class="ident">ToString</span>,
+        args: A,
+        path: String,
+    ) -&gt; <span class="kw">impl </span>Future&lt;Output = <span class="prelude-ty">Result</span>&lt;String, TMDBClientRequestError&gt;&gt;
+    <span class="kw">where
+        </span>A: IntoIterator&lt;Item = (T, T)&gt;,
+        T: ToString,
     {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{TMDB_BASE_URL}{path}&quot;</span>);
-        <span class="kw">let</span> <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">args</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> (<span class="ident">k</span>.<span class="ident">to_string</span>(), <span class="ident">v</span>.<span class="ident">to_string</span>()))
-            .<span class="ident">collect</span>();
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{TMDB_BASE_URL}{path}&quot;</span>);
+        <span class="kw">let </span>args: Vec&lt;<span class="kw">_</span>&gt; = args
+            .into_iter()
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect();
 
-        <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">http_client</span>.<span class="ident">clone</span>();
+        <span class="kw">let </span>provider = <span class="self">self</span>.provider.http_client.clone();
 
-        <span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">async_retry!</span>(<span class="ident">Fixed::new</span>(<span class="ident">Duration::from_millis</span>(<span class="number">50</span>)).<span class="ident">take</span>(<span class="number">24</span>), {
-                <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">provider</span>.<span class="ident">get</span>(<span class="ident">url</span>.<span class="ident">clone</span>()).<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">args</span>);
-                <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">request</span>
-                    .<span class="ident">send</span>()
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="ident">TMDBClientRequestError::reqwest</span>)
+        <span class="kw">async move </span>{
+            <span class="kw">let </span>result = <span class="macro">async_retry!</span>(Fixed::new(Duration::from_millis(<span class="number">50</span>)).take(<span class="number">24</span>), {
+                <span class="kw">let </span>request = provider.get(url.clone()).query(<span class="kw-2">&amp;</span>args);
+                <span class="kw">let </span>response = <span class="kw">match </span>request
+                    .send()
+                    .<span class="kw">await
+                    </span>.map_err(TMDBClientRequestError::reqwest)
                 {
-                    <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>).<span class="ident">into</span>(),
+                    <span class="prelude-val">Ok</span>(x) =&gt; x,
+                    <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(err).into(),
                 };
 
-                <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">status</span>();
+                <span class="kw">let </span>status = response.status();
 
-                <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">response</span>
-                    .<span class="ident">bytes</span>()
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="ident">TMDBClientRequestError::reqwest</span>)
+                <span class="kw">let </span>body = <span class="kw">match </span>response
+                    .bytes()
+                    .<span class="kw">await
+                    </span>.map_err(TMDBClientRequestError::reqwest)
                 {
-                    <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>).<span class="ident">into</span>(),
+                    <span class="prelude-val">Ok</span>(x) =&gt; x,
+                    <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(err).into(),
                 };
 
-                <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>)
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">TMDBClientRequestError::InvalidUTF8Body</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">st</span><span class="op">|</span> <span class="ident">st</span>.<span class="ident">to_string</span>());
+                <span class="kw">let </span>body = std::str::from_utf8(<span class="kw-2">&amp;</span>body)
+                    .map_err(|<span class="kw">_</span>| TMDBClientRequestError::InvalidUTF8Body)
+                    .map(|st| st.to_string());
 
-                <span class="kw">if</span> <span class="ident">status</span> <span class="op">!</span><span class="op">=</span> <span class="ident">reqwest::StatusCode::OK</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TMDBClientRequestError::NonOkResponse</span> {
-                        <span class="ident">body</span>: <span class="ident">body</span>.<span class="ident">unwrap_or_default</span>(),
-                        <span class="ident">status</span>,
+                <span class="kw">if </span>status != reqwest::StatusCode::OK {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(TMDBClientRequestError::NonOkResponse {
+                        body: body.unwrap_or_default(),
+                        status,
                     })
-                    .<span class="ident">into</span>();
+                    .into();
                 }
 
-                <span class="kw">match</span> <span class="ident">body</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">OperationResult::Ok</span>(<span class="ident">x</span>),
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">OperationResult::Err</span>(<span class="ident">err</span>),
+                <span class="kw">match </span>body {
+                    <span class="prelude-val">Ok</span>(x) =&gt; OperationResult::Ok(x),
+                    <span class="prelude-val">Err</span>(err) =&gt; OperationResult::Err(err),
                 }
             });
 
-            <span class="ident">result</span>
+            result
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">genre_list</span>(
+    <span class="kw">pub async fn </span>genre_list(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">media_type</span>: <span class="ident">MediaSearchType</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">TMDBClientRequestError</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">make_request</span>(
-            <span class="macro">vec!</span>[(<span class="string">&quot;api_key&quot;</span>, <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">api_key</span>.<span class="ident">as_ref</span>())],
+        media_type: MediaSearchType,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;String, TMDBClientRequestError&gt; {
+        <span class="self">self</span>.make_request(
+            <span class="macro">vec!</span>[(<span class="string">&quot;api_key&quot;</span>, <span class="self">self</span>.provider.api_key.as_ref())],
             <span class="macro">format!</span>(<span class="string">&quot;/genre/{media_type}/list&quot;</span>),
         )
-        .<span class="kw">await</span>
-    }
+        .<span class="kw">await
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search</span>(
+    <span class="kw">pub async fn </span>search(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">media_type</span>: <span class="ident">MediaSearchType</span>,
-        <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">TMDBClientRequestError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            (<span class="string">&quot;api_key&quot;</span>, <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">api_key</span>.<span class="ident">as_ref</span>()),
+        media_type: MediaSearchType,
+        title: <span class="kw-2">&amp;</span>str,
+        year: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;String, TMDBClientRequestError&gt; {
+        <span class="kw">let </span>args = <span class="macro">vec!</span>[
+            (<span class="string">&quot;api_key&quot;</span>, <span class="self">self</span>.provider.api_key.as_ref()),
             (<span class="string">&quot;language&quot;</span>, <span class="string">&quot;en-US&quot;</span>),
-            (<span class="string">&quot;query&quot;</span>, <span class="ident">title</span>),
+            (<span class="string">&quot;query&quot;</span>, title),
             (<span class="string">&quot;page&quot;</span>, <span class="string">&quot;1&quot;</span>),
             (<span class="string">&quot;include_adult&quot;</span>, <span class="string">&quot;false&quot;</span>),
         ]
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> (<span class="ident">k</span>.<span class="ident">to_string</span>(), <span class="ident">v</span>.<span class="ident">to_string</span>()))
-        .<span class="ident">chain</span>(
-            <span class="ident">year</span>.<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> (<span class="string">&quot;year&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">n</span>.<span class="ident">to_string</span>())),
+        .into_iter()
+        .map(|(k, v)| (k.to_string(), v.to_string()))
+        .chain(
+            year.into_iter()
+                .map(|n| (<span class="string">&quot;year&quot;</span>.to_string(), n.to_string())),
         );
 
-        <span class="self">self</span>.<span class="ident">make_request</span>(<span class="ident">args</span>, <span class="macro">format!</span>(<span class="string">&quot;/search/{media_type}&quot;</span>))
-            .<span class="kw">await</span>
-    }
+        <span class="self">self</span>.make_request(args, <span class="macro">format!</span>(<span class="string">&quot;/search/{media_type}&quot;</span>))
+            .<span class="kw">await
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_details</span>(
+    <span class="kw">pub async fn </span>get_details(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">media_type</span>: <span class="ident">MediaSearchType</span>,
-        <span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">TMDBClientRequestError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            (<span class="string">&quot;api_key&quot;</span>, <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">api_key</span>.<span class="ident">as_ref</span>()),
+        media_type: MediaSearchType,
+        id: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;String, TMDBClientRequestError&gt; {
+        <span class="kw">let </span>args = <span class="macro">vec!</span>[
+            (<span class="string">&quot;api_key&quot;</span>, <span class="self">self</span>.provider.api_key.as_ref()),
             (<span class="string">&quot;language&quot;</span>, <span class="string">&quot;en-US&quot;</span>),
-            (<span class="string">&quot;query&quot;</span>, <span class="ident">id</span>),
+            (<span class="string">&quot;query&quot;</span>, id),
         ];
 
-        <span class="self">self</span>.<span class="ident">make_request</span>(<span class="ident">args</span>, <span class="macro">format!</span>(<span class="string">&quot;/{media_type}/{id}&quot;</span>)).<span class="kw">await</span>
-    }
+        <span class="self">self</span>.make_request(args, <span class="macro">format!</span>(<span class="string">&quot;/{media_type}/{id}&quot;</span>)).<span class="kw">await
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_actor</span>(
+    <span class="kw">pub async fn </span>get_actor(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">media_type</span>: <span class="ident">MediaSearchType</span>,
-        <span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">TMDBClientRequestError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            (<span class="string">&quot;api_key&quot;</span>, <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">api_key</span>.<span class="ident">as_ref</span>()),
-            (<span class="string">&quot;language&quot;</span>, <span class="string">&quot;en-US&quot;</span>),
-        ];
-
-        <span class="self">self</span>.<span class="ident">make_request</span>(<span class="ident">args</span>, <span class="macro">format!</span>(<span class="string">&quot;/{media_type}/{id}/credits&quot;</span>))
-            .<span class="kw">await</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_episodes</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">season_number</span>: <span class="ident">u64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">TMDBClientRequestError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            (<span class="string">&quot;api_key&quot;</span>, <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">api_key</span>.<span class="ident">as_ref</span>()),
+        media_type: MediaSearchType,
+        id: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;String, TMDBClientRequestError&gt; {
+        <span class="kw">let </span>args = <span class="macro">vec!</span>[
+            (<span class="string">&quot;api_key&quot;</span>, <span class="self">self</span>.provider.api_key.as_ref()),
             (<span class="string">&quot;language&quot;</span>, <span class="string">&quot;en-US&quot;</span>),
         ];
 
-        <span class="self">self</span>.<span class="ident">make_request</span>(<span class="ident">args</span>, <span class="macro">format!</span>(<span class="string">&quot;/tv/{id}/season/{season_number}&quot;</span>))
-            .<span class="kw">await</span>
-    }
+        <span class="self">self</span>.make_request(args, <span class="macro">format!</span>(<span class="string">&quot;/{media_type}/{id}/credits&quot;</span>))
+            .<span class="kw">await
+    </span>}
+
+    <span class="kw">pub async fn </span>get_episodes(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        id: <span class="kw-2">&amp;</span>str,
+        season_number: u64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;String, TMDBClientRequestError&gt; {
+        <span class="kw">let </span>args = <span class="macro">vec!</span>[
+            (<span class="string">&quot;api_key&quot;</span>, <span class="self">self</span>.provider.api_key.as_ref()),
+            (<span class="string">&quot;language&quot;</span>, <span class="string">&quot;en-US&quot;</span>),
+        ];
+
+        <span class="self">self</span>.make_request(args, <span class="macro">format!</span>(<span class="string">&quot;/tv/{id}/season/{season_number}&quot;</span>))
+            .<span class="kw">await
+    </span>}
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

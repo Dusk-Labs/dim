@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/reactor/handler/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../dim/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/reactor/handler/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../dim/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -178,179 +171,178 @@
 <span id="171">171</span>
 <span id="172">172</span>
 <span id="173">173</span>
-</pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">error</span>;
+</pre><pre class="rust"><code><span class="kw">mod </span>error;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::types::EventType</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::types::Table</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Event</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Reactor</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::EventTx</span>;
+<span class="kw">use </span><span class="kw">super</span>::types::EventType;
+<span class="kw">use </span><span class="kw">super</span>::types::Table;
+<span class="kw">use </span><span class="kw">super</span>::Event;
+<span class="kw">use </span><span class="kw">super</span>::Reactor;
+<span class="kw">use </span><span class="kw">crate</span>::core::EventTx;
 
-<span class="kw">use</span> <span class="ident">database::asset::Asset</span>;
-<span class="kw">use</span> <span class="ident">database::library::Library</span>;
-<span class="kw">use</span> <span class="ident">database::library::MediaType</span>;
-<span class="kw">use</span> <span class="ident">database::media::Media</span>;
-<span class="kw">use</span> <span class="ident">database::rw_pool::SqlitePool</span>;
+<span class="kw">use </span>database::asset::Asset;
+<span class="kw">use </span>database::library::Library;
+<span class="kw">use </span>database::library::MediaType;
+<span class="kw">use </span>database::media::Media;
+<span class="kw">use </span>database::rw_pool::SqlitePool;
 
-<span class="kw">use</span> <span class="ident">events::Message</span>;
-<span class="kw">use</span> <span class="ident">events::PushEventType</span>;
+<span class="kw">use </span>events::Message;
+<span class="kw">use </span>events::PushEventType;
 
-<span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
+<span class="kw">use </span>async_trait::async_trait;
+<span class="kw">use </span>std::path::PathBuf;
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">error::Error</span>;
+<span class="kw">pub type </span>Error = error::Error;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EventReactor</span> {
-    <span class="ident">pool</span>: <span class="ident">SqlitePool</span>,
-    <span class="ident">ws_event_tx</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">EventTx</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>EventReactor {
+    pool: SqlitePool,
+    ws_event_tx: <span class="prelude-ty">Option</span>&lt;EventTx&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">EventReactor</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">pool</span>: <span class="ident">SqlitePool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">pool</span>,
-            <span class="ident">ws_event_tx</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>EventReactor {
+    <span class="kw">pub fn </span>new(pool: SqlitePool) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            pool,
+            ws_event_tx: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_websocket</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">event_tx</span>: <span class="ident">EventTx</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">ws_event_tx</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">event_tx</span>);
-        <span class="self">self</span>
-    }
+    <span class="kw">pub fn </span>with_websocket(<span class="kw-2">mut </span><span class="self">self</span>, event_tx: EventTx) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.ws_event_tx = <span class="prelude-val">Some</span>(event_tx);
+        <span class="self">self
+    </span>}
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_library</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">event</span>: <span class="ident">Event</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">event_tx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">ws_event_tx</span>.<span class="ident">as_mut</span>() <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+    <span class="kw">async fn </span>handle_library(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: Event) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="kw">let </span><span class="prelude-val">Some</span>(event_tx) = <span class="self">self</span>.ws_event_tx.as_mut() <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">event</span>.<span class="ident">table</span>, <span class="ident">Table::Library</span>);
+        <span class="macro">assert_eq!</span>(event.table, Table::Library);
 
-        <span class="comment">// TODO (val): should we also handle updates to the library? Such as renaming etc.</span>
-        <span class="kw">let</span> <span class="ident">event_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">event</span>.<span class="ident">event_type</span> {
-            <span class="ident">EventType::Insert</span> =&gt; <span class="ident">PushEventType::EventNewLibrary</span>,
-            <span class="ident">EventType::Delete</span> =&gt; <span class="ident">PushEventType::EventRemoveLibrary</span>,
-            <span class="ident">EventType::Update</span> =&gt; {
-                <span class="comment">// NOTE: Library usually get marked as hidden before being deleted as a UX</span>
-                <span class="comment">// optimization. Sometimes library deletes can take a while.</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">pool</span>
-                    .<span class="ident">read_ref</span>()
-                    .<span class="ident">begin</span>()
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="ident">Error::ReadTransaction</span>)<span class="question-mark">?</span>;
+        <span class="comment">// TODO (val): should we also handle updates to the library? Such as renaming etc.
+        </span><span class="kw">let </span>event_type = <span class="kw">match </span>event.event_type {
+            EventType::Insert =&gt; PushEventType::EventNewLibrary,
+            EventType::Delete =&gt; PushEventType::EventRemoveLibrary,
+            EventType::Update =&gt; {
+                <span class="comment">// NOTE: Library usually get marked as hidden before being deleted as a UX
+                // optimization. Sometimes library deletes can take a while.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="self">self
+                    </span>.pool
+                    .read_ref()
+                    .begin()
+                    .<span class="kw">await
+                    </span>.map_err(Error::ReadTransaction)<span class="question-mark">?</span>;
 
-                <span class="kw">let</span> <span class="ident">Library</span> { <span class="ident">hidden</span>, .. } <span class="op">=</span> <span class="ident">Library::get_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">event</span>.<span class="ident">id</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="ident">Error::LibraryQuery</span>)<span class="question-mark">?</span>;
+                <span class="kw">let </span>Library { hidden, .. } = Library::get_one(<span class="kw-2">&amp;mut </span>tx, event.id)
+                    .<span class="kw">await
+                    </span>.map_err(Error::LibraryQuery)<span class="question-mark">?</span>;
 
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">hidden</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+                <span class="kw">if </span>!hidden {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(());
                 }
 
-                <span class="ident">PushEventType::EventRemoveLibrary</span>
+                PushEventType::EventRemoveLibrary
             }
         };
 
-        <span class="kw">let</span> <span class="ident">event</span> <span class="op">=</span> <span class="ident">Message</span> {
-            <span class="ident">id</span>: <span class="ident">event</span>.<span class="ident">id</span>,
-            <span class="ident">event_type</span>,
+        <span class="kw">let </span>event = Message {
+            id: event.id,
+            event_type,
         };
 
-        <span class="ident">event_tx</span>
-            .<span class="ident">send</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>).<span class="ident">expect</span>(<span class="string">&quot;Serializing event should never fail&quot;</span>))
-            .<span class="ident">map_err</span>(<span class="ident">Error::EventDispatch</span>)<span class="question-mark">?</span>;
+        event_tx
+            .send(serde_json::to_string(<span class="kw-2">&amp;</span>event).expect(<span class="string">&quot;Serializing event should never fail&quot;</span>))
+            .map_err(Error::EventDispatch)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_assets</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">event</span>: <span class="ident">Event</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="macro">assert_eq!</span>(<span class="ident">event</span>.<span class="ident">table</span>, <span class="ident">Table::Assets</span>);
+    <span class="kw">async fn </span>handle_assets(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: Event) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="macro">assert_eq!</span>(event.table, Table::Assets);
 
-        <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">event</span>.<span class="ident">event_type</span>, <span class="ident">EventType::Insert</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+        <span class="kw">if </span>!<span class="macro">matches!</span>(event.event_type, EventType::Insert) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">pool</span>
-            .<span class="ident">read_ref</span>()
-            .<span class="ident">begin</span>()
-            .<span class="kw">await</span>
-            .<span class="ident">map_err</span>(<span class="ident">Error::ReadTransaction</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="self">self
+            </span>.pool
+            .read_ref()
+            .begin()
+            .<span class="kw">await
+            </span>.map_err(Error::ReadTransaction)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">Asset</span> {
-            <span class="ident">remote_url</span>,
-            <span class="ident">local_path</span>,
+        <span class="kw">let </span>Asset {
+            remote_url,
+            local_path,
             ..
-        } <span class="op">=</span> <span class="ident">Asset::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">event</span>.<span class="ident">id</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">map_err</span>(<span class="ident">Error::AssetQuery</span>)<span class="question-mark">?</span>;
+        } = Asset::get_by_id(<span class="kw-2">&amp;mut </span>tx, event.id)
+            .<span class="kw">await
+            </span>.map_err(Error::AssetQuery)<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">remote_url</span>) <span class="op">=</span> <span class="ident">remote_url</span> {
-            <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="ident">local_path</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(remote_url) = remote_url {
+            <span class="kw">let </span>path = PathBuf::from(local_path);
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">local_file</span>) <span class="op">=</span> <span class="ident">path</span>.<span class="ident">iter</span>().<span class="ident">last</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>()) {
-                <span class="ident"><span class="kw">crate</span>::fetcher::insert_into_queue</span>(<span class="ident">remote_url</span>, <span class="ident">local_file</span>, <span class="bool-val">false</span>).<span class="kw">await</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(local_file) = path.iter().last().map(|x| x.to_string_lossy().to_string()) {
+                <span class="kw">crate</span>::fetcher::insert_into_queue(remote_url, local_file, <span class="bool-val">false</span>).<span class="kw">await</span>;
             }
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_media</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">event</span>: <span class="ident">Event</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">event_tx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">ws_event_tx</span>.<span class="ident">as_mut</span>() <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+    <span class="kw">async fn </span>handle_media(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: Event) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="kw">let </span><span class="prelude-val">Some</span>(event_tx) = <span class="self">self</span>.ws_event_tx.as_mut() <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">event</span>.<span class="ident">table</span>, <span class="ident">Table::Media</span>);
+        <span class="macro">assert_eq!</span>(event.table, Table::Media);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">pool</span>
-            .<span class="ident">read_ref</span>()
-            .<span class="ident">begin</span>()
-            .<span class="kw">await</span>
-            .<span class="ident">map_err</span>(<span class="ident">Error::ReadTransaction</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="self">self
+            </span>.pool
+            .read_ref()
+            .begin()
+            .<span class="kw">await
+            </span>.map_err(Error::ReadTransaction)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">event_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">event</span>.<span class="ident">event_type</span> {
-            <span class="ident">EventType::Insert</span> =&gt; {
-                <span class="kw">let</span> (<span class="ident">library_id</span>, <span class="ident">media_type</span>) <span class="op">=</span> <span class="ident">Media::get_compact</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">event</span>.<span class="ident">id</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="ident">Error::MediaQuery</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>event_type = <span class="kw">match </span>event.event_type {
+            EventType::Insert =&gt; {
+                <span class="kw">let </span>(library_id, media_type) = Media::get_compact(<span class="kw-2">&amp;mut </span>tx, event.id)
+                    .<span class="kw">await
+                    </span>.map_err(Error::MediaQuery)<span class="question-mark">?</span>;
 
-                <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">media_type</span>, <span class="ident">MediaType::Movie</span> <span class="op">|</span> <span class="ident">MediaType::Tv</span>) {
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+                <span class="kw">if </span>!<span class="macro">matches!</span>(media_type, MediaType::Movie | MediaType::Tv) {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(());
                 }
 
-                <span class="ident">PushEventType::EventNewCard</span> { <span class="ident">lib_id</span>: <span class="ident">library_id</span> }
+                PushEventType::EventNewCard { lib_id: library_id }
             }
-            <span class="ident">EventType::Delete</span> =&gt; <span class="ident">PushEventType::EventRemoveCard</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
+            EventType::Delete =&gt; PushEventType::EventRemoveCard,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
         };
 
-        <span class="kw">let</span> <span class="ident">event</span> <span class="op">=</span> <span class="ident">Message</span> {
-            <span class="ident">id</span>: <span class="ident">event</span>.<span class="ident">id</span>,
-            <span class="ident">event_type</span>,
+        <span class="kw">let </span>event = Message {
+            id: event.id,
+            event_type,
         };
 
-        <span class="ident">event_tx</span>
-            .<span class="ident">send</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>).<span class="ident">expect</span>(<span class="string">&quot;Serializing event should never fail&quot;</span>))
-            .<span class="ident">map_err</span>(<span class="ident">Error::EventDispatch</span>)<span class="question-mark">?</span>;
+        event_tx
+            .send(serde_json::to_string(<span class="kw-2">&amp;</span>event).expect(<span class="string">&quot;Serializing event should never fail&quot;</span>))
+            .map_err(Error::EventDispatch)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="attribute">#[<span class="ident">async_trait</span>]</span>
-<span class="kw">impl</span> <span class="ident">Reactor</span> <span class="kw">for</span> <span class="ident">EventReactor</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
+<span class="attribute">#[async_trait]
+</span><span class="kw">impl </span>Reactor <span class="kw">for </span>EventReactor {
+    <span class="kw">type </span>Error = Error;
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">react</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">event</span>: <span class="ident">Event</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">event</span>.<span class="ident">table</span> {
-            <span class="ident">Table::Library</span> =&gt; <span class="self">self</span>.<span class="ident">handle_library</span>(<span class="ident">event</span>).<span class="kw">await</span>,
-            <span class="ident">Table::Media</span> =&gt; <span class="self">self</span>.<span class="ident">handle_media</span>(<span class="ident">event</span>).<span class="kw">await</span>,
-            <span class="ident">Table::Assets</span> =&gt; <span class="self">self</span>.<span class="ident">handle_assets</span>(<span class="ident">event</span>).<span class="kw">await</span>,
+    <span class="kw">async fn </span>react(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: Event) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span>event.table {
+            Table::Library =&gt; <span class="self">self</span>.handle_library(event).<span class="kw">await</span>,
+            Table::Media =&gt; <span class="self">self</span>.handle_media(event).<span class="kw">await</span>,
+            Table::Assets =&gt; <span class="self">self</span>.handle_assets(event).<span class="kw">await</span>,
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

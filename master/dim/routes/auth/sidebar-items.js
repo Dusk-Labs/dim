@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["admin_exists",""],["login","POST `/api/v1/auth/login`"],["register","POST `/api/v1/auth/register`"]],"mod":[["filters",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["admin_exists",""],["login","POST `/api/v1/auth/login`"],["register","POST `/api/v1/auth/register`"]],"mod":[["filters",""]]};

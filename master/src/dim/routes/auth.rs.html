@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/auth.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>auth.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/auth.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>auth.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -208,209 +201,208 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
-</pre><pre class="rust"><code><span class="doccomment">//! This module contains all docs and APIs related to authentication and user creation.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Request Authentication and Authorization</span>
-<span class="doccomment">//! Most API endpoints require a valid JWT authentication token. If no such token is supplied, the</span>
-<span class="doccomment">//! API will return [`Unauthenticated`]. Authentication tokens can be obtained by logging in with</span>
-<span class="doccomment">//! the [`login`] method. Authentication tokens must be passed to the server through a</span>
-<span class="doccomment">//! `Authroization` header.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Example of an authenticated call</span>
-<span class="doccomment">//! ```text</span>
-<span class="doccomment">//! curl -X POST http://127.0.0.1:8000/api/v1/auth/whoami -H &quot;Content-type: application/json&quot; -H</span>
-<span class="doccomment">//! &quot;Authorization: eyJhb.....&quot;</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Token expiration</span>
-<span class="doccomment">//! By default tokens expire after exactly two weeks, once the tokens expire the client must renew</span>
-<span class="doccomment">//! them. At the moment renewing the token is only possible by logging in again.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [`Unauthenticated`]: crate::errors::DimError::Unauthenticated</span>
-<span class="doccomment">//! [`login`]: fn@login</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>;
+</pre><pre class="rust"><code><span class="doccomment">//! This module contains all docs and APIs related to authentication and user creation.
+//!
+//! # Request Authentication and Authorization
+//! Most API endpoints require a valid JWT authentication token. If no such token is supplied, the
+//! API will return [`Unauthenticated`]. Authentication tokens can be obtained by logging in with
+//! the [`login`] method. Authentication tokens must be passed to the server through a
+//! `Authroization` header.
+//!
+//! ## Example of an authenticated call
+//! ```text
+//! curl -X POST http://127.0.0.1:8000/api/v1/auth/whoami -H &quot;Content-type: application/json&quot; -H
+//! &quot;Authorization: eyJhb.....&quot;
+//! ```
+//!
+//! # Token expiration
+//! By default tokens expire after exactly two weeks, once the tokens expire the client must renew
+//! them. At the moment renewing the token is only possible by logging in again.
+//!
+//! [`Unauthenticated`]: crate::errors::DimError::Unauthenticated
+//! [`login`]: fn@login
+</span><span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
+<span class="kw">use </span><span class="kw">crate</span>::errors;
 
-<span class="kw">use</span> <span class="ident">database::user::verify</span>;
-<span class="kw">use</span> <span class="ident">database::user::InsertableUser</span>;
-<span class="kw">use</span> <span class="ident">database::user::Login</span>;
-<span class="kw">use</span> <span class="ident">database::user::User</span>;
+<span class="kw">use </span>database::user::verify;
+<span class="kw">use </span>database::user::InsertableUser;
+<span class="kw">use </span>database::user::Login;
+<span class="kw">use </span>database::user::User;
 
-<span class="kw">use</span> <span class="ident">serde_json::json</span>;
+<span class="kw">use </span>serde_json::json;
 
-<span class="kw">use</span> <span class="ident">warp::reply</span>;
+<span class="kw">use </span>warp::reply;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filters</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
+<span class="kw">pub mod </span>filters {
+    <span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
 
-    <span class="kw">use</span> <span class="ident">warp::reject</span>;
-    <span class="kw">use</span> <span class="ident">warp::Filter</span>;
+    <span class="kw">use </span>warp::reject;
+    <span class="kw">use </span>warp::Filter;
 
-    <span class="kw">use</span> <span class="ident">database::user::Login</span>;
+    <span class="kw">use </span>database::user::Login;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_db</span>;
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_db;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">login</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;auth&quot;</span> <span class="op">/</span> <span class="string">&quot;login&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::post</span>())
-            .<span class="ident">and</span>(<span class="ident">warp::body::json</span>::<span class="op">&lt;</span><span class="ident">Login</span><span class="op">&gt;</span>())
-            .<span class="ident">and</span>(<span class="ident">with_db</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">new_login</span>: <span class="ident">Login</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::login</span>(<span class="ident">new_login</span>, <span class="ident">conn</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>login(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;auth&quot; </span>/ <span class="string">&quot;login&quot;</span>)
+            .and(warp::post())
+            .and(warp::body::json::&lt;Login&gt;())
+            .and(with_db(conn))
+            .and_then(|new_login: Login, conn: DbConnection| <span class="kw">async move </span>{
+                <span class="kw">super</span>::login(new_login, conn)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;auth&quot;</span> <span class="op">/</span> <span class="string">&quot;register&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::post</span>())
-            .<span class="ident">and</span>(<span class="ident">warp::body::json</span>::<span class="op">&lt;</span><span class="ident">Login</span><span class="op">&gt;</span>())
-            .<span class="ident">and</span>(<span class="ident">with_db</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">new_login</span>: <span class="ident">Login</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::register</span>(<span class="ident">new_login</span>, <span class="ident">conn</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>register(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;auth&quot; </span>/ <span class="string">&quot;register&quot;</span>)
+            .and(warp::post())
+            .and(warp::body::json::&lt;Login&gt;())
+            .and(with_db(conn))
+            .and_then(|new_login: Login, conn: DbConnection| <span class="kw">async move </span>{
+                <span class="kw">super</span>::register(new_login, conn)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 }
 
-<span class="doccomment">/// # POST `/api/v1/auth/login`</span>
-<span class="doccomment">/// Method will log a user in and return a authentication token that can be used to authenticate other</span>
-<span class="doccomment">/// requests.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Request</span>
-<span class="doccomment">/// This method accepts a JSON body that deserializes into [`Login`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Example</span>
-<span class="doccomment">/// ```text</span>
-<span class="doccomment">/// curl -X POST http://127.0.0.1:8000/api/v1/auth/login -H &quot;Content-type: application/json&quot; -d</span>
-<span class="doccomment">/// &#39;{&quot;username&quot;: &quot;testuser&quot;, &quot;password&quot;: &quot;testpassword&quot;}&#39;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Response</span>
-<span class="doccomment">/// If authentication is successful, this method will return status `200 0K` as well as a</span>
-<span class="doccomment">/// authentication token.</span>
-<span class="doccomment">/// ```no_compile</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///   &quot;token&quot;: &quot;....&quot;</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">/// * [`InvalidCredentials`] - The provided username or password is incorrect.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`InvalidCredentials`]: crate::errors::DimError::InvalidCredentials</span>
-<span class="doccomment">/// [`Login`]: database::user::Login</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">login</span>(
-    <span class="ident">new_login</span>: <span class="ident">Login</span>,
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">User::get</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">new_login</span>.<span class="ident">username</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">errors::DimError::InvalidCredentials</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">pass</span> <span class="op">=</span> <span class="ident">user</span>.<span class="ident">get_pass</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="ident">verify</span>(<span class="ident">user</span>.<span class="ident">username</span>, <span class="ident">pass</span>, <span class="ident">new_login</span>.<span class="ident">password</span>) {
-        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">database::user::Login::create_cookie</span>(<span class="ident">user</span>.<span class="ident">id</span>);
+<span class="doccomment">/// # POST `/api/v1/auth/login`
+/// Method will log a user in and return a authentication token that can be used to authenticate other
+/// requests.
+///
+/// # Request
+/// This method accepts a JSON body that deserializes into [`Login`].
+///
+/// ## Example
+/// ```text
+/// curl -X POST http://127.0.0.1:8000/api/v1/auth/login -H &quot;Content-type: application/json&quot; -d
+/// &#39;{&quot;username&quot;: &quot;testuser&quot;, &quot;password&quot;: &quot;testpassword&quot;}&#39;
+/// ```
+///
+/// # Response
+/// If authentication is successful, this method will return status `200 0K` as well as a
+/// authentication token.
+/// ```no_compile
+/// {
+///   &quot;token&quot;: &quot;....&quot;
+/// }
+/// ```
+///
+/// # Errors
+/// * [`InvalidCredentials`] - The provided username or password is incorrect.
+///
+/// [`InvalidCredentials`]: crate::errors::DimError::InvalidCredentials
+/// [`Login`]: database::user::Login
+</span><span class="kw">pub async fn </span>login(
+    new_login: Login,
+    conn: DbConnection,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>user = User::get(<span class="kw-2">&amp;mut </span>tx, <span class="kw-2">&amp;</span>new_login.username)
+        .<span class="kw">await
+        </span>.map_err(|<span class="kw">_</span>| errors::DimError::InvalidCredentials)<span class="question-mark">?</span>;
+    <span class="kw">let </span>pass = user.get_pass(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if </span>verify(user.username, pass, new_login.password) {
+        <span class="kw">let </span>token = database::user::Login::create_cookie(user.id);
 
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
-            <span class="string">&quot;token&quot;</span>: <span class="ident">token</span>,
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
+            <span class="string">&quot;token&quot;</span>: token,
         })));
     }
 
-    <span class="prelude-val">Err</span>(<span class="ident">errors::DimError::InvalidCredentials</span>)
+    <span class="prelude-val">Err</span>(errors::DimError::InvalidCredentials)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">admin_exists</span>(<span class="ident">conn</span>: <span class="ident">DbConnection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
-        <span class="string">&quot;exists&quot;</span>: <span class="op">!</span><span class="ident">User::get_all</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">is_empty</span>()
+<span class="kw">pub async fn </span>admin_exists(conn: DbConnection) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
+        <span class="string">&quot;exists&quot;</span>: !User::get_all(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span><span class="question-mark">?</span>.is_empty()
     })))
 }
 
-<span class="doccomment">/// # POST `/api/v1/auth/register`</span>
-<span class="doccomment">/// Method will create a new user and return it a authentication token if a user has been</span>
-<span class="doccomment">/// successfuly created.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Request</span>
-<span class="doccomment">/// This method accepts a JSON body that deserializes into [`Login`]. If there are no other users</span>
-<span class="doccomment">/// in the database, this route will give the new user `owner` permissions. Additionally this route</span>
-<span class="doccomment">/// will not require an invite token.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If there is a user in the database, this request will require an invite token and the user will</span>
-<span class="doccomment">/// be given only `user` permissions.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Example</span>
-<span class="doccomment">/// ```text</span>
-<span class="doccomment">/// curl -X POST http://127.0.0.1:8000/api/v1/auth/login -H &quot;Content-type: application/json&quot; -d</span>
-<span class="doccomment">/// &#39;{&quot;username&quot;: &quot;testuser&quot;, &quot;password&quot;: &quot;testpassword&quot;, &quot;invite_token&quot;:</span>
-<span class="doccomment">/// &quot;72390330-b8af-4413-8305-5f8cae1c8f88&quot;}&#39;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Response</span>
-<span class="doccomment">/// If a user is successfully created, this method will return status `200 0K` as well as the</span>
-<span class="doccomment">/// create user&#39;s username.</span>
-<span class="doccomment">/// ```no_compile</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///   &quot;username&quot;: &quot;....&quot;</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">/// * [`NoToken`] - Either the request doesnt contain an invite token, or the invite token is</span>
-<span class="doccomment">/// invalid.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`NoToken`]: crate::errors::DimError::NoToken</span>
-<span class="doccomment">/// [`Login`]: database::user::Login</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">register</span>(
-    <span class="ident">new_user</span>: <span class="ident">Login</span>,
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="comment">// FIXME: Return INTERNAL SERVER ERROR maybe with a traceback?</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// NOTE: I doubt this method can faily all the time, we should map server error here too.</span>
-    <span class="kw">let</span> <span class="ident">users_empty</span> <span class="op">=</span> <span class="ident">User::get_all</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">is_empty</span>();
+<span class="doccomment">/// # POST `/api/v1/auth/register`
+/// Method will create a new user and return it a authentication token if a user has been
+/// successfuly created.
+///
+/// # Request
+/// This method accepts a JSON body that deserializes into [`Login`]. If there are no other users
+/// in the database, this route will give the new user `owner` permissions. Additionally this route
+/// will not require an invite token.
+///
+/// If there is a user in the database, this request will require an invite token and the user will
+/// be given only `user` permissions.
+///
+/// ## Example
+/// ```text
+/// curl -X POST http://127.0.0.1:8000/api/v1/auth/login -H &quot;Content-type: application/json&quot; -d
+/// &#39;{&quot;username&quot;: &quot;testuser&quot;, &quot;password&quot;: &quot;testpassword&quot;, &quot;invite_token&quot;:
+/// &quot;72390330-b8af-4413-8305-5f8cae1c8f88&quot;}&#39;
+/// ```
+///
+/// # Response
+/// If a user is successfully created, this method will return status `200 0K` as well as the
+/// create user&#39;s username.
+/// ```no_compile
+/// {
+///   &quot;username&quot;: &quot;....&quot;
+/// }
+/// ```
+///
+/// # Errors
+/// * [`NoToken`] - Either the request doesnt contain an invite token, or the invite token is
+/// invalid.
+///
+/// [`NoToken`]: crate::errors::DimError::NoToken
+/// [`Login`]: database::user::Login
+</span><span class="kw">pub async fn </span>register(
+    new_user: Login,
+    conn: DbConnection,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="comment">// FIXME: Return INTERNAL SERVER ERROR maybe with a traceback?
+    </span><span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// NOTE: I doubt this method can faily all the time, we should map server error here too.
+    </span><span class="kw">let </span>users_empty = User::get_all(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span><span class="question-mark">?</span>.is_empty();
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">users_empty</span>
-        <span class="op">&amp;&amp;</span> (<span class="ident">new_user</span>.<span class="ident">invite_token</span>.<span class="ident">is_none</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">new_user</span>.<span class="ident">invite_token_valid</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>)
+    <span class="kw">if </span>!users_empty
+        &amp;&amp; (new_user.invite_token.is_none() || !new_user.invite_token_valid(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span><span class="question-mark">?</span>)
     {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">errors::DimError::NoToken</span>);
+        <span class="kw">return </span><span class="prelude-val">Err</span>(errors::DimError::NoToken);
     }
 
-    <span class="kw">let</span> <span class="ident">roles</span> <span class="op">=</span> <span class="ident">database::user::Roles</span>(<span class="kw">if</span> <span class="op">!</span><span class="ident">users_empty</span> {
-        <span class="macro">vec!</span>[<span class="string">&quot;user&quot;</span>.<span class="ident">to_string</span>()]
-    } <span class="kw">else</span> {
-        <span class="macro">vec!</span>[<span class="string">&quot;owner&quot;</span>.<span class="ident">to_string</span>()]
+    <span class="kw">let </span>roles = database::user::Roles(<span class="kw">if </span>!users_empty {
+        <span class="macro">vec!</span>[<span class="string">&quot;user&quot;</span>.to_string()]
+    } <span class="kw">else </span>{
+        <span class="macro">vec!</span>[<span class="string">&quot;owner&quot;</span>.to_string()]
     });
 
-    <span class="kw">let</span> <span class="ident">claimed_invite</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">users_empty</span> {
-        <span class="comment">// NOTE: Double check what we are returning here.</span>
-        <span class="ident">Login::new_invite</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>
-    } <span class="kw">else</span> {
-        <span class="ident">new_user</span>.<span class="ident">invite_token</span>.<span class="ident">ok_or</span>(<span class="ident">errors::DimError::NoToken</span>)<span class="question-mark">?</span>
-    };
+    <span class="kw">let </span>claimed_invite = <span class="kw">if </span>users_empty {
+        <span class="comment">// NOTE: Double check what we are returning here.
+        </span>Login::new_invite(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else </span>{
+        new_user.invite_token.ok_or(errors::DimError::NoToken)<span class="question-mark">?
+    </span>};
 
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">InsertableUser</span> {
-        <span class="ident">username</span>: <span class="ident">new_user</span>.<span class="ident">username</span>.<span class="ident">clone</span>(),
-        <span class="ident">password</span>: <span class="ident">new_user</span>.<span class="ident">password</span>.<span class="ident">clone</span>(),
-        <span class="ident">roles</span>,
-        <span class="ident">claimed_invite</span>,
-        <span class="ident">prefs</span>: <span class="ident">Default::default</span>(),
+    <span class="kw">let </span>res = InsertableUser {
+        username: new_user.username.clone(),
+        password: new_user.password.clone(),
+        roles,
+        claimed_invite,
+        prefs: Default::default(),
     }
-    .<span class="ident">insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+    .insert(<span class="kw-2">&amp;mut </span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// FIXME: Return internal server error.</span>
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// FIXME: Return internal server error.
+    </span>tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({ <span class="string">&quot;username&quot;</span>: <span class="ident">res</span>.<span class="ident">username</span> })))
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span><span class="macro">json!</span>({ <span class="string">&quot;username&quot;</span>: res.username })))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

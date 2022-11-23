@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -205,208 +198,205 @@
 <span id="198">198</span>
 <span id="199">199</span>
 <span id="200">200</span>
-<span id="201">201</span>
-</pre><pre class="rust"><code><span class="comment">// FIXME: We have a shim in dim/utils but we cant depend on dim because itd be a circular dep.</span>
-<span class="attribute">#![<span class="ident">feature</span>(<span class="ident">result_option_inspect</span>)]</span>
+</pre><pre class="rust"><code><span class="comment">// FIXME: We have a shim in dim/utils but we cant depend on dim because itd be a circular dep.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::ffpath</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::utils::ffpath;
 
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
-<span class="kw">use</span> <span class="ident">std::sync::atomic::AtomicBool</span>;
-<span class="kw">use</span> <span class="ident">std::sync::atomic::Ordering</span>;
+<span class="kw">use </span>std::str::FromStr;
+<span class="kw">use </span>std::sync::atomic::AtomicBool;
+<span class="kw">use </span>std::sync::atomic::Ordering;
 
-<span class="kw">use</span> <span class="ident">sqlx::ConnectOptions</span>;
-<span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">info</span>, <span class="ident">instrument</span>};
+<span class="kw">use </span>sqlx::ConnectOptions;
+<span class="kw">use </span>tracing::{info, instrument};
 
-<span class="kw">use</span> <span class="ident">once_cell::sync::OnceCell</span>;
+<span class="kw">use </span>once_cell::sync::OnceCell;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">asset</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">compact_mediafile</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">episode</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">error</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">genre</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">library</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">media</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">mediafile</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">movie</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">progress</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">query_ext</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">rw_pool</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">season</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">tests</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">tv</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">user</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">utils</span>;
+<span class="kw">pub mod </span>asset;
+<span class="kw">pub mod </span>compact_mediafile;
+<span class="kw">pub mod </span>episode;
+<span class="kw">pub mod </span>error;
+<span class="kw">pub mod </span>genre;
+<span class="kw">pub mod </span>library;
+<span class="kw">pub mod </span>media;
+<span class="kw">pub mod </span>mediafile;
+<span class="kw">pub mod </span>movie;
+<span class="kw">pub mod </span>progress;
+<span class="kw">pub mod </span>query_ext;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+</span><span class="kw">pub mod </span>rw_pool;
+<span class="kw">pub mod </span>season;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">pub mod </span>tests;
+<span class="kw">pub mod </span>tv;
+<span class="kw">pub mod </span>user;
+<span class="kw">pub mod </span>utils;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::DatabaseError</span>;
-<span class="doccomment">/// Ugly hack because of a shitty deadlock in `Pool`</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rw_pool::write_tx</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">auth::generate_key</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">auth::set_key</span>;
+<span class="kw">pub use </span><span class="kw">crate</span>::error::DatabaseError;
+<span class="doccomment">/// Ugly hack because of a shitty deadlock in `Pool`
+</span><span class="kw">pub use </span><span class="kw">crate</span>::rw_pool::write_tx;
+<span class="kw">pub use </span>auth::generate_key;
+<span class="kw">pub use </span>auth::set_key;
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">DbConnection</span> <span class="op">=</span> <span class="ident">rw_pool::SqlitePool</span>;
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;tx</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">sqlx::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;tx</span>, <span class="ident">sqlx::Sqlite</span><span class="op">&gt;</span>;
+<span class="kw">pub type </span>DbConnection = rw_pool::SqlitePool;
+<span class="kw">pub type </span>Transaction&lt;<span class="lifetime">&#39;tx</span>&gt; = sqlx::Transaction&lt;<span class="lifetime">&#39;tx</span>, sqlx::Sqlite&gt;;
 
-<span class="macro">lazy_static::lazy_static!</span> {
-    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">MIGRATIONS_FLAG</span>: <span class="ident">AtomicBool</span> <span class="op">=</span> <span class="ident">AtomicBool::new</span>(<span class="bool-val">false</span>);
+<span class="macro">lazy_static::lazy_static! </span>{
+    <span class="kw">static </span><span class="kw-2">ref </span>MIGRATIONS_FLAG: AtomicBool = AtomicBool::new(<span class="bool-val">false</span>);
 }
 
-<span class="kw">static</span> <span class="ident">__GLOBAL</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">OnceCell::new</span>();
-<span class="kw">const</span> <span class="ident">MIGRATOR</span>: <span class="ident">sqlx::migrate::Migrator</span> <span class="op">=</span> <span class="macro">sqlx::migrate!</span>(<span class="string">&quot;./migrations/&quot;</span>);
+<span class="kw">static </span>__GLOBAL: OnceCell&lt;DbConnection&gt; = OnceCell::new();
+<span class="kw">const </span>MIGRATOR: sqlx::migrate::Migrator = <span class="macro">sqlx::migrate!</span>(<span class="string">&quot;./migrations/&quot;</span>);
 
-<span class="doccomment">/// Function runs all migrations embedded to make sure the database works as expected.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Arguments</span>
-<span class="doccomment">/// * `conn` - diesel connection</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">run_migrations</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::DbConnection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">sqlx::migrate::MigrateError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-    <span class="ident">MIGRATOR</span>.<span class="ident">run</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">lock</span>).<span class="kw">await</span>
-}
+<span class="doccomment">/// Function runs all migrations embedded to make sure the database works as expected.
+///
+/// # Arguments
+/// * `conn` - diesel connection
+</span><span class="kw">async fn </span>run_migrations(conn: <span class="kw-2">&amp;</span><span class="kw">crate</span>::DbConnection) -&gt; <span class="prelude-ty">Result</span>&lt;(), sqlx::migrate::MigrateError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
+    MIGRATOR.run(<span class="kw-2">&amp;mut *</span>lock).<span class="kw">await
+</span>}
 
-<span class="doccomment">/// Function which returns a Result&lt;T, E&gt; where T is a new connection session or E is a connection</span>
-<span class="doccomment">/// error.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_conn</span>() -&gt; <span class="ident">sqlx::Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::DbConnection</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">conn</span>) <span class="op">=</span> <span class="ident">__GLOBAL</span>.<span class="ident">get</span>() {
-        <span class="ident">conn</span>
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">internal_get_conn</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">__GLOBAL</span>.<span class="ident">set</span>(<span class="ident">conn</span>);
-        <span class="ident">__GLOBAL</span>.<span class="ident">get</span>().<span class="ident">unwrap</span>()
+<span class="doccomment">/// Function which returns a Result&lt;T, E&gt; where T is a new connection session or E is a connection
+/// error.
+</span><span class="kw">pub async fn </span>get_conn() -&gt; sqlx::Result&lt;<span class="kw">crate</span>::DbConnection&gt; {
+    <span class="kw">let </span>conn = <span class="kw">if let </span><span class="prelude-val">Some</span>(conn) = __GLOBAL.get() {
+        conn
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>conn = internal_get_conn().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let _ </span>= __GLOBAL.set(conn);
+        __GLOBAL.get().unwrap()
     };
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">MIGRATIONS_FLAG</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">run_migrations</span>(<span class="ident">conn</span>).<span class="kw">await</span> {
+    <span class="kw">if </span>!MIGRATIONS_FLAG.load(Ordering::SeqCst) {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = run_migrations(conn).<span class="kw">await </span>{
             <span class="macro">panic!</span>(
                 <span class="string">&quot;Failed to run migrations (maybe you need to delete the old database?): {:?}&quot;</span>,
-                <span class="ident">err</span>
+                err
             );
-        } <span class="kw">else</span> {
-            <span class="ident">MIGRATIONS_FLAG</span>.<span class="ident">store</span>(<span class="bool-val">true</span>, <span class="ident">Ordering::SeqCst</span>);
+        } <span class="kw">else </span>{
+            MIGRATIONS_FLAG.store(<span class="bool-val">true</span>, Ordering::SeqCst);
         }
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">conn</span>.<span class="ident">clone</span>())
+    <span class="prelude-val">Ok</span>(conn.clone())
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_conn</span>(<span class="ident">conn</span>: <span class="ident"><span class="kw">crate</span>::DbConnection</span>) {
-    <span class="ident">__GLOBAL</span>.<span class="ident">set</span>(<span class="ident">conn</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub fn </span>set_conn(conn: <span class="kw">crate</span>::DbConnection) {
+    __GLOBAL.set(conn).unwrap();
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_get_conn</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident"><span class="kw">crate</span>::DbConnection</span><span class="op">&gt;</span> {
-    <span class="ident">__GLOBAL</span>.<span class="ident">get</span>()
+<span class="kw">pub fn </span>try_get_conn() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">crate</span>::DbConnection&gt; {
+    __GLOBAL.get()
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_conn_memory</span>() -&gt; <span class="ident">sqlx::Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::DbConnection</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">sqlx::Pool::connect</span>(<span class="string">&quot;:memory:&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">connection</span>: <span class="ident">sqlx::pool::PoolConnection</span><span class="op">&lt;</span><span class="ident">sqlx::Sqlite</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">rw</span> <span class="op">=</span> <span class="ident">connection</span>.<span class="ident">detach</span>();
-    <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">rw_pool::SqlitePool::new</span>(<span class="ident">rw</span>, <span class="ident">pool</span>);
-    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">run_migrations</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+</span><span class="kw">pub async fn </span>get_conn_memory() -&gt; sqlx::Result&lt;<span class="kw">crate</span>::DbConnection&gt; {
+    <span class="kw">let </span>pool = sqlx::Pool::connect(<span class="string">&quot;:memory:&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>connection: sqlx::pool::PoolConnection&lt;sqlx::Sqlite&gt; = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>rw = connection.detach();
+    <span class="kw">let </span>pool = rw_pool::SqlitePool::new(rw, pool);
+    <span class="kw">let _ </span>= run_migrations(<span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">pool</span>)
+    <span class="prelude-val">Ok</span>(pool)
 }
 
-<span class="doccomment">/// Function returns a connection to the development table of dim. This is mainly used for unit</span>
-<span class="doccomment">/// tests.</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_conn_devel</span>() -&gt; <span class="ident">sqlx::Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::DbConnection</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">rw_only</span> <span class="op">=</span> <span class="ident">sqlx::sqlite::SqliteConnectOptions::new</span>()
-        .<span class="ident">create_if_missing</span>(<span class="bool-val">true</span>)
-        .<span class="ident">filename</span>(<span class="string">&quot;./dim_dev.db&quot;</span>)
-        .<span class="ident">connect</span>()
+<span class="doccomment">/// Function returns a connection to the development table of dim. This is mainly used for unit
+/// tests.
+</span><span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub async fn </span>get_conn_devel() -&gt; sqlx::Result&lt;<span class="kw">crate</span>::DbConnection&gt; {
+    <span class="kw">let </span>rw_only = sqlx::sqlite::SqliteConnectOptions::new()
+        .create_if_missing(<span class="bool-val">true</span>)
+        .filename(<span class="string">&quot;./dim_dev.db&quot;</span>)
+        .connect()
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">rd_only</span> <span class="op">=</span> <span class="ident">sqlx::pool::PoolOptions::new</span>()
-        .<span class="ident">connect_with</span>(
-            <span class="ident">sqlx::sqlite::SqliteConnectOptions::new</span>()
-                .<span class="ident">read_only</span>(<span class="bool-val">true</span>)
-                .<span class="ident">create_if_missing</span>(<span class="bool-val">true</span>)
-                .<span class="ident">filename</span>(<span class="string">&quot;./dim_dev.db&quot;</span>),
+    <span class="kw">let </span>rd_only = sqlx::pool::PoolOptions::new()
+        .connect_with(
+            sqlx::sqlite::SqliteConnectOptions::new()
+                .read_only(<span class="bool-val">true</span>)
+                .create_if_missing(<span class="bool-val">true</span>)
+                .filename(<span class="string">&quot;./dim_dev.db&quot;</span>),
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">rw_pool::SqlitePool::new</span>(<span class="ident">rw_only</span>, <span class="ident">rd_only</span>);
+    <span class="kw">let </span>pool = rw_pool::SqlitePool::new(rw_only, rd_only);
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">MIGRATIONS_FLAG</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>) <span class="op">&amp;&amp;</span> <span class="ident">run_migrations</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span>.<span class="ident">is_ok</span>() {
-        <span class="ident">MIGRATIONS_FLAG</span>.<span class="ident">store</span>(<span class="bool-val">true</span>, <span class="ident">Ordering::SeqCst</span>);
+    <span class="kw">if </span>!MIGRATIONS_FLAG.load(Ordering::SeqCst) &amp;&amp; run_migrations(<span class="kw-2">&amp;</span>pool).<span class="kw">await</span>.is_ok() {
+        MIGRATIONS_FLAG.store(<span class="bool-val">true</span>, Ordering::SeqCst);
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">pool</span>)
+    <span class="prelude-val">Ok</span>(pool)
 }
 
-<span class="doccomment">/// Function which returns a Result&lt;T, E&gt; where T is a new connection session or E is a connection</span>
-<span class="doccomment">/// error. It takes in a logger instance.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Arguments</span>
-<span class="doccomment">/// * `log` - a Slog logger instance</span>
-<span class="attribute">#[<span class="ident">instrument</span>]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_conn_logged</span>() -&gt; <span class="ident">sqlx::Result</span><span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span> {
-    <span class="comment">// This is the URL for the database inside a docker container</span>
-    <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">conn</span>) <span class="op">=</span> <span class="ident">__GLOBAL</span>.<span class="ident">get</span>() {
-        <span class="ident">conn</span>
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">internal_get_conn</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">__GLOBAL</span>.<span class="ident">set</span>(<span class="ident">conn</span>);
-        <span class="ident">__GLOBAL</span>.<span class="ident">get</span>().<span class="ident">unwrap</span>()
+<span class="doccomment">/// Function which returns a Result&lt;T, E&gt; where T is a new connection session or E is a connection
+/// error. It takes in a logger instance.
+///
+/// # Arguments
+/// * `log` - a Slog logger instance
+</span><span class="attribute">#[instrument]
+</span><span class="kw">pub async fn </span>get_conn_logged() -&gt; sqlx::Result&lt;DbConnection&gt; {
+    <span class="comment">// This is the URL for the database inside a docker container
+    </span><span class="kw">let </span>conn = <span class="kw">if let </span><span class="prelude-val">Some</span>(conn) = __GLOBAL.get() {
+        conn
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>conn = internal_get_conn().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let _ </span>= __GLOBAL.set(conn);
+        __GLOBAL.get().unwrap()
     };
 
     <span class="macro">info!</span>(<span class="string">&quot;Creating new database connection&quot;</span>);
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">MIGRATIONS_FLAG</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>) <span class="op">&amp;&amp;</span> <span class="macro">dbg!</span>(<span class="ident">run_migrations</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>).<span class="kw">await</span>).<span class="ident">is_ok</span>() {
-        <span class="ident">MIGRATIONS_FLAG</span>.<span class="ident">store</span>(<span class="bool-val">true</span>, <span class="ident">Ordering::SeqCst</span>);
+    <span class="kw">if </span>!MIGRATIONS_FLAG.load(Ordering::SeqCst) &amp;&amp; <span class="macro">dbg!</span>(run_migrations(<span class="kw-2">&amp;</span>conn).<span class="kw">await</span>).is_ok() {
+        MIGRATIONS_FLAG.store(<span class="bool-val">true</span>, Ordering::SeqCst);
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">conn</span>.<span class="ident">clone</span>())
+    <span class="prelude-val">Ok</span>(conn.clone())
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">internal_get_conn</span>() -&gt; <span class="ident">sqlx::Result</span><span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">rw_only</span> <span class="op">=</span> <span class="ident">sqlx::sqlite::SqliteConnectOptions::new</span>()
-        .<span class="ident">create_if_missing</span>(<span class="bool-val">true</span>)
-        .<span class="ident">filename</span>(<span class="ident">ffpath</span>(<span class="string">&quot;config/dim.db&quot;</span>))
-        .<span class="ident">connect</span>()
+<span class="kw">async fn </span>internal_get_conn() -&gt; sqlx::Result&lt;DbConnection&gt; {
+    <span class="kw">let </span>rw_only = sqlx::sqlite::SqliteConnectOptions::new()
+        .create_if_missing(<span class="bool-val">true</span>)
+        .filename(ffpath(<span class="string">&quot;config/dim.db&quot;</span>))
+        .connect()
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">rd_only</span> <span class="op">=</span> <span class="ident">sqlx::pool::PoolOptions::new</span>()
-        .<span class="ident">connect_with</span>(
-            <span class="ident">sqlx::sqlite::SqliteConnectOptions::from_str</span>(<span class="ident">ffpath</span>(<span class="string">&quot;config/dim.db&quot;</span>))<span class="question-mark">?</span>
-                .<span class="ident">read_only</span>(<span class="bool-val">true</span>)
-                .<span class="ident">synchronous</span>(<span class="ident">sqlx::sqlite::SqliteSynchronous::Normal</span>)
-                .<span class="ident">create_if_missing</span>(<span class="bool-val">true</span>),
+    <span class="kw">let </span>rd_only = sqlx::pool::PoolOptions::new()
+        .connect_with(
+            sqlx::sqlite::SqliteConnectOptions::from_str(ffpath(<span class="string">&quot;config/dim.db&quot;</span>))<span class="question-mark">?
+                </span>.read_only(<span class="bool-val">true</span>)
+                .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
+                .create_if_missing(<span class="bool-val">true</span>),
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">rw_pool::SqlitePool::new</span>(<span class="ident">rw_only</span>, <span class="ident">rd_only</span>))
+    <span class="prelude-val">Ok</span>(rw_pool::SqlitePool::new(rw_only, rd_only))
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_conn_file</span>(<span class="ident">file</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">sqlx::Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::DbConnection</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">rw_only</span> <span class="op">=</span> <span class="ident">sqlx::sqlite::SqliteConnectOptions::new</span>()
-        .<span class="ident">create_if_missing</span>(<span class="bool-val">true</span>)
-        .<span class="ident">filename</span>(<span class="ident">file</span>)
-        .<span class="ident">connect</span>()
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub async fn </span>get_conn_file(file: <span class="kw-2">&amp;</span>str) -&gt; sqlx::Result&lt;<span class="kw">crate</span>::DbConnection&gt; {
+    <span class="kw">let </span>rw_only = sqlx::sqlite::SqliteConnectOptions::new()
+        .create_if_missing(<span class="bool-val">true</span>)
+        .filename(file)
+        .connect()
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">rd_only</span> <span class="op">=</span> <span class="ident">sqlx::pool::PoolOptions::new</span>()
-        .<span class="ident">connect_with</span>(
-            <span class="ident">sqlx::sqlite::SqliteConnectOptions::from_str</span>(<span class="ident">file</span>)<span class="question-mark">?</span>
-                .<span class="ident">read_only</span>(<span class="bool-val">true</span>)
-                .<span class="ident">synchronous</span>(<span class="ident">sqlx::sqlite::SqliteSynchronous::Normal</span>)
-                .<span class="ident">create_if_missing</span>(<span class="bool-val">true</span>),
+    <span class="kw">let </span>rd_only = sqlx::pool::PoolOptions::new()
+        .connect_with(
+            sqlx::sqlite::SqliteConnectOptions::from_str(file)<span class="question-mark">?
+                </span>.read_only(<span class="bool-val">true</span>)
+                .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
+                .create_if_missing(<span class="bool-val">true</span>),
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">rw_pool::SqlitePool::new</span>(<span class="ident">rw_only</span>, <span class="ident">rd_only</span>);
+    <span class="kw">let </span>pool = rw_pool::SqlitePool::new(rw_only, rd_only);
 
-    <span class="ident">run_migrations</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">expect</span>(<span class="string">&quot;Failed to run migrations&quot;</span>);
+    run_migrations(<span class="kw-2">&amp;</span>pool)
+        .<span class="kw">await
+        </span>.expect(<span class="string">&quot;Failed to run migrations&quot;</span>);
 
-    <span class="prelude-val">Ok</span>(<span class="ident">pool</span>)
+    <span class="prelude-val">Ok</span>(pool)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

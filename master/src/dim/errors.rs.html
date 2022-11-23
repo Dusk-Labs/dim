@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/errors.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>errors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/errors.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>errors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -213,214 +206,213 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">database::DatabaseError</span>;
-<span class="kw">use</span> <span class="ident">displaydoc::Display</span>;
-<span class="kw">use</span> <span class="ident">thiserror::Error</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>database::DatabaseError;
+<span class="kw">use </span>displaydoc::Display;
+<span class="kw">use </span>thiserror::Error;
 
-<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
-<span class="kw">use</span> <span class="ident">serde_json::json</span>;
+<span class="kw">use </span>serde::Serialize;
+<span class="kw">use </span>serde_json::json;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::routes::mediafile</span>;
-<span class="kw">use</span> <span class="ident">nightfall::error::NightfallError</span>;
+<span class="kw">use </span><span class="kw">crate</span>::routes::mediafile;
+<span class="kw">use </span>nightfall::error::NightfallError;
 
-<span class="kw">use</span> <span class="ident">http::StatusCode</span>;
+<span class="kw">use </span>http::StatusCode;
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ErrorStatusCode</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span>;
+<span class="kw">pub trait </span>ErrorStatusCode {
+    <span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode;
 }
 
-<span class="comment">// FIXME: A lot of these errors need to fucking go man.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Display</span>, <span class="ident">Debug</span>, <span class="ident">Error</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">tag</span> <span class="op">=</span> <span class="string">&quot;error&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DimError</span> {
-    <span class="doccomment">/// A database error occured: {description}.</span>
-    <span class="ident">DatabaseError</span> { <span class="ident">description</span>: <span class="ident">String</span> },
-    <span class="doccomment">/// Some function returned none.</span>
-    <span class="ident">NoneError</span>,
-    <span class="doccomment">/// Some unknown error has occured.</span>
-    <span class="ident">UnknownError</span>,
-    <span class="doccomment">/// Internal server error.</span>
-    <span class="ident">InternalServerError</span>,
-    <span class="doccomment">/// Io Error</span>
-    <span class="ident">IOError</span>,
-    <span class="doccomment">/// The requested resource does not exist.</span>
-    <span class="ident">NotFoundError</span>,
-    <span class="doccomment">/// Authentication is required for this route.</span>
-    <span class="ident">Unauthenticated</span>,
-    <span class="doccomment">/// Invalid Media type supplied.</span>
-    <span class="ident">InvalidMediaType</span>,
-    <span class="doccomment">/// An error in the streaming module has occured</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="ident">transparent</span>)]</span>
-    <span class="ident">StreamingError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">StreamingErrors</span>),
-    <span class="doccomment">/// User has no permission to access this route.</span>
-    <span class="ident">Unauthorized</span>,
-    <span class="doccomment">/// Error has occured when matching: {0:?}</span>
-    <span class="ident">ScannerError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident"><span class="kw">crate</span>::scanner::Error</span>),
-    <span class="doccomment">/// Upload failed.</span>
-    <span class="ident">UploadFailed</span>,
-    <span class="doccomment">/// Failed to deserialize request body: {description:?}.</span>
-    <span class="ident">MissingFieldInBody</span> { <span class="ident">description</span>: <span class="ident">String</span> },
-    <span class="doccomment">/// Unsupported file type.</span>
-    <span class="ident">UnsupportedFile</span>,
-    <span class="doccomment">/// Library does not exist.</span>
-    <span class="ident">LibraryNotFound</span>,
-    <span class="doccomment">/// Invite token required.</span>
-    <span class="ident">NoToken</span>,
-    <span class="doccomment">/// Invalid credentials.</span>
-    <span class="ident">InvalidCredentials</span>,
-    <span class="doccomment">/// Requested username is not available.</span>
-    <span class="ident">UsernameNotAvailable</span>,
-    <span class="doccomment">/// An error has occured while parsing cookies: {0:?}</span>
-    <span class="ident">CookieError</span>(<span class="attribute">#[<span class="ident">source</span>]</span> <span class="ident">database::error::AuthError</span>),
-    <span class="doccomment">/// Error occured in the `/api/v1/mediafile` routes.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="ident">transparent</span>)]</span>
-    <span class="ident">MediafileRouteError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">mediafile::Error</span>),
-    <span class="doccomment">/// User does not exist</span>
-    <span class="ident">UserNotFound</span>,
-    <span class="doccomment">/// Couldn&#39;t find the tmdb id provided.</span>
-    <span class="ident">ExternalSearchError</span>(<span class="ident"><span class="kw">crate</span>::external::Error</span>),
+<span class="comment">// FIXME: A lot of these errors need to fucking go man.
+</span><span class="attribute">#[derive(Clone, Display, Debug, Error, Serialize)]
+#[serde(tag = <span class="string">&quot;error&quot;</span>)]
+</span><span class="kw">pub enum </span>DimError {
+    <span class="doccomment">/// A database error occured: {description}.
+    </span>DatabaseError { description: String },
+    <span class="doccomment">/// Some function returned none.
+    </span>NoneError,
+    <span class="doccomment">/// Some unknown error has occured.
+    </span>UnknownError,
+    <span class="doccomment">/// Internal server error.
+    </span>InternalServerError,
+    <span class="doccomment">/// Io Error
+    </span>IOError,
+    <span class="doccomment">/// The requested resource does not exist.
+    </span>NotFoundError,
+    <span class="doccomment">/// Authentication is required for this route.
+    </span>Unauthenticated,
+    <span class="doccomment">/// Invalid Media type supplied.
+    </span>InvalidMediaType,
+    <span class="doccomment">/// An error in the streaming module has occured
+    </span><span class="attribute">#[error(transparent)]
+    </span>StreamingError(<span class="attribute">#[from] </span>StreamingErrors),
+    <span class="doccomment">/// User has no permission to access this route.
+    </span>Unauthorized,
+    <span class="doccomment">/// Error has occured when matching: {0:?}
+    </span>ScannerError(<span class="attribute">#[from] </span><span class="kw">crate</span>::scanner::Error),
+    <span class="doccomment">/// Upload failed.
+    </span>UploadFailed,
+    <span class="doccomment">/// Failed to deserialize request body: {description:?}.
+    </span>MissingFieldInBody { description: String },
+    <span class="doccomment">/// Unsupported file type.
+    </span>UnsupportedFile,
+    <span class="doccomment">/// Library does not exist.
+    </span>LibraryNotFound,
+    <span class="doccomment">/// Invite token required.
+    </span>NoToken,
+    <span class="doccomment">/// Invalid credentials.
+    </span>InvalidCredentials,
+    <span class="doccomment">/// Requested username is not available.
+    </span>UsernameNotAvailable,
+    <span class="doccomment">/// An error has occured while parsing cookies: {0:?}
+    </span>CookieError(<span class="attribute">#[source] </span>database::error::AuthError),
+    <span class="doccomment">/// Error occured in the `/api/v1/mediafile` routes.
+    </span><span class="attribute">#[error(transparent)]
+    </span>MediafileRouteError(<span class="attribute">#[from] </span>mediafile::Error),
+    <span class="doccomment">/// User does not exist
+    </span>UserNotFound,
+    <span class="doccomment">/// Couldn&#39;t find the tmdb id provided.
+    </span>ExternalSearchError(<span class="kw">crate</span>::external::Error),
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">sqlx::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DimError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">sqlx::Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::DatabaseError</span> {
-            <span class="ident">description</span>: <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">e</span>),
+<span class="kw">impl </span>From&lt;sqlx::Error&gt; <span class="kw">for </span>DimError {
+    <span class="kw">fn </span>from(e: sqlx::Error) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::DatabaseError {
+            description: <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, e),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">DatabaseError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DimError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">DatabaseError</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::DatabaseError</span> {
-            <span class="ident">description</span>: <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">e</span>),
+<span class="kw">impl </span>From&lt;DatabaseError&gt; <span class="kw">for </span>DimError {
+    <span class="kw">fn </span>from(e: DatabaseError) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::DatabaseError {
+            description: <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, e),
         }
     }
 }
 
-<span class="comment">// TODO: Clean this up.</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>()<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DimError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: ()) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::UnknownError</span>
+<span class="comment">// TODO: Clean this up.
+</span><span class="kw">impl </span>From&lt;()&gt; <span class="kw">for </span>DimError {
+    <span class="kw">fn </span>from(<span class="kw">_</span>: ()) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::UnknownError
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DimError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">std::io::Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::IOError</span>
+<span class="kw">impl </span>From&lt;std::io::Error&gt; <span class="kw">for </span>DimError {
+    <span class="kw">fn </span>from(<span class="kw">_</span>: std::io::Error) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::IOError
     }
 }
 
-<span class="kw">impl</span> <span class="ident">warp::reject::Reject</span> <span class="kw">for</span> <span class="ident">DimError</span> {}
+<span class="kw">impl </span>warp::reject::Reject <span class="kw">for </span>DimError {}
 
-<span class="kw">impl</span> <span class="ident">warp::Reply</span> <span class="kw">for</span> <span class="ident">DimError</span> {
-    <span class="kw">fn</span> <span class="ident">into_response</span>(<span class="self">self</span>) -&gt; <span class="ident">warp::reply::Response</span> {
-        <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::LibraryNotFound</span>
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::NoneError</span>
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::NotFoundError</span>
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::ExternalSearchError</span>(<span class="kw">_</span>) =&gt; <span class="ident">StatusCode::NOT_FOUND</span>,
-            <span class="ident"><span class="self">Self</span>::StreamingError</span>(<span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::DatabaseError</span> { .. }
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::UnknownError</span>
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::IOError</span>
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::InternalServerError</span>
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::UploadFailed</span>
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::ScannerError</span>(<span class="kw">_</span>) =&gt; <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>,
-            <span class="ident"><span class="self">Self</span>::Unauthenticated</span>
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Unauthorized</span>
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::InvalidCredentials</span>
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::CookieError</span>(<span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::NoToken</span>
-            <span class="op">|</span> <span class="ident"><span class="self">Self</span>::UserNotFound</span> =&gt; <span class="ident">StatusCode::UNAUTHORIZED</span>,
-            <span class="ident"><span class="self">Self</span>::UsernameNotAvailable</span> =&gt; <span class="ident">StatusCode::BAD_REQUEST</span>,
-            <span class="ident"><span class="self">Self</span>::UnsupportedFile</span> <span class="op">|</span> <span class="ident"><span class="self">Self</span>::InvalidMediaType</span> <span class="op">|</span> <span class="ident"><span class="self">Self</span>::MissingFieldInBody</span> { .. } =&gt; {
-                <span class="ident">StatusCode::NOT_ACCEPTABLE</span>
+<span class="kw">impl </span>warp::Reply <span class="kw">for </span>DimError {
+    <span class="kw">fn </span>into_response(<span class="self">self</span>) -&gt; warp::reply::Response {
+        <span class="kw">let </span>status = <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::LibraryNotFound
+            | <span class="self">Self</span>::NoneError
+            | <span class="self">Self</span>::NotFoundError
+            | <span class="self">Self</span>::ExternalSearchError(<span class="kw">_</span>) =&gt; StatusCode::NOT_FOUND,
+            <span class="self">Self</span>::StreamingError(<span class="kw">_</span>)
+            | <span class="self">Self</span>::DatabaseError { .. }
+            | <span class="self">Self</span>::UnknownError
+            | <span class="self">Self</span>::IOError
+            | <span class="self">Self</span>::InternalServerError
+            | <span class="self">Self</span>::UploadFailed
+            | <span class="self">Self</span>::ScannerError(<span class="kw">_</span>) =&gt; StatusCode::INTERNAL_SERVER_ERROR,
+            <span class="self">Self</span>::Unauthenticated
+            | <span class="self">Self</span>::Unauthorized
+            | <span class="self">Self</span>::InvalidCredentials
+            | <span class="self">Self</span>::CookieError(<span class="kw">_</span>)
+            | <span class="self">Self</span>::NoToken
+            | <span class="self">Self</span>::UserNotFound =&gt; StatusCode::UNAUTHORIZED,
+            <span class="self">Self</span>::UsernameNotAvailable =&gt; StatusCode::BAD_REQUEST,
+            <span class="self">Self</span>::UnsupportedFile | <span class="self">Self</span>::InvalidMediaType | <span class="self">Self</span>::MissingFieldInBody { .. } =&gt; {
+                StatusCode::NOT_ACCEPTABLE
             }
-            <span class="ident"><span class="self">Self</span>::MediafileRouteError</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) =&gt; <span class="ident">e</span>.<span class="ident">status_code</span>(),
+            <span class="self">Self</span>::MediafileRouteError(<span class="kw-2">ref </span>e) =&gt; e.status_code(),
         };
 
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="macro">json!</span>({
+        <span class="kw">let </span>resp = <span class="macro">json!</span>({
             <span class="string">&quot;error&quot;</span>: <span class="macro">json!</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)[<span class="string">&quot;error&quot;</span>],
-            <span class="string">&quot;messsage&quot;</span>: <span class="self">self</span>.<span class="ident">to_string</span>(),
+            <span class="string">&quot;messsage&quot;</span>: <span class="self">self</span>.to_string(),
         });
 
-        <span class="ident">warp::http::Response::builder</span>()
-            .<span class="ident">status</span>(<span class="ident">status</span>)
-            .<span class="ident">header</span>(<span class="string">&quot;ContentType&quot;</span>, <span class="string">&quot;application/json&quot;</span>)
-            .<span class="ident">body</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>).<span class="ident">unwrap</span>().<span class="ident">into</span>())
-            .<span class="ident">unwrap</span>()
+        warp::http::Response::builder()
+            .status(status)
+            .header(<span class="string">&quot;ContentType&quot;</span>, <span class="string">&quot;application/json&quot;</span>)
+            .body(serde_json::to_string(<span class="kw-2">&amp;</span>resp).unwrap().into())
+            .unwrap()
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Display</span>, <span class="ident">Debug</span>, <span class="ident">Error</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">tag</span> <span class="op">=</span> <span class="string">&quot;error&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">StreamingErrors</span> {
-    <span class="doccomment">/// A database error occured: {0}</span>
-    <span class="ident">DatabaseError</span>(<span class="ident">String</span>),
-    <span class="doccomment">/// Failed to start process</span>
-    <span class="ident">ProcFailed</span>,
-    <span class="doccomment">/// The video profile requested doesnt exist</span>
-    <span class="ident">InvalidProfile</span>,
-    <span class="doccomment">/// A error with nightfall has occured</span>
-    <span class="ident">OtherNightfall</span>(<span class="ident">NightfallError</span>),
-    <span class="doccomment">/// It appears that the file is corrupted</span>
-    <span class="ident">FileIsCorrupt</span>,
-    <span class="doccomment">/// Invalid request</span>
-    <span class="ident">InvalidRequest</span>,
-    <span class="doccomment">/// Requested session doesnt exist</span>
-    <span class="ident">SessionDoesntExist</span>,
-    <span class="doccomment">/// InternalServerError&quot;</span>
-    <span class="ident">InternalServerError</span>,
-    <span class="doccomment">/// No mediafile found: {0}</span>
-    <span class="ident">NoMediaFileFound</span>(<span class="ident">String</span>),
-    <span class="doccomment">/// Failed to create a ffprobe context</span>
-    <span class="ident">FFProbeCtxFailed</span>,
-    <span class="doccomment">/// Could not parse the gid</span>
-    <span class="ident">GidParseError</span>,
-    <span class="doccomment">/// The requested file does not exist on disk.</span>
-    <span class="ident">FileDoesNotExist</span>,
+<span class="attribute">#[derive(Clone, Display, Debug, Error, Serialize)]
+#[serde(tag = <span class="string">&quot;error&quot;</span>)]
+</span><span class="kw">pub enum </span>StreamingErrors {
+    <span class="doccomment">/// A database error occured: {0}
+    </span>DatabaseError(String),
+    <span class="doccomment">/// Failed to start process
+    </span>ProcFailed,
+    <span class="doccomment">/// The video profile requested doesnt exist
+    </span>InvalidProfile,
+    <span class="doccomment">/// A error with nightfall has occured
+    </span>OtherNightfall(NightfallError),
+    <span class="doccomment">/// It appears that the file is corrupted
+    </span>FileIsCorrupt,
+    <span class="doccomment">/// Invalid request
+    </span>InvalidRequest,
+    <span class="doccomment">/// Requested session doesnt exist
+    </span>SessionDoesntExist,
+    <span class="doccomment">/// InternalServerError&quot;
+    </span>InternalServerError,
+    <span class="doccomment">/// No mediafile found: {0}
+    </span>NoMediaFileFound(String),
+    <span class="doccomment">/// Failed to create a ffprobe context
+    </span>FFProbeCtxFailed,
+    <span class="doccomment">/// Could not parse the gid
+    </span>GidParseError,
+    <span class="doccomment">/// The requested file does not exist on disk.
+    </span>FileDoesNotExist,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">sqlx::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StreamingErrors</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">sqlx::Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::DatabaseError</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">e</span>))
+<span class="kw">impl </span>From&lt;sqlx::Error&gt; <span class="kw">for </span>StreamingErrors {
+    <span class="kw">fn </span>from(e: sqlx::Error) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::DatabaseError(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, e))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">NightfallError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StreamingErrors</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">NightfallError</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::OtherNightfall</span>(<span class="ident">e</span>)
+<span class="kw">impl </span>From&lt;NightfallError&gt; <span class="kw">for </span>StreamingErrors {
+    <span class="kw">fn </span>from(e: NightfallError) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::OtherNightfall(e)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">warp::reject::Reject</span> <span class="kw">for</span> <span class="ident">StreamingErrors</span> {}
+<span class="kw">impl </span>warp::reject::Reject <span class="kw">for </span>StreamingErrors {}
 
-<span class="kw">impl</span> <span class="ident">warp::Reply</span> <span class="kw">for</span> <span class="ident">StreamingErrors</span> {
-    <span class="kw">fn</span> <span class="ident">into_response</span>(<span class="self">self</span>) -&gt; <span class="ident">warp::reply::Response</span> {
-        <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::OtherNightfall</span>(<span class="ident">NightfallError::ChunkNotDone</span>) =&gt; <span class="ident">StatusCode::PROCESSING</span>,
-            <span class="ident"><span class="self">Self</span>::NoMediaFileFound</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident"><span class="self">Self</span>::FileDoesNotExist</span> =&gt; <span class="ident">StatusCode::NOT_FOUND</span>,
-            <span class="kw">_</span> =&gt; <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>,
+<span class="kw">impl </span>warp::Reply <span class="kw">for </span>StreamingErrors {
+    <span class="kw">fn </span>into_response(<span class="self">self</span>) -&gt; warp::reply::Response {
+        <span class="kw">let </span>status = <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::OtherNightfall(NightfallError::ChunkNotDone) =&gt; StatusCode::PROCESSING,
+            <span class="self">Self</span>::NoMediaFileFound(<span class="kw">_</span>) | <span class="self">Self</span>::FileDoesNotExist =&gt; StatusCode::NOT_FOUND,
+            <span class="kw">_ </span>=&gt; StatusCode::INTERNAL_SERVER_ERROR,
         };
 
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="macro">json!</span>({
+        <span class="kw">let </span>resp = <span class="macro">json!</span>({
             <span class="string">&quot;error&quot;</span>: <span class="macro">json!</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)[<span class="string">&quot;error&quot;</span>],
-            <span class="string">&quot;messsage&quot;</span>: <span class="self">self</span>.<span class="ident">to_string</span>(),
+            <span class="string">&quot;messsage&quot;</span>: <span class="self">self</span>.to_string(),
         });
 
-        <span class="ident">warp::http::Response::builder</span>()
-            .<span class="ident">status</span>(<span class="ident">status</span>)
-            .<span class="ident">header</span>(<span class="string">&quot;ContentType&quot;</span>, <span class="string">&quot;application/json&quot;</span>)
-            .<span class="ident">body</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>).<span class="ident">unwrap</span>().<span class="ident">into</span>())
-            .<span class="ident">unwrap</span>()
+        warp::http::Response::builder()
+            .status(status)
+            .header(<span class="string">&quot;ContentType&quot;</span>, <span class="string">&quot;application/json&quot;</span>)
+            .body(serde_json::to_string(<span class="kw-2">&amp;</span>resp).unwrap().into())
+            .unwrap()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StreamingErrors</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">std::io::Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::ProcFailed</span>
+<span class="kw">impl </span>From&lt;std::io::Error&gt; <span class="kw">for </span>StreamingErrors {
+    <span class="kw">fn </span>from(<span class="kw">_</span>: std::io::Error) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::ProcFailed
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/statik.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>statik.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/statik.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>statik.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -215,74 +208,74 @@
 <span id="208">208</span>
 <span id="209">209</span>
 <span id="210">210</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">database::asset</span>;
-<span class="kw">use</span> <span class="ident">http::StatusCode</span>;
-<span class="kw">use</span> <span class="ident">rust_embed::RustEmbed</span>;
-<span class="kw">use</span> <span class="ident">warp::path</span>;
-<span class="kw">use</span> <span class="ident">warp::Reply</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>database::asset;
+<span class="kw">use </span>http::StatusCode;
+<span class="kw">use </span>rust_embed::RustEmbed;
+<span class="kw">use </span>warp::path;
+<span class="kw">use </span>warp::Reply;
 
-<span class="kw">use</span> <span class="ident">std::path::Path</span>;
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
+<span class="kw">use </span>std::path::Path;
+<span class="kw">use </span>std::path::PathBuf;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::fetcher::insert_into_queue</span>;
+<span class="kw">use </span><span class="kw">crate</span>::errors;
+<span class="kw">use </span><span class="kw">crate</span>::fetcher::insert_into_queue;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filters</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state</span>;
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
-    <span class="kw">use</span> <span class="ident">rust_embed::RustEmbed</span>;
-    <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
-    <span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
-    <span class="kw">use</span> <span class="ident">warp::reject</span>;
-    <span class="kw">use</span> <span class="ident">warp::Filter</span>;
+<span class="kw">pub mod </span>filters {
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state;
+    <span class="attribute">#[allow(unused_imports)]
+    </span><span class="kw">use </span>rust_embed::RustEmbed;
+    <span class="kw">use </span>serde::Deserialize;
+    <span class="kw">use </span>std::path::PathBuf;
+    <span class="kw">use </span>warp::reject;
+    <span class="kw">use </span>warp::Filter;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">react_routes</span>() -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>
+    <span class="kw">pub fn </span>react_routes() -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone
     {
-        <span class="ident">warp::get</span>().<span class="ident">and_then</span>(<span class="ident"><span class="kw">super</span>::react_routes</span>)
+        warp::get().and_then(<span class="kw">super</span>::react_routes)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_image</span>(
-        <span class="ident">conn</span>: <span class="ident">database::DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-        <span class="kw">struct</span> <span class="ident">QueryArgs</span> {
-            <span class="ident">w</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-            <span class="ident">h</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-            <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
-            <span class="ident">attach_accents</span>: <span class="ident">bool</span>,
+    <span class="kw">pub fn </span>get_image(
+        conn: database::DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="attribute">#[derive(Deserialize)]
+        </span><span class="kw">struct </span>QueryArgs {
+            w: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+            h: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+            <span class="attribute">#[serde(default)]
+            </span>attach_accents: bool,
         }
 
-        <span class="kw">let</span> <span class="ident">metadata_path</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::core::METADATA_PATH</span>.<span class="ident">get</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let </span>metadata_path = <span class="kw">crate</span>::core::METADATA_PATH.get().unwrap();
 
-        <span class="macro">warp::path!</span>(<span class="string">&quot;images&quot;</span> <span class="op">/</span> ..)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">warp::path::tail</span>())
-            .<span class="ident">and</span>(<span class="ident">warp::query::query</span>::<span class="op">&lt;</span><span class="ident">QueryArgs</span><span class="op">&gt;</span>())
-            .<span class="ident">and</span>(<span class="ident">with_state</span>(<span class="ident">metadata_path</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">x</span>,
-                 <span class="ident">QueryArgs</span> {
-                     <span class="ident">w</span>,
-                     <span class="ident">h</span>,
-                     <span class="ident">attach_accents</span>,
-                 }: <span class="ident">QueryArgs</span>,
-                 <span class="ident">meta_path</span>,
-                 <span class="ident">conn</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="ident"><span class="kw">super</span>::get_image</span>(<span class="ident">x</span>, <span class="ident">w</span>, <span class="ident">h</span>, <span class="ident">meta_path</span>, <span class="ident">conn</span>, <span class="ident">attach_accents</span>)
-                        .<span class="kw">await</span>
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+        <span class="macro">warp::path!</span>(<span class="string">&quot;images&quot; </span>/ ..)
+            .and(warp::get())
+            .and(warp::path::tail())
+            .and(warp::query::query::&lt;QueryArgs&gt;())
+            .and(with_state(metadata_path.clone()))
+            .and(with_state(conn))
+            .and_then(
+                |x,
+                 QueryArgs {
+                     w,
+                     h,
+                     attach_accents,
+                 }: QueryArgs,
+                 meta_path,
+                 conn| <span class="kw">async move </span>{
+                    <span class="kw">super</span>::get_image(x, w, h, meta_path, conn, attach_accents)
+                        .<span class="kw">await
+                        </span>.map_err(|e| reject::custom(e))
                 },
             )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_static</span>() -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>
+    <span class="kw">pub fn </span>dist_static() -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone
     {
-        <span class="ident">warp::path</span>(<span class="string">&quot;static&quot;</span>).<span class="ident">and</span>(<span class="ident">warp::path::full</span>()).<span class="ident">and_then</span>(
-            <span class="op">|</span><span class="ident">x</span>: <span class="ident">warp::path::FullPath</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">y</span>) <span class="op">=</span> <span class="ident"><span class="kw">super</span>::Asset::get</span>(<span class="ident">x</span>.<span class="ident">as_str</span>()) {
-                    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="ident">x</span>.<span class="ident">as_str</span>());
-                    <span class="kw">let</span> <span class="ident">mime</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">path</span>.<span class="ident">extension</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_str</span>()) {
+        warp::path(<span class="string">&quot;static&quot;</span>).and(warp::path::full()).and_then(
+            |x: warp::path::FullPath| <span class="kw">async move </span>{
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(y) = <span class="kw">super</span>::Asset::get(x.as_str()) {
+                    <span class="kw">let </span>path = PathBuf::from(x.as_str());
+                    <span class="kw">let </span>mime = <span class="kw">match </span>path.extension().and_then(|x| x.to_str()) {
                         <span class="prelude-val">Some</span>(<span class="string">&quot;js&quot;</span>) =&gt; <span class="string">&quot;application/javascript&quot;</span>,
                         <span class="prelude-val">Some</span>(<span class="string">&quot;map&quot;</span>) =&gt; <span class="string">&quot;application/json&quot;</span>,
                         <span class="prelude-val">Some</span>(<span class="string">&quot;css&quot;</span>) =&gt; <span class="string">&quot;text/css&quot;</span>,
@@ -292,83 +285,83 @@
                         <span class="prelude-val">Some</span>(<span class="string">&quot;json&quot;</span>) =&gt; <span class="string">&quot;application/json&quot;</span>,
                         <span class="prelude-val">Some</span>(<span class="string">&quot;wasm&quot;</span>) =&gt; <span class="string">&quot;application/wasm&quot;</span>,
                         <span class="prelude-val">Some</span>(<span class="string">&quot;data&quot;</span>) =&gt; <span class="string">&quot;application/octet-stream&quot;</span>,
-                        <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">warp::reject::not_found</span>()),
+                        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(warp::reject::not_found()),
                     };
 
-                    <span class="prelude-val">Ok</span>(<span class="ident">warp::http::response::Response::builder</span>()
-                        .<span class="ident">status</span>(<span class="number">200</span>)
-                        .<span class="ident">header</span>(<span class="string">&quot;Content-Type&quot;</span>, <span class="ident">mime</span>)
-                        .<span class="ident">body</span>(<span class="ident">y</span>.<span class="ident">into_owned</span>())
-                        .<span class="ident">unwrap</span>())
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">Err</span>(<span class="ident">warp::reject::not_found</span>())
+                    <span class="prelude-val">Ok</span>(warp::http::response::Response::builder()
+                        .status(<span class="number">200</span>)
+                        .header(<span class="string">&quot;Content-Type&quot;</span>, mime)
+                        .body(y.into_owned())
+                        .unwrap())
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Err</span>(warp::reject::not_found())
                 }
             },
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ui_manifest</span>() -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>
+    <span class="kw">pub fn </span>ui_manifest() -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone
     {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;static&quot;</span> <span class="op">/</span> <span class="string">&quot;manifest.json&quot;</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">async</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">resp</span>) <span class="op">=</span> <span class="ident"><span class="kw">super</span>::Asset::get</span>(<span class="string">&quot;static/manifest.json&quot;</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">warp::http::response::Response::builder</span>()
-                    .<span class="ident">status</span>(<span class="number">200</span>)
-                    .<span class="ident">header</span>(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/json&quot;</span>)
-                    .<span class="ident">body</span>(<span class="ident">resp</span>.<span class="ident">into_owned</span>())
-                    .<span class="ident">unwrap</span>())
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Err</span>(<span class="ident">warp::reject::not_found</span>())
+        <span class="macro">warp::path!</span>(<span class="string">&quot;static&quot; </span>/ <span class="string">&quot;manifest.json&quot;</span>).and_then(|| <span class="kw">async </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(resp) = <span class="kw">super</span>::Asset::get(<span class="string">&quot;static/manifest.json&quot;</span>) {
+                <span class="prelude-val">Ok</span>(warp::http::response::Response::builder()
+                    .status(<span class="number">200</span>)
+                    .header(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/json&quot;</span>)
+                    .body(resp.into_owned())
+                    .unwrap())
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Err</span>(warp::reject::not_found())
             }
         })
     }
 }
 
-<span class="macro">cfg_if::cfg_if!</span> {
-    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;embed_ui&quot;</span>)]</span> {
+<span class="macro">cfg_if::cfg_if! </span>{
+    <span class="kw">if </span><span class="attribute">#[cfg(feature = <span class="string">&quot;embed_ui&quot;</span>)] </span>{
 
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">RustEmbed</span>)]</span>
-        <span class="attribute">#[<span class="ident">folder</span> <span class="op">=</span> <span class="string">&quot;../ui/build/&quot;</span>]</span>
-        <span class="attribute">#[<span class="ident">prefix</span> <span class="op">=</span> <span class="string">&quot;/&quot;</span>]</span>
-        <span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">struct</span> <span class="ident">Asset</span>;
-    } <span class="kw">else</span> {
-        <span class="kw">use</span> <span class="ident">rust_embed::Filenames</span>;
-        <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
+        <span class="attribute">#[derive(RustEmbed)]
+        #[folder = <span class="string">&quot;../ui/build/&quot;</span>]
+        #[prefix = <span class="string">&quot;/&quot;</span>]
+        </span><span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">struct </span>Asset;
+    } <span class="kw">else </span>{
+        <span class="kw">use </span>rust_embed::Filenames;
+        <span class="kw">use </span>std::borrow::Cow;
 
-        <span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">struct</span> <span class="ident">Asset</span>;
+        <span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">struct </span>Asset;
 
-        <span class="kw">impl</span> <span class="ident">RustEmbed</span> <span class="kw">for</span> <span class="ident">Asset</span> {
-            <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, [<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span> {
-                <span class="prelude-val">None</span>
-            }
+        <span class="kw">impl </span>RustEmbed <span class="kw">for </span>Asset {
+            <span class="kw">fn </span>get(<span class="kw">_</span>: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;static</span>, [u8]&gt;&gt; {
+                <span class="prelude-val">None
+            </span>}
 
-            <span class="kw">fn</span> <span class="ident">iter</span>() -&gt; <span class="ident">Filenames</span> {
+            <span class="kw">fn </span>iter() -&gt; Filenames {
                 <span class="macro">unimplemented!</span>()
             }
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">react_routes</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">warp::Rejection</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">Asset::get</span>(<span class="string">&quot;/index.html&quot;</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">warp::reply::html</span>(<span class="ident">x</span>.<span class="ident">into_owned</span>()).<span class="ident">into_response</span>())
-    } <span class="kw">else</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">warp::reject::not_found</span>())
+<span class="kw">pub async fn </span>react_routes() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, warp::Rejection&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = Asset::get(<span class="string">&quot;/index.html&quot;</span>) {
+        <span class="prelude-val">Ok</span>(warp::reply::html(x.into_owned()).into_response())
+    } <span class="kw">else </span>{
+        <span class="prelude-val">Err</span>(warp::reject::not_found())
     }
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_image</span>(
-    <span class="ident">path</span>: <span class="ident">path::Tail</span>,
-    <span class="ident">_resize_w</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-    <span class="ident">_resize_h</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-    <span class="ident">meta_path</span>: <span class="ident">String</span>,
-    <span class="ident">conn</span>: <span class="ident">database::DbConnection</span>,
-    <span class="ident">attach_accents</span>: <span class="ident">bool</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file_path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="kw-2">&amp;</span><span class="ident">meta_path</span>);
-    <span class="ident">file_path</span>.<span class="ident">push</span>(<span class="ident">path</span>.<span class="ident">as_str</span>());
+<span class="kw">pub async fn </span>get_image(
+    path: path::Tail,
+    _resize_w: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    _resize_h: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    meta_path: String,
+    conn: database::DbConnection,
+    attach_accents: bool,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>file_path = PathBuf::from(<span class="kw-2">&amp;</span>meta_path);
+    file_path.push(path.as_str());
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url_path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="string">&quot;images/&quot;</span>);
-    <span class="ident">url_path</span>.<span class="ident">push</span>(<span class="ident">path</span>.<span class="ident">as_str</span>());
+    <span class="kw">let </span><span class="kw-2">mut </span>url_path = PathBuf::from(<span class="string">&quot;images/&quot;</span>);
+    url_path.push(path.as_str());
 
     <span class="comment">/*
     let image = if let (Some(w), Some(h)) = (resize_w, resize_h) {
@@ -376,55 +369,54 @@
     } else {
         tokio::fs::read(file_path).await.ok()
     };
-    */</span>
+    */
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// FIXME (val): return not yet available error here as a hint that in the future this URL will</span>
-    <span class="comment">// return 200 OK.</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">file_path</span>).<span class="ident">exists</span>() {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">asset::Asset::get_url_by_file</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">url_path</span>).<span class="kw">await</span> {
-            <span class="ident">insert_into_queue</span>(<span class="ident">x</span>, <span class="ident">path</span>.<span class="ident">as_str</span>().<span class="ident">into</span>(), <span class="bool-val">true</span>).<span class="kw">await</span>;
+    </span><span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// FIXME (val): return not yet available error here as a hint that in the future this URL will
+    // return 200 OK.
+    </span><span class="kw">if </span>!Path::new(<span class="kw-2">&amp;</span>file_path).exists() {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(x) = asset::Asset::get_url_by_file(<span class="kw-2">&amp;mut </span>tx, <span class="kw-2">&amp;</span>url_path).<span class="kw">await </span>{
+            insert_into_queue(x, path.as_str().into(), <span class="bool-val">true</span>).<span class="kw">await</span>;
         }
 
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">errors::DimError::NotFoundError</span>);
+        <span class="kw">return </span><span class="prelude-val">Err</span>(errors::DimError::NotFoundError);
     }
 
-    <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">tokio::fs::read</span>(<span class="ident">file_path</span>).<span class="kw">await</span>.<span class="ident">ok</span>();
+    <span class="kw">let </span>image = tokio::fs::read(file_path).<span class="kw">await</span>.ok();
 
-    <span class="kw">let</span> <span class="ident">accents</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">image</span>.<span class="ident">as_ref</span>(), <span class="ident">attach_accents</span>) {
-        (<span class="prelude-val">Some</span>(<span class="ident">data</span>), <span class="bool-val">true</span>) =&gt; {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">image</span>) <span class="op">=</span> <span class="ident">image::load_from_memory</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>) {
+    <span class="kw">let </span>accents = <span class="kw">match </span>(image.as_ref(), attach_accents) {
+        (<span class="prelude-val">Some</span>(data), <span class="bool-val">true</span>) =&gt; {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(image) = image::load_from_memory(<span class="kw-2">&amp;</span>data) {
                 <span class="prelude-val">Some</span>(
-                    <span class="ident">dominant_color::get_colors</span>(<span class="ident">image</span>.<span class="ident">as_bytes</span>(), <span class="bool-val">false</span>)
-                        .<span class="ident">chunks_exact</span>(<span class="number">3</span>)
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">rgb</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">rgb</span> {
-                            [<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>] =&gt; <span class="macro">format!</span>(<span class="string">&quot;#{r:02x}{g:02x}{b:02x}&quot;</span>),
-                            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                    dominant_color::get_colors(image.as_bytes(), <span class="bool-val">false</span>)
+                        .chunks_exact(<span class="number">3</span>)
+                        .map(|rgb| <span class="kw">match </span>rgb {
+                            [r, g, b] =&gt; <span class="macro">format!</span>(<span class="string">&quot;#{r:02x}{g:02x}{b:02x}&quot;</span>),
+                            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                         })
-                        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-                        .<span class="ident">join</span>(<span class="string">&quot;,&quot;</span>),
+                        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+                        .join(<span class="string">&quot;,&quot;</span>),
                 )
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            }
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
         }
-        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     };
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">data</span>) <span class="op">=</span> <span class="ident">image</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">warp::http::Response::builder</span>()
-            .<span class="ident">status</span>(<span class="ident">StatusCode::OK</span>)
-            .<span class="ident">header</span>(<span class="string">&quot;ContentType&quot;</span>, <span class="string">&quot;image/jpeg&quot;</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = image {
+        <span class="kw">let </span><span class="kw-2">mut </span>resp = warp::http::Response::builder()
+            .status(StatusCode::OK)
+            .header(<span class="string">&quot;ContentType&quot;</span>, <span class="string">&quot;image/jpeg&quot;</span>);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">accents</span>) <span class="op">=</span> <span class="ident">accents</span> {
-            <span class="ident">resp</span> <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">header</span>(<span class="string">&quot;X-IMAGE-ACCENTS&quot;</span>, <span class="ident">accents</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(accents) = accents {
+            resp = resp.header(<span class="string">&quot;X-IMAGE-ACCENTS&quot;</span>, accents);
         }
 
-        <span class="kw">return</span> <span class="ident">resp</span>.<span class="ident">body</span>(<span class="ident">data</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">errors::DimError::NotFoundError</span>);
+        <span class="kw">return </span>resp.body(data).map_err(|<span class="kw">_</span>| errors::DimError::NotFoundError);
     }
 
-    <span class="prelude-val">Err</span>(<span class="ident">errors::DimError::NotFoundError</span>)
+    <span class="prelude-val">Err</span>(errors::DimError::NotFoundError)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

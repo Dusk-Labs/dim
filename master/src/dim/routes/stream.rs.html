@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/stream.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stream.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/stream.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stream.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -942,943 +935,942 @@
 <span id="935">935</span>
 <span id="936">936</span>
 <span id="937">937</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::StateManager</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream_tracking::ContentType</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream_tracking::StreamTracking</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream_tracking::VirtualManifest</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::streaming::ffprobe::FFPStream</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::streaming::ffprobe::FFProbeCtx</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::streaming::get_avc1_tag</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::streaming::get_qualities</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::streaming::level_to_tag</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::quality_to_label</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
+<span class="kw">use </span><span class="kw">crate</span>::core::StateManager;
+<span class="kw">use </span><span class="kw">crate</span>::errors;
+<span class="kw">use </span><span class="kw">crate</span>::stream_tracking::ContentType;
+<span class="kw">use </span><span class="kw">crate</span>::stream_tracking::StreamTracking;
+<span class="kw">use </span><span class="kw">crate</span>::stream_tracking::VirtualManifest;
+<span class="kw">use </span><span class="kw">crate</span>::streaming::ffprobe::FFPStream;
+<span class="kw">use </span><span class="kw">crate</span>::streaming::ffprobe::FFProbeCtx;
+<span class="kw">use </span><span class="kw">crate</span>::streaming::get_avc1_tag;
+<span class="kw">use </span><span class="kw">crate</span>::streaming::get_qualities;
+<span class="kw">use </span><span class="kw">crate</span>::streaming::level_to_tag;
+<span class="kw">use </span><span class="kw">crate</span>::utils::quality_to_label;
 
-<span class="kw">use</span> <span class="ident">database::mediafile::MediaFile</span>;
-<span class="kw">use</span> <span class="ident">database::user::DefaultVideoQuality</span>;
-<span class="kw">use</span> <span class="ident">database::user::User</span>;
-<span class="kw">use</span> <span class="ident">database::user::UserSettings</span>;
+<span class="kw">use </span>database::mediafile::MediaFile;
+<span class="kw">use </span>database::user::DefaultVideoQuality;
+<span class="kw">use </span>database::user::User;
+<span class="kw">use </span>database::user::UserSettings;
 
-<span class="kw">use</span> <span class="ident">nightfall::error::NightfallError</span>;
-<span class="kw">use</span> <span class="ident">nightfall::profiles</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span>nightfall::error::NightfallError;
+<span class="kw">use </span>nightfall::profiles::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="ident">std::future::Future</span>;
-<span class="kw">use</span> <span class="ident">std::path::Path</span>;
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span class="kw">use </span>std::future::Future;
+<span class="kw">use </span>std::path::Path;
+<span class="kw">use </span>std::path::PathBuf;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use</span> <span class="ident">futures::stream</span>;
-<span class="kw">use</span> <span class="ident">futures::StreamExt</span>;
+<span class="kw">use </span>futures::stream;
+<span class="kw">use </span>futures::StreamExt;
 
-<span class="kw">use</span> <span class="ident">tokio::fs::File</span>;
+<span class="kw">use </span>tokio::fs::File;
 
-<span class="kw">use</span> <span class="ident">serde_json::json</span>;
+<span class="kw">use </span>serde_json::json;
 
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
-<span class="kw">use</span> <span class="ident">warp::http::status::StatusCode</span>;
-<span class="kw">use</span> <span class="ident">warp::reply</span>;
+<span class="kw">use </span>uuid::Uuid;
+<span class="kw">use </span>warp::http::status::StatusCode;
+<span class="kw">use </span>warp::reply;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filters</span> {
-    <span class="kw">use</span> <span class="ident">warp::reject</span>;
-    <span class="kw">use</span> <span class="ident">warp::reply::Reply</span>;
-    <span class="kw">use</span> <span class="ident">warp::Filter</span>;
+<span class="kw">pub mod </span>filters {
+    <span class="kw">use </span>warp::reject;
+    <span class="kw">use </span>warp::reply::Reply;
+    <span class="kw">use </span>warp::Filter;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::StateManager</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors::StreamingErrors</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream_tracking::StreamTracking</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::warp_unwrap</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
+    <span class="kw">use </span><span class="kw">crate</span>::core::StateManager;
+    <span class="kw">use </span><span class="kw">crate</span>::errors::StreamingErrors;
+    <span class="kw">use </span><span class="kw">crate</span>::stream_tracking::StreamTracking;
+    <span class="kw">use </span><span class="kw">crate</span>::warp_unwrap;
 
-    <span class="kw">use</span> <span class="ident">database::user::User</span>;
-    <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+    <span class="kw">use </span>database::user::User;
+    <span class="kw">use </span>uuid::Uuid;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_auth</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state</span>;
-    <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_auth;
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state;
+    <span class="kw">use </span>serde::Deserialize;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">return_virtual_manifest</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-        <span class="ident">state</span>: <span class="ident">StateManager</span>,
-        <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-        <span class="kw">struct</span> <span class="ident">QueryArgs</span> {
-            <span class="ident">gid</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-            <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
-            <span class="ident">force_ass</span>: <span class="ident">bool</span>,
+    <span class="kw">pub fn </span>return_virtual_manifest(
+        conn: DbConnection,
+        state: StateManager,
+        stream_tracking: StreamTracking,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="attribute">#[derive(Deserialize)]
+        </span><span class="kw">struct </span>QueryArgs {
+            gid: <span class="prelude-ty">Option</span>&lt;String&gt;,
+            <span class="attribute">#[serde(default)]
+            </span>force_ass: bool,
         }
 
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;stream&quot;</span> <span class="op">/</span> <span class="ident">i64</span> <span class="op">/</span> <span class="string">&quot;manifest&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">warp::query::query</span>::<span class="op">&lt;</span><span class="ident">QueryArgs</span><span class="op">&gt;</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">StateManager</span><span class="op">&gt;</span>(<span class="ident">state</span>))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">StreamTracking</span><span class="op">&gt;</span>(<span class="ident">stream_tracking</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">id</span>: <span class="ident">i64</span>,
-                 <span class="ident">QueryArgs</span> { <span class="ident">gid</span>, <span class="ident">force_ass</span> }: <span class="ident">QueryArgs</span>,
-                 <span class="ident">auth</span>: <span class="ident">User</span>,
-                 <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-                 <span class="ident">state</span>: <span class="ident">StateManager</span>,
-                 <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="kw">let</span> <span class="ident">gid</span> <span class="op">=</span> <span class="ident">gid</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Uuid::parse_str</span>(<span class="ident">x</span>.<span class="ident">as_str</span>()).<span class="ident">ok</span>());
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;stream&quot; </span>/ i64 / <span class="string">&quot;manifest&quot;</span>)
+            .and(warp::get())
+            .and(warp::query::query::&lt;QueryArgs&gt;())
+            .and(with_auth(conn.clone()))
+            .and(with_state::&lt;DbConnection&gt;(conn))
+            .and(with_state::&lt;StateManager&gt;(state))
+            .and(with_state::&lt;StreamTracking&gt;(stream_tracking))
+            .and_then(
+                |id: i64,
+                 QueryArgs { gid, force_ass }: QueryArgs,
+                 auth: User,
+                 conn: DbConnection,
+                 state: StateManager,
+                 stream_tracking: StreamTracking| <span class="kw">async move </span>{
+                    <span class="kw">let </span>gid = gid.and_then(|x| Uuid::parse_str(x.as_str()).ok());
 
                     <span class="macro">warp_unwrap!</span>(
-                        <span class="ident"><span class="kw">super</span>::return_virtual_manifest</span>(
-                            <span class="ident">state</span>,
-                            <span class="ident">stream_tracking</span>,
-                            <span class="ident">auth</span>,
-                            <span class="ident">conn</span>,
-                            <span class="ident">id</span>,
-                            <span class="ident">gid</span>,
-                            <span class="ident">force_ass</span>
+                        <span class="kw">super</span>::return_virtual_manifest(
+                            state,
+                            stream_tracking,
+                            auth,
+                            conn,
+                            id,
+                            gid,
+                            force_ass
                         )
-                        .<span class="kw">await</span>
-                    )
+                        .<span class="kw">await
+                    </span>)
                 },
             )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">return_manifest</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-        <span class="ident">state</span>: <span class="ident">StateManager</span>,
-        <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-        <span class="kw">struct</span> <span class="ident">QueryArgs</span> {
-            <span class="ident">start_num</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
-            <span class="ident">should_kill</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
-            <span class="ident">includes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub fn </span>return_manifest(
+        conn: DbConnection,
+        state: StateManager,
+        stream_tracking: StreamTracking,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="attribute">#[derive(Deserialize)]
+        </span><span class="kw">struct </span>QueryArgs {
+            start_num: <span class="prelude-ty">Option</span>&lt;u64&gt;,
+            should_kill: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+            includes: <span class="prelude-ty">Option</span>&lt;String&gt;,
         }
 
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;stream&quot;</span> <span class="op">/</span> <span class="ident">String</span> <span class="op">/</span> <span class="string">&quot;manifest.mpd&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">warp::query::query</span>::<span class="op">&lt;</span><span class="ident">QueryArgs</span><span class="op">&gt;</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">StateManager</span><span class="op">&gt;</span>(<span class="ident">state</span>))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">StreamTracking</span><span class="op">&gt;</span>(<span class="ident">stream_tracking</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">id</span>: <span class="ident">String</span>,
-                 <span class="ident">QueryArgs</span> {
-                     <span class="ident">start_num</span>,
-                     <span class="ident">should_kill</span>,
-                     <span class="ident">includes</span>,
-                 }: <span class="ident">QueryArgs</span>,
-                 <span class="ident">auth</span>: <span class="ident">User</span>,
-                 <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-                 <span class="ident">state</span>: <span class="ident">StateManager</span>,
-                 <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="kw">let</span> <span class="ident">gid</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">Uuid::parse_str</span>(<span class="ident">id</span>.<span class="ident">as_str</span>()) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">reject::custom</span>(<span class="ident">StreamingErrors::GidParseError</span>)),
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;stream&quot; </span>/ String / <span class="string">&quot;manifest.mpd&quot;</span>)
+            .and(warp::get())
+            .and(warp::query::query::&lt;QueryArgs&gt;())
+            .and(with_auth(conn.clone()))
+            .and(with_state::&lt;DbConnection&gt;(conn))
+            .and(with_state::&lt;StateManager&gt;(state))
+            .and(with_state::&lt;StreamTracking&gt;(stream_tracking))
+            .and_then(
+                |id: String,
+                 QueryArgs {
+                     start_num,
+                     should_kill,
+                     includes,
+                 }: QueryArgs,
+                 auth: User,
+                 conn: DbConnection,
+                 state: StateManager,
+                 stream_tracking: StreamTracking| <span class="kw">async move </span>{
+                    <span class="kw">let </span>gid = <span class="kw">match </span>Uuid::parse_str(id.as_str()) {
+                        <span class="prelude-val">Ok</span>(x) =&gt; x,
+                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(reject::custom(StreamingErrors::GidParseError)),
                     };
 
-                    <span class="ident"><span class="kw">super</span>::return_manifest</span>(
-                        <span class="ident">state</span>,
-                        <span class="ident">stream_tracking</span>,
-                        <span class="ident">auth</span>,
-                        <span class="ident">conn</span>,
-                        <span class="ident">gid</span>,
-                        <span class="ident">start_num</span>,
-                        <span class="ident">should_kill</span>,
-                        <span class="ident">includes</span>,
+                    <span class="kw">super</span>::return_manifest(
+                        state,
+                        stream_tracking,
+                        auth,
+                        conn,
+                        gid,
+                        start_num,
+                        should_kill,
+                        includes,
                     )
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_or_else</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>.<span class="ident">into_response</span>()), <span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">e</span>.<span class="ident">into_response</span>()))
+                    .<span class="kw">await
+                    </span>.map_or_else(|x| <span class="prelude-val">Ok</span>(x.into_response()), |e| <span class="prelude-val">Ok</span>(e.into_response()))
                 },
             )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_init</span>(
-        <span class="ident">state</span>: <span class="ident">StateManager</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-        <span class="kw">struct</span> <span class="ident">QueryArgs</span> {
-            <span class="ident">start_num</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
+    <span class="kw">pub fn </span>get_init(
+        state: StateManager,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="attribute">#[derive(Deserialize)]
+        </span><span class="kw">struct </span>QueryArgs {
+            start_num: <span class="prelude-ty">Option</span>&lt;u32&gt;,
         }
 
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;stream&quot;</span> <span class="op">/</span> <span class="ident">String</span> <span class="op">/</span> <span class="string">&quot;data&quot;</span> <span class="op">/</span> <span class="string">&quot;init.mp4&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">warp::query::query</span>::<span class="op">&lt;</span><span class="ident">QueryArgs</span><span class="op">&gt;</span>())
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">StateManager</span><span class="op">&gt;</span>(<span class="ident">state</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">id</span>: <span class="ident">String</span>, <span class="ident">QueryArgs</span> { <span class="ident">start_num</span> }: <span class="ident">QueryArgs</span>, <span class="ident">state</span>: <span class="ident">StateManager</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="ident"><span class="kw">super</span>::get_init</span>(<span class="ident">state</span>, <span class="ident">id</span>, <span class="ident">start_num</span>)
-                        .<span class="kw">await</span>
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;stream&quot; </span>/ String / <span class="string">&quot;data&quot; </span>/ <span class="string">&quot;init.mp4&quot;</span>)
+            .and(warp::get())
+            .and(warp::query::query::&lt;QueryArgs&gt;())
+            .and(with_state::&lt;StateManager&gt;(state))
+            .and_then(
+                |id: String, QueryArgs { start_num }: QueryArgs, state: StateManager| <span class="kw">async move </span>{
+                    <span class="kw">super</span>::get_init(state, id, start_num)
+                        .<span class="kw">await
+                        </span>.map_err(|e| reject::custom(e))
                 },
             )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_chunk</span>(
-        <span class="ident">state</span>: <span class="ident">StateManager</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;stream&quot;</span> <span class="op">/</span> <span class="ident">String</span> <span class="op">/</span> <span class="string">&quot;data&quot;</span> <span class="op">/</span> ..)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">warp::filters::path::tail</span>())
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">StateManager</span><span class="op">&gt;</span>(<span class="ident">state</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">id</span>: <span class="ident">String</span>, <span class="ident">chunk</span>: <span class="ident">warp::filters::path::Tail</span>, <span class="ident">state</span>: <span class="ident">StateManager</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="ident"><span class="kw">super</span>::get_chunk</span>(<span class="ident">state</span>, <span class="ident">id</span>, <span class="ident">chunk</span>.<span class="ident">as_str</span>().<span class="ident">into</span>())
-                        .<span class="kw">await</span>
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>get_chunk(
+        state: StateManager,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;stream&quot; </span>/ String / <span class="string">&quot;data&quot; </span>/ ..)
+            .and(warp::get())
+            .and(warp::filters::path::tail())
+            .and(with_state::&lt;StateManager&gt;(state))
+            .and_then(
+                |id: String, chunk: warp::filters::path::Tail, state: StateManager| <span class="kw">async move </span>{
+                    <span class="kw">super</span>::get_chunk(state, id, chunk.as_str().into())
+                        .<span class="kw">await
+                        </span>.map_err(|e| reject::custom(e))
                 },
             )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_subtitle</span>(
-        <span class="ident">state</span>: <span class="ident">StateManager</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;stream&quot;</span> <span class="op">/</span> <span class="ident">String</span> <span class="op">/</span> <span class="string">&quot;data&quot;</span> <span class="op">/</span> <span class="string">&quot;stream.vtt&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">StateManager</span><span class="op">&gt;</span>(<span class="ident">state</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span>: <span class="ident">String</span>, <span class="ident">state</span>: <span class="ident">StateManager</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::get_subtitle</span>(<span class="ident">state</span>, <span class="ident">id</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>get_subtitle(
+        state: StateManager,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;stream&quot; </span>/ String / <span class="string">&quot;data&quot; </span>/ <span class="string">&quot;stream.vtt&quot;</span>)
+            .and(warp::get())
+            .and(with_state::&lt;StateManager&gt;(state))
+            .and_then(|id: String, state: StateManager| <span class="kw">async move </span>{
+                <span class="kw">super</span>::get_subtitle(state, id)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_subtitle_ass</span>(
-        <span class="ident">state</span>: <span class="ident">StateManager</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;stream&quot;</span> <span class="op">/</span> <span class="ident">String</span> <span class="op">/</span> <span class="string">&quot;data&quot;</span> <span class="op">/</span> <span class="string">&quot;stream.ass&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">StateManager</span><span class="op">&gt;</span>(<span class="ident">state</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span>: <span class="ident">String</span>, <span class="ident">state</span>: <span class="ident">StateManager</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::get_subtitle_ass</span>(<span class="ident">state</span>, <span class="ident">id</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>get_subtitle_ass(
+        state: StateManager,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;stream&quot; </span>/ String / <span class="string">&quot;data&quot; </span>/ <span class="string">&quot;stream.ass&quot;</span>)
+            .and(warp::get())
+            .and(with_state::&lt;StateManager&gt;(state))
+            .and_then(|id: String, state: StateManager| <span class="kw">async move </span>{
+                <span class="kw">super</span>::get_subtitle_ass(state, id)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">should_client_hard_seek</span>(
-        <span class="ident">state</span>: <span class="ident">StateManager</span>,
-        <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;stream&quot;</span> <span class="op">/</span> <span class="ident">String</span> <span class="op">/</span> <span class="string">&quot;state&quot;</span> <span class="op">/</span> <span class="string">&quot;should_hard_seek&quot;</span> <span class="op">/</span> <span class="ident">u32</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">with_state</span>(<span class="ident">state</span>))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>(<span class="ident">stream_tracking</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">id</span>: <span class="ident">String</span>,
-                 <span class="ident">chunk_num</span>: <span class="ident">u32</span>,
-                 <span class="ident">state</span>: <span class="ident">StateManager</span>,
-                 <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="kw">let</span> <span class="ident">gid</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">Uuid::parse_str</span>(<span class="ident">id</span>.<span class="ident">as_str</span>()) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">reject::custom</span>(<span class="ident">StreamingErrors::GidParseError</span>)),
+    <span class="kw">pub fn </span>should_client_hard_seek(
+        state: StateManager,
+        stream_tracking: StreamTracking,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;stream&quot; </span>/ String / <span class="string">&quot;state&quot; </span>/ <span class="string">&quot;should_hard_seek&quot; </span>/ u32)
+            .and(warp::get())
+            .and(with_state(state))
+            .and(with_state(stream_tracking))
+            .and_then(
+                |id: String,
+                 chunk_num: u32,
+                 state: StateManager,
+                 stream_tracking: StreamTracking| <span class="kw">async move </span>{
+                    <span class="kw">let </span>gid = <span class="kw">match </span>Uuid::parse_str(id.as_str()) {
+                        <span class="prelude-val">Ok</span>(x) =&gt; x,
+                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(reject::custom(StreamingErrors::GidParseError)),
                     };
-                    <span class="ident"><span class="kw">super</span>::should_client_hard_seek</span>(<span class="ident">state</span>, <span class="ident">stream_tracking</span>, <span class="ident">gid</span>, <span class="ident">chunk_num</span>)
-                        .<span class="kw">await</span>
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+                    <span class="kw">super</span>::should_client_hard_seek(state, stream_tracking, gid, chunk_num)
+                        .<span class="kw">await
+                        </span>.map_err(|e| reject::custom(e))
                 },
             )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">session_get_stderr</span>(
-        <span class="ident">state</span>: <span class="ident">StateManager</span>,
-        <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;stream&quot;</span> <span class="op">/</span> <span class="ident">String</span> <span class="op">/</span> <span class="string">&quot;state&quot;</span> <span class="op">/</span> <span class="string">&quot;get_stderr&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">with_state</span>(<span class="ident">state</span>))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>(<span class="ident">stream_tracking</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">id</span>: <span class="ident">String</span>, <span class="ident">state</span>: <span class="ident">StateManager</span>, <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="kw">let</span> <span class="ident">gid</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">Uuid::parse_str</span>(<span class="ident">id</span>.<span class="ident">as_str</span>()) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">reject::custom</span>(<span class="ident">StreamingErrors::GidParseError</span>)),
+    <span class="kw">pub fn </span>session_get_stderr(
+        state: StateManager,
+        stream_tracking: StreamTracking,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;stream&quot; </span>/ String / <span class="string">&quot;state&quot; </span>/ <span class="string">&quot;get_stderr&quot;</span>)
+            .and(warp::get())
+            .and(with_state(state))
+            .and(with_state(stream_tracking))
+            .and_then(
+                |id: String, state: StateManager, stream_tracking: StreamTracking| <span class="kw">async move </span>{
+                    <span class="kw">let </span>gid = <span class="kw">match </span>Uuid::parse_str(id.as_str()) {
+                        <span class="prelude-val">Ok</span>(x) =&gt; x,
+                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(reject::custom(StreamingErrors::GidParseError)),
                     };
 
-                    <span class="ident"><span class="kw">super</span>::session_get_stderr</span>(<span class="ident">state</span>, <span class="ident">stream_tracking</span>, <span class="ident">gid</span>)
-                        .<span class="kw">await</span>
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+                    <span class="kw">super</span>::session_get_stderr(state, stream_tracking, gid)
+                        .<span class="kw">await
+                        </span>.map_err(|e| reject::custom(e))
                 },
             )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">kill_session</span>(
-        <span class="ident">state</span>: <span class="ident">StateManager</span>,
-        <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">warp::Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;stream&quot;</span> <span class="op">/</span> <span class="ident">String</span> <span class="op">/</span> <span class="string">&quot;state&quot;</span> <span class="op">/</span> <span class="string">&quot;kill&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">with_state</span>(<span class="ident">state</span>))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>(<span class="ident">stream_tracking</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">id</span>: <span class="ident">String</span>, <span class="ident">state</span>: <span class="ident">StateManager</span>, <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="kw">let</span> <span class="ident">gid</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">Uuid::parse_str</span>(<span class="ident">id</span>.<span class="ident">as_str</span>()) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">reject::custom</span>(<span class="ident">StreamingErrors::GidParseError</span>)),
+    <span class="kw">pub fn </span>kill_session(
+        state: StateManager,
+        stream_tracking: StreamTracking,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;stream&quot; </span>/ String / <span class="string">&quot;state&quot; </span>/ <span class="string">&quot;kill&quot;</span>)
+            .and(warp::get())
+            .and(with_state(state))
+            .and(with_state(stream_tracking))
+            .and_then(
+                |id: String, state: StateManager, stream_tracking: StreamTracking| <span class="kw">async move </span>{
+                    <span class="kw">let </span>gid = <span class="kw">match </span>Uuid::parse_str(id.as_str()) {
+                        <span class="prelude-val">Ok</span>(x) =&gt; x,
+                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(reject::custom(StreamingErrors::GidParseError)),
                     };
 
-                    <span class="ident"><span class="kw">super</span>::kill_session</span>(<span class="ident">state</span>, <span class="ident">stream_tracking</span>, <span class="ident">gid</span>)
-                        .<span class="kw">await</span>
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+                    <span class="kw">super</span>::kill_session(state, stream_tracking, gid)
+                        .<span class="kw">await
+                        </span>.map_err(|e| reject::custom(e))
                 },
             )
     }
 }
 
-<span class="doccomment">/// Method mapped to `GET /api/v1/stream/&lt;id&gt;/manifest?&lt;gid&gt;` returns or creates a virtual</span>
-<span class="doccomment">/// manifest.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">return_virtual_manifest</span>(
-    <span class="ident">state</span>: <span class="ident">StateManager</span>,
-    <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span>,
-    <span class="ident">auth</span>: <span class="ident">User</span>,
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="ident">gid</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">force_ass</span>: <span class="ident">bool</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::StreamingErrors</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">gid</span>) <span class="op">=</span> <span class="ident">gid</span> {
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
-            <span class="string">&quot;tracks&quot;</span>: <span class="ident">stream_tracking</span>.<span class="ident">get_for_gid</span>(<span class="kw-2">&amp;</span><span class="ident">gid</span>).<span class="kw">await</span>,
-            <span class="string">&quot;gid&quot;</span>: <span class="ident">gid</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>(),
+<span class="doccomment">/// Method mapped to `GET /api/v1/stream/&lt;id&gt;/manifest?&lt;gid&gt;` returns or creates a virtual
+/// manifest.
+</span><span class="kw">pub async fn </span>return_virtual_manifest(
+    state: StateManager,
+    stream_tracking: StreamTracking,
+    auth: User,
+    conn: DbConnection,
+    id: i64,
+    gid: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    force_ass: bool,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::StreamingErrors&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(gid) = gid {
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
+            <span class="string">&quot;tracks&quot;</span>: stream_tracking.get_for_gid(<span class="kw-2">&amp;</span>gid).<span class="kw">await</span>,
+            <span class="string">&quot;gid&quot;</span>: gid.to_hyphenated().to_string(),
         })));
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user_prefs</span> <span class="op">=</span> <span class="ident">auth</span>.<span class="ident">prefs</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>user_prefs = auth.prefs;
 
-    <span class="kw">let</span> <span class="ident">gid</span> <span class="op">=</span> <span class="ident">uuid::Uuid::new_v4</span>();
+    <span class="kw">let </span>gid = uuid::Uuid::new_v4();
 
-    <span class="kw">let</span> <span class="ident">media</span> <span class="op">=</span> <span class="ident">MediaFile::get_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">errors::StreamingErrors::NoMediaFileFound</span>(<span class="ident">e</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+    <span class="kw">let </span>media = MediaFile::get_one(<span class="kw-2">&amp;mut </span>tx, id)
+        .<span class="kw">await
+        </span>.map_err(|e| errors::StreamingErrors::NoMediaFileFound(e.to_string()))<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">target_file</span> <span class="op">=</span> <span class="ident">media</span>.<span class="ident">target_file</span>.<span class="ident">clone</span>();
+    <span class="kw">let </span>target_file = media.target_file.clone();
 
-    <span class="comment">// FIXME: When `fs::try_exists` gets stabilized we should use that as it will allow us to</span>
-    <span class="comment">// detect if the user lacks permissions to access the file, etc.</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">target_file</span>).<span class="ident">exists</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">errors::StreamingErrors::FileDoesNotExist</span>);
+    <span class="comment">// FIXME: When `fs::try_exists` gets stabilized we should use that as it will allow us to
+    // detect if the user lacks permissions to access the file, etc.
+    </span><span class="kw">if </span>!Path::new(<span class="kw-2">&amp;</span>target_file).exists() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(errors::StreamingErrors::FileDoesNotExist);
     }
 
-    <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">FFProbeCtx::new</span>(<span class="ident"><span class="kw">crate</span>::streaming::FFPROBE_BIN</span>.<span class="ident">as_ref</span>())
-        .<span class="ident">get_meta</span>(<span class="ident">target_file</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">errors::StreamingErrors::FFProbeCtxFailed</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>info = FFProbeCtx::new(<span class="kw">crate</span>::streaming::FFPROBE_BIN.as_ref())
+        .get_meta(target_file)
+        .<span class="kw">await
+        </span>.map_err(|<span class="kw">_</span>| errors::StreamingErrors::FFProbeCtxFailed)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ms</span> <span class="op">=</span> <span class="ident">info</span>
-        .<span class="ident">get_ms</span>()
-        .<span class="ident">ok_or</span>(<span class="ident">errors::StreamingErrors::FileIsCorrupt</span>)<span class="question-mark">?</span>
-        .<span class="ident">to_string</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>ms = info
+        .get_ms()
+        .ok_or(errors::StreamingErrors::FileIsCorrupt)<span class="question-mark">?
+        </span>.to_string();
 
-    <span class="ident">ms</span>.<span class="ident">truncate</span>(<span class="number">4</span>);
+    ms.truncate(<span class="number">4</span>);
 
-    <span class="kw">let</span> <span class="ident">should_stream_default</span> <span class="op">=</span>
-        <span class="ident">try_create_dstream</span>(<span class="kw-2">&amp;</span><span class="ident">info</span>, <span class="kw-2">&amp;</span><span class="ident">media</span>, <span class="kw-2">&amp;</span><span class="ident">stream_tracking</span>, <span class="kw-2">&amp;</span><span class="ident">gid</span>, <span class="kw-2">&amp;</span><span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">user_prefs</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>should_stream_default =
+        try_create_dstream(<span class="kw-2">&amp;</span>info, <span class="kw-2">&amp;</span>media, <span class="kw-2">&amp;</span>stream_tracking, <span class="kw-2">&amp;</span>gid, <span class="kw-2">&amp;</span>state, <span class="kw-2">&amp;</span>user_prefs).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">create_video</span>(
-        <span class="kw-2">&amp;</span><span class="ident">info</span>,
-        <span class="kw-2">&amp;</span><span class="ident">media</span>,
-        <span class="kw-2">&amp;</span><span class="ident">stream_tracking</span>,
-        <span class="kw-2">&amp;</span><span class="ident">gid</span>,
-        <span class="kw-2">&amp;</span><span class="ident">state</span>,
-        <span class="kw-2">&amp;</span><span class="ident">user_prefs</span>,
-        <span class="ident">should_stream_default</span>,
+    create_video(
+        <span class="kw-2">&amp;</span>info,
+        <span class="kw-2">&amp;</span>media,
+        <span class="kw-2">&amp;</span>stream_tracking,
+        <span class="kw-2">&amp;</span>gid,
+        <span class="kw-2">&amp;</span>state,
+        <span class="kw-2">&amp;</span>user_prefs,
+        should_stream_default,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">create_audio</span>(<span class="kw-2">&amp;</span><span class="ident">info</span>, <span class="kw-2">&amp;</span><span class="ident">media</span>, <span class="kw-2">&amp;</span><span class="ident">stream_tracking</span>, <span class="kw-2">&amp;</span><span class="ident">gid</span>, <span class="kw-2">&amp;</span><span class="ident">state</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">create_subtitles</span>(<span class="kw-2">&amp;</span><span class="ident">info</span>, <span class="kw-2">&amp;</span><span class="ident">media</span>, <span class="kw-2">&amp;</span><span class="ident">stream_tracking</span>, <span class="kw-2">&amp;</span><span class="ident">gid</span>, <span class="kw-2">&amp;</span><span class="ident">state</span>, <span class="ident">force_ass</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    create_audio(<span class="kw-2">&amp;</span>info, <span class="kw-2">&amp;</span>media, <span class="kw-2">&amp;</span>stream_tracking, <span class="kw-2">&amp;</span>gid, <span class="kw-2">&amp;</span>state).<span class="kw">await</span><span class="question-mark">?</span>;
+    create_subtitles(<span class="kw-2">&amp;</span>info, <span class="kw-2">&amp;</span>media, <span class="kw-2">&amp;</span>stream_tracking, <span class="kw-2">&amp;</span>gid, <span class="kw-2">&amp;</span>state, force_ass).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">stream_tracking</span>.<span class="ident">generate_sids</span>(<span class="kw-2">&amp;</span><span class="ident">gid</span>).<span class="kw">await</span>;
+    stream_tracking.generate_sids(<span class="kw-2">&amp;</span>gid).<span class="kw">await</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
-        <span class="string">&quot;tracks&quot;</span>: <span class="ident">stream_tracking</span>.<span class="ident">get_for_gid</span>(<span class="kw-2">&amp;</span><span class="ident">gid</span>).<span class="kw">await</span>,
-        <span class="string">&quot;gid&quot;</span>: <span class="ident">gid</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>(),
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
+        <span class="string">&quot;tracks&quot;</span>: stream_tracking.get_for_gid(<span class="kw-2">&amp;</span>gid).<span class="kw">await</span>,
+        <span class="string">&quot;gid&quot;</span>: gid.to_hyphenated().to_string(),
     })))
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_create_dstream</span>(
-    <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">FFPStream</span>,
-    <span class="ident">media</span>: <span class="kw-2">&amp;</span><span class="ident">MediaFile</span>,
-    <span class="ident">stream_tracking</span>: <span class="kw-2">&amp;</span><span class="ident">StreamTracking</span>,
-    <span class="ident">gid</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
-    <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">StateManager</span>,
-    <span class="ident">prefs</span>: <span class="kw-2">&amp;</span><span class="ident">UserSettings</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">errors::StreamingErrors</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">video_stream</span> <span class="op">=</span> <span class="ident">info</span>
-        .<span class="ident">get_primary</span>(<span class="string">&quot;video&quot;</span>)
-        .<span class="ident">cloned</span>()
-        .<span class="ident">ok_or</span>(<span class="ident">errors::StreamingErrors::FileIsCorrupt</span>)<span class="question-mark">?</span>;
+<span class="kw">pub async fn </span>try_create_dstream(
+    info: <span class="kw-2">&amp;</span>FFPStream,
+    media: <span class="kw-2">&amp;</span>MediaFile,
+    stream_tracking: <span class="kw-2">&amp;</span>StreamTracking,
+    gid: <span class="kw-2">&amp;</span>Uuid,
+    state: <span class="kw-2">&amp;</span>StateManager,
+    prefs: <span class="kw-2">&amp;</span>UserSettings,
+) -&gt; <span class="prelude-ty">Result</span>&lt;bool, errors::StreamingErrors&gt; {
+    <span class="kw">let </span>video_stream = info
+        .get_primary(<span class="string">&quot;video&quot;</span>)
+        .cloned()
+        .ok_or(errors::StreamingErrors::FileIsCorrupt)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">ProfileContext</span> {
-        <span class="ident">file</span>: <span class="ident">media</span>.<span class="ident">target_file</span>.<span class="ident">clone</span>(),
-        <span class="ident">input_ctx</span>: <span class="ident">video_stream</span>.<span class="ident">clone</span>().<span class="ident">into</span>(),
-        <span class="ident">output_ctx</span>: <span class="ident">OutputCtx</span> {
-            <span class="ident">codec</span>: <span class="string">&quot;h264&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">start_num</span>: <span class="number">0</span>,
-            <span class="ident">target_gop</span>: <span class="number">10</span>,
-            ..<span class="ident">Default::default</span>()
+    <span class="kw">let </span>ctx = ProfileContext {
+        file: media.target_file.clone(),
+        input_ctx: video_stream.clone().into(),
+        output_ctx: OutputCtx {
+            codec: <span class="string">&quot;h264&quot;</span>.into(),
+            start_num: <span class="number">0</span>,
+            target_gop: <span class="number">10</span>,
+            ..Default::default()
         },
-        ..<span class="ident">Default::default</span>()
+        ..Default::default()
     };
 
-    <span class="kw">let</span> <span class="ident">dp_profile_chain</span> <span class="op">=</span>
-        <span class="ident">get_profile_for_with_type</span>(<span class="ident">StreamType::Video</span>, <span class="ident">ProfileType::Transmux</span>, <span class="kw-2">&amp;</span><span class="ident">ctx</span>);
+    <span class="kw">let </span>dp_profile_chain =
+        get_profile_for_with_type(StreamType::Video, ProfileType::Transmux, <span class="kw-2">&amp;</span>ctx);
 
-    <span class="comment">// Should secondary (transcoded) streams default.</span>
-    <span class="kw">let</span> <span class="ident">should_stream_default</span> <span class="op">=</span> <span class="ident">dp_profile_chain</span>.<span class="ident">is_empty</span>()
-        <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">prefs</span>.<span class="ident">default_video_quality</span>, <span class="ident">DefaultVideoQuality::DirectPlay</span>);
+    <span class="comment">// Should secondary (transcoded) streams default.
+    </span><span class="kw">let </span>should_stream_default = dp_profile_chain.is_empty()
+        || !<span class="macro">matches!</span>(prefs.default_video_quality, DefaultVideoQuality::DirectPlay);
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">dp_profile_chain</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">let</span> <span class="ident">video</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">create</span>(<span class="ident">dp_profile_chain</span>, <span class="ident">ctx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if </span>!dp_profile_chain.is_empty() {
+        <span class="kw">let </span>video = state.create(dp_profile_chain, ctx).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="comment">// FIXME: Stop hardcoding a fps of 24</span>
-        <span class="kw">let</span> <span class="ident">video_avc</span> <span class="op">=</span> <span class="ident">video_stream</span>
-            .<span class="ident">level</span>
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">level_to_tag</span>(<span class="ident">x</span>))
-            .<span class="ident">unwrap_or</span>(<span class="ident">get_avc1_tag</span>(
-                <span class="ident">video_stream</span>.<span class="ident">width</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or</span>(<span class="number">1920</span>) <span class="kw">as</span> <span class="ident">u64</span>,
-                <span class="ident">video_stream</span>.<span class="ident">height</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or</span>(<span class="number">1080</span>) <span class="kw">as</span> <span class="ident">u64</span>,
-                <span class="ident">video_stream</span>
-                    .<span class="ident">get_bitrate</span>()
-                    .<span class="ident">or</span>(<span class="ident">info</span>.<span class="ident">get_container_bitrate</span>())
-                    .<span class="ident">expect</span>(<span class="string">&quot;Failed to pick bitrate for video stream&quot;</span>),
+        <span class="comment">// FIXME: Stop hardcoding a fps of 24
+        </span><span class="kw">let </span>video_avc = video_stream
+            .level
+            .and_then(|x| level_to_tag(x))
+            .unwrap_or(get_avc1_tag(
+                video_stream.width.clone().unwrap_or(<span class="number">1920</span>) <span class="kw">as </span>u64,
+                video_stream.height.clone().unwrap_or(<span class="number">1080</span>) <span class="kw">as </span>u64,
+                video_stream
+                    .get_bitrate()
+                    .or(info.get_container_bitrate())
+                    .expect(<span class="string">&quot;Failed to pick bitrate for video stream&quot;</span>),
                 <span class="number">24</span>,
             ));
 
-        <span class="kw">let</span> <span class="ident">bitrate</span> <span class="op">=</span> <span class="ident">video_stream</span>
-            .<span class="ident">get_bitrate</span>()
-            .<span class="ident">or</span>(<span class="ident">info</span>.<span class="ident">get_container_bitrate</span>())
-            .<span class="ident">unwrap_or</span>(<span class="number">10_000_000</span>);
+        <span class="kw">let </span>bitrate = video_stream
+            .get_bitrate()
+            .or(info.get_container_bitrate())
+            .unwrap_or(<span class="number">10_000_000</span>);
 
-        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> {
-            <span class="kw">let</span> (<span class="ident">ident</span>, <span class="ident">bitrate_norm</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">bitrate</span> <span class="op">&gt;</span> <span class="number">1_000_000</span> {
-                (<span class="string">&quot;MB&quot;</span>, <span class="ident">bitrate</span> <span class="op">/</span> <span class="number">1_000_000</span>)
-            } <span class="kw">else</span> {
-                (<span class="string">&quot;KB&quot;</span>, <span class="ident">bitrate</span> <span class="op">/</span> <span class="number">1_000</span>)
+        <span class="kw">let </span>label = {
+            <span class="kw">let </span>(ident, bitrate_norm) = <span class="kw">if </span>bitrate &gt; <span class="number">1_000_000 </span>{
+                (<span class="string">&quot;MB&quot;</span>, bitrate / <span class="number">1_000_000</span>)
+            } <span class="kw">else </span>{
+                (<span class="string">&quot;KB&quot;</span>, bitrate / <span class="number">1_000</span>)
             };
 
             <span class="macro">format!</span>(
                 <span class="string">&quot;{}p@{}{} (Direct Play)&quot;</span>,
-                <span class="ident">video_stream</span>.<span class="ident">height</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>(),
-                <span class="ident">bitrate_norm</span>,
-                <span class="ident">ident</span>
+                video_stream.height.clone().unwrap(),
+                bitrate_norm,
+                ident
             )
         };
 
-        <span class="kw">let</span> <span class="ident">chunk_path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/data/$Number$.m4s&quot;</span>, <span class="ident">video</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">init_seg</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/data/init.mp4&quot;</span>, <span class="ident">video</span>.<span class="ident">clone</span>()));
-        <span class="kw">let</span> <span class="ident">virtual_manifest</span> <span class="op">=</span>
-            <span class="ident">VirtualManifest::new</span>(<span class="ident">video</span>.<span class="ident">clone</span>(), <span class="ident">chunk_path</span>, <span class="ident">init_seg</span>, <span class="ident">ContentType::Video</span>)
-                .<span class="ident">set_direct</span>()
-                .<span class="ident">set_mime</span>(<span class="string">&quot;video/mp4&quot;</span>)
-                .<span class="ident">set_duration</span>(<span class="ident">info</span>.<span class="ident">get_duration</span>())
-                .<span class="ident">set_codecs</span>(<span class="ident">video_avc</span>.<span class="ident">to_string</span>())
-                .<span class="ident">set_bandwidth</span>(<span class="ident">bitrate</span>)
-                .<span class="ident">set_args</span>([(<span class="string">&quot;height&quot;</span>, <span class="ident">video_stream</span>.<span class="ident">height</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>())])
-                .<span class="ident">set_is_default</span>(<span class="op">!</span><span class="ident">should_stream_default</span>)
-                .<span class="ident">set_target_duration</span>(<span class="number">10</span>)
-                .<span class="ident">set_label</span>(<span class="ident">label</span>);
+        <span class="kw">let </span>chunk_path = <span class="macro">format!</span>(<span class="string">&quot;{}/data/$Number$.m4s&quot;</span>, video.clone());
+        <span class="kw">let </span>init_seg = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/data/init.mp4&quot;</span>, video.clone()));
+        <span class="kw">let </span>virtual_manifest =
+            VirtualManifest::new(video.clone(), chunk_path, init_seg, ContentType::Video)
+                .set_direct()
+                .set_mime(<span class="string">&quot;video/mp4&quot;</span>)
+                .set_duration(info.get_duration())
+                .set_codecs(video_avc.to_string())
+                .set_bandwidth(bitrate)
+                .set_args([(<span class="string">&quot;height&quot;</span>, video_stream.height.clone().unwrap())])
+                .set_is_default(!should_stream_default)
+                .set_target_duration(<span class="number">10</span>)
+                .set_label(label);
 
-        <span class="ident">stream_tracking</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">gid</span>, <span class="ident">virtual_manifest</span>).<span class="kw">await</span>;
+        stream_tracking.insert(<span class="kw-2">&amp;</span>gid, virtual_manifest).<span class="kw">await</span>;
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">should_stream_default</span>)
+    <span class="prelude-val">Ok</span>(should_stream_default)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_video</span>(
-    <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">FFPStream</span>,
-    <span class="ident">media</span>: <span class="kw-2">&amp;</span><span class="ident">MediaFile</span>,
-    <span class="ident">stream_tracking</span>: <span class="kw-2">&amp;</span><span class="ident">StreamTracking</span>,
-    <span class="ident">gid</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
-    <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">StateManager</span>,
-    <span class="ident">prefs</span>: <span class="kw-2">&amp;</span><span class="ident">UserSettings</span>,
-    <span class="kw-2">mut</span> <span class="ident">should_stream_default</span>: <span class="ident">bool</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">errors::StreamingErrors</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">video_stream</span> <span class="op">=</span> <span class="ident">info</span>
-        .<span class="ident">get_primary</span>(<span class="string">&quot;video&quot;</span>)
-        .<span class="ident">cloned</span>()
-        .<span class="ident">ok_or</span>(<span class="ident">errors::StreamingErrors::FileIsCorrupt</span>)<span class="question-mark">?</span>;
+<span class="kw">pub async fn </span>create_video(
+    info: <span class="kw-2">&amp;</span>FFPStream,
+    media: <span class="kw-2">&amp;</span>MediaFile,
+    stream_tracking: <span class="kw-2">&amp;</span>StreamTracking,
+    gid: <span class="kw-2">&amp;</span>Uuid,
+    state: <span class="kw-2">&amp;</span>StateManager,
+    prefs: <span class="kw-2">&amp;</span>UserSettings,
+    <span class="kw-2">mut </span>should_stream_default: bool,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), errors::StreamingErrors&gt; {
+    <span class="kw">let </span>video_stream = info
+        .get_primary(<span class="string">&quot;video&quot;</span>)
+        .cloned()
+        .ok_or(errors::StreamingErrors::FileIsCorrupt)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">qualities</span> <span class="op">=</span> <span class="ident">get_qualities</span>(
-        <span class="ident">video_stream</span>.<span class="ident">height</span>.<span class="ident">unwrap_or</span>(<span class="number">1080</span>) <span class="kw">as</span> <span class="ident">u64</span>,
-        <span class="ident">video_stream</span>
-            .<span class="ident">get_bitrate</span>()
-            .<span class="ident">or</span>(<span class="ident">info</span>.<span class="ident">get_container_bitrate</span>())
-            .<span class="ident">unwrap_or</span>(<span class="number">10_000_000</span>),
+    <span class="kw">let </span>qualities = get_qualities(
+        video_stream.height.unwrap_or(<span class="number">1080</span>) <span class="kw">as </span>u64,
+        video_stream
+            .get_bitrate()
+            .or(info.get_container_bitrate())
+            .unwrap_or(<span class="number">10_000_000</span>),
     );
 
-    <span class="kw">for</span> <span class="ident">quality</span> <span class="kw">in</span> <span class="ident">qualities</span> {
-        <span class="kw">let</span> <span class="ident">bitrate</span> <span class="op">=</span> <span class="ident">video_stream</span>
-            .<span class="ident">get_bitrate</span>()
-            .<span class="ident">or</span>(<span class="prelude-val">Some</span>(<span class="ident">quality</span>.<span class="ident">bitrate</span>))
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">min</span>(<span class="ident">quality</span>.<span class="ident">bitrate</span>);
+    <span class="kw">for </span>quality <span class="kw">in </span>qualities {
+        <span class="kw">let </span>bitrate = video_stream
+            .get_bitrate()
+            .or(<span class="prelude-val">Some</span>(quality.bitrate))
+            .unwrap()
+            .min(quality.bitrate);
 
-        <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">ProfileContext</span> {
-            <span class="ident">file</span>: <span class="ident">media</span>.<span class="ident">target_file</span>.<span class="ident">clone</span>(),
-            <span class="ident">input_ctx</span>: <span class="ident">video_stream</span>.<span class="ident">clone</span>().<span class="ident">into</span>(),
-            <span class="ident">output_ctx</span>: <span class="ident">OutputCtx</span> {
-                <span class="ident">codec</span>: <span class="string">&quot;h264&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">start_num</span>: <span class="number">0</span>,
-                <span class="ident">bitrate</span>: <span class="prelude-val">Some</span>(<span class="ident">bitrate</span>),
-                <span class="ident">height</span>: <span class="prelude-val">Some</span>(<span class="ident">quality</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">i64</span>),
-                ..<span class="ident">Default::default</span>()
+        <span class="kw">let </span>ctx = ProfileContext {
+            file: media.target_file.clone(),
+            input_ctx: video_stream.clone().into(),
+            output_ctx: OutputCtx {
+                codec: <span class="string">&quot;h264&quot;</span>.into(),
+                start_num: <span class="number">0</span>,
+                bitrate: <span class="prelude-val">Some</span>(bitrate),
+                height: <span class="prelude-val">Some</span>(quality.height <span class="kw">as </span>i64),
+                ..Default::default()
             },
-            ..<span class="ident">Default::default</span>()
+            ..Default::default()
         };
 
-        <span class="kw">let</span> <span class="ident">global_prefs</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::settings::get_global_settings</span>();
+        <span class="kw">let </span>global_prefs = <span class="kw">super</span>::settings::get_global_settings();
 
-        <span class="kw">let</span> <span class="ident">profile_chain</span> <span class="op">=</span> <span class="ident">get_profile_for</span>(<span class="ident">StreamType::Video</span>, <span class="kw-2">&amp;</span><span class="ident">ctx</span>);
-        <span class="kw">let</span> <span class="ident">profile_chain</span> <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">global_prefs</span>.<span class="ident">enable_hwaccel</span> {
-            <span class="ident">profile_chain</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">profile_type</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">ProfileType::HardwareTranscode</span>)
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">profile_chain</span>
+        <span class="kw">let </span>profile_chain = get_profile_for(StreamType::Video, <span class="kw-2">&amp;</span>ctx);
+        <span class="kw">let </span>profile_chain = <span class="kw">if </span>!global_prefs.enable_hwaccel {
+            profile_chain
+                .into_iter()
+                .filter(|x| x.profile_type() != ProfileType::HardwareTranscode)
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+        } <span class="kw">else </span>{
+            profile_chain
         };
 
-        <span class="macro">debug_assert!</span>(<span class="op">!</span><span class="ident">profile_chain</span>.<span class="ident">is_empty</span>());
+        <span class="macro">debug_assert!</span>(!profile_chain.is_empty());
 
-        <span class="kw">let</span> <span class="ident">video</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">create</span>(<span class="ident">profile_chain</span>, <span class="ident">ctx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>video = state.create(profile_chain, ctx).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">video_stream_height</span> <span class="op">=</span> <span class="ident">video_stream</span>.<span class="ident">height</span>.<span class="ident">unwrap_or</span>(<span class="number">1080</span>) <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="kw">let</span> <span class="ident">ratio</span> <span class="op">=</span> <span class="ident">video_stream_height</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">quality</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">f64</span>;
-        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">video_stream</span>.<span class="ident">width</span>.<span class="ident">unwrap_or</span>(<span class="number">1920</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">ratio</span>;
+        <span class="kw">let </span>video_stream_height = video_stream.height.unwrap_or(<span class="number">1080</span>) <span class="kw">as </span>u64;
+        <span class="kw">let </span>ratio = video_stream_height <span class="kw">as </span>f64 / quality.height <span class="kw">as </span>f64;
+        <span class="kw">let </span>width = video_stream.width.unwrap_or(<span class="number">1920</span>) <span class="kw">as </span>f64 / ratio;
 
-        <span class="kw">let</span> <span class="ident">video_avc</span> <span class="op">=</span> <span class="ident">video_stream</span>
-            .<span class="ident">level</span>
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">level_to_tag</span>(<span class="ident">x</span>))
-            .<span class="ident">unwrap_or</span>(<span class="ident">get_avc1_tag</span>(
-                <span class="ident">width</span> <span class="kw">as</span> <span class="ident">u64</span>,
-                <span class="ident">quality</span>.<span class="ident">height</span>,
-                <span class="ident">quality</span>.<span class="ident">bitrate</span>,
+        <span class="kw">let </span>video_avc = video_stream
+            .level
+            .and_then(|x| level_to_tag(x))
+            .unwrap_or(get_avc1_tag(
+                width <span class="kw">as </span>u64,
+                quality.height,
+                quality.bitrate,
                 <span class="number">24</span>,
             ));
 
-        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">quality_to_label</span>(<span class="ident">quality</span>, <span class="prelude-val">Some</span>(<span class="ident">bitrate</span>));
+        <span class="kw">let </span>label = quality_to_label(quality, <span class="prelude-val">Some</span>(bitrate));
 
-        <span class="comment">// TODO: This code will not work correctly if there are similar resolutions with different</span>
-        <span class="comment">// brates.</span>
-        <span class="kw">let</span> <span class="ident">should_be_default</span> <span class="op">=</span> <span class="ident">should_stream_default</span>
-            <span class="op">|</span><span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">prefs</span>.<span class="ident">default_video_quality</span>, <span class="ident">DefaultVideoQuality::Resolution</span>(<span class="ident">res</span>, <span class="kw">_</span>) <span class="kw">if</span> <span class="ident">res</span> <span class="op">==</span> <span class="ident">quality</span>.<span class="ident">height</span>);
+        <span class="comment">// TODO: This code will not work correctly if there are similar resolutions with different
+        // brates.
+        </span><span class="kw">let </span>should_be_default = should_stream_default
+            || <span class="macro">matches!</span>(prefs.default_video_quality, DefaultVideoQuality::Resolution(res, <span class="kw">_</span>) <span class="kw">if </span>res == quality.height);
 
-        <span class="kw">let</span> <span class="ident">chunk_path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/data/$Number$.m4s&quot;</span>, <span class="ident">video</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">init_seg</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/data/init.mp4&quot;</span>, <span class="ident">video</span>.<span class="ident">clone</span>()));
-        <span class="kw">let</span> <span class="ident">virtual_manifest</span> <span class="op">=</span>
-            <span class="ident">VirtualManifest::new</span>(<span class="ident">video</span>.<span class="ident">clone</span>(), <span class="ident">chunk_path</span>, <span class="ident">init_seg</span>, <span class="ident">ContentType::Video</span>)
-                .<span class="ident">set_mime</span>(<span class="string">&quot;video/mp4&quot;</span>)
-                .<span class="ident">set_duration</span>(<span class="ident">info</span>.<span class="ident">get_duration</span>())
-                .<span class="ident">set_codecs</span>(<span class="ident">video_avc</span>.<span class="ident">to_string</span>())
-                .<span class="ident">set_bandwidth</span>(<span class="ident">bitrate</span>)
-                .<span class="ident">set_args</span>([(<span class="string">&quot;height&quot;</span>, <span class="ident">quality</span>.<span class="ident">height</span>)])
-                .<span class="ident">set_is_default</span>(<span class="ident">should_be_default</span>)
-                .<span class="ident">set_label</span>(<span class="ident">label</span>);
+        <span class="kw">let </span>chunk_path = <span class="macro">format!</span>(<span class="string">&quot;{}/data/$Number$.m4s&quot;</span>, video.clone());
+        <span class="kw">let </span>init_seg = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/data/init.mp4&quot;</span>, video.clone()));
+        <span class="kw">let </span>virtual_manifest =
+            VirtualManifest::new(video.clone(), chunk_path, init_seg, ContentType::Video)
+                .set_mime(<span class="string">&quot;video/mp4&quot;</span>)
+                .set_duration(info.get_duration())
+                .set_codecs(video_avc.to_string())
+                .set_bandwidth(bitrate)
+                .set_args([(<span class="string">&quot;height&quot;</span>, quality.height)])
+                .set_is_default(should_be_default)
+                .set_label(label);
 
-        <span class="ident">stream_tracking</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">gid</span>, <span class="ident">virtual_manifest</span>).<span class="kw">await</span>;
-        <span class="comment">// we wan to default only the first stream.</span>
-        <span class="kw">if</span> <span class="ident">should_be_default</span> {
-            <span class="ident">should_stream_default</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        stream_tracking.insert(<span class="kw-2">&amp;</span>gid, virtual_manifest).<span class="kw">await</span>;
+        <span class="comment">// we wan to default only the first stream.
+        </span><span class="kw">if </span>should_be_default {
+            should_stream_default = <span class="bool-val">false</span>;
         }
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_audio</span>(
-    <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">FFPStream</span>,
-    <span class="ident">media</span>: <span class="kw-2">&amp;</span><span class="ident">MediaFile</span>,
-    <span class="ident">stream_tracking</span>: <span class="kw-2">&amp;</span><span class="ident">StreamTracking</span>,
-    <span class="ident">gid</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
-    <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">StateManager</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">errors::StreamingErrors</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">audio_streams</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">find_by_type</span>(<span class="string">&quot;audio&quot;</span>);
+<span class="kw">pub async fn </span>create_audio(
+    info: <span class="kw-2">&amp;</span>FFPStream,
+    media: <span class="kw-2">&amp;</span>MediaFile,
+    stream_tracking: <span class="kw-2">&amp;</span>StreamTracking,
+    gid: <span class="kw-2">&amp;</span>Uuid,
+    state: <span class="kw-2">&amp;</span>StateManager,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), errors::StreamingErrors&gt; {
+    <span class="kw">let </span>audio_streams = info.find_by_type(<span class="string">&quot;audio&quot;</span>);
 
-    <span class="kw">for</span> <span class="ident">stream</span> <span class="kw">in</span> <span class="ident">audio_streams</span> {
-        <span class="kw">let</span> <span class="ident">is_default</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">get_primary</span>(<span class="string">&quot;audio&quot;</span>) <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">stream</span>);
-        <span class="kw">let</span> <span class="ident">bitrate</span> <span class="op">=</span> <span class="ident">stream</span>
-            .<span class="ident">bit_rate</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>().<span class="ident">ok</span>())
-            .<span class="ident">unwrap_or</span>(<span class="number">120_000</span>);
+    <span class="kw">for </span>stream <span class="kw">in </span>audio_streams {
+        <span class="kw">let </span>is_default = info.get_primary(<span class="string">&quot;audio&quot;</span>) == <span class="prelude-val">Some</span>(stream);
+        <span class="kw">let </span>bitrate = stream
+            .bit_rate
+            .as_ref()
+            .and_then(|x| x.parse::&lt;u64&gt;().ok())
+            .unwrap_or(<span class="number">120_000</span>);
 
-        <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">ProfileContext</span> {
-            <span class="ident">file</span>: <span class="ident">media</span>.<span class="ident">target_file</span>.<span class="ident">clone</span>(),
-            <span class="ident">input_ctx</span>: <span class="ident">stream</span>.<span class="ident">clone</span>().<span class="ident">into</span>(),
-            <span class="ident">output_ctx</span>: <span class="ident">OutputCtx</span> {
-                <span class="ident">codec</span>: <span class="string">&quot;aac&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">start_num</span>: <span class="number">0</span>,
-                <span class="ident">bitrate</span>: <span class="prelude-val">Some</span>(<span class="ident">bitrate</span>),
-                ..<span class="ident">Default::default</span>()
+        <span class="kw">let </span>ctx = ProfileContext {
+            file: media.target_file.clone(),
+            input_ctx: stream.clone().into(),
+            output_ctx: OutputCtx {
+                codec: <span class="string">&quot;aac&quot;</span>.into(),
+                start_num: <span class="number">0</span>,
+                bitrate: <span class="prelude-val">Some</span>(bitrate),
+                ..Default::default()
             },
-            ..<span class="ident">Default::default</span>()
+            ..Default::default()
         };
 
-        <span class="kw">let</span> <span class="ident">profile</span> <span class="op">=</span> <span class="ident">get_profile_for</span>(<span class="ident">StreamType::Audio</span>, <span class="kw-2">&amp;</span><span class="ident">ctx</span>);
-        <span class="kw">let</span> <span class="ident">audio</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">create</span>(<span class="ident">profile</span>, <span class="ident">ctx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>profile = get_profile_for(StreamType::Audio, <span class="kw-2">&amp;</span>ctx);
+        <span class="kw">let </span>audio = state.create(profile, ctx).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">audio_lang</span> <span class="op">=</span> <span class="ident">stream</span>
-            .<span class="ident">get_language</span>()
-            .<span class="ident">as_deref</span>()
-            .<span class="ident">and_then</span>(<span class="ident"><span class="kw">crate</span>::utils::lang_from_iso639</span>)
-            .<span class="ident">unwrap_or</span>(<span class="string">&quot;Unknown&quot;</span>);
+        <span class="kw">let </span>audio_lang = stream
+            .get_language()
+            .as_deref()
+            .and_then(<span class="kw">crate</span>::utils::lang_from_iso639)
+            .unwrap_or(<span class="string">&quot;Unknown&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">audio_codec</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::utils::codec_pretty</span>(<span class="ident">stream</span>.<span class="ident">get_codec</span>());
-        <span class="kw">let</span> <span class="ident">audio_ch</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::utils::channels_pretty</span>(<span class="ident">stream</span>.<span class="ident">channels</span>.<span class="ident">unwrap_or</span>(<span class="number">2</span>));
+        <span class="kw">let </span>audio_codec = <span class="kw">crate</span>::utils::codec_pretty(stream.get_codec());
+        <span class="kw">let </span>audio_ch = <span class="kw">crate</span>::utils::channels_pretty(stream.channels.unwrap_or(<span class="number">2</span>));
 
-        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{} ({} {})&quot;</span>, <span class="ident">audio_lang</span>, <span class="ident">audio_codec</span>, <span class="ident">audio_ch</span>);
+        <span class="kw">let </span>label = <span class="macro">format!</span>(<span class="string">&quot;{} ({} {})&quot;</span>, audio_lang, audio_codec, audio_ch);
 
-        <span class="kw">let</span> <span class="ident">chunk_path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/data/$Number$.m4s&quot;</span>, <span class="ident">audio</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">init_seg</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/data/init.mp4&quot;</span>, <span class="ident">audio</span>.<span class="ident">clone</span>()));
-        <span class="kw">let</span> <span class="ident">virtual_manifest</span> <span class="op">=</span>
-            <span class="ident">VirtualManifest::new</span>(<span class="ident">audio</span>.<span class="ident">clone</span>(), <span class="ident">chunk_path</span>, <span class="ident">init_seg</span>, <span class="ident">ContentType::Audio</span>)
-                .<span class="ident">set_mime</span>(<span class="string">&quot;audio/mp4&quot;</span>)
-                .<span class="ident">set_codecs</span>(<span class="string">&quot;mp4a.40.2&quot;</span>)
-                .<span class="ident">set_bandwidth</span>(<span class="ident">bitrate</span>)
-                .<span class="ident">set_is_default</span>(<span class="ident">is_default</span>)
-                .<span class="ident">set_label</span>(<span class="ident">label</span>)
-                .<span class="ident">set_lang</span>(<span class="ident">stream</span>.<span class="ident">get_language</span>());
+        <span class="kw">let </span>chunk_path = <span class="macro">format!</span>(<span class="string">&quot;{}/data/$Number$.m4s&quot;</span>, audio.clone());
+        <span class="kw">let </span>init_seg = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/data/init.mp4&quot;</span>, audio.clone()));
+        <span class="kw">let </span>virtual_manifest =
+            VirtualManifest::new(audio.clone(), chunk_path, init_seg, ContentType::Audio)
+                .set_mime(<span class="string">&quot;audio/mp4&quot;</span>)
+                .set_codecs(<span class="string">&quot;mp4a.40.2&quot;</span>)
+                .set_bandwidth(bitrate)
+                .set_is_default(is_default)
+                .set_label(label)
+                .set_lang(stream.get_language());
 
-        <span class="ident">stream_tracking</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">gid</span>, <span class="ident">virtual_manifest</span>).<span class="kw">await</span>;
+        stream_tracking.insert(<span class="kw-2">&amp;</span>gid, virtual_manifest).<span class="kw">await</span>;
     }
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_subtitles</span>(
-    <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">FFPStream</span>,
-    <span class="ident">media</span>: <span class="kw-2">&amp;</span><span class="ident">MediaFile</span>,
-    <span class="ident">stream_tracking</span>: <span class="kw-2">&amp;</span><span class="ident">StreamTracking</span>,
-    <span class="ident">gid</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
-    <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">StateManager</span>,
-    <span class="ident">force_ass</span>: <span class="ident">bool</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">errors::StreamingErrors</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">subtitles</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">find_by_type</span>(<span class="string">&quot;subtitle&quot;</span>);
+<span class="kw">pub async fn </span>create_subtitles(
+    info: <span class="kw-2">&amp;</span>FFPStream,
+    media: <span class="kw-2">&amp;</span>MediaFile,
+    stream_tracking: <span class="kw-2">&amp;</span>StreamTracking,
+    gid: <span class="kw-2">&amp;</span>Uuid,
+    state: <span class="kw-2">&amp;</span>StateManager,
+    force_ass: bool,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), errors::StreamingErrors&gt; {
+    <span class="kw">let </span>subtitles = info.find_by_type(<span class="string">&quot;subtitle&quot;</span>);
 
-    <span class="kw">for</span> <span class="ident">stream</span> <span class="kw">in</span> <span class="ident">subtitles</span> {
-        <span class="kw">let</span> <span class="ident">is_default</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">get_primary</span>(<span class="string">&quot;subtitle&quot;</span>) <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">stream</span>);
-        <span class="kw">let</span> <span class="ident">is_ssa</span> <span class="op">=</span> [<span class="string">&quot;ssa&quot;</span>, <span class="string">&quot;ass&quot;</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">stream</span>.<span class="ident">codec_name</span>.<span class="ident">as_str</span>()) <span class="op">&amp;&amp;</span> <span class="ident">force_ass</span>;
+    <span class="kw">for </span>stream <span class="kw">in </span>subtitles {
+        <span class="kw">let </span>is_default = info.get_primary(<span class="string">&quot;subtitle&quot;</span>) == <span class="prelude-val">Some</span>(stream);
+        <span class="kw">let </span>is_ssa = [<span class="string">&quot;ssa&quot;</span>, <span class="string">&quot;ass&quot;</span>].contains(<span class="kw-2">&amp;</span>stream.codec_name.as_str()) &amp;&amp; force_ass;
 
-        <span class="kw">if</span> <span class="op">!</span>[<span class="string">&quot;subrip&quot;</span>, <span class="string">&quot;ass&quot;</span>, <span class="string">&quot;ssa&quot;</span>, <span class="string">&quot;srt&quot;</span>, <span class="string">&quot;webvtt&quot;</span>, <span class="string">&quot;vtt&quot;</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">stream</span>.<span class="ident">codec_name</span>.<span class="ident">as_str</span>()) {
-            <span class="comment">// FIXME: hdmv_pgs_subtitle are not supported yet.</span>
-            <span class="kw">continue</span>;
+        <span class="kw">if </span>![<span class="string">&quot;subrip&quot;</span>, <span class="string">&quot;ass&quot;</span>, <span class="string">&quot;ssa&quot;</span>, <span class="string">&quot;srt&quot;</span>, <span class="string">&quot;webvtt&quot;</span>, <span class="string">&quot;vtt&quot;</span>].contains(<span class="kw-2">&amp;</span>stream.codec_name.as_str()) {
+            <span class="comment">// FIXME: hdmv_pgs_subtitle are not supported yet.
+            </span><span class="kw">continue</span>;
         }
 
-        <span class="kw">let</span> (<span class="ident">mime</span>, <span class="ident">codec</span>, <span class="ident">output_codec</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_ssa</span> {
+        <span class="kw">let </span>(mime, codec, output_codec) = <span class="kw">if </span>is_ssa {
             (<span class="string">&quot;text/ass&quot;</span>, <span class="string">&quot;ass&quot;</span>, <span class="string">&quot;ass&quot;</span>)
-        } <span class="kw">else</span> {
+        } <span class="kw">else </span>{
             (<span class="string">&quot;text/vtt&quot;</span>, <span class="string">&quot;vtt&quot;</span>, <span class="string">&quot;webvtt&quot;</span>)
         };
 
-        <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">ProfileContext</span> {
-            <span class="ident">file</span>: <span class="ident">media</span>.<span class="ident">target_file</span>.<span class="ident">clone</span>(),
-            <span class="ident">input_ctx</span>: <span class="ident">stream</span>.<span class="ident">clone</span>().<span class="ident">into</span>(),
-            <span class="ident">output_ctx</span>: <span class="ident">OutputCtx</span> {
-                <span class="ident">codec</span>: <span class="ident">output_codec</span>.<span class="ident">into</span>(),
-                <span class="ident">outdir</span>: <span class="string">&quot;-&quot;</span>.<span class="ident">into</span>(),
-                ..<span class="ident">Default::default</span>()
+        <span class="kw">let </span>ctx = ProfileContext {
+            file: media.target_file.clone(),
+            input_ctx: stream.clone().into(),
+            output_ctx: OutputCtx {
+                codec: output_codec.into(),
+                outdir: <span class="string">&quot;-&quot;</span>.into(),
+                ..Default::default()
             },
-            ..<span class="ident">Default::default</span>()
+            ..Default::default()
         };
 
-        <span class="kw">let</span> <span class="ident">lang</span> <span class="op">=</span> <span class="ident">stream</span>
-            .<span class="ident">get_language</span>()
-            .<span class="ident">as_deref</span>()
-            .<span class="ident">and_then</span>(<span class="ident"><span class="kw">crate</span>::utils::lang_from_iso639</span>)
-            .<span class="ident">unwrap_or</span>(<span class="string">&quot;Unknown&quot;</span>)
-            .<span class="ident">to_string</span>();
+        <span class="kw">let </span>lang = stream
+            .get_language()
+            .as_deref()
+            .and_then(<span class="kw">crate</span>::utils::lang_from_iso639)
+            .unwrap_or(<span class="string">&quot;Unknown&quot;</span>)
+            .to_string();
 
-        <span class="kw">let</span> <span class="ident">title</span> <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">get_title</span>().<span class="ident">unwrap_or</span>(<span class="ident">lang</span>.<span class="ident">clone</span>());
+        <span class="kw">let </span>title = stream.get_title().unwrap_or(lang.clone());
 
-        <span class="kw">let</span> <span class="ident">profile_chain</span> <span class="op">=</span> <span class="ident">get_profile_for</span>(<span class="ident">StreamType::Subtitle</span>, <span class="kw-2">&amp;</span><span class="ident">ctx</span>);
-        <span class="kw">let</span> <span class="ident">subtitle</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">create</span>(<span class="ident">profile_chain</span>, <span class="ident">ctx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>profile_chain = get_profile_for(StreamType::Subtitle, <span class="kw-2">&amp;</span>ctx);
+        <span class="kw">let </span>subtitle = state.create(profile_chain, ctx).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">chunk_path</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_ssa</span> {
-            <span class="macro">format!</span>(<span class="string">&quot;{}/data/stream.ass&quot;</span>, <span class="ident">subtitle</span>.<span class="ident">clone</span>())
-        } <span class="kw">else</span> {
-            <span class="macro">format!</span>(<span class="string">&quot;{}/data/stream.vtt&quot;</span>, <span class="ident">subtitle</span>.<span class="ident">clone</span>())
+        <span class="kw">let </span>chunk_path = <span class="kw">if </span>is_ssa {
+            <span class="macro">format!</span>(<span class="string">&quot;{}/data/stream.ass&quot;</span>, subtitle.clone())
+        } <span class="kw">else </span>{
+            <span class="macro">format!</span>(<span class="string">&quot;{}/data/stream.vtt&quot;</span>, subtitle.clone())
         };
 
-        <span class="kw">let</span> <span class="ident">virtual_manifest</span> <span class="op">=</span>
-            <span class="ident">VirtualManifest::new</span>(<span class="ident">subtitle</span>.<span class="ident">clone</span>(), <span class="ident">chunk_path</span>, <span class="prelude-val">None</span>, <span class="ident">ContentType::Subtitle</span>)
-                .<span class="ident">set_mime</span>(<span class="ident">mime</span>)
-                .<span class="ident">set_codecs</span>(<span class="ident">codec</span>)
-                .<span class="ident">set_bandwidth</span>(<span class="number">1024</span>)
-                .<span class="ident">set_is_default</span>(<span class="ident">is_default</span>)
-                .<span class="ident">set_label</span>(<span class="ident">stream</span>.<span class="ident">get_title</span>().<span class="ident">unwrap_or</span>(<span class="ident">lang</span>.<span class="ident">clone</span>()))
-                .<span class="ident">set_lang</span>(<span class="ident">stream</span>.<span class="ident">get_language</span>());
+        <span class="kw">let </span>virtual_manifest =
+            VirtualManifest::new(subtitle.clone(), chunk_path, <span class="prelude-val">None</span>, ContentType::Subtitle)
+                .set_mime(mime)
+                .set_codecs(codec)
+                .set_bandwidth(<span class="number">1024</span>)
+                .set_is_default(is_default)
+                .set_label(stream.get_title().unwrap_or(lang.clone()))
+                .set_lang(stream.get_language());
 
-        <span class="kw">let</span> <span class="ident">title</span> <span class="op">=</span> <span class="ident">title</span>.<span class="ident">replace</span>(<span class="string">&quot;&amp;&quot;</span>, <span class="string">&quot;and&quot;</span>); <span class="comment">// dash.js seems to note like when there are `&amp;` within titles.</span>
-        <span class="kw">let</span> <span class="ident">virtual_manifest</span> <span class="op">=</span> <span class="ident">virtual_manifest</span>.<span class="ident">set_args</span>([(<span class="string">&quot;title&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">title</span>)]);
+        <span class="kw">let </span>title = title.replace(<span class="string">&quot;&amp;&quot;</span>, <span class="string">&quot;and&quot;</span>); <span class="comment">// dash.js seems to note like when there are `&amp;` within titles.
+        </span><span class="kw">let </span>virtual_manifest = virtual_manifest.set_args([(<span class="string">&quot;title&quot;</span>.to_string(), title)]);
 
-        <span class="ident">stream_tracking</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">gid</span>, <span class="ident">virtual_manifest</span>).<span class="kw">await</span>;
+        stream_tracking.insert(<span class="kw-2">&amp;</span>gid, virtual_manifest).<span class="kw">await</span>;
     }
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;gid&gt;/manifest.mpd` compiles a virtual manifest into a</span>
-<span class="doccomment">/// mpeg-dash manifest.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Query args</span>
-<span class="doccomment">/// * `start_num` - first chunk number</span>
-<span class="doccomment">/// * `should_kill` - indicates whether we should clean old streams up while compiling the</span>
-<span class="doccomment">/// manifest.</span>
-<span class="doccomment">/// * `includes` - ids of streams to include, comma separated.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">return_manifest</span>(
-    <span class="ident">state</span>: <span class="ident">StateManager</span>,
-    <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span>,
-    <span class="ident">_auth</span>: <span class="ident">User</span>,
-    <span class="ident">_conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">gid</span>: <span class="ident">Uuid</span>,
-    <span class="ident">start_num</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
-    <span class="ident">should_kill</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
-    <span class="ident">includes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::StreamingErrors</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">should_kill</span>.<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>) {
-        <span class="kw">let</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">stream_tracking</span>
-            .<span class="ident">get_for_gid</span>(<span class="kw-2">&amp;</span><span class="ident">gid</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">x</span>.<span class="ident">content_type</span>, <span class="ident">ContentType::Video</span> <span class="op">|</span> <span class="ident">ContentType::Audio</span>))
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">id</span>)
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="ident">stream_tracking</span>.<span class="ident">kill</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">gid</span>, <span class="ident">ids</span>, <span class="bool-val">true</span>).<span class="kw">await</span>;
+<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;gid&gt;/manifest.mpd` compiles a virtual manifest into a
+/// mpeg-dash manifest.
+///
+/// # Query args
+/// * `start_num` - first chunk number
+/// * `should_kill` - indicates whether we should clean old streams up while compiling the
+/// manifest.
+/// * `includes` - ids of streams to include, comma separated.
+</span><span class="kw">pub async fn </span>return_manifest(
+    state: StateManager,
+    stream_tracking: StreamTracking,
+    _auth: User,
+    _conn: DbConnection,
+    gid: Uuid,
+    start_num: <span class="prelude-ty">Option</span>&lt;u64&gt;,
+    should_kill: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+    includes: <span class="prelude-ty">Option</span>&lt;String&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::StreamingErrors&gt; {
+    <span class="kw">if </span>should_kill.unwrap_or(<span class="bool-val">true</span>) {
+        <span class="kw">let </span>ids = stream_tracking
+            .get_for_gid(<span class="kw-2">&amp;</span>gid)
+            .<span class="kw">await
+            </span>.into_iter()
+            .filter(|x| !<span class="macro">matches!</span>(x.content_type, ContentType::Video | ContentType::Audio))
+            .map(|x| x.id)
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        stream_tracking.kill(<span class="kw-2">&amp;</span>state, <span class="kw-2">&amp;</span>gid, ids, <span class="bool-val">true</span>).<span class="kw">await</span>;
     }
 
-    <span class="kw">let</span> <span class="ident">manifest</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">includes</span>) <span class="op">=</span> <span class="ident">includes</span> {
-        <span class="kw">let</span> <span class="ident">includes</span> <span class="op">=</span> <span class="ident">includes</span>
-            .<span class="ident">split</span>(<span class="string">&quot;,&quot;</span>)
-            .<span class="ident">map</span>(<span class="ident">ToString::to_string</span>)
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+    <span class="kw">let </span>manifest = <span class="kw">if let </span><span class="prelude-val">Some</span>(includes) = includes {
+        <span class="kw">let </span>includes = includes
+            .split(<span class="string">&quot;,&quot;</span>)
+            .map(ToString::to_string)
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        <span class="ident">stream_tracking</span>
-            .<span class="ident">compile_only</span>(<span class="kw-2">&amp;</span><span class="ident">gid</span>, <span class="ident">start_num</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>), <span class="ident">includes</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>()
-    } <span class="kw">else</span> {
-        <span class="ident">stream_tracking</span>
-            .<span class="ident">compile</span>(<span class="kw-2">&amp;</span><span class="ident">gid</span>, <span class="ident">start_num</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>))
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>()
+        stream_tracking
+            .compile_only(<span class="kw-2">&amp;</span>gid, start_num.unwrap_or(<span class="number">0</span>), includes)
+            .<span class="kw">await
+            </span>.unwrap()
+    } <span class="kw">else </span>{
+        stream_tracking
+            .compile(<span class="kw-2">&amp;</span>gid, start_num.unwrap_or(<span class="number">0</span>))
+            .<span class="kw">await
+            </span>.unwrap()
     };
 
-    <span class="prelude-val">Ok</span>(<span class="ident">warp::reply::with_header</span>(
-        <span class="ident">manifest</span>,
+    <span class="prelude-val">Ok</span>(warp::reply::with_header(
+        manifest,
         <span class="string">&quot;Content-Type&quot;</span>,
         <span class="string">&quot;application/dash+xml&quot;</span>,
     ))
 }
 
-<span class="doccomment">/// Repeatedly invoke a nightfall routine until a timeout occurs waiting for a chunk to be &quot;ready&quot;.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `tick_dur` will the the duration amount that gets passed into `std::thread::sleep` and it will</span>
-<span class="doccomment">/// block for AT MOST `tick_limit` ticks. When a the tick limit has been hit `None` is returned</span>
-<span class="doccomment">/// otherwise `Some(Result&lt;T, NightfallError&gt;)` is returned.</span>
-<span class="doccomment">///</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">timeout_segment</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(
-    <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">Fn</span>() -&gt; <span class="ident">F</span>,
-    <span class="ident">tick_dur</span>: <span class="ident">Duration</span>,
-    <span class="ident">tick_limit</span>: <span class="ident">usize</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">NightfallError</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">NightfallError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Repeatedly invoke a nightfall routine until a timeout occurs waiting for a chunk to be &quot;ready&quot;.
+///
+/// `tick_dur` will the the duration amount that gets passed into `std::thread::sleep` and it will
+/// block for AT MOST `tick_limit` ticks. When a the tick limit has been hit `None` is returned
+/// otherwise `Some(Result&lt;T, NightfallError&gt;)` is returned.
+///
+</span><span class="kw">async fn </span>timeout_segment&lt;F, T&gt;(
+    f: <span class="kw">impl </span>Fn() -&gt; F,
+    tick_dur: Duration,
+    tick_limit: usize,
+) -&gt; <span class="prelude-ty">Result</span>&lt;T, NightfallError&gt;
+<span class="kw">where
+    </span>F: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;T, NightfallError&gt;&gt;,
 {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ticks</span> <span class="op">=</span> <span class="number">0usize</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>ticks = <span class="number">0usize</span>;
 
-    <span class="kw">loop</span> {
-        <span class="kw">if</span> <span class="ident">ticks</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">tick_limit</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NightfallError::ChunkNotDone</span>.<span class="ident">into</span>());
+    <span class="kw">loop </span>{
+        <span class="kw">if </span>ticks &gt;= tick_limit {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(NightfallError::ChunkNotDone.into());
         }
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">f</span>().<span class="kw">await</span>;
+        <span class="kw">let </span>result = f().<span class="kw">await</span>;
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">NightfallError::ChunkNotDone</span>) <span class="op">=</span> <span class="ident">result</span> {
-            <span class="ident">ticks</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="ident">tokio::time::sleep</span>(<span class="ident">tick_dur</span>).<span class="kw">await</span>;
-        } <span class="kw">else</span> {
-            <span class="kw">break</span> <span class="ident">result</span>;
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(NightfallError::ChunkNotDone) = result {
+            ticks += <span class="number">1</span>;
+            tokio::time::sleep(tick_dur).<span class="kw">await</span>;
+        } <span class="kw">else </span>{
+            <span class="kw">break </span>result;
         }
     }
 }
 
-<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;id&gt;/data/init.mp4` returns the init chunk of the stream `id`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Query args</span>
-<span class="doccomment">/// * `start_num` - first chunk index</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_init</span>(
-    <span class="ident">state</span>: <span class="ident">StateManager</span>,
-    <span class="ident">id</span>: <span class="ident">String</span>,
-    <span class="ident">start_num</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::StreamingErrors</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">timeout_segment</span>(
-        <span class="op">|</span><span class="op">|</span> <span class="ident">state</span>.<span class="ident">chunk_init_request</span>(<span class="ident">id</span>.<span class="ident">clone</span>(), <span class="ident">start_num</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>)),
-        <span class="ident">Duration::from_millis</span>(<span class="number">100</span>),
+<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;id&gt;/data/init.mp4` returns the init chunk of the stream `id`.
+///
+/// # Query args
+/// * `start_num` - first chunk index
+</span><span class="kw">pub async fn </span>get_init(
+    state: StateManager,
+    id: String,
+    start_num: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::StreamingErrors&gt; {
+    <span class="kw">let </span>path: String = timeout_segment(
+        || state.chunk_init_request(id.clone(), start_num.unwrap_or(<span class="number">0</span>)),
+        Duration::from_millis(<span class="number">100</span>),
         <span class="number">100</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">reply_with_file</span>(<span class="ident">path</span>, (<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;video/mp4&quot;</span>)).<span class="kw">await</span>)
+    <span class="prelude-val">Ok</span>(reply_with_file(path, (<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;video/mp4&quot;</span>)).<span class="kw">await</span>)
 }
 
-<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;id&gt;/data/&lt;chunk..&gt;` returns a chunk for stream `id`.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chunk</span>(
-    <span class="ident">state</span>: <span class="ident">StateManager</span>,
-    <span class="ident">id</span>: <span class="ident">String</span>,
-    <span class="ident">chunk</span>: <span class="ident">PathBuf</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::StreamingErrors</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="ident">chunk</span>
-        .<span class="ident">extension</span>()
-        .<span class="ident">ok_or</span>(<span class="ident">errors::StreamingErrors::InvalidRequest</span>)<span class="question-mark">?</span>
-        .<span class="ident">to_string_lossy</span>()
-        .<span class="ident">into_owned</span>();
+<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;id&gt;/data/&lt;chunk..&gt;` returns a chunk for stream `id`.
+</span><span class="kw">pub async fn </span>get_chunk(
+    state: StateManager,
+    id: String,
+    chunk: PathBuf,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::StreamingErrors&gt; {
+    <span class="kw">let </span>extension = chunk
+        .extension()
+        .ok_or(errors::StreamingErrors::InvalidRequest)<span class="question-mark">?
+        </span>.to_string_lossy()
+        .into_owned();
 
-    <span class="comment">// Chunks will always be m4s or mp4</span>
-    <span class="kw">if</span> <span class="ident">extension</span>.<span class="ident">as_str</span>() <span class="op">!</span><span class="op">=</span> <span class="string">&quot;m4s&quot;</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">errors::StreamingErrors::InvalidRequest</span>);
+    <span class="comment">// Chunks will always be m4s or mp4
+    </span><span class="kw">if </span>extension.as_str() != <span class="string">&quot;m4s&quot; </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(errors::StreamingErrors::InvalidRequest);
     }
 
-    <span class="comment">// Parse the chunk filename into a u64, we unwrap_or because sometimes it can be a init chunk,</span>
-    <span class="comment">// if its a init chunk we assume a chunk index of 0 because we are fetching the first few</span>
-    <span class="comment">// chunks.</span>
-    <span class="kw">let</span> <span class="ident">chunk_num</span> <span class="op">=</span> <span class="ident">chunk</span>
-        .<span class="ident">file_stem</span>()
-        .<span class="ident">ok_or</span>(<span class="ident">errors::StreamingErrors::InvalidRequest</span>)<span class="question-mark">?</span>
-        .<span class="ident">to_string_lossy</span>()
-        .<span class="ident">into_owned</span>()
-        .<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>()
-        .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
+    <span class="comment">// Parse the chunk filename into a u64, we unwrap_or because sometimes it can be a init chunk,
+    // if its a init chunk we assume a chunk index of 0 because we are fetching the first few
+    // chunks.
+    </span><span class="kw">let </span>chunk_num = chunk
+        .file_stem()
+        .ok_or(errors::StreamingErrors::InvalidRequest)<span class="question-mark">?
+        </span>.to_string_lossy()
+        .into_owned()
+        .parse::&lt;u32&gt;()
+        .unwrap_or(<span class="number">0</span>);
 
-    <span class="kw">let</span> <span class="ident">path</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">timeout_segment</span>(
-        <span class="op">|</span><span class="op">|</span> <span class="ident">state</span>.<span class="ident">chunk_request</span>(<span class="ident">id</span>.<span class="ident">clone</span>(), <span class="ident">chunk_num</span>),
-        <span class="ident">Duration::from_millis</span>(<span class="number">100</span>),
+    <span class="kw">let </span>path: String = timeout_segment(
+        || state.chunk_request(id.clone(), chunk_num),
+        Duration::from_millis(<span class="number">100</span>),
         <span class="number">100</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">reply_with_file</span>(<span class="ident">path</span>, (<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;video/mp4&quot;</span>)).<span class="kw">await</span>)
+    <span class="prelude-val">Ok</span>(reply_with_file(path, (<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;video/mp4&quot;</span>)).<span class="kw">await</span>)
 }
 
-<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;id&gt;/data/stream.vtt` attempts to transcode the underlying</span>
-<span class="doccomment">/// stream to VTT.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Arguments</span>
-<span class="doccomment">/// * `id` - id of the underlying stream (Must be a subtitle stream of non-bitmap format).</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_subtitle</span>(
-    <span class="ident">state</span>: <span class="ident">StateManager</span>,
-    <span class="ident">id</span>: <span class="ident">String</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::StreamingErrors</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">timeout_segment</span>(
-        <span class="op">|</span><span class="op">|</span> <span class="ident">state</span>.<span class="ident">get_sub</span>(<span class="ident">id</span>.<span class="ident">clone</span>(), <span class="string">&quot;stream&quot;</span>.<span class="ident">into</span>()),
-        <span class="ident">Duration::from_millis</span>(<span class="number">100</span>),
+<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;id&gt;/data/stream.vtt` attempts to transcode the underlying
+/// stream to VTT.
+///
+/// # Arguments
+/// * `id` - id of the underlying stream (Must be a subtitle stream of non-bitmap format).
+</span><span class="kw">pub async fn </span>get_subtitle(
+    state: StateManager,
+    id: String,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::StreamingErrors&gt; {
+    <span class="kw">let </span>path: String = timeout_segment(
+        || state.get_sub(id.clone(), <span class="string">&quot;stream&quot;</span>.into()),
+        Duration::from_millis(<span class="number">100</span>),
         <span class="number">200</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">reply_with_file</span>(<span class="ident">path</span>, (<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;text/vtt&quot;</span>)).<span class="kw">await</span>)
+    <span class="prelude-val">Ok</span>(reply_with_file(path, (<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;text/vtt&quot;</span>)).<span class="kw">await</span>)
 }
 
-<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;id&gt;/data/stream.ass` attempts to transcode the underlying</span>
-<span class="doccomment">/// stream to ASS.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Arguments</span>
-<span class="doccomment">/// * `id` - id of the underlying stream (Must be a subtitle stream of non-bitmap format).</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_subtitle_ass</span>(
-    <span class="ident">state</span>: <span class="ident">StateManager</span>,
-    <span class="ident">id</span>: <span class="ident">String</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::StreamingErrors</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">timeout_segment</span>(
-        <span class="op">|</span><span class="op">|</span> <span class="kw">async</span> {
-            <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">has_started</span>(<span class="ident">id</span>.<span class="ident">clone</span>()).<span class="kw">await</span>.<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>) {
-                <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">is_done</span>(<span class="ident">id</span>.<span class="ident">clone</span>()).<span class="kw">await</span>.<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>) {
-                    <span class="kw">return</span> <span class="ident">state</span>.<span class="ident">get_sub</span>(<span class="ident">id</span>.<span class="ident">clone</span>(), <span class="string">&quot;stream&quot;</span>.<span class="ident">into</span>()).<span class="kw">await</span>;
+<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;id&gt;/data/stream.ass` attempts to transcode the underlying
+/// stream to ASS.
+///
+/// # Arguments
+/// * `id` - id of the underlying stream (Must be a subtitle stream of non-bitmap format).
+</span><span class="kw">pub async fn </span>get_subtitle_ass(
+    state: StateManager,
+    id: String,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::StreamingErrors&gt; {
+    <span class="kw">let </span>path: String = timeout_segment(
+        || <span class="kw">async </span>{
+            <span class="kw">if </span>state.has_started(id.clone()).<span class="kw">await</span>.unwrap_or(<span class="bool-val">false</span>) {
+                <span class="kw">if </span>state.is_done(id.clone()).<span class="kw">await</span>.unwrap_or(<span class="bool-val">false</span>) {
+                    <span class="kw">return </span>state.get_sub(id.clone(), <span class="string">&quot;stream&quot;</span>.into()).<span class="kw">await</span>;
                 }
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">start</span>(<span class="ident">id</span>.<span class="ident">clone</span>()).<span class="kw">await</span>;
+            } <span class="kw">else </span>{
+                <span class="kw">let _ </span>= state.start(id.clone()).<span class="kw">await</span>;
             }
 
-            <span class="prelude-val">Err</span>(<span class="ident">NightfallError::ChunkNotDone</span>)
+            <span class="prelude-val">Err</span>(NightfallError::ChunkNotDone)
         },
-        <span class="ident">Duration::from_millis</span>(<span class="number">100</span>),
+        Duration::from_millis(<span class="number">100</span>),
         <span class="number">200</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">reply_with_file</span>(<span class="ident">path</span>, (<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;text/ass&quot;</span>)).<span class="kw">await</span>)
+    <span class="prelude-val">Ok</span>(reply_with_file(path, (<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;text/ass&quot;</span>)).<span class="kw">await</span>)
 }
 
-<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;gid&gt;/state/should_hard_seek/&lt;chunk_num&gt;` returns whether the</span>
-<span class="doccomment">/// client should hard seek in order to play the video at `chunk_num`. This is really only useful</span>
-<span class="doccomment">/// on web platforms.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">should_client_hard_seek</span>(
-    <span class="ident">state</span>: <span class="ident">StateManager</span>,
-    <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span>,
-    <span class="ident">gid</span>: <span class="ident">Uuid</span>,
-    <span class="ident">chunk_num</span>: <span class="ident">u32</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::StreamingErrors</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">stream_tracking</span>.<span class="ident">get_for_gid</span>(<span class="kw-2">&amp;</span><span class="ident">gid</span>).<span class="kw">await</span>;
+<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;gid&gt;/state/should_hard_seek/&lt;chunk_num&gt;` returns whether the
+/// client should hard seek in order to play the video at `chunk_num`. This is really only useful
+/// on web platforms.
+</span><span class="kw">pub async fn </span>should_client_hard_seek(
+    state: StateManager,
+    stream_tracking: StreamTracking,
+    gid: Uuid,
+    chunk_num: u32,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::StreamingErrors&gt; {
+    <span class="kw">let </span>ids = stream_tracking.get_for_gid(<span class="kw-2">&amp;</span>gid).<span class="kw">await</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">should_client_hard_seek</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>should_client_hard_seek = <span class="bool-val">false</span>;
 
-    <span class="kw">for</span> <span class="ident">manifest</span> <span class="kw">in</span> <span class="ident">ids</span> {
-        <span class="ident">should_client_hard_seek</span> <span class="op">|</span><span class="op">=</span> <span class="ident">state</span>.<span class="ident">should_hard_seek</span>(<span class="ident">manifest</span>.<span class="ident">id</span>, <span class="ident">chunk_num</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">for </span>manifest <span class="kw">in </span>ids {
+        should_client_hard_seek |= state.should_hard_seek(manifest.id, chunk_num).<span class="kw">await</span><span class="question-mark">?</span>;
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
-        <span class="string">&quot;should_client_seek&quot;</span>: <span class="ident">should_client_hard_seek</span>,
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
+        <span class="string">&quot;should_client_seek&quot;</span>: should_client_hard_seek,
     })))
 }
 
-<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;gid&gt;/state/get_stderr` attempts to fetch and return the</span>
-<span class="doccomment">/// stderr logs of all ffmpeg streams for `gid`.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">session_get_stderr</span>(
-    <span class="ident">state</span>: <span class="ident">StateManager</span>,
-    <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span>,
-    <span class="ident">gid</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::StreamingErrors</span><span class="op">&gt;</span> {
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
-    <span class="string">&quot;errors&quot;</span>: <span class="ident">stream::iter</span>(<span class="ident">stream_tracking</span>
-        .<span class="ident">get_for_gid</span>(<span class="kw-2">&amp;</span><span class="ident">gid</span>)
+<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;gid&gt;/state/get_stderr` attempts to fetch and return the
+/// stderr logs of all ffmpeg streams for `gid`.
+</span><span class="kw">pub async fn </span>session_get_stderr(
+    state: StateManager,
+    stream_tracking: StreamTracking,
+    gid: Uuid,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::StreamingErrors&gt; {
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
+    <span class="string">&quot;errors&quot;</span>: stream::iter(stream_tracking
+        .get_for_gid(<span class="kw-2">&amp;</span>gid)
         .<span class="kw">await</span>)
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw">async</span> { <span class="ident">state</span>.<span class="ident">get_stderr</span>(<span class="ident">x</span>.<span class="ident">id</span>).<span class="kw">await</span>.<span class="ident">ok</span>() })
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="kw">await</span>,
+        .filter_map(|x| <span class="kw">async </span>{ state.get_stderr(x.id).<span class="kw">await</span>.ok() })
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().<span class="kw">await</span>,
     })))
 }
 
-<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;gid&gt;/state/kill` will kill all streams for `gid`.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">kill_session</span>(
-    <span class="ident">state</span>: <span class="ident">StateManager</span>,
-    <span class="ident">stream_tracking</span>: <span class="ident">StreamTracking</span>,
-    <span class="ident">gid</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::StreamingErrors</span><span class="op">&gt;</span> {
-    <span class="kw">for</span> <span class="ident">manifest</span> <span class="kw">in</span> <span class="ident">stream_tracking</span>.<span class="ident">get_for_gid</span>(<span class="kw-2">&amp;</span><span class="ident">gid</span>).<span class="kw">await</span> {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">die</span>(<span class="ident">manifest</span>.<span class="ident">id</span>).<span class="kw">await</span>;
+<span class="doccomment">/// Method mapped to `/api/v1/stream/&lt;gid&gt;/state/kill` will kill all streams for `gid`.
+</span><span class="kw">pub async fn </span>kill_session(
+    state: StateManager,
+    stream_tracking: StreamTracking,
+    gid: Uuid,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::StreamingErrors&gt; {
+    <span class="kw">for </span>manifest <span class="kw">in </span>stream_tracking.get_for_gid(<span class="kw-2">&amp;</span>gid).<span class="kw">await </span>{
+        <span class="kw">let _ </span>= state.die(manifest.id).<span class="kw">await</span>;
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">StatusCode::NO_CONTENT</span>)
+    <span class="prelude-val">Ok</span>(StatusCode::NO_CONTENT)
 }
 
-<span class="kw">use</span> <span class="ident">tokio::io::AsyncReadExt</span>;
-<span class="kw">use</span> <span class="ident">warp::http::response::Response</span>;
-<span class="kw">use</span> <span class="ident">warp::hyper::body::Body</span>;
+<span class="kw">use </span>tokio::io::AsyncReadExt;
+<span class="kw">use </span>warp::http::response::Response;
+<span class="kw">use </span>warp::hyper::body::Body;
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">reply_with_file</span>(<span class="ident">file</span>: <span class="ident">String</span>, <span class="ident">header</span>: (<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>)) -&gt; <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">file</span>) <span class="op">=</span> <span class="ident">File::open</span>(<span class="ident">file</span>).<span class="kw">await</span> {
-        <span class="comment">// FIXME: Super ugly temporary solution (might be slow)</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="kw">await</span>;
+<span class="kw">async fn </span>reply_with_file(file: String, header: (<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)) -&gt; Response&lt;Body&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>file) = File::open(file).<span class="kw">await </span>{
+        <span class="comment">// FIXME: Super ugly temporary solution (might be slow)
+        </span><span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::new();
+        <span class="kw">let _ </span>= file.read_to_end(<span class="kw-2">&amp;mut </span>buf).<span class="kw">await</span>;
 
-        <span class="ident">Response::builder</span>()
-            .<span class="ident">header</span>(<span class="ident">header</span>.<span class="number">0</span>, <span class="ident">header</span>.<span class="number">1</span>)
-            .<span class="ident">status</span>(<span class="ident">StatusCode::OK</span>)
-            .<span class="ident">body</span>(<span class="ident">Body::from</span>(<span class="ident">buf</span>))
-            .<span class="ident">unwrap</span>()
-    } <span class="kw">else</span> {
-        <span class="ident">Response::builder</span>()
-            .<span class="ident">status</span>(<span class="ident">StatusCode::NOT_FOUND</span>)
-            .<span class="ident">body</span>(<span class="ident">Body::empty</span>())
-            .<span class="ident">unwrap</span>()
+        Response::builder()
+            .header(header.<span class="number">0</span>, header.<span class="number">1</span>)
+            .status(StatusCode::OK)
+            .body(Body::from(buf))
+            .unwrap()
+    } <span class="kw">else </span>{
+        Response::builder()
+            .status(StatusCode::NOT_FOUND)
+            .body(Body::empty())
+            .unwrap()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

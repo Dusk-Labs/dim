@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/tv.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tv.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/routes/tv.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tv.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -273,274 +266,273 @@
 <span id="266">266</span>
 <span id="267">267</span>
 <span id="268">268</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::DbConnection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
+<span class="kw">use </span><span class="kw">crate</span>::errors;
 
-<span class="kw">use</span> <span class="ident">database::user::User</span>;
+<span class="kw">use </span>database::user::User;
 
-<span class="kw">use</span> <span class="ident">database::episode</span>::{<span class="ident">Episode</span>, <span class="ident">UpdateEpisode</span>};
-<span class="kw">use</span> <span class="ident">database::season</span>::{<span class="ident">Season</span>, <span class="ident">UpdateSeason</span>};
+<span class="kw">use </span>database::episode::{Episode, UpdateEpisode};
+<span class="kw">use </span>database::season::{Season, UpdateSeason};
 
-<span class="kw">use</span> <span class="ident">warp::http::status::StatusCode</span>;
-<span class="kw">use</span> <span class="ident">warp::reply</span>;
+<span class="kw">use </span>warp::http::status::StatusCode;
+<span class="kw">use </span>warp::reply;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filters</span> {
-    <span class="kw">use</span> <span class="ident">warp::reject</span>;
-    <span class="kw">use</span> <span class="ident">warp::Filter</span>;
-    <span class="kw">use</span> <span class="ident">warp::Rejection</span>;
+<span class="kw">pub mod </span>filters {
+    <span class="kw">use </span>warp::reject;
+    <span class="kw">use </span>warp::Filter;
+    <span class="kw">use </span>warp::Rejection;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_auth</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state</span>;
-    <span class="kw">use</span> <span class="ident">database::episode::UpdateEpisode</span>;
-    <span class="kw">use</span> <span class="ident">database::season::UpdateSeason</span>;
-    <span class="kw">use</span> <span class="ident">database::user::User</span>;
-    <span class="kw">use</span> <span class="ident">database::DbConnection</span>;
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_auth;
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state;
+    <span class="kw">use </span>database::episode::UpdateEpisode;
+    <span class="kw">use </span>database::season::UpdateSeason;
+    <span class="kw">use </span>database::user::User;
+    <span class="kw">use </span>database::DbConnection;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_tv_seasons</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;tv&quot;</span> <span class="op">/</span> <span class="ident">i64</span> <span class="op">/</span> <span class="string">&quot;season&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span>: <span class="ident">i64</span>, <span class="ident">auth</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::get_tv_seasons</span>(<span class="ident">conn</span>, <span class="ident">id</span>, <span class="ident">auth</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>get_tv_seasons(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;tv&quot; </span>/ i64 / <span class="string">&quot;season&quot;</span>)
+            .and(warp::get())
+            .and(with_auth(conn.clone()))
+            .and(with_state::&lt;DbConnection&gt;(conn))
+            .and_then(|id: i64, auth: User, conn: DbConnection| <span class="kw">async move </span>{
+                <span class="kw">super</span>::get_tv_seasons(conn, id, auth)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_season_by_id</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;season&quot;</span> <span class="op">/</span> <span class="ident">i64</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span>: <span class="ident">i64</span>, <span class="ident">auth</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::get_season_by_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>, <span class="ident">auth</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>get_season_by_id(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;season&quot; </span>/ i64)
+            .and(warp::get())
+            .and(with_auth(conn.clone()))
+            .and(with_state::&lt;DbConnection&gt;(conn))
+            .and_then(|id: i64, auth: User, conn: DbConnection| <span class="kw">async move </span>{
+                <span class="kw">super</span>::get_season_by_id(conn, id, auth)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch_season_by_id</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;season&quot;</span> <span class="op">/</span> <span class="ident">i64</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::patch</span>())
-            .<span class="ident">and</span>(<span class="ident">warp::body::json</span>::<span class="op">&lt;</span><span class="ident">UpdateSeason</span><span class="op">&gt;</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">id</span>: <span class="ident">i64</span>, <span class="ident">data</span>: <span class="ident">UpdateSeason</span>, <span class="ident">auth</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="ident"><span class="kw">super</span>::patch_season_by_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>, <span class="ident">data</span>, <span class="ident">auth</span>)
-                        .<span class="kw">await</span>
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>patch_season_by_id(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;season&quot; </span>/ i64)
+            .and(warp::patch())
+            .and(warp::body::json::&lt;UpdateSeason&gt;())
+            .and(with_auth(conn.clone()))
+            .and(with_state::&lt;DbConnection&gt;(conn))
+            .and_then(
+                |id: i64, data: UpdateSeason, auth: User, conn: DbConnection| <span class="kw">async move </span>{
+                    <span class="kw">super</span>::patch_season_by_id(conn, id, data, auth)
+                        .<span class="kw">await
+                        </span>.map_err(|e| reject::custom(e))
                 },
             )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_season_by_id</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;season&quot;</span> <span class="op">/</span> <span class="ident">i64</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::delete</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span>: <span class="ident">i64</span>, <span class="ident">auth</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::delete_season_by_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>, <span class="ident">auth</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">reject::custom</span>(<span class="ident">e</span>))
+    <span class="kw">pub fn </span>delete_season_by_id(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;season&quot; </span>/ i64)
+            .and(warp::delete())
+            .and(with_auth(conn.clone()))
+            .and(with_state::&lt;DbConnection&gt;(conn))
+            .and_then(|id: i64, auth: User, conn: DbConnection| <span class="kw">async move </span>{
+                <span class="kw">super</span>::delete_season_by_id(conn, id, auth)
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_season_episodes</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;season&quot;</span> <span class="op">/</span> <span class="ident">i64</span> <span class="op">/</span> <span class="string">&quot;episodes&quot;</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::get</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span>: <span class="ident">i64</span>, <span class="ident">auth</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::get_season_episodes</span>(<span class="ident">conn</span>, <span class="ident">id</span>, <span class="ident">auth</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="ident">reject::custom</span>)
+    <span class="kw">pub fn </span>get_season_episodes(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;season&quot; </span>/ i64 / <span class="string">&quot;episodes&quot;</span>)
+            .and(warp::get())
+            .and(with_auth(conn.clone()))
+            .and(with_state::&lt;DbConnection&gt;(conn))
+            .and_then(|id: i64, auth: User, conn: DbConnection| <span class="kw">async move </span>{
+                <span class="kw">super</span>::get_season_episodes(conn, id, auth)
+                    .<span class="kw">await
+                    </span>.map_err(reject::custom)
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch_episode_by_id</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;episode&quot;</span> <span class="op">/</span> <span class="ident">i64</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::patch</span>())
-            .<span class="ident">and</span>(<span class="ident">warp::body::json</span>::<span class="op">&lt;</span><span class="ident">UpdateEpisode</span><span class="op">&gt;</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(
-                <span class="op">|</span><span class="ident">id</span>: <span class="ident">i64</span>, <span class="ident">data</span>: <span class="ident">UpdateEpisode</span>, <span class="ident">auth</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="ident"><span class="kw">super</span>::patch_episode_by_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>, <span class="ident">data</span>, <span class="ident">auth</span>)
-                        .<span class="kw">await</span>
-                        .<span class="ident">map_err</span>(<span class="ident">reject::custom</span>)
+    <span class="kw">pub fn </span>patch_episode_by_id(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;episode&quot; </span>/ i64)
+            .and(warp::patch())
+            .and(warp::body::json::&lt;UpdateEpisode&gt;())
+            .and(with_auth(conn.clone()))
+            .and(with_state::&lt;DbConnection&gt;(conn))
+            .and_then(
+                |id: i64, data: UpdateEpisode, auth: User, conn: DbConnection| <span class="kw">async move </span>{
+                    <span class="kw">super</span>::patch_episode_by_id(conn, id, data, auth)
+                        .<span class="kw">await
+                        </span>.map_err(reject::custom)
                 },
             )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_episode_by_id</span>(
-        <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">Extract</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Rejection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span> {
-        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot;</span> <span class="op">/</span> <span class="string">&quot;v1&quot;</span> <span class="op">/</span> <span class="string">&quot;episode&quot;</span> <span class="op">/</span> <span class="ident">i64</span>)
-            .<span class="ident">and</span>(<span class="ident">warp::delete</span>())
-            .<span class="ident">and</span>(<span class="ident">with_auth</span>(<span class="ident">conn</span>.<span class="ident">clone</span>()))
-            .<span class="ident">and</span>(<span class="ident">with_state</span>::<span class="op">&lt;</span><span class="ident">DbConnection</span><span class="op">&gt;</span>(<span class="ident">conn</span>))
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span>: <span class="ident">i64</span>, <span class="ident">auth</span>: <span class="ident">User</span>, <span class="ident">conn</span>: <span class="ident">DbConnection</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident"><span class="kw">super</span>::delete_episode_by_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>, <span class="ident">auth</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="ident">reject::custom</span>)
+    <span class="kw">pub fn </span>delete_episode_by_id(
+        conn: DbConnection,
+    ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = Rejection&gt; + Clone {
+        <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;episode&quot; </span>/ i64)
+            .and(warp::delete())
+            .and(with_auth(conn.clone()))
+            .and(with_state::&lt;DbConnection&gt;(conn))
+            .and_then(|id: i64, auth: User, conn: DbConnection| <span class="kw">async move </span>{
+                <span class="kw">super</span>::delete_episode_by_id(conn, id, auth)
+                    .<span class="kw">await
+                    </span>.map_err(reject::custom)
             })
     }
 }
 
-<span class="doccomment">/// Method mapped to `GET /api/v1/tv/&lt;id&gt;/season` returns all seasons for TV Show mapped to the id</span>
-<span class="doccomment">/// passed in.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Arguments</span>
-<span class="doccomment">/// * `id` - id of the tv show we want info about</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_tv_seasons</span>(
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="ident">_user</span>: <span class="ident">User</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">Season::get_all</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>))
+<span class="doccomment">/// Method mapped to `GET /api/v1/tv/&lt;id&gt;/season` returns all seasons for TV Show mapped to the id
+/// passed in.
+///
+/// # Arguments
+/// * `id` - id of the tv show we want info about
+</span><span class="kw">pub async fn </span>get_tv_seasons(
+    conn: DbConnection,
+    id: i64,
+    _user: User,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span>Season::get_all(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>))
 }
 
-<span class="doccomment">/// Method mapped to `GET /api/v1/tv/&lt;id&gt;/season/&lt;season_num&gt;` returns info about the season</span>
-<span class="doccomment">/// &lt;season_num&gt; for tv show by &lt;id&gt;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Arguments</span>
-<span class="doccomment">/// * `id` - id of the tv show we want info about</span>
-<span class="doccomment">/// * `season_num` - the season we want info about</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_season_by_id</span>(
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="ident">_user</span>: <span class="ident">User</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">Season::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>))
+<span class="doccomment">/// Method mapped to `GET /api/v1/tv/&lt;id&gt;/season/&lt;season_num&gt;` returns info about the season
+/// &lt;season_num&gt; for tv show by &lt;id&gt;
+///
+/// # Arguments
+/// * `id` - id of the tv show we want info about
+/// * `season_num` - the season we want info about
+</span><span class="kw">pub async fn </span>get_season_by_id(
+    conn: DbConnection,
+    id: i64,
+    _user: User,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span>Season::get_by_id(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>))
 }
 
-<span class="doccomment">/// Method mapped to `PATCH /api/v1/tv/&lt;id&gt;/season/&lt;season_num&gt;` allows you to patch in info about</span>
-<span class="doccomment">/// the season &lt;season_num&gt;.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Route Arguments</span>
-<span class="doccomment">/// * `id` - the id of the tv show.</span>
-<span class="doccomment">/// * `season_num` - the season we want to edit.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Data</span>
-<span class="doccomment">/// This route additionally requires you to pass in a json object by the format of</span>
-<span class="doccomment">/// `database::season::UpdateSeason`.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">patch_season_by_id</span>(
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="ident">data</span>: <span class="ident">UpdateSeason</span>,
-    <span class="ident">_user</span>: <span class="ident">User</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">data</span>.<span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">StatusCode::NO_CONTENT</span>)
+<span class="doccomment">/// Method mapped to `PATCH /api/v1/tv/&lt;id&gt;/season/&lt;season_num&gt;` allows you to patch in info about
+/// the season &lt;season_num&gt;.
+///
+/// # Route Arguments
+/// * `id` - the id of the tv show.
+/// * `season_num` - the season we want to edit.
+///
+/// # Data
+/// This route additionally requires you to pass in a json object by the format of
+/// `database::season::UpdateSeason`.
+</span><span class="kw">pub async fn </span>patch_season_by_id(
+    conn: DbConnection,
+    id: i64,
+    data: UpdateSeason,
+    _user: User,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    data.update(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(StatusCode::NO_CONTENT)
 }
 
-<span class="doccomment">/// Method mapped to `DELETE /api/v1/tv/&lt;id&gt;/season/&lt;season_num&gt;` allows you to delete a season for</span>
-<span class="doccomment">/// a particular tv show.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Arguments</span>
-<span class="doccomment">/// * `id` - id of the tv show.</span>
-<span class="doccomment">/// * `season_num` - the season we want to remove</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_season_by_id</span>(
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="ident">_user</span>: <span class="ident">User</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">Season::delete_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">StatusCode::OK</span>)
+<span class="doccomment">/// Method mapped to `DELETE /api/v1/tv/&lt;id&gt;/season/&lt;season_num&gt;` allows you to delete a season for
+/// a particular tv show.
+///
+/// # Arguments
+/// * `id` - id of the tv show.
+/// * `season_num` - the season we want to remove
+</span><span class="kw">pub async fn </span>delete_season_by_id(
+    conn: DbConnection,
+    id: i64,
+    _user: User,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    Season::delete_by_id(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(StatusCode::OK)
 }
 
-<span class="doccomment">/// Method mapped to `GET /api/v1/episode/&lt;id&gt;` returns information</span>
-<span class="doccomment">/// about a episode for a season.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Arguments</span>
-<span class="doccomment">/// * `id` - id of the episode.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_season_episodes</span>(
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">season_id</span>: <span class="ident">i64</span>,
-    <span class="ident">_user</span>: <span class="ident">User</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read</span>().<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">serde::Serialize</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Record</span> {
-        <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i64</span>,
-        <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-        <span class="kw">pub</span> <span class="ident">thumbnail_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-        <span class="kw">pub</span> <span class="ident">episode</span>: <span class="ident">i64</span>,
+<span class="doccomment">/// Method mapped to `GET /api/v1/episode/&lt;id&gt;` returns information
+/// about a episode for a season.
+///
+/// # Arguments
+/// * `id` - id of the episode.
+</span><span class="kw">pub async fn </span>get_season_episodes(
+    conn: DbConnection,
+    season_id: i64,
+    _user: User,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.read().begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="attribute">#[derive(serde::Serialize)]
+    </span><span class="kw">pub struct </span>Record {
+        <span class="kw">pub </span>id: i64,
+        <span class="kw">pub </span>name: String,
+        <span class="kw">pub </span>thumbnail_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
+        <span class="kw">pub </span>episode: i64,
     }
 
-    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(<span class="ident">Record</span>,
+    <span class="kw">let </span>result = <span class="macro">sqlx::query_as!</span>(Record,
         <span class="string">r#&quot;SELECT episode.id as &quot;id!&quot;, _tblmedia.name, assets.local_path as thumbnail_url, episode.episode_ as &quot;episode!&quot;
         FROM episode
         INNER JOIN _tblmedia on _tblmedia.id = episode.id
         LEFT JOIN assets ON assets.id = _tblmedia.backdrop
         WHERE episode.seasonid = ?&quot;#</span>,
-        <span class="ident">season_id</span>
-    ).<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        season_id
+    ).fetch_all(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">reply::json</span>(<span class="kw-2">&amp;</span><span class="ident">result</span>))
+    <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span>result))
 }
 
-<span class="doccomment">/// TODO: Move all of these into a unified update interface for media items</span>
-<span class="doccomment">/// Method mapped to `PATCH /api/v1/episode/&lt;id&gt;` lets you patch</span>
-<span class="doccomment">/// information about a episode.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Arguments</span>
-<span class="doccomment">/// * `id` - id of a episode.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Data</span>
-<span class="doccomment">/// This route additionally requires you to pass in a json object by the format of</span>
-<span class="doccomment">/// `database::episode::UpdateEpisode`.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">patch_episode_by_id</span>(
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="ident">episode</span>: <span class="ident">UpdateEpisode</span>,
-    <span class="ident">_user</span>: <span class="ident">User</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">episode</span>.<span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">StatusCode::NO_CONTENT</span>)
+<span class="doccomment">/// TODO: Move all of these into a unified update interface for media items
+/// Method mapped to `PATCH /api/v1/episode/&lt;id&gt;` lets you patch
+/// information about a episode.
+///
+/// # Arguments
+/// * `id` - id of a episode.
+///
+/// # Data
+/// This route additionally requires you to pass in a json object by the format of
+/// `database::episode::UpdateEpisode`.
+</span><span class="kw">pub async fn </span>patch_episode_by_id(
+    conn: DbConnection,
+    id: i64,
+    episode: UpdateEpisode,
+    _user: User,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    episode.update(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(StatusCode::NO_CONTENT)
 }
 
-<span class="doccomment">/// Method mapped to `DELETE /api/v1/episode/&lt;id&gt;` allows you to</span>
-<span class="doccomment">/// delete a episode belonging to some season.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Arguments</span>
-<span class="doccomment">/// * `id` - id an episode to delete</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_episode_by_id</span>(
-    <span class="ident">conn</span>: <span class="ident">DbConnection</span>,
-    <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="ident">_user</span>: <span class="ident">User</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">warp::Reply</span>, <span class="ident">errors::DimError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">writer</span>().<span class="ident">lock_owned</span>().<span class="kw">await</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">database::write_tx</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lock</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">Episode::delete</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">StatusCode::OK</span>)
+<span class="doccomment">/// Method mapped to `DELETE /api/v1/episode/&lt;id&gt;` allows you to
+/// delete a episode belonging to some season.
+///
+/// # Arguments
+/// * `id` - id an episode to delete
+</span><span class="kw">pub async fn </span>delete_episode_by_id(
+    conn: DbConnection,
+    id: i64,
+    _user: User,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    Episode::delete(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(StatusCode::OK)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

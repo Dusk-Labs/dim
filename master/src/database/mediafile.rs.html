@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/mediafile.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mediafile.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `database/src/mediafile.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mediafile.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../database/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../database/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -401,402 +394,401 @@
 <span id="394">394</span>
 <span id="395">395</span>
 <span id="396">396</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::media::Media</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query_ext::QueryExt</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DatabaseError</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::media::Media;
+<span class="kw">use </span><span class="kw">crate</span>::query_ext::QueryExt;
+<span class="kw">use </span><span class="kw">crate</span>::DatabaseError;
 
-<span class="kw">use</span> <span class="ident">itertools::intersperse</span>;
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
-<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
-<span class="kw">use</span> <span class="ident">std::iter::repeat</span>;
+<span class="kw">use </span>itertools::intersperse;
+<span class="kw">use </span>serde::Deserialize;
+<span class="kw">use </span>serde::Serialize;
+<span class="kw">use </span>std::iter::repeat;
 
-<span class="doccomment">/// MediaFile struct which represents a media file on the filesystem. This struct holds some basic</span>
-<span class="doccomment">/// information which the video player on the front end might require.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">sqlx::FromRow</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MediaFile</span> {
-    <span class="doccomment">/// Unique identifier of a mediafile.</span>
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">i64</span>,
-    <span class="doccomment">/// Foreign key linking this entry to the media table or [`Media`](Media) struct</span>
-    <span class="kw">pub</span> <span class="ident">media_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Library foreign key linking this entry to the library table or [`Library`](Library) struct</span>
-    <span class="kw">pub</span> <span class="ident">library_id</span>: <span class="ident">i64</span>,
-    <span class="doccomment">/// String representing the file path of the file we target. This should be a real path on the</span>
-    <span class="doccomment">/// filesystem.</span>
-    <span class="kw">pub</span> <span class="ident">target_file</span>: <span class="ident">String</span>,
+<span class="doccomment">/// MediaFile struct which represents a media file on the filesystem. This struct holds some basic
+/// information which the video player on the front end might require.
+</span><span class="attribute">#[derive(Serialize, PartialEq, Debug, Clone, sqlx::FromRow)]
+</span><span class="kw">pub struct </span>MediaFile {
+    <span class="doccomment">/// Unique identifier of a mediafile.
+    </span><span class="kw">pub </span>id: i64,
+    <span class="doccomment">/// Foreign key linking this entry to the media table or [`Media`](Media) struct
+    </span><span class="kw">pub </span>media_id: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="doccomment">/// Library foreign key linking this entry to the library table or [`Library`](Library) struct
+    </span><span class="kw">pub </span>library_id: i64,
+    <span class="doccomment">/// String representing the file path of the file we target. This should be a real path on the
+    /// filesystem.
+    </span><span class="kw">pub </span>target_file: String,
 
-    <span class="doccomment">/// Raw name that we extract from the filename using regex and the parse-torrent-name library</span>
-    <span class="kw">pub</span> <span class="ident">raw_name</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Raw year we might be able to extract from the filename using regex and the</span>
-    <span class="doccomment">/// parse-torrent-name library</span>
-    <span class="kw">pub</span> <span class="ident">raw_year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Raw name that we extract from the filename using regex and the parse-torrent-name library
+    </span><span class="kw">pub </span>raw_name: String,
+    <span class="doccomment">/// Raw year we might be able to extract from the filename using regex and the
+    /// parse-torrent-name library
+    </span><span class="kw">pub </span>raw_year: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 
-    <span class="doccomment">/// Quality string that we might get from ffprobe when running it against our file</span>
-    <span class="kw">pub</span> <span class="ident">quality</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Codec that we might get from ffprobe when running it against our file</span>
-    <span class="kw">pub</span> <span class="ident">codec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Container descriptor that we might get from ffprobe</span>
-    <span class="kw">pub</span> <span class="ident">container</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Audio codec specifier that we might get from ffprobe</span>
-    <span class="kw">pub</span> <span class="ident">audio</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Video resolution that we can obtain from ffprobe</span>
-    <span class="kw">pub</span> <span class="ident">original_resolution</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Duration of the video file that we obtain from ffprobe</span>
-    <span class="kw">pub</span> <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Quality string that we might get from ffprobe when running it against our file
+    </span><span class="kw">pub </span>quality: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// Codec that we might get from ffprobe when running it against our file
+    </span><span class="kw">pub </span>codec: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// Container descriptor that we might get from ffprobe
+    </span><span class="kw">pub </span>container: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// Audio codec specifier that we might get from ffprobe
+    </span><span class="kw">pub </span>audio: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// Video resolution that we can obtain from ffprobe
+    </span><span class="kw">pub </span>original_resolution: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// Duration of the video file that we obtain from ffprobe
+    </span><span class="kw">pub </span>duration: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 
-    <span class="doccomment">/// Episode number that we might get from using regex and the parse-torrent-name crate. This is</span>
-    <span class="doccomment">/// specific to tv shows only.</span>
-    <span class="kw">pub</span> <span class="ident">episode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Season number that we might get from using regexa and the parse-torrent-name crate. This is</span>
-    <span class="doccomment">/// specific to tv shows only.</span>
-    <span class="kw">pub</span> <span class="ident">season</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Episode number that we might get from using regex and the parse-torrent-name crate. This is
+    /// specific to tv shows only.
+    </span><span class="kw">pub </span>episode: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="doccomment">/// Season number that we might get from using regexa and the parse-torrent-name crate. This is
+    /// specific to tv shows only.
+    </span><span class="kw">pub </span>season: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 
-    <span class="doccomment">/// Flag which tells us if the file is corrupted or not. ie if ffprobe cant open the file and</span>
-    <span class="doccomment">/// reports no metadata this flag will be set.</span>
-    <span class="kw">pub</span> <span class="ident">corrupt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Flag which tells us if the file is corrupted or not. ie if ffprobe cant open the file and
+    /// reports no metadata this flag will be set.
+    </span><span class="kw">pub </span>corrupt: <span class="prelude-ty">Option</span>&lt;bool&gt;,
 
-    <span class="doccomment">/// Audio channels count</span>
-    <span class="kw">pub</span> <span class="ident">channels</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// avc_profile</span>
-    <span class="kw">pub</span> <span class="ident">profile</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Primary audio language</span>
-    <span class="kw">pub</span> <span class="ident">audio_language</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Audio channels count
+    </span><span class="kw">pub </span>channels: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="doccomment">/// avc_profile
+    </span><span class="kw">pub </span>profile: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// Primary audio language
+    </span><span class="kw">pub </span>audio_language: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">MediaFile</span> {
-    <span class="doccomment">/// Method returns all mediafiles associated with a library.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `lib` - reference to a Library object that we will match against</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_lib</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">library_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>MediaFile {
+    <span class="doccomment">/// Method returns all mediafiles associated with a library.
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `lib` - reference to a Library object that we will match against
+    </span><span class="kw">pub async fn </span>get_by_lib(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        library_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
-            <span class="ident">MediaFile</span>,
+            MediaFile,
             <span class="string">&quot;SELECT * FROM mediafile WHERE library_id = ?&quot;</span>,
-            <span class="ident">library_id</span>
+            library_id
         )
-        .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Method returns all mediafiles associated with a library and filters for those not</span>
-    <span class="doccomment">/// associated with a media</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `lib` - reference to a Library object that we will match against</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_lib_null_media</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">library_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Method returns all mediafiles associated with a library and filters for those not
+    /// associated with a media
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `lib` - reference to a Library object that we will match against
+    </span><span class="kw">pub async fn </span>get_by_lib_null_media(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        library_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
-            <span class="ident">MediaFile</span>,
+            MediaFile,
             <span class="string">&quot;SELECT * FROM mediafile WHERE library_id = ? AND media_id IS NULL&quot;</span>,
-            <span class="ident">library_id</span>
+            library_id
         )
-        .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Method returns all mediafiles associated with a Media object.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `lib` - reference to a Library object that we will match against</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_of_media</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">media_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Method returns all mediafiles associated with a Media object.
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `lib` - reference to a Library object that we will match against
+    </span><span class="kw">pub async fn </span>get_of_media(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        media_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
-            <span class="ident">MediaFile</span>,
+            MediaFile,
             <span class="string">&quot;SELECT mediafile.* FROM mediafile
                 INNER JOIN media ON media.id = mediafile.media_id
                 WHERE media.id = ?&quot;</span>,
-            <span class="ident">media_id</span>
+            media_id
         )
-        .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_of_show</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="comment">// FIXME: I think we can make this query a bit more efficient by adding an index on</span>
-        <span class="comment">// mediafile.mediaid, but given how often this is called, this might not be worth it.</span>
-        <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
-            <span class="ident">MediaFile</span>,
+    <span class="kw">pub async fn </span>get_of_show(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;, DatabaseError&gt; {
+        <span class="comment">// FIXME: I think we can make this query a bit more efficient by adding an index on
+        // mediafile.mediaid, but given how often this is called, this might not be worth it.
+        </span><span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
+            MediaFile,
             <span class="string">&quot;SELECT mediafile.* FROM _tblseason
                 INNER JOIN episode ON _tblseason.id = episode.seasonid
                 INNER JOIN mediafile ON mediafile.media_id = episode.id
                 WHERE _tblseason.tvshowid = ?
                 GROUP BY mediafile.id&quot;</span>,
-            <span class="ident">id</span>
+            id
         )
-        .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Method returns all metadata of a mediafile based on the id supplied.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `_id` - id of the mediafile object we are targetting</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_one</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Method returns all metadata of a mediafile based on the id supplied.
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `_id` - id of the mediafile object we are targetting
+    </span><span class="kw">pub async fn </span>get_one(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(
-            <span class="macro">sqlx::query_as!</span>(<span class="ident">MediaFile</span>, <span class="string">&quot;SELECT * FROM mediafile WHERE id = ?&quot;</span>, <span class="ident">id</span>)
-                .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+            <span class="macro">sqlx::query_as!</span>(MediaFile, <span class="string">&quot;SELECT * FROM mediafile WHERE id = ?&quot;</span>, id)
+                .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
                 .<span class="kw">await</span><span class="question-mark">?</span>,
         )
     }
 
-    <span class="doccomment">/// Method returns all metadata for a set of mediafile ids.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `ids` - list of mediafile ids</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_many</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">ids</span>: <span class="kw-2">&amp;</span>[<span class="ident">i64</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">placeholders</span> <span class="op">=</span> <span class="ident">intersperse</span>(<span class="ident">repeat</span>(<span class="string">&quot;?&quot;</span>).<span class="ident">take</span>(<span class="ident">ids</span>.<span class="ident">len</span>()), <span class="string">&quot;,&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;SELECT * FROM mediafile WHERE id IN ({placeholders})&quot;</span>);
+    <span class="doccomment">/// Method returns all metadata for a set of mediafile ids.
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `ids` - list of mediafile ids
+    </span><span class="kw">pub async fn </span>get_many(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ids: <span class="kw-2">&amp;</span>[i64],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;, DatabaseError&gt; {
+        <span class="kw">let </span>placeholders = intersperse(repeat(<span class="string">&quot;?&quot;</span>).take(ids.len()), <span class="string">&quot;,&quot;</span>).collect::&lt;String&gt;();
+        <span class="kw">let </span>query = <span class="macro">format!</span>(<span class="string">&quot;SELECT * FROM mediafile WHERE id IN ({placeholders})&quot;</span>);
 
-        <span class="prelude-val">Ok</span>(<span class="ident">sqlx::query_as</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">MediaFile</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>)
-            .<span class="ident">bind_all</span>(<span class="ident">ids</span>)
-            .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        <span class="prelude-val">Ok</span>(sqlx::query_as::&lt;<span class="kw">_</span>, MediaFile&gt;(<span class="kw-2">&amp;</span>query)
+            .bind_all(ids)
+            .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
             .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Method checks whether a mediafile entry with the filepath supplied exists or not, returning</span>
-    <span class="doccomment">/// a bool.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `file` - string slice containing our filepath</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">exists_by_file</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">file</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT id FROM mediafile WHERE target_file = ?&quot;</span>, <span class="ident">file</span>)
-            .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">is_ok</span>()
+    <span class="doccomment">/// Method checks whether a mediafile entry with the filepath supplied exists or not, returning
+    /// a bool.
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `file` - string slice containing our filepath
+    </span><span class="kw">pub async fn </span>exists_by_file(conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;, file: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT id FROM mediafile WHERE target_file = ?&quot;</span>, file)
+            .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
+            .<span class="kw">await
+            </span>.is_ok()
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_file</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">file</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="kw">pub async fn </span>get_by_file(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        file: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query_as!</span>(
-            <span class="ident">MediaFile</span>,
+            MediaFile,
             <span class="string">r#&quot;SELECT * FROM mediafile WHERE target_file = ?&quot;#</span>,
-            <span class="ident">file</span>
+            file
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Function will return the largest duration for a media.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_largest_duration</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">media_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Function will return the largest duration for a media.
+    </span><span class="kw">pub async fn </span>get_largest_duration(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        media_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;i64, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(
             <span class="string">r#&quot;SELECT MAX(COALESCE(mediafile.duration, 0)) as &quot;duration!: i64&quot; FROM mediafile
             WHERE mediafile.media_id = ?
             GROUP BY mediafile.media_id
             LIMIT 1&quot;#</span>,
-            <span class="ident">media_id</span>
+            media_id
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">duration</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.duration)
     }
 
-    <span class="doccomment">/// Method deletes mediafile matching the id supplied</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `_id` - id of the mediafile entry we want to delete</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM mediafile WHERE id = ?&quot;</span>, <span class="ident">id</span>)
-            .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>)
+    <span class="doccomment">/// Method deletes mediafile matching the id supplied
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `_id` - id of the mediafile entry we want to delete
+    </span><span class="kw">pub async fn </span>delete(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
+        <span class="prelude-val">Ok</span>(<span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM mediafile WHERE id = ?&quot;</span>, id)
+            .execute(<span class="kw-2">&amp;mut *</span>conn)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.rows_affected() <span class="kw">as </span>usize)
     }
 
-    <span class="doccomment">/// Function deletes all mediafiles with `library_id` of lib_id. This function is used when</span>
-    <span class="doccomment">/// deleting a library with a sqlite backend.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_by_lib_id</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">lib_id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Function deletes all mediafiles with `library_id` of lib_id. This function is used when
+    /// deleting a library with a sqlite backend.
+    </span><span class="kw">pub async fn </span>delete_by_lib_id(
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        lib_id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
         <span class="prelude-val">Ok</span>(
-            <span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM mediafile WHERE library_id = ?&quot;</span>, <span class="ident">lib_id</span>)
-                .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-                .<span class="kw">await</span><span class="question-mark">?</span>
-                .<span class="ident">rows_affected</span>() <span class="kw">as</span> <span class="ident">usize</span>,
+            <span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM mediafile WHERE library_id = ?&quot;</span>, lib_id)
+                .execute(<span class="kw-2">&amp;mut *</span>conn)
+                .<span class="kw">await</span><span class="question-mark">?
+                </span>.rows_affected() <span class="kw">as </span>usize,
         )
     }
 }
 
-<span class="doccomment">/// Same as [`MediaFile`](MediaFile) except its missing the id field.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InsertableMediaFile</span> {
-    <span class="kw">pub</span> <span class="ident">media_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">library_id</span>: <span class="ident">i64</span>,
-    <span class="kw">pub</span> <span class="ident">target_file</span>: <span class="ident">String</span>,
+<span class="doccomment">/// Same as [`MediaFile`](MediaFile) except its missing the id field.
+</span><span class="attribute">#[derive(Clone, Serialize, Debug, Default)]
+</span><span class="kw">pub struct </span>InsertableMediaFile {
+    <span class="kw">pub </span>media_id: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="kw">pub </span>library_id: i64,
+    <span class="kw">pub </span>target_file: String,
 
-    <span class="kw">pub</span> <span class="ident">raw_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">raw_year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub </span>raw_name: String,
+    <span class="kw">pub </span>raw_year: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 
-    <span class="kw">pub</span> <span class="ident">quality</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">codec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">container</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">audio</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">original_resolution</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="kw">pub </span>quality: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>codec: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>container: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>audio: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>original_resolution: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>duration: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 
-    <span class="kw">pub</span> <span class="ident">channels</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">profile</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">audio_language</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub </span>channels: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="kw">pub </span>profile: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>audio_language: <span class="prelude-ty">Option</span>&lt;String&gt;,
 
     <span class="comment">/***
      * Options specific to tv show scanner hence Option&lt;T&gt;
-     ***/</span>
-    <span class="kw">pub</span> <span class="ident">episode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">season</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="comment">/*** ***/</span>
-    <span class="kw">pub</span> <span class="ident">corrupt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
+     ***/
+    </span><span class="kw">pub </span>episode: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="kw">pub </span>season: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="comment">/*** ***/
+    </span><span class="kw">pub </span>corrupt: <span class="prelude-ty">Option</span>&lt;bool&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">InsertableMediaFile</span> {
-    <span class="doccomment">/// Method checks if a mediafile with the the target file exists in the database.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">exists</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="ident">sqlx::query_scalar</span>(<span class="string">&quot;SELECT 1 FROM mediafile WHERE target_file = ?&quot;</span>)
-                .<span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">target_file</span>)
-                .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+<span class="kw">impl </span>InsertableMediaFile {
+    <span class="doccomment">/// Method checks if a mediafile with the the target file exists in the database.
+    </span><span class="kw">pub async fn </span>exists(<span class="kw-2">&amp;</span><span class="self">self</span>, conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;bool, DatabaseError&gt; {
+        <span class="kw">let </span>result: <span class="prelude-ty">Option</span>&lt;i64&gt; =
+            sqlx::query_scalar(<span class="string">&quot;SELECT 1 FROM mediafile WHERE target_file = ?&quot;</span>)
+                .bind(<span class="kw-2">&amp;</span><span class="self">self</span>.target_file)
+                .fetch_optional(<span class="kw-2">&amp;mut *</span>conn)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">result</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="number">1</span>))
+        <span class="prelude-val">Ok</span>(result == <span class="prelude-val">Some</span>(<span class="number">1</span>))
     }
 
-    <span class="doccomment">/// Method inserts a new mediafile into the database.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+    <span class="doccomment">/// Method inserts a new mediafile into the database.
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    </span><span class="kw">pub async fn </span>insert(<span class="kw-2">&amp;</span><span class="self">self</span>, conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;i64, DatabaseError&gt; {
+        <span class="kw">let </span>id = <span class="macro">sqlx::query!</span>(
             <span class="string">r#&quot;
             INSERT INTO mediafile (media_id, library_id, target_file, raw_name, raw_year, quality,
             codec, container, audio, original_resolution, duration, episode, season, corrupt, channels, profile, audio_language)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
         &quot;#</span>,
-            <span class="self">self</span>.<span class="ident">media_id</span>,
-            <span class="self">self</span>.<span class="ident">library_id</span>,
-            <span class="self">self</span>.<span class="ident">target_file</span>,
-            <span class="self">self</span>.<span class="ident">raw_name</span>,
-            <span class="self">self</span>.<span class="ident">raw_year</span>,
-            <span class="self">self</span>.<span class="ident">quality</span>,
-            <span class="self">self</span>.<span class="ident">codec</span>,
-            <span class="self">self</span>.<span class="ident">container</span>,
-            <span class="self">self</span>.<span class="ident">audio</span>,
-            <span class="self">self</span>.<span class="ident">original_resolution</span>,
-            <span class="self">self</span>.<span class="ident">duration</span>,
-            <span class="self">self</span>.<span class="ident">episode</span>,
-            <span class="self">self</span>.<span class="ident">season</span>,
-            <span class="self">self</span>.<span class="ident">corrupt</span>,
-            <span class="self">self</span>.<span class="ident">channels</span>,
-            <span class="self">self</span>.<span class="ident">profile</span>,
-            <span class="self">self</span>.<span class="ident">audio_language</span>
+            <span class="self">self</span>.media_id,
+            <span class="self">self</span>.library_id,
+            <span class="self">self</span>.target_file,
+            <span class="self">self</span>.raw_name,
+            <span class="self">self</span>.raw_year,
+            <span class="self">self</span>.quality,
+            <span class="self">self</span>.codec,
+            <span class="self">self</span>.container,
+            <span class="self">self</span>.audio,
+            <span class="self">self</span>.original_resolution,
+            <span class="self">self</span>.duration,
+            <span class="self">self</span>.episode,
+            <span class="self">self</span>.season,
+            <span class="self">self</span>.corrupt,
+            <span class="self">self</span>.channels,
+            <span class="self">self</span>.profile,
+            <span class="self">self</span>.audio_language
         )
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">last_insert_rowid</span>();
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.last_insert_rowid();
 
-        <span class="prelude-val">Ok</span>(<span class="ident">id</span>)
+        <span class="prelude-val">Ok</span>(id)
     }
 }
 
-<span class="doccomment">/// Same as [`MediaFile`](MediaFile) except its missing the id and library_id fields. Everything is</span>
-<span class="doccomment">/// optional too.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UpdateMediaFile</span> {
-    <span class="kw">pub</span> <span class="ident">media_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">target_file</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">raw_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">raw_year</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">quality</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">codec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">container</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">audio</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">original_resolution</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">channels</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">profile</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">audio_language</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Same as [`MediaFile`](MediaFile) except its missing the id and library_id fields. Everything is
+/// optional too.
+</span><span class="attribute">#[derive(Clone, Default, Deserialize, PartialEq, Debug)]
+</span><span class="kw">pub struct </span>UpdateMediaFile {
+    <span class="kw">pub </span>media_id: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="kw">pub </span>target_file: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>raw_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>raw_year: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="kw">pub </span>quality: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>codec: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>container: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>audio: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>original_resolution: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>duration: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="kw">pub </span>channels: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="kw">pub </span>profile: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>audio_language: <span class="prelude-ty">Option</span>&lt;String&gt;,
 
     <span class="comment">/***
      * Options specific to tv show scanner hence Option&lt;T&gt;
-     ***/</span>
-    <span class="kw">pub</span> <span class="ident">episode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">season</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="comment">/*** ***/</span>
-    <span class="kw">pub</span> <span class="ident">corrupt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
+     ***/
+    </span><span class="kw">pub </span>episode: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="kw">pub </span>season: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="comment">/*** ***/
+    </span><span class="kw">pub </span>corrupt: <span class="prelude-ty">Option</span>&lt;bool&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">UpdateMediaFile</span> {
-    <span class="doccomment">/// Method updates the columns of a mediafile entry with what is supplied. The row is selected</span>
-    <span class="doccomment">/// based on its id.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">/// * `conn` - mutable reference to a sqlx transaction.</span>
-    <span class="doccomment">/// * `_id` - id of the mediafile row we are targetting</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(
+<span class="kw">impl </span>UpdateMediaFile {
+    <span class="doccomment">/// Method updates the columns of a mediafile entry with what is supplied. The row is selected
+    /// based on its id.
+    ///
+    /// # Arguments
+    /// * `conn` - mutable reference to a sqlx transaction.
+    /// * `_id` - id of the mediafile row we are targetting
+    </span><span class="kw">pub async fn </span>update(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">crate</span>::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">id</span>: <span class="ident">i64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">DatabaseError</span><span class="op">&gt;</span> {
-        <span class="macro">crate::opt_update!</span>(<span class="ident">conn</span>,
-            <span class="string">&quot;UPDATE mediafile SET media_id = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">media_id</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET target_file = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">target_file</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET raw_name = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">raw_name</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET raw_year = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">raw_year</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET quality = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">quality</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET codec = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">codec</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET container = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">container</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET audio = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">audio</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET original_resolution = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">original_resolution</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET duration = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">duration</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET episode = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">episode</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET season = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">season</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET corrupt = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">corrupt</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET channels = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">channels</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET profile = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">profile</span>, <span class="ident">id</span>),
-            <span class="string">&quot;UPDATE mediafile SET audio_language = ? WHERE id = ?&quot;</span> =&gt; (<span class="self">self</span>.<span class="ident">audio_language</span>, <span class="ident">id</span>)
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        id: i64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DatabaseError&gt; {
+        <span class="macro">crate::opt_update!</span>(conn,
+            <span class="string">&quot;UPDATE mediafile SET media_id = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.media_id, id),
+            <span class="string">&quot;UPDATE mediafile SET target_file = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.target_file, id),
+            <span class="string">&quot;UPDATE mediafile SET raw_name = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.raw_name, id),
+            <span class="string">&quot;UPDATE mediafile SET raw_year = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.raw_year, id),
+            <span class="string">&quot;UPDATE mediafile SET quality = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.quality, id),
+            <span class="string">&quot;UPDATE mediafile SET codec = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.codec, id),
+            <span class="string">&quot;UPDATE mediafile SET container = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.container, id),
+            <span class="string">&quot;UPDATE mediafile SET audio = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.audio, id),
+            <span class="string">&quot;UPDATE mediafile SET original_resolution = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.original_resolution, id),
+            <span class="string">&quot;UPDATE mediafile SET duration = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.duration, id),
+            <span class="string">&quot;UPDATE mediafile SET episode = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.episode, id),
+            <span class="string">&quot;UPDATE mediafile SET season = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.season, id),
+            <span class="string">&quot;UPDATE mediafile SET corrupt = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.corrupt, id),
+            <span class="string">&quot;UPDATE mediafile SET channels = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.channels, id),
+            <span class="string">&quot;UPDATE mediafile SET profile = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.profile, id),
+            <span class="string">&quot;UPDATE mediafile SET audio_language = ? WHERE id = ?&quot; </span>=&gt; (<span class="self">self</span>.audio_language, id)
         );
 
         <span class="prelude-val">Ok</span>(<span class="number">1</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Media</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MediaFile</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">Media</span> {
-        <span class="ident">Media</span> {
-            <span class="ident">id</span>: <span class="self">self</span>.<span class="ident">id</span>,
-            <span class="ident">library_id</span>: <span class="self">self</span>.<span class="ident">library_id</span>,
-            <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">raw_name</span>,
-            ..<span class="ident">Default::default</span>()
+<span class="kw">impl </span>Into&lt;Media&gt; <span class="kw">for </span>MediaFile {
+    <span class="kw">fn </span>into(<span class="self">self</span>) -&gt; Media {
+        Media {
+            id: <span class="self">self</span>.id,
+            library_id: <span class="self">self</span>.library_id,
+            name: <span class="self">self</span>.raw_name,
+            ..Default::default()
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="database" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

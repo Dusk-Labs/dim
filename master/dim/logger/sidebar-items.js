@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["RequestLogger",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["RequestLogger",""]]};

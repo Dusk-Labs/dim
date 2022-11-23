@@ -1,11 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/utils.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `dim/src/utils.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -526,527 +519,526 @@
 <span id="519">519</span>
 <span id="520">520</span>
 <span id="521">521</span>
-</pre><pre class="rust"><code><span class="doccomment">/// Source: https://github.com/seanmonstar/warp/issues/619</span>
-<span class="doccomment">/// Takes a list of handler expressions and `or`s them together</span>
-<span class="doccomment">/// in a balanced tree. That is, instead of `a.or(b).or(c).or(d)`,</span>
-<span class="doccomment">/// it produces `(a.or(b)).or(c.or(d))`, thus nesting the types</span>
-<span class="doccomment">/// less deeply, which provides improvements in compile time.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// It also applies `::warp::Filter::boxed` to each handler expression</span>
-<span class="doccomment">/// when in `debug_assertions` mode, improving compile time further.</span>
-<span class="doccomment">///</span>
-<span class="comment">//</span>
-<span class="comment">// The basic list splitting algorithm here is based on this gist:</span>
-<span class="comment">// https://gist.github.com/durka/9fc479de2555225a787f</span>
-<span class="comment">// It uses a counter from which two items are removed each time,</span>
-<span class="comment">// stopping when the counter reaches 0. At each step, one item</span>
-<span class="comment">// is moved from the left to the right, and thus at the end,</span>
-<span class="comment">// there will be the same number of items in each list.</span>
-<span class="comment">//</span>
-<span class="comment">// The flow is as follows:</span>
-<span class="comment">// - If there is one handler expression, debug_box it and return.</span>
-<span class="comment">// - If there is more than one handler expression:</span>
-<span class="comment">//   - First, copy the list into two: the one that will go into the</span>
-<span class="comment">//     right side of the `or`, and one that will serve as a counter.</span>
-<span class="comment">//     Recurse with these separated by semicolons, plus an empty `left`</span>
-<span class="comment">//     list before the first semicolon.</span>
-<span class="comment">//   - Then, as long as there are at least two items in the counter</span>
-<span class="comment">//     list, remove them and move the first item on the right side of</span>
-<span class="comment">//     the first semicolon (`head`) to the left side of the first semicolon.</span>
-<span class="comment">//   - Finally, when there are one or zero items left in the counter,</span>
-<span class="comment">//     move one last item to the left, make the call this macro on both the</span>
-<span class="comment">//     left and right sides, and `or` the two sides together.</span>
-<span class="comment">//</span>
-<span class="comment">// For example, balanced_or_tree!(a, b, c, d, e) would take the following steps:</span>
-<span class="comment">//</span>
-<span class="comment">// - balanced_or_tree!(a, b, c, d, e)</span>
-<span class="comment">// - balanced_or_tree!(@internal ; a, b, c, d, e ; a, b, c, d, e) // initialise lists</span>
-<span class="comment">// - balanced_or_tree!(@internal a ; b, c, d, e ; c, d, e) // move one elem; remove two</span>
-<span class="comment">// - balanced_or_tree!(@internal a, b ; c, d, e ; e) // now only one elem in counter</span>
-<span class="comment">// - balanced_or_tree!(a, b, c).or(balanced_or_tree(d, e)) // recurse on each sublist</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">balanced_or_tree</span> {
-    <span class="comment">// Base case: just a single expression, return it wrapped in `debug_boxed`</span>
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span> $(,)<span class="question-mark">?</span>) =&gt; { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span> };
-    <span class="comment">// Multiple expressions: recurse with three lists: left, right and counter.</span>
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span>),<span class="op">+</span> $(,)<span class="question-mark">?</span>) =&gt; {
-        <span class="macro">balanced_or_tree!</span>(@<span class="ident">internal</span>  ;     $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>),<span class="op">+</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>),<span class="op">+</span>)
-        <span class="comment">//                          ^ left ^ right  ^ counter</span>
+</pre><pre class="rust"><code><span class="doccomment">/// Source: https://github.com/seanmonstar/warp/issues/619
+/// Takes a list of handler expressions and `or`s them together
+/// in a balanced tree. That is, instead of `a.or(b).or(c).or(d)`,
+/// it produces `(a.or(b)).or(c.or(d))`, thus nesting the types
+/// less deeply, which provides improvements in compile time.
+///
+/// It also applies `::warp::Filter::boxed` to each handler expression
+/// when in `debug_assertions` mode, improving compile time further.
+///
+</span><span class="comment">//
+// The basic list splitting algorithm here is based on this gist:
+// https://gist.github.com/durka/9fc479de2555225a787f
+// It uses a counter from which two items are removed each time,
+// stopping when the counter reaches 0. At each step, one item
+// is moved from the left to the right, and thus at the end,
+// there will be the same number of items in each list.
+//
+// The flow is as follows:
+// - If there is one handler expression, debug_box it and return.
+// - If there is more than one handler expression:
+//   - First, copy the list into two: the one that will go into the
+//     right side of the `or`, and one that will serve as a counter.
+//     Recurse with these separated by semicolons, plus an empty `left`
+//     list before the first semicolon.
+//   - Then, as long as there are at least two items in the counter
+//     list, remove them and move the first item on the right side of
+//     the first semicolon (`head`) to the left side of the first semicolon.
+//   - Finally, when there are one or zero items left in the counter,
+//     move one last item to the left, make the call this macro on both the
+//     left and right sides, and `or` the two sides together.
+//
+// For example, balanced_or_tree!(a, b, c, d, e) would take the following steps:
+//
+// - balanced_or_tree!(a, b, c, d, e)
+// - balanced_or_tree!(@internal ; a, b, c, d, e ; a, b, c, d, e) // initialise lists
+// - balanced_or_tree!(@internal a ; b, c, d, e ; c, d, e) // move one elem; remove two
+// - balanced_or_tree!(@internal a, b ; c, d, e ; e) // now only one elem in counter
+// - balanced_or_tree!(a, b, c).or(balanced_or_tree(d, e)) // recurse on each sublist
+</span><span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>balanced_or_tree {
+    <span class="comment">// Base case: just a single expression, return it wrapped in `debug_boxed`
+    </span>(<span class="macro-nonterminal">$x</span>:expr $(,)<span class="question-mark">?</span>) =&gt; { <span class="macro-nonterminal">$x </span>};
+    <span class="comment">// Multiple expressions: recurse with three lists: left, right and counter.
+    </span>($(<span class="macro-nonterminal">$x</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; {
+        <span class="macro">balanced_or_tree!</span>(@internal  ;     $(<span class="macro-nonterminal">$x</span>),+; $(<span class="macro-nonterminal">$x</span>),+)
+        <span class="comment">//                          ^ left ^ right  ^ counter
+    </span>};
+    <span class="comment">// Counter 1 or 2; move one more item and recurse on each sublist, and or them together
+    </span>(@internal $(<span class="macro-nonterminal">$left</span>:expr),<span class="kw-2">*</span>; <span class="macro-nonterminal">$head</span>:expr, $(<span class="macro-nonterminal">$tail</span>:expr),+; <span class="macro-nonterminal">$a</span>:expr $(,<span class="macro-nonterminal">$b</span>:expr)<span class="question-mark">?</span>) =&gt; {
+        (<span class="macro">balanced_or_tree!</span>($(<span class="macro-nonterminal">$left</span>,)* <span class="macro-nonterminal">$head</span>)).or(<span class="macro">balanced_or_tree!</span>($(<span class="macro-nonterminal">$tail</span>),+))
     };
-    <span class="comment">// Counter 1 or 2; move one more item and recurse on each sublist, and or them together</span>
-    (@<span class="ident">internal</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">left</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">head</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail</span>:<span class="ident">expr</span>),<span class="op">+</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span> $(,<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>:<span class="ident">expr</span>)<span class="question-mark">?</span>) =&gt; {
-        (<span class="macro">balanced_or_tree!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">left</span>,)<span class="op">*</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">head</span>)).<span class="ident">or</span>(<span class="macro">balanced_or_tree!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail</span>),<span class="op">+</span>))
-    };
-    <span class="comment">// Counter &gt; 2; move one item from the right to the left and subtract two from the counter</span>
-    (@<span class="ident">internal</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">left</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">head</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail</span>:<span class="ident">expr</span>),<span class="op">+</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">more</span>:<span class="ident">expr</span>),<span class="op">+</span>) =&gt; {
-        <span class="macro">balanced_or_tree!</span>(@<span class="ident">internal</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">left</span>,)<span class="op">*</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">head</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail</span>),<span class="op">+</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">more</span>),<span class="op">+</span>)
+    <span class="comment">// Counter &gt; 2; move one item from the right to the left and subtract two from the counter
+    </span>(@internal $(<span class="macro-nonterminal">$left</span>:expr),<span class="kw-2">*</span>; <span class="macro-nonterminal">$head</span>:expr, $(<span class="macro-nonterminal">$tail</span>:expr),+; <span class="macro-nonterminal">$a</span>:expr, <span class="macro-nonterminal">$b</span>:expr, $(<span class="macro-nonterminal">$more</span>:expr),+) =&gt; {
+        <span class="macro">balanced_or_tree!</span>(@internal $(<span class="macro-nonterminal">$left</span>,)* <span class="macro-nonterminal">$head</span>; $(<span class="macro-nonterminal">$tail</span>),+; $(<span class="macro-nonterminal">$more</span>),+)
     };
 }
 
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">warp_try</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span>) =&gt; {
-        <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">::warp::reply::Reply::into_response</span>(<span class="ident">e</span>)),
+<span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>warp_try {
+    (<span class="macro-nonterminal">$x</span>:expr) =&gt; {
+        <span class="kw">match </span><span class="macro-nonterminal">$x </span>{
+            <span class="prelude-val">Ok</span>(x) =&gt; x,
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(::warp::reply::Reply::into_response(e)),
         }
     };
 }
 
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">warp_unwrap</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span>) =&gt; {
-        <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; {
-                <span class="prelude-ty">Result</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">::core::convert::Infallible</span><span class="op">&gt;</span><span class="ident">::Ok</span>(<span class="ident">::warp::reply::Reply::into_response</span>(<span class="ident">x</span>))
+<span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>warp_unwrap {
+    (<span class="macro-nonterminal">$x</span>:expr) =&gt; {
+        <span class="kw">match </span><span class="macro-nonterminal">$x </span>{
+            <span class="prelude-val">Ok</span>(x) =&gt; {
+                <span class="prelude-ty">Result</span>::&lt;<span class="kw">_</span>, ::core::convert::Infallible&gt;::Ok(::warp::reply::Reply::into_response(x))
             }
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-                <span class="prelude-ty">Result</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">::core::convert::Infallible</span><span class="op">&gt;</span><span class="ident">::Ok</span>(<span class="ident">::warp::reply::Reply::into_response</span>(<span class="ident">e</span>))
+            <span class="prelude-val">Err</span>(e) =&gt; {
+                <span class="prelude-ty">Result</span>::&lt;<span class="kw">_</span>, ::core::convert::Infallible&gt;::Ok(::warp::reply::Reply::into_response(e))
             }
         }
     };
 }
 
-<span class="doccomment">/// Construct a `serde_json::Value` from a JSON literal.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use serde_json::json;</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// let value = json!({</span>
-<span class="doccomment">///     &quot;code&quot;: 200,</span>
-<span class="doccomment">///     &quot;success&quot;: true,</span>
-<span class="doccomment">///     &quot;payload&quot;: {</span>
-<span class="doccomment">///         &quot;features&quot;: [</span>
-<span class="doccomment">///             &quot;serde&quot;,</span>
-<span class="doccomment">///             &quot;json&quot;</span>
-<span class="doccomment">///         ]</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// });</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Variables or expressions can be interpolated into the JSON literal. Any type</span>
-<span class="doccomment">/// interpolated into an array element or object value must implement Serde&#39;s</span>
-<span class="doccomment">/// `Serialize` trait, while any type interpolated into a object key must</span>
-<span class="doccomment">/// implement `Into&lt;String&gt;`. If the `Serialize` implementation of the</span>
-<span class="doccomment">/// interpolated type decides to fail, or if the interpolated type contains a</span>
-<span class="doccomment">/// map with non-string keys, the `json!` macro will panic.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use serde_json::json;</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// let code = 200;</span>
-<span class="doccomment">/// let features = vec![&quot;serde&quot;, &quot;json&quot;];</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let value = json!({</span>
-<span class="doccomment">///     &quot;code&quot;: code,</span>
-<span class="doccomment">///     &quot;success&quot;: code == 200,</span>
-<span class="doccomment">///     &quot;payload&quot;: {</span>
-<span class="doccomment">///         features[0]: features[1]</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// });</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Trailing commas are allowed inside both arrays and objects.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use serde_json::json;</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// let value = json!([</span>
-<span class="doccomment">///     &quot;notice&quot;,</span>
-<span class="doccomment">///     &quot;the&quot;,</span>
-<span class="doccomment">///     &quot;trailing&quot;,</span>
-<span class="doccomment">///     &quot;comma --&gt;&quot;,</span>
-<span class="doccomment">/// ]);</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">macro_export</span>(<span class="ident">local_inner_macros</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">json</span> {
-    <span class="comment">// Hide distracting implementation details from the generated rustdoc.</span>
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">json</span>:<span class="ident">tt</span>)<span class="op">+</span>) =&gt; {
-        <span class="macro">json_internal!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">json</span>)<span class="op">+</span>)
+<span class="doccomment">/// Construct a `serde_json::Value` from a JSON literal.
+///
+/// ```
+/// # use serde_json::json;
+/// #
+/// let value = json!({
+///     &quot;code&quot;: 200,
+///     &quot;success&quot;: true,
+///     &quot;payload&quot;: {
+///         &quot;features&quot;: [
+///             &quot;serde&quot;,
+///             &quot;json&quot;
+///         ]
+///     }
+/// });
+/// ```
+///
+/// Variables or expressions can be interpolated into the JSON literal. Any type
+/// interpolated into an array element or object value must implement Serde&#39;s
+/// `Serialize` trait, while any type interpolated into a object key must
+/// implement `Into&lt;String&gt;`. If the `Serialize` implementation of the
+/// interpolated type decides to fail, or if the interpolated type contains a
+/// map with non-string keys, the `json!` macro will panic.
+///
+/// ```
+/// # use serde_json::json;
+/// #
+/// let code = 200;
+/// let features = vec![&quot;serde&quot;, &quot;json&quot;];
+///
+/// let value = json!({
+///     &quot;code&quot;: code,
+///     &quot;success&quot;: code == 200,
+///     &quot;payload&quot;: {
+///         features[0]: features[1]
+///     }
+/// });
+/// ```
+///
+/// Trailing commas are allowed inside both arrays and objects.
+///
+/// ```
+/// # use serde_json::json;
+/// #
+/// let value = json!([
+///     &quot;notice&quot;,
+///     &quot;the&quot;,
+///     &quot;trailing&quot;,
+///     &quot;comma --&gt;&quot;,
+/// ]);
+/// ```
+</span><span class="attribute">#[macro_export(local_inner_macros)]
+</span><span class="macro">macro_rules! </span>json {
+    <span class="comment">// Hide distracting implementation details from the generated rustdoc.
+    </span>($(<span class="macro-nonterminal">$json</span>:tt)+) =&gt; {
+        <span class="macro">json_internal!</span>($(<span class="macro-nonterminal">$json</span>)+)
     };
 }
 
-<span class="comment">// Rocket relies on this because they export their own `json!` with a different</span>
-<span class="comment">// doc comment than ours, and various Rust bugs prevent them from calling our</span>
-<span class="comment">// `json!` from their `json!` so they call `json_internal!` directly. Check with</span>
-<span class="comment">// @SergioBenitez before making breaking changes to this macro.</span>
-<span class="comment">//</span>
-<span class="comment">// Changes are fine as long as `json_internal!` does not call any new helper</span>
-<span class="comment">// macros and can still be invoked as `json_internal!($($json)+)`.</span>
-<span class="attribute">#[<span class="ident">macro_export</span>(<span class="ident">local_inner_macros</span>)]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">json_internal</span> {
-    <span class="comment">//////////////////////////////////////////////////////////////////////////</span>
-    <span class="comment">// TT muncher for parsing the inside of an array [...]. Produces a vec![...]</span>
-    <span class="comment">// of the elements.</span>
-    <span class="comment">//</span>
-    <span class="comment">// Must be invoked as: json_internal!(@array [] $($tt)*)</span>
-    <span class="comment">//////////////////////////////////////////////////////////////////////////</span>
+<span class="comment">// Rocket relies on this because they export their own `json!` with a different
+// doc comment than ours, and various Rust bugs prevent them from calling our
+// `json!` from their `json!` so they call `json_internal!` directly. Check with
+// @SergioBenitez before making breaking changes to this macro.
+//
+// Changes are fine as long as `json_internal!` does not call any new helper
+// macros and can still be invoked as `json_internal!($($json)+)`.
+</span><span class="attribute">#[macro_export(local_inner_macros)]
+#[doc(hidden)]
+</span><span class="macro">macro_rules! </span>json_internal {
+    <span class="comment">//////////////////////////////////////////////////////////////////////////
+    // TT muncher for parsing the inside of an array [...]. Produces a vec![...]
+    // of the elements.
+    //
+    // Must be invoked as: json_internal!(@array [] $($tt)*)
+    //////////////////////////////////////////////////////////////////////////
 
-    <span class="comment">// Done with trailing comma.</span>
-    (@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>:<span class="ident">expr</span>,)<span class="kw-2">*</span>]) =&gt; {
-        <span class="macro">json_internal_vec!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>,)<span class="kw-2">*</span>]
+    // Done with trailing comma.
+    </span>(@array [$(<span class="macro-nonterminal">$elems</span>:expr,)<span class="kw-2">*</span>]) =&gt; {
+        <span class="macro">json_internal_vec!</span>[$(<span class="macro-nonterminal">$elems</span>,)<span class="kw-2">*</span>]
     };
 
-    <span class="comment">// Done without trailing comma.</span>
-    (@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>]) =&gt; {
-        <span class="macro">json_internal_vec!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>),<span class="kw-2">*</span>]
+    <span class="comment">// Done without trailing comma.
+    </span>(@array [$(<span class="macro-nonterminal">$elems</span>:expr),<span class="kw-2">*</span>]) =&gt; {
+        <span class="macro">json_internal_vec!</span>[$(<span class="macro-nonterminal">$elems</span>),<span class="kw-2">*</span>]
     };
 
-    <span class="comment">// Next element is `null`.</span>
-    (@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>:<span class="ident">expr</span>,)<span class="kw-2">*</span>] <span class="ident">null</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>,)<span class="op">*</span> <span class="macro">json_internal!</span>(<span class="ident">null</span>)] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>)
+    <span class="comment">// Next element is `null`.
+    </span>(@array [$(<span class="macro-nonterminal">$elems</span>:expr,)<span class="kw-2">*</span>] null $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">json_internal!</span>(@array [$(<span class="macro-nonterminal">$elems</span>,)* <span class="macro">json_internal!</span>(null)] $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>)
     };
 
-    <span class="comment">// Next element is `true`.</span>
-    (@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>:<span class="ident">expr</span>,)<span class="kw-2">*</span>] <span class="bool-val">true</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>,)<span class="op">*</span> <span class="macro">json_internal!</span>(<span class="bool-val">true</span>)] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>)
+    <span class="comment">// Next element is `true`.
+    </span>(@array [$(<span class="macro-nonterminal">$elems</span>:expr,)<span class="kw-2">*</span>] <span class="bool-val">true </span>$(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">json_internal!</span>(@array [$(<span class="macro-nonterminal">$elems</span>,)* <span class="macro">json_internal!</span>(<span class="bool-val">true</span>)] $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>)
     };
 
-    <span class="comment">// Next element is `false`.</span>
-    (@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>:<span class="ident">expr</span>,)<span class="kw-2">*</span>] <span class="bool-val">false</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>,)<span class="op">*</span> <span class="macro">json_internal!</span>(<span class="bool-val">false</span>)] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>)
+    <span class="comment">// Next element is `false`.
+    </span>(@array [$(<span class="macro-nonterminal">$elems</span>:expr,)<span class="kw-2">*</span>] <span class="bool-val">false </span>$(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">json_internal!</span>(@array [$(<span class="macro-nonterminal">$elems</span>,)* <span class="macro">json_internal!</span>(<span class="bool-val">false</span>)] $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>)
     };
 
-    <span class="comment">// Next element is an array.</span>
-    (@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>:<span class="ident">expr</span>,)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">array</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>,)<span class="op">*</span> <span class="macro">json_internal!</span>([$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">array</span>)<span class="kw-2">*</span>])] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>)
+    <span class="comment">// Next element is an array.
+    </span>(@array [$(<span class="macro-nonterminal">$elems</span>:expr,)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$array</span>:tt)<span class="kw-2">*</span>] $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">json_internal!</span>(@array [$(<span class="macro-nonterminal">$elems</span>,)* <span class="macro">json_internal!</span>([$(<span class="macro-nonterminal">$array</span>)<span class="kw-2">*</span>])] $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>)
     };
 
-    <span class="comment">// Next element is a map.</span>
-    (@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>:<span class="ident">expr</span>,)<span class="kw-2">*</span>] {$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">map</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>} $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>,)<span class="op">*</span> <span class="macro">json_internal!</span>({$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">map</span>)<span class="kw-2">*</span>})] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>)
+    <span class="comment">// Next element is a map.
+    </span>(@array [$(<span class="macro-nonterminal">$elems</span>:expr,)<span class="kw-2">*</span>] {$(<span class="macro-nonterminal">$map</span>:tt)<span class="kw-2">*</span>} $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">json_internal!</span>(@array [$(<span class="macro-nonterminal">$elems</span>,)* <span class="macro">json_internal!</span>({$(<span class="macro-nonterminal">$map</span>)<span class="kw-2">*</span>})] $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>)
     };
 
-    <span class="comment">// Next element is an expression followed by comma.</span>
-    (@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>:<span class="ident">expr</span>,)<span class="kw-2">*</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">next</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>,)<span class="op">*</span> <span class="macro">json_internal!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">next</span>),] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>)
+    <span class="comment">// Next element is an expression followed by comma.
+    </span>(@array [$(<span class="macro-nonterminal">$elems</span>:expr,)<span class="kw-2">*</span>] <span class="macro-nonterminal">$next</span>:expr, $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">json_internal!</span>(@array [$(<span class="macro-nonterminal">$elems</span>,)* <span class="macro">json_internal!</span>(<span class="macro-nonterminal">$next</span>),] $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>)
     };
 
-    <span class="comment">// Last element is an expression with no trailing comma.</span>
-    (@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>:<span class="ident">expr</span>,)<span class="kw-2">*</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">last</span>:<span class="ident">expr</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>,)<span class="op">*</span> <span class="macro">json_internal!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">last</span>)])
+    <span class="comment">// Last element is an expression with no trailing comma.
+    </span>(@array [$(<span class="macro-nonterminal">$elems</span>:expr,)<span class="kw-2">*</span>] <span class="macro-nonterminal">$last</span>:expr) =&gt; {
+        <span class="macro">json_internal!</span>(@array [$(<span class="macro-nonterminal">$elems</span>,)* <span class="macro">json_internal!</span>(<span class="macro-nonterminal">$last</span>)])
     };
 
-    <span class="comment">// Comma after the most recent element.</span>
-    (@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>] , $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>,)<span class="kw-2">*</span>] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>)
+    <span class="comment">// Comma after the most recent element.
+    </span>(@array [$(<span class="macro-nonterminal">$elems</span>:expr),<span class="kw-2">*</span>] , $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">json_internal!</span>(@array [$(<span class="macro-nonterminal">$elems</span>,)<span class="kw-2">*</span>] $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>)
     };
 
-    <span class="comment">// Unexpected token after most recent element.</span>
-    (@<span class="ident">array</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">elems</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">unexpected</span>:<span class="ident">tt</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">json_unexpected!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">unexpected</span>)
+    <span class="comment">// Unexpected token after most recent element.
+    </span>(@array [$(<span class="macro-nonterminal">$elems</span>:expr),<span class="kw-2">*</span>] <span class="macro-nonterminal">$unexpected</span>:tt $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">json_unexpected!</span>(<span class="macro-nonterminal">$unexpected</span>)
     };
 
-    <span class="comment">//////////////////////////////////////////////////////////////////////////</span>
-    <span class="comment">// TT muncher for parsing the inside of an object {...}. Each entry is</span>
-    <span class="comment">// inserted into the given map variable.</span>
-    <span class="comment">//</span>
-    <span class="comment">// Must be invoked as: json_internal!(@object $map () ($($tt)*) ($($tt)*))</span>
-    <span class="comment">//</span>
-    <span class="comment">// We require two copies of the input tokens so that we can match on one</span>
-    <span class="comment">// copy and trigger errors on the other copy.</span>
-    <span class="comment">//////////////////////////////////////////////////////////////////////////</span>
+    <span class="comment">//////////////////////////////////////////////////////////////////////////
+    // TT muncher for parsing the inside of an object {...}. Each entry is
+    // inserted into the given map variable.
+    //
+    // Must be invoked as: json_internal!(@object $map () ($($tt)*) ($($tt)*))
+    //
+    // We require two copies of the input tokens so that we can match on one
+    // copy and trigger errors on the other copy.
+    //////////////////////////////////////////////////////////////////////////
 
-    <span class="comment">// Done.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> () () ()) =&gt; {};
+    // Done.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident () () ()) =&gt; {};
 
-    <span class="comment">// Insert the current entry followed by trailing comma.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="op">+</span>] (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>:<span class="ident">expr</span>) , $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>.<span class="ident">insert</span>(($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>).<span class="ident">into</span>(), <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>);
-        <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> () ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>) ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>));
+    <span class="comment">// Insert the current entry followed by trailing comma.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident [$(<span class="macro-nonterminal">$key</span>:tt)+] (<span class="macro-nonterminal">$value</span>:expr) , $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="kw">let _ </span>= <span class="macro-nonterminal">$object</span>.insert(($(<span class="macro-nonterminal">$key</span>)+).into(), <span class="macro-nonterminal">$value</span>);
+        <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>() ($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>) ($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>));
     };
 
-    <span class="comment">// Current entry followed by unexpected token.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="op">+</span>] (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>:<span class="ident">expr</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">unexpected</span>:<span class="ident">tt</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">json_unexpected!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">unexpected</span>);
+    <span class="comment">// Current entry followed by unexpected token.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident [$(<span class="macro-nonterminal">$key</span>:tt)+] (<span class="macro-nonterminal">$value</span>:expr) <span class="macro-nonterminal">$unexpected</span>:tt $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">json_unexpected!</span>(<span class="macro-nonterminal">$unexpected</span>);
     };
 
-    <span class="comment">// Insert the last entry without trailing comma.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="op">+</span>] (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>:<span class="ident">expr</span>)) =&gt; {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>.<span class="ident">insert</span>(($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>).<span class="ident">into</span>(), <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>);
+    <span class="comment">// Insert the last entry without trailing comma.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident [$(<span class="macro-nonterminal">$key</span>:tt)+] (<span class="macro-nonterminal">$value</span>:expr)) =&gt; {
+        <span class="kw">let _ </span>= <span class="macro-nonterminal">$object</span>.insert(($(<span class="macro-nonterminal">$key</span>)+).into(), <span class="macro-nonterminal">$value</span>);
     };
 
-    <span class="comment">// Next value is `null`.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="op">+</span>) (: <span class="ident">null</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>] (<span class="macro">json_internal!</span>(<span class="ident">null</span>)) $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
+    <span class="comment">// Next value is `null`.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(<span class="macro-nonterminal">$key</span>:tt)+) (: null $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>[$(<span class="macro-nonterminal">$key</span>)+] (<span class="macro">json_internal!</span>(null)) $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>);
     };
 
-    <span class="comment">// Next value is `true`.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="op">+</span>) (: <span class="bool-val">true</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>] (<span class="macro">json_internal!</span>(<span class="bool-val">true</span>)) $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
+    <span class="comment">// Next value is `true`.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(<span class="macro-nonterminal">$key</span>:tt)+) (: <span class="bool-val">true </span>$(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>[$(<span class="macro-nonterminal">$key</span>)+] (<span class="macro">json_internal!</span>(<span class="bool-val">true</span>)) $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>);
     };
 
-    <span class="comment">// Next value is `false`.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="op">+</span>) (: <span class="bool-val">false</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>] (<span class="macro">json_internal!</span>(<span class="bool-val">false</span>)) $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
+    <span class="comment">// Next value is `false`.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(<span class="macro-nonterminal">$key</span>:tt)+) (: <span class="bool-val">false </span>$(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>[$(<span class="macro-nonterminal">$key</span>)+] (<span class="macro">json_internal!</span>(<span class="bool-val">false</span>)) $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>);
     };
 
-    <span class="comment">// Next value is an array.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="op">+</span>) (: [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">array</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>] (<span class="macro">json_internal!</span>([$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">array</span>)<span class="kw-2">*</span>])) $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
+    <span class="comment">// Next value is an array.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(<span class="macro-nonterminal">$key</span>:tt)+) (: [$(<span class="macro-nonterminal">$array</span>:tt)<span class="kw-2">*</span>] $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>[$(<span class="macro-nonterminal">$key</span>)+] (<span class="macro">json_internal!</span>([$(<span class="macro-nonterminal">$array</span>)<span class="kw-2">*</span>])) $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>);
     };
 
-    <span class="comment">// Next value is a map.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="op">+</span>) (: {$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">map</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>} $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>] (<span class="macro">json_internal!</span>({$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">map</span>)<span class="kw-2">*</span>})) $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
+    <span class="comment">// Next value is a map.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(<span class="macro-nonterminal">$key</span>:tt)+) (: {$(<span class="macro-nonterminal">$map</span>:tt)<span class="kw-2">*</span>} $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>[$(<span class="macro-nonterminal">$key</span>)+] (<span class="macro">json_internal!</span>({$(<span class="macro-nonterminal">$map</span>)<span class="kw-2">*</span>})) $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>);
     };
 
-    <span class="comment">// Next value is an expression followed by comma.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="op">+</span>) (: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>:<span class="ident">expr</span> , $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>] (<span class="macro">json_internal!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>)) , $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
+    <span class="comment">// Next value is an expression followed by comma.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(<span class="macro-nonterminal">$key</span>:tt)+) (: <span class="macro-nonterminal">$value</span>:expr , $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>[$(<span class="macro-nonterminal">$key</span>)+] (<span class="macro">json_internal!</span>(<span class="macro-nonterminal">$value</span>)) , $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>);
     };
 
-    <span class="comment">// Next value is an optional expression followed by comma.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="op">+</span>) (:<span class="question-mark">?</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>:<span class="ident">expr</span> , $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span> {
-            <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>] (<span class="macro">json_internal!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>)) , $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
-        } <span class="kw">else</span> {
-            <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> () ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>) ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>));
+    <span class="comment">// Next value is an optional expression followed by comma.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(<span class="macro-nonterminal">$key</span>:tt)+) (:<span class="question-mark">? </span><span class="macro-nonterminal">$value</span>:expr , $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = <span class="macro-nonterminal">$value </span>{
+            <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>[$(<span class="macro-nonterminal">$key</span>)+] (<span class="macro">json_internal!</span>(<span class="macro-nonterminal">$value</span>)) , $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>);
+        } <span class="kw">else </span>{
+            <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>() ($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>) ($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>));
         }
     };
 
-    <span class="comment">// Next entry is a key with the spread operator and no value</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(...<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">expr</span>)<span class="op">+</span>) (, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>) <span class="op">=</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>).<span class="ident">clone</span>().<span class="ident">as_object_mut</span>() {
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>.<span class="ident">append</span>(<span class="ident">map</span>);
+    <span class="comment">// Next entry is a key with the spread operator and no value
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(...<span class="macro-nonterminal">$key</span>:expr)+) (, $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(map) = ($(<span class="macro-nonterminal">$key</span>)+).clone().as_object_mut() {
+            <span class="kw">let _ </span>= <span class="macro-nonterminal">$object</span>.append(map);
         }
 
-        <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> () ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>) ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>));
+        <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>() ($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>) ($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>));
     };
 
-    <span class="comment">// Last entry is a key with the spread operator and no value.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(...<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">expr</span>)<span class="op">+</span>) () <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>) <span class="op">=</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>).<span class="ident">clone</span>().<span class="ident">as_object_mut</span>() {
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>.<span class="ident">append</span>(<span class="ident">map</span>);
-        }
-    };
-
-    <span class="comment">// Next entry is a key with the optional spread operator and no value.</span>
-    <span class="comment">// This takes in a `Option` and will merge the value if its `Some`.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(..<span class="question-mark">?</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">expr</span>)<span class="op">+</span>) (, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>) <span class="op">=</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>).<span class="ident">clone</span>().<span class="ident">as_mut</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">as_object_mut</span>()) {
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>.<span class="ident">append</span>(<span class="ident">map</span>);
-        }
-
-        <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> () ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>) ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>));
-    };
-
-    <span class="comment">// Last entry is a key with the optional spread operator and no value.</span>
-    <span class="comment">// This takes in a `Option` and will merge the value if its `Some`.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(..<span class="question-mark">?</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">expr</span>)<span class="op">+</span>) () <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>) <span class="op">=</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>).<span class="ident">clone</span>().<span class="ident">as_mut</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">as_object_mut</span>()) {
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>.<span class="ident">append</span>(<span class="ident">map</span>);
+    <span class="comment">// Last entry is a key with the spread operator and no value.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(...<span class="macro-nonterminal">$key</span>:expr)+) () <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(map) = ($(<span class="macro-nonterminal">$key</span>)+).clone().as_object_mut() {
+            <span class="kw">let _ </span>= <span class="macro-nonterminal">$object</span>.append(map);
         }
     };
 
-    <span class="comment">// Last value is an expression with no trailing comma.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="op">+</span>) (: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>:<span class="ident">expr</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">+</span>] (<span class="macro">json_internal!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>)));
+    <span class="comment">// Next entry is a key with the optional spread operator and no value.
+    // This takes in a `Option` and will merge the value if its `Some`.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(..<span class="question-mark">?</span><span class="macro-nonterminal">$key</span>:expr)+) (, $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(map) = ($(<span class="macro-nonterminal">$key</span>)+).clone().as_mut().and_then(|x| x.as_object_mut()) {
+            <span class="kw">let _ </span>= <span class="macro-nonterminal">$object</span>.append(map);
+        }
+
+        <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>() ($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>) ($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>));
     };
 
-    <span class="comment">// Missing value for last entry. Trigger a reasonable error message.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="op">+</span>) (:) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="comment">// &quot;unexpected end of macro invocation&quot;</span>
-        <span class="macro">json_internal!</span>();
+    <span class="comment">// Last entry is a key with the optional spread operator and no value.
+    // This takes in a `Option` and will merge the value if its `Some`.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(..<span class="question-mark">?</span><span class="macro-nonterminal">$key</span>:expr)+) () <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(map) = ($(<span class="macro-nonterminal">$key</span>)+).clone().as_mut().and_then(|x| x.as_object_mut()) {
+            <span class="kw">let _ </span>= <span class="macro-nonterminal">$object</span>.append(map);
+        }
     };
 
-    <span class="comment">// Missing colon and value for last entry. Trigger a reasonable error</span>
-    <span class="comment">// message.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="op">+</span>) () <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="comment">// &quot;unexpected end of macro invocation&quot;</span>
-        <span class="macro">json_internal!</span>();
+    <span class="comment">// Last value is an expression with no trailing comma.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(<span class="macro-nonterminal">$key</span>:tt)+) (: <span class="macro-nonterminal">$value</span>:expr) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>[$(<span class="macro-nonterminal">$key</span>)+] (<span class="macro">json_internal!</span>(<span class="macro-nonterminal">$value</span>)));
     };
 
-    <span class="comment">// Misplaced colon. Trigger a reasonable error message.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> () (: $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">colon</span>:<span class="ident">tt</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>)) =&gt; {
-        <span class="comment">// Takes no arguments so &quot;no rules expected the token `:`&quot;.</span>
-        <span class="macro">json_unexpected!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">colon</span>);
+    <span class="comment">// Missing value for last entry. Trigger a reasonable error message.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(<span class="macro-nonterminal">$key</span>:tt)+) (:) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="comment">// &quot;unexpected end of macro invocation&quot;
+        </span><span class="macro">json_internal!</span>();
     };
 
-    <span class="comment">// Found a comma inside a key. Trigger a reasonable error message.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) (, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">comma</span>:<span class="ident">tt</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>)) =&gt; {
-        <span class="comment">// Takes no arguments so &quot;no rules expected the token `,`&quot;.</span>
-        <span class="macro">json_unexpected!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">comma</span>);
+    <span class="comment">// Missing colon and value for last entry. Trigger a reasonable error
+    // message.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(<span class="macro-nonterminal">$key</span>:tt)+) () <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="comment">// &quot;unexpected end of macro invocation&quot;
+        </span><span class="macro">json_internal!</span>();
     };
 
-    <span class="comment">// Key is fully parenthesized. This avoids clippy double_parens false</span>
-    <span class="comment">// positives because the parenthesization may be necessary here.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> () ((<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">expr</span>) : $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>) (: $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>) (: $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>));
+    <span class="comment">// Misplaced colon. Trigger a reasonable error message.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident () (: $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) (<span class="macro-nonterminal">$colon</span>:tt $(<span class="macro-nonterminal">$copy</span>:tt)<span class="kw-2">*</span>)) =&gt; {
+        <span class="comment">// Takes no arguments so &quot;no rules expected the token `:`&quot;.
+        </span><span class="macro">json_unexpected!</span>(<span class="macro-nonterminal">$colon</span>);
     };
 
-    <span class="comment">// Refuse to absorb colon token into key expression.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) (: $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">unexpected</span>:<span class="ident">tt</span>)<span class="op">+</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="macro">json_expect_expr_comma!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">unexpected</span>)<span class="op">+</span>);
+    <span class="comment">// Found a comma inside a key. Trigger a reasonable error message.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(<span class="macro-nonterminal">$key</span>:tt)<span class="kw-2">*</span>) (, $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) (<span class="macro-nonterminal">$comma</span>:tt $(<span class="macro-nonterminal">$copy</span>:tt)<span class="kw-2">*</span>)) =&gt; {
+        <span class="comment">// Takes no arguments so &quot;no rules expected the token `,`&quot;.
+        </span><span class="macro">json_unexpected!</span>(<span class="macro-nonterminal">$comma</span>);
     };
 
-    <span class="comment">// Munch a token into the current key.</span>
-    (@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="macro-nonterminal">$</span><span class="macro-nonterminal">copy</span>:<span class="ident">tt</span>) =&gt; {
-        <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">object</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">key</span>)<span class="op">*</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>) ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>) ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>));
+    <span class="comment">// Key is fully parenthesized. This avoids clippy double_parens false
+    // positives because the parenthesization may be necessary here.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident () ((<span class="macro-nonterminal">$key</span>:expr) : $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>(<span class="macro-nonterminal">$key</span>) (: $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>) (: $(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>));
     };
 
-    <span class="comment">//////////////////////////////////////////////////////////////////////////</span>
-    <span class="comment">// The main implementation.</span>
-    <span class="comment">//</span>
-    <span class="comment">// Must be invoked as: json_internal!($($json)+)</span>
-    <span class="comment">//////////////////////////////////////////////////////////////////////////</span>
+    <span class="comment">// Refuse to absorb colon token into key expression.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(<span class="macro-nonterminal">$key</span>:tt)<span class="kw-2">*</span>) (: $(<span class="macro-nonterminal">$unexpected</span>:tt)+) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="macro">json_expect_expr_comma!</span>($(<span class="macro-nonterminal">$unexpected</span>)+);
+    };
 
-    (<span class="ident">null</span>) =&gt; {
-        <span class="ident">::serde_json::Value::Null</span>
+    <span class="comment">// Munch a token into the current key.
+    </span>(@object <span class="macro-nonterminal">$object</span>:ident ($(<span class="macro-nonterminal">$key</span>:tt)<span class="kw-2">*</span>) (<span class="macro-nonterminal">$tt</span>:tt $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) <span class="macro-nonterminal">$copy</span>:tt) =&gt; {
+        <span class="macro">json_internal!</span>(@object <span class="macro-nonterminal">$object </span>($(<span class="macro-nonterminal">$key</span>)* <span class="macro-nonterminal">$tt</span>) ($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>) ($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>));
+    };
+
+    <span class="comment">//////////////////////////////////////////////////////////////////////////
+    // The main implementation.
+    //
+    // Must be invoked as: json_internal!($($json)+)
+    //////////////////////////////////////////////////////////////////////////
+
+    </span>(null) =&gt; {
+        ::serde_json::Value::Null
     };
 
     (<span class="bool-val">true</span>) =&gt; {
-        <span class="ident">::serde_json::Value::Bool</span>(<span class="bool-val">true</span>)
+        ::serde_json::Value::Bool(<span class="bool-val">true</span>)
     };
 
     (<span class="bool-val">false</span>) =&gt; {
-        <span class="ident">::serde_json::Value::Bool</span>(<span class="bool-val">false</span>)
+        ::serde_json::Value::Bool(<span class="bool-val">false</span>)
     };
 
     ([]) =&gt; {
-        <span class="ident">::serde_json::Value::Array</span>(<span class="macro">json_internal_vec!</span>[])
+        ::serde_json::Value::Array(<span class="macro">json_internal_vec!</span>[])
     };
 
-    ([ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">+</span> ]) =&gt; {
-        <span class="ident">::serde_json::Value::Array</span>(<span class="macro">json_internal!</span>(@<span class="ident">array</span> [] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">+</span>))
+    ([ $(<span class="macro-nonterminal">$tt</span>:tt)+ ]) =&gt; {
+        ::serde_json::Value::Array(<span class="macro">json_internal!</span>(@array [] $(<span class="macro-nonterminal">$tt</span>)+))
     };
 
     ({}) =&gt; {
-        <span class="ident">::serde_json::Value::Object</span>(<span class="ident">::serde_json::Map::new</span>())
+        ::serde_json::Value::Object(::serde_json::Map::new())
     };
 
-    ({ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">+</span> }) =&gt; {
-        <span class="ident">::serde_json::Value::Object</span>({
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">object</span> <span class="op">=</span> <span class="ident">::serde_json::Map::new</span>();
-            <span class="macro">json_internal!</span>(@<span class="ident">object</span> <span class="ident">object</span> () ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">+</span>) ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">+</span>));
-            <span class="ident">object</span>
+    ({ $(<span class="macro-nonterminal">$tt</span>:tt)+ }) =&gt; {
+        ::serde_json::Value::Object({
+            <span class="kw">let </span><span class="kw-2">mut </span>object = ::serde_json::Map::new();
+            <span class="macro">json_internal!</span>(@object object () ($(<span class="macro-nonterminal">$tt</span>)+) ($(<span class="macro-nonterminal">$tt</span>)+));
+            object
         })
     };
 
-    <span class="comment">// Any Serialize type: numbers, strings, struct literals, variables etc.</span>
-    <span class="comment">// Must be below every other rule.</span>
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">other</span>:<span class="ident">expr</span>) =&gt; {
-        <span class="ident">::serde_json::to_value</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">other</span>).<span class="ident">unwrap</span>()
+    <span class="comment">// Any Serialize type: numbers, strings, struct literals, variables etc.
+    // Must be below every other rule.
+    </span>(<span class="macro-nonterminal">$other</span>:expr) =&gt; {
+        ::serde_json::to_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$other</span>).unwrap()
     };
 }
 
-<span class="comment">// The json_internal macro above cannot invoke vec directly because it uses</span>
-<span class="comment">// local_inner_macros. A vec invocation there would resolve to $crate::vec.</span>
-<span class="comment">// Instead invoke vec here outside of local_inner_macros.</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">json_internal_vec</span> {
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">content</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">vec!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">content</span>)<span class="kw-2">*</span>]
+<span class="comment">// The json_internal macro above cannot invoke vec directly because it uses
+// local_inner_macros. A vec invocation there would resolve to $crate::vec.
+// Instead invoke vec here outside of local_inner_macros.
+</span><span class="attribute">#[macro_export]
+#[doc(hidden)]
+</span><span class="macro">macro_rules! </span>json_internal_vec {
+    ($(<span class="macro-nonterminal">$content</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">vec!</span>[$(<span class="macro-nonterminal">$content</span>)<span class="kw-2">*</span>]
     };
 }
 
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">json_unexpected</span> {
+<span class="attribute">#[macro_export]
+#[doc(hidden)]
+</span><span class="macro">macro_rules! </span>json_unexpected {
     () =&gt; {};
 }
 
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">json_expect_expr_comma</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span> , $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {};
+<span class="attribute">#[macro_export]
+#[doc(hidden)]
+</span><span class="macro">macro_rules! </span>json_expect_expr_comma {
+    (<span class="macro-nonterminal">$e</span>:expr , $(<span class="macro-nonterminal">$tt</span>:tt)<span class="kw-2">*</span>) =&gt; {};
 }
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::streaming::Quality</span>;
+<span class="kw">use </span><span class="kw">crate</span>::streaming::Quality;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quality_to_label</span>(<span class="ident">quality</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Quality</span>, <span class="ident">brate</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="ident">bandwidth_ident</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">brate</span>.<span class="ident">unwrap_or</span>(<span class="ident">quality</span>.<span class="ident">bitrate</span>) <span class="op">&gt;</span> <span class="number">1_000_000</span> {
-        <span class="string">&quot;MB&quot;</span>
-    } <span class="kw">else</span> {
-        <span class="string">&quot;KB&quot;</span>
-    };
+<span class="kw">pub fn </span>quality_to_label(quality: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Quality, brate: <span class="prelude-ty">Option</span>&lt;u64&gt;) -&gt; String {
+    <span class="kw">let </span>bandwidth_ident = <span class="kw">if </span>brate.unwrap_or(quality.bitrate) &gt; <span class="number">1_000_000 </span>{
+        <span class="string">&quot;MB&quot;
+    </span>} <span class="kw">else </span>{
+        <span class="string">&quot;KB&quot;
+    </span>};
 
-    <span class="kw">let</span> <span class="ident">bandwidth_norm</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">brate</span>.<span class="ident">unwrap_or</span>(<span class="ident">quality</span>.<span class="ident">bitrate</span>) <span class="op">&gt;</span> <span class="number">1_000_000</span> {
-        <span class="ident">quality</span>.<span class="ident">bitrate</span> <span class="op">/</span> <span class="number">1_000_000</span>
-    } <span class="kw">else</span> {
-        <span class="ident">quality</span>.<span class="ident">bitrate</span> <span class="op">/</span> <span class="number">1_000</span>
-    };
+    <span class="kw">let </span>bandwidth_norm = <span class="kw">if </span>brate.unwrap_or(quality.bitrate) &gt; <span class="number">1_000_000 </span>{
+        quality.bitrate / <span class="number">1_000_000
+    </span>} <span class="kw">else </span>{
+        quality.bitrate / <span class="number">1_000
+    </span>};
 
-    <span class="macro">format!</span>(<span class="string">&quot;{}p@{}{}&quot;</span>, <span class="ident">quality</span>.<span class="ident">height</span>, <span class="ident">bandwidth_norm</span>, <span class="ident">bandwidth_ident</span>)
+    <span class="macro">format!</span>(<span class="string">&quot;{}p@{}{}&quot;</span>, quality.height, bandwidth_norm, bandwidth_ident)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ts_to_xml</span>(<span class="ident">t</span>: <span class="ident">u64</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="ident">t</span> <span class="op">/</span> <span class="number">3600</span>;
-    <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">t</span> <span class="op">%</span> <span class="number">3600</span> <span class="op">/</span> <span class="number">60</span>;
-    <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">t</span> <span class="op">%</span> <span class="number">3600</span> <span class="op">%</span> <span class="number">60</span>;
+<span class="kw">pub fn </span>ts_to_xml(t: u64) -&gt; String {
+    <span class="kw">let </span>h = t / <span class="number">3600</span>;
+    <span class="kw">let </span>m = t % <span class="number">3600 </span>/ <span class="number">60</span>;
+    <span class="kw">let </span>s = t % <span class="number">3600 </span>% <span class="number">60</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tag</span> <span class="op">=</span> <span class="string">&quot;PT&quot;</span>.<span class="ident">to_string</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>tag = <span class="string">&quot;PT&quot;</span>.to_string();
 
-    <span class="kw">if</span> <span class="ident">h</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="ident">tag</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}{}H&quot;</span>, <span class="ident">tag</span>, <span class="ident">h</span>);
+    <span class="kw">if </span>h != <span class="number">0 </span>{
+        tag = <span class="macro">format!</span>(<span class="string">&quot;{}{}H&quot;</span>, tag, h);
     }
 
-    <span class="kw">if</span> <span class="ident">m</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="ident">tag</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}{}M&quot;</span>, <span class="ident">tag</span>, <span class="ident">m</span>);
+    <span class="kw">if </span>m != <span class="number">0 </span>{
+        tag = <span class="macro">format!</span>(<span class="string">&quot;{}{}M&quot;</span>, tag, m);
     }
 
-    <span class="kw">if</span> <span class="ident">s</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="ident">tag</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}{}S&quot;</span>, <span class="ident">tag</span>, <span class="ident">s</span>);
+    <span class="kw">if </span>s != <span class="number">0 </span>{
+        tag = <span class="macro">format!</span>(<span class="string">&quot;{}{}S&quot;</span>, tag, s);
     }
 
-    <span class="ident">tag</span>
+    tag
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">secs_to_pretty</span>(<span class="ident">t</span>: <span class="ident">u64</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="ident">t</span> <span class="op">/</span> <span class="number">3600</span>;
-    <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">t</span> <span class="op">%</span> <span class="number">3600</span> <span class="op">/</span> <span class="number">60</span>;
+<span class="kw">pub fn </span>secs_to_pretty(t: u64) -&gt; String {
+    <span class="kw">let </span>h = t / <span class="number">3600</span>;
+    <span class="kw">let </span>m = t % <span class="number">3600 </span>/ <span class="number">60</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tag</span> <span class="op">=</span> <span class="ident">String::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>tag = String::new();
 
-    <span class="kw">if</span> <span class="ident">h</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="ident">tag</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{h}hr&quot;</span>);
+    <span class="kw">if </span>h != <span class="number">0 </span>{
+        tag = <span class="macro">format!</span>(<span class="string">&quot;{h}hr&quot;</span>);
     }
 
-    <span class="kw">if</span> <span class="ident">m</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="ident">tag</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{tag} {m}m&quot;</span>);
+    <span class="kw">if </span>m != <span class="number">0 </span>{
+        tag = <span class="macro">format!</span>(<span class="string">&quot;{tag} {m}m&quot;</span>);
     }
 
-    <span class="ident">tag</span>
+    tag
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">debug_assertions</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ffpath</span>(<span class="ident">bin</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">std::env::current_exe</span>().<span class="ident">expect</span>(<span class="string">&quot;Failed to grab path to the `dim` binary.&quot;</span>);
-    <span class="ident">path</span>.<span class="ident">pop</span>(); <span class="comment">// remove the dim bin to get the dir of `dim`</span>
-    <span class="ident">path</span>.<span class="ident">push</span>(<span class="ident">bin</span>.<span class="ident">as_ref</span>());
+<span class="attribute">#[cfg(not(debug_assertions))]
+</span><span class="kw">pub fn </span>ffpath(bin: <span class="kw">impl </span>AsRef&lt;str&gt;) -&gt; String {
+    <span class="kw">let </span><span class="kw-2">mut </span>path = std::env::current_exe().expect(<span class="string">&quot;Failed to grab path to the `dim` binary.&quot;</span>);
+    path.pop(); <span class="comment">// remove the dim bin to get the dir of `dim`
+    </span>path.push(bin.as_ref());
 
-    <span class="ident">path</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>()
+    path.to_string_lossy().to_string()
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ffpath</span>(<span class="ident">bin</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">bin</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>()
+<span class="attribute">#[cfg(debug_assertions)]
+</span><span class="kw">pub fn </span>ffpath(bin: <span class="kw">impl </span>AsRef&lt;str&gt;) -&gt; String {
+    bin.as_ref().to_string()
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">codec_pretty</span>(<span class="ident">codec</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">match</span> <span class="ident">codec</span> {
-        <span class="string">&quot;h264&quot;</span> =&gt; <span class="string">&quot;H.264&quot;</span>.<span class="ident">into</span>(),
-        <span class="ident">x</span> =&gt; <span class="ident">x</span>.<span class="ident">to_uppercase</span>(),
-    }
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">channels_pretty</span>(<span class="ident">ch</span>: <span class="ident">i64</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">match</span> <span class="ident">ch</span> {
-        <span class="number">2</span> <span class="op">|</span> <span class="number">3</span> =&gt; <span class="string">&quot;2.1&quot;</span>.<span class="ident">into</span>(),
-        <span class="number">6</span> =&gt; <span class="string">&quot;5.1&quot;</span>.<span class="ident">into</span>(),
-        <span class="number">8</span> =&gt; <span class="string">&quot;7.1&quot;</span>.<span class="ident">into</span>(),
-        <span class="kw">_</span> =&gt; <span class="ident">ch</span>.<span class="ident">to_string</span>(),
+<span class="kw">pub fn </span>codec_pretty(codec: <span class="kw-2">&amp;</span>str) -&gt; String {
+    <span class="kw">match </span>codec {
+        <span class="string">&quot;h264&quot; </span>=&gt; <span class="string">&quot;H.264&quot;</span>.into(),
+        x =&gt; x.to_uppercase(),
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lang_from_iso639</span>(<span class="ident">tag</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
-    <span class="ident">dia_i18n::iso_639::LANG_CODES</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">find</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">v2b</span>() <span class="op">==</span> <span class="ident">tag</span>)
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">name</span>())
+<span class="kw">pub fn </span>channels_pretty(ch: i64) -&gt; String {
+    <span class="kw">match </span>ch {
+        <span class="number">2 </span>| <span class="number">3 </span>=&gt; <span class="string">&quot;2.1&quot;</span>.into(),
+        <span class="number">6 </span>=&gt; <span class="string">&quot;5.1&quot;</span>.into(),
+        <span class="number">8 </span>=&gt; <span class="string">&quot;7.1&quot;</span>.into(),
+        <span class="kw">_ </span>=&gt; ch.to_string(),
+    }
+}
+
+<span class="kw">pub fn </span>lang_from_iso639(tag: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    dia_i18n::iso_639::LANG_CODES
+        .iter()
+        .find(|x| x.v2b() == tag)
+        .map(|x| x.name())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
