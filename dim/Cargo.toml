@@ -29,46 +29,50 @@ serde = { version = "^1.0.125", default-features = false, features = ["derive", 
 serde_derive = "^1.0.125"
 serde_json = "^1.0.64"
 
-lazy_static = "1.4.0"
-walkdir = "2.3.1"
-rand = { version = "0.7.3", features = ["small_rng"] }
-chrono = { version = "0.4.19", features = ["serde"] }
-rust-embed = "^5.9.0"
-torrent-name-parser = "0.6.3"
-reqwest = { version = "0.11.0", features = ["json", "rustls-tls", "brotli"], default-features = false }
-notify = "4.0.17"
-cfg-if = "1.0.0"
-once_cell = "1.8.0"
+anitomy = "0.1.2"
+async-trait = "0.1.50"
 bytes = "1.0.1"
-tokio = { version = "1", features = ["rt", "signal", "full", "tracing"] }
-uuid = { version = "0.8.2", features = ["v4"] }
+cfg-if = "1.0.0"
+chrono = { version = "0.4.19", features = ["serde"] }
+dashmap = "5.3.3"
+dia-i18n = "0.10.0"
+displaydoc = "0.2.3"
+dominant_color = "0.3.0"
 futures = "0.3.14"
 xtra = { version = "0.5.1", features = ["with-tokio-1"] }
 async-trait = "0.1.50"
 async-recursion = "0.3.2"
 anitomy = "0.1.2"
 warp = { version = "0.3.3", features = ["tls", "tokio-rustls"] }
-http = "^0.2.3"
-structopt = "0.3.21"
-toml = "0.5.8"
-sqlx = { version = "0.5", features = ["runtime-tokio-rustls"] }
-priority-queue = "1.2.0"
-xmlwriter = "0.1.0"
-percent-encoding = "2.1.0"
-tracing = "0.1.32"
-tracing-subscriber = { version = "^0.3.10", features = ["fmt", "env-filter", "json"] }
-tracing-appender = "0.2.0"
-dia-i18n = "0.9.0"
-tracing-tree = "0.2.0"
-thiserror = "1.0.30"
-displaydoc = "0.2.3"
 fuzzy-matcher = "0.3.7"
-dominant_color = "0.3.0"
+governor = "0.5.0"
+http = "^0.2.3"
 image = "0.24.3"
-parking_lot = "0.12.0"
-dashmap = "5.3.3"
-governor = "0.4.2"
 itertools = "0.10.3"
+lazy_static = "1.4.0"
+notify = "5.0.0"
+once_cell = "1.8.0"
+parking_lot = "0.12.0"
+percent-encoding = "2.1.0"
+priority-queue = "1.2.0"
+rand = { version = "0.8.5", features = ["small_rng"] }
+reqwest = { version = "0.11.0", features = ["json", "rustls-tls", "brotli"], default-features = false }
+rust-embed = "^5.9.0"
+sqlx = { version = "0.5", features = ["runtime-tokio-rustls"] }
+structopt = "0.3.21"
+thiserror = "1.0.30"
+tokio = { version = "1", features = ["rt", "signal", "full", "tracing"] }
+toml = "0.5.8"
+torrent-name-parser = "0.6.3"
+tracing = "0.1.32"
+tracing-appender = "0.2.0"
+tracing-subscriber = { version = "^0.3.10", features = ["fmt", "env-filter", "json"] }
+tracing-tree = "0.2.0"
+uuid = { version = "1.2.2", features = ["v4"] }
+walkdir = "2.3.1"
+warp = { version = "0.3.1", features = ["tls", "tokio-rustls"] }
+xmlwriter = "0.1.0"
+xtra = { version = "0.5.1", features = ["with-tokio-1"] }
 
 # FIXME: Remove when we get rid of xtra_proc
 new_xtra = { package = "xtra", git = "https://github.com/Restioson/xtra", features = ["with-tokio-1"] }

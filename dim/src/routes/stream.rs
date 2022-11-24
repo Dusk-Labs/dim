@@ -294,7 +294,7 @@ pub async fn return_virtual_manifest(
     if let Some(gid) = gid {
         return Ok(reply::json(&json!({
             "tracks": stream_tracking.get_for_gid(&gid).await,
-            "gid": gid.to_hyphenated().to_string(),
+            "gid": gid.as_hyphenated().to_string(),
         })));
     }
 
@@ -347,7 +347,7 @@ pub async fn return_virtual_manifest(
 
     Ok(reply::json(&json!({
         "tracks": stream_tracking.get_for_gid(&gid).await,
-        "gid": gid.to_hyphenated().to_string(),
+        "gid": gid.as_hyphenated().to_string(),
     })))
 }
 
