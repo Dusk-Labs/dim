@@ -1,6 +1,5 @@
 use crate::get_conn_memory;
 use crate::season;
-use crate::tv;
 use crate::write_tx;
 
 use super::library_tests::create_test_library;
@@ -47,7 +46,7 @@ async fn test_insert_and_get_methods() {
     .await
     .unwrap();
 
-    let result = season::Season::get_all(&mut tx, 1).await.unwrap();
+    let _result = season::Season::get_all(&mut tx, 1).await.unwrap();
     let result = season::Season::get_first(&mut tx, 1).await.unwrap();
     assert_eq!(result.season_number, 1);
 
@@ -78,7 +77,7 @@ async fn test_update() {
     .await
     .unwrap());
 
-    dbg!(season::Season::get_all(&mut tx, tv).await);
+    season::Season::get_all(&mut tx, tv).await.unwrap();
 
     let rows = season::UpdateSeason {
         season_number: Some(1),

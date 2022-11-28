@@ -1,7 +1,6 @@
 use crate::get_conn_memory;
 use crate::library;
 use crate::media;
-use crate::mediafile;
 use crate::write_tx;
 
 use super::library_tests::create_test_library;
@@ -138,7 +137,7 @@ async fn test_delete_by_lib() {
 async fn test_blind_insert() {
     let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
     let mut tx = write_tx(&mut conn).await.unwrap();
-    let library_id = create_test_library(&mut tx).await;
+    let _library_id = create_test_library(&mut tx).await;
 
     let media = media::InsertableMedia {
         library_id: 1,
@@ -163,7 +162,7 @@ async fn test_blind_insert() {
 async fn test_update() {
     let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
     let mut tx = write_tx(&mut conn).await.unwrap();
-    let library_id = create_test_library(&mut tx).await;
+    let _library_id = create_test_library(&mut tx).await;
 
     let media = media::InsertableMedia {
         library_id: 1,

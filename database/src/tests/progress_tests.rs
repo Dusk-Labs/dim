@@ -3,7 +3,6 @@ use crate::get_conn_memory;
 use crate::media;
 use crate::progress;
 use crate::season;
-use crate::tv;
 use crate::write_tx;
 
 use super::library_tests::create_test_library;
@@ -16,7 +15,7 @@ use std::time::SystemTime;
 async fn test_set_and_get_for_media_user() {
     let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
     let mut tx = write_tx(&mut conn).await.unwrap();
-    let library = create_test_library(&mut tx).await;
+    let _library = create_test_library(&mut tx).await;
     let user = insert_user(&mut tx).await;
     let media = insert_media(&mut tx).await;
 
@@ -47,7 +46,7 @@ async fn test_set_and_get_for_media_user() {
 async fn test_get_total_time_spent_watching() {
     let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
     let mut tx = write_tx(&mut conn).await.unwrap();
-    let library = create_test_library(&mut tx).await;
+    let _library = create_test_library(&mut tx).await;
     let user = insert_user(&mut tx).await;
 
     let result = progress::Progress::get_total_time_spent_watching(&mut tx, user.id)
