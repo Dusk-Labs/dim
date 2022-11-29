@@ -4,14 +4,12 @@
 <p>An authenticated request must be made to this endpoint. No other inputs are required.</p>
 <h3 id="example"><a href="#example">Example</a></h3><div class="example-wrap"><pre class="language-text"><code>curl -X GET http://127.0.0.1:8000/api/v1/library -H &quot;Authroization: ....&quot;</code></pre></div><h2 id="response"><a href="#response">Response</a></h2>
 <p>This method will return <code>200 OK</code> as well as a JSON payload of the following format:</p>
-
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code>[
+<div class="example-wrap"><pre class="language-json"><code>[
   {
-    <span class="string">&quot;id&quot;</span>: number,
-    <span class="string">&quot;name&quot;</span>: string,
-    <span class="string">&quot;media_type&quot;</span>: <span class="string">&quot;movie&quot; </span>| <span class="string">&quot;tv&quot;</span>,
-    <span class="string">&quot;media_count&quot;</span>: number,
+    &quot;id&quot;: number,
+    &quot;name&quot;: string,
+    &quot;media_type&quot;: &quot;movie&quot; | &quot;tv&quot;,
+    &quot;media_count&quot;: number,
   },
   ...
-]</code></pre></div>
-</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+]</code></pre></div></div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
