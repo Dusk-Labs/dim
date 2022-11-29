@@ -21,7 +21,7 @@
     NoToken,
     InvalidCredentials,
     UsernameNotAvailable,
-    CookieError(<a class="enum" href="../../auth/enum.AuthError.html" title="enum auth::AuthError">AuthError</a>),
+    CookieError(AuthError),
     MediafileRouteError(<a class="enum" href="../routes/mediafile/enum.Error.html" title="enum dim::routes::mediafile::Error">Error</a>),
     UserNotFound,
     ExternalSearchError(<a class="enum" href="../external/enum.Error.html" title="enum dim::external::Error">Error</a>),
@@ -43,7 +43,7 @@
 </div><h3 id="variant.NoToken" class="variant small-section-header"><a href="#variant.NoToken" class="anchor field"></a><code>NoToken</code></h3><div class="docblock"><p>Invite token required.</p>
 </div><h3 id="variant.InvalidCredentials" class="variant small-section-header"><a href="#variant.InvalidCredentials" class="anchor field"></a><code>InvalidCredentials</code></h3><div class="docblock"><p>Invalid credentials.</p>
 </div><h3 id="variant.UsernameNotAvailable" class="variant small-section-header"><a href="#variant.UsernameNotAvailable" class="anchor field"></a><code>UsernameNotAvailable</code></h3><div class="docblock"><p>Requested username is not available.</p>
-</div><h3 id="variant.CookieError" class="variant small-section-header"><a href="#variant.CookieError" class="anchor field"></a><code>CookieError(<a class="enum" href="../../auth/enum.AuthError.html" title="enum auth::AuthError">AuthError</a>)</code></h3><div class="docblock"><p>An error has occured while parsing cookies: {0:?}</p>
+</div><h3 id="variant.CookieError" class="variant small-section-header"><a href="#variant.CookieError" class="anchor field"></a><code>CookieError(AuthError)</code></h3><div class="docblock"><p>An error has occured while parsing cookies: {0:?}</p>
 </div><h3 id="variant.MediafileRouteError" class="variant small-section-header"><a href="#variant.MediafileRouteError" class="anchor field"></a><code>MediafileRouteError(<a class="enum" href="../routes/mediafile/enum.Error.html" title="enum dim::routes::mediafile::Error">Error</a>)</code></h3><div class="docblock"><p>Error occured in the <code>/api/v1/mediafile</code> routes.</p>
 </div><h3 id="variant.UserNotFound" class="variant small-section-header"><a href="#variant.UserNotFound" class="anchor field"></a><code>UserNotFound</code></h3><div class="docblock"><p>User does not exist</p>
 </div><h3 id="variant.ExternalSearchError" class="variant small-section-header"><a href="#variant.ExternalSearchError" class="anchor field"></a><code>ExternalSearchError(<a class="enum" href="../external/enum.Error.html" title="enum dim::external::Error">Error</a>)</code></h3><div class="docblock"><p>Couldn’t find the tmdb id provided.</p>
