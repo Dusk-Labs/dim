@@ -44,7 +44,8 @@ async fn test_get_one() {
     let result = user::User::authenticate(&mut tx, "test".into(), "test".into()).await;
     assert!(result.is_err());
 
-    let uname = insert_user(&mut tx).await;
+    let user = insert_user(&mut tx).await;
+    assert_eq!(user.username, "test");
     let result = user::User::authenticate(&mut tx, "test".into(), "test".into())
         .await
         .unwrap();

@@ -160,7 +160,7 @@ pub mod filters {
 ///
 /// # Response
 /// This method will return `200 OK` as well as a JSON payload of the following format:
-/// ```
+/// ```json
 /// [
 ///   {
 ///     "id": number,

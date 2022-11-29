@@ -1,5 +1,4 @@
 use crate::get_conn_memory;
-use crate::library;
 use crate::mediafile;
 use crate::write_tx;
 
@@ -84,7 +83,7 @@ async fn test_get_by_lib_null_media() {
 async fn test_get_one() {
     let mut conn = get_conn_memory().await.unwrap().writer().lock_owned().await;
     let mut tx = write_tx(&mut conn).await.unwrap();
-    let id = create_test_library(&mut tx).await;
+    let _id = create_test_library(&mut tx).await;
 
     let mfile_id = insert_mediafile(&mut tx).await;
 
