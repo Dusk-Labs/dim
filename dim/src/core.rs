@@ -1,7 +1,10 @@
 use crate::balanced_or_tree;
+use crate::errors::DimError;
 use crate::external::tmdb::TMDBMetadataProvider;
+use crate::get_global_settings;
 use crate::logger::RequestLogger;
 use crate::routes;
+use crate::routes::global_filters::get_admin_user;
 use crate::routes::*;
 use crate::scanner;
 use crate::stream_tracking::StreamTracking;
@@ -9,6 +12,7 @@ use crate::websocket;
 
 use database::library::MediaType;
 
+use http::HeaderValue;
 use once_cell::sync::OnceCell;
 
 use tokio::sync::mpsc::UnboundedReceiver;
@@ -16,6 +20,7 @@ use tokio::sync::mpsc::UnboundedSender;
 use tracing::{info, instrument};
 
 use warp::http::status::StatusCode;
+use warp::reject;
 use warp::Filter;
 
 use std::sync::Arc;
@@ -78,6 +83,25 @@ pub async fn run_scanners(tx: EventTx) {
                 });
             }
         }
+    }
+}
+
+#[derive(Debug)]
+struct SetTokenCookie<T> {
+    pub token: Option<String>,
+    pub reply: T,
+}
+
+impl<T: warp::Reply> warp::Reply for SetTokenCookie<T> {
+    fn into_response(self) -> warp::reply::Response {
+        let mut res = self.reply.into_response();
+        if let Some(token) = self.token {
+            res.headers_mut().insert(
+                http::header::SET_COOKIE,
+                HeaderValue::from_str(&format!("token={};Path=/", token)).unwrap(),
+            );
+        }
+        res
     }
 }
 
@@ -193,6 +217,27 @@ pub async fn warp_core(
         routes::statik::filters::dist_static(),
         routes::statik::filters::react_routes(),
     ]
+    .map(move |reply| (reply, conn.clone()))
+    .untuple_one()
+    .and_then(|reply, conn: DbConnection| async move {
+        if !get_global_settings().disable_auth {
+            return Ok::<_, warp::Rejection>(SetTokenCookie { token: None, reply });
+        }
+
+        let mut tx = conn.read().begin().await.map_err(|_| {
+            reject::custom(DimError::DatabaseError {
+                description: String::from("Failed to start transaction"),
+            })
+        })?;
+
+        let token;
+        if let Ok(user) = get_admin_user(&mut tx).await {
+            token = Some(database::user::Login::create_cookie(user.id));
+        } else {
+            token = None;
+        }
+        Ok(SetTokenCookie { token, reply })
+    })
     .recover(routes::global_filters::handle_rejection)
     .with(warp::filters::log::custom(move |x| {
         request_logger.on_response(x);

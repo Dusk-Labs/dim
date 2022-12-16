@@ -35,6 +35,7 @@ pub mod user;
 pub mod global_filters {
     use crate::errors;
     use crate::errors::DimError;
+    use crate::get_global_settings;
     use database::user::User;
     use database::DbConnection;
     use http::header::AUTHORIZATION;
@@ -61,9 +62,9 @@ pub mod global_filters {
     pub fn with_auth(
         conn: DbConnection,
     ) -> impl Filter<Extract = (User,), Error = Rejection> + Clone {
-        warp::header(AUTHORIZATION.as_str())
+        warp::header::optional(AUTHORIZATION.as_str())
             .and(warp::any().map(move || conn.clone()))
-            .and_then(|x, c: DbConnection| async move {
+            .and_then(|x: Option<String>, c: DbConnection| async move {
                 let mut tx = match c.read().begin().await {
                     Ok(tx) => tx,
                     Err(_) => {
@@ -72,13 +73,31 @@ pub mod global_filters {
                         }))
                     }
                 };
-                let id = database::user::Login::verify_cookie(x)
+
+                if get_global_settings().disable_auth {
+                    return get_admin_user(&mut tx)
+                        .await
+                        .map_err(|_| reject::custom(DimError::UserNotFound));
+                }
+
+                let id = database::user::Login::verify_cookie(x.unwrap_or_default())
                     .map_err(|e| reject::custom(DimError::CookieError(e)))?;
 
                 User::get_by_id(&mut tx, id)
                     .await
                     .map_err(|_| reject::custom(DimError::UserNotFound))
             })
+    }
+
+    pub async fn get_admin_user(
+        tx: &mut sqlx::Transaction<'_, sqlx::Sqlite>,
+    ) -> Result<User, database::DatabaseError> {
+        match User::get(tx, "admin").await {
+            Ok(user) => Ok(user),
+            Err(err) => User::get_all(tx)
+                .await
+                .and_then(|vec| vec.into_iter().next().ok_or(err)),
+        }
     }
 
     pub async fn handle_rejection(
