@@ -80,6 +80,8 @@
     }
 
     p {
+      overflow: hidden;
+      text-overflow: ellipsis;
       text-align: center;
       color: var(--secondaryTextColor);
       padding: 0 2px;
