@@ -7,6 +7,7 @@ import CompressIcon from "../../../../assets/Icons/Compress";
 import { updateVideo } from "../../../../actions/video";
 
 import { VideoPlayerContext } from "Pages/VideoPlayer/Context";
+import { UnfocusableButton } from "Components/unfocusableButton";
 
 function VideoActionFullscreen() {
   const dispatch = useDispatch();
@@ -33,14 +34,18 @@ function VideoActionFullscreen() {
     } catch (e) {}
   }, [dispatch, videoPlayer]);
 
-  const handleFullscreenChange = useCallback(() => {
-    dispatch(
-      updateVideo({
-        fullscreen: document.fullscreenElement !== null,
-        idleCount: 0,
-      })
-    );
-  }, [dispatch]);
+  const handleFullscreenChange = useCallback(
+    (e) => {
+      e.target.blur();
+      dispatch(
+        updateVideo({
+          fullscreen: document.fullscreenElement !== null,
+          idleCount: 0,
+        })
+      );
+    },
+    [dispatch]
+  );
 
   const handleKeyDown = useCallback(
     (e) => {
@@ -69,9 +74,9 @@ function VideoActionFullscreen() {
     );
   else
     return (
-      <button onClick={toggleFullscreen} className="fullscreen">
+      <UnfocusableButton onClick={toggleFullscreen} className="fullscreen">
         <ExpandIcon />
-      </button>
+      </UnfocusableButton>
     );
 }
 

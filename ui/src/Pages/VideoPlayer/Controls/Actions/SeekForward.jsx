@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ForwardIcon from "../../../../assets/Icons/Forward";
 import { updateVideo } from "../../../../actions/video";
 import { VideoPlayerContext } from "../../Context";
+import { UnfocusableButton } from "Components/unfocusableButton";
 
 function VideoActionSeekForward() {
   const dispatch = useDispatch();
@@ -46,9 +47,9 @@ function VideoActionSeekForward() {
   }, [handleKeyDown]);
 
   return (
-    <button onClick={seekForward} className="forward">
+    <UnfocusableButton onClick={seekForward} className="forward">
       <ForwardIcon />
-    </button>
+    </UnfocusableButton>
   );
 }
 
