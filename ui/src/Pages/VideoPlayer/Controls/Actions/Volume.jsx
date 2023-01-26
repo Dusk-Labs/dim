@@ -6,6 +6,7 @@ import VolumeUpIcon from "../../../../assets/Icons/VolumeUp";
 import VolumeMuteIcon from "../../../../assets/Icons/VolumeMute";
 
 import { updateVideo } from "../../../../actions/video";
+import { UnfocusableButton } from "Components/unfocusableButton";
 
 function VideoActionVolume() {
   const dispatch = useDispatch();
@@ -191,13 +192,13 @@ function VideoActionVolume() {
 
   return (
     <>
-      <button onClick={toggleMute} className="volume">
+      <UnfocusableButton onClick={toggleMute} className="volume">
         {!video.muted && currentVolume > 0 ? (
           <VolumeUpIcon />
         ) : (
           <VolumeMuteIcon />
         )}
-      </button>
+      </UnfocusableButton>
       <div className="volSliderWrapper">
         <div
           className={`volSlider dragging-${showVolCount}`}

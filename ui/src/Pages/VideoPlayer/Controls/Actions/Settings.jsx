@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import SettingsIcon from "../../../../assets/Icons/Settings";
 
 import { toggleShowSettings } from "../../../../actions/video";
+import { UnfocusableButton } from "Components/unfocusableButton";
 
 function VideoActionSettings() {
   const dispatch = useDispatch();
@@ -34,12 +35,12 @@ function VideoActionSettings() {
   }, [handleKeyDown]);
 
   return (
-    <button
+    <UnfocusableButton
       onClick={toggleSettings}
       className={`settings menuActive-${video.showSettings}`}
     >
       <SettingsIcon />
-    </button>
+    </UnfocusableButton>
   );
 }
 
