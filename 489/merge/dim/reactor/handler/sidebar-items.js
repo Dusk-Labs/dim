@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["EventReactor",""]],"type":[["Error",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["EventReactor",""]],"type":[["Error",""]]};
