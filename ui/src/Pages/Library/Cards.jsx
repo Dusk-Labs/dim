@@ -5,6 +5,7 @@ import { useParams } from "react-router";
 import Card from "../../Components/Card/Index";
 import Dropdown from "./Dropdown";
 import useWebSocket from "../../hooks/ws";
+import BarLoad from "Components/Load/Bar";
 
 import "./Cards.scss";
 
@@ -24,6 +25,7 @@ function Cards() {
   const [fetched, setFetched] = useState(false);
   const [currentID, setCurrentID] = useState();
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [throttleEventNewCardID, setThrottleEventNewCardID] = useState(false);
 
@@ -143,26 +145,41 @@ function Cards() {
     setShow(true);
   }, []);
 
+  // Loader to wait response from server
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const showFetchedAndEmpty = show && fetched && newCards.length === 0;
+
   return (
-    <div className="libraryCards" ref={cardList}>
-      <div className="libraryHeader">
-        <h2>{title.toLowerCase()}</h2>
-        <div className="actions">
-          <Dropdown />
+    <>
+      {showFetchedAndEmpty && loading && <BarLoad />}
+      <div className="libraryCards" ref={cardList}>
+        <div className="libraryHeader">
+          <h2>{title.toLowerCase()}</h2>
+          <div className="actions">
+            <Dropdown />
+          </div>
+        </div>
+
+        {showFetchedAndEmpty && !loading && (
+          <p className="desc">No media has been found</p>
+        )}
+
+        <div
+          className={`cards show-${show && fetched}`}
+          onAnimationEnd={handleEnd}
+        >
+          {cards.map((card, i) => (
+            <Card key={i} data={card} />
+          ))}
         </div>
       </div>
-      {show && fetched && newCards.length === 0 && (
-        <p className="desc">No media has been found</p>
-      )}
-      <div
-        className={`cards show-${show && fetched}`}
-        onAnimationEnd={handleEnd}
-      >
-        {cards.map((card, i) => (
-          <Card key={i} data={card} />
-        ))}
-      </div>
-    </div>
+    </>
   );
 }
 
