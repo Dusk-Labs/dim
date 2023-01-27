@@ -22,13 +22,13 @@ function SearchResults() {
   useEffect(() => {
     if (year) {
       console.log(year);
-      setTitle(`Dim - Query results for year:'${year}'`);
+      setTitle(`Dim - Query results for year ${year}`);
     }
     if (genre) {
-      setTitle(`Dim - Query results for genre:'${genre}'`);
+      setTitle(`Dim - Query results for genre ${genre}`);
     }
     if (query) {
-      setTitle(`Dim - Query results for '${query}'`);
+      setTitle(`Dim - Query results for "${query}"`);
     }
   }, [query, genre, year]);
 
