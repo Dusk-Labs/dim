@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["change_password","POST `/api/v1/user/password`"],["change_username","POST `/api/v1/user/username`"],["delete","DELETE `/api/v1/user`"],["upload_avatar","POST `/api/v1/user/avatar`"],["whoami","GET `/api/v1/user`"]]});
+window.SIDEBAR_ITEMS = {"fn":[["change_password","POST `/api/v1/user/password`"],["change_username","POST `/api/v1/user/username`"],["delete","DELETE `/api/v1/user`"],["upload_avatar","POST `/api/v1/user/avatar`"],["whoami","GET `/api/v1/user`"]]};

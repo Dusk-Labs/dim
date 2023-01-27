@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["MockProvider",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["MockProvider",""]]};
