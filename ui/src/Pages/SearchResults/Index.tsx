@@ -10,24 +10,33 @@ function SearchResults() {
   const search = location.search;
   const searchParams = new URLSearchParams(search);
   const query = searchParams.get("query");
+  const genre = searchParams.get("genre");
+  const year = searchParams.get("year");
   const [title, setTitle] = useState(document.title);
   const {
     data: items,
     error,
     isFetching,
-  } = useSearchQuery(query ? search : skipToken);
+  } = useSearchQuery(query || genre || year ? search : skipToken);
 
   useEffect(() => {
-    if (query) {
-      setTitle(`Dim - Query results for '${query}'`);
+    if (year) {
+      console.log(year);
+      setTitle(`Dim - Query results for year ${year}`);
     }
-  }, [query]);
+    if (genre) {
+      setTitle(`Dim - Query results for genre ${genre}`);
+    }
+    if (query) {
+      setTitle(`Dim - Query results for "${query}"`);
+    }
+  }, [query, genre, year]);
 
   useEffect(() => {
     document.title = title;
-  }, [title]);
+  }, [title, genre, year]);
 
-  if (!query) {
+  if (!query && !genre && !year) {
     return (
       <div className="card_list">
         No search query. Use the search box in the sidebar to search for media.
