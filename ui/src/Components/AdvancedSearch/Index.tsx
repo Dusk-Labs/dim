@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import SearchIcon from "assets/figma_icons/Search";
 import Suggestions from "./Suggestions";
 import { ISearchTag, SearchTag, useSearchTags } from "./TagHook";
@@ -24,6 +24,7 @@ type Props = {
   toggleSuggestionsOff: () => void;
   onSearch: (query: string, params: Array<ISearchTag>) => void;
   mediatype: string;
+  query: string | null;
 };
 
 export const AdvancedSearch = (props: Props) => {
@@ -33,6 +34,7 @@ export const AdvancedSearch = (props: Props) => {
     toggleSuggestionsOn,
     onSearch,
     mediatype,
+    query,
   } = props;
 
   const [value, setValue] = useState<string>("");
@@ -77,6 +79,12 @@ export const AdvancedSearch = (props: Props) => {
     },
     [setValue, toggleSuggestionsOn]
   );
+
+  useEffect(() => {
+    if (!query && inputRef.current) {
+      inputRef.current.innerText = "";
+    }
+  }, [query]);
 
   // Callback attempt to parse input and append it to a un-filled tag if possible.
   const matchInput = useCallback(
