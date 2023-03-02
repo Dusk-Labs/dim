@@ -13,8 +13,6 @@
 @media only screen and (min-width: 720px) {
   .library {
     & > .match-media {
-      padding: 33px 90px;
-
       &.open-true {
         height: 46vh;
       }
@@ -29,15 +27,22 @@
 @media only screen and (max-height: 720px) {
   .library {
     & > .match-media {
-      padding: 60px 90px;
-
       &.open-true {
         height: 70vh;
+        padding: 60px 90px;
       }
 
       &.open-false {
         height: 27vh;
       }
+    }
+  }
+}
+
+@media only screen and (min-width: 1080px) {
+  .match-media {
+    &.open-true {
+      padding: 60px 90px;
     }
   }
 }

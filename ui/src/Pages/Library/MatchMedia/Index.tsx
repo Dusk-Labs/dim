@@ -36,6 +36,7 @@ const MatchMedia = ({ data, refetch, mediafileSearch }: MatchMediaProps) => {
   const [startMatch, setStartMatch] = useState<boolean>(false);
   const [externalId, setExternalId] = useState<number | null>(null);
   const [mediaType, setMediaType] = useState<string | null>(null);
+  const [screenSize, setScreenSize] = useState(window.innerWidth);
   const matchResult = useMatchMediafilesQuery(
     {
       ids: selectedFiles,
@@ -44,6 +45,17 @@ const MatchMedia = ({ data, refetch, mediafileSearch }: MatchMediaProps) => {
     },
     { skip: !startMatch }
   );
+
+  // reesize screen size on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenSize(window.innerWidth);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (matchResult.isFetching) return;
@@ -154,7 +166,6 @@ const MatchMedia = ({ data, refetch, mediafileSearch }: MatchMediaProps) => {
     };
   }, [toggleSuggestionsOff]);
 
-  // TODO: Display errors if any.
   return (
     <div className={`match-media open-${isOpened}`}>
       <div className="match-container">
@@ -162,7 +173,9 @@ const MatchMedia = ({ data, refetch, mediafileSearch }: MatchMediaProps) => {
           <p className="match-head">{data.count} Unmatched files found</p>
           {isOpened && (
             <div className="match-middle">
-              <p className="match-label">View and select files to match.</p>
+              {screenSize > 1080 && (
+                <p className="match-label">View and select files to match.</p>
+              )}
               <SimpleSearch onChange={mediafileSearch} />
             </div>
           )}

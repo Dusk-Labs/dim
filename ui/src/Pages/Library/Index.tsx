@@ -32,6 +32,7 @@ const Library = () => {
   const { id } = useParams<LibraryParams>();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const debouncedSearchQuery = useDebounced(searchQuery, 75);
+  const [showMatchingMedia, setShowMatchingMedia] = useState(true);
 
   const { data, refetch } = useGetUnmatchedMediaFilesQuery(
     { id: id, search: debouncedSearchQuery },
@@ -45,15 +46,30 @@ const Library = () => {
     [setSearchQuery]
   );
 
+  useEffect(() => {
+    const handleResize = () => {
+      // set the minimum width for showing the component
+      setShowMatchingMedia(window.innerWidth >= 720);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <div className="library">
-      {data && (data.count > 0 || debouncedSearchQuery.length > 0) && (
-        <MatchMedia
-          data={data}
-          refetch={refetch}
-          mediafileSearch={mediafileSearch}
-        />
-      )}
+      {data &&
+        (data.count > 0 || debouncedSearchQuery.length > 0) &&
+        showMatchingMedia && (
+          <MatchMedia
+            data={data}
+            refetch={refetch}
+            mediafileSearch={mediafileSearch}
+          />
+        )}
       <Cards />
     </div>
   );

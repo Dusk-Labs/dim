@@ -79,3 +79,8 @@ export const parseVtt = (text: string) => {
 
   return cues;
 };
+
+export const truncate = (word: string, decimals: number) => {
+  const parsed = parseFloat(word);
+  return parsed.toFixed(decimals);
+};
