@@ -708,7 +708,7 @@
 
 <span class="kw">pub fn </span>asset_from_url(url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;InsertableAsset&gt; {
     <span class="kw">let </span>url = Url::parse(url).ok()<span class="question-mark">?</span>;
-    <span class="kw">let </span>filename = uuid::Uuid::new_v4().to_hyphenated().to_string();
+    <span class="kw">let </span>filename = uuid::Uuid::new_v4().as_hyphenated().to_string();
     <span class="kw">let </span>local_path = format_path(<span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{filename}.jpg&quot;</span>)));
 
     <span class="prelude-val">Some</span>(InsertableAsset {

@@ -1231,7 +1231,7 @@
     <span class="kw">if let </span><span class="prelude-val">Some</span>(gid) = gid {
         <span class="kw">return </span><span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
             <span class="string">&quot;tracks&quot;</span>: stream_tracking.get_for_gid(<span class="kw-2">&amp;</span>gid).<span class="kw">await</span>,
-            <span class="string">&quot;gid&quot;</span>: gid.to_hyphenated().to_string(),
+            <span class="string">&quot;gid&quot;</span>: gid.as_hyphenated().to_string(),
         })));
     }
 
@@ -1284,7 +1284,7 @@
 
     <span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
         <span class="string">&quot;tracks&quot;</span>: stream_tracking.get_for_gid(<span class="kw-2">&amp;</span>gid).<span class="kw">await</span>,
-        <span class="string">&quot;gid&quot;</span>: gid.to_hyphenated().to_string(),
+        <span class="string">&quot;gid&quot;</span>: gid.as_hyphenated().to_string(),
     })))
 }
 

@@ -339,7 +339,7 @@
                 <span class="kw">return </span><span class="bool-val">true</span>;
             }
 
-            <span class="kw">if </span>rng.gen_range(<span class="number">0</span>, cache_len) &lt; to_delete {
+            <span class="kw">if </span>rng.gen_range(<span class="number">0</span>..=cache_len) &lt; to_delete {
                 <span class="self">self</span>.usage.fetch_sub(size, Ordering::Relaxed);
                 <span class="kw">return </span><span class="bool-val">false</span>;
             }

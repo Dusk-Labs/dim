@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["FsWatcherError",""]],"fn":[["async_watch",""]],"struct":[["FsWatcher",""]]};
+window.SIDEBAR_ITEMS = {"enum":[["FsWatcherError",""]],"fn":[["spawn_file_watcher",""]],"struct":[["FsWatcher",""]]};
