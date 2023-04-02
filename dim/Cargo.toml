@@ -30,6 +30,7 @@ serde_derive = "^1.0.125"
 serde_json = "^1.0.64"
 
 anitomy = "0.1.2"
+async-recursion = "0.3.2"
 async-trait = "0.1.50"
 bytes = "1.0.1"
 cfg-if = "1.0.0"
@@ -39,11 +40,6 @@ dia-i18n = "0.10.0"
 displaydoc = "0.2.3"
 dominant_color = "0.3.0"
 futures = "0.3.14"
-xtra = { version = "0.5.1", features = ["with-tokio-1"] }
-async-trait = "0.1.50"
-async-recursion = "0.3.2"
-anitomy = "0.1.2"
-warp = { version = "0.3.3", features = ["tls", "tokio-rustls"] }
 fuzzy-matcher = "0.3.7"
 governor = "0.5.0"
 http = "^0.2.3"
@@ -70,7 +66,7 @@ tracing-subscriber = { version = "^0.3.10", features = ["fmt", "env-filter", "js
 tracing-tree = "0.2.0"
 uuid = { version = "1.2.2", features = ["v4"] }
 walkdir = "2.3.1"
-warp = { version = "0.3.1", features = ["tls", "tokio-rustls"] }
+warp = { version = "0.3.3", features = ["tls", "tokio-rustls"] }
 xmlwriter = "0.1.0"
 xtra = { version = "0.5.1", features = ["with-tokio-1"] }
 
