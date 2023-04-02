@@ -58,7 +58,7 @@ pub enum Error {
 
 pub fn asset_from_url(url: &str) -> Option<InsertableAsset> {
     let url = Url::parse(url).ok()?;
-    let filename = uuid::Uuid::new_v4().to_hyphenated().to_string();
+    let filename = uuid::Uuid::new_v4().as_hyphenated().to_string();
     let local_path = format_path(Some(format!("{filename}.jpg")));
 
     Some(InsertableAsset {

@@ -31,6 +31,7 @@ pub fn temp_dir<'a>(files: impl IntoIterator<Item = &'a str>) -> tempfile::TempD
     tempdir
 }
 
+#[track_caller]
 pub fn temp_dir_symlink<'a>(
     files: impl Iterator<Item = impl AsRef<str>>,
     target_file: &'a str,
@@ -39,6 +40,12 @@ pub fn temp_dir_symlink<'a>(
         .prefix("tmp")
         .tempdir()
         .expect("Failed to create temporary directory for tests.");
+
+    let new_target_file = tempdir.path().join("target");
+
+    std::fs::copy(target_file, &new_target_file).expect("failed copying target file to tempdir");
+
+    let target_file = new_target_file;
 
     let mut absolute = vec![];
 
@@ -49,7 +56,7 @@ pub fn temp_dir_symlink<'a>(
             std::fs::create_dir_all(parent).expect("Failed to create parent dir");
         }
 
-        hard_link(target_file, &file_path).expect("Failed to create hard link to test file.");
+        hard_link(&target_file, &file_path).expect("Failed to create hard link to test file.");
 
         absolute.push(file_path);
     }

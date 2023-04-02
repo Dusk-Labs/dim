@@ -151,7 +151,7 @@ mod tests {
         assert_eq!(cast[0].name, "Ryan Gosling".to_string());
         assert_eq!(
             cast[0].profile_path,
-            Some("https://image.tmdb.org/t/p/original/pR2H6U7nH8lvrE02hLL6b8Ysnjm.jpg".to_string())
+            Some("https://image.tmdb.org/t/p/original/lyUyVARQKhGxaxy0FbPJCQRpiaW.jpg".to_string())
         );
         assert!(matches!(cast[0].character.as_str(), "K" | "\'K\'"));
     }
