@@ -47,7 +47,7 @@ xtra = { version = "0.5.1", features = ["with-tokio-1"] }
 async-trait = "0.1.50"
 async-recursion = "0.3.2"
 anitomy = "0.1.2"
-warp = { version = "0.3.1", features = ["tls", "tokio-rustls"] }
+warp = { version = "0.3.3", features = ["tls", "tokio-rustls"] }
 http = "^0.2.3"
 structopt = "0.3.21"
 toml = "0.5.8"
