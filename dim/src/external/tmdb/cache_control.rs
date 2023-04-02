@@ -138,7 +138,7 @@ impl CacheEviction {
                 return true;
             }
 
-            if rng.gen_range(0, cache_len) < to_delete {
+            if rng.gen_range(0..=cache_len) < to_delete {
                 self.usage.fetch_sub(size, Ordering::Relaxed);
                 return false;
             }
