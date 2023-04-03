@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["TVShow","Struct represents a tv show entry in the database. This is mostly used as a marker to mark shows from movies, and episodes."]]};
