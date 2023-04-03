@@ -18,6 +18,7 @@ use dim_database::user::User;
 
 use dim_extern_api::tmdb::TMDBMetadataProvider;
 use dim_extern_api::ExternalQueryIntoShow;
+use dim_utils::json;
 
 use warp::http::status::StatusCode;
 use warp::reply;

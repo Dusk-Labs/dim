@@ -25,6 +25,10 @@ use tracing_subscriber::fmt;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::EnvFilter;
 
+/// Various utilities
+pub mod utils;
+pub(crate) use utils::json;
+
 /// Module contains our core initialization logic.
 pub mod core;
 /// Module contains all the error definitions used in dim, and returned by the web-service.
@@ -49,8 +53,6 @@ pub mod streaming;
 mod tests;
 /// Tree-like structure for representing directories of files.
 pub mod tree;
-/// Various utilities
-pub mod utils;
 /// Websocket related logic.
 pub mod websocket;
 

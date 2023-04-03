@@ -26,7 +26,7 @@ use tracing::Instrument;
 
 use thiserror::Error;
 
-use new_xtra::prelude::*;
+use xtra::prelude::*;
 
 /// This semaphore is necessary so that we dont create too many instances of `MediafileCreator`.
 /// Having too many instances would not make sense as we can support only so many instances without
@@ -240,18 +240,22 @@ impl MediafileCreator {
 
 #[async_trait]
 impl Actor for MediafileCreator {
-    type Stop = ();
 
-    async fn stopped(self) {}
 }
 
 pub struct InsertBatch(pub Vec<InsertableMediaFile>);
 
+impl Message for InsertBatch {
+    type Result = Result<Vec<MediaFile>>;
+}
+
 #[async_trait]
 impl Handler<InsertBatch> for MediafileCreator {
-    type Return = Result<Vec<MediaFile>>;
-
-    async fn handle(&mut self, batch: InsertBatch, _: &mut Context<Self>) -> Self::Return {
+    async fn handle(
+        &mut self,
+        batch: InsertBatch,
+        _: &mut Context<Self>,
+    ) -> <InsertBatch as Message>::Result {
         self.insert_batch(batch.0.iter()).await
     }
 }

@@ -1,0 +1,36 @@
+[package]
+name = "dim-web"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+database = { path = "../database", default-features = false, features = ["sqlite"] }
+dim-utils = { path = "../dim-utils" }
+
+nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4", default-features = false, features = ["cuda", "ssa_transmux"] }
+
+axum = { version = "0.6.12", features = ["ws", "http2"] }
+chrono = { version = "0.4.19", features = ["serde"] }
+displaydoc = "0.2.3"
+futures = "0.3.14"
+fuzzy-matcher = "0.3.7"
+http = "^0.2.3"
+once_cell = "1.8.0"
+percent-encoding = "2.1.0"
+rust-embed = "^5.9.0"
+serde = { version = "^1.0.125", default-features = false, features = ["derive", "std", "rc"] }
+serde_derive = "^1.0.125"
+serde_json = "^1.0.64"
+sqlx = { version = "0.5", features = ["runtime-tokio-rustls"] }
+thiserror = "1.0.30"
+tokio = { version = "1.27.0", features = ["full"] }
+tracing = "0.1.32"
+tracing-appender = "0.2.0"
+tracing-subscriber = { version = "^0.3.10", features = ["fmt", "env-filter", "json"] }
+tracing-tree = "0.2.0"
+uuid = { version = "1.2.2", features = ["v4"] }
+warp = { version = "0.3.3", features = ["tls", "tokio-rustls"] }
+hyper = "0.14.25"
+tower = { version = "0.4.13", features = ["tokio", "util"] }

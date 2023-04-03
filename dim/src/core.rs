@@ -9,6 +9,7 @@ use crate::websocket;
 use dim_database::library::MediaType;
 use dim_extern_api::tmdb::TMDBMetadataProvider;
 
+use dim_utils::balanced_or_tree;
 use once_cell::sync::OnceCell;
 
 use tokio::sync::mpsc::UnboundedReceiver;

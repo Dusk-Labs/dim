@@ -22,6 +22,9 @@ dim-auth = { path = "../dim-auth" }
 dim-database = { path = "../dim-database" }
 dim-events = { path = "../dim-events" }
 dim-extern-api = { path = "../dim-extern-api" }
+dim-web = { path = "../dim-web" }
+dim-utils = { path = "../dim-utils" }
+
 
 serde = { version = "^1.0.125", default-features = false, features = ["derive", "std", "rc"] }
 serde_derive = "^1.0.125"
@@ -60,10 +63,10 @@ uuid = { version = "1.2.2", features = ["v4"] }
 walkdir = "2.3.1"
 warp = { version = "0.3.3", features = ["tls", "tokio-rustls"] }
 xmlwriter = "0.1.0"
-xtra = { version = "0.5.1", features = ["with-tokio-1"] }
+xtra = { version = "0.5.1", features = ["tokio", "with-tokio-1"] }
 
 # FIXME: Remove when we get rid of xtra_proc
-new_xtra = { package = "xtra", git = "https://github.com/Restioson/xtra", features = ["with-tokio-1"] }
+# new_xtra = { package = "xtra", git = "https://github.com/Restioson/xtra", features = ["tokio"] }
 url = "2.2.2"
 hyper = "0.14.20"
 rusqlite = { version = "0.27.0", features = ["hooks"] }

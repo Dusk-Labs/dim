@@ -18,8 +18,8 @@ use core::pin::Pin;
 
 use futures::FutureExt;
 
-use new_xtra::spawn::Tokio;
-use new_xtra::Actor;
+use xtra::spawn::Tokio;
+use xtra::Actor;
 
 pub(crate) async fn create_library(conn: &mut dim_database::DbConnection) -> i64 {
     let mut lock = conn.writer().lock_owned().await;
