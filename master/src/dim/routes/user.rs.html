@@ -702,7 +702,7 @@
         file_ext: file_ext.into(),
         ..Default::default()
     }
-    .insert(conn)
+    .insert_local_asset(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>)
 }
 

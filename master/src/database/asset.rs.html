@@ -137,6 +137,32 @@
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
 <a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::user::UserID;
 <span class="kw">use </span><span class="kw">crate</span>::DatabaseError;
 <span class="kw">use </span>std::path::PathBuf;
@@ -269,6 +295,32 @@
             Asset,
             <span class="string">r#&quot;SELECT id as &quot;id!&quot;, remote_url, local_path, file_ext FROM assets WHERE remote_url = ?&quot;#</span>,
             url
+        )
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(result)
+    }
+
+    <span class="kw">pub async fn </span>insert_local_asset(
+        <span class="self">self</span>,
+        conn: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Asset, DatabaseError&gt; {
+        <span class="kw">let </span>id = <span class="macro">sqlx::query!</span>(
+            <span class="string">&quot;INSERT INTO assets (remote_url, local_path, file_ext)
+                VALUES ($1, $2, $3)&quot;</span>,
+            <span class="self">self</span>.remote_url,
+            <span class="self">self</span>.local_path,
+            <span class="self">self</span>.file_ext
+        )
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.last_insert_rowid();
+
+        <span class="kw">let </span>result = <span class="macro">sqlx::query_as!</span>(
+            Asset,
+            <span class="string">r#&quot;SELECT id as &quot;id!&quot;, remote_url, local_path, file_ext FROM assets WHERE id = ?&quot;#</span>,
+            id
         )
         .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
