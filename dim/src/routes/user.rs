@@ -290,7 +290,7 @@ pub async fn process_part(
         file_ext: file_ext.into(),
         ..Default::default()
     }
-    .insert(conn)
+    .insert_local_asset(conn)
     .await?)
 }
 

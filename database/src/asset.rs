@@ -136,4 +136,30 @@ impl InsertableAsset {
 
         Ok(result)
     }
+
+    pub async fn insert_local_asset(
+        self,
+        conn: &mut crate::Transaction<'_>,
+    ) -> Result<Asset, DatabaseError> {
+        let id = sqlx::query!(
+            "INSERT INTO assets (remote_url, local_path, file_ext)
+                VALUES ($1, $2, $3)",
+            self.remote_url,
+            self.local_path,
+            self.file_ext
+        )
+        .execute(&mut *conn)
+        .await?
+        .last_insert_rowid();
+
+        let result = sqlx::query_as!(
+            Asset,
+            r#"SELECT id as "id!", remote_url, local_path, file_ext FROM assets WHERE id = ?"#,
+            id
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+
+        Ok(result)
+    }
 }
