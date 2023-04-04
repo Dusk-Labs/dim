@@ -2,7 +2,7 @@
 use crate::core::DbConnection;
 use crate::errors;
 use crate::json;
-use database::user::User;
+use dim_database::user::User;
 use warp::reply;
 
 /// # GET `/api/v1/host/admin_exists`

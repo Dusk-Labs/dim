@@ -1,7 +1,5 @@
-cargo-features = ["workspace-inheritance"]
-
 [package]
-name = "auth"
+name = "dim-auth"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

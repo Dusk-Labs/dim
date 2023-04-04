@@ -9,12 +9,12 @@ use std::path::PathBuf;
 use std::sync::mpsc;
 use std::sync::Arc;
 
-use database::library::Library;
-use database::library::MediaType;
-use database::media::Media;
-use database::mediafile::MediaFile;
-use database::mediafile::UpdateMediaFile;
-use database::DbConnection;
+use dim_database::library::Library;
+use dim_database::library::MediaType;
+use dim_database::media::Media;
+use dim_database::mediafile::MediaFile;
+use dim_database::mediafile::UpdateMediaFile;
+use dim_database::DbConnection;
 
 use notify::Config;
 use notify::EventKind;
@@ -33,7 +33,7 @@ use tracing::{debug, error, warn};
 #[derive(Display, Debug, Error)]
 pub enum FsWatcherError {
     /// A database error has occured: {0:?}
-    DatabaseError(#[from] database::DatabaseError),
+    DatabaseError(#[from] dim_database::DatabaseError),
     /// A error with notify has occured": {0:?}
     NotifyError(#[from] notify::Error),
 }
@@ -138,7 +138,7 @@ impl FsWatcher {
                 super::insert_mediafiles(&mut self.conn, self.library_id, vec![path.clone()]).await
             {
                 let mut lock = self.conn.writer().lock_owned().await;
-                let mut tx = database::write_tx(&mut lock).await.unwrap();
+                let mut tx = dim_database::write_tx(&mut lock).await.unwrap();
 
                 if let Err(e) = self
                     .matcher
@@ -178,7 +178,7 @@ impl FsWatcher {
         };
 
         let mut lock = self.conn.writer().lock_owned().await;
-        let mut tx = match database::write_tx(&mut lock).await {
+        let mut tx = match dim_database::write_tx(&mut lock).await {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to create transaction.");
@@ -243,7 +243,7 @@ impl FsWatcher {
         };
 
         let mut lock = self.conn.writer().lock_owned().await;
-        let mut tx = match database::write_tx(&mut lock).await {
+        let mut tx = match dim_database::write_tx(&mut lock).await {
             Ok(x) => x,
             Err(e) => {
                 error!(reason = ?e, "Failed to create transaction.");

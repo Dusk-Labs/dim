@@ -22,20 +22,20 @@ pub mod mediafile;
 pub mod movie;
 pub mod progress;
 pub mod query_ext;
-#[cfg(feature = "sqlite")]
 pub mod rw_pool;
 pub mod season;
-#[cfg(test)]
-pub mod tests;
 pub mod tv;
 pub mod user;
 pub mod utils;
 
+#[cfg(test)]
+pub mod tests;
+
 pub use crate::error::DatabaseError;
 /// Ugly hack because of a shitty deadlock in `Pool`
 pub use crate::rw_pool::write_tx;
-pub use auth::generate_key;
-pub use auth::set_key;
+pub use dim_auth::generate_key;
+pub use dim_auth::set_key;
 
 pub type DbConnection = rw_pool::SqlitePool;
 pub type Transaction<'tx> = sqlx::Transaction<'tx, sqlx::Sqlite>;
@@ -90,7 +90,6 @@ pub fn try_get_conn() -> Option<&'static crate::DbConnection> {
     __GLOBAL.get()
 }
 
-#[cfg(feature = "sqlite")]
 pub async fn get_conn_memory() -> sqlx::Result<crate::DbConnection> {
     let pool = sqlx::Pool::connect(":memory:").await?;
     let connection: sqlx::pool::PoolConnection<sqlx::Sqlite> = pool.acquire().await?;

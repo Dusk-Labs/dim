@@ -2,22 +2,22 @@ use crate::core::DbConnection;
 use crate::errors;
 use crate::json;
 
-use database::episode::Episode;
-use database::genre::*;
-use database::library::MediaType;
-use database::media::Media;
-use database::mediafile::MediaFile;
-use database::progress::Progress;
+use dim_database::episode::Episode;
+use dim_database::genre::*;
+use dim_database::library::MediaType;
+use dim_database::media::Media;
+use dim_database::mediafile::MediaFile;
+use dim_database::progress::Progress;
 
-use database::user::User;
+use dim_database::user::User;
 use serde_json::Value;
 
 use warp::reply;
 
 pub mod filters {
-    use database::DbConnection;
+    use dim_database::DbConnection;
 
-    use database::user::User;
+    use dim_database::user::User;
     use warp::reject;
     use warp::Filter;
 
@@ -153,7 +153,7 @@ pub async fn banners(conn: DbConnection, user: User) -> Result<impl warp::Reply,
 }
 
 async fn banner_for_movie(
-    conn: &mut database::Transaction<'_>,
+    conn: &mut dim_database::Transaction<'_>,
     user: &User,
     media: &Media,
 ) -> Result<Value, errors::DimError> {
@@ -199,7 +199,7 @@ async fn banner_for_movie(
 }
 
 async fn banner_for_show(
-    conn: &mut database::Transaction<'_>,
+    conn: &mut dim_database::Transaction<'_>,
     user: &User,
     media: &Media,
 ) -> Result<Value, errors::DimError> {

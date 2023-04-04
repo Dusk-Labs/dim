@@ -1,7 +1,5 @@
-cargo-features = ["workspace-inheritance"]
-
 [package]
-name = "events"
+name = "dim-events"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

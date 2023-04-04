@@ -8,8 +8,8 @@ use crate::core::DbConnection;
 use crate::errors;
 use crate::json;
 
-use database::user::Login;
-use database::user::User;
+use dim_database::user::Login;
+use dim_database::user::User;
 
 use http::StatusCode;
 use warp::reply;
@@ -145,7 +145,7 @@ pub async fn generate_invite(
     }
 
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
 
     let token = Login::new_invite(&mut tx).await?;
 
@@ -185,7 +185,7 @@ pub async fn delete_invite(
     }
 
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
     Login::delete_token(&mut tx, token).await?;
     tx.commit().await?;
 
@@ -196,7 +196,7 @@ pub async fn delete_invite(
 pub(crate) mod filters {
     use super::super::global_filters::with_auth;
     use super::super::global_filters::with_state;
-    use database::DbConnection;
+    use dim_database::DbConnection;
     use warp::reject;
     use warp::Filter;
 

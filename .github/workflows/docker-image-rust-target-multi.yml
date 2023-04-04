@@ -2,10 +2,8 @@ name: Build Dim Bin and Dockerize
 
 on:
   push:
-    branches: [ 'master','docker-build' ]
+    branches: [ 'master', 'docker-build' ]
     tags: 'v*' 
-  pull_request:
-    branches: [ 'master' ] 
   workflow_dispatch:
 
 env:

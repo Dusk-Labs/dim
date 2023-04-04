@@ -6,10 +6,10 @@ use crate::streaming::FFPROBE_BIN;
 
 use async_trait::async_trait;
 
-use database::mediafile::InsertableMediaFile;
-use database::mediafile::MediaFile;
-use database::DatabaseError;
-use database::DbConnection;
+use dim_database::mediafile::InsertableMediaFile;
+use dim_database::mediafile::MediaFile;
+use dim_database::DatabaseError;
+use dim_database::DbConnection;
 use displaydoc::Display;
 
 use serde::Serialize;
@@ -201,7 +201,7 @@ impl MediafileCreator {
         let mut work_done = vec![];
 
         let mut lock = self.conn.writer().lock_owned().await;
-        let mut tx = database::write_tx(&mut lock)
+        let mut tx = dim_database::write_tx(&mut lock)
             .await
             .map_err(|e| Error::FailedToAcquireWriter(e.into()))?;
 

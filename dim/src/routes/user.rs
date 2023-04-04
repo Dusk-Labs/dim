@@ -3,10 +3,10 @@ use crate::core::DbConnection;
 use crate::errors;
 use bytes::BufMut;
 
-use database::asset::Asset;
-use database::asset::InsertableAsset;
-use database::progress::Progress;
-use database::user::User;
+use dim_database::asset::Asset;
+use dim_database::asset::InsertableAsset;
+use dim_database::progress::Progress;
+use dim_database::user::User;
 
 use serde_json::json;
 
@@ -99,7 +99,7 @@ pub async fn change_password(
     new_password: String,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
 
     let user = User::authenticate(&mut tx, user.username, old_password)
         .await
@@ -150,7 +150,7 @@ pub async fn delete(
     password: String,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
 
     let user = User::authenticate(&mut tx, user.username, password)
         .await
@@ -193,7 +193,7 @@ pub async fn change_username(
     new_username: String,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
     if User::get(&mut tx, &new_username).await.is_ok() {
         return Err(errors::DimError::UsernameNotAvailable);
     }
@@ -237,7 +237,7 @@ pub async fn upload_avatar(
         .map_err(|_e| errors::DimError::UploadFailed)?;
 
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
     let asset = if let Some(p) = parts.into_iter().filter(|x| x.name() == "file").next() {
         process_part(&mut tx, p).await
     } else {
@@ -252,7 +252,7 @@ pub async fn upload_avatar(
 
 #[doc(hidden)]
 pub async fn process_part(
-    conn: &mut database::Transaction<'_>,
+    conn: &mut dim_database::Transaction<'_>,
     p: warp::multipart::Part,
 ) -> Result<Asset, errors::DimError> {
     if p.name() != "file" {
@@ -299,7 +299,7 @@ pub(crate) mod filters {
     use crate::core::DbConnection;
     use serde::Deserialize;
 
-    use database::user::User;
+    use dim_database::user::User;
 
     use warp::reject;
     use warp::Filter;

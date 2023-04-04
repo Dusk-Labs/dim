@@ -1,5 +1,3 @@
-pub use auth::AuthError;
-
 use displaydoc::Display;
 use std::sync::Arc;
 use thiserror::Error;

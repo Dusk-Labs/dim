@@ -21,10 +21,10 @@
 use crate::core::DbConnection;
 use crate::errors;
 
-use database::user::verify;
-use database::user::InsertableUser;
-use database::user::Login;
-use database::user::User;
+use dim_database::user::verify;
+use dim_database::user::InsertableUser;
+use dim_database::user::Login;
+use dim_database::user::User;
 
 use serde_json::json;
 
@@ -36,7 +36,7 @@ pub mod filters {
     use warp::reject;
     use warp::Filter;
 
-    use database::user::Login;
+    use dim_database::user::Login;
 
     use super::super::global_filters::with_db;
 
@@ -95,7 +95,7 @@ pub mod filters {
 /// * [`InvalidCredentials`] - The provided username or password is incorrect.
 ///
 /// [`InvalidCredentials`]: crate::errors::DimError::InvalidCredentials
-/// [`Login`]: database::user::Login
+/// [`Login`]: dim_database::user::Login
 pub async fn login(
     new_login: Login,
     conn: DbConnection,
@@ -106,7 +106,7 @@ pub async fn login(
         .map_err(|_| errors::DimError::InvalidCredentials)?;
     let pass = user.get_pass(&mut tx).await?;
     if verify(user.username, pass, new_login.password) {
-        let token = database::user::Login::create_cookie(user.id);
+        let token = dim_database::user::Login::create_cookie(user.id);
 
         return Ok(reply::json(&json!({
             "token": token,
@@ -156,14 +156,14 @@ pub async fn admin_exists(conn: DbConnection) -> Result<impl warp::Reply, errors
 /// invalid.
 ///
 /// [`NoToken`]: crate::errors::DimError::NoToken
-/// [`Login`]: database::user::Login
+/// [`Login`]: dim_database::user::Login
 pub async fn register(
     new_user: Login,
     conn: DbConnection,
 ) -> Result<impl warp::Reply, errors::DimError> {
     // FIXME: Return INTERNAL SERVER ERROR maybe with a traceback?
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
     // NOTE: I doubt this method can faily all the time, we should map server error here too.
     let users_empty = User::get_all(&mut tx).await?.is_empty();
 
@@ -173,7 +173,7 @@ pub async fn register(
         return Err(errors::DimError::NoToken);
     }
 
-    let roles = database::user::Roles(if !users_empty {
+    let roles = dim_database::user::Roles(if !users_empty {
         vec!["user".to_string()]
     } else {
         vec!["owner".to_string()]

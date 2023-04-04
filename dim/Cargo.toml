@@ -1,5 +1,3 @@
-cargo-features = ["workspace-inheritance"]
-
 [package]
 name = "dim"
 build = "src/build.rs"
@@ -9,21 +7,20 @@ edition.workspace = true
 license.workspace = true
 
 [features]
-default = ["sqlite"]
 vaapi = ["nightfall/vaapi"]
 
 # the build script usually will enable this if `yarn` is installed.
 # If enabled explicitly, the build script will panic if something went wrong.
 embed_ui = []
-sqlite = ["database/sqlite"]
 
 [dependencies]
 # git dependencies
 nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4", default-features = false, features = ["cuda", "ssa_transmux"] }
 
 # local dependencies
-database = { path = "../database", default-features = false, optional = true }
-events = { path = "../events" }
+dim-auth = { path = "../dim-auth" }
+dim-database = { path = "../dim-database" }
+dim-events = { path = "../dim-events" }
 
 serde = { version = "^1.0.125", default-features = false, features = ["derive", "std", "rc"] }
 serde_derive = "^1.0.125"

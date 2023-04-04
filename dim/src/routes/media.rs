@@ -7,16 +7,16 @@ use crate::tree;
 use crate::utils::secs_to_pretty;
 
 use chrono::Datelike;
-use database::user::User;
+use dim_database::user::User;
 
-use database::compact_mediafile::CompactMediafile;
-use database::episode::Episode;
-use database::genre::Genre;
-use database::library::MediaType;
-use database::media::Media;
-use database::media::UpdateMedia;
-use database::mediafile::MediaFile;
-use database::progress::Progress;
+use dim_database::compact_mediafile::CompactMediafile;
+use dim_database::episode::Episode;
+use dim_database::genre::Genre;
+use dim_database::library::MediaType;
+use dim_database::media::Media;
+use dim_database::media::UpdateMedia;
+use dim_database::mediafile::MediaFile;
+use dim_database::progress::Progress;
 
 use warp::http::status::StatusCode;
 use warp::reply;
@@ -34,7 +34,7 @@ pub const TV_PROVIDER: Lazy<Arc<dyn ExternalQueryIntoShow>> =
     Lazy::new(|| Arc::new(TMDBMetadataProvider::new(&API_KEY).tv_shows()));
 
 pub mod filters {
-    use database::user::User;
+    use dim_database::user::User;
     use warp::reject;
     use warp::Filter;
 
@@ -43,8 +43,8 @@ pub mod filters {
     use super::super::global_filters::with_state;
     use serde::Deserialize;
 
-    use database::media::UpdateMedia;
-    use database::DbConnection;
+    use dim_database::media::UpdateMedia;
+    use dim_database::DbConnection;
 
     pub fn get_media_by_id(
         conn: DbConnection,
@@ -194,7 +194,7 @@ pub mod filters {
 /// ```
 ///
 /// # Additional types
-/// [`MediaType`](`database::library::MediaType`)
+/// [`MediaType`](`dim_database::library::MediaType`)
 pub async fn get_media_by_id(
     conn: DbConnection,
     id: i64,
@@ -474,7 +474,7 @@ pub async fn update_media_by_id(
     conn: DbConnection,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
     let status = if data.update(&mut tx, id).await.is_ok() {
         StatusCode::NO_CONTENT
     } else {
@@ -499,7 +499,7 @@ pub async fn delete_media_by_id(
     _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
     Media::delete(&mut tx, id).await?;
     tx.commit().await?;
     Ok(StatusCode::OK)
@@ -571,7 +571,7 @@ pub async fn map_progress(
     user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
     Progress::set(&mut tx, offset, user.id, id).await?;
     tx.commit().await?;
     Ok(StatusCode::OK)
