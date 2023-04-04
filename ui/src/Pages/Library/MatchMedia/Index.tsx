@@ -11,6 +11,8 @@ import { UnmatchedMediaFiles } from "api/v1/unmatchedMedia";
 
 import AngleUp from "assets/Icons/AngleUp";
 import "./Index.scss";
+import { useDispatch } from "react-redux";
+import { addNotification } from "slices/notifications";
 
 interface MatchMediaProps {
   data: UnmatchedMediaFiles;
@@ -19,6 +21,7 @@ interface MatchMediaProps {
 }
 
 const MatchMedia = ({ data, refetch, mediafileSearch }: MatchMediaProps) => {
+  const dispatch = useDispatch();
   const [current, setCurrent] = useState<number | null>(null);
   const [isOpened, setOpened] = useState<boolean>(true);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
@@ -33,6 +36,7 @@ const MatchMedia = ({ data, refetch, mediafileSearch }: MatchMediaProps) => {
   const [startMatch, setStartMatch] = useState<boolean>(false);
   const [externalId, setExternalId] = useState<number | null>(null);
   const [mediaType, setMediaType] = useState<string | null>(null);
+  const [screenSize, setScreenSize] = useState(window.innerWidth);
   const matchResult = useMatchMediafilesQuery(
     {
       ids: selectedFiles,
@@ -42,12 +46,28 @@ const MatchMedia = ({ data, refetch, mediafileSearch }: MatchMediaProps) => {
     { skip: !startMatch }
   );
 
+  // reesize screen size on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenSize(window.innerWidth);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   useEffect(() => {
     if (matchResult.isFetching) return;
     if (!startMatch) return;
 
     if (matchResult.error) {
       console.log("matching error: ", matchResult.error);
+      dispatch(
+        addNotification({
+          msg: "Error matching files.",
+        })
+      );
       return;
     }
 
@@ -65,6 +85,7 @@ const MatchMedia = ({ data, refetch, mediafileSearch }: MatchMediaProps) => {
     setSelectedFiles,
     startMatch,
     refetch,
+    dispatch,
   ]);
 
   const setCurrentCallback = useCallback(
@@ -88,6 +109,7 @@ const MatchMedia = ({ data, refetch, mediafileSearch }: MatchMediaProps) => {
 
   const matchSelected = useCallback(
     (externalId: number, media_type: string) => {
+      setSearchQuery("");
       console.log("Matching selected files.");
       setExternalId(externalId);
       setMediaType(media_type);
@@ -144,16 +166,19 @@ const MatchMedia = ({ data, refetch, mediafileSearch }: MatchMediaProps) => {
     };
   }, [toggleSuggestionsOff]);
 
-  // TODO: Display errors if any.
   return (
     <div className={`match-media open-${isOpened}`}>
       <div className="match-container">
         <div className="match-left">
           <p className="match-head">{data.count} Unmatched files found</p>
-          <div className="match-middle">
-            <p className="match-label">View and select files to match.</p>
-            <SimpleSearch onChange={mediafileSearch} />
-          </div>
+          {isOpened && (
+            <div className="match-middle">
+              {screenSize > 1080 && (
+                <p className="match-label">View and select files to match.</p>
+              )}
+              <SimpleSearch onChange={mediafileSearch} />
+            </div>
+          )}
 
           <NestedFileView
             files={data.files}
@@ -171,6 +196,7 @@ const MatchMedia = ({ data, refetch, mediafileSearch }: MatchMediaProps) => {
                 toggleSuggestionsOff={toggleSuggestionsOff}
                 onSearch={onSearch}
                 mediatype={selectedMediatype}
+                query={searchQuery}
               />
             )}
             <div

@@ -4,6 +4,7 @@ import { SearchResultContext } from "./Context";
 import Ellipsis from "assets/Icons/Ellipsis";
 import "./SearchResult.scss";
 import Image from "./ResultImage";
+import { truncate } from "Helpers/utils";
 
 interface Props {
   description: string;
@@ -72,7 +73,7 @@ export const SearchResult = ({
             <p>{title}</p>
 
             <div className="meta">
-              {rating && <p>{rating}</p>}
+              {rating && <p>{truncate(rating, 1)}</p>}
               {year && <p>{year}</p>}
               {duration && <p>{duration}</p>}
             </div>

@@ -9,8 +9,17 @@
       overflow: hidden !important;
     }
 
-    & .match-right {
-      background: #3a3a3a !important;
+    & .match-container {
+      .match-right {
+        background: #3a3a3a !important;
+
+        .right-head {
+          padding: 6px 40px;
+        }
+      }
+      .match-head {
+        padding: 20px 40px;
+      }
     }
   }
 
@@ -29,13 +38,13 @@
     .match-head {
       font-size: 16px;
       line-height: 16px;
-      padding: 30px 40px;
+      padding: 42px 0px 15px 40px;
     }
 
     .match-label {
       line-height: 10px;
       font-size: 12px;
-      padding: 10px 40px;
+      padding: 0px 5px 0px 40px;
       color: #aaa;
     }
 
@@ -45,8 +54,22 @@
       align-items: center;
 
       .simple-searchbox {
-        margin-left: auto;
         padding-right: 40px;
+        width: 80%;
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .match-middle {
+        flex-direction: column;
+      }
+
+      .match-middle > .simple-searchbox {
+        width: 100%;
+        margin-left: 48px;
+        > .input {
+          width: 100%;
+        }
       }
     }
 
@@ -95,7 +118,7 @@
       .right-head {
         display: inline-flex;
         align-self: flex-start;
-        padding: 20px 40px;
+        padding: 25px 40px 5px 40px;
         overflow: hidden;
         width: 100%;
         column-gap: 30px;
