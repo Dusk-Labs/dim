@@ -224,10 +224,10 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
 <span class="kw">use </span><span class="kw">crate</span>::errors;
 
-<span class="kw">use </span>database::user::verify;
-<span class="kw">use </span>database::user::InsertableUser;
-<span class="kw">use </span>database::user::Login;
-<span class="kw">use </span>database::user::User;
+<span class="kw">use </span>dim_database::user::verify;
+<span class="kw">use </span>dim_database::user::InsertableUser;
+<span class="kw">use </span>dim_database::user::Login;
+<span class="kw">use </span>dim_database::user::User;
 
 <span class="kw">use </span>serde_json::json;
 
@@ -239,7 +239,7 @@
     <span class="kw">use </span>warp::reject;
     <span class="kw">use </span>warp::Filter;
 
-    <span class="kw">use </span>database::user::Login;
+    <span class="kw">use </span>dim_database::user::Login;
 
     <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_db;
 
@@ -298,7 +298,7 @@
 /// * [`InvalidCredentials`] - The provided username or password is incorrect.
 ///
 /// [`InvalidCredentials`]: crate::errors::DimError::InvalidCredentials
-/// [`Login`]: database::user::Login
+/// [`Login`]: dim_database::user::Login
 </span><span class="kw">pub async fn </span>login(
     new_login: Login,
     conn: DbConnection,
@@ -309,7 +309,7 @@
         </span>.map_err(|<span class="kw">_</span>| errors::DimError::InvalidCredentials)<span class="question-mark">?</span>;
     <span class="kw">let </span>pass = user.get_pass(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">if </span>verify(user.username, pass, new_login.password) {
-        <span class="kw">let </span>token = database::user::Login::create_cookie(user.id);
+        <span class="kw">let </span>token = dim_database::user::Login::create_cookie(user.id);
 
         <span class="kw">return </span><span class="prelude-val">Ok</span>(reply::json(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
             <span class="string">&quot;token&quot;</span>: token,
@@ -359,14 +359,14 @@
 /// invalid.
 ///
 /// [`NoToken`]: crate::errors::DimError::NoToken
-/// [`Login`]: database::user::Login
+/// [`Login`]: dim_database::user::Login
 </span><span class="kw">pub async fn </span>register(
     new_user: Login,
     conn: DbConnection,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="comment">// FIXME: Return INTERNAL SERVER ERROR maybe with a traceback?
     </span><span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="comment">// NOTE: I doubt this method can faily all the time, we should map server error here too.
     </span><span class="kw">let </span>users_empty = User::get_all(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span><span class="question-mark">?</span>.is_empty();
 
@@ -376,7 +376,7 @@
         <span class="kw">return </span><span class="prelude-val">Err</span>(errors::DimError::NoToken);
     }
 
-    <span class="kw">let </span>roles = database::user::Roles(<span class="kw">if </span>!users_empty {
+    <span class="kw">let </span>roles = dim_database::user::Roles(<span class="kw">if </span>!users_empty {
         <span class="macro">vec!</span>[<span class="string">&quot;user&quot;</span>.to_string()]
     } <span class="kw">else </span>{
         <span class="macro">vec!</span>[<span class="string">&quot;owner&quot;</span>.to_string()]

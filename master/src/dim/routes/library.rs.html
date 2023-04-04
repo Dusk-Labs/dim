@@ -446,14 +446,14 @@
 <span class="kw">use </span><span class="kw">crate</span>::scanner::daemon::FsWatcher;
 <span class="kw">use </span><span class="kw">crate</span>::tree;
 
-<span class="kw">use </span>database::compact_mediafile::CompactMediafile;
-<span class="kw">use </span>database::library::InsertableLibrary;
-<span class="kw">use </span>database::library::Library;
-<span class="kw">use </span>database::library::MediaType;
-<span class="kw">use </span>database::media::Media;
-<span class="kw">use </span>database::mediafile::MediaFile;
+<span class="kw">use </span>dim_database::compact_mediafile::CompactMediafile;
+<span class="kw">use </span>dim_database::library::InsertableLibrary;
+<span class="kw">use </span>dim_database::library::Library;
+<span class="kw">use </span>dim_database::library::MediaType;
+<span class="kw">use </span>dim_database::media::Media;
+<span class="kw">use </span>dim_database::mediafile::MediaFile;
 
-<span class="kw">use </span>database::user::User;
+<span class="kw">use </span>dim_database::user::User;
 
 <span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::sync::Arc;
@@ -478,7 +478,7 @@
     <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_auth;
     <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_db;
 
-    <span class="kw">use </span>database::DbConnection;
+    <span class="kw">use </span>dim_database::DbConnection;
 
     <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state;
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -651,7 +651,7 @@
     _user: User,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>id = new_library.insert(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span><span class="question-mark">?</span>;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     drop(lock);
@@ -701,7 +701,7 @@
     // content hidden. This is necessary because huge libraries take a long time to delete.
     </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">if </span>Library::mark_hidden(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">? </span>&lt; <span class="number">1 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(errors::DimError::LibraryNotFound);
         }
@@ -711,7 +711,7 @@
     <span class="kw">let </span>delete_lib_fut = <span class="kw">async move </span>{
         <span class="kw">let </span>inner = <span class="kw">async </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-            <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
 
             Library::delete(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
             Media::delete_by_lib_id(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -719,7 +719,7 @@
 
             tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="prelude-val">Ok</span>::&lt;<span class="kw">_</span>, database::error::DatabaseError&gt;(())
+            <span class="prelude-val">Ok</span>::&lt;<span class="kw">_</span>, dim_database::error::DatabaseError&gt;(())
         };
 
         <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = inner.<span class="kw">await </span>{

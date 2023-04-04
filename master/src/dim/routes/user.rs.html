@@ -415,10 +415,10 @@
 <span class="kw">use </span><span class="kw">crate</span>::errors;
 <span class="kw">use </span>bytes::BufMut;
 
-<span class="kw">use </span>database::asset::Asset;
-<span class="kw">use </span>database::asset::InsertableAsset;
-<span class="kw">use </span>database::progress::Progress;
-<span class="kw">use </span>database::user::User;
+<span class="kw">use </span>dim_database::asset::Asset;
+<span class="kw">use </span>dim_database::asset::InsertableAsset;
+<span class="kw">use </span>dim_database::progress::Progress;
+<span class="kw">use </span>dim_database::user::User;
 
 <span class="kw">use </span>serde_json::json;
 
@@ -511,7 +511,7 @@
     new_password: String,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>user = User::authenticate(<span class="kw-2">&amp;mut </span>tx, user.username, old_password)
         .<span class="kw">await
@@ -562,7 +562,7 @@
     password: String,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>user = User::authenticate(<span class="kw-2">&amp;mut </span>tx, user.username, password)
         .<span class="kw">await
@@ -605,7 +605,7 @@
     new_username: String,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">if </span>User::get(<span class="kw-2">&amp;mut </span>tx, <span class="kw-2">&amp;</span>new_username).<span class="kw">await</span>.is_ok() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(errors::DimError::UsernameNotAvailable);
     }
@@ -649,7 +649,7 @@
         </span>.map_err(|_e| errors::DimError::UploadFailed)<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>asset = <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = parts.into_iter().filter(|x| x.name() == <span class="string">&quot;file&quot;</span>).next() {
         process_part(<span class="kw-2">&amp;mut </span>tx, p).<span class="kw">await
     </span>} <span class="kw">else </span>{
@@ -664,7 +664,7 @@
 
 <span class="attr">#[doc(hidden)]
 </span><span class="kw">pub async fn </span>process_part(
-    conn: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    conn: <span class="kw-2">&amp;mut </span>dim_database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
     p: warp::multipart::Part,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Asset, errors::DimError&gt; {
     <span class="kw">if </span>p.name() != <span class="string">&quot;file&quot; </span>{
@@ -711,7 +711,7 @@
     <span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
     <span class="kw">use </span>serde::Deserialize;
 
-    <span class="kw">use </span>database::user::User;
+    <span class="kw">use </span>dim_database::user::User;
 
     <span class="kw">use </span>warp::reject;
     <span class="kw">use </span>warp::Filter;

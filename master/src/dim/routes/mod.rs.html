@@ -140,8 +140,8 @@
 </span><span class="kw">pub mod </span>global_filters {
     <span class="kw">use </span><span class="kw">crate</span>::errors;
     <span class="kw">use </span><span class="kw">crate</span>::errors::DimError;
-    <span class="kw">use </span>database::user::User;
-    <span class="kw">use </span>database::DbConnection;
+    <span class="kw">use </span>dim_database::user::User;
+    <span class="kw">use </span>dim_database::DbConnection;
     <span class="kw">use </span>http::header::AUTHORIZATION;
     <span class="kw">use </span>warp::reject;
     <span class="kw">use </span>warp::Rejection;
@@ -177,7 +177,7 @@
                         }))
                     }
                 };
-                <span class="kw">let </span>id = database::user::Login::verify_cookie(x)
+                <span class="kw">let </span>id = dim_database::user::Login::verify_cookie(x)
                     .map_err(|e| reject::custom(DimError::CookieError(e)))<span class="question-mark">?</span>;
 
                 User::get_by_id(<span class="kw-2">&amp;mut </span>tx, id)

@@ -742,21 +742,21 @@
 
 <span class="kw">use </span>async_trait::async_trait;
 
-<span class="kw">use </span>database::episode::Episode;
-<span class="kw">use </span>database::episode::InsertableEpisode;
-<span class="kw">use </span>database::genre::Genre;
-<span class="kw">use </span>database::genre::InsertableGenre;
-<span class="kw">use </span>database::genre::InsertableGenreMedia;
-<span class="kw">use </span>database::library::MediaType;
-<span class="kw">use </span>database::media::InsertableMedia;
-<span class="kw">use </span>database::media::Media;
-<span class="kw">use </span>database::mediafile::MediaFile;
-<span class="kw">use </span>database::mediafile::UpdateMediaFile;
-<span class="kw">use </span>database::movie::Movie;
-<span class="kw">use </span>database::season::InsertableSeason;
-<span class="kw">use </span>database::season::Season;
-<span class="kw">use </span>database::tv::TVShow;
-<span class="kw">use </span>database::Transaction;
+<span class="kw">use </span>dim_database::episode::Episode;
+<span class="kw">use </span>dim_database::episode::InsertableEpisode;
+<span class="kw">use </span>dim_database::genre::Genre;
+<span class="kw">use </span>dim_database::genre::InsertableGenre;
+<span class="kw">use </span>dim_database::genre::InsertableGenreMedia;
+<span class="kw">use </span>dim_database::library::MediaType;
+<span class="kw">use </span>dim_database::media::InsertableMedia;
+<span class="kw">use </span>dim_database::media::Media;
+<span class="kw">use </span>dim_database::mediafile::MediaFile;
+<span class="kw">use </span>dim_database::mediafile::UpdateMediaFile;
+<span class="kw">use </span>dim_database::movie::Movie;
+<span class="kw">use </span>dim_database::season::InsertableSeason;
+<span class="kw">use </span>dim_database::season::Season;
+<span class="kw">use </span>dim_database::tv::TVShow;
+<span class="kw">use </span>dim_database::Transaction;
 
 <span class="kw">use </span>chrono::prelude::Utc;
 <span class="kw">use </span>chrono::Datelike;
@@ -773,33 +773,33 @@
 <span class="attr">#[derive(Clone, Debug, Display, Error, Serialize)]
 </span><span class="kw">pub enum </span>Error {
     <span class="doccomment">/// Failed to insert poster into database: {0:?}
-    </span>PosterInsert(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>PosterInsert(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Failed to insert backdrop into database: {0:?}
-    </span>BackdropInsert(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>BackdropInsert(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Failed to decouple genres from media: {0:?}
-    </span>GenreDecouple(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>GenreDecouple(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Failed to create or get genre: {0:?}
-    </span>GetOrInsertGenre(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>GetOrInsertGenre(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Failed to attach genre to media object: {0:?}
-    </span>CoupleGenre(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>CoupleGenre(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Failed to update mediafile to point to new parent: {0:?}
-    </span>UpdateMediafile(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>UpdateMediafile(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Failed to get children count for movie: {0:?}
-    </span>ChildrenCount(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>ChildrenCount(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Failed to cleanup child-less parent: {0:?}
-    </span>ChildCleanup(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>ChildCleanup(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Failed to insert or get tv object: {0:?}
-    </span>GetOrInsertMedia(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>GetOrInsertMedia(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Failed to insert or get season: {0:?}
-    </span>GetOrInsertSeason(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>GetOrInsertSeason(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Failed to insert media object for episode: {0:?}
-    </span>GetOrInsertMediaEpisode(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>GetOrInsertMediaEpisode(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Failed to insert episode object: {0:?}
-    </span>GetOrInsertEpisode(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>GetOrInsertEpisode(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Failed to get season id for episode: {0:?}
-    </span>GetSeasonId(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>GetSeasonId(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Failed to get tvshowid for season: {0:?}
-    </span>GetTvId(<span class="attr">#[serde(skip)] </span>database::DatabaseError),
+    </span>GetTvId(<span class="attr">#[serde(skip)] </span>dim_database::DatabaseError),
     <span class="doccomment">/// Season not found
     </span>SeasonNotFound,
     <span class="doccomment">/// Episode not found
@@ -1250,19 +1250,19 @@
     <span class="kw">use </span><span class="kw">crate</span>::external::ExternalMedia;
     <span class="kw">use </span><span class="kw">crate</span>::external::ExternalSeason;
 
-    <span class="kw">use </span>database::episode::Episode;
-    <span class="kw">use </span>database::media::Media;
-    <span class="kw">use </span>database::mediafile::InsertableMediaFile;
-    <span class="kw">use </span>database::mediafile::MediaFile;
-    <span class="kw">use </span>database::rw_pool::write_tx;
-    <span class="kw">use </span>database::season::Season;
-    <span class="kw">use </span>database::tv::TVShow;
+    <span class="kw">use </span>dim_database::episode::Episode;
+    <span class="kw">use </span>dim_database::media::Media;
+    <span class="kw">use </span>dim_database::mediafile::InsertableMediaFile;
+    <span class="kw">use </span>dim_database::mediafile::MediaFile;
+    <span class="kw">use </span>dim_database::rw_pool::write_tx;
+    <span class="kw">use </span>dim_database::season::Season;
+    <span class="kw">use </span>dim_database::tv::TVShow;
 
     <span class="attr">#[tokio::test(flavor = <span class="string">&quot;multi_thread&quot;</span>)]
     </span><span class="kw">async fn </span>match_show() {
         <span class="kw">const </span>MATCHER: TvMatcher = TvMatcher;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>conn = database::get_conn_memory()
+        <span class="kw">let </span><span class="kw-2">mut </span>conn = dim_database::get_conn_memory()
             .<span class="kw">await
             </span>.expect(<span class="string">&quot;Failed to obtain a in-memory db pool.&quot;</span>);
         <span class="kw">let </span>library = create_library(<span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span>;
@@ -1364,7 +1364,7 @@
         <span class="kw">crate</span>::setup_test_logging();
         <span class="kw">const </span>MATCHER: TvMatcher = TvMatcher;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>conn = database::get_conn_memory()
+        <span class="kw">let </span><span class="kw-2">mut </span>conn = dim_database::get_conn_memory()
             .<span class="kw">await
             </span>.expect(<span class="string">&quot;Failed to obtain a in-memory db pool.&quot;</span>);
         <span class="kw">let </span>library = create_library(<span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span>;

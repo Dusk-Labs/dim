@@ -269,10 +269,10 @@
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
 <span class="kw">use </span><span class="kw">crate</span>::errors;
 
-<span class="kw">use </span>database::user::User;
+<span class="kw">use </span>dim_database::user::User;
 
-<span class="kw">use </span>database::episode::{Episode, UpdateEpisode};
-<span class="kw">use </span>database::season::{Season, UpdateSeason};
+<span class="kw">use </span>dim_database::episode::{Episode, UpdateEpisode};
+<span class="kw">use </span>dim_database::season::{Season, UpdateSeason};
 
 <span class="kw">use </span>warp::http::status::StatusCode;
 <span class="kw">use </span>warp::reply;
@@ -284,10 +284,10 @@
 
     <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_auth;
     <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state;
-    <span class="kw">use </span>database::episode::UpdateEpisode;
-    <span class="kw">use </span>database::season::UpdateSeason;
-    <span class="kw">use </span>database::user::User;
-    <span class="kw">use </span>database::DbConnection;
+    <span class="kw">use </span>dim_database::episode::UpdateEpisode;
+    <span class="kw">use </span>dim_database::season::UpdateSeason;
+    <span class="kw">use </span>dim_database::user::User;
+    <span class="kw">use </span>dim_database::DbConnection;
 
     <span class="kw">pub fn </span>get_tv_seasons(
         conn: DbConnection,
@@ -432,7 +432,7 @@
 ///
 /// # Data
 /// This route additionally requires you to pass in a json object by the format of
-/// `database::season::UpdateSeason`.
+/// `dim_database::season::UpdateSeason`.
 </span><span class="kw">pub async fn </span>patch_season_by_id(
     conn: DbConnection,
     id: i64,
@@ -440,7 +440,7 @@
     _user: User,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
     data.update(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(StatusCode::NO_CONTENT)
@@ -458,7 +458,7 @@
     _user: User,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
     Season::delete_by_id(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(StatusCode::OK)
@@ -504,7 +504,7 @@
 ///
 /// # Data
 /// This route additionally requires you to pass in a json object by the format of
-/// `database::episode::UpdateEpisode`.
+/// `dim_database::episode::UpdateEpisode`.
 </span><span class="kw">pub async fn </span>patch_episode_by_id(
     conn: DbConnection,
     id: i64,
@@ -512,7 +512,7 @@
     _user: User,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
     episode.update(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(StatusCode::NO_CONTENT)
@@ -529,7 +529,7 @@
     _user: User,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
     Episode::delete(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(StatusCode::OK)

@@ -252,8 +252,8 @@
 <span class="kw">use </span><span class="kw">crate</span>::errors;
 <span class="kw">use </span><span class="kw">crate</span>::json;
 
-<span class="kw">use </span>database::user::Login;
-<span class="kw">use </span>database::user::User;
+<span class="kw">use </span>dim_database::user::Login;
+<span class="kw">use </span>dim_database::user::User;
 
 <span class="kw">use </span>http::StatusCode;
 <span class="kw">use </span>warp::reply;
@@ -389,7 +389,7 @@
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>token = Login::new_invite(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -429,7 +429,7 @@
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
     Login::delete_token(<span class="kw-2">&amp;mut </span>tx, token).<span class="kw">await</span><span class="question-mark">?</span>;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -440,7 +440,7 @@
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>filters {
     <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_auth;
     <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state;
-    <span class="kw">use </span>database::DbConnection;
+    <span class="kw">use </span>dim_database::DbConnection;
     <span class="kw">use </span>warp::reject;
     <span class="kw">use </span>warp::Filter;
 

@@ -234,9 +234,9 @@
 <span class="kw">use </span><span class="kw">crate</span>::errors;
 <span class="kw">use </span><span class="kw">crate</span>::utils::ffpath;
 
-<span class="kw">use </span>database::user::UpdateableUser;
-<span class="kw">use </span>database::user::User;
-<span class="kw">use </span>database::user::UserSettings;
+<span class="kw">use </span>dim_database::user::UpdateableUser;
+<span class="kw">use </span>dim_database::user::User;
+<span class="kw">use </span>dim_database::user::UserSettings;
 
 <span class="kw">use </span>serde::Deserialize;
 <span class="kw">use </span>serde::Serialize;
@@ -347,9 +347,9 @@
 }
 
 <span class="kw">pub mod </span>filters {
-    <span class="kw">use </span>database::user::User;
-    <span class="kw">use </span>database::user::UserSettings;
-    <span class="kw">use </span>database::DbConnection;
+    <span class="kw">use </span>dim_database::user::User;
+    <span class="kw">use </span>dim_database::user::UserSettings;
+    <span class="kw">use </span>dim_database::DbConnection;
 
     <span class="kw">use </span>warp::reject;
     <span class="kw">use </span>warp::Filter;
@@ -432,7 +432,7 @@
     new_settings: UserSettings,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>lock = db.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>update_user = UpdateableUser {
         prefs: <span class="prelude-val">Some</span>(new_settings.clone()),
     };

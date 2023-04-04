@@ -151,8 +151,8 @@
 
 <span class="kw">use </span>std::sync::Arc;
 
-<span class="kw">use </span>database::library::MediaType;
-<span class="kw">use </span>database::mediafile::MediaFile;
+<span class="kw">use </span>dim_database::library::MediaType;
+<span class="kw">use </span>dim_database::mediafile::MediaFile;
 
 <span class="kw">use </span>tracing::error;
 <span class="kw">use </span>tracing::info;
@@ -163,8 +163,8 @@
     <span class="kw">use </span><span class="kw">crate</span>::core::EventTx;
     <span class="kw">use </span><span class="kw">crate</span>::routes::global_filters::with_auth;
     <span class="kw">use </span><span class="kw">crate</span>::routes::global_filters::with_state;
-    <span class="kw">use </span>database::user::User;
-    <span class="kw">use </span>database::DbConnection;
+    <span class="kw">use </span>dim_database::user::User;
+    <span class="kw">use </span>dim_database::DbConnection;
     <span class="kw">use </span>serde::Deserialize;
 
     <span class="kw">use </span>warp::reject;
@@ -253,7 +253,7 @@
     drop(tx);
 
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">for </span>mediafile <span class="kw">in </span>mediafiles {
         <span class="kw">let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, metadata)) = parse_filenames(IntoIterator::into_iter([<span class="kw-2">&amp;</span>mediafile.target_file])).pop() <span class="kw">else </span>{
