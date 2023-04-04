@@ -1,8 +1,8 @@
 //! Module contains all the code that creates and inserts basic mediafiles into the database.
 
-use crate::external::filename::Metadata;
 use crate::streaming::ffprobe::FFProbeCtx;
 use crate::streaming::FFPROBE_BIN;
+use dim_extern_api::filename::Metadata;
 
 use async_trait::async_trait;
 

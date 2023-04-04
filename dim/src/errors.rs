@@ -63,7 +63,7 @@ pub enum DimError {
     /// User does not exist
     UserNotFound,
     /// Couldn't find the tmdb id provided.
-    ExternalSearchError(crate::external::Error),
+    ExternalSearchError(dim_extern_api::Error),
 }
 
 impl From<sqlx::Error> for DimError {

@@ -1,7 +1,6 @@
 use crate::core::DbConnection;
 use crate::errors;
 use crate::errors::ErrorStatusCode;
-use crate::external::ExternalQueryIntoShow;
 use crate::scanner::movie;
 use crate::scanner::parse_filenames;
 use crate::scanner::tv_show;
@@ -14,6 +13,8 @@ use super::media::TV_PROVIDER;
 use dim_database::library::MediaType;
 use dim_database::mediafile::MediaFile;
 use dim_database::user::User;
+
+use dim_extern_api::ExternalQueryIntoShow;
 
 use serde::Serialize;
 use serde_json::json;

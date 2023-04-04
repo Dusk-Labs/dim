@@ -1,7 +1,6 @@
 use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors::*;
-use crate::external::ExternalQueryIntoShow;
 use crate::scanner::movie;
 use crate::scanner::parse_filenames;
 use crate::scanner::tv_show;
@@ -15,6 +14,8 @@ use std::sync::Arc;
 
 use dim_database::library::MediaType;
 use dim_database::mediafile::MediaFile;
+
+use dim_extern_api::ExternalQueryIntoShow;
 
 use tracing::error;
 use tracing::info;

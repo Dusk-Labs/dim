@@ -1,6 +1,6 @@
-use anitomy::Anitomy;
+pub use anitomy::Anitomy;
 use anitomy::ElementCategory;
-use torrent_name_parser::Metadata as TorrentMetadata;
+pub use torrent_name_parser::Metadata as TorrentMetadata;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Metadata {

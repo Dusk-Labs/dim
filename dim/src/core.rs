@@ -1,5 +1,4 @@
 use crate::balanced_or_tree;
-use crate::external::tmdb::TMDBMetadataProvider;
 use crate::logger::RequestLogger;
 use crate::routes;
 use crate::routes::*;
@@ -8,6 +7,7 @@ use crate::stream_tracking::StreamTracking;
 use crate::websocket;
 
 use dim_database::library::MediaType;
+use dim_extern_api::tmdb::TMDBMetadataProvider;
 
 use once_cell::sync::OnceCell;
 
