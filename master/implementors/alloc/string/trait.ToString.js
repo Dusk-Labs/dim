@@ -1,4 +1,4 @@
 (function() {var implementors = {
 "dim":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.68.2/alloc/string/trait.ToString.html\" title=\"trait alloc::string::ToString\">ToString</a> for <a class=\"struct\" href=\"dim/streaming/struct.Avc1Level.html\" title=\"struct dim::streaming::Avc1Level\">Avc1Level</a>"]],
-"dim_events":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.68.2/alloc/string/trait.ToString.html\" title=\"trait alloc::string::ToString\">ToString</a> for <a class=\"struct\" href=\"dim_events/struct.Message.html\" title=\"struct dim_events::Message\">Message</a>"]]
+"events":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.68.2/alloc/string/trait.ToString.html\" title=\"trait alloc::string::ToString\">ToString</a> for <a class=\"struct\" href=\"events/struct.Message.html\" title=\"struct events::Message\">Message</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

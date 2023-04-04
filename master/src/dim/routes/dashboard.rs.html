@@ -270,22 +270,22 @@
 <span class="kw">use </span><span class="kw">crate</span>::errors;
 <span class="kw">use </span><span class="kw">crate</span>::json;
 
-<span class="kw">use </span>dim_database::episode::Episode;
-<span class="kw">use </span>dim_database::genre::<span class="kw-2">*</span>;
-<span class="kw">use </span>dim_database::library::MediaType;
-<span class="kw">use </span>dim_database::media::Media;
-<span class="kw">use </span>dim_database::mediafile::MediaFile;
-<span class="kw">use </span>dim_database::progress::Progress;
+<span class="kw">use </span>database::episode::Episode;
+<span class="kw">use </span>database::genre::<span class="kw-2">*</span>;
+<span class="kw">use </span>database::library::MediaType;
+<span class="kw">use </span>database::media::Media;
+<span class="kw">use </span>database::mediafile::MediaFile;
+<span class="kw">use </span>database::progress::Progress;
 
-<span class="kw">use </span>dim_database::user::User;
+<span class="kw">use </span>database::user::User;
 <span class="kw">use </span>serde_json::Value;
 
 <span class="kw">use </span>warp::reply;
 
 <span class="kw">pub mod </span>filters {
-    <span class="kw">use </span>dim_database::DbConnection;
+    <span class="kw">use </span>database::DbConnection;
 
-    <span class="kw">use </span>dim_database::user::User;
+    <span class="kw">use </span>database::user::User;
     <span class="kw">use </span>warp::reject;
     <span class="kw">use </span>warp::Filter;
 
@@ -421,7 +421,7 @@
 }
 
 <span class="kw">async fn </span>banner_for_movie(
-    conn: <span class="kw-2">&amp;mut </span>dim_database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    conn: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
     user: <span class="kw-2">&amp;</span>User,
     media: <span class="kw-2">&amp;</span>Media,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Value, errors::DimError&gt; {
@@ -467,7 +467,7 @@
 }
 
 <span class="kw">async fn </span>banner_for_show(
-    conn: <span class="kw-2">&amp;mut </span>dim_database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    conn: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
     user: <span class="kw-2">&amp;</span>User,
     media: <span class="kw-2">&amp;</span>Media,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Value, errors::DimError&gt; {

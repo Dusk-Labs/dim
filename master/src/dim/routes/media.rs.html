@@ -585,16 +585,16 @@
 <span class="kw">use </span><span class="kw">crate</span>::utils::secs_to_pretty;
 
 <span class="kw">use </span>chrono::Datelike;
-<span class="kw">use </span>dim_database::user::User;
+<span class="kw">use </span>database::user::User;
 
-<span class="kw">use </span>dim_database::compact_mediafile::CompactMediafile;
-<span class="kw">use </span>dim_database::episode::Episode;
-<span class="kw">use </span>dim_database::genre::Genre;
-<span class="kw">use </span>dim_database::library::MediaType;
-<span class="kw">use </span>dim_database::media::Media;
-<span class="kw">use </span>dim_database::media::UpdateMedia;
-<span class="kw">use </span>dim_database::mediafile::MediaFile;
-<span class="kw">use </span>dim_database::progress::Progress;
+<span class="kw">use </span>database::compact_mediafile::CompactMediafile;
+<span class="kw">use </span>database::episode::Episode;
+<span class="kw">use </span>database::genre::Genre;
+<span class="kw">use </span>database::library::MediaType;
+<span class="kw">use </span>database::media::Media;
+<span class="kw">use </span>database::media::UpdateMedia;
+<span class="kw">use </span>database::mediafile::MediaFile;
+<span class="kw">use </span>database::progress::Progress;
 
 <span class="kw">use </span>warp::http::status::StatusCode;
 <span class="kw">use </span>warp::reply;
@@ -612,7 +612,7 @@
     Lazy::new(|| Arc::new(TMDBMetadataProvider::new(<span class="kw-2">&amp;</span>API_KEY).tv_shows()));
 
 <span class="kw">pub mod </span>filters {
-    <span class="kw">use </span>dim_database::user::User;
+    <span class="kw">use </span>database::user::User;
     <span class="kw">use </span>warp::reject;
     <span class="kw">use </span>warp::Filter;
 
@@ -621,8 +621,8 @@
     <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state;
     <span class="kw">use </span>serde::Deserialize;
 
-    <span class="kw">use </span>dim_database::media::UpdateMedia;
-    <span class="kw">use </span>dim_database::DbConnection;
+    <span class="kw">use </span>database::media::UpdateMedia;
+    <span class="kw">use </span>database::DbConnection;
 
     <span class="kw">pub fn </span>get_media_by_id(
         conn: DbConnection,
@@ -772,7 +772,7 @@
 /// ```
 ///
 /// # Additional types
-/// [`MediaType`](`dim_database::library::MediaType`)
+/// [`MediaType`](`database::library::MediaType`)
 </span><span class="kw">pub async fn </span>get_media_by_id(
     conn: DbConnection,
     id: i64,
@@ -1052,7 +1052,7 @@
     conn: DbConnection,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>status = <span class="kw">if </span>data.update(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span>.is_ok() {
         StatusCode::NO_CONTENT
     } <span class="kw">else </span>{
@@ -1077,7 +1077,7 @@
     _user: User,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
     Media::delete(<span class="kw-2">&amp;mut </span>tx, id).<span class="kw">await</span><span class="question-mark">?</span>;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(StatusCode::OK)
@@ -1149,7 +1149,7 @@
     user: User,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span><span class="question-mark">?</span>;
     Progress::set(<span class="kw-2">&amp;mut </span>tx, offset, user.id, id).<span class="kw">await</span><span class="question-mark">?</span>;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(StatusCode::OK)

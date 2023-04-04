@@ -948,10 +948,10 @@
 <span class="kw">use </span><span class="kw">crate</span>::streaming::level_to_tag;
 <span class="kw">use </span><span class="kw">crate</span>::utils::quality_to_label;
 
-<span class="kw">use </span>dim_database::mediafile::MediaFile;
-<span class="kw">use </span>dim_database::user::DefaultVideoQuality;
-<span class="kw">use </span>dim_database::user::User;
-<span class="kw">use </span>dim_database::user::UserSettings;
+<span class="kw">use </span>database::mediafile::MediaFile;
+<span class="kw">use </span>database::user::DefaultVideoQuality;
+<span class="kw">use </span>database::user::User;
+<span class="kw">use </span>database::user::UserSettings;
 
 <span class="kw">use </span>nightfall::error::NightfallError;
 <span class="kw">use </span>nightfall::profiles::<span class="kw-2">*</span>;
@@ -983,7 +983,7 @@
     <span class="kw">use </span><span class="kw">crate</span>::stream_tracking::StreamTracking;
     <span class="kw">use </span><span class="kw">crate</span>::warp_unwrap;
 
-    <span class="kw">use </span>dim_database::user::User;
+    <span class="kw">use </span>database::user::User;
     <span class="kw">use </span>uuid::Uuid;
 
     <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_auth;

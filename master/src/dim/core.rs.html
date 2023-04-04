@@ -218,7 +218,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::stream_tracking::StreamTracking;
 <span class="kw">use </span><span class="kw">crate</span>::websocket;
 
-<span class="kw">use </span>dim_database::library::MediaType;
+<span class="kw">use </span>database::library::MediaType;
 
 <span class="kw">use </span>once_cell::sync::OnceCell;
 
@@ -232,7 +232,7 @@
 <span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">pub type </span>StateManager = nightfall::StateManager;
-<span class="kw">pub type </span>DbConnection = dim_database::DbConnection;
+<span class="kw">pub type </span>DbConnection = database::DbConnection;
 <span class="kw">pub type </span>EventTx = UnboundedSender&lt;String&gt;;
 
 <span class="doccomment">/// Path to where metadata is stored and should be fetched to.
@@ -247,9 +247,9 @@
 /// dispatched to clients.
 </span><span class="attr">#[instrument(skip_all)]
 </span><span class="kw">pub async fn </span>run_scanners(tx: EventTx) {
-    <span class="kw">if let </span><span class="prelude-val">Ok</span>(conn) = dim_database::get_conn_logged().<span class="kw">await </span>{
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(conn) = database::get_conn_logged().<span class="kw">await </span>{
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>db_tx) = conn.read().begin().<span class="kw">await </span>{
-            <span class="kw">let </span><span class="kw-2">mut </span>libs = dim_database::library::Library::get_all(<span class="kw-2">&amp;mut </span>db_tx).<span class="kw">await</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>libs = database::library::Library::get_all(<span class="kw-2">&amp;mut </span>db_tx).<span class="kw">await</span>;
 
             <span class="kw">for </span>lib <span class="kw">in </span>libs.drain(..) {
                 <span class="macro">info!</span>(<span class="string">&quot;Starting scanner for {} with id: {}&quot;</span>, lib.name, lib.id);
@@ -302,7 +302,7 @@
 ) {
     <span class="kw">let </span>state = stream_manager;
     <span class="kw">let </span>stream_tracking = StreamTracking::default();
-    <span class="kw">let </span>conn = dim_database::get_conn()
+    <span class="kw">let </span>conn = database::get_conn()
         .<span class="kw">await
         </span>.expect(<span class="string">&quot;Failed to grab a handle to the connection pool.&quot;</span>);
 

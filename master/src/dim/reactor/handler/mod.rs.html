@@ -179,14 +179,14 @@
 <span class="kw">use </span><span class="kw">super</span>::Reactor;
 <span class="kw">use </span><span class="kw">crate</span>::core::EventTx;
 
-<span class="kw">use </span>dim_database::asset::Asset;
-<span class="kw">use </span>dim_database::library::Library;
-<span class="kw">use </span>dim_database::library::MediaType;
-<span class="kw">use </span>dim_database::media::Media;
-<span class="kw">use </span>dim_database::rw_pool::SqlitePool;
+<span class="kw">use </span>database::asset::Asset;
+<span class="kw">use </span>database::library::Library;
+<span class="kw">use </span>database::library::MediaType;
+<span class="kw">use </span>database::media::Media;
+<span class="kw">use </span>database::rw_pool::SqlitePool;
 
-<span class="kw">use </span>dim_events::Message;
-<span class="kw">use </span>dim_events::PushEventType;
+<span class="kw">use </span>events::Message;
+<span class="kw">use </span>events::PushEventType;
 
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>std::path::PathBuf;

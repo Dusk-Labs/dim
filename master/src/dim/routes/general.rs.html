@@ -257,10 +257,10 @@
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
 <span class="kw">use </span><span class="kw">crate</span>::errors;
 
-<span class="kw">use </span>dim_database::user::User;
+<span class="kw">use </span>database::user::User;
 <span class="kw">use </span>serde::Serialize;
 
-<span class="kw">use </span>dim_database::genre::<span class="kw-2">*</span>;
+<span class="kw">use </span>database::genre::<span class="kw-2">*</span>;
 
 <span class="kw">use </span>tokio::task::spawn_blocking;
 
@@ -271,9 +271,9 @@
 <span class="kw">use </span>warp::reply;
 
 <span class="kw">pub mod </span>filters {
-    <span class="kw">use </span>dim_database::DbConnection;
+    <span class="kw">use </span>database::DbConnection;
 
-    <span class="kw">use </span>dim_database::user::User;
+    <span class="kw">use </span>database::user::User;
     <span class="kw">use </span>warp::reject;
     <span class="kw">use </span>warp::Filter;
     <span class="kw">use </span>warp::Rejection;
@@ -423,7 +423,7 @@
 }
 
 <span class="kw">async fn </span>search_by_name(
-    conn: <span class="kw-2">&amp;mut </span>dim_database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    conn: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
     query: <span class="kw-2">&amp;</span>str,
     limit: i64,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;warp::reply::Json, errors::DimError&gt; {
@@ -453,7 +453,7 @@
 }
 
 <span class="kw">async fn </span>search_by_genre(
-    conn: <span class="kw-2">&amp;mut </span>dim_database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    conn: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
     genre_id: i64,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;warp::reply::Json, errors::DimError&gt; {
     <span class="attr">#[derive(Serialize)]
@@ -483,7 +483,7 @@
 }
 
 <span class="kw">async fn </span>search_by_release_year(
-    conn: <span class="kw-2">&amp;mut </span>dim_database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+    conn: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
     year: i64,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;warp::reply::Json, errors::DimError&gt; {
     <span class="attr">#[derive(Serialize)]

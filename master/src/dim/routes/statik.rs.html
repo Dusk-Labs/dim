@@ -208,7 +208,7 @@
 <a href="#208" id="208">208</a>
 <a href="#209" id="209">209</a>
 <a href="#210" id="210">210</a>
-</pre><pre class="rust"><code><span class="kw">use </span>dim_database::asset;
+</pre><pre class="rust"><code><span class="kw">use </span>database::asset;
 <span class="kw">use </span>http::StatusCode;
 <span class="kw">use </span>rust_embed::RustEmbed;
 <span class="kw">use </span>warp::path;
@@ -235,7 +235,7 @@
     }
 
     <span class="kw">pub fn </span>get_image(
-        conn: dim_database::DbConnection,
+        conn: database::DbConnection,
     ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
         <span class="attr">#[derive(Deserialize)]
         </span><span class="kw">struct </span>QueryArgs {
@@ -354,7 +354,7 @@
     _resize_w: <span class="prelude-ty">Option</span>&lt;u32&gt;,
     _resize_h: <span class="prelude-ty">Option</span>&lt;u32&gt;,
     meta_path: String,
-    conn: dim_database::DbConnection,
+    conn: database::DbConnection,
     attach_accents: bool,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>warp::Reply, errors::DimError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>file_path = PathBuf::from(<span class="kw-2">&amp;</span>meta_path);

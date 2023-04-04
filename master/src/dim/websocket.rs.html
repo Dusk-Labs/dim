@@ -230,7 +230,6 @@
 <a href="#230" id="230">230</a>
 <a href="#231" id="231">231</a>
 <a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::hash::Hash;
 <span class="kw">use </span>std::net::SocketAddr;
@@ -254,7 +253,7 @@
     Track {
         addr: A,
         sink: SplitSink&lt;WebSocket, Message&gt;,
-        auth: Box&lt;dim_database::user::User&gt;,
+        auth: Box&lt;database::user::User&gt;,
     },
 
     Forget {
@@ -345,7 +344,7 @@
 <span class="kw">pub fn </span>event_socket(
     rt_handle: Handle,
     <span class="kw-2">mut </span>event_rx: UnboundedReceiver&lt;String&gt;,
-    conn: dim_database::DbConnection,
+    conn: database::DbConnection,
 ) -&gt; <span class="kw">impl </span>warp::Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
     <span class="kw">let </span>(i_tx, i_rx) = unbounded_channel::&lt;CtrlEvent&lt;SocketAddr, String&gt;&gt;();
 
@@ -374,7 +373,7 @@
              i_tx: UnboundedSender&lt;CtrlEvent&lt;SocketAddr, String&gt;&gt;,
              rt_handle: Handle,
              ws: warp::ws::Ws,
-             conn: dim_database::DbConnection| {
+             conn: database::DbConnection| {
                 ws.on_upgrade(<span class="kw">move </span>|websocket| <span class="kw">async move </span>{
                     <span class="kw">let </span>addr = <span class="kw">match </span>addr {
                         <span class="prelude-val">Some</span>(addr) =&gt; addr,
@@ -389,12 +388,11 @@
                             <span class="kw">if let </span><span class="prelude-val">Ok</span>(ClientActions::Authenticate { token }) =
                                 serde_json::from_slice(x.as_bytes())
                             {
-                                <span class="kw">if let </span><span class="prelude-val">Ok</span>(token_data) =
-                                    dim_database::user::Login::verify_cookie(token)
+                                <span class="kw">if let </span><span class="prelude-val">Ok</span>(token_data) = database::user::Login::verify_cookie(token)
                                 {
                                     <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>tx) = conn.read().begin().<span class="kw">await </span>{
                                         <span class="kw">if let </span><span class="prelude-val">Ok</span>(u) =
-                                            dim_database::user::User::get_by_id(<span class="kw-2">&amp;mut </span>tx, token_data)
+                                            database::user::User::get_by_id(<span class="kw-2">&amp;mut </span>tx, token_data)
                                                 .<span class="kw">await
                                         </span>{
                                             <span class="kw">let _ </span>= i_tx.send(CtrlEvent::Track {
@@ -405,9 +403,9 @@
 
                                             <span class="kw">let _ </span>= i_tx.send(CtrlEvent::SendTo {
                                                 addr,
-                                                message: dim_events::Message {
+                                                message: events::Message {
                                                     id: -<span class="number">1</span>,
-                                                    event_type: dim_events::PushEventType::EventAuthOk,
+                                                    event_type: events::PushEventType::EventAuthOk,
                                                 }
                                                 .to_string(),
                                             });
@@ -420,9 +418,9 @@
 
                             <span class="kw">let _ </span>= i_tx.send(CtrlEvent::SendTo {
                                 addr,
-                                message: dim_events::Message {
+                                message: events::Message {
                                     id: -<span class="number">1</span>,
-                                    event_type: dim_events::PushEventType::EventAuthErr,
+                                    event_type: events::PushEventType::EventAuthErr,
                                 }
                                 .to_string(),
                             });

@@ -332,10 +332,10 @@
 <span class="kw">use </span>anitomy::Anitomy;
 <span class="kw">use </span>async_trait::async_trait;
 
-<span class="kw">use </span>dim_database::library::Library;
-<span class="kw">use </span>dim_database::library::MediaType;
-<span class="kw">use </span>dim_database::mediafile::InsertableMediaFile;
-<span class="kw">use </span>dim_database::mediafile::MediaFile;
+<span class="kw">use </span>database::library::Library;
+<span class="kw">use </span>database::library::MediaType;
+<span class="kw">use </span>database::mediafile::InsertableMediaFile;
+<span class="kw">use </span>database::mediafile::MediaFile;
 
 <span class="kw">use </span>futures::FutureExt;
 <span class="kw">use </span>itertools::Itertools;
@@ -435,7 +435,7 @@
 </span><span class="kw">pub trait </span>MediaMatcher: Send + Sync {
     <span class="kw">async fn </span>batch_match(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        tx: <span class="kw-2">&amp;mut </span>dim_database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        tx: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
         provider: Arc&lt;<span class="kw">dyn </span>ExternalQueryIntoShow&gt;,
         work: Vec&lt;WorkUnit&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
@@ -443,7 +443,7 @@
     <span class="doccomment">/// Match a WorkUnit to a specific external id.
     </span><span class="kw">async fn </span>match_to_id(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        tx: <span class="kw-2">&amp;mut </span>dim_database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
+        tx: <span class="kw-2">&amp;mut </span>database::Transaction&lt;<span class="lifetime">&#39;_</span>&gt;,
         provider: Arc&lt;<span class="kw">dyn </span>ExternalQueryIntoShow&gt;,
         work: WorkUnit,
         external_id: <span class="kw-2">&amp;</span>str,
@@ -451,7 +451,7 @@
 }
 
 <span class="kw">pub async fn </span>insert_mediafiles(
-    conn: <span class="kw-2">&amp;mut </span>dim_database::DbConnection,
+    conn: <span class="kw-2">&amp;mut </span>database::DbConnection,
     library_id: i64,
     dirs: Vec&lt;<span class="kw">impl </span>AsRef&lt;Path&gt; + Send + <span class="lifetime">&#39;static</span>&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;WorkUnit&gt;, Error&gt; {
@@ -511,7 +511,7 @@
 
 <span class="attr">#[instrument(skip(conn, dirs, tx))]
 </span><span class="kw">pub async fn </span>start_custom(
-    conn: <span class="kw-2">&amp;mut </span>dim_database::DbConnection,
+    conn: <span class="kw-2">&amp;mut </span>database::DbConnection,
     library_id: i64,
     dirs: Vec&lt;<span class="kw">impl </span>AsRef&lt;Path&gt; + Send + <span class="lifetime">&#39;static</span>&gt;,
     tx: EventTx,
@@ -521,9 +521,9 @@
     <span class="macro">info!</span>(library_id, <span class="string">&quot;Scanning library&quot;</span>);
 
     tx.send(
-        dim_events::Message {
+        events::Message {
             id: library_id,
-            event_type: dim_events::PushEventType::EventStartedScanning,
+            event_type: events::PushEventType::EventStartedScanning,
         }
         .to_string(),
     )
@@ -560,7 +560,7 @@
     // and match objects.
     </span><span class="kw">for </span>unit <span class="kw">in </span>chunk_iter.into_iter() {
         <span class="kw">let </span><span class="kw-2">mut </span>lock = conn.writer().lock_owned().<span class="kw">await</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock)
+        <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock)
             .<span class="kw">await
             </span>.map_err(|e| Error::DatabaseError(e.into()))<span class="question-mark">?</span>;
 
@@ -581,9 +581,9 @@
     </span>);
 
     tx.send(
-        dim_events::Message {
+        events::Message {
             id: library_id,
-            event_type: dim_events::PushEventType::EventStoppedScanning,
+            event_type: events::PushEventType::EventStoppedScanning,
         }
         .to_string(),
     )
@@ -593,7 +593,7 @@
 }
 
 <span class="kw">pub async fn </span>start(
-    conn: <span class="kw-2">&amp;mut </span>dim_database::DbConnection,
+    conn: <span class="kw-2">&amp;mut </span>database::DbConnection,
     library_id: i64,
     tx: EventTx,
     provider: Arc&lt;<span class="kw">dyn </span>ExternalQueryIntoShow&gt;,
