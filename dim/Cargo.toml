@@ -74,7 +74,7 @@ libsqlite3-sys = { version = "^0.24.0" }
 fdlimit = "0.2.1"
 tokio-tungstenite = "0.18.0"
 tokio-stream = "0.1.12"
-tower-http = { version = "0.4.0", features = ["trace"] }
+tower-http = { version = "0.4.0", features = ["trace", "cors"] }
 
 [build-dependencies]
 fs_extra = "1.1.0"

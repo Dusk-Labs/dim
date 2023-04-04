@@ -11,13 +11,15 @@ use futures::prelude::*;
 
 use crate::routes;
 
+use dim_web::axum;
+
 pub enum CtrlEvent<A, M>
 where
     A: Hash + Eq,
 {
     Track {
         addr: A,
-        sink: Pin<Box<dyn Sink<WsMessage, Error = ()> + Send>>,
+        sink: Pin<Box<dyn Sink<WsMessage, Error = WsMessageError> + Send>>,
         auth: Box<database::user::User>,
     },
 
@@ -107,8 +109,23 @@ pub enum ClientActions {
 
 pub type WsMessage = dim_web::axum::extract::ws::Message;
 
+#[derive(Debug)]
+pub struct WsMessageError;
+
+impl From<warp::Error> for WsMessageError {
+    fn from(value: warp::Error) -> Self {
+        Self
+    }
+}
+
+impl From<axum::Error> for WsMessageError {
+    fn from(value: axum::Error) -> Self {
+        Self
+    }
+}
+
 pub async fn handle_websocket_session(
-    sink: impl Sink<WsMessage, Error = ()> + Send + 'static,
+    sink: impl Sink<WsMessage, Error = WsMessageError> + Send + 'static,
     stream: impl Stream<Item = WsMessage>,
     remote_address: Option<SocketAddr>,
     conn: database::DbConnection,
@@ -200,7 +217,7 @@ fn from_warp_message(inner: warp::ws::Message) -> Result<WsMessage, ()> {
     }
 }
 
-fn from_tungstenite_message(inner: WsMessage) -> Result<warp::ws::Message, ()> {
+fn from_tungstenite_message(inner: WsMessage) -> Result<warp::ws::Message, WsMessageError> {
     use dim_web::axum::extract::ws::Message;
     use warp::ws;
 
@@ -264,7 +281,7 @@ pub fn ws(
                 ws.on_upgrade(move |websocket| async move {
                     let (ws_tx, ws_rx) = websocket.split();
                     let ws_tx = ws_tx
-                        .sink_map_err(|_| ())
+                        .sink_err_into::<WsMessageError>()
                         .with(|m| async move { from_tungstenite_message(m) });
 
                     let ws_rx = ws_rx
