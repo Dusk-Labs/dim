@@ -277,6 +277,23 @@
 <a href="#277" id="277">277</a>
 <a href="#278" id="278">278</a>
 <a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::hash::Hash;
 <span class="kw">use </span>std::net::SocketAddr;
@@ -290,13 +307,15 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::routes;
 
+<span class="kw">use </span>dim_web::axum;
+
 <span class="kw">pub enum </span>CtrlEvent&lt;A, M&gt;
 <span class="kw">where
     </span>A: Hash + Eq,
 {
     Track {
         addr: A,
-        sink: Pin&lt;Box&lt;<span class="kw">dyn </span>Sink&lt;WsMessage, Error = ()&gt; + Send&gt;&gt;,
+        sink: Pin&lt;Box&lt;<span class="kw">dyn </span>Sink&lt;WsMessage, Error = WsMessageError&gt; + Send&gt;&gt;,
         auth: Box&lt;database::user::User&gt;,
     },
 
@@ -386,8 +405,23 @@
 
 <span class="kw">pub type </span>WsMessage = dim_web::axum::extract::ws::Message;
 
+<span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>WsMessageError;
+
+<span class="kw">impl </span>From&lt;warp::Error&gt; <span class="kw">for </span>WsMessageError {
+    <span class="kw">fn </span>from(value: warp::Error) -&gt; <span class="self">Self </span>{
+        <span class="self">Self
+    </span>}
+}
+
+<span class="kw">impl </span>From&lt;axum::Error&gt; <span class="kw">for </span>WsMessageError {
+    <span class="kw">fn </span>from(value: axum::Error) -&gt; <span class="self">Self </span>{
+        <span class="self">Self
+    </span>}
+}
+
 <span class="kw">pub async fn </span>handle_websocket_session(
-    sink: <span class="kw">impl </span>Sink&lt;WsMessage, Error = ()&gt; + Send + <span class="lifetime">&#39;static</span>,
+    sink: <span class="kw">impl </span>Sink&lt;WsMessage, Error = WsMessageError&gt; + Send + <span class="lifetime">&#39;static</span>,
     stream: <span class="kw">impl </span>Stream&lt;Item = WsMessage&gt;,
     remote_address: <span class="prelude-ty">Option</span>&lt;SocketAddr&gt;,
     conn: database::DbConnection,
@@ -479,7 +513,7 @@
     }
 }
 
-<span class="kw">fn </span>from_tungstenite_message(inner: WsMessage) -&gt; <span class="prelude-ty">Result</span>&lt;warp::ws::Message, ()&gt; {
+<span class="kw">fn </span>from_tungstenite_message(inner: WsMessage) -&gt; <span class="prelude-ty">Result</span>&lt;warp::ws::Message, WsMessageError&gt; {
     <span class="kw">use </span>dim_web::axum::extract::ws::Message;
     <span class="kw">use </span>warp::ws;
 
@@ -543,7 +577,7 @@
                 ws.on_upgrade(<span class="kw">move </span>|websocket| <span class="kw">async move </span>{
                     <span class="kw">let </span>(ws_tx, ws_rx) = websocket.split();
                     <span class="kw">let </span>ws_tx = ws_tx
-                        .sink_map_err(|<span class="kw">_</span>| ())
+                        .sink_err_into::&lt;WsMessageError&gt;()
                         .with(|m| <span class="kw">async move </span>{ from_tungstenite_message(m) });
 
                     <span class="kw">let </span>ws_rx = ws_rx
