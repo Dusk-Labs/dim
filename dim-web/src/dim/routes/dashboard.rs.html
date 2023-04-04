@@ -260,12 +260,6 @@
 <a href="#260" id="260">260</a>
 <a href="#261" id="261">261</a>
 <a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::core::DbConnection;
 <span class="kw">use </span><span class="kw">crate</span>::errors;
 <span class="kw">use </span><span class="kw">crate</span>::json;
@@ -293,24 +287,18 @@
 
     <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::global_filters::with_state;
 
-    <span class="kw">use </span>tokio::runtime::Handle <span class="kw">as </span>TokioHandle;
-
     <span class="kw">pub fn </span>dashboard(
         conn: DbConnection,
-        rt: tokio::runtime::Handle,
     ) -&gt; <span class="kw">impl </span>Filter&lt;Extract = <span class="kw">impl </span>warp::Reply, Error = warp::Rejection&gt; + Clone {
         <span class="macro">warp::path!</span>(<span class="string">&quot;api&quot; </span>/ <span class="string">&quot;v1&quot; </span>/ <span class="string">&quot;dashboard&quot;</span>)
             .and(warp::get())
             .and(with_auth(conn.clone()))
             .and(with_state::&lt;DbConnection&gt;(conn))
-            .and(with_state::&lt;TokioHandle&gt;(rt))
-            .and_then(
-                |user: User, conn: DbConnection, rt: TokioHandle| <span class="kw">async move </span>{
-                    <span class="kw">super</span>::dashboard(conn, user, rt)
-                        .<span class="kw">await
-                        </span>.map_err(|e| reject::custom(e))
-                },
-            )
+            .and_then(|user: User, conn: DbConnection| <span class="kw">async move </span>{
+                <span class="kw">super</span>::dashboard(conn, user, tokio::runtime::Handle::current())
+                    .<span class="kw">await
+                    </span>.map_err(|e| reject::custom(e))
+            })
     }
 
     <span class="kw">pub fn </span>banners(

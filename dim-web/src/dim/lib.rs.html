@@ -96,8 +96,6 @@
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Dim is a media manager written in rust.
 //! It uses Diesel as the ORM and rocket for the http/s server
 //!
@@ -155,8 +153,6 @@
 </span><span class="kw">mod </span>tests;
 <span class="doccomment">/// Tree-like structure for representing directories of files.
 </span><span class="kw">pub mod </span>tree;
-<span class="doccomment">/// Websocket related logic.
-</span><span class="kw">pub mod </span>websocket;
 
 <span class="kw">pub use </span>routes::settings::get_global_settings;
 <span class="kw">pub use </span>routes::settings::init_global_settings;
@@ -168,7 +164,7 @@
     <span class="kw">let _ </span>= create_dir_all(<span class="string">&quot;logs&quot;</span>);
 
     <span class="kw">if </span>std::env::var(<span class="string">&quot;RUST_LOG&quot;</span>).is_err() {
-        std::env::set_var(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info&quot;</span>);
+        std::env::set_var(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info,tower_http=trace&quot;</span>);
     }
 
     <span class="kw">let </span>log_appender = tracing_appender::rolling::daily(<span class="string">&quot;./logs&quot;</span>, <span class="string">&quot;dim-log.log&quot;</span>);
