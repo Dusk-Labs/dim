@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["auth","dim","dim_database","events"];
