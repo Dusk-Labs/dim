@@ -521,9 +521,9 @@
     <span class="macro">info!</span>(library_id, <span class="string">&quot;Scanning library&quot;</span>);
 
     tx.send(
-        events::Message {
+        dim_events::Message {
             id: library_id,
-            event_type: events::PushEventType::EventStartedScanning,
+            event_type: dim_events::PushEventType::EventStartedScanning,
         }
         .to_string(),
     )
@@ -581,9 +581,9 @@
     </span>);
 
     tx.send(
-        events::Message {
+        dim_events::Message {
             id: library_id,
-            event_type: events::PushEventType::EventStoppedScanning,
+            event_type: dim_events::PushEventType::EventStoppedScanning,
         }
         .to_string(),
     )
