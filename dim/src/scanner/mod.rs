@@ -19,10 +19,10 @@ use crate::external::ExternalQueryIntoShow;
 use anitomy::Anitomy;
 use async_trait::async_trait;
 
-use database::library::Library;
-use database::library::MediaType;
-use database::mediafile::InsertableMediaFile;
-use database::mediafile::MediaFile;
+use dim_database::library::Library;
+use dim_database::library::MediaType;
+use dim_database::mediafile::InsertableMediaFile;
+use dim_database::mediafile::MediaFile;
 
 use futures::FutureExt;
 use itertools::Itertools;
@@ -122,7 +122,7 @@ pub struct WorkUnit(pub MediaFile, pub Vec<Metadata>);
 pub trait MediaMatcher: Send + Sync {
     async fn batch_match(
         &self,
-        tx: &mut database::Transaction<'_>,
+        tx: &mut dim_database::Transaction<'_>,
         provider: Arc<dyn ExternalQueryIntoShow>,
         work: Vec<WorkUnit>,
     ) -> Result<(), Error>;
@@ -130,7 +130,7 @@ pub trait MediaMatcher: Send + Sync {
     /// Match a WorkUnit to a specific external id.
     async fn match_to_id(
         &self,
-        tx: &mut database::Transaction<'_>,
+        tx: &mut dim_database::Transaction<'_>,
         provider: Arc<dyn ExternalQueryIntoShow>,
         work: WorkUnit,
         external_id: &str,
@@ -138,7 +138,7 @@ pub trait MediaMatcher: Send + Sync {
 }
 
 pub async fn insert_mediafiles(
-    conn: &mut database::DbConnection,
+    conn: &mut dim_database::DbConnection,
     library_id: i64,
     dirs: Vec<impl AsRef<Path> + Send + 'static>,
 ) -> Result<Vec<WorkUnit>, Error> {
@@ -198,7 +198,7 @@ pub async fn insert_mediafiles(
 
 #[instrument(skip(conn, dirs, tx))]
 pub async fn start_custom(
-    conn: &mut database::DbConnection,
+    conn: &mut dim_database::DbConnection,
     library_id: i64,
     dirs: Vec<impl AsRef<Path> + Send + 'static>,
     tx: EventTx,
@@ -208,9 +208,9 @@ pub async fn start_custom(
     info!(library_id, "Scanning library");
 
     tx.send(
-        events::Message {
+        dim_events::Message {
             id: library_id,
-            event_type: events::PushEventType::EventStartedScanning,
+            event_type: dim_events::PushEventType::EventStartedScanning,
         }
         .to_string(),
     )
@@ -247,7 +247,7 @@ pub async fn start_custom(
     // and match objects.
     for unit in chunk_iter.into_iter() {
         let mut lock = conn.writer().lock_owned().await;
-        let mut tx = database::write_tx(&mut lock)
+        let mut tx = dim_database::write_tx(&mut lock)
             .await
             .map_err(|e| Error::DatabaseError(e.into()))?;
 
@@ -268,9 +268,9 @@ pub async fn start_custom(
     );
 
     tx.send(
-        events::Message {
+        dim_events::Message {
             id: library_id,
-            event_type: events::PushEventType::EventStoppedScanning,
+            event_type: dim_events::PushEventType::EventStoppedScanning,
         }
         .to_string(),
     )
@@ -280,7 +280,7 @@ pub async fn start_custom(
 }
 
 pub async fn start(
-    conn: &mut database::DbConnection,
+    conn: &mut dim_database::DbConnection,
     library_id: i64,
     tx: EventTx,
     provider: Arc<dyn ExternalQueryIntoShow>,

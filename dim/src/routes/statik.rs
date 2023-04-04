@@ -1,4 +1,4 @@
-use database::asset;
+use dim_database::asset;
 use http::StatusCode;
 use rust_embed::RustEmbed;
 use warp::path;
@@ -25,7 +25,7 @@ pub mod filters {
     }
 
     pub fn get_image(
-        conn: database::DbConnection,
+        conn: dim_database::DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         #[derive(Deserialize)]
         struct QueryArgs {
@@ -144,7 +144,7 @@ pub async fn get_image(
     _resize_w: Option<u32>,
     _resize_h: Option<u32>,
     meta_path: String,
-    conn: database::DbConnection,
+    conn: dim_database::DbConnection,
     attach_accents: bool,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut file_path = PathBuf::from(&meta_path);

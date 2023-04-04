@@ -7,7 +7,7 @@ use crate::scanner;
 use crate::stream_tracking::StreamTracking;
 use crate::websocket;
 
-use database::library::MediaType;
+use dim_database::library::MediaType;
 
 use once_cell::sync::OnceCell;
 
@@ -21,7 +21,7 @@ use warp::Filter;
 use std::sync::Arc;
 
 pub type StateManager = nightfall::StateManager;
-pub type DbConnection = database::DbConnection;
+pub type DbConnection = dim_database::DbConnection;
 pub type EventTx = UnboundedSender<String>;
 
 /// Path to where metadata is stored and should be fetched to.
@@ -36,9 +36,9 @@ pub static METADATA_PATH: OnceCell<String> = OnceCell::new();
 /// dispatched to clients.
 #[instrument(skip_all)]
 pub async fn run_scanners(tx: EventTx) {
-    if let Ok(conn) = database::get_conn_logged().await {
+    if let Ok(conn) = dim_database::get_conn_logged().await {
         if let Ok(mut db_tx) = conn.read().begin().await {
-            let mut libs = database::library::Library::get_all(&mut db_tx).await;
+            let mut libs = dim_database::library::Library::get_all(&mut db_tx).await;
 
             for lib in libs.drain(..) {
                 info!("Starting scanner for {} with id: {}", lib.name, lib.id);
@@ -91,7 +91,7 @@ pub async fn warp_core(
 ) {
     let state = stream_manager;
     let stream_tracking = StreamTracking::default();
-    let conn = database::get_conn()
+    let conn = dim_database::get_conn()
         .await
         .expect("Failed to grab a handle to the connection pool.");
 

@@ -1,4 +1,4 @@
-use database::DatabaseError;
+use dim_database::DatabaseError;
 use displaydoc::Display;
 use thiserror::Error;
 
@@ -56,7 +56,7 @@ pub enum DimError {
     /// Requested username is not available.
     UsernameNotAvailable,
     /// An error has occured while parsing cookies: {0:?}
-    CookieError(#[source] database::error::AuthError),
+    CookieError(#[source] dim_auth::AuthError),
     /// Error occured in the `/api/v1/mediafile` routes.
     #[error(transparent)]
     MediafileRouteError(#[from] mediafile::Error),

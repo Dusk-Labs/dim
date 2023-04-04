@@ -1,8 +1,8 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use database::get_conn_file;
-use database::library::InsertableLibrary;
-use database::library::Library;
-use database::library::MediaType;
+use dim_database::get_conn_file;
+use dim_database::library::InsertableLibrary;
+use dim_database::library::Library;
+use dim_database::library::MediaType;
 
 use tokio::runtime;
 
@@ -68,26 +68,26 @@ pub fn temp_dir_symlink<'a>(
     absolute
 }
 
-async fn bootstrap() -> database::DbConnection {
+async fn bootstrap() -> dim_database::DbConnection {
     let files = (0..128)
         .map(|i| format!("Movie{i}.mkv"))
         .collect::<Vec<String>>();
 
-    let files = temp_dir_symlink(files.into_iter(), TEST_MP4_PATH);
+    let _files = temp_dir_symlink(files.into_iter(), TEST_MP4_PATH);
 
     let outdir = env!("CARGO_TARGET_TMPDIR");
     let tag = generate_tag();
 
-    let mut conn = get_conn_file(&format!("{outdir}/dim.{tag}.db"))
+    let conn = get_conn_file(&format!("{outdir}/dim.{tag}.db"))
         .await
         .unwrap();
 
     conn
 }
 
-async fn create_library(conn: &mut database::DbConnection) -> i64 {
+async fn create_library(conn: &mut dim_database::DbConnection) -> i64 {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await.unwrap();
+    let mut tx = dim_database::write_tx(&mut lock).await.unwrap();
 
     let id = InsertableLibrary {
         name: "Tests".to_string(),
@@ -103,9 +103,9 @@ async fn create_library(conn: &mut database::DbConnection) -> i64 {
     id
 }
 
-async fn delete_library(conn: &mut database::DbConnection, id: i64) {
+async fn delete_library(conn: &mut dim_database::DbConnection, id: i64) {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await.unwrap();
+    let mut tx = dim_database::write_tx(&mut lock).await.unwrap();
 
     Library::delete(&mut tx, id).await.unwrap();
 

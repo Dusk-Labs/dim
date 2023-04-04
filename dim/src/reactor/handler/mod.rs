@@ -6,14 +6,14 @@ use super::Event;
 use super::Reactor;
 use crate::core::EventTx;
 
-use database::asset::Asset;
-use database::library::Library;
-use database::library::MediaType;
-use database::media::Media;
-use database::rw_pool::SqlitePool;
+use dim_database::asset::Asset;
+use dim_database::library::Library;
+use dim_database::library::MediaType;
+use dim_database::media::Media;
+use dim_database::rw_pool::SqlitePool;
 
-use events::Message;
-use events::PushEventType;
+use dim_events::Message;
+use dim_events::PushEventType;
 
 use async_trait::async_trait;
 use std::path::PathBuf;

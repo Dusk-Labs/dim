@@ -3,10 +3,10 @@ use super::super::mediafile::InsertBatch;
 use super::super::mediafile::MediafileCreator;
 use super::super::parse_filenames;
 
-use database::library::InsertableLibrary;
-use database::library::MediaType;
-use database::mediafile::InsertableMediaFile;
-use database::mediafile::MediaFile;
+use dim_database::library::InsertableLibrary;
+use dim_database::library::MediaType;
+use dim_database::mediafile::InsertableMediaFile;
+use dim_database::mediafile::MediaFile;
 
 use futures::stream::FuturesUnordered;
 use futures::StreamExt;
@@ -21,9 +21,9 @@ use futures::FutureExt;
 use new_xtra::spawn::Tokio;
 use new_xtra::Actor;
 
-pub(crate) async fn create_library(conn: &mut database::DbConnection) -> i64 {
+pub(crate) async fn create_library(conn: &mut dim_database::DbConnection) -> i64 {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await.unwrap();
+    let mut tx = dim_database::write_tx(&mut lock).await.unwrap();
 
     let id = InsertableLibrary {
         name: "Tests".to_string(),
@@ -46,7 +46,7 @@ async fn test_construct_mediafile() {
         .collect::<Vec<String>>();
     let (_tempdir, files) = super::temp_dir_symlink(files.into_iter(), super::TEST_MP4_PATH);
 
-    let mut conn = database::get_conn_memory()
+    let mut conn = dim_database::get_conn_memory()
         .await
         .expect("Failed to obtain a in-memory db pool.");
     let library = create_library(&mut conn).await;
@@ -121,7 +121,7 @@ async fn test_multiple_instances() {
         .collect::<Vec<String>>();
     let (_tempdir, files) = super::temp_dir_symlink(files.into_iter(), super::TEST_MP4_PATH);
 
-    let mut conn = database::get_conn_memory()
+    let mut conn = dim_database::get_conn_memory()
         .await
         .expect("Failed to obtain a in-memory db pool.");
     let library = create_library(&mut conn).await;

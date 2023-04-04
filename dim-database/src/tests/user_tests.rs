@@ -1,5 +1,5 @@
-use auth::generate_key;
-use auth::set_key_fallible;
+use dim_auth::generate_key;
+use dim_auth::set_key_fallible;
 
 use crate::get_conn_memory;
 use crate::user;

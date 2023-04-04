@@ -14,21 +14,21 @@ use crate::inspect::ResultExt;
 
 use async_trait::async_trait;
 
-use database::episode::Episode;
-use database::episode::InsertableEpisode;
-use database::genre::Genre;
-use database::genre::InsertableGenre;
-use database::genre::InsertableGenreMedia;
-use database::library::MediaType;
-use database::media::InsertableMedia;
-use database::media::Media;
-use database::mediafile::MediaFile;
-use database::mediafile::UpdateMediaFile;
-use database::movie::Movie;
-use database::season::InsertableSeason;
-use database::season::Season;
-use database::tv::TVShow;
-use database::Transaction;
+use dim_database::episode::Episode;
+use dim_database::episode::InsertableEpisode;
+use dim_database::genre::Genre;
+use dim_database::genre::InsertableGenre;
+use dim_database::genre::InsertableGenreMedia;
+use dim_database::library::MediaType;
+use dim_database::media::InsertableMedia;
+use dim_database::media::Media;
+use dim_database::mediafile::MediaFile;
+use dim_database::mediafile::UpdateMediaFile;
+use dim_database::movie::Movie;
+use dim_database::season::InsertableSeason;
+use dim_database::season::Season;
+use dim_database::tv::TVShow;
+use dim_database::Transaction;
 
 use chrono::prelude::Utc;
 use chrono::Datelike;
@@ -45,33 +45,33 @@ use thiserror::Error;
 #[derive(Clone, Debug, Display, Error, Serialize)]
 pub enum Error {
     /// Failed to insert poster into database: {0:?}
-    PosterInsert(#[serde(skip)] database::DatabaseError),
+    PosterInsert(#[serde(skip)] dim_database::DatabaseError),
     /// Failed to insert backdrop into database: {0:?}
-    BackdropInsert(#[serde(skip)] database::DatabaseError),
+    BackdropInsert(#[serde(skip)] dim_database::DatabaseError),
     /// Failed to decouple genres from media: {0:?}
-    GenreDecouple(#[serde(skip)] database::DatabaseError),
+    GenreDecouple(#[serde(skip)] dim_database::DatabaseError),
     /// Failed to create or get genre: {0:?}
-    GetOrInsertGenre(#[serde(skip)] database::DatabaseError),
+    GetOrInsertGenre(#[serde(skip)] dim_database::DatabaseError),
     /// Failed to attach genre to media object: {0:?}
-    CoupleGenre(#[serde(skip)] database::DatabaseError),
+    CoupleGenre(#[serde(skip)] dim_database::DatabaseError),
     /// Failed to update mediafile to point to new parent: {0:?}
-    UpdateMediafile(#[serde(skip)] database::DatabaseError),
+    UpdateMediafile(#[serde(skip)] dim_database::DatabaseError),
     /// Failed to get children count for movie: {0:?}
-    ChildrenCount(#[serde(skip)] database::DatabaseError),
+    ChildrenCount(#[serde(skip)] dim_database::DatabaseError),
     /// Failed to cleanup child-less parent: {0:?}
-    ChildCleanup(#[serde(skip)] database::DatabaseError),
+    ChildCleanup(#[serde(skip)] dim_database::DatabaseError),
     /// Failed to insert or get tv object: {0:?}
-    GetOrInsertMedia(#[serde(skip)] database::DatabaseError),
+    GetOrInsertMedia(#[serde(skip)] dim_database::DatabaseError),
     /// Failed to insert or get season: {0:?}
-    GetOrInsertSeason(#[serde(skip)] database::DatabaseError),
+    GetOrInsertSeason(#[serde(skip)] dim_database::DatabaseError),
     /// Failed to insert media object for episode: {0:?}
-    GetOrInsertMediaEpisode(#[serde(skip)] database::DatabaseError),
+    GetOrInsertMediaEpisode(#[serde(skip)] dim_database::DatabaseError),
     /// Failed to insert episode object: {0:?}
-    GetOrInsertEpisode(#[serde(skip)] database::DatabaseError),
+    GetOrInsertEpisode(#[serde(skip)] dim_database::DatabaseError),
     /// Failed to get season id for episode: {0:?}
-    GetSeasonId(#[serde(skip)] database::DatabaseError),
+    GetSeasonId(#[serde(skip)] dim_database::DatabaseError),
     /// Failed to get tvshowid for season: {0:?}
-    GetTvId(#[serde(skip)] database::DatabaseError),
+    GetTvId(#[serde(skip)] dim_database::DatabaseError),
     /// Season not found
     SeasonNotFound,
     /// Episode not found
@@ -522,19 +522,19 @@ mod tests {
     use crate::external::ExternalMedia;
     use crate::external::ExternalSeason;
 
-    use database::episode::Episode;
-    use database::media::Media;
-    use database::mediafile::InsertableMediaFile;
-    use database::mediafile::MediaFile;
-    use database::rw_pool::write_tx;
-    use database::season::Season;
-    use database::tv::TVShow;
+    use dim_database::episode::Episode;
+    use dim_database::media::Media;
+    use dim_database::mediafile::InsertableMediaFile;
+    use dim_database::mediafile::MediaFile;
+    use dim_database::rw_pool::write_tx;
+    use dim_database::season::Season;
+    use dim_database::tv::TVShow;
 
     #[tokio::test(flavor = "multi_thread")]
     async fn match_show() {
         const MATCHER: TvMatcher = TvMatcher;
 
-        let mut conn = database::get_conn_memory()
+        let mut conn = dim_database::get_conn_memory()
             .await
             .expect("Failed to obtain a in-memory db pool.");
         let library = create_library(&mut conn).await;
@@ -636,7 +636,7 @@ mod tests {
         crate::setup_test_logging();
         const MATCHER: TvMatcher = TvMatcher;
 
-        let mut conn = database::get_conn_memory()
+        let mut conn = dim_database::get_conn_memory()
             .await
             .expect("Failed to obtain a in-memory db pool.");
         let library = create_library(&mut conn).await;

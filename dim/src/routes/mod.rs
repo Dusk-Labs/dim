@@ -35,8 +35,8 @@ pub mod user;
 pub mod global_filters {
     use crate::errors;
     use crate::errors::DimError;
-    use database::user::User;
-    use database::DbConnection;
+    use dim_database::user::User;
+    use dim_database::DbConnection;
     use http::header::AUTHORIZATION;
     use warp::reject;
     use warp::Rejection;
@@ -72,7 +72,7 @@ pub mod global_filters {
                         }))
                     }
                 };
-                let id = database::user::Login::verify_cookie(x)
+                let id = dim_database::user::Login::verify_cookie(x)
                     .map_err(|e| reject::custom(DimError::CookieError(e)))?;
 
                 User::get_by_id(&mut tx, id)

@@ -18,6 +18,7 @@
 //! # Testing
 //! To test run `make test` in the root, or `cargo test` in the root of each module including the
 //! root dir.
+#![allow(opaque_hidden_inferred_bound)]
 
 use std::fs::create_dir_all;
 use tracing_subscriber::fmt;

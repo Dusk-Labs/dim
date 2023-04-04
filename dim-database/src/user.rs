@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use std::num::NonZeroU32;
 use std::time::SystemTime;
 
-use auth::user_cookie_decode;
-use auth::user_cookie_generate;
-use auth::AuthError;
+use dim_auth::user_cookie_decode;
+use dim_auth::user_cookie_generate;
+use dim_auth::AuthError;
 use serde::Deserialize;
 use serde::Serialize;
 
