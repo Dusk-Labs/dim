@@ -1,10 +1,10 @@
 use crate::core::DbConnection;
 use crate::errors;
 
-use database::user::User;
+use dim_database::user::User;
 use serde::Serialize;
 
-use database::genre::*;
+use dim_database::genre::*;
 
 use tokio::task::spawn_blocking;
 
@@ -15,9 +15,9 @@ use std::path::PathBuf;
 use warp::reply;
 
 pub mod filters {
-    use database::DbConnection;
+    use dim_database::DbConnection;
 
-    use database::user::User;
+    use dim_database::user::User;
     use warp::reject;
     use warp::Filter;
     use warp::Rejection;
@@ -167,7 +167,7 @@ pub async fn search(
 }
 
 async fn search_by_name(
-    conn: &mut database::Transaction<'_>,
+    conn: &mut dim_database::Transaction<'_>,
     query: &str,
     limit: i64,
 ) -> Result<warp::reply::Json, errors::DimError> {
@@ -197,7 +197,7 @@ async fn search_by_name(
 }
 
 async fn search_by_genre(
-    conn: &mut database::Transaction<'_>,
+    conn: &mut dim_database::Transaction<'_>,
     genre_id: i64,
 ) -> Result<warp::reply::Json, errors::DimError> {
     #[derive(Serialize)]
@@ -227,7 +227,7 @@ async fn search_by_genre(
 }
 
 async fn search_by_release_year(
-    conn: &mut database::Transaction<'_>,
+    conn: &mut dim_database::Transaction<'_>,
     year: i64,
 ) -> Result<warp::reply::Json, errors::DimError> {
     #[derive(Serialize)]

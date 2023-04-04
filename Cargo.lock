@@ -161,19 +161,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "auth"
-version = "0.4.0-dev"
-dependencies = [
- "aes-gcm",
- "base64",
- "displaydoc",
- "once_cell",
- "rand",
- "serde",
- "thiserror",
-]
-
-[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -610,30 +597,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "database"
-version = "0.4.0-dev"
-dependencies = [
- "auth",
- "base64",
- "cfg-if",
- "displaydoc",
- "dotenv",
- "itertools",
- "lazy_static",
- "once_cell",
- "ring",
- "serde",
- "serde_derive",
- "serde_json",
- "sqlx",
- "thiserror",
- "tokio",
- "tracing",
- "tracing-log",
- "uuid 0.8.2",
-]
-
-[[package]]
 name = "dia-i18n"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -661,11 +624,12 @@ dependencies = [
  "chrono",
  "criterion",
  "dashmap",
- "database",
  "dia-i18n",
+ "dim-auth",
+ "dim-database",
+ "dim-events",
  "displaydoc",
  "dominant_color",
- "events",
  "fdlimit",
  "fs_extra",
  "futures",
@@ -712,6 +676,51 @@ dependencies = [
  "xtra 0.5.2",
  "xtra 0.6.0",
  "zip",
+]
+
+[[package]]
+name = "dim-auth"
+version = "0.4.0-dev"
+dependencies = [
+ "aes-gcm",
+ "base64",
+ "displaydoc",
+ "once_cell",
+ "rand",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "dim-database"
+version = "0.4.0-dev"
+dependencies = [
+ "base64",
+ "cfg-if",
+ "dim-auth",
+ "displaydoc",
+ "dotenv",
+ "itertools",
+ "lazy_static",
+ "once_cell",
+ "ring",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "sqlx",
+ "thiserror",
+ "tokio",
+ "tracing",
+ "tracing-log",
+ "uuid 0.8.2",
+]
+
+[[package]]
+name = "dim-events"
+version = "0.4.0-dev"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -771,14 +780,6 @@ name = "event-listener"
 version = "2.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77f3309417938f28bf8228fcff79a4a37103981e3e186d2ccd19c74b38f4eb71"
-
-[[package]]
-name = "events"
-version = "0.4.0-dev"
-dependencies = [
- "serde",
- "serde_json",
-]
 
 [[package]]
 name = "exr"

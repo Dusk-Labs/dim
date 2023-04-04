@@ -7,14 +7,14 @@ use crate::scanner;
 use crate::scanner::daemon::FsWatcher;
 use crate::tree;
 
-use database::compact_mediafile::CompactMediafile;
-use database::library::InsertableLibrary;
-use database::library::Library;
-use database::library::MediaType;
-use database::media::Media;
-use database::mediafile::MediaFile;
+use dim_database::compact_mediafile::CompactMediafile;
+use dim_database::library::InsertableLibrary;
+use dim_database::library::Library;
+use dim_database::library::MediaType;
+use dim_database::media::Media;
+use dim_database::mediafile::MediaFile;
 
-use database::user::User;
+use dim_database::user::User;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -39,7 +39,7 @@ pub mod filters {
     use super::super::global_filters::with_auth;
     use super::super::global_filters::with_db;
 
-    use database::DbConnection;
+    use dim_database::DbConnection;
 
     use super::super::global_filters::with_state;
     use super::*;
@@ -212,7 +212,7 @@ pub async fn library_post(
     _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
     let id = new_library.insert(&mut tx).await?;
     tx.commit().await?;
     drop(lock);
@@ -262,7 +262,7 @@ pub async fn library_delete(
     // content hidden. This is necessary because huge libraries take a long time to delete.
     {
         let mut lock = conn.writer().lock_owned().await;
-        let mut tx = database::write_tx(&mut lock).await?;
+        let mut tx = dim_database::write_tx(&mut lock).await?;
         if Library::mark_hidden(&mut tx, id).await? < 1 {
             return Err(errors::DimError::LibraryNotFound);
         }
@@ -272,7 +272,7 @@ pub async fn library_delete(
     let delete_lib_fut = async move {
         let inner = async {
             let mut lock = conn.writer().lock_owned().await;
-            let mut tx = database::write_tx(&mut lock).await?;
+            let mut tx = dim_database::write_tx(&mut lock).await?;
 
             Library::delete(&mut tx, id).await?;
             Media::delete_by_lib_id(&mut tx, id).await?;
@@ -280,7 +280,7 @@ pub async fn library_delete(
 
             tx.commit().await?;
 
-            Ok::<_, database::error::DatabaseError>(())
+            Ok::<_, dim_database::error::DatabaseError>(())
         };
 
         if let Err(e) = inner.await {

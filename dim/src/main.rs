@@ -42,7 +42,7 @@ fn main() {
     // set our jwt secret key
     let settings_clone = global_settings.clone();
     let secret_key = global_settings.secret_key.unwrap_or_else(move || {
-        let secret_key = database::generate_key();
+        let secret_key = dim_database::generate_key();
         dim::set_global_settings(GlobalSettings {
             secret_key: Some(secret_key),
             ..settings_clone
@@ -51,7 +51,7 @@ fn main() {
         secret_key
     });
 
-    database::set_key(secret_key);
+    dim_database::set_key(secret_key);
 
     core::METADATA_PATH
         .set(global_settings.metadata_dir.clone())
@@ -90,7 +90,7 @@ fn main() {
 
     let async_main = async move {
         let (event_tx, event_rx) = tokio::sync::mpsc::unbounded_channel();
-        let pool = database::get_conn().await.unwrap();
+        let pool = dim_database::get_conn().await.unwrap();
 
         // Before we start making DB-calls we need to initialize our CDC pipeline.
         {

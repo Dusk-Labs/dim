@@ -2,9 +2,9 @@ use crate::core::DbConnection;
 use crate::errors;
 use crate::utils::ffpath;
 
-use database::user::UpdateableUser;
-use database::user::User;
-use database::user::UserSettings;
+use dim_database::user::UpdateableUser;
+use dim_database::user::User;
+use dim_database::user::UserSettings;
 
 use serde::Deserialize;
 use serde::Serialize;
@@ -115,9 +115,9 @@ pub fn set_global_settings(settings: GlobalSettings) -> Result<(), Box<dyn Error
 }
 
 pub mod filters {
-    use database::user::User;
-    use database::user::UserSettings;
-    use database::DbConnection;
+    use dim_database::user::User;
+    use dim_database::user::UserSettings;
+    use dim_database::DbConnection;
 
     use warp::reject;
     use warp::Filter;
@@ -200,7 +200,7 @@ pub async fn post_user_settings(
     new_settings: UserSettings,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = db.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
     let update_user = UpdateableUser {
         prefs: Some(new_settings.clone()),
     };

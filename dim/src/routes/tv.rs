@@ -1,10 +1,10 @@
 use crate::core::DbConnection;
 use crate::errors;
 
-use database::user::User;
+use dim_database::user::User;
 
-use database::episode::{Episode, UpdateEpisode};
-use database::season::{Season, UpdateSeason};
+use dim_database::episode::{Episode, UpdateEpisode};
+use dim_database::season::{Season, UpdateSeason};
 
 use warp::http::status::StatusCode;
 use warp::reply;
@@ -16,10 +16,10 @@ pub mod filters {
 
     use super::super::global_filters::with_auth;
     use super::super::global_filters::with_state;
-    use database::episode::UpdateEpisode;
-    use database::season::UpdateSeason;
-    use database::user::User;
-    use database::DbConnection;
+    use dim_database::episode::UpdateEpisode;
+    use dim_database::season::UpdateSeason;
+    use dim_database::user::User;
+    use dim_database::DbConnection;
 
     pub fn get_tv_seasons(
         conn: DbConnection,
@@ -164,7 +164,7 @@ pub async fn get_season_by_id(
 ///
 /// # Data
 /// This route additionally requires you to pass in a json object by the format of
-/// `database::season::UpdateSeason`.
+/// `dim_database::season::UpdateSeason`.
 pub async fn patch_season_by_id(
     conn: DbConnection,
     id: i64,
@@ -172,7 +172,7 @@ pub async fn patch_season_by_id(
     _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
     data.update(&mut tx, id).await?;
     tx.commit().await?;
     Ok(StatusCode::NO_CONTENT)
@@ -190,7 +190,7 @@ pub async fn delete_season_by_id(
     _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
     Season::delete_by_id(&mut tx, id).await?;
     tx.commit().await?;
     Ok(StatusCode::OK)
@@ -236,7 +236,7 @@ pub async fn get_season_episodes(
 ///
 /// # Data
 /// This route additionally requires you to pass in a json object by the format of
-/// `database::episode::UpdateEpisode`.
+/// `dim_database::episode::UpdateEpisode`.
 pub async fn patch_episode_by_id(
     conn: DbConnection,
     id: i64,
@@ -244,7 +244,7 @@ pub async fn patch_episode_by_id(
     _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
     episode.update(&mut tx, id).await?;
     tx.commit().await?;
     Ok(StatusCode::NO_CONTENT)
@@ -261,7 +261,7 @@ pub async fn delete_episode_by_id(
     _user: User,
 ) -> Result<impl warp::Reply, errors::DimError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await?;
     Episode::delete(&mut tx, id).await?;
     tx.commit().await?;
     Ok(StatusCode::OK)

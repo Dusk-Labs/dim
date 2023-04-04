@@ -8,9 +8,9 @@ pub enum Error {
     /// Failed to open read-only transaction: {0:?}
     ReadTransaction(sqlx::Error),
     /// Failed to query library: {0:?}
-    LibraryQuery(database::DatabaseError),
+    LibraryQuery(dim_database::DatabaseError),
     /// Failed to query asset: {0:?}
-    AssetQuery(database::DatabaseError),
+    AssetQuery(dim_database::DatabaseError),
     /// Failed to query media: {0:?}
-    MediaQuery(database::DatabaseError),
+    MediaQuery(dim_database::DatabaseError),
 }

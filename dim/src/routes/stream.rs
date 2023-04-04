@@ -11,10 +11,10 @@ use crate::streaming::get_qualities;
 use crate::streaming::level_to_tag;
 use crate::utils::quality_to_label;
 
-use database::mediafile::MediaFile;
-use database::user::DefaultVideoQuality;
-use database::user::User;
-use database::user::UserSettings;
+use dim_database::mediafile::MediaFile;
+use dim_database::user::DefaultVideoQuality;
+use dim_database::user::User;
+use dim_database::user::UserSettings;
 
 use nightfall::error::NightfallError;
 use nightfall::profiles::*;
@@ -46,7 +46,7 @@ pub mod filters {
     use crate::stream_tracking::StreamTracking;
     use crate::warp_unwrap;
 
-    use database::user::User;
+    use dim_database::user::User;
     use uuid::Uuid;
 
     use super::super::global_filters::with_auth;

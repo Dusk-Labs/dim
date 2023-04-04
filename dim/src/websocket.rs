@@ -21,7 +21,7 @@ where
     Track {
         addr: A,
         sink: SplitSink<WebSocket, Message>,
-        auth: Box<database::user::User>,
+        auth: Box<dim_database::user::User>,
     },
 
     Forget {
@@ -112,7 +112,7 @@ pub enum ClientActions {
 pub fn event_socket(
     rt_handle: Handle,
     mut event_rx: UnboundedReceiver<String>,
-    conn: database::DbConnection,
+    conn: dim_database::DbConnection,
 ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     let (i_tx, i_rx) = unbounded_channel::<CtrlEvent<SocketAddr, String>>();
 
@@ -141,7 +141,7 @@ pub fn event_socket(
              i_tx: UnboundedSender<CtrlEvent<SocketAddr, String>>,
              rt_handle: Handle,
              ws: warp::ws::Ws,
-             conn: database::DbConnection| {
+             conn: dim_database::DbConnection| {
                 ws.on_upgrade(move |websocket| async move {
                     let addr = match addr {
                         Some(addr) => addr,
@@ -156,11 +156,12 @@ pub fn event_socket(
                             if let Ok(ClientActions::Authenticate { token }) =
                                 serde_json::from_slice(x.as_bytes())
                             {
-                                if let Ok(token_data) = database::user::Login::verify_cookie(token)
+                                if let Ok(token_data) =
+                                    dim_database::user::Login::verify_cookie(token)
                                 {
                                     if let Ok(mut tx) = conn.read().begin().await {
                                         if let Ok(u) =
-                                            database::user::User::get_by_id(&mut tx, token_data)
+                                            dim_database::user::User::get_by_id(&mut tx, token_data)
                                                 .await
                                         {
                                             let _ = i_tx.send(CtrlEvent::Track {
@@ -171,9 +172,9 @@ pub fn event_socket(
 
                                             let _ = i_tx.send(CtrlEvent::SendTo {
                                                 addr,
-                                                message: events::Message {
+                                                message: dim_events::Message {
                                                     id: -1,
-                                                    event_type: events::PushEventType::EventAuthOk,
+                                                    event_type: dim_events::PushEventType::EventAuthOk,
                                                 }
                                                 .to_string(),
                                             });
@@ -186,9 +187,9 @@ pub fn event_socket(
 
                             let _ = i_tx.send(CtrlEvent::SendTo {
                                 addr,
-                                message: events::Message {
+                                message: dim_events::Message {
                                     id: -1,
-                                    event_type: events::PushEventType::EventAuthErr,
+                                    event_type: dim_events::PushEventType::EventAuthErr,
                                 }
                                 .to_string(),
                             });

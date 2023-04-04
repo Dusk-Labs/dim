@@ -22,5 +22,5 @@ pub enum Error {
         Arc<sqlx::Error>,
     ),
     /// Library supplied doesnt exist: {0:?}
-    LibraryNotFound(#[serde(skip)] database::DatabaseError),
+    LibraryNotFound(#[serde(skip)] dim_database::DatabaseError),
 }

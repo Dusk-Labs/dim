@@ -1,6 +1,12 @@
 name: Docs
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
 
 env:
   CARGO_TERM_COLOR: always
