@@ -1,4 +1,4 @@
-FROM node:bullseye AS web
+FROM node:18-bullseye AS web
 WORKDIR /ui
 COPY ui/package*.json ./
 RUN yarn install
