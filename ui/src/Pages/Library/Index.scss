@@ -4,7 +4,7 @@
 
   & > .match-media {
     overflow: hidden;
-    padding: 30px;
+    padding: 33px;
     grid-column-start: 1;
     grid-column-end: 3;
   }
@@ -18,16 +18,8 @@
       }
 
       &.open-false {
-        height: 16vh;
+        height: 114px;
       }
-    }
-  }
-}
-
-@media only screen and (min-width: 1080px) {
-  .library {
-    & > .match-media {
-      padding: 60px 90px;
     }
   }
 }
@@ -35,15 +27,22 @@
 @media only screen and (max-height: 720px) {
   .library {
     & > .match-media {
-      padding: 60px 90px;
-
       &.open-true {
         height: 70vh;
+        padding: 60px 90px;
       }
 
       &.open-false {
         height: 27vh;
       }
+    }
+  }
+}
+
+@media only screen and (min-width: 1080px) {
+  .match-media {
+    &.open-true {
+      padding: 60px 90px;
     }
   }
 }
