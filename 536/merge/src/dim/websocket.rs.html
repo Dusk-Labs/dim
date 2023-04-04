@@ -405,9 +405,9 @@
 
                                             <span class="kw">let _ </span>= i_tx.send(CtrlEvent::SendTo {
                                                 addr,
-                                                message: events::Message {
+                                                message: dim_events::Message {
                                                     id: -<span class="number">1</span>,
-                                                    event_type: events::PushEventType::EventAuthOk,
+                                                    event_type: dim_events::PushEventType::EventAuthOk,
                                                 }
                                                 .to_string(),
                                             });
@@ -420,9 +420,9 @@
 
                             <span class="kw">let _ </span>= i_tx.send(CtrlEvent::SendTo {
                                 addr,
-                                message: events::Message {
+                                message: dim_events::Message {
                                     id: -<span class="number">1</span>,
-                                    event_type: events::PushEventType::EventAuthErr,
+                                    event_type: dim_events::PushEventType::EventAuthErr,
                                 }
                                 .to_string(),
                             });

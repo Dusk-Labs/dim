@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["AuthError",""],["DatabaseError",""]]};
+window.SIDEBAR_ITEMS = {"enum":[["DatabaseError",""]]};
