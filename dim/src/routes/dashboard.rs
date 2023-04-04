@@ -25,24 +25,18 @@ pub mod filters {
 
     use super::super::global_filters::with_state;
 
-    use tokio::runtime::Handle as TokioHandle;
-
     pub fn dashboard(
         conn: DbConnection,
-        rt: tokio::runtime::Handle,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("api" / "v1" / "dashboard")
             .and(warp::get())
             .and(with_auth(conn.clone()))
             .and(with_state::<DbConnection>(conn))
-            .and(with_state::<TokioHandle>(rt))
-            .and_then(
-                |user: User, conn: DbConnection, rt: TokioHandle| async move {
-                    super::dashboard(conn, user, rt)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
+            .and_then(|user: User, conn: DbConnection| async move {
+                super::dashboard(conn, user, tokio::runtime::Handle::current())
+                    .await
+                    .map_err(|e| reject::custom(e))
+            })
     }
 
     pub fn banners(

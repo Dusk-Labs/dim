@@ -30,6 +30,7 @@ pub mod statik;
 pub mod stream;
 pub mod tv;
 pub mod user;
+pub mod websocket;
 
 #[doc(hidden)]
 pub mod global_filters {
@@ -41,14 +42,19 @@ pub mod global_filters {
     use warp::reject;
     use warp::Rejection;
 
+    use std::borrow::Borrow;
     use std::convert::Infallible;
     use std::error::Error;
     use warp::Filter;
     use warp::Reply;
 
-    pub fn with_db(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = (DbConnection,), Error = Infallible> + Clone {
+    pub fn with_db<C>(
+        conn: C,
+    ) -> impl Filter<Extract = (DbConnection,), Error = Infallible> + Clone + 'static
+    where
+        C: Borrow<DbConnection>,
+    {
+        let conn = conn.borrow().clone();
         warp::any().map(move || conn.clone())
     }
 

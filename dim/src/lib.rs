@@ -53,8 +53,6 @@ pub mod streaming;
 mod tests;
 /// Tree-like structure for representing directories of files.
 pub mod tree;
-/// Websocket related logic.
-pub mod websocket;
 
 pub use routes::settings::get_global_settings;
 pub use routes::settings::init_global_settings;
@@ -66,7 +64,7 @@ pub fn setup_logging(_debug: bool) {
     let _ = create_dir_all("logs");
 
     if std::env::var("RUST_LOG").is_err() {
-        std::env::set_var("RUST_LOG", "info");
+        std::env::set_var("RUST_LOG", "info,tower_http=trace");
     }
 
     let log_appender = tracing_appender::rolling::daily("./logs", "dim-log.log");

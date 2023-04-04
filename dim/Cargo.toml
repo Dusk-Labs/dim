@@ -72,6 +72,9 @@ hyper = "0.14.20"
 rusqlite = { version = "0.27.0", features = ["hooks"] }
 libsqlite3-sys = { version = "^0.24.0" }
 fdlimit = "0.2.1"
+tokio-tungstenite = "0.18.0"
+tokio-stream = "0.1.12"
+tower-http = { version = "0.4.0", features = ["trace"] }
 
 [build-dependencies]
 fs_extra = "1.1.0"
