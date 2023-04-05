@@ -94,7 +94,6 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Dim is a media manager written in rust.
 //! It uses Diesel as the ORM and rocket for the http/s server
 //!
@@ -115,6 +114,7 @@
 //! # Testing
 //! To test run `make test` in the root, or `cargo test` in the root of each module including the
 //! root dir.
+</span><span class="attr">#![allow(opaque_hidden_inferred_bound)]
 
 </span><span class="kw">use </span>std::fs::create_dir_all;
 <span class="kw">use </span>tracing_subscriber::fmt;
@@ -125,8 +125,6 @@
 </span><span class="kw">pub mod </span>core;
 <span class="doccomment">/// Module contains all the error definitions used in dim, and returned by the web-service.
 </span><span class="kw">pub mod </span>errors;
-<span class="doccomment">/// Module contains our external api interfaces
-</span><span class="kw">pub mod </span>external;
 <span class="doccomment">/// Contains the code for fetching assets like posters and stills.
 </span><span class="kw">pub mod </span>fetcher;
 <span class="doccomment">/// Inspect api for Result type

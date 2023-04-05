@@ -257,16 +257,16 @@
 <a href="#257" id="257">257</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Module contains all the code that creates and inserts basic mediafiles into the database.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::external::filename::Metadata;
-<span class="kw">use </span><span class="kw">crate</span>::streaming::ffprobe::FFProbeCtx;
+</span><span class="kw">use </span><span class="kw">crate</span>::streaming::ffprobe::FFProbeCtx;
 <span class="kw">use </span><span class="kw">crate</span>::streaming::FFPROBE_BIN;
+<span class="kw">use </span>dim_extern_api::filename::Metadata;
 
 <span class="kw">use </span>async_trait::async_trait;
 
-<span class="kw">use </span>database::mediafile::InsertableMediaFile;
-<span class="kw">use </span>database::mediafile::MediaFile;
-<span class="kw">use </span>database::DatabaseError;
-<span class="kw">use </span>database::DbConnection;
+<span class="kw">use </span>dim_database::mediafile::InsertableMediaFile;
+<span class="kw">use </span>dim_database::mediafile::MediaFile;
+<span class="kw">use </span>dim_database::DatabaseError;
+<span class="kw">use </span>dim_database::DbConnection;
 <span class="kw">use </span>displaydoc::Display;
 
 <span class="kw">use </span>serde::Serialize;
@@ -458,7 +458,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>work_done = <span class="macro">vec!</span>[];
 
         <span class="kw">let </span><span class="kw-2">mut </span>lock = <span class="self">self</span>.conn.writer().lock_owned().<span class="kw">await</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock)
+        <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock)
             .<span class="kw">await
             </span>.map_err(|e| Error::FailedToAcquireWriter(e.into()))<span class="question-mark">?</span>;
 

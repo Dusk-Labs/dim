@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["auth","database","dim","events"];
+window.ALL_CRATES = ["dim","dim_auth","dim_database","dim_events","dim_extern_api"];

@@ -206,7 +206,7 @@
 <a href="#206" id="206">206</a>
 <a href="#207" id="207">207</a>
 <a href="#208" id="208">208</a>
-</pre><pre class="rust"><code><span class="kw">use </span>database::DatabaseError;
+</pre><pre class="rust"><code><span class="kw">use </span>dim_database::DatabaseError;
 <span class="kw">use </span>displaydoc::Display;
 <span class="kw">use </span>thiserror::Error;
 
@@ -264,14 +264,14 @@
     <span class="doccomment">/// Requested username is not available.
     </span>UsernameNotAvailable,
     <span class="doccomment">/// An error has occured while parsing cookies: {0:?}
-    </span>CookieError(<span class="attr">#[source] </span>database::error::AuthError),
+    </span>CookieError(<span class="attr">#[source] </span>dim_auth::AuthError),
     <span class="doccomment">/// Error occured in the `/api/v1/mediafile` routes.
     </span><span class="attr">#[error(transparent)]
     </span>MediafileRouteError(<span class="attr">#[from] </span>mediafile::Error),
     <span class="doccomment">/// User does not exist
     </span>UserNotFound,
     <span class="doccomment">/// Couldn&#39;t find the tmdb id provided.
-    </span>ExternalSearchError(<span class="kw">crate</span>::external::Error),
+    </span>ExternalSearchError(dim_extern_api::Error),
 }
 
 <span class="kw">impl </span>From&lt;sqlx::Error&gt; <span class="kw">for </span>DimError {

@@ -308,7 +308,7 @@
 <a href="#308" id="308">308</a>
 <a href="#309" id="309">309</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::core::EventTx;
-<span class="kw">use </span><span class="kw">crate</span>::external::ExternalQueryIntoShow;
+<span class="kw">use </span>dim_extern_api::ExternalQueryIntoShow;
 
 <span class="kw">use </span><span class="kw">super</span>::movie;
 <span class="kw">use </span><span class="kw">super</span>::tv_show;
@@ -318,12 +318,12 @@
 <span class="kw">use </span>std::sync::mpsc;
 <span class="kw">use </span>std::sync::Arc;
 
-<span class="kw">use </span>database::library::Library;
-<span class="kw">use </span>database::library::MediaType;
-<span class="kw">use </span>database::media::Media;
-<span class="kw">use </span>database::mediafile::MediaFile;
-<span class="kw">use </span>database::mediafile::UpdateMediaFile;
-<span class="kw">use </span>database::DbConnection;
+<span class="kw">use </span>dim_database::library::Library;
+<span class="kw">use </span>dim_database::library::MediaType;
+<span class="kw">use </span>dim_database::media::Media;
+<span class="kw">use </span>dim_database::mediafile::MediaFile;
+<span class="kw">use </span>dim_database::mediafile::UpdateMediaFile;
+<span class="kw">use </span>dim_database::DbConnection;
 
 <span class="kw">use </span>notify::Config;
 <span class="kw">use </span>notify::EventKind;
@@ -342,7 +342,7 @@
 <span class="attr">#[derive(Display, Debug, Error)]
 </span><span class="kw">pub enum </span>FsWatcherError {
     <span class="doccomment">/// A database error has occured: {0:?}
-    </span>DatabaseError(<span class="attr">#[from] </span>database::DatabaseError),
+    </span>DatabaseError(<span class="attr">#[from] </span>dim_database::DatabaseError),
     <span class="doccomment">/// A error with notify has occured&quot;: {0:?}
     </span>NotifyError(<span class="attr">#[from] </span>notify::Error),
 }
@@ -447,7 +447,7 @@
                 <span class="kw">super</span>::insert_mediafiles(<span class="kw-2">&amp;mut </span><span class="self">self</span>.conn, <span class="self">self</span>.library_id, <span class="macro">vec!</span>[path.clone()]).<span class="kw">await
             </span>{
                 <span class="kw">let </span><span class="kw-2">mut </span>lock = <span class="self">self</span>.conn.writer().lock_owned().<span class="kw">await</span>;
-                <span class="kw">let </span><span class="kw-2">mut </span>tx = database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span>.unwrap();
+                <span class="kw">let </span><span class="kw-2">mut </span>tx = dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await</span>.unwrap();
 
                 <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = <span class="self">self
                     </span>.matcher
@@ -487,7 +487,7 @@
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>lock = <span class="self">self</span>.conn.writer().lock_owned().<span class="kw">await</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="kw">match </span>database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="kw">match </span>dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await </span>{
             <span class="prelude-val">Ok</span>(x) =&gt; x,
             <span class="prelude-val">Err</span>(e) =&gt; {
                 <span class="macro">error!</span>(reason = <span class="question-mark">?</span>e, <span class="string">&quot;Failed to create transaction.&quot;</span>);
@@ -552,7 +552,7 @@
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>lock = <span class="self">self</span>.conn.writer().lock_owned().<span class="kw">await</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="kw">match </span>database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="kw">match </span>dim_database::write_tx(<span class="kw-2">&amp;mut </span>lock).<span class="kw">await </span>{
             <span class="prelude-val">Ok</span>(x) =&gt; x,
             <span class="prelude-val">Err</span>(e) =&gt; {
                 <span class="macro">error!</span>(reason = <span class="question-mark">?</span>e, <span class="string">&quot;Failed to create transaction.&quot;</span>);
