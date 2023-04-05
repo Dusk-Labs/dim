@@ -1,4 +1,5 @@
 // FIXME: We have a shim in dim/utils but we cant depend on dim because itd be a circular dep.
+#![deny(warnings)]
 
 use crate::utils::ffpath;
 

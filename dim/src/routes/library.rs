@@ -15,7 +15,6 @@ use dim_database::mediafile::MediaFile;
 use dim_database::user::User;
 
 use dim_extern_api::tmdb::TMDBMetadataProvider;
-use dim_utils::json;
 
 use std::collections::HashMap;
 use std::sync::Arc;

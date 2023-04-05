@@ -1,10 +1,11 @@
+#![deny(warnings)]
+
 use std::net::SocketAddr;
 
 pub mod routes;
 pub mod tree;
 
 pub use axum;
-use axum::ServiceExt;
 
 #[inline]
 pub async fn serve(addr: &SocketAddr, router: axum::Router) -> Result<(), hyper::Error> {

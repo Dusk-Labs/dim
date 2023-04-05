@@ -1,0 +1,10 @@
+[package]
+name = "dim-events"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde = { version = "1.0.105", features = ["derive"] }
+serde_json = "1.0.48"

@@ -1,7 +1,5 @@
-use crate::balanced_or_tree;
-use crate::logger::RequestLogger;
+
 use crate::routes;
-use crate::routes::dashboard::dashboard;
 use crate::routes::*;
 use crate::scanner;
 use crate::stream_tracking::StreamTracking;
@@ -18,6 +16,8 @@ use once_cell::sync::OnceCell;
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::sync::mpsc::UnboundedSender;
 use tracing::{info, instrument};
+
+use dim_web::routes::websocket;
 
 use warp::Filter;
 
@@ -91,7 +91,6 @@ pub async fn run_scanners(tx: EventTx) {
 pub async fn warp_core(
     event_tx: EventTx,
     stream_manager: StateManager,
-    rt: tokio::runtime::Handle,
     port: u16,
     event_rx: UnboundedReceiver<String>,
 ) {
@@ -100,8 +99,6 @@ pub async fn warp_core(
     let conn = dim_database::get_conn()
         .await
         .expect("Failed to grab a handle to the connection pool.");
-
-    let request_logger = RequestLogger::new();
 
     macro_rules! warp {
         ($p:path) => {
