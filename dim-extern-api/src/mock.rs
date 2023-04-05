@@ -1,7 +1,7 @@
-use super::ExternalActor;
-use super::ExternalMedia;
-use super::ExternalQuery;
-use super::Result;
+use crate::ExternalActor;
+use crate::ExternalMedia;
+use crate::ExternalQuery;
+use crate::Result;
 
 #[derive(Debug, Clone, Copy)]
 pub struct MockProvider;

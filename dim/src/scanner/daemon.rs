@@ -1,5 +1,5 @@
 use crate::core::EventTx;
-use crate::external::ExternalQueryIntoShow;
+use dim_extern_api::ExternalQueryIntoShow;
 
 use super::movie;
 use super::tv_show;

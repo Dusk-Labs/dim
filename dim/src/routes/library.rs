@@ -1,7 +1,6 @@
 use crate::core::DbConnection;
 use crate::core::EventTx;
 use crate::errors;
-use crate::external::tmdb::TMDBMetadataProvider;
 use crate::json;
 use crate::scanner;
 use crate::scanner::daemon::FsWatcher;
@@ -13,8 +12,9 @@ use dim_database::library::Library;
 use dim_database::library::MediaType;
 use dim_database::media::Media;
 use dim_database::mediafile::MediaFile;
-
 use dim_database::user::User;
+
+use dim_extern_api::tmdb::TMDBMetadataProvider;
 
 use std::collections::HashMap;
 use std::sync::Arc;

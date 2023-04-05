@@ -4,13 +4,13 @@ use super::movie::asset_from_url;
 use super::MediaMatcher;
 use super::Metadata;
 use super::WorkUnit;
-use crate::external::ExternalEpisode;
-use crate::external::ExternalMedia;
+use dim_extern_api::ExternalEpisode;
+use dim_extern_api::ExternalMedia;
 
-use crate::external::ExternalQueryIntoShow;
-use crate::external::ExternalQueryShow;
-use crate::external::ExternalSeason;
 use crate::inspect::ResultExt;
+use dim_extern_api::ExternalQueryIntoShow;
+use dim_extern_api::ExternalQueryShow;
+use dim_extern_api::ExternalSeason;
 
 use async_trait::async_trait;
 
@@ -518,9 +518,9 @@ mod tests {
     use super::super::tests::mediafile::create_library;
     use super::TvMatcher;
 
-    use crate::external::ExternalEpisode;
-    use crate::external::ExternalMedia;
-    use crate::external::ExternalSeason;
+    use dim_extern_api::ExternalEpisode;
+    use dim_extern_api::ExternalMedia;
+    use dim_extern_api::ExternalSeason;
 
     use dim_database::episode::Episode;
     use dim_database::media::Media;

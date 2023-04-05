@@ -1,4 +1,4 @@
-use crate::external::MediaSearchType;
+use crate::MediaSearchType;
 
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;

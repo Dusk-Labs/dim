@@ -1,6 +1,9 @@
-/// Module contains a common interface for extracting and obtaining filename metadata.
+//! Library contains a common interface for extracting and obtaining filename metadata as well as
+//! the implementations for various external APIs, such as TMDB.
+
 pub mod filename;
 pub mod mock;
+pub mod tmdb;
 
 use async_trait::async_trait;
 
@@ -12,8 +15,6 @@ use displaydoc::Display;
 use serde::Deserialize;
 use serde::Serialize;
 use thiserror::Error;
-
-pub mod tmdb;
 
 pub type Result<T> = ::core::result::Result<T, Error>;
 

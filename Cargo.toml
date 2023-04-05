@@ -1,7 +1,5 @@
-cargo-features = ["workspace-inheritance"]
-
 [workspace]
-members = ["dim", "dim-auth", "dim-database", "dim-events"]
+members = ["dim", "dim-auth", "dim-database", "dim-events", "dim-extern-api"]
 
 [workspace.package]
 version = "0.4.0-dev"
