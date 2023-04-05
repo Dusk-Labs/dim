@@ -130,9 +130,7 @@ fn main() {
 
         info!("Summoning Dim v{}...", structopt::clap::crate_version!());
 
-        let rt = tokio::runtime::Handle::current();
-
-        core::warp_core(event_tx, stream_manager, rt, global_settings.port, event_rx).await;
+        core::warp_core(event_tx, stream_manager, global_settings.port, event_rx).await;
     };
 
     tokio::runtime::Runtime::new()

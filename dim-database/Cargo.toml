@@ -1,6 +1,6 @@
 [package]
 name = "dim-database"
-build = "src/build.rs"
+build = "build.rs"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

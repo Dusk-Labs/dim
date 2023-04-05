@@ -30,6 +30,7 @@ pub mod statik;
 pub mod stream;
 pub mod tv;
 pub mod user;
+pub mod websocket;
 
 #[doc(hidden)]
 pub mod global_filters {
@@ -48,7 +49,7 @@ pub mod global_filters {
 
     pub fn with_db(
         conn: DbConnection,
-    ) -> impl Filter<Extract = (DbConnection,), Error = Infallible> + Clone {
+    ) -> impl Filter<Extract = (DbConnection,), Error = Infallible> + Clone + 'static {
         warp::any().map(move || conn.clone())
     }
 
