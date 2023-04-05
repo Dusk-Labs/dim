@@ -1,4 +1,4 @@
 {
     "rust-analyzer.cargo.allFeatures": false,
-    "rust-analyzer.cargo.features": []
+    "rust-analyzer.cargo.features": [],
 }

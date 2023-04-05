@@ -44,7 +44,6 @@ pub mod filters {
     use crate::core::StateManager;
     use crate::errors::StreamingErrors;
     use crate::stream_tracking::StreamTracking;
-    use crate::warp_unwrap;
 
     use dim_database::user::User;
     use uuid::Uuid;
@@ -81,7 +80,7 @@ pub mod filters {
                  stream_tracking: StreamTracking| async move {
                     let gid = gid.and_then(|x| Uuid::parse_str(x.as_str()).ok());
 
-                    warp_unwrap!(
+                    dim_utils::warp_unwrap!(
                         super::return_virtual_manifest(
                             state,
                             stream_tracking,
@@ -512,7 +511,7 @@ pub async fn create_video(
                 24,
             ));
 
-        let label = quality_to_label(quality, Some(bitrate));
+        let label = quality_to_label(quality.bitrate, quality.height, Some(bitrate));
 
         // TODO: This code will not work correctly if there are similar resolutions with different
         // brates.

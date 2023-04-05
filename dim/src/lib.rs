@@ -19,11 +19,16 @@
 //! To test run `make test` in the root, or `cargo test` in the root of each module including the
 //! root dir.
 #![allow(opaque_hidden_inferred_bound)]
+#![deny(warnings)]
 
 use std::fs::create_dir_all;
 use tracing_subscriber::fmt;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::EnvFilter;
+
+/// Various utilities
+pub mod utils;
+pub(crate) use utils::json;
 
 /// Module contains our core initialization logic.
 pub mod core;
@@ -49,10 +54,6 @@ pub mod streaming;
 mod tests;
 /// Tree-like structure for representing directories of files.
 pub mod tree;
-/// Various utilities
-pub mod utils;
-/// Websocket related logic.
-pub mod websocket;
 
 pub use routes::settings::get_global_settings;
 pub use routes::settings::init_global_settings;
@@ -64,7 +65,7 @@ pub fn setup_logging(_debug: bool) {
     let _ = create_dir_all("logs");
 
     if std::env::var("RUST_LOG").is_err() {
-        std::env::set_var("RUST_LOG", "info");
+        std::env::set_var("RUST_LOG", "info,tower_http=trace");
     }
 
     let log_appender = tracing_appender::rolling::daily("./logs", "dim-log.log");
