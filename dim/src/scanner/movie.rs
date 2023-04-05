@@ -1,9 +1,9 @@
 #![allow(unstable_name_collisions)]
 
-use crate::external::ExternalMedia;
-use crate::external::ExternalQueryIntoShow;
 use crate::inspect::ResultExt;
 use crate::scanner::format_path;
+use dim_extern_api::ExternalMedia;
+use dim_extern_api::ExternalQueryIntoShow;
 
 use super::MediaMatcher;
 use super::WorkUnit;
@@ -285,7 +285,7 @@ mod tests {
     use super::super::tests::mediafile::create_library;
 
     use super::MovieMatcher;
-    use crate::external::ExternalMedia;
+    use dim_extern_api::ExternalMedia;
 
     use chrono::TimeZone;
     use dim_database::genre::Genre;

@@ -174,7 +174,8 @@ pub fn event_socket(
                                                 addr,
                                                 message: dim_events::Message {
                                                     id: -1,
-                                                    event_type: dim_events::PushEventType::EventAuthOk,
+                                                    event_type:
+                                                        dim_events::PushEventType::EventAuthOk,
                                                 }
                                                 .to_string(),
                                             });

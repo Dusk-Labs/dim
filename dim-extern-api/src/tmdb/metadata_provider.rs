@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::future::Future;
 use std::marker::PhantomData;
 use std::num::NonZeroU32;
+use std::result::Result;
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
@@ -12,8 +13,8 @@ use async_trait::async_trait;
 use tokio::sync::broadcast;
 use tracing::instrument;
 
-use crate::external::{Result as QueryResult, *};
-use core::result::Result;
+use crate::Result as QueryResult;
+use crate::*;
 
 use governor::clock::DefaultClock;
 use governor::middleware::NoOpMiddleware;
@@ -246,7 +247,7 @@ impl TMDBMetadataProvider {
             .await?;
 
         let mut search = serde_json::from_str::<SearchResponse>(&st).map_err(|error| {
-            crate::external::Error::DeserializationError {
+            Error::DeserializationError {
                 body: st,
                 error: format!("{error}"),
             }
@@ -264,7 +265,7 @@ impl TMDBMetadataProvider {
                 .await?;
 
             let genre_list = serde_json::from_str::<GenreList>(&st).map_err(|error| {
-                crate::external::Error::DeserializationError {
+                Error::DeserializationError {
                     body: st,
                     error: format!("{error}"),
                 }
@@ -335,7 +336,7 @@ impl TMDBMetadataProvider {
             .await?;
 
         let details = serde_json::from_str::<TMDBMediaObject>(&response_body).map_err(|err| {
-            crate::external::Error::DeserializationError {
+            Error::DeserializationError {
                 body: response_body,
                 error: format!("{err}"),
             }
@@ -367,12 +368,11 @@ impl TMDBMetadataProvider {
             )
             .await?;
 
-        let actor = serde_json::from_str::<Cast>(&resp).map_err(|error| {
-            crate::external::Error::DeserializationError {
+        let actor =
+            serde_json::from_str::<Cast>(&resp).map_err(|error| Error::DeserializationError {
                 body: resp,
                 error: format!("{error}"),
-            }
-        })?;
+            })?;
 
         Ok(actor.cast.into_iter().map(|x| x.into()).collect())
     }
@@ -400,7 +400,7 @@ impl TMDBMetadataProvider {
             .await?;
 
         let tv_details = serde_json::from_str::<TvSeasons>(&response_body).map_err(|err| {
-            crate::external::Error::DeserializationError {
+            Error::DeserializationError {
                 body: response_body,
                 error: format!("{err}"),
             }
@@ -434,7 +434,7 @@ impl TMDBMetadataProvider {
             .await?;
 
         let tv_details = serde_json::from_str::<TvEpisodes>(&response_body).map_err(|err| {
-            crate::external::Error::DeserializationError {
+            Error::DeserializationError {
                 body: response_body,
                 error: format!("{err}"),
             }

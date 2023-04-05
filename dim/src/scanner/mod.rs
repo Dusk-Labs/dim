@@ -10,19 +10,21 @@ pub mod tv_show;
 
 use self::mediafile::Error as CreatorError;
 use self::mediafile::MediafileCreator;
-use super::external::filename::CombinedExtractor;
-use super::external::filename::FilenameMetadata;
-use super::external::filename::Metadata;
 use crate::core::EventTx;
-use crate::external::ExternalQueryIntoShow;
 
-use anitomy::Anitomy;
 use async_trait::async_trait;
 
 use dim_database::library::Library;
 use dim_database::library::MediaType;
 use dim_database::mediafile::InsertableMediaFile;
 use dim_database::mediafile::MediaFile;
+
+use dim_extern_api::filename::Anitomy;
+use dim_extern_api::filename::CombinedExtractor;
+use dim_extern_api::filename::FilenameMetadata;
+use dim_extern_api::filename::Metadata;
+use dim_extern_api::filename::TorrentMetadata;
+use dim_extern_api::ExternalQueryIntoShow;
 
 use futures::FutureExt;
 use itertools::Itertools;
@@ -35,7 +37,6 @@ use std::pin::Pin;
 use std::sync::Arc;
 use std::time::Instant;
 
-use torrent_name_parser::Metadata as TorrentMetadata;
 use tracing::error;
 use tracing::info;
 use tracing::instrument;

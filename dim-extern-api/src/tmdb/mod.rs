@@ -69,9 +69,7 @@ mod tests {
     use chrono::{Datelike, Timelike};
 
     use super::*;
-    use crate::external::{
-        ExternalEpisode, ExternalMedia, ExternalQuery, ExternalQueryShow, ExternalSeason,
-    };
+    use crate::{ExternalEpisode, ExternalMedia, ExternalQuery, ExternalQueryShow, ExternalSeason};
 
     fn make_letterkenny() -> ExternalMedia {
         let dt = chrono::Utc::now()

@@ -6,9 +6,7 @@ use serde::Deserialize;
 use std::future::Future;
 use std::time::Duration;
 
-use crate::external::{
-    ExternalActor, ExternalEpisode, ExternalMedia, ExternalSeason, MediaSearchType,
-};
+use crate::{ExternalActor, ExternalEpisode, ExternalMedia, ExternalSeason, MediaSearchType};
 
 use super::{TMDBClientRequestError, TMDBMetadataProvider, TMDB_BASE_URL};
 

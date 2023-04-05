@@ -1,13 +1,10 @@
 use crate::core::DbConnection;
 use crate::errors;
-use crate::external::tmdb::TMDBMetadataProvider;
-use crate::external::ExternalQueryIntoShow;
 use crate::json;
 use crate::tree;
 use crate::utils::secs_to_pretty;
 
 use chrono::Datelike;
-use dim_database::user::User;
 
 use dim_database::compact_mediafile::CompactMediafile;
 use dim_database::episode::Episode;
@@ -17,6 +14,10 @@ use dim_database::media::Media;
 use dim_database::media::UpdateMedia;
 use dim_database::mediafile::MediaFile;
 use dim_database::progress::Progress;
+use dim_database::user::User;
+
+use dim_extern_api::tmdb::TMDBMetadataProvider;
+use dim_extern_api::ExternalQueryIntoShow;
 
 use warp::http::status::StatusCode;
 use warp::reply;
