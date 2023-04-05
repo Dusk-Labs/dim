@@ -1,4 +1,3 @@
-
 use crate::routes;
 use crate::routes::*;
 use crate::scanner;
@@ -139,59 +138,38 @@ pub async fn warp_core(
         })
     }
 
-    // let api_routes = balanced_or_tree![
-    //     /* NOTE: v1 REST API routes start HERE */
     let router = dim_web::axum::Router::new()
-        //     /* /api/v1/auth routes*/
         .route_service("/api/v1/auth/login", warp!(auth::filters::login))
-        //     auth::filters::login(conn.clone()),
         .route_service("/api/v1/auth/register", warp!(auth::filters::register))
-        //     auth::filters::register(conn.clone()),
         .route_service("/api/v1/auth/whoami", warp!(user::filters::whoami))
-        //     user::filters::whoami(conn.clone()),
         .route_service(
             "/api/v1/host/admin_exists",
             warp!(host::filters::admin_exists),
         )
-        //     host::filters::admin_exists(conn.clone()),
-        //     /* library routes */
         .route_service(
             "/api/v1/library/*path",
             warp::service({
                 routes::library::filters::library_get_self(conn.clone())
-                    //     routes::library::filters::library_get_self(conn.clone()),
                     .or(routes::library::filters::get_all_unmatched_media(
                         conn.clone(),
                     ))
-                    //     routes::library::filters::get_all_unmatched_media(conn.clone()),
                     .or(routes::library::filters::library_delete(conn.clone()))
-                    //     routes::library::filters::library_delete(conn.clone()),
                     .or(routes::library::filters::library_get_self(conn.clone()))
-                    //     routes::library::filters::library_get_self(conn.clone()),
                     .or(routes::library::filters::get_all_of_library(conn.clone()))
-                //     routes::library::filters::get_all_of_library(conn.clone()),
             }),
         )
         .route_service(
             "/api/v1/library",
-            warp::service(
-                library::filters::library_get(conn.clone())
-                    //     routes::library::filters::library_get(conn.clone()),
-                    .or(routes::library::filters::library_post(
-                        conn.clone(),
-                        event_tx.clone(),
-                    )), //     routes::library::filters::library_post(conn.clone(), event_tx.clone()),
-            ),
+            warp::service(library::filters::library_get(conn.clone()).or(
+                routes::library::filters::library_post(conn.clone(), event_tx.clone()),
+            )),
         )
         .route_service("/api/v1/dashboard", warp!(dashboard::filters::dashboard))
-        //     routes::dashboard::filters::dashboard(conn.clone(), rt.clone()),
         .route_service(
             "/api/v1/dashboard/banner",
             warp!(dashboard::filters::banners),
         )
-        //     routes::dashboard::filters::banners(conn.clone()),
         .route_service("/api/v1/search", warp!(routes::general::filters::search))
-        //     routes::general::filters::search(conn.clone()),
         .route_service(
             "/api/v1/filebrowser/",
             warp!(routes::general::filters::get_directory_structure),
@@ -200,21 +178,10 @@ pub async fn warp_core(
             "/api/v1/filebrowser/*path",
             warp!(routes::general::filters::get_directory_structure),
         )
-        //     routes::general::filters::get_directory_structure(conn.clone()),
         .route_service("/images/*path", warp!(statik::filters::get_image))
-        //     routes::statik::filters::get_image(conn.clone()),
-        //     /* media routes */
         .route_service(
             "/api/v1/media/*path",
             warp::service({
-                //     routes::media::filters::get_media_by_id(conn.clone()),
-                //     routes::media::filters::get_media_files(conn.clone()),
-                //     routes::media::filters::update_media_by_id(conn.clone()),
-                //     routes::media::filters::delete_media_by_id(conn.clone()),
-                //     routes::media::filters::tmdb_search(conn.clone()),
-                //     routes::media::filters::map_progress(conn.clone()),
-                //     routes::media::filters::get_mediafile_tree(conn.clone()),
-                //     routes::rematch_media::filters::rematch_media_by_id(conn.clone(), event_tx.clone()),
                 routes::media::filters::get_media_by_id(conn.clone())
                     .or(routes::media::filters::get_media_files(conn.clone()))
                     .or(routes::media::filters::update_media_by_id(conn.clone()))
@@ -231,26 +198,6 @@ pub async fn warp_core(
         .route_service(
             "/api/v1/stream/*path",
             warp::service({
-                //     /* stream routes */
-                //     routes::stream::filters::return_virtual_manifest(
-                //         conn.clone(),
-                //         state.clone(),
-                //         stream_tracking.clone()
-                //     ),
-                //     routes::stream::filters::return_manifest(
-                //         conn.clone(),
-                //         state.clone(),
-                //         stream_tracking.clone()
-                //     ),
-                //     routes::stream::filters::get_init(state.clone())
-                //         .recover(routes::global_filters::handle_rejection),
-                //     routes::stream::filters::should_client_hard_seek(state.clone(), stream_tracking.clone()),
-                //     routes::stream::filters::session_get_stderr(state.clone(), stream_tracking.clone()),
-                //     routes::stream::filters::kill_session(state.clone(), stream_tracking.clone()),
-                //     routes::stream::filters::get_subtitle(state.clone()),
-                //     routes::stream::filters::get_subtitle_ass(state.clone()),
-                //     routes::stream::filters::get_chunk(state.clone())
-                //         .recover(routes::global_filters::handle_rejection),
                 routes::stream::filters::return_virtual_manifest(
                     conn.clone(),
                     state.clone(),
@@ -284,9 +231,6 @@ pub async fn warp_core(
         .route_service(
             "/api/v1/mediafile/*path",
             warp::service({
-                //     /* mediafile routes */
-                //     routes::mediafile::filters::get_mediafile_info(conn.clone()),
-                //     routes::mediafile::filters::rematch_mediafile(conn.clone()),
                 routes::mediafile::filters::get_mediafile_info(conn.clone())
                     .or(routes::mediafile::filters::rematch_mediafile(conn.clone()))
             }),
@@ -295,16 +239,9 @@ pub async fn warp_core(
             "/api/v1/tv/*path",
             warp!(routes::tv::filters::get_tv_seasons),
         )
-        //     routes::tv::filters::get_tv_seasons(conn.clone()),
         .route_service(
             "/api/v1/season/*path",
             warp::service({
-                //     /* tv routes */
-                //     routes::tv::filters::patch_episode_by_id(conn.clone()),
-                //     routes::tv::filters::delete_season_by_id(conn.clone()),
-                //     routes::tv::filters::get_season_episodes(conn.clone()),
-                //     routes::tv::filters::patch_episode_by_id(conn.clone()),
-                //     routes::tv::filters::delete_episode_by_id(conn.clone()),
                 routes::tv::filters::patch_episode_by_id(conn.clone())
                     .or(routes::tv::filters::delete_season_by_id(conn.clone()))
                     .or(routes::tv::filters::get_season_episodes(conn.clone()))
@@ -315,9 +252,6 @@ pub async fn warp_core(
         .route_service(
             "/api/v1/episode/*path",
             warp::service({
-                //     /* tv routes */
-                //     routes::tv::filters::patch_episode_by_id(conn.clone()),
-                //     routes::tv::filters::delete_episode_by_id(conn.clone()),
                 routes::tv::filters::patch_episode_by_id(conn.clone())
                     .or(routes::tv::filters::delete_episode_by_id(conn.clone()))
             }),
@@ -325,11 +259,6 @@ pub async fn warp_core(
         .route_service(
             "/api/v1/user/settings",
             warp::service({
-                //     /* settings routes */
-                //     routes::settings::filters::get_user_settings(conn.clone()),
-                //     routes::settings::filters::post_user_settings(conn.clone()),
-                //     routes::settings::filters::get_global_settings(conn.clone()),
-                //     routes::settings::filters::set_global_settings(conn.clone()),
                 settings::filters::get_user_settings(conn.clone())
                     .or(routes::settings::filters::get_user_settings(conn.clone()))
                     .or(routes::settings::filters::post_user_settings(conn.clone()))
@@ -340,9 +269,6 @@ pub async fn warp_core(
         .route_service(
             "/api/v1/host/settings",
             warp::service({
-                //     /* settings routes */
-                //     routes::settings::filters::get_global_settings(conn.clone()),
-                //     routes::settings::filters::set_global_settings(conn.clone()),
                 routes::settings::filters::get_global_settings(conn.clone())
                     .or(routes::settings::filters::set_global_settings(conn.clone()))
             }),
@@ -350,11 +276,6 @@ pub async fn warp_core(
         .route_service(
             "/api/v1/user/*path",
             warp::service({
-                //     /* /api/v1/user routes */
-                //     user::filters::change_password(conn.clone()),
-                //     user::filters::delete(conn.clone()),
-                //     user::filters::change_username(conn.clone()),
-                //     user::filters::upload_avatar(conn.clone()),
                 user::filters::change_password(conn.clone())
                     .or(user::filters::delete(conn.clone()))
                     .or(user::filters::change_username(conn.clone()))
@@ -364,16 +285,11 @@ pub async fn warp_core(
         .route_service(
             "/api/v1/auth/*path",
             warp::service({
-                //     invites::filters::get_all_invites(conn.clone()),
-                //     invites::filters::generate_invite(conn.clone()),
-                //     invites::filters::delete_token(conn.clone()),
-
                 invites::filters::get_all_invites(conn.clone())
                     .or(invites::filters::generate_invite(conn.clone()))
                     .or(invites::filters::delete_token(conn.clone()))
             }),
         )
-        //     /* static routes */
         .route_service(
             "/static/*path",
             warp::service(
@@ -400,7 +316,6 @@ pub async fn warp_core(
     let web_fut = dim_web::serve(&socket_addr, router);
 
     tokio::select! {
-        // _ = warp::serve(routes).run(([0, 0, 0, 0], port)) => {},
         _ = web_fut => {},
         _ = tokio::signal::ctrl_c() => {
             std::process::exit(0);

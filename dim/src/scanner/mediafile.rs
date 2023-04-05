@@ -239,9 +239,7 @@ impl MediafileCreator {
 }
 
 #[async_trait]
-impl Actor for MediafileCreator {
-
-}
+impl Actor for MediafileCreator {}
 
 pub struct InsertBatch(pub Vec<InsertableMediaFile>);
 
