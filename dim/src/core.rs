@@ -290,11 +290,14 @@ pub async fn warp_core(
                     .or(invites::filters::delete_token(conn.clone()))
             }),
         )
+        .route_service("/", warp::service(routes::statik::filters::react_routes()))
+        .route_service(
+            "/*path",
+            warp::service(routes::statik::filters::react_routes()),
+        )
         .route_service(
             "/static/*path",
-            warp::service(
-                routes::statik::filters::dist_static().or(routes::statik::filters::react_routes()),
-            ),
+            warp::service(routes::statik::filters::dist_static()),
         )
         .route("/ws", dim_web::axum::routing::get(ws_handler))
         .with_state(AppState {
