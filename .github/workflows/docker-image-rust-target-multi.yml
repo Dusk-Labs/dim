@@ -59,9 +59,9 @@ jobs:
             .cargo/registry/cache
             .cargo/git/db
             target
-          key: lldap-bin-armhf-${{ hashFiles('**/Cargo.lock') }}
+          key: dim-bin-armhf-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            lldap-bin-armhf-
+            dim-bin-armhf-
       - name: add armhf target
         run: rustup target add armv7-unknown-linux-gnueabihf
       - name: smoke test
@@ -107,9 +107,9 @@ jobs:
             .cargo/registry/cache
             .cargo/git/db
             target
-          key: lldap-bin-aarch64-${{ hashFiles('**/Cargo.lock') }}
+          key: dim-bin-aarch64-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            lldap-bin-aarch64-
+            dim-bin-aarch64-
       - name: add arm64 target
         run: rustup target add aarch64-unknown-linux-gnu
       - name: smoke test
@@ -149,9 +149,9 @@ jobs:
             .cargo/registry/cache
             .cargo/git/db
             target
-          key: lldap-bin-amd64-${{ hashFiles('**/Cargo.lock') }}
+          key: dim-bin-amd64-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            lldap-bin-amd64-
+            dim-bin-amd64-
       - name: add x86_64 target
         run: rustup target add x86_64-unknown-linux-gnu
       - name: smoke test
