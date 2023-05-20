@@ -1,11 +1,11 @@
 use std::collections::HashMap;
+use std::future::IntoFuture;
 use std::hash::Hash;
 use std::net::SocketAddr;
 use std::pin::Pin;
 
-use tokio::sync::mpsc::unbounded_channel;
-use tokio::sync::mpsc::UnboundedReceiver;
-use tokio::sync::mpsc::UnboundedSender;
+use futures::future::BoxFuture;
+use tokio::sync::mpsc;
 
 use futures::prelude::*;
 
@@ -47,7 +47,7 @@ where
     }
 }
 
-async fn ctrl_event_processor<A, T>(mut rx: UnboundedReceiver<CtrlEvent<A, T>>)
+async fn ctrl_event_processor<A, T>(mut rx: mpsc::Receiver<CtrlEvent<A, T>>)
 where
     A: Hash + Eq + Clone,
     T: ToOwned<Owned = String> + Send,
@@ -55,12 +55,14 @@ where
     let mut peers = HashMap::new();
     let mut discard = vec![];
 
-    while let Some(ev) = rx.recv().await {
+    loop {
         for addr in &discard {
             let _ = peers.remove(addr);
         }
 
         discard.clear();
+
+        let Some(ev) = rx.recv().await else { break };
 
         match ev {
             CtrlEvent::Track { addr, sink, auth } => {
@@ -125,7 +127,7 @@ pub async fn handle_websocket_session(
     stream: impl Stream<Item = WsMessage>,
     remote_address: Option<SocketAddr>,
     conn: dim_database::DbConnection,
-    socket_tx: SocketTx,
+    socket_tx: EventSocketTx,
 ) {
     let addr = match remote_address {
         Some(addr) => addr,
@@ -229,33 +231,85 @@ pub fn from_tungstenite_message(inner: WsMessage) -> Result<warp::ws::Message, W
     Ok(m)
 }
 
-pub type SocketTx<A = SocketAddr, M = String> = UnboundedSender<CtrlEvent<A, M>>;
+pub type EventSocketTx<A = SocketAddr, M = String> = mpsc::Sender<CtrlEvent<A, M>>;
+
+#[derive(Debug)]
+#[must_use]
+pub struct EventRepeater<StreamFut, Fut, T> {
+    stream_forward_fut: StreamFut,
+    fut: Fut,
+    tx: T,
+}
+
+impl<StreamFut, Fut, T> EventRepeater<StreamFut, Fut, T> {
+    fn new(stream_forward_fut: StreamFut, fut: Fut, tx: T) -> Self {
+        Self {
+            stream_forward_fut,
+            fut,
+            tx,
+        }
+    }
+}
+
+impl<StreamFut, Fut, A, M> EventRepeater<StreamFut, Fut, EventSocketTx<A, M>>
+where
+    A: Hash + Eq + Clone + Send + Sync + 'static,
+    M: ToOwned<Owned = String> + Send + Sync + 'static,
+{
+    #[inline]
+    pub fn sender(&self) -> EventSocketTx<A, M> {
+        self.tx.clone()
+    }
+}
+
+impl<T, U, A, M> IntoFuture for EventRepeater<T, U, EventSocketTx<A, M>>
+where
+    T: Future + Send + 'static,
+    T::Output: Send,
+    U: Future + Send + 'static,
+    U::Output: Send,
+    A: Hash + Eq + Clone + Send + Sync + 'static,
+    M: ToOwned<Owned = String> + Send + Sync + 'static,
+{
+    type Output = ();
+
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+
+    fn into_future(self) -> Self::IntoFuture {
+        async move {
+            tokio::join!(self.stream_forward_fut, self.fut);
+        }
+        .boxed()
+    }
+}
 
 pub fn event_repeater<S, T, A, M>(
     source: S,
-) -> (
+    capacity: usize,
+) -> EventRepeater<
     impl Future<Output = ()> + Send + 'static,
     impl Future<Output = ()> + Send + 'static,
-    SocketTx<A, M>,
-)
+    EventSocketTx<A, M>,
+>
 where
     S: Stream<Item = T> + Send + 'static,
     T: IntoCtrlEvent<A, M> + Send,
     A: Hash + Eq + Clone + Send + Sync + 'static,
     M: ToOwned<Owned = String> + Send + Sync + 'static,
 {
-    let (tx, rx) = unbounded_channel::<CtrlEvent<A, M>>();
+    let (tx, rx) = mpsc::channel::<CtrlEvent<A, M>>(capacity);
 
-    let event_prcoessor = ctrl_event_processor::<A, M>(rx);
+    let ctrl_event_processor_fut = ctrl_event_processor::<A, M>(rx);
+
     let stream_forward_tx = tx.clone();
     let stream_forward = async move {
         tokio::pin!(source);
         while let Some(t) = source.next().await {
-            if stream_forward_tx.send(t.into_ctrl_event()).is_err() {
+            if stream_forward_tx.send(t.into_ctrl_event()).await.is_err() {
                 break;
             };
         }
     };
 
-    (stream_forward, event_prcoessor, tx)
+    EventRepeater::new(stream_forward, ctrl_event_processor_fut, tx)
 }
