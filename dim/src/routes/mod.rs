@@ -16,6 +16,7 @@
 //! happens [`DatabaseError`] will be returned.
 //!
 //! [`DatabaseError`]: crate::errors::DimError::DatabaseError
+#![warn(warnings)]
 pub mod auth;
 pub mod dashboard;
 pub mod general;

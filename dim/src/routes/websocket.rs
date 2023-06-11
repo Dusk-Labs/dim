@@ -1,6 +1,6 @@
 use std::net::SocketAddr;
 
-use dim_web::routes::websocket::{handle_websocket_session, SocketTx, WsMessageError};
+use dim_web::routes::websocket::{handle_websocket_session, EventSocketTx, WsMessageError};
 
 use warp::Filter;
 
@@ -9,7 +9,7 @@ use futures::prelude::*;
 use crate::routes;
 
 pub fn ws(
-    socket_tx: SocketTx,
+    socket_tx: EventSocketTx,
     conn: dim_database::DbConnection,
 ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::path("ws")
@@ -19,7 +19,7 @@ pub fn ws(
         .and(warp::any().map(move || conn.clone()))
         .map(
             |remote_address: Option<SocketAddr>,
-             socket_tx: SocketTx,
+             socket_tx: EventSocketTx,
              ws: warp::ws::Ws,
              conn: dim_database::DbConnection| {
                 ws.on_upgrade(move |websocket| async move {
