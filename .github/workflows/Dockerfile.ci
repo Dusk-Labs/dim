@@ -14,13 +14,13 @@ RUN if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then \
     ; fi
     
 RUN if [ "${TARGETPLATFORM}" = "linux/arm64" ]; then \
-    wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz && \
-    tar --strip-components 1 -xf ffmpeg-release-arm64-static.tar.xz \
+    wget https://johnvansickle.com/ffmpeg/old-releases/ffmpeg-5.1.1-arm64-static.tar.xz && \
+    tar --strip-components 1 -xf ffmpeg-5.1.1-arm64-static.tar.xz \
     ; fi
     
 RUN if [ "${TARGETPLATFORM}" = "linux/arm/v7" ]; then \
-    wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-armhf-static.tar.xz && \
-    tar --strip-components 1 -xf ffmpeg-release-armhf-static.tar.xz \
+    wget https://johnvansickle.com/ffmpeg/old-releases/ffmpeg-5.1.1-armhf-static.tar.xz && \
+    tar --strip-components 1 -xf ffmpeg-5.1.1-armhf-static.tar.xz \
     ; fi
     
 RUN chmod +x /static/ffmpeg && chmod +x /static/ffprobe
