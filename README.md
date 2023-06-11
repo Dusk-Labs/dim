@@ -36,6 +36,7 @@ This name "media" is arbitrary and you can choose whatever you like.
 ```
 docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media:ro ghcr.io/dusk-labs/dim:dev
 ```
+Mutiarch image resides at `ghcr.io/dusk-labs/dim:master`
 
 To use hardware acceleration, mount the relevant device:
 
