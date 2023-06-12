@@ -113,7 +113,11 @@ mod tests {
 
         let letterkenny = make_letterkenny();
 
-        metadata[0].rating.as_mut().map(|x| *x = 8.0);
+        if let Some(mt) = metadata.first_mut() {
+            mt.backdrops = letterkenny.backdrops.clone();
+            mt.posters = letterkenny.posters.clone();
+            mt.rating.replace(8.0);
+        }
 
         assert_eq!(metadata, vec![letterkenny]);
     }
@@ -130,7 +134,9 @@ mod tests {
 
         let letterkenny = make_letterkenny();
 
-        media.rating.as_mut().map(|x| *x = 8.0);
+        media.posters = letterkenny.posters.clone();
+        media.backdrops = letterkenny.backdrops.clone();
+        media.rating.replace(8.0);
 
         assert_eq!(letterkenny, media);
     }

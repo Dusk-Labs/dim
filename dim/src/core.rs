@@ -20,6 +20,7 @@ use dim_web::routes::websocket;
 
 use warp::Filter;
 
+use std::future::IntoFuture;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::net::SocketAddr;
@@ -105,18 +106,19 @@ pub async fn warp_core(
         };
     }
 
-    let (a, b, socket_tx) = websocket::event_repeater(
+    let event_repeater = websocket::event_repeater(
         tokio_stream::wrappers::UnboundedReceiverStream::new(event_rx),
+        1024,
     );
 
-    tokio::spawn(async move {
-        tokio::join!(a, b);
-    });
+    let socket_tx = event_repeater.sender();
+
+    tokio::spawn(event_repeater.into_future());
 
     #[derive(Debug, Clone)]
     struct AppState {
         conn: DbConnection,
-        socket_tx: websocket::SocketTx,
+        socket_tx: websocket::EventSocketTx,
     }
 
     async fn ws_handler(
@@ -139,12 +141,21 @@ pub async fn warp_core(
     }
 
     let router = dim_web::axum::Router::new()
-        .route_service("/api/v1/auth/login", warp!(auth::filters::login))
-        .route_service("/api/v1/auth/register", warp!(auth::filters::register))
+        // .route_service("/api/v1/auth/login", warp!(auth::filters::login))
+        .route(
+            "/api/v1/auth/login",
+            dim_web::axum::routing::post(dim_web::routes::auth::login).with_state(conn.clone()),
+        )
+        // .route_service("/api/v1/auth/register", warp!(auth::filters::register))
+        .route(
+            "/api/v1/auth/register",
+            dim_web::axum::routing::post(dim_web::routes::auth::register).with_state(conn.clone()),
+        )
         .route_service("/api/v1/auth/whoami", warp!(user::filters::whoami))
-        .route_service(
-            "/api/v1/host/admin_exists",
-            warp!(host::filters::admin_exists),
+        .route(
+            "/api/v1/auth/admin_exists",
+            dim_web::axum::routing::get(dim_web::routes::auth::admin_exists)
+                .with_state(conn.clone()),
         )
         .route_service(
             "/api/v1/library/*path",

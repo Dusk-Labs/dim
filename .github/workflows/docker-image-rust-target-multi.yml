@@ -8,22 +8,25 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  # OpenSSL Tweak
   
 jobs:
   create-ui:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2        
+        uses: actions/checkout@v3        
       - name: Build UI 
         uses: actions/setup-node@v3
         with:
-            node-version: '16'
+            node-version: '18'
             cache: 'yarn'
       - run: npm install -g yarn
       - run: yarn -d --cwd ui/ install
+        env:
+            NODE_OPTIONS: --openssl-legacy-provider
       - run: yarn -d --cwd ui/ build
+        env:
+            NODE_OPTIONS: --openssl-legacy-provider
       - name: upload ui artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -60,9 +63,9 @@ jobs:
             .cargo/registry/cache
             .cargo/git/db
             target
-          key: lldap-bin-armhf-${{ hashFiles('**/Cargo.lock') }}
+          key: dim-bin-armhf-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            lldap-bin-armhf-
+            dim-bin-armhf-
       - name: add armhf target
         run: rustup target add armv7-unknown-linux-gnueabihf
       - name: smoke test
@@ -108,9 +111,9 @@ jobs:
             .cargo/registry/cache
             .cargo/git/db
             target
-          key: lldap-bin-aarch64-${{ hashFiles('**/Cargo.lock') }}
+          key: dim-bin-aarch64-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            lldap-bin-aarch64-
+            dim-bin-aarch64-
       - name: add arm64 target
         run: rustup target add aarch64-unknown-linux-gnu
       - name: smoke test
@@ -150,9 +153,9 @@ jobs:
             .cargo/registry/cache
             .cargo/git/db
             target
-          key: lldap-bin-amd64-${{ hashFiles('**/Cargo.lock') }}
+          key: dim-bin-amd64-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            lldap-bin-amd64-
+            dim-bin-amd64-
       - name: add x86_64 target
         run: rustup target add x86_64-unknown-linux-gnu
       - name: smoke test
@@ -176,7 +179,7 @@ jobs:
       packages: write
     steps:
       - name: fetch repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Download armhf dim artifacts
         uses: actions/download-artifact@v3
         with:
@@ -199,9 +202,9 @@ jobs:
         run: ls -al bin/
 
       - name: setup qemu
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
-      - uses: docker/metadata-action@v3
+      - uses: docker/metadata-action@v4
         id: meta
         with:
           images: ghcr.io/${{ github.repository }}
@@ -210,12 +213,12 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-      - uses: docker/login-action@v1
+      - uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v2
+      - uses: docker/build-push-action@v4
         with:
           #push: true
           push: ${{ github.event_name != 'pull_request' }}
