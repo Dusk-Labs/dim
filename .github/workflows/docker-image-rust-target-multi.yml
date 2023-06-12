@@ -22,7 +22,11 @@ jobs:
             cache: 'yarn'
       - run: npm install -g yarn
       - run: yarn -d --cwd ui/ install
+        env:
+            NODE_OPTIONS: --openssl-legacy-provider
       - run: yarn -d --cwd ui/ build
+        env:
+            NODE_OPTIONS: --openssl-legacy-provider
       - name: upload ui artifacts
         uses: actions/upload-artifact@v3
         with:
