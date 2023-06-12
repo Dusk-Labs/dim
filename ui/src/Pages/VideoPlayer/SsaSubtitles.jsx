@@ -35,10 +35,16 @@ function VideoSubtitles() {
     const chunk_path = `//${window.location.host}/api/v1/stream/${
       subtitle.list[subtitle.current].chunk_path
     }`;
+
+    JASSUB._test();
+
     const options = {
       video: videoRef.current,
       subUrl: chunk_path,
-      workerUrl: "/static/jassub-worker.js",
+      dropAllBlur: !JASSUB._supportsSIMD,
+      workerUrl: new URL('jassub/dist/jassub-worker.js', import.meta.url).toString(),
+      wasmUrl: new URL('jassub/dist/jassub-worker.wasm', import.meta.url).toString(),
+      modernWasmUrl: new URL('jassub/dist/jassub-worker-modern.wasm', import.meta.url).toString(),
       availableFonts: { "liberation sans": "/static/default.woff2" },
       fonts: ["/static/default.woff2"],
     };
