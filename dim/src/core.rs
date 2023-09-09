@@ -1,9 +1,12 @@
+use crate::errors::DimError;
 use crate::routes;
 use crate::routes::*;
 use crate::scanner;
 use crate::stream_tracking::StreamTracking;
 
 use dim_database::library::MediaType;
+use dim_database::user::User;
+
 use dim_extern_api::tmdb::TMDBMetadataProvider;
 
 use dim_web::axum::extract::ConnectInfo;
@@ -141,17 +144,24 @@ pub async fn warp_core(
     }
 
     let router = dim_web::axum::Router::new()
-        // .route_service("/api/v1/auth/login", warp!(auth::filters::login))
+        .route(
+            "/api/v1/auth/whoami",
+            dim_web::axum::routing::get(dim_web::routes::auth::whoami)
+                .with_state(conn.clone()),
+        )
+        .route_layer(dim_web::axum::middleware::from_fn_with_state(
+            conn.clone(),
+            with_auth
+        ))
+        // --- End of routes authenticated by Axum middleware ---
         .route(
             "/api/v1/auth/login",
             dim_web::axum::routing::post(dim_web::routes::auth::login).with_state(conn.clone()),
         )
-        // .route_service("/api/v1/auth/register", warp!(auth::filters::register))
         .route(
             "/api/v1/auth/register",
             dim_web::axum::routing::post(dim_web::routes::auth::register).with_state(conn.clone()),
         )
-        .route_service("/api/v1/auth/whoami", warp!(user::filters::whoami))
         .route(
             "/api/v1/auth/admin_exists",
             dim_web::axum::routing::get(dim_web::routes::auth::admin_exists)
@@ -334,5 +344,34 @@ pub async fn warp_core(
         _ = tokio::signal::ctrl_c() => {
             std::process::exit(0);
         }
+    }
+}
+
+pub async fn with_auth<B>(
+    State(conn): State<DbConnection>,
+    mut req: dim_web::axum::http::Request<B>,
+    next: dim_web::axum::middleware::Next<B>
+) -> Result<dim_web::axum::response::Response, DimError> {
+    match req.headers().get(dim_web::axum::http::header::AUTHORIZATION) {
+        Some(token) => {
+            let mut tx = match conn.read().begin().await {
+                Ok(tx) => tx,
+                Err(_) => {
+                    return Err(DimError::DatabaseError {
+                        description: String::from("Failed to start transaction"),
+                    })
+                }
+            };
+            let id = dim_database::user::Login::verify_cookie(token.to_str().unwrap().to_string())
+                .map_err(|e| DimError::CookieError(e))?;
+
+            let current_user = User::get_by_id(&mut tx, id)
+                .await
+                .map_err(|_| DimError::UserNotFound)?;
+
+            req.extensions_mut().insert(current_user);
+            Ok(next.run(req).await)
+        },
+        None => Err(DimError::NoToken),
     }
 }
