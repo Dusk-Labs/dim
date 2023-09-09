@@ -178,7 +178,7 @@ where
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct User {
     pub id: UserID,
     pub username: String,

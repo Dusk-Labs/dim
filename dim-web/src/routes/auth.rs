@@ -19,9 +19,14 @@
 //! [`Unauthenticated`]: crate::errors::DimError::Unauthenticated
 //! [`login`]: fn@login
 
-use axum::extract;
+use axum::{
+    extract,
+    Extension
+};
 use axum::response::IntoResponse;
 
+use dim_database::asset::Asset;
+use dim_database::progress::Progress;
 use dim_database::user::verify;
 use dim_database::user::InsertableUser;
 use dim_database::user::Login;
@@ -32,6 +37,80 @@ use dim_database::DbConnection;
 use http::StatusCode;
 use serde_json::json;
 use thiserror::Error;
+
+
+#[derive(Debug, Error)]
+pub enum AuthError {
+    #[error("Not logged in.")]
+    InvalidCredentials,
+    #[error("database: {0}")]
+    Database(#[from] DatabaseError),
+}
+
+impl IntoResponse for AuthError {
+    fn into_response(self) -> axum::response::Response {
+        match self {
+            Self::InvalidCredentials => {
+                (StatusCode::UNAUTHORIZED, self.to_string()).into_response()
+            }
+            Self::Database(_) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response()
+            }
+        }
+    }
+}
+
+/// # GET `/api/v1/user`
+/// Method returns metadata about the currently logged in user.
+///
+/// # Request
+/// This method takes in no additional parameters or data.
+///
+/// ## Authorization
+/// This method requires a valid authentication token.
+///
+/// ## Example
+/// ```text
+/// curl -X GET http://127.0.0.1:8000/api/v1/user -H "Authorization: ..."
+/// ```
+///
+/// # Response
+/// This method will return a JSON payload with the following schema:
+/// ```no_compile
+/// {
+///   "picture": Option<String>,
+///   "spentWatching": i64,
+///   "username": String,
+///   "roles": [String]
+/// }
+/// ```
+///
+/// ## Example
+/// ```no_compile
+/// {
+///   "picture": "/images/avatar.jpg",
+///   "spentWatching": 12,
+///   "username": "admin",
+///   "roles": ["owner"],
+/// }
+/// ```
+#[axum::debug_handler]
+pub async fn whoami(
+    Extension(user): Extension<User>,
+    extract::State(conn): extract::State<DbConnection>,
+) -> Result<axum::response::Response, AuthError> {
+    let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
+
+    Ok(axum::response::Json(json!({
+        "picture": Asset::get_of_user(&mut tx, user.id).await.ok().map(|x| format!("/images/{}", x.local_path)),
+        "spentWatching": Progress::get_total_time_spent_watching(&mut tx, user.id)
+            .await
+            .unwrap_or(0) / 3600,
+        "username": user.username,
+        "roles": user.roles()
+    }))
+    .into_response())
+}
 
 #[derive(Debug, Error)]
 pub enum LoginError {

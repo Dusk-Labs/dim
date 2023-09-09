@@ -5,64 +5,13 @@ use bytes::BufMut;
 
 use dim_database::asset::Asset;
 use dim_database::asset::InsertableAsset;
-use dim_database::progress::Progress;
 use dim_database::user::User;
-
-use serde_json::json;
-
-use warp::reply;
 
 use http::StatusCode;
 
 use futures::TryStreamExt;
 use uuid::Uuid;
 
-/// # GET `/api/v1/user`
-/// Method returns metadata about the currently logged in user.
-///
-/// # Request
-/// This method takes in no additional parameters or data.
-///
-/// ## Authorization
-/// This method requires a valid authentication token.
-///
-/// ## Example
-/// ```text
-/// curl -X GET http://127.0.0.1:8000/api/v1/user -H "Authorization: ..."
-/// ```
-///
-/// # Response
-/// This method will return a JSON payload with the following schema:
-/// ```no_compile
-/// {
-///   "picture": Option<String>,
-///   "spentWatching": i64,
-///   "username": String,
-///   "roles": [String]
-/// }
-/// ```
-///
-/// ## Example
-/// ```no_compile
-/// {
-///   "picture": "/images/avatar.jpg",
-///   "spentWatching": 12,
-///   "username": "admin",
-///   "roles": ["owner"],
-/// }
-/// ```
-pub async fn whoami(user: User, conn: DbConnection) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.read().begin().await?;
-
-    Ok(reply::json(&json!({
-        "picture": Asset::get_of_user(&mut tx, user.id).await.ok().map(|x| format!("/images/{}", x.local_path)),
-        "spentWatching": Progress::get_total_time_spent_watching(&mut tx, user.id)
-            .await
-            .unwrap_or(0) / 3600,
-        "username": user.username,
-        "roles": user.roles()
-    })))
-}
 
 /// # POST `/api/v1/user/password`
 /// Method changes the password for a logged in account.
@@ -306,23 +255,6 @@ pub(crate) mod filters {
 
     use super::super::global_filters::with_auth;
     use super::super::global_filters::with_state;
-
-    pub fn whoami(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        let path =
-            warp::path!("api" / "v1" / "user").or(warp::path!("api" / "v1" / "auth" / "whoami"));
-
-        path.unify()
-            .and(warp::get())
-            .and(with_auth(conn.clone()))
-            .and(with_state(conn))
-            .and_then(|auth: User, conn: DbConnection| async move {
-                super::whoami(auth, conn)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
 
     pub fn change_password(
         conn: DbConnection,
