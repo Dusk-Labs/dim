@@ -1,25 +1,24 @@
-use std::fs::create_dir_all;
 use std::path::PathBuf;
 use std::time::Duration;
 
+use clap::Parser;
 use dim::streaming;
-use structopt::StructOpt;
+
 use xtra::spawn::Tokio;
 
 use dim_core as dim;
-
-#[derive(Debug, structopt::StructOpt)]
-#[structopt(name = "Dim", about = "Dim, a media manager fueled by dark forces.")]
-#[structopt(version = env!("CARGO_PKG_VERSION"), author = env!("CARGO_PKG_AUTHORS"))]
-#[structopt(rename_all = "kebab")]
+#[derive(Debug, clap::Parser)]
+#[clap(name = "Dim", about = "Dim, a media manager fueled by dark forces.")]
+#[clap(version = env!("CARGO_PKG_VERSION"), author = env!("CARGO_PKG_AUTHORS"))]
+#[clap(rename_all = "kebab")]
 struct Args {
-    #[structopt(short, long, parse(from_os_str))]
+    #[clap(short, long, env = "DIM_CONFIG_PATH")]
     config: Option<PathBuf>,
 }
 
 fn main() {
-    let args = Args::from_args();
-    let _ = create_dir_all(dim::utils::ffpath("config"));
+    let args = Args::parse();
+    let _ = std::fs::create_dir_all(dim::utils::ffpath("config"));
 
     let config_path = args
         .config
@@ -32,7 +31,7 @@ fn main() {
     let global_settings = dim::get_global_settings();
 
     // never panics because we set a default value to metadata_dir
-    let _ = create_dir_all(global_settings.metadata_dir.clone());
+    let _ = std::fs::create_dir_all(global_settings.metadata_dir.clone());
 
     // set our jwt secret key
     let settings_clone = global_settings.clone();
@@ -123,18 +122,17 @@ fn main() {
             dim::core::run_scanners(event_tx.clone()).await;
         }
 
-        tracing::info!("Summoning Dim v{}...", structopt::clap::crate_version!());
+        tracing::info!("Launcing Dim");
 
-        dim_web::start_webserver(
-            event_tx,
-            stream_manager,
+        let address = std::net::SocketAddr::new(
+            std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0)),
             global_settings.port,
-            event_rx,
-            async move {
-                let _ = tokio::signal::ctrl_c().await;
-                tracing::info!("CTRL-C received, shutting down...");
-            },
-        )
+        );
+
+        dim_web::start_webserver(address, event_tx, stream_manager, event_rx, async move {
+            let _ = tokio::signal::ctrl_c().await;
+            tracing::info!("CTRL-C received, shutting down...");
+        })
         .await;
     };
 

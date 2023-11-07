@@ -1,7 +1,7 @@
 #![deny(warnings)]
 
 use std::future::IntoFuture;
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::net::SocketAddr;
 
 pub mod routes;
 pub mod tree;
@@ -176,9 +176,9 @@ fn settings_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
 }
 
 pub async fn start_webserver(
+    address: SocketAddr,
     event_tx: EventTx,
     stream_manager: StateManager,
-    port: u16,
     event_rx: UnboundedReceiver<String>,
     shutdown_fut: impl Future<Output = ()> + Send + 'static,
 ) {
@@ -354,11 +354,10 @@ pub async fn start_webserver(
             cors
         });
 
-    let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), port);
-    tracing::info!(%addr, "webserver is listening");
+    tracing::info!(%address, "webserver is listening");
 
-    let web_fut =
-        axum::Server::bind(&addr).serve(router.into_make_service_with_connect_info::<SocketAddr>());
+    let web_fut = axum::Server::bind(&address)
+        .serve(router.into_make_service_with_connect_info::<SocketAddr>());
 
     tokio::select! {
         _ = web_fut => {},

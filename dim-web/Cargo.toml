@@ -41,7 +41,6 @@ tracing-subscriber = { version = "^0.3.10", features = [
     "env-filter",
     "json",
 ] }
-tracing-tree = "0.2.0"
 uuid = { version = "1.2.2", features = ["v4"] }
 warp = { version = "0.3.3", features = ["tls", "tokio-rustls"] }
 hyper = "0.14.25"
