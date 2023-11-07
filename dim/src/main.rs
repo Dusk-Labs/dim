@@ -125,7 +125,17 @@ fn main() {
 
         tracing::info!("Summoning Dim v{}...", structopt::clap::crate_version!());
 
-        dim_web::warp_core(event_tx, stream_manager, global_settings.port, event_rx).await;
+        dim_web::start_webserver(
+            event_tx,
+            stream_manager,
+            global_settings.port,
+            event_rx,
+            async move {
+                let _ = tokio::signal::ctrl_c().await;
+                tracing::info!("CTRL-C received, shutting down...");
+            },
+        )
+        .await;
     };
 
     tokio::runtime::Runtime::new()

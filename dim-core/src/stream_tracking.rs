@@ -238,6 +238,7 @@ impl VirtualManifest {
     }
 }
 
+#[derive(Debug)]
 pub struct StreamTracking {
     streaming_sessions: Arc<RwLock<HashMap<Uuid, Vec<VirtualManifest>>>>,
 }

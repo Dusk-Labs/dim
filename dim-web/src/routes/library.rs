@@ -5,25 +5,34 @@ use std::sync::Arc;
 
 use axum::extract::{Path, Query, State};
 use axum::response::{IntoResponse, Response};
-use axum::{Extension, Json};
+use axum::Json;
+
+use dim_core::errors::DimError;
+use dim_core::scanner::daemon::FsWatcher;
 use dim_database::compact_mediafile::CompactMediafile;
 use dim_database::library::{InsertableLibrary, Library, MediaType};
-use dim_database::{DatabaseError, DbConnection};
+use dim_database::media::Media;
+use dim_database::mediafile::MediaFile;
+use dim_database::DbConnection;
 use dim_extern_api::tmdb::TMDBMetadataProvider;
+
 use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
 use http::StatusCode;
 use serde::Serialize;
+
+use crate::error::DimErrorWrapper;
+use crate::AppState;
 
 /// Method maps to `POST /api/v1/library`, it adds a new library to the database, starts a new
 /// scanner for it, then dispatches a event to all clients notifying them that a new library has
 /// been created. This method can only be accessed by authenticated users. Method returns 200 OK
 ///
 pub async fn library_post(
-    State(conn): State<DbConnection>,
+    State(state): State<AppState>,
     Json(new_library): Json<InsertableLibrary>,
 ) -> Response {
-    let mut lock = conn.writer().lock_owned().await;
+    let mut lock = state.conn.writer().lock_owned().await;
 
     let mut tx = match dim_database::write_tx(&mut lock).await {
         Ok(tx) => tx,
@@ -50,38 +59,107 @@ pub async fn library_post(
     }
     drop(lock);
 
-    todo!()
+    let tx_clone = state.event_tx.clone();
 
-    // let tx_clone = event_tx.clone();
+    const TMDB_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
+    let provider = TMDBMetadataProvider::new(TMDB_KEY);
 
-    // const TMDB_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
-    // let provider = TMDBMetadataProvider::new(TMDB_KEY);
+    let provider = match new_library.media_type {
+        MediaType::Movie => Arc::new(provider.movies()) as Arc<_>,
+        MediaType::Tv => Arc::new(provider.tv_shows()) as Arc<_>,
+        _ => unreachable!(),
+    };
 
-    // let provider = match new_library.media_type {
-    //     MediaType::Movie => Arc::new(provider.movies()) as Arc<_>,
-    //     MediaType::Tv => Arc::new(provider.tv_shows()) as Arc<_>,
-    //     _ => unreachable!(),
-    // };
+    let mut fs_watcher = FsWatcher::new(
+        state.conn.clone(),
+        id,
+        new_library.media_type,
+        tx_clone.clone(),
+        Arc::clone(&provider),
+    );
 
-    // let mut fs_watcher = FsWatcher::new(
-    //     conn.clone(),
-    //     id,
-    //     new_library.media_type,
-    //     tx_clone.clone(),
-    //     Arc::clone(&provider),
-    // );
+    tokio::spawn(async move { fs_watcher.start_daemon().await });
+    let mut conn = state.conn.clone();
+    tokio::spawn(async move { dim_core::scanner::start(&mut conn, id, tx_clone, provider).await });
 
-    // tokio::spawn(async move { fs_watcher.start_daemon().await });
-    // tokio::spawn(async move { scanner::start(&mut conn, id, tx_clone, provider).await });
+    Json(serde_json::json!({ "id": id })).into_response()
+}
 
-    // Ok(Json(serde_json::json!({ "id": id })))
+/// Method mapped to `DELETE /api/v1/library/<id>` deletes the library with the supplied id from the path.
+pub async fn library_delete(
+    State(AppState { conn, .. }): State<AppState>,
+    Path(id): Path<i64>,
+) -> Result<StatusCode, DimErrorWrapper> {
+    // First we mark the library as scheduled for deletion which will make the library and all its
+    // content hidden. This is necessary because huge libraries take a long time to delete.
+    {
+        let mut lock = conn.writer().lock_owned().await;
+        let mut tx = dim_database::write_tx(&mut lock).await.map_err(|err| {
+            DimErrorWrapper(DimError::DatabaseError {
+                description: err.to_string(),
+            })
+        })?;
+        if Library::mark_hidden(&mut tx, id).await.map_err(|err| {
+            DimErrorWrapper(DimError::DatabaseError {
+                description: err.to_string(),
+            })
+        })? < 1
+        {
+            return Err(DimError::LibraryNotFound.into());
+        }
+        tx.commit().await.map_err(|err| {
+            DimErrorWrapper(DimError::DatabaseError {
+                description: err.to_string(),
+            })
+        })?;
+    }
+
+    let delete_lib_fut = async move {
+        let inner = async {
+            let mut lock = conn.writer().lock_owned().await;
+            let mut tx = dim_database::write_tx(&mut lock).await?;
+
+            Library::delete(&mut tx, id).await?;
+            Media::delete_by_lib_id(&mut tx, id).await?;
+            MediaFile::delete_by_lib_id(&mut tx, id).await?;
+
+            tx.commit().await?;
+
+            Ok::<_, dim_database::error::DatabaseError>(())
+        };
+
+        if let Err(e) = inner.await {
+            tracing::error!(reason = ?e, "Failed to delete library and its content.");
+        } else {
+            tracing::info!("Deleted library");
+        }
+    };
+
+    tokio::spawn(delete_lib_fut);
+
+    Ok(StatusCode::NO_CONTENT)
+}
+
+/// Method mapped to `GET /api/v1/library` returns a list of all libraries in the database
+pub async fn library_get_all(State(state): State<AppState>) -> Response {
+    let mut tx = match state.conn.read().begin().await {
+        Ok(tx) => tx,
+        Err(err) => {
+            tracing::error!(?err, "Error getting connection");
+            return (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response();
+        }
+    };
+
+    let libraries = Library::get_all(&mut tx).await;
+
+    Json(libraries).into_response()
 }
 
 /// Method mapped to `GET /api/v1/library/<id>` returns info about the library with the supplied
 /// id. Method can only be accessed by authenticated users.
 ///
-pub async fn library_get(State(conn): State<DbConnection>, Path(id): Path<i64>) -> Response {
-    let mut tx = match conn.read().begin().await {
+pub async fn library_get_one(State(state): State<AppState>, Path(id): Path<i64>) -> Response {
+    let mut tx = match state.conn.read().begin().await {
         Ok(tx) => tx,
         Err(err) => {
             tracing::error!(?err, "Error getting connection");
