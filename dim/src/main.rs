@@ -5,6 +5,7 @@ use clap::Parser;
 use dim::streaming;
 use xtra::spawn::Tokio;
 
+use dim_core as dim;
 #[derive(Debug, clap::Parser)]
 #[clap(name = "Dim", about = "Dim, a media manager fueled by dark forces.")]
 #[clap(version = env!("CARGO_PKG_VERSION"), author = env!("CARGO_PKG_AUTHORS"))]
@@ -120,14 +121,7 @@ fn main() {
             dim::core::run_scanners(event_tx.clone()).await;
         }
 
-        tracing::info!("Launching Dim");
-
-        let address = std::net::SocketAddr::new(
-            std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0)),
-            global_settings.port,
-        );
-
-        tracing::info!("Launching Dim");
+      tracing::info!("Launching Dim");
 
         let address = std::net::SocketAddr::new(
             std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0)),

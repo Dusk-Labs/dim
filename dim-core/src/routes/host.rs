@@ -37,6 +37,7 @@ pub(crate) mod filters {
 
     use super::super::global_filters::with_state;
 
+    #[allow(dead_code)]
     pub fn admin_exists(
         conn: DbConnection,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {

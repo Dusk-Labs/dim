@@ -41,7 +41,6 @@ chrono = { version = "0.4.19", features = ["serde"] }
 dia-i18n = "0.10.0"
 displaydoc = "0.2.3"
 dominant_color = "0.3.0"
-fdlimit = "0.2.1"
 futures = "0.3.14"
 fuzzy-matcher = "0.3.7"
 http = "^0.2.3"
@@ -66,9 +65,8 @@ sqlx = { version = "0.5", features = ["runtime-tokio-rustls"] }
 thiserror = "1.0.30"
 tokio = { version = "1", features = ["rt", "signal", "full", "tracing"] }
 tokio-stream = "0.1.12"
-tokio-tungstenite = "0.18.0"
+tokio-tungstenite = "0.20.1"
 toml = "0.5.8"
-tower-http = { version = "0.4.0", features = ["trace", "cors"] }
 tracing = "0.1.32"
 tracing-appender = "0.2.0"
 tracing-subscriber = { version = "^0.3.10", features = [
@@ -76,16 +74,12 @@ tracing-subscriber = { version = "^0.3.10", features = [
     "env-filter",
     "json",
 ] }
-tracing-tree = "0.2.0"
 url = "2.2.2"
 uuid = { version = "1.2.2", features = ["v4"] }
 walkdir = "2.3.1"
 warp = { version = "0.3.3", features = ["tls", "tokio-rustls"] }
 xmlwriter = "0.1.0"
 xtra = { version = "0.5.1", features = ["tokio", "with-tokio-1"] }
-
-[build-dependencies]
-fs_extra = "1.1.0"
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.23.1"
