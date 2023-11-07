@@ -57,6 +57,22 @@ fn library_routes(app: AppState) -> Router<AppState> {
         )
 }
 
+fn auth_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/auth/login",
+            post(routes::auth::login).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/auth/register",
+            post(routes::auth::register).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/auth/admin_exists",
+            get(routes::auth::admin_exists).with_state(conn.clone()),
+        )
+}
+
 fn media_routes(AppState { conn, event_tx, .. }: AppState) -> Router<AppState> {
     Router::new().route_service(
         "/api/v1/media/*path",
@@ -242,18 +258,7 @@ pub async fn start_webserver(
             verify_cookie_token,
         ))
         // --- End of routes authenticated by Axum middleware ---
-        .route(
-            "/api/v1/auth/login",
-            post(routes::auth::login).with_state(conn.clone()),
-        )
-        .route(
-            "/api/v1/auth/register",
-            post(routes::auth::register).with_state(conn.clone()),
-        )
-        .route(
-            "/api/v1/auth/admin_exists",
-            get(routes::auth::admin_exists).with_state(conn.clone()),
-        )
+        .merge(auth_routes(app.clone()))
         .merge(library_routes(app.clone()))
         .route_service("/api/v1/dashboard", warp!(dashboard::filters::dashboard))
         .route_service(
