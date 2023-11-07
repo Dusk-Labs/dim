@@ -1,12 +1,13 @@
 [workspace]
 members = [
-    "dim",
+    "dim/",
+    "dim-core",
     "dim-auth",
     "dim-database",
     "dim-events",
     "dim-extern-api",
     "dim-web",
-    "dim-utils"
+    "dim-utils",
 ]
 
 [workspace.package]
