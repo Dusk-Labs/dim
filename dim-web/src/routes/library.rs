@@ -15,7 +15,7 @@ use dim_database::library::{InsertableLibrary, Library, MediaType};
 use dim_database::media::Media;
 use dim_database::mediafile::MediaFile;
 use dim_database::user::User;
-
+use dim_database::DbConnection;
 use dim_extern_api::tmdb::TMDBMetadataProvider;
 
 use fuzzy_matcher::skim::SkimMatcherV2;
@@ -23,6 +23,9 @@ use fuzzy_matcher::FuzzyMatcher;
 use http::StatusCode;
 use serde::Serialize;
 use serde::Deserialize;
+
+use crate::error::DimErrorWrapper;
+use crate::AppState;
 
 use crate::error::DimErrorWrapper;
 use crate::AppState;

@@ -1,20 +1,10 @@
 use std::path::PathBuf;
 use std::time::Duration;
 
-<<<<<<< HEAD
 use clap::Parser;
 use dim::streaming;
-
-use xtra::spawn::Tokio;
-=======
-use dim::streaming;
-use structopt::StructOpt;
 use xtra::spawn::Tokio;
 
-use dim_core as dim;
->>>>>>> 15513505 (refactor: rename dim to dim-core, use dim as a binary crate)
-
-use dim_core as dim;
 #[derive(Debug, clap::Parser)]
 #[clap(name = "Dim", about = "Dim, a media manager fueled by dark forces.")]
 #[clap(version = env!("CARGO_PKG_VERSION"), author = env!("CARGO_PKG_AUTHORS"))]
@@ -130,8 +120,14 @@ fn main() {
             dim::core::run_scanners(event_tx.clone()).await;
         }
 
-<<<<<<< HEAD
-        tracing::info!("Launcing Dim");
+        tracing::info!("Launching Dim");
+
+        let address = std::net::SocketAddr::new(
+            std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0)),
+            global_settings.port,
+        );
+
+        tracing::info!("Launching Dim");
 
         let address = std::net::SocketAddr::new(
             std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0)),
@@ -143,11 +139,6 @@ fn main() {
             tracing::info!("CTRL-C received, shutting down...");
         })
         .await;
-=======
-        tracing::info!("Summoning Dim v{}...", structopt::clap::crate_version!());
-
-        dim_web::warp_core(event_tx, stream_manager, global_settings.port, event_rx).await;
->>>>>>> 15513505 (refactor: rename dim to dim-core, use dim as a binary crate)
     };
 
     tokio::runtime::Runtime::new()

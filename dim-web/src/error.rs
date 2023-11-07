@@ -1,6 +1,5 @@
-use axum::response::IntoResponse;
-use axum::response::Response;
-use dim_core::errors::DimError;
+use axum::response::{IntoResponse, Response};
+use dim_core::errors::{DimError, ErrorStatusCode};
 use dim_database::DatabaseError;
 use http::StatusCode;
 
@@ -45,11 +44,15 @@ impl IntoResponse for DimErrorWrapper {
             E::UnsupportedFile | E::InvalidMediaType | E::MissingFieldInBody { .. } => {
                 StatusCode::NOT_ACCEPTABLE
             }
+<<<<<<< HEAD
+=======
+            E::MediafileRouteError(ref e) => e.status_code(),
+>>>>>>> 1860a6fa (refactor: further organise dim-web route logic)
         };
 
         let resp = serde_json::json!({
             "error": serde_json::json!(&self.0)["error"],
-            "message": self.0.to_string(),
+          "message": self.0.to_string(),
         });
         (status, serde_json::to_string(&resp).unwrap()).into_response()
     }
