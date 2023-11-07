@@ -3,11 +3,6 @@ name = "dim-web"
 version = "0.1.0"
 edition = "2021"
 
-[features]
-# the build script usually will enable this if `yarn` is installed.
-# If enabled explicitly, the build script will panic if something went wrong.
-embed_ui = []
-
 [dependencies]
 dim-database = { path = "../dim-database" }
 dim-utils = { path = "../dim-utils" }
@@ -49,6 +44,7 @@ tracing-subscriber = { version = "^0.3.10", features = [
     "env-filter",
     "json",
 ] }
+tracing-tree = "0.2.0"
 uuid = { version = "1.2.2", features = ["v4"] }
 hyper = "0.14.25"
 tower = { version = "0.4.13", features = ["tokio", "util"] }
