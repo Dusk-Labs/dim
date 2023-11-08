@@ -46,6 +46,7 @@ futures = "0.3.14"
 fuzzy-matcher = "0.3.7"
 http = "^0.2.3"
 hyper = "0.14.20"
+ignore = "0.4.20"
 image = "0.24.3"
 itertools = "0.10.3"
 lazy_static = "1.4.0"
@@ -77,7 +78,6 @@ tracing-subscriber = { version = "^0.3.10", features = [
 ] }
 url = "2.2.2"
 uuid = { version = "1.2.2", features = ["v4"] }
-walkdir = "2.3.1"
 warp = { version = "0.3.3", features = ["tls", "tokio-rustls"] }
 xmlwriter = "0.1.0"
 xtra = { version = "0.5.1", features = ["tokio", "with-tokio-1"] }
