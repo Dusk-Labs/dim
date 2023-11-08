@@ -19,11 +19,8 @@
 //! [`Unauthenticated`]: crate::errors::DimError::Unauthenticated
 //! [`login`]: fn@login
 
-use axum::{
-    extract,
-    Extension
-};
-use axum::response::IntoResponse;
+use axum::response::{IntoResponse, Json, Response};
+use axum::{extract, Extension};
 
 use dim_database::asset::Asset;
 use dim_database::progress::Progress;
@@ -38,7 +35,6 @@ use http::StatusCode;
 use serde_json::json;
 use thiserror::Error;
 
-
 #[derive(Debug, Error)]
 pub enum AuthError {
     #[error("Not logged in.")]
@@ -48,7 +44,7 @@ pub enum AuthError {
 }
 
 impl IntoResponse for AuthError {
-    fn into_response(self) -> axum::response::Response {
+    fn into_response(self) -> Response {
         match self {
             Self::InvalidCredentials => {
                 (StatusCode::UNAUTHORIZED, self.to_string()).into_response()
@@ -98,10 +94,10 @@ impl IntoResponse for AuthError {
 pub async fn whoami(
     Extension(user): Extension<User>,
     extract::State(conn): extract::State<DbConnection>,
-) -> Result<axum::response::Response, AuthError> {
+) -> Result<Response, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
 
-    Ok(axum::response::Json(json!({
+    Ok(Json(json!({
         "picture": Asset::get_of_user(&mut tx, user.id).await.ok().map(|x| format!("/images/{}", x.local_path)),
         "spentWatching": Progress::get_total_time_spent_watching(&mut tx, user.id)
             .await
@@ -121,7 +117,7 @@ pub enum LoginError {
 }
 
 impl IntoResponse for LoginError {
-    fn into_response(self) -> axum::response::Response {
+    fn into_response(self) -> Response {
         match self {
             Self::InvalidCredentials => {
                 (StatusCode::UNAUTHORIZED, self.to_string()).into_response()
@@ -164,7 +160,7 @@ impl IntoResponse for LoginError {
 pub async fn login(
     extract::State(conn): extract::State<DbConnection>,
     extract::Json(new_login): extract::Json<Login>,
-) -> Result<axum::response::Response, LoginError> {
+) -> Result<Response, LoginError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let user = User::get(&mut tx, &new_login.username)
         .await
@@ -173,7 +169,7 @@ pub async fn login(
     if verify(user.username, pass, new_login.password) {
         let token = dim_database::user::Login::create_cookie(user.id);
 
-        return Ok(axum::response::Json(json!({
+        return Ok(Json(json!({
             "token": token,
         }))
         .into_response());
@@ -182,15 +178,13 @@ pub async fn login(
     Err(LoginError::InvalidCredentials)
 }
 
-pub async fn admin_exists(
-    conn: extract::State<DbConnection>,
-) -> Result<axum::response::Response, LoginError> {
+pub async fn admin_exists(conn: extract::State<DbConnection>) -> Result<Response, LoginError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let exists = dbg!(User::get_all(&mut tx).await.map_err(LoginError::Database)?).is_empty();
     let value = json!({
         "exists": !exists
     });
-    Ok(axum::response::Json(value).into_response())
+    Ok(Json(value).into_response())
 }
 
 #[derive(Debug, Error)]
@@ -202,7 +196,7 @@ pub enum RegisterError {
 }
 
 impl IntoResponse for RegisterError {
-    fn into_response(self) -> axum::response::Response {
+    fn into_response(self) -> Response {
         match self {
             RegisterError::NoToken => (StatusCode::UNAUTHORIZED, self.to_string()).into_response(),
             RegisterError::Database(_) => {
@@ -250,7 +244,7 @@ impl IntoResponse for RegisterError {
 pub async fn register(
     extract::State(conn): extract::State<DbConnection>,
     extract::Json(new_user): extract::Json<Login>,
-) -> Result<axum::response::Response, RegisterError> {
+) -> Result<Response, RegisterError> {
     // FIXME: Return INTERNAL SERVER ERROR maybe with a traceback?
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = dim_database::write_tx(&mut lock)
@@ -291,5 +285,5 @@ pub async fn register(
     // FIXME: Return internal server error.
     tx.commit().await.map_err(DatabaseError::from)?;
 
-    Ok(axum::response::Json(json!({ "username": res.username })).into_response())
+    Ok(Json(json!({ "username": res.username })).into_response())
 }

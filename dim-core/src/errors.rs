@@ -1,5 +1,4 @@
 use dim_database::DatabaseError;
-use dim_web::axum::response::{IntoResponse, Response};
 use displaydoc::Display;
 use thiserror::Error;
 
@@ -135,41 +134,6 @@ impl warp::Reply for DimError {
             .header("ContentType", "application/json")
             .body(serde_json::to_string(&resp).unwrap().into())
             .unwrap()
-    }
-}
-
-impl IntoResponse for DimError {
-    fn into_response(self) -> Response {
-        let status = match self {
-            Self::LibraryNotFound
-            | Self::NoneError
-            | Self::NotFoundError
-            | Self::ExternalSearchError(_) => StatusCode::NOT_FOUND,
-            Self::StreamingError(_)
-            | Self::DatabaseError { .. }
-            | Self::UnknownError
-            | Self::IOError
-            | Self::InternalServerError
-            | Self::UploadFailed
-            | Self::ScannerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::Unauthenticated
-            | Self::Unauthorized
-            | Self::InvalidCredentials
-            | Self::CookieError(_)
-            | Self::NoToken
-            | Self::UserNotFound => StatusCode::UNAUTHORIZED,
-            Self::UsernameNotAvailable => StatusCode::BAD_REQUEST,
-            Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {
-                StatusCode::NOT_ACCEPTABLE
-            }
-            Self::MediafileRouteError(ref e) => e.status_code(),
-        };
-
-        let resp = json!({
-            "error": json!(&self)["error"],
-            "messsage": self.to_string(),
-        });
-        (status, serde_json::to_string(&resp).unwrap()).into_response()
     }
 }
 

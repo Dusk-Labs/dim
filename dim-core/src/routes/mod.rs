@@ -31,7 +31,6 @@ pub mod statik;
 pub mod stream;
 pub mod tv;
 pub mod user;
-pub mod websocket;
 
 #[doc(hidden)]
 pub mod global_filters {

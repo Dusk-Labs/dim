@@ -193,7 +193,7 @@ pub async fn delete_invite(
 }
 
 #[doc(hidden)]
-pub(crate) mod filters {
+pub mod filters {
     use super::super::global_filters::with_auth;
     use super::super::global_filters::with_state;
     use dim_database::DbConnection;

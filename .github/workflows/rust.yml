@@ -15,15 +15,15 @@ jobs:
       - run: sudo apt-get install -y libva-dev libva-drm2 libva2 sqlite3 ffmpeg
       - uses: actions/checkout@v2
 
-      - name: Download UI artifacts
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: react.yml
-          workflow_conclusion: success
-          branch: master
-          name: webui
-          path: ui/build
-          repo: ${{github.repository}}
+      # - name: Download UI artifacts
+      #   uses: dawidd6/action-download-artifact@v2
+      #   with:
+      #     workflow: react.yml
+      #     workflow_conclusion: success
+      #     branch: master
+      #     name: webui
+      #     path: ui/build
+      #     repo: ${{github.repository}}
 
       - uses: actions-rs/toolchain@v1
         with:
