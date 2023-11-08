@@ -12,7 +12,6 @@ use http::StatusCode;
 use futures::TryStreamExt;
 use uuid::Uuid;
 
-
 /// # POST `/api/v1/user/password`
 /// Method changes the password for a logged in account.
 ///
@@ -244,7 +243,7 @@ pub async fn process_part(
 }
 
 #[doc(hidden)]
-pub(crate) mod filters {
+pub mod filters {
     use crate::core::DbConnection;
     use serde::Deserialize;
 

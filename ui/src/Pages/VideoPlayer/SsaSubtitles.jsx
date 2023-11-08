@@ -42,9 +42,18 @@ function VideoSubtitles() {
       video: videoRef.current,
       subUrl: chunk_path,
       dropAllBlur: !JASSUB._supportsSIMD,
-      workerUrl: new URL('jassub/dist/jassub-worker.js', import.meta.url).toString(),
-      wasmUrl: new URL('jassub/dist/jassub-worker.wasm', import.meta.url).toString(),
-      modernWasmUrl: new URL('jassub/dist/jassub-worker-modern.wasm', import.meta.url).toString(),
+      workerUrl: new URL(
+        "jassub/dist/jassub-worker.js",
+        import.meta.url
+      ).toString(),
+      wasmUrl: new URL(
+        "jassub/dist/jassub-worker.wasm",
+        import.meta.url
+      ).toString(),
+      modernWasmUrl: new URL(
+        "jassub/dist/jassub-worker-modern.wasm",
+        import.meta.url
+      ).toString(),
       availableFonts: { "liberation sans": "/static/default.woff2" },
       fonts: ["/static/default.woff2"],
     };

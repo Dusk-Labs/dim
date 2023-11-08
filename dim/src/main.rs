@@ -1,30 +1,24 @@
-use std::fs::create_dir_all;
 use std::path::PathBuf;
 use std::time::Duration;
 
-use tracing::error;
-use tracing::info;
-use xtra::spawn::Tokio;
-
-use dim::core;
-use dim::routes::settings::GlobalSettings;
-use dim::setup_logging;
+use clap::Parser;
 use dim::streaming;
 
-use structopt::StructOpt;
+use xtra::spawn::Tokio;
 
-#[derive(Debug, structopt::StructOpt)]
-#[structopt(name = "Dim", about = "Dim, a media manager fueled by dark forces.")]
-#[structopt(version = env!("CARGO_PKG_VERSION"), author = env!("CARGO_PKG_AUTHORS"))]
-#[structopt(rename_all = "kebab")]
+use dim_core as dim;
+#[derive(Debug, clap::Parser)]
+#[clap(name = "Dim", about = "Dim, a media manager fueled by dark forces.")]
+#[clap(version = env!("CARGO_PKG_VERSION"), author = env!("CARGO_PKG_AUTHORS"))]
+#[clap(rename_all = "kebab")]
 struct Args {
-    #[structopt(short, long, parse(from_os_str))]
+    #[clap(short, long, env = "DIM_CONFIG_PATH")]
     config: Option<PathBuf>,
 }
 
 fn main() {
-    let args = Args::from_args();
-    let _ = create_dir_all(dim::utils::ffpath("config"));
+    let args = Args::parse();
+    let _ = std::fs::create_dir_all(dim::utils::ffpath("config"));
 
     let config_path = args
         .config
@@ -37,13 +31,13 @@ fn main() {
     let global_settings = dim::get_global_settings();
 
     // never panics because we set a default value to metadata_dir
-    let _ = create_dir_all(global_settings.metadata_dir.clone());
+    let _ = std::fs::create_dir_all(global_settings.metadata_dir.clone());
 
     // set our jwt secret key
     let settings_clone = global_settings.clone();
     let secret_key = global_settings.secret_key.unwrap_or_else(move || {
         let secret_key = dim_database::generate_key();
-        dim::set_global_settings(GlobalSettings {
+        dim::set_global_settings(dim::GlobalSettings {
             secret_key: Some(secret_key),
             ..settings_clone
         })
@@ -53,23 +47,23 @@ fn main() {
 
     dim_database::set_key(secret_key);
 
-    core::METADATA_PATH
+    dim_core::core::METADATA_PATH
         .set(global_settings.metadata_dir.clone())
         .expect("Failed to set METADATA_PATH");
 
-    setup_logging(global_settings.verbose);
+    dim::setup_logging(global_settings.verbose);
 
     {
         let failed = streaming::ffcheck()
             .into_iter()
             .fold(false, |failed, item| match item {
                 Ok(stdout) => {
-                    info!("{}", stdout);
+                    tracing::info!("{}", stdout);
                     failed
                 }
 
                 Err(program) => {
-                    error!("Could not find: {}", program);
+                    tracing::error!("Could not find: {}", program);
                     true
                 }
             });
@@ -83,7 +77,7 @@ fn main() {
 
     // The mediafile scanner is super hungry for fds. Increase our limits here as much as possible.
     if let Some(limit) = fdlimit::raise_fd_limit() {
-        info!(limit, "Raising fd limit.");
+        tracing::info!(limit, "Raising fd limit.");
     }
 
     nightfall::profiles::profiles_init(crate::streaming::FFMPEG_BIN.to_string());
@@ -124,13 +118,22 @@ fn main() {
         });
 
         if !global_settings.quiet_boot {
-            info!("Transposing scanners from the netherworld...");
-            core::run_scanners(event_tx.clone()).await;
+            tracing::info!("Scanning for media files...");
+            dim::core::run_scanners(event_tx.clone()).await;
         }
 
-        info!("Summoning Dim v{}...", structopt::clap::crate_version!());
+        tracing::info!("Launcing Dim");
 
-        core::warp_core(event_tx, stream_manager, global_settings.port, event_rx).await;
+        let address = std::net::SocketAddr::new(
+            std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0)),
+            global_settings.port,
+        );
+
+        dim_web::start_webserver(address, event_tx, stream_manager, event_rx, async move {
+            let _ = tokio::signal::ctrl_c().await;
+            tracing::info!("CTRL-C received, shutting down...");
+        })
+        .await;
     };
 
     tokio::runtime::Runtime::new()
