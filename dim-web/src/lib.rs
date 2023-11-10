@@ -9,7 +9,7 @@ pub mod tree;
 pub use axum;
 use axum::extract::{ConnectInfo, State};
 use axum::response::Response;
-use axum::routing::{get, post};
+use axum::routing::{get, post, delete};
 use axum::Router;
 
 use dim_core::core::EventTx;
@@ -253,6 +253,18 @@ pub async fn start_webserver(
             "/api/v1/auth/whoami",
             get(routes::auth::whoami).with_state(conn.clone()),
         )
+        .route(
+            "/api/v1/auth/invites",
+            get(routes::auth::get_all_invites).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/auth/new_invite",
+            post(routes::auth::generate_invite).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/auth/token/:token",
+            delete(routes::auth::delete_token).with_state(conn.clone()),
+        )
         .route_layer(axum::middleware::from_fn_with_state(
             conn.clone(),
             verify_cookie_token,
@@ -322,18 +334,6 @@ pub async fn start_webserver(
                         conn.clone(),
                     ))
                     .or(dim_core::routes::user::filters::upload_avatar(conn.clone()))
-            }),
-        )
-        .route_service(
-            "/api/v1/auth/*path",
-            warp::service({
-                dim_core::routes::invites::filters::get_all_invites(conn.clone())
-                    .or(dim_core::routes::invites::filters::generate_invite(
-                        conn.clone(),
-                    ))
-                    .or(dim_core::routes::invites::filters::delete_token(
-                        conn.clone(),
-                    ))
             }),
         )
         .route_service(
