@@ -17,8 +17,6 @@
 //!
 //! [`DatabaseError`]: crate::errors::DimError::DatabaseError
 #![warn(warnings)]
-pub mod auth;
-pub mod dashboard;
 pub mod general;
 pub mod host;
 pub mod library;

@@ -13,7 +13,6 @@ use axum::routing::{get, post, delete};
 use axum::Router;
 
 use dim_core::core::EventTx;
-use dim_core::routes::dashboard;
 use dim_core::stream_tracking::StreamTracking;
 use dim_database::DbConnection;
 
@@ -70,6 +69,18 @@ fn auth_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
         .route(
             "/api/v1/auth/admin_exists",
             get(routes::auth::admin_exists).with_state(conn.clone()),
+        )
+}
+
+fn dashboard_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/dashboard",
+            get(routes::dashboard::dashboard).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/dashboard/banner",
+            get(routes::dashboard::banners).with_state(conn.clone()),
         )
 }
 
@@ -265,6 +276,7 @@ pub async fn start_webserver(
             "/api/v1/auth/token/:token",
             delete(routes::auth::delete_token).with_state(conn.clone()),
         )
+        .merge(dashboard_routes(app.clone()))
         .route_layer(axum::middleware::from_fn_with_state(
             conn.clone(),
             verify_cookie_token,
@@ -272,11 +284,6 @@ pub async fn start_webserver(
         // --- End of routes authenticated by Axum middleware ---
         .merge(auth_routes(app.clone()))
         .merge(library_routes(app.clone()))
-        .route_service("/api/v1/dashboard", warp!(dashboard::filters::dashboard))
-        .route_service(
-            "/api/v1/dashboard/banner",
-            warp!(dashboard::filters::banners),
-        )
         .route_service(
             "/api/v1/search",
             warp!(dim_core::routes::general::filters::search),
