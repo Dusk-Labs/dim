@@ -200,6 +200,18 @@ fn tv_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
         )
 }
 
+fn filebrowser_routes(AppState { .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/filebrowser/",
+            get(routes::filebrowser::get_directory_structure),
+        )
+        .route(
+            "/api/v1/filebrowser/*path",
+            get(routes::filebrowser::get_directory_structure),
+        )
+}
+
 fn settings_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
     Router::new().route_service(
         "/api/v1/user/settings",
@@ -299,6 +311,7 @@ pub async fn start_webserver(
         .merge(episode_routes(app.clone()))
         .merge(season_routes(app.clone()))
         .merge(tv_routes(app.clone()))
+        .merge(filebrowser_routes(app.clone()))
         .route_layer(axum::middleware::from_fn_with_state(
             conn.clone(),
             verify_cookie_token,
@@ -309,14 +322,6 @@ pub async fn start_webserver(
         .route_service(
             "/api/v1/search",
             warp!(dim_core::routes::general::filters::search),
-        )
-        .route_service(
-            "/api/v1/filebrowser/",
-            warp!(dim_core::routes::general::filters::get_directory_structure),
-        )
-        .route_service(
-            "/api/v1/filebrowser/*path",
-            warp!(dim_core::routes::general::filters::get_directory_structure),
         )
         .route_service(
             "/images/*path",

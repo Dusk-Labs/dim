@@ -969,6 +969,7 @@ name = "dim-web"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "cfg-if",
  "chrono",
  "dim-core",
  "dim-database",

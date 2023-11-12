@@ -6,12 +6,6 @@ use serde::Serialize;
 
 use dim_database::genre::*;
 
-use tokio::task::spawn_blocking;
-
-use std::fs;
-use std::io;
-use std::path::PathBuf;
-
 use warp::reply;
 
 pub mod filters {
@@ -26,24 +20,6 @@ pub mod filters {
 
     use super::super::global_filters::with_state;
     use serde::Deserialize;
-
-    pub fn get_directory_structure(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
-        warp::path!("api" / "v1" / "filebrowser" / ..)
-            .and(warp::path::tail())
-            .and(with_auth(conn))
-            .and_then(|tail: warp::path::Tail, user: User| async move {
-                let decoded_path = percent_encoding::percent_decode(tail.as_str().as_bytes())
-                    .decode_utf8()
-                    .unwrap()
-                    .to_string();
-
-                super::get_directory_structure(decoded_path.into(), user)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
 
     pub fn search(
         conn: DbConnection,
@@ -78,59 +54,6 @@ pub mod filters {
                 },
             )
     }
-}
-
-pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> io::Result<Vec<String>> {
-    let mut dirs: Vec<String> = fs::read_dir(path)?
-        .into_iter()
-        .filter_map(|x| x.ok())
-        .filter(|x| {
-            !x.file_name()
-                .to_str()
-                .map(|s| s.starts_with('.'))
-                .unwrap_or(false)
-                && !x.path().is_file()
-        })
-        .map(|x| {
-            let path = x.path().to_string_lossy().to_string().replace("\\", "/");
-            if cfg!(windows) {
-                path.replace("C:", "")
-            } else {
-                path
-            }
-        })
-        .collect::<Vec<_>>();
-
-    dirs.sort();
-    Ok(dirs)
-}
-
-pub async fn get_directory_structure(
-    path: PathBuf,
-    _user: User,
-) -> Result<impl warp::Reply, errors::DimError> {
-    cfg_if::cfg_if! {
-        if #[cfg(target_os = "windows")] {
-            let path_prefix = "C:/";
-        } else {
-            let path_prefix = "/";
-        }
-    }
-
-    let path = if path.starts_with(path_prefix) {
-        path
-    } else {
-        let mut new_path = PathBuf::new();
-        new_path.push(path_prefix);
-        new_path.push(path);
-        new_path
-    };
-
-    Ok(reply::json(
-        &spawn_blocking(|| enumerate_directory(path))
-            .await
-            .unwrap()?,
-    ))
 }
 
 pub async fn search(
