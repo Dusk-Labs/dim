@@ -307,6 +307,7 @@ pub async fn start_webserver(
         )
         .merge(dashboard_routes(app.clone()))
         .merge(episode_routes(app.clone()))
+        .merge(library_routes(app.clone()))
         .merge(season_routes(app.clone()))
         .merge(tv_routes(app.clone()))
         .merge(filebrowser_routes(app.clone()))
@@ -316,7 +317,6 @@ pub async fn start_webserver(
         ))
         // --- End of routes authenticated by Axum middleware ---
         .merge(auth_routes(app.clone()))
-        .merge(library_routes(app.clone()))
         .route_service(
             "/api/v1/search",
             warp!(dim_core::routes::general::filters::search),
