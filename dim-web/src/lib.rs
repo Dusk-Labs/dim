@@ -211,24 +211,23 @@ fn filebrowser_routes(AppState { .. }: AppState) -> Router<AppState> {
 }
 
 fn settings_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
-    Router::new().route_service(
-        "/api/v1/user/settings",
-        warp::service({
-            dim_core::routes::settings::filters::get_user_settings(conn.clone())
-                .or(dim_core::routes::settings::filters::get_user_settings(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::settings::filters::post_user_settings(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::settings::filters::get_global_settings(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::settings::filters::set_global_settings(
-                    conn.clone(),
-                ))
-        }),
-    )
+    Router::new()
+        .route(
+            "/api/v1/user/settings",
+            get(routes::settings::get_user_settings).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/user/settings",
+            post(routes::settings::post_user_settings).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/host/settings",
+            get(routes::settings::http_get_global_settings).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/host/settings",
+            post(routes::settings::http_set_global_settings).with_state(conn.clone()),
+        )
 }
 
 pub async fn start_webserver(
@@ -315,6 +314,7 @@ pub async fn start_webserver(
             "/api/v1/search",
             get(routes::search::search).with_state(conn.clone()),
         )
+        .merge(settings_routes(app.clone()))
         .route_layer(axum::middleware::from_fn_with_state(
             conn.clone(),
             verify_cookie_token,
@@ -332,15 +332,6 @@ pub async fn start_webserver(
             warp::service({
                 dim_core::routes::mediafile::filters::get_mediafile_info(conn.clone()).or(
                     dim_core::routes::mediafile::filters::rematch_mediafile(conn.clone()),
-                )
-            }),
-        )
-        .merge(settings_routes(app.clone()))
-        .route_service(
-            "/api/v1/host/settings",
-            warp::service({
-                dim_core::routes::settings::filters::get_global_settings(conn.clone()).or(
-                    dim_core::routes::settings::filters::set_global_settings(conn.clone()),
                 )
             }),
         )
