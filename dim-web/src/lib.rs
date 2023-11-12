@@ -9,7 +9,7 @@ pub mod tree;
 pub use axum;
 use axum::extract::{ConnectInfo, State};
 use axum::response::Response;
-use axum::routing::{get, post, delete};
+use axum::routing::{get, patch, post, delete};
 use axum::Router;
 
 use dim_core::core::EventTx;
@@ -160,25 +160,44 @@ fn stream_routes(
     )
 }
 
+fn episode_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/episode/:id",
+            patch(routes::tv::patch_episode_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/episode/:id",
+            delete(routes::tv::delete_episode_by_id).with_state(conn.clone()),
+        )
+}
+
 fn season_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
-    Router::new().route_service(
-        "/api/v1/season/*path",
-        warp::service({
-            dim_core::routes::tv::filters::patch_episode_by_id(conn.clone())
-                .or(dim_core::routes::tv::filters::delete_season_by_id(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::tv::filters::get_season_episodes(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::tv::filters::patch_episode_by_id(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::tv::filters::delete_episode_by_id(
-                    conn.clone(),
-                ))
-        }),
-    )
+    Router::new()
+        .route(
+            "/api/v1/season/:id",
+            get(routes::tv::get_season_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/season/:id",
+            patch(routes::tv::patch_season_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/season/:id",
+            delete(routes::tv::delete_season_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/season/:id/episodes",
+            get(routes::tv::get_season_episodes).with_state(conn.clone()),
+        )
+}
+
+fn tv_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/tv/:id/season",
+            get(routes::tv::get_tv_seasons).with_state(conn.clone()),
+        )
 }
 
 fn settings_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
@@ -277,6 +296,9 @@ pub async fn start_webserver(
             delete(routes::auth::delete_token).with_state(conn.clone()),
         )
         .merge(dashboard_routes(app.clone()))
+        .merge(episode_routes(app.clone()))
+        .merge(season_routes(app.clone()))
+        .merge(tv_routes(app.clone()))
         .route_layer(axum::middleware::from_fn_with_state(
             conn.clone(),
             verify_cookie_token,
@@ -307,19 +329,6 @@ pub async fn start_webserver(
             warp::service({
                 dim_core::routes::mediafile::filters::get_mediafile_info(conn.clone()).or(
                     dim_core::routes::mediafile::filters::rematch_mediafile(conn.clone()),
-                )
-            }),
-        )
-        .route_service(
-            "/api/v1/tv/*path",
-            warp!(dim_core::routes::tv::filters::get_tv_seasons),
-        )
-        .merge(season_routes(app.clone()))
-        .route_service(
-            "/api/v1/episode/*path",
-            warp::service({
-                dim_core::routes::tv::filters::patch_episode_by_id(conn.clone()).or(
-                    dim_core::routes::tv::filters::delete_episode_by_id(conn.clone()),
                 )
             }),
         )

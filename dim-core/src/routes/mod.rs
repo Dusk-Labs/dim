@@ -26,7 +26,6 @@ pub mod rematch_media;
 pub mod settings;
 pub mod statik;
 pub mod stream;
-pub mod tv;
 pub mod user;
 
 #[doc(hidden)]
