@@ -5,7 +5,6 @@ use thiserror::Error;
 use serde::Serialize;
 use serde_json::json;
 
-use crate::routes::mediafile;
 use nightfall::error::NightfallError;
 
 use http::StatusCode;
@@ -57,9 +56,6 @@ pub enum DimError {
     UsernameNotAvailable,
     /// An error has occured while parsing cookies: {0:?}
     CookieError(#[source] dim_auth::AuthError),
-    /// Error occured in the `/api/v1/mediafile` routes.
-    #[error(transparent)]
-    MediafileRouteError(#[from] mediafile::Error),
     /// User does not exist
     UserNotFound,
     /// Couldn't find the tmdb id provided.
@@ -121,7 +117,6 @@ impl warp::Reply for DimError {
             Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {
                 StatusCode::NOT_ACCEPTABLE
             }
-            Self::MediafileRouteError(ref e) => e.status_code(),
         };
 
         let resp = json!({

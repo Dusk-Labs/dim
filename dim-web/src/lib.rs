@@ -210,6 +210,18 @@ fn filebrowser_routes(AppState { .. }: AppState) -> Router<AppState> {
         )
 }
 
+fn mediafile_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/mediafile/:id",
+            get(routes::mediafile::get_mediafile_info).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/mediafile/match",
+            patch(routes::mediafile::rematch_mediafile).with_state(conn.clone()),
+        )
+}
+
 fn settings_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
     Router::new()
         .route(
@@ -307,6 +319,7 @@ pub async fn start_webserver(
         .merge(dashboard_routes(app.clone()))
         .merge(episode_routes(app.clone()))
         .merge(library_routes(app.clone()))
+        .merge(mediafile_routes(app.clone()))
         .merge(season_routes(app.clone()))
         .merge(tv_routes(app.clone()))
         .merge(filebrowser_routes(app.clone()))
@@ -327,14 +340,6 @@ pub async fn start_webserver(
         )
         .merge(media_routes(app.clone()))
         .merge(stream_routes(app.clone()))
-        .route_service(
-            "/api/v1/mediafile/*path",
-            warp::service({
-                dim_core::routes::mediafile::filters::get_mediafile_info(conn.clone()).or(
-                    dim_core::routes::mediafile::filters::rematch_mediafile(conn.clone()),
-                )
-            }),
-        )
         .route_service(
             "/api/v1/user/*path",
             warp::service({
