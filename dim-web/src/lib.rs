@@ -311,16 +311,16 @@ pub async fn start_webserver(
         .merge(season_routes(app.clone()))
         .merge(tv_routes(app.clone()))
         .merge(filebrowser_routes(app.clone()))
+        .route(
+            "/api/v1/search",
+            get(routes::search::search).with_state(conn.clone()),
+        )
         .route_layer(axum::middleware::from_fn_with_state(
             conn.clone(),
             verify_cookie_token,
         ))
         // --- End of routes authenticated by Axum middleware ---
         .merge(auth_routes(app.clone()))
-        .route_service(
-            "/api/v1/search",
-            warp!(dim_core::routes::general::filters::search),
-        )
         .route_service(
             "/images/*path",
             warp!(dim_core::routes::statik::filters::get_image),

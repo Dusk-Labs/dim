@@ -17,7 +17,6 @@
 //!
 //! [`DatabaseError`]: crate::errors::DimError::DatabaseError
 #![warn(warnings)]
-pub mod general;
 pub mod host;
 pub mod media;
 pub mod mediafile;
