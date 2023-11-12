@@ -40,7 +40,7 @@ pub struct AppState {
 fn library_routes(app: AppState) -> Router<AppState> {
     Router::new()
         .route(
-            "api/v1/library",
+            "/api/v1/library",
             post(routes::library::library_post).get(routes::library::library_get_all),
         )
         .route(

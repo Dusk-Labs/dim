@@ -27,6 +27,7 @@ use dim_extern_api::filename::TorrentMetadata;
 use dim_extern_api::ExternalQueryIntoShow;
 
 use futures::FutureExt;
+use ignore::WalkBuilder;
 use itertools::Itertools;
 
 use std::ffi::OsStr;
@@ -41,11 +42,65 @@ use tracing::error;
 use tracing::info;
 use tracing::instrument;
 use tracing::warn;
-use walkdir::WalkDir;
 
 pub use error::Error;
 
-pub(super) static SUPPORTED_EXTS: &[&str] = &["mp4", "mkv", "avi", "webm"];
+pub(super) static SUPPORTED_EXTS: &[&str] = &[
+    "001",
+    "3g2",
+    "3gp",
+    "amv",
+    "asf",
+    "asx",
+    "avi",
+    "bin",
+    "bivx",
+    "divx",
+    "dv",
+    "dvr-ms",
+    "f4v",
+    "fli",
+    "flv",
+    "ifo",
+    "img",
+    "iso",
+    "m2t",
+    "m2ts",
+    "m2v",
+    "m4v",
+    "mkv",
+    "mk3d",
+    "mov",
+    "mp4",
+    "mpe",
+    "mpeg",
+    "mpg",
+    "mts",
+    "mxf",
+    "nrg",
+    "nsv",
+    "nuv",
+    "ogg",
+    "ogm",
+    "ogv",
+    "pva",
+    "qt",
+    "rec",
+    "rm",
+    "rmvb",
+    "strm",
+    "svq3",
+    "tp",
+    "ts",
+    "ty",
+    "viv",
+    "vob",
+    "vp3",
+    "webm",
+    "wmv",
+    "wtv",
+    "xvid"
+];
 
 /// Function recursively walks the paths passed and returns all files in those directories.
 /// FIXME: THIS IS NOT ASYNC-SAFE!!!
@@ -55,10 +110,11 @@ pub(super) static SUPPORTED_EXTS: &[&str] = &["mp4", "mkv", "avi", "webm"];
 pub fn get_subfiles(paths: impl Iterator<Item = impl AsRef<Path>>) -> Vec<PathBuf> {
     let mut files = Vec::with_capacity(2048);
     for path in paths {
-        let mut subfiles: Vec<PathBuf> = WalkDir::new(path)
+        let mut subfiles = WalkBuilder::new(path)
             // we want to follow all symlinks in case of complex dir structures
             .follow_links(true)
-            .into_iter()
+            .add_custom_ignore_filename(".plexignore")
+            .build()
             .filter_map(Result::ok)
             // ignore all hidden files.
             .filter(|f| {
