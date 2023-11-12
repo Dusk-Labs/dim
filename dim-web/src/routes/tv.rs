@@ -1,11 +1,10 @@
 use axum::response::{IntoResponse};
-use axum::{extract, Extension};
+use axum::{extract};
 
 use dim_database::DbConnection;
 use dim_database::DatabaseError;
 use dim_database::episode::{Episode, UpdateEpisode};
 use dim_database::season::{Season, UpdateSeason};
-use dim_database::user::User;
 
 use http::StatusCode;
 
@@ -19,7 +18,6 @@ use super::auth::AuthError;
 /// # Arguments
 /// * `id` - id of the tv show we want info about
 pub async fn get_tv_seasons(
-    Extension(_user): Extension<User>,
     extract::State(conn): extract::State<DbConnection>,
     extract::Path(id): extract::Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
@@ -32,7 +30,6 @@ pub async fn get_tv_seasons(
 /// # Arguments
 /// * `id` - id of the season we want info about
 pub async fn get_season_by_id(
-    Extension(_user): Extension<User>,
     extract::State(conn): extract::State<DbConnection>,
     extract::Path(id): extract::Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
@@ -50,7 +47,6 @@ pub async fn get_season_by_id(
 /// This route additionally requires you to pass in a json object by the format of
 /// `dim_database::season::UpdateSeason`.
 pub async fn patch_season_by_id(
-    Extension(_user): Extension<User>,
     extract::State(conn): extract::State<DbConnection>,
     extract::Path(id): extract::Path<i64>,
     extract::Json(season): extract::Json<UpdateSeason>,
@@ -69,7 +65,6 @@ pub async fn patch_season_by_id(
 /// # Arguments
 /// * `id` - id of the episode.
 pub async fn get_season_episodes(
-    Extension(_user): Extension<User>,
     extract::State(conn): extract::State<DbConnection>,
     extract::Path(id): extract::Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
@@ -100,7 +95,6 @@ pub async fn get_season_episodes(
 /// # Arguments
 /// * `id` - id of the season.
 pub async fn delete_season_by_id(
-    Extension(_user): Extension<User>,
     extract::State(conn): extract::State<DbConnection>,
     extract::Path(id): extract::Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
@@ -122,7 +116,6 @@ pub async fn delete_season_by_id(
 /// This route additionally requires you to pass in a json object by the format of
 /// `dim_database::episode::UpdateEpisode`.
 pub async fn patch_episode_by_id(
-    Extension(_user): Extension<User>,
     extract::State(conn): extract::State<DbConnection>,
     extract::Path(id): extract::Path<i64>,
     extract::Json(episode): extract::Json<UpdateEpisode>,
@@ -141,7 +134,6 @@ pub async fn patch_episode_by_id(
 /// # Arguments
 /// * `id` - id an episode to delete
 pub async fn delete_episode_by_id(
-    Extension(_user): Extension<User>,
     extract::State(conn): extract::State<DbConnection>,
     extract::Path(id): extract::Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {

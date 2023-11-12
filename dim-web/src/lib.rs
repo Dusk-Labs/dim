@@ -1,5 +1,3 @@
-#![deny(warnings)]
-
 use std::future::IntoFuture;
 use std::net::SocketAddr;
 
