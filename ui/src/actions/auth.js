@@ -151,7 +151,7 @@ export const changePassword =
     };
 
     try {
-      const res = await fetch("/api/v1/auth/password", config);
+      const res = await fetch("/api/v1/user/password", config);
 
       if (res.status !== 200) {
         dispatch(

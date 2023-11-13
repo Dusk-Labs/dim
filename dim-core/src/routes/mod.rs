@@ -22,7 +22,6 @@ pub mod rematch_media;
 pub mod settings;
 pub mod statik;
 pub mod stream;
-pub mod user;
 
 #[doc(hidden)]
 pub mod global_filters {

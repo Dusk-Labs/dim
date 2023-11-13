@@ -5,7 +5,7 @@ pub mod routes;
 pub mod tree;
 
 pub use axum;
-use axum::extract::{ConnectInfo, State};
+use axum::extract::{ConnectInfo, DefaultBodyLimit, State};
 use axum::response::Response;
 use axum::routing::{get, patch, post, delete};
 use axum::Router;
@@ -242,6 +242,26 @@ fn settings_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
         )
 }
 
+fn user_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/user/password",
+            patch(routes::user::change_password).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/user/delete",
+            delete(routes::user::delete).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/user/username",
+            patch(routes::user::change_username).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/user/avatar",
+            post(routes::user::upload_avatar).with_state(conn.clone()),
+        ).layer(DefaultBodyLimit::max(5_000_000))
+}
+
 pub async fn start_webserver(
     address: SocketAddr,
     event_tx: EventTx,
@@ -323,6 +343,7 @@ pub async fn start_webserver(
         .merge(season_routes(app.clone()))
         .merge(tv_routes(app.clone()))
         .merge(filebrowser_routes(app.clone()))
+        .merge(user_routes(app.clone()))
         .route(
             "/api/v1/search",
             get(routes::search::search).with_state(conn.clone()),
@@ -340,17 +361,6 @@ pub async fn start_webserver(
         )
         .merge(media_routes(app.clone()))
         .merge(stream_routes(app.clone()))
-        .route_service(
-            "/api/v1/user/*path",
-            warp::service({
-                dim_core::routes::user::filters::change_password(conn.clone())
-                    .or(dim_core::routes::user::filters::delete(conn.clone()))
-                    .or(dim_core::routes::user::filters::change_username(
-                        conn.clone(),
-                    ))
-                    .or(dim_core::routes::user::filters::upload_avatar(conn.clone()))
-            }),
-        )
         .route_service(
             "/",
             warp::service(dim_core::routes::statik::filters::react_routes()),
