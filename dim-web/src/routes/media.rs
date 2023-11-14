@@ -1,11 +1,17 @@
-use crate::core::DbConnection;
-use crate::errors;
-use crate::json;
-use crate::tree;
-use crate::utils::secs_to_pretty;
+use axum::response::{IntoResponse, Response, Json};
+use axum::{extract, Extension};
 
 use chrono::Datelike;
 
+use dim_core::tree;
+use dim_core::scanner::movie;
+use dim_core::scanner::parse_filenames;
+use dim_core::scanner::tv_show;
+use dim_core::scanner::MediaMatcher;
+use dim_core::scanner::WorkUnit;
+
+use dim_database::DatabaseError;
+use dim_database::DbConnection;
 use dim_database::compact_mediafile::CompactMediafile;
 use dim_database::episode::Episode;
 use dim_database::genre::Genre;
@@ -19,153 +25,63 @@ use dim_database::user::User;
 use dim_extern_api::tmdb::TMDBMetadataProvider;
 use dim_extern_api::ExternalQueryIntoShow;
 
-use warp::http::status::StatusCode;
-use warp::reply;
+use dim_utils::json;
+use dim_utils::secs_to_pretty;
+
+use http::StatusCode;
 
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use once_cell::sync::Lazy;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
+
+use tracing::error;
+use tracing::info;
+
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("Not Found.")]
+    NotFoundError,
+    #[error("Invalid media type.")]
+    InvalidMediaType,
+    #[error("Not logged in.")]
+    InvalidCredentials,
+    #[error("database: {0}")]
+    Database(#[from] DatabaseError),
+    #[error("Failed to search for tmdb_id when rematching: {0}")]
+    ExternalSearchError(String),
+}
+
+impl IntoResponse for Error {
+    fn into_response(self) -> Response {
+        match self {
+            Self::NotFoundError => {
+                (StatusCode::NOT_FOUND, self.to_string()).into_response()
+            }
+            Self::ExternalSearchError(_) => {
+                (StatusCode::NOT_FOUND, self.to_string()).into_response()
+            }
+            Self::InvalidMediaType => {
+                (StatusCode::NOT_ACCEPTABLE, self.to_string()).into_response()
+            }
+            Self::InvalidCredentials => {
+                (StatusCode::UNAUTHORIZED, self.to_string()).into_response()
+            }
+            Self::Database(_) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response()
+            }
+        }
+    }
+}
 
 pub const API_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
 pub const MOVIES_PROVIDER: Lazy<Arc<dyn ExternalQueryIntoShow>> =
     Lazy::new(|| Arc::new(TMDBMetadataProvider::new(&API_KEY).movies()));
 pub const TV_PROVIDER: Lazy<Arc<dyn ExternalQueryIntoShow>> =
     Lazy::new(|| Arc::new(TMDBMetadataProvider::new(&API_KEY).tv_shows()));
-
-pub mod filters {
-    use dim_database::user::User;
-    use warp::reject;
-    use warp::Filter;
-
-    use crate::routes::global_filters::with_auth;
-
-    use super::super::global_filters::with_state;
-    use serde::Deserialize;
-
-    use dim_database::media::UpdateMedia;
-    use dim_database::DbConnection;
-
-    pub fn get_media_by_id(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "media" / i64)
-            .and(warp::get())
-            .and(with_state::<DbConnection>(conn.clone()))
-            .and(with_auth(conn))
-            .and_then(|id: i64, conn: DbConnection, user: User| async move {
-                super::get_media_by_id(conn, id, user)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
-
-    pub fn get_media_files(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "media" / i64 / "files")
-            .and(warp::get())
-            .and(with_state::<DbConnection>(conn.clone()))
-            .and(with_auth(conn))
-            .and_then(|id: i64, conn: DbConnection, _user: User| async move {
-                super::get_media_files(conn, id)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
-
-    pub fn get_mediafile_tree(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "media" / i64 / "tree")
-            .and(warp::get())
-            .and(with_state::<DbConnection>(conn.clone()))
-            .and(with_auth(conn))
-            .and_then(|id, conn, _user| async move {
-                super::get_mediafile_tree(conn, id)
-                    .await
-                    .map_err(reject::custom)
-            })
-    }
-
-    pub fn update_media_by_id(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "media" / i64)
-            .and(warp::patch())
-            .and(warp::body::json::<UpdateMedia>())
-            .and(with_auth(conn.clone()))
-            .and(with_state::<DbConnection>(conn))
-            .and_then(|id, body, auth, conn| async move {
-                super::update_media_by_id(id, body, auth, conn)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
-
-    pub fn delete_media_by_id(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "media" / i64)
-            .and(warp::delete())
-            .and(with_auth(conn.clone()))
-            .and(with_state::<DbConnection>(conn))
-            .and_then(|id: i64, auth: User, conn: DbConnection| async move {
-                super::delete_media_by_id(conn, id, auth)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
-
-    pub fn tmdb_search(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        #[derive(Deserialize)]
-        struct RouteArgs {
-            query: String,
-            year: Option<i32>,
-            media_type: String,
-        }
-
-        warp::path!("api" / "v1" / "media" / "tmdb_search")
-            .and(warp::get())
-            .and(warp::query::query::<RouteArgs>())
-            .and(with_auth(conn))
-            .and_then(
-                |RouteArgs {
-                     query,
-                     year,
-                     media_type,
-                 }: RouteArgs,
-                 auth: User| async move {
-                    super::tmdb_search(query, year, media_type, auth)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
-    }
-
-    pub fn map_progress(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        #[derive(Deserialize)]
-        struct RouteArgs {
-            offset: i64,
-        }
-
-        warp::path!("api" / "v1" / "media" / i64 / "progress")
-            .and(warp::post())
-            .and(warp::query::query::<RouteArgs>())
-            .and(with_state::<DbConnection>(conn.clone()))
-            .and(with_auth(conn))
-            .and_then(|id: i64, RouteArgs { offset }: RouteArgs, conn: DbConnection, auth: User| async move {
-                super::map_progress(conn, id, offset, auth)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
-}
 
 /// Method mapped to `GET /api/v1/media/<id>` returns info about a media based on the id queried.
 /// This method can only be accessed by authenticated users.
@@ -197,11 +113,11 @@ pub mod filters {
 /// # Additional types
 /// [`MediaType`](`dim_database::library::MediaType`)
 pub async fn get_media_by_id(
-    conn: DbConnection,
-    id: i64,
-    user: User,
-) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.read().begin().await?;
+    extract::Path(id): extract::Path<i64>,
+    Extension(user): Extension<User>,
+    extract::State(conn): extract::State<DbConnection>,
+) -> Result<Response, Error> {
+    let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let media = Media::get(&mut tx, id).await?;
 
     let media_id = match media.media_type {
@@ -281,12 +197,12 @@ pub async fn get_media_by_id(
                 .as_ref()
                 .map(|x| format!("{}p", x))
                 .unwrap_or("Unknown".into()),
-            crate::utils::codec_pretty(x.codec.as_deref().unwrap_or("Unknown"))
+            dim_core::utils::codec_pretty(x.codec.as_deref().unwrap_or("Unknown"))
         );
 
         let audio_lang = x.audio_language.as_deref().unwrap_or("Unknown");
-        let audio_codec = crate::utils::codec_pretty(x.audio.as_deref().unwrap_or("Unknown"));
-        let audio_ch = crate::utils::channels_pretty(x.channels.unwrap_or(2));
+        let audio_codec = dim_core::utils::codec_pretty(x.audio.as_deref().unwrap_or("Unknown"));
+        let audio_ch = dim_core::utils::channels_pretty(x.channels.unwrap_or(2));
 
         let audio_tag = format!("{} ({} {})", audio_lang, audio_codec, audio_ch);
 
@@ -360,7 +276,7 @@ pub async fn get_media_by_id(
     };
 
     // FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
-    Ok(reply::json(&json!({
+    Ok(Json(&json!({
         "id": media.id,
         "library_id": media.library_id,
         "name": media.name,
@@ -377,14 +293,14 @@ pub async fn get_media_by_id(
         ..?next_episode_id,
         ..?season_episode_tag,
         ..?progress
-    })))
+    })).into_response())
 }
 
 pub async fn get_media_files(
-    conn: DbConnection,
-    id: i64,
-) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.read().begin().await?;
+    extract::Path(id): extract::Path<i64>,
+    extract::State(conn): extract::State<DbConnection>,
+) -> Result<Response, Error> {
+    let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let media_type = Media::media_mediatype(&mut tx, id).await?;
 
     let mediafiles = match media_type {
@@ -392,7 +308,7 @@ pub async fn get_media_files(
         MediaType::Episode | MediaType::Movie => MediaFile::get_of_media(&mut tx, id).await?,
     };
 
-    Ok(reply::json(&mediafiles))
+    Ok(Json(json!(&mediafiles)).into_response())
 }
 
 /// # GET `/api/v1/media/<id>/tree`
@@ -401,10 +317,10 @@ pub async fn get_media_files(
 /// # Authentication
 /// Method requires standard authentication.
 pub async fn get_mediafile_tree(
-    conn: DbConnection,
-    id: i64,
-) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.read().begin().await?;
+    extract::Path(id): extract::Path<i64>,
+    extract::State(conn): extract::State<DbConnection>,
+) -> Result<Response, Error> {
+    let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let media_type = Media::media_mediatype(&mut tx, id).await?;
 
     let mut mediafiles = match media_type {
@@ -444,7 +360,7 @@ pub async fn get_mediafile_tree(
     );
 
     #[derive(Serialize)]
-    struct Response {
+    struct TreeResponse {
         count: usize,
         files: Vec<tree::Entry<Record>>,
     }
@@ -454,10 +370,10 @@ pub async fn get_mediafile_tree(
         _ => unreachable!(),
     };
 
-    Ok(reply::json(&Response {
+    Ok(Json(json!(&TreeResponse {
         files: entries,
         count,
-    }))
+    })).into_response())
 }
 
 /// Method mapped to `PATCH /api/v1/media/<id>` is used to edit information about a media entry
@@ -469,20 +385,19 @@ pub async fn get_mediafile_tree(
 /// * `data` - the info that we changed about the media entry
 /// * `_user` - Auth middleware
 pub async fn update_media_by_id(
-    id: i64,
-    data: UpdateMedia,
-    _user: User,
-    conn: DbConnection,
-) -> Result<impl warp::Reply, errors::DimError> {
+    extract::State(conn): extract::State<DbConnection>,
+    extract::Path(id): extract::Path<i64>,
+    extract::Json(data): extract::Json<UpdateMedia>,
+) -> Result<impl IntoResponse, Error> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
     let status = if data.update(&mut tx, id).await.is_ok() {
         StatusCode::NO_CONTENT
     } else {
         StatusCode::NOT_MODIFIED
     };
 
-    tx.commit().await?;
+    tx.commit().await.map_err(DatabaseError::from)?;
 
     Ok(status)
 }
@@ -495,15 +410,21 @@ pub async fn update_media_by_id(
 /// * `id` - id of the media we want to delete
 /// * `_user` - auth middleware
 pub async fn delete_media_by_id(
-    conn: DbConnection,
-    id: i64,
-    _user: User,
-) -> Result<impl warp::Reply, errors::DimError> {
+    extract::State(conn): extract::State<DbConnection>,
+    extract::Path(id): extract::Path<i64>,
+) -> Result<impl IntoResponse, Error> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await?;
+    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
     Media::delete(&mut tx, id).await?;
-    tx.commit().await?;
+    tx.commit().await.map_err(DatabaseError::from)?;
     Ok(StatusCode::OK)
+}
+
+#[derive(Deserialize)]
+pub struct TmdbSearchParams {
+    query: String,
+    year: Option<i32>,
+    media_type: String,
 }
 
 /// Method mapped to `GET /api/v1/media/tmdb_search` is used to quickly search TMDB based on 3
@@ -514,28 +435,25 @@ pub async fn delete_media_by_id(
 /// * `year` - optional parameter specifying the release year of the media we want to look up
 /// * `media_type` - parameter that tells us what media type we are querying, ie movie or tv show
 pub async fn tmdb_search(
-    query: String,
-    year: Option<i32>,
-    media_type: String,
-    _user: User,
-) -> Result<impl warp::Reply, errors::DimError> {
-    let Ok(media_type) = media_type.to_lowercase().try_into() else {
-        return Err(errors::DimError::InvalidMediaType);
+    extract::Query(params): extract::Query<TmdbSearchParams>,
+) -> Result<Response, Error> {
+    let Ok(media_type) = params.media_type.to_lowercase().try_into() else {
+        return Err(Error::InvalidMediaType);
     };
 
     let provider = match media_type {
         MediaType::Movie => (*MOVIES_PROVIDER).clone(),
         MediaType::Tv => (*TV_PROVIDER).clone(),
-        _ => return Err(errors::DimError::InvalidMediaType),
+        _ => return Err(Error::InvalidMediaType),
     };
 
     let results = provider
-        .search(&query, year)
+        .search(&params.query, params.year)
         .await
-        .map_err(|_| errors::DimError::NotFoundError)?;
+        .map_err(|_| Error::NotFoundError)?;
 
     if results.is_empty() {
-        return Err(errors::DimError::NotFoundError);
+        return Err(Error::NotFoundError);
     }
 
     let resp = results
@@ -554,7 +472,12 @@ pub async fn tmdb_search(
         })
         .collect::<Vec<_>>();
 
-    Ok(reply::json(&resp))
+    Ok(Json(json!(&resp)).into_response())
+}
+
+#[derive(Deserialize)]
+pub struct ProgressParams {
+    offset: i64,
 }
 
 /// Method mapped to `POST /api/v1/media/<id>/progress` is used to map progress for a certain media
@@ -566,14 +489,94 @@ pub async fn tmdb_search(
 /// # Query params
 /// * `offset` - offset in seconds
 pub async fn map_progress(
-    conn: DbConnection,
-    id: i64,
-    offset: i64,
-    user: User,
-) -> Result<impl warp::Reply, errors::DimError> {
+    extract::State(conn): extract::State<DbConnection>,
+    extract::Path(id): extract::Path<i64>,
+    extract::Query(params): extract::Query<ProgressParams>,
+    Extension(user): Extension<User>,
+) -> Result<impl IntoResponse, Error> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await?;
-    Progress::set(&mut tx, offset, user.id, id).await?;
-    tx.commit().await?;
+    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    Progress::set(&mut tx, params.offset, user.id, id).await?;
+    tx.commit().await.map_err(DatabaseError::from)?;
+    Ok(StatusCode::OK)
+}
+
+#[derive(Deserialize)]
+pub struct RematchMediaParams {
+    external_id: String,
+    media_type: String,
+}
+
+/// FIXME: Merge this function into rematch_mediafile as theyre functionally the same fucking thing
+/// except here we are matching whole media objects rather than mediafiles. This was a different
+/// api in the past because the scanner wasnt intelligent enough to decouple and clean up stale
+/// media objects but now that it can do that we can just rematch a matched mediafile and it will
+/// work as it should.
+///
+/// TODO: Add ability to specify overrides like episode and season ranges.
+pub async fn rematch_media_by_id(
+    extract::State(conn): extract::State<DbConnection>,
+    extract::Path(id): extract::Path<i64>,
+    extract::Json(params): extract::Json<RematchMediaParams>,
+) -> Result<impl IntoResponse, Error> {
+    let Ok(media_type) = params.media_type.to_lowercase().try_into() else {
+        return Err(Error::InvalidMediaType);
+    };
+
+    let provider: Arc<dyn ExternalQueryIntoShow> = match media_type {
+        MediaType::Movie => (*MOVIES_PROVIDER).clone(),
+        MediaType::Tv => (*TV_PROVIDER).clone(),
+        _ => return Err(Error::InvalidMediaType),
+    };
+
+    let matcher = match media_type {
+        MediaType::Movie => Arc::new(movie::MovieMatcher) as Arc<dyn MediaMatcher>,
+        MediaType::Tv => Arc::new(tv_show::TvMatcher) as Arc<dyn MediaMatcher>,
+        _ => unreachable!(),
+    };
+
+    let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
+
+    let mediafiles = match media_type {
+        MediaType::Movie => MediaFile::get_of_media(&mut tx, id).await?,
+        MediaType::Tv => MediaFile::get_of_show(&mut tx, id).await?,
+        _ => unreachable!(),
+    };
+
+    let mediafile_ids = mediafiles.iter().map(|x| x.id).collect::<Vec<_>>();
+
+    info!(?media_type, mediafiles = ?&mediafile_ids, "Rematching media");
+
+    provider.search_by_id(&params.external_id).await.map_err(|e| {
+        error!(?e, "Failed to search for tmdb_id when rematching.");
+        Error::ExternalSearchError(e.to_string())
+    })?;
+
+    drop(tx);
+
+    let mut lock = conn.writer().lock_owned().await;
+    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+
+    for mediafile in mediafiles {
+        let Some((_, metadata)) = parse_filenames(IntoIterator::into_iter([&mediafile.target_file])).pop() else {
+            continue;
+        };
+
+        matcher
+            .match_to_id(
+                &mut tx,
+                provider.clone(),
+                WorkUnit(mediafile.clone(), metadata),
+                &params.external_id,
+            )
+            .await
+            .map_err(|e| {
+                error!(?e, "Failed to match tmdb_id.");
+                Error::ExternalSearchError(e.to_string())
+            })?;
+    }
+
+    tx.commit().await.map_err(DatabaseError::from)?;
+
     Ok(StatusCode::OK)
 }

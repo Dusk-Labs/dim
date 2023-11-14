@@ -2,6 +2,7 @@ pub mod auth;
 pub mod dashboard;
 pub mod filebrowser;
 pub mod library;
+pub mod media;
 pub mod mediafile;
 pub mod search;
 pub mod settings;

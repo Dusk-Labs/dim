@@ -82,33 +82,40 @@ fn dashboard_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
         )
 }
 
-fn media_routes(AppState { conn, event_tx, .. }: AppState) -> Router<AppState> {
-    Router::new().route_service(
-        "/api/v1/media/*path",
-        warp::service({
-            dim_core::routes::media::filters::get_media_by_id(conn.clone())
-                .or(dim_core::routes::media::filters::get_media_files(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::media::filters::update_media_by_id(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::media::filters::delete_media_by_id(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::media::filters::tmdb_search(conn.clone()))
-                .or(dim_core::routes::media::filters::map_progress(conn.clone()))
-                .or(dim_core::routes::media::filters::get_mediafile_tree(
-                    conn.clone(),
-                ))
-                .or(
-                    dim_core::routes::rematch_media::filters::rematch_media_by_id(
-                        conn.clone(),
-                        event_tx.clone(),
-                    ),
-                )
-        }),
-    )
+fn media_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/media/:id",
+            get(routes::media::get_media_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/:id/files",
+            get(routes::media::get_media_files).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/:id/tree",
+            get(routes::media::get_mediafile_tree).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/:id",
+            patch(routes::media::update_media_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/:id",
+            delete(routes::media::delete_media_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/tmdb_search",
+            get(routes::media::tmdb_search).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/:id/progress",
+            post(routes::media::map_progress).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/:id/match",
+            patch(routes::media::rematch_media_by_id).with_state(conn.clone()),
+        )
 }
 
 fn stream_routes(

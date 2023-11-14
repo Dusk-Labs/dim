@@ -7,8 +7,8 @@ use dim_core::scanner::tv_show;
 use dim_core::scanner::MediaMatcher;
 use dim_core::scanner::WorkUnit;
 
-use dim_core::routes::media::MOVIES_PROVIDER;
-use dim_core::routes::media::TV_PROVIDER;
+use super::media::MOVIES_PROVIDER;
+use super::media::TV_PROVIDER;
 
 use dim_database::DbConnection;
 use dim_database::DatabaseError;
