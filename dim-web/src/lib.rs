@@ -346,6 +346,7 @@ pub async fn start_webserver(
         .merge(dashboard_routes(app.clone()))
         .merge(episode_routes(app.clone()))
         .merge(library_routes(app.clone()))
+        .merge(media_routes(app.clone()))
         .merge(mediafile_routes(app.clone()))
         .merge(season_routes(app.clone()))
         .merge(tv_routes(app.clone()))
@@ -366,7 +367,6 @@ pub async fn start_webserver(
             "/images/*path",
             warp!(dim_core::routes::statik::filters::get_image),
         )
-        .merge(media_routes(app.clone()))
         .merge(stream_routes(app.clone()))
         .route_service(
             "/",
