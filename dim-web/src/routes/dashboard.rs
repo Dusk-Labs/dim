@@ -1,3 +1,4 @@
+use crate::AppState;
 use axum::response::IntoResponse;
 use axum::response::Json;
 use axum::response::Response;
@@ -12,7 +13,6 @@ use dim_database::mediafile::MediaFile;
 use dim_database::progress::Progress;
 use dim_database::user::User;
 use dim_database::DatabaseError;
-use dim_database::DbConnection;
 
 use super::auth::AuthError;
 
@@ -21,7 +21,7 @@ use serde_json::Value;
 
 pub async fn banners(
     Extension(user): Extension<User>,
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
 ) -> Result<Response, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let mut banners = Vec::new();
@@ -155,7 +155,7 @@ async fn banner_for_show(
 
 pub async fn dashboard(
     Extension(user): Extension<User>,
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
 ) -> Result<Response, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let mut top_rated = Vec::new();

@@ -38,7 +38,7 @@ pub struct AppState {
     stream_tracking: StreamTracking,
 }
 
-fn library_routes(app: AppState) -> Router<AppState> {
+fn library_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/api/v1/library",
@@ -50,7 +50,7 @@ fn library_routes(app: AppState) -> Router<AppState> {
         )
         .route(
             "/api/v1/library/:id/media",
-            get(routes::library::library_get_media).with_state(app.conn.clone()),
+            get(routes::library::library_get_media),
         )
         .route(
             "/api/v1/library/:id",
@@ -58,11 +58,11 @@ fn library_routes(app: AppState) -> Router<AppState> {
         )
         .route(
             "/api/v1/library/:id/unmatched",
-            get(routes::library::library_get_unmatched).with_state(app.conn.clone()),
+            get(routes::library::library_get_unmatched),
         )
 }
 
-fn auth_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+fn auth_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/api/v1/auth/whoami",
@@ -80,10 +80,9 @@ fn auth_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
             "/api/v1/auth/token/:token",
             delete(routes::auth::delete_token)
         )
-        .with_state(conn.clone())
 }
 
-fn public_auth_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+fn public_auth_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/api/v1/auth/login",
@@ -97,10 +96,9 @@ fn public_auth_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
             "/api/v1/auth/admin_exists",
             get(routes::auth::admin_exists),
         )
-        .with_state(conn.clone())
 }
 
-fn dashboard_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+fn dashboard_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/api/v1/dashboard",
@@ -110,10 +108,9 @@ fn dashboard_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
             "/api/v1/dashboard/banner",
             get(routes::dashboard::banners),
         )
-        .with_state(conn.clone())
 }
 
-fn media_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+fn media_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/api/v1/media/:id",
@@ -147,7 +144,6 @@ fn media_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
             "/api/v1/media/:id/match",
             patch(routes::media::rematch_media_by_id)
         )
-        .with_state(conn.clone())
 }
 
 fn stream_routes() -> Router<AppState> {
@@ -190,7 +186,7 @@ fn stream_routes() -> Router<AppState> {
         )
 }
 
-fn episode_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+fn episode_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/api/v1/episode/:id",
@@ -200,10 +196,9 @@ fn episode_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
             "/api/v1/episode/:id",
             delete(routes::tv::delete_episode_by_id),
         )
-        .with_state(conn.clone())
 }
 
-fn season_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+fn season_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/api/v1/season/:id",
@@ -221,19 +216,17 @@ fn season_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
             "/api/v1/season/:id/episodes",
             get(routes::tv::get_season_episodes),
         )
-        .with_state(conn.clone())
 }
 
-fn tv_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+fn tv_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/api/v1/tv/:id/season",
             get(routes::tv::get_tv_seasons),
         )
-        .with_state(conn.clone())
 }
 
-fn filebrowser_routes(AppState { .. }: AppState) -> Router<AppState> {
+fn filebrowser_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/api/v1/filebrowser/",
@@ -245,7 +238,7 @@ fn filebrowser_routes(AppState { .. }: AppState) -> Router<AppState> {
         )
 }
 
-fn mediafile_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+fn mediafile_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/api/v1/mediafile/:id",
@@ -255,10 +248,9 @@ fn mediafile_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
             "/api/v1/mediafile/match",
             patch(routes::mediafile::rematch_mediafile),
         )
-        .with_state(conn.clone())
 }
 
-fn settings_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+fn settings_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/api/v1/user/settings",
@@ -276,10 +268,9 @@ fn settings_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
             "/api/v1/host/settings",
             post(routes::settings::http_set_global_settings),
         )
-        .with_state(conn.clone())
 }
 
-fn user_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+fn user_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/api/v1/user/password",
@@ -298,7 +289,6 @@ fn user_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
             post(routes::user::upload_avatar),
         )
         .layer(DefaultBodyLimit::max(5_000_000))
-        .with_state(conn.clone())
 }
 
 pub async fn start_webserver(
@@ -359,28 +349,28 @@ pub async fn start_webserver(
     };
 
     let router = Router::new()
-        .merge(auth_routes(app.clone()))
-        .merge(dashboard_routes(app.clone()))
-        .merge(episode_routes(app.clone()))
-        .merge(library_routes(app.clone()))
-        .merge(media_routes(app.clone()))
-        .merge(mediafile_routes(app.clone()))
-        .merge(season_routes(app.clone()))
-        .merge(tv_routes(app.clone()))
-        .merge(filebrowser_routes(app.clone()))
-        .merge(user_routes(app.clone()))
+        .merge(auth_routes())
+        .merge(dashboard_routes())
+        .merge(episode_routes())
+        .merge(library_routes())
+        .merge(media_routes())
+        .merge(mediafile_routes())
+        .merge(season_routes())
+        .merge(tv_routes())
+        .merge(filebrowser_routes())
+        .merge(user_routes())
         .route(
             "/api/v1/search",
-            get(routes::search::search).with_state(conn.clone()),
+            get(routes::search::search),
         )
-        .merge(settings_routes(app.clone()))
+        .merge(settings_routes())
         .merge(stream_routes())
         .route_layer(axum::middleware::from_fn_with_state(
-            conn.clone(),
+            app.clone(),
             verify_cookie_token,
         ))
         // --- End of routes authenticated by Axum middleware ---
-        .merge(public_auth_routes(app.clone()))
+        .merge(public_auth_routes())
         .route_service(
             "/images/*path",
             warp!(dim_core::routes::statik::filters::get_image),
