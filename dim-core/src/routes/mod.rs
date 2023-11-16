@@ -19,7 +19,6 @@
 #![warn(warnings)]
 pub mod settings;
 pub mod statik;
-pub mod stream;
 
 #[doc(hidden)]
 pub mod global_filters {
