@@ -1,8 +1,6 @@
-use axum::response::{IntoResponse, Response};
-use axum::{extract};
-
-
-use dim_database::DatabaseError;
+use axum::response::IntoResponse;
+use axum::response::Response;
+use axum::extract::Path;
 
 use http::StatusCode;
 
@@ -12,16 +10,15 @@ use std::fs;
 use std::io;
 use std::path::PathBuf;
 
+use displaydoc::Display;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Display, Error)]
 pub enum AuthError {
-    #[error("IO Error.")]
+    /// IO Error.
     IOError,
-    #[error("Not logged in.")]
+    /// Not logged in.
     InvalidCredentials,
-    #[error("database: {0}")]
-    Database(#[from] DatabaseError),
 }
 
 impl From<std::io::Error> for AuthError {
@@ -36,7 +33,7 @@ impl IntoResponse for AuthError {
             Self::InvalidCredentials => {
                 (StatusCode::UNAUTHORIZED, self.to_string()).into_response()
             }
-            Self::IOError | Self::Database(_) => {
+            Self::IOError => {
                 (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response()
             }
         }
@@ -69,7 +66,7 @@ pub fn enumerate_directory<T: AsRef<std::path::Path>>(path: T) -> io::Result<Vec
 }
 
 pub async fn get_directory_structure(
-    path: Option<extract::Path<String>>,
+    path: Option<Path<String>>,
 ) -> Result<axum::response::Response, AuthError> {
     cfg_if::cfg_if! {
         if #[cfg(target_os = "windows")] {
@@ -80,7 +77,7 @@ pub async fn get_directory_structure(
     }
 
     let path: PathBuf = match path {
-        Some(extract::Path(p)) => {
+        Some(Path(p)) => {
             let path = if p.starts_with(path_prefix) {
                 PathBuf::from(p)
             } else {

@@ -1,5 +1,7 @@
-use axum::response::{IntoResponse};
-use axum::{extract};
+use axum::response::IntoResponse;
+use axum::extract::Json;
+use axum::extract::Path;
+use axum::extract::State;
 
 use dim_database::DbConnection;
 use dim_database::DatabaseError;
@@ -18,8 +20,8 @@ use super::auth::AuthError;
 /// # Arguments
 /// * `id` - id of the tv show we want info about
 pub async fn get_tv_seasons(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Path(id): extract::Path<i64>,
+    State(conn): State<DbConnection>,
+    Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     Ok(axum::response::Json(json!(&Season::get_all(&mut tx, id).await?)).into_response())
@@ -30,8 +32,8 @@ pub async fn get_tv_seasons(
 /// # Arguments
 /// * `id` - id of the season we want info about
 pub async fn get_season_by_id(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Path(id): extract::Path<i64>,
+    State(conn): State<DbConnection>,
+    Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     Ok(axum::response::Json(json!(&Season::get_by_id(&mut tx, id).await?)).into_response())
@@ -47,9 +49,9 @@ pub async fn get_season_by_id(
 /// This route additionally requires you to pass in a json object by the format of
 /// `dim_database::season::UpdateSeason`.
 pub async fn patch_season_by_id(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Path(id): extract::Path<i64>,
-    extract::Json(season): extract::Json<UpdateSeason>,
+    State(conn): State<DbConnection>,
+    Path(id): Path<i64>,
+    Json(season): Json<UpdateSeason>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
@@ -65,8 +67,8 @@ pub async fn patch_season_by_id(
 /// # Arguments
 /// * `id` - id of the episode.
 pub async fn get_season_episodes(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Path(id): extract::Path<i64>,
+    State(conn): State<DbConnection>,
+    Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     #[derive(serde::Serialize)]
@@ -95,8 +97,8 @@ pub async fn get_season_episodes(
 /// # Arguments
 /// * `id` - id of the season.
 pub async fn delete_season_by_id(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Path(id): extract::Path<i64>,
+    State(conn): State<DbConnection>,
+    Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
@@ -116,9 +118,9 @@ pub async fn delete_season_by_id(
 /// This route additionally requires you to pass in a json object by the format of
 /// `dim_database::episode::UpdateEpisode`.
 pub async fn patch_episode_by_id(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Path(id): extract::Path<i64>,
-    extract::Json(episode): extract::Json<UpdateEpisode>,
+    State(conn): State<DbConnection>,
+    Path(id): Path<i64>,
+    Json(episode): Json<UpdateEpisode>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
@@ -134,8 +136,8 @@ pub async fn patch_episode_by_id(
 /// # Arguments
 /// * `id` - id an episode to delete
 pub async fn delete_episode_by_id(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Path(id): extract::Path<i64>,
+    State(conn): State<DbConnection>,
+    Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;

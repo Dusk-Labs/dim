@@ -1,5 +1,8 @@
-use axum::response::{IntoResponse};
-use axum::{extract, Extension};
+use axum::response::IntoResponse;
+use axum::response::Json;
+use axum::response::Response;
+use axum::extract::State;
+use axum::Extension;
 
 use dim_database::episode::Episode;
 use dim_database::genre::Genre;
@@ -18,8 +21,8 @@ use serde_json::Value;
 
 pub async fn banners(
     Extension(user): Extension<User>,
-    extract::State(conn): extract::State<DbConnection>,
-) -> Result<axum::response::Response, AuthError> {
+    State(conn): State<DbConnection>,
+) -> Result<Response, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let mut banners = Vec::new();
     for media in Media::get_random_with(&mut tx, 10).await? {
@@ -32,7 +35,7 @@ pub async fn banners(
         }
     }
 
-    Ok(axum::response::Json(&banners.iter().take(3).collect::<Vec<_>>()).into_response())
+    Ok(Json(&banners.iter().take(3).collect::<Vec<_>>()).into_response())
 }
 
 async fn banner_for_movie(
@@ -152,8 +155,8 @@ async fn banner_for_show(
 
 pub async fn dashboard(
     Extension(user): Extension<User>,
-    extract::State(conn): extract::State<DbConnection>,
-) -> Result<axum::response::Response, AuthError> {
+    State(conn): State<DbConnection>,
+) -> Result<Response, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let mut top_rated = Vec::new();
     for media in Media::get_top_rated(&mut tx, 10).await? {
@@ -217,7 +220,7 @@ pub async fn dashboard(
         None
     };
 
-    Ok(axum::response::Json(&json!({
+    Ok(Json(&json!({
         ..?continue_watching,
         "TOP RATED": top_rated,
         "FRESHLY ADDED": recently_added,

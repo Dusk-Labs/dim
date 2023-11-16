@@ -1,5 +1,8 @@
-use axum::response::{IntoResponse, Response, Json};
-use axum::{extract};
+use axum::response::IntoResponse;
+use axum::response::Json;
+use axum::response::Response;
+use axum::extract::Path;
+use axum::extract::State;
 
 use dim_core::scanner::movie;
 use dim_core::scanner::parse_filenames;
@@ -17,7 +20,7 @@ use dim_database::mediafile::MediaFile;
 
 use dim_extern_api::ExternalQueryIntoShow;
 
-use serde::{Deserialize};
+use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
 
@@ -25,19 +28,20 @@ use http::StatusCode;
 use tracing::error;
 use tracing::info;
 
+use displaydoc::Display;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Display, Error)]
 pub enum Error {
-    #[error("No mediafiles.")]
+    /// No mediafiles.
     NoMediafiles,
-    #[error("Invalid media type.")]
+    /// Invalid media type.
     InvalidMediaType,
-    #[error("Not logged in.")]
+    /// Not logged in.
     InvalidCredentials,
-    #[error("database: {0}")]
+    /// database: {0}
     Database(#[from] DatabaseError),
-    #[error("Failed to search for tmdb_id when rematching: {0}")]
+    /// Failed to search for tmdb_id when rematching: {0}
     ExternalSearchError(String),
 }
 
@@ -81,8 +85,8 @@ pub struct RouteArgs {
 /// # Arguments
 /// * `id` - id of the mediafile we want info about
 pub async fn get_mediafile_info(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Path(id): extract::Path<i64>,
+    State(conn): State<DbConnection>,
+    Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, Error> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let mediafile = MediaFile::get_one(&mut tx, id)
@@ -109,8 +113,8 @@ pub async fn get_mediafile_info(
 /// * `mediafiles` - ids of the orphan mediafiles we want to rematch
 /// * `tmdb_id` - the tmdb id of the proper metadata we want to fetch for the media
 pub async fn rematch_mediafile(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Json(route_args): extract::Json<RouteArgs>,
+    State(conn): State<DbConnection>,
+    Json(route_args): Json<RouteArgs>,
 ) -> Result<impl IntoResponse, Error> {
     if route_args.mediafiles.is_empty() {
         return Err(Error::NoMediafiles.into());

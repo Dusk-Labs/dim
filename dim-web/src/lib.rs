@@ -5,9 +5,14 @@ pub mod routes;
 pub mod tree;
 
 pub use axum;
-use axum::extract::{ConnectInfo, DefaultBodyLimit, State};
+use axum::extract::ConnectInfo;
+use axum::extract::DefaultBodyLimit;
+use axum::extract::State;
 use axum::response::Response;
-use axum::routing::{get, patch, post, delete};
+use axum::routing::delete;
+use axum::routing::get;
+use axum::routing::patch;
+use axum::routing::post;
 use axum::Router;
 
 use dim_core::core::EventTx;

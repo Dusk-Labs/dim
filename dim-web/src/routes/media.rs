@@ -39,19 +39,20 @@ use serde::{Serialize, Deserialize};
 use tracing::error;
 use tracing::info;
 
+use displaydoc::Display;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Display, Error)]
 pub enum Error {
-    #[error("Not Found.")]
+    /// Not Found.
     NotFoundError,
-    #[error("Invalid media type.")]
+    /// Invalid media type.
     InvalidMediaType,
-    #[error("Not logged in.")]
+    /// Not logged in.
     InvalidCredentials,
-    #[error("database: {0}")]
+    /// database: {0}
     Database(#[from] DatabaseError),
-    #[error("Failed to search for tmdb_id when rematching: {0}")]
+    /// Failed to search for tmdb_id when rematching: {0}
     ExternalSearchError(String),
 }
 

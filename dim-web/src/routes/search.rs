@@ -1,5 +1,8 @@
-use axum::response::{Json, IntoResponse, Response};
-use axum::{extract};
+use axum::response::IntoResponse;
+use axum::response::Json;
+use axum::response::Response;
+use axum::extract::Query;
+use axum::extract::State;
 
 use dim_database::DatabaseError;
 use dim_database::DbConnection;
@@ -7,18 +10,21 @@ use dim_database::genre::*;
 
 use http::StatusCode;
 
-use serde::{Serialize, Deserialize};
-use serde_json::{json, Value};
+use serde::Serialize;
+use serde::Deserialize;
+use serde_json::json;
+use serde_json::Value;
 
+use displaydoc::Display;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Display, Error)]
 pub enum AuthError {
-    #[error("Not Found.")]
+    /// Not Found.
     NotFoundError,
-    #[error("Not logged in.")]
+    /// Not logged in.
     InvalidCredentials,
-    #[error("database: {0}")]
+    /// database: {0}
     Database(#[from] DatabaseError),
 }
 
@@ -48,8 +54,8 @@ pub struct SearchArgs {
 }
 
 pub async fn search(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Query(search_args): extract::Query<SearchArgs>,
+    State(conn): State<DbConnection>,
+    Query(search_args): Query<SearchArgs>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
 

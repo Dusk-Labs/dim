@@ -1,6 +1,11 @@
 //! This module contains all docs and APIs related to users and user metadata.
-use axum::response::{IntoResponse, Response};
-use axum::{extract, Extension};
+use axum::response::IntoResponse;
+use axum::response::Response;
+use axum::extract::Json;
+use axum::extract::Multipart;
+use axum::extract::multipart::Field;
+use axum::extract::State;
+use axum::Extension;
 
 use dim_database::DbConnection;
 use dim_database::DatabaseError;
@@ -9,24 +14,22 @@ use dim_database::asset::InsertableAsset;
 use dim_database::user::User;
 
 use http::StatusCode;
-
 use serde::Deserialize;
-
 use uuid::Uuid;
-
+use displaydoc::Display;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Display, Error)]
 pub enum AuthError {
-    #[error("Username not available.")]
+    /// Username not available.
     UsernameNotAvailable,
-    #[error("Upload failed.")]
+    /// Upload failed.
     UploadFailed,
-    #[error("Unsupported file.")]
+    /// Unsupported file.
     UnsupportedFile,
-    #[error("Not logged in.")]
+    /// Not logged in.
     InvalidCredentials,
-    #[error("database: {0}")]
+    /// database: {0}
     Database(#[from] DatabaseError),
 }
 
@@ -86,8 +89,8 @@ pub struct ChangePasswordParams {
 /// [`InvalidCredentials`]: AuthError::InvalidCredentials
 pub async fn change_password(
     Extension(user): Extension<User>,
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Json(params): extract::Json<ChangePasswordParams>,
+    State(conn): State<DbConnection>,
+    Json(params): Json<ChangePasswordParams>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
@@ -142,8 +145,8 @@ pub struct DeleteParams {
 /// [`InvalidCredentials`]: AuthError::InvalidCredentials
 pub async fn delete(
     Extension(user): Extension<User>,
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Json(params): extract::Json<DeleteParams>,
+    State(conn): State<DbConnection>,
+    Json(params): Json<DeleteParams>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
@@ -190,8 +193,8 @@ pub struct ChangeUsernameParams {
 /// [`UsernameNotAvailable`]: AuthError::UsernameNotAvailable
 pub async fn change_username(
     Extension(user): Extension<User>,
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Json(params): extract::Json<ChangeUsernameParams>,
+    State(conn): State<DbConnection>,
+    Json(params): Json<ChangeUsernameParams>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
@@ -229,8 +232,8 @@ pub async fn change_username(
 /// [`UnsupportedFile`]: AuthError::UnsupportedFile
 pub async fn upload_avatar(
     Extension(user): Extension<User>,
-    extract::State(conn): extract::State<DbConnection>,
-    mut multipart: extract::Multipart,
+    State(conn): State<DbConnection>,
+    mut multipart: Multipart,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
@@ -258,7 +261,7 @@ pub async fn upload_avatar(
 #[doc(hidden)]
 pub async fn process_part(
     conn: &mut dim_database::Transaction<'_>,
-    p: extract::multipart::Field<'_>,
+    p: Field<'_>,
 ) -> Result<Asset, AuthError> {
     if p.name().unwrap() != "file" {
         return Err(AuthError::UploadFailed);
