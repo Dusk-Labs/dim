@@ -41,7 +41,6 @@ cfg-if = "1.0.0"
 chrono = { version = "0.4.19", features = ["serde"] }
 dia-i18n = "0.10.0"
 displaydoc = "0.2.3"
-dominant_color = "0.3.0"
 futures = "0.3.14"
 fuzzy-matcher = "0.3.7"
 http = "^0.2.3"

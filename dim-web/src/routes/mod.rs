@@ -6,6 +6,7 @@ pub mod media;
 pub mod mediafile;
 pub mod search;
 pub mod settings;
+pub mod statik;
 pub mod stream;
 pub mod tv;
 pub mod user;

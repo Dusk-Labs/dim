@@ -54,7 +54,11 @@ fn library_routes() -> Router<AppState> {
         )
         .route(
             "/api/v1/library/:id",
-            get(routes::library::library_get_one).delete(routes::library::library_delete),
+            get(routes::library::library_get_one),
+        )
+        .route(
+            "/api/v1/library/:id",
+            delete(routes::library::library_delete),
         )
         .route(
             "/api/v1/library/:id/unmatched",
@@ -291,6 +295,26 @@ fn user_routes() -> Router<AppState> {
         .layer(DefaultBodyLimit::max(5_000_000))
 }
 
+fn static_routes() -> Router<AppState> {
+    Router::new()
+        .route(
+            "/",
+            get(routes::statik::react_routes),
+        )
+        .route(
+            "/*path",
+            get(routes::statik::react_routes),
+        )
+        .route(
+            "/static/*path",
+            get(routes::statik::dist_static),
+        )
+        .route(
+            "/images/*path",
+            get(routes::statik::get_image),
+        )
+}
+
 pub async fn start_webserver(
     address: SocketAddr,
     event_tx: EventTx,
@@ -303,12 +327,6 @@ pub async fn start_webserver(
     let conn = dim_database::get_conn()
         .await
         .expect("Failed to grab a handle to the connection pool.");
-
-    macro_rules! warp {
-        ($p:path) => {
-            ::warp::service($p(conn.clone()))
-        };
-    }
 
     let event_repeater = routes::websocket::event_repeater(
         tokio_stream::wrappers::UnboundedReceiverStream::new(event_rx),
@@ -371,22 +389,7 @@ pub async fn start_webserver(
         ))
         // --- End of routes authenticated by Axum middleware ---
         .merge(public_auth_routes())
-        .route_service(
-            "/images/*path",
-            warp!(dim_core::routes::statik::filters::get_image),
-        )
-        .route_service(
-            "/",
-            warp::service(dim_core::routes::statik::filters::react_routes()),
-        )
-        .route_service(
-            "/*path",
-            warp::service(dim_core::routes::statik::filters::react_routes()),
-        )
-        .route_service(
-            "/static/*path",
-            warp::service(dim_core::routes::statik::filters::dist_static()),
-        )
+        .merge(static_routes())
         .route("/ws", get(ws_handler))
         .with_state(app)
         .layer(tower_http::trace::TraceLayer::new_for_http())

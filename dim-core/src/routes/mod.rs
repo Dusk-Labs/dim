@@ -18,7 +18,6 @@
 //! [`DatabaseError`]: crate::errors::DimError::DatabaseError
 #![warn(warnings)]
 pub mod settings;
-pub mod statik;
 
 #[doc(hidden)]
 pub mod global_filters {

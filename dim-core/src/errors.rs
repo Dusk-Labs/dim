@@ -134,6 +134,42 @@ impl warp::Reply for DimError {
     }
 }
 
+impl IntoResponse for DimError {
+    fn into_response(self) -> Response {
+        match self {
+            Self::LibraryNotFound
+            | Self::NoneError
+            | Self::NotFoundError
+            | Self::ExternalSearchError(_) => {
+                (StatusCode::NOT_FOUND, self.to_string()).into_response()
+            },
+            Self::StreamingError(_)
+            | Self::DatabaseError { .. }
+            | Self::UnknownError
+            | Self::IOError
+            | Self::InternalServerError
+            | Self::UploadFailed
+            | Self::ScannerError(_) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response()
+            },
+            Self::Unauthenticated
+            | Self::Unauthorized
+            | Self::InvalidCredentials
+            | Self::CookieError(_)
+            | Self::NoToken
+            | Self::UserNotFound => {
+                (StatusCode::UNAUTHORIZED, self.to_string()).into_response()
+            },
+            Self::UsernameNotAvailable => {
+                (StatusCode::BAD_REQUEST, self.to_string()).into_response()
+            },
+            Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {
+                (StatusCode::NOT_ACCEPTABLE, self.to_string()).into_response()
+            }
+        }
+    }
+}
+
 #[derive(Clone, Display, Debug, Error, Serialize)]
 #[serde(tag = "error")]
 pub enum StreamingErrors {
