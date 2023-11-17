@@ -77,7 +77,6 @@ tracing-subscriber = { version = "^0.3.10", features = [
 ] }
 url = "2.2.2"
 uuid = { version = "1.2.2", features = ["v4"] }
-warp = { version = "0.3.3", features = ["tls", "tokio-rustls"] }
 xmlwriter = "0.1.0"
 xtra = { version = "0.5.1", features = ["tokio", "with-tokio-1"] }
 
