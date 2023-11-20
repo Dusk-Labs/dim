@@ -1,4 +1,5 @@
 {
+  "lang": "en",
   "short_name": "Dim",
   "name": "Dim - Fueled By Dark Forces",
   "description": "A self hosted media manager to organize and beautify your media collections.",
@@ -7,9 +8,14 @@
       "src": "/logoBlack128.png",
       "sizes": "128x128",
       "type": "image/png"
+    },
+    {
+      "src": "/textLogoBlack128.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "theme_color": "#1a1a1a",
   "background_color": "#1a1a1a"

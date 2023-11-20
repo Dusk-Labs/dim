@@ -54,3 +54,5 @@ tower = { version = "0.4.13", features = ["tokio", "util"] }
 dim-extern-api = { version = "0.4.0-dev", path = "../dim-extern-api" }
 tokio-stream = { version = "0.1.14", features = ["full"] }
 tower-http = { version = "0.4.4", features = ["full"] }
+askama = { version = "0.12.1", features = ["with-axum"] }
+askama_axum = "0.3.0"

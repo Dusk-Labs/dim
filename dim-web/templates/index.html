@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, user-scalable=yes">
+    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <link rel="icon" sizes="128x128" media="(prefers-color-scheme: dark)" href="/static/logoWhite128.png" type="image/png">
+    <link rel="icon" sizes="512x512" media="(prefers-color-scheme: dark)" href="/static/textLogoWhite512.png" type="image/png">
+    <link rel="icon" sizes="128x128" media="(prefers-color-scheme: light)" href="/static/logoBlack128.png" type="image/png">
+    <link rel="icon" sizes="512x512" media="(prefers-color-scheme: light)" href="/static/textLogoBlack512.png" type="image/png">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <title>{% block title %}Dim{% endblock %}</title>
+    <meta name="description" content="A self hosted media manager to organize and beautify your media collections.">
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    {% block content %}
+    <h1>Hello World!</h1>
+    {% endblock %}
+  </body>
+</html>
