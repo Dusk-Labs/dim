@@ -9,7 +9,7 @@ dim-auth = { path = "../dim-auth" }
 dim-database = { path = "../dim-database" }
 dim-events = { path = "../dim-events" }
 dim-extern-api = { path = "../dim-extern-api" }
-dim-web = { path = "../dim-web", features = ["embed_ui"] }
+dim-web = { path = "../dim-web" }
 dim-utils = { path = "../dim-utils" }
 xtra = { version = "0.5.1", features = ["tokio", "with-tokio-1"] }
 fdlimit = "0.2.1"
