@@ -17,19 +17,9 @@
 //!
 //! [`DatabaseError`]: crate::errors::DimError::DatabaseError
 #![warn(warnings)]
-pub mod auth;
-pub mod dashboard;
-pub mod general;
-pub mod host;
-pub mod library;
-pub mod media;
-pub mod mediafile;
-pub mod rematch_media;
 pub mod settings;
 pub mod statik;
 pub mod stream;
-pub mod tv;
-pub mod user;
 
 #[doc(hidden)]
 pub mod global_filters {

@@ -241,6 +241,7 @@ dependencies = [
  "matchit",
  "memchr",
  "mime",
+ "multer",
  "percent-encoding",
  "pin-project-lite",
  "rustversion",
@@ -853,7 +854,6 @@ name = "dim-core"
 version = "0.4.0-dev"
 dependencies = [
  "async-trait",
- "bytes 1.5.0",
  "cfg-if",
  "chrono",
  "criterion",
@@ -969,6 +969,7 @@ name = "dim-web"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "cfg-if",
  "chrono",
  "dim-core",
  "dim-database",

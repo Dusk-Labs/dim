@@ -19,8 +19,12 @@
 //! [`Unauthenticated`]: crate::errors::DimError::Unauthenticated
 //! [`login`]: fn@login
 
-use axum::response::{IntoResponse, Json, Response};
-use axum::{extract, Extension};
+use axum::response::IntoResponse;
+use axum::response::Response;
+use axum::extract::Json;
+use axum::extract::Path;
+use axum::extract::State;
+use axum::Extension;
 
 use dim_database::asset::Asset;
 use dim_database::progress::Progress;
@@ -33,13 +37,14 @@ use dim_database::DbConnection;
 
 use http::StatusCode;
 use serde_json::json;
+use displaydoc::Display;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Display, Error)]
 pub enum AuthError {
-    #[error("Not logged in.")]
+    /// Not logged in.
     InvalidCredentials,
-    #[error("database: {0}")]
+    /// database: {0}
     Database(#[from] DatabaseError),
 }
 
@@ -103,7 +108,7 @@ impl IntoResponse for AuthError {
 /// [`Unauthorized`]: crate::errors::DimError::Unauthorized
 pub async fn get_all_invites(
     Extension(user): Extension<User>,
-    extract::State(conn): extract::State<DbConnection>,
+    State(conn): State<DbConnection>,
 ) -> Result<axum::response::Response, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     if user.has_role("owner") {
@@ -181,7 +186,7 @@ pub async fn get_all_invites(
 /// [`Unauthorized`]: crate::errors::DimError::Unauthorized
 pub async fn generate_invite(
     Extension(user): Extension<User>,
-    extract::State(conn): extract::State<DbConnection>,
+    State(conn): State<DbConnection>,
 ) -> Result<axum::response::Response, AuthError> {
     if !user.has_role("owner") {
         return Err(AuthError::InvalidCredentials);
@@ -221,8 +226,8 @@ pub async fn generate_invite(
 /// [`Unauthorized`]: crate::errors::DimError::Unauthorized
 pub async fn delete_token(
     Extension(user): Extension<User>,
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Path(token): extract::Path<String>,
+    State(conn): State<DbConnection>,
+    Path(token): Path<String>,
 ) -> Result<impl IntoResponse, AuthError> {
     if !user.has_role("owner") {
         return Err(AuthError::InvalidCredentials);
@@ -274,11 +279,11 @@ pub async fn delete_token(
 #[axum::debug_handler]
 pub async fn whoami(
     Extension(user): Extension<User>,
-    extract::State(conn): extract::State<DbConnection>,
+    State(conn): State<DbConnection>,
 ) -> Result<Response, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
 
-    Ok(Json(json!({
+    Ok(axum::response::Json(json!({
         "picture": Asset::get_of_user(&mut tx, user.id).await.ok().map(|x| format!("/images/{}", x.local_path)),
         "spentWatching": Progress::get_total_time_spent_watching(&mut tx, user.id)
             .await
@@ -289,11 +294,11 @@ pub async fn whoami(
     .into_response())
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Display, Error)]
 pub enum LoginError {
-    #[error("The provided username or password is incorrect.")]
+    /// The provided username or password is incorrect.
     InvalidCredentials,
-    #[error("database: {0}")]
+    /// database: {0}
     Database(#[from] DatabaseError),
 }
 
@@ -339,8 +344,8 @@ impl IntoResponse for LoginError {
 /// [`Login`]: dim_database::user::Login
 #[axum::debug_handler]
 pub async fn login(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Json(new_login): extract::Json<Login>,
+    State(conn): State<DbConnection>,
+    Json(new_login): Json<Login>,
 ) -> Result<Response, LoginError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let user = User::get(&mut tx, &new_login.username)
@@ -350,7 +355,7 @@ pub async fn login(
     if verify(user.username, pass, new_login.password) {
         let token = dim_database::user::Login::create_cookie(user.id);
 
-        return Ok(Json(json!({
+        return Ok(axum::response::Json(json!({
             "token": token,
         }))
         .into_response());
@@ -359,20 +364,20 @@ pub async fn login(
     Err(LoginError::InvalidCredentials)
 }
 
-pub async fn admin_exists(conn: extract::State<DbConnection>) -> Result<Response, LoginError> {
+pub async fn admin_exists(conn: State<DbConnection>) -> Result<Response, LoginError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let exists = dbg!(User::get_all(&mut tx).await.map_err(LoginError::Database)?).is_empty();
     let value = json!({
         "exists": !exists
     });
-    Ok(Json(value).into_response())
+    Ok(axum::response::Json(value).into_response())
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Display, Error)]
 pub enum RegisterError {
-    #[error("the request does not contain a valid invite token")]
+    /// the request does not contain a valid invite token
     NoToken,
-    #[error("database: {0}")]
+    /// database: {0}
     Database(#[from] DatabaseError),
 }
 
@@ -423,8 +428,8 @@ impl IntoResponse for RegisterError {
 /// [`Login`]: dim_database::user::Login
 #[axum::debug_handler]
 pub async fn register(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Json(new_user): extract::Json<Login>,
+    State(conn): State<DbConnection>,
+    Json(new_user): Json<Login>,
 ) -> Result<Response, RegisterError> {
     // FIXME: Return INTERNAL SERVER ERROR maybe with a traceback?
     let mut lock = conn.writer().lock_owned().await;
@@ -466,5 +471,5 @@ pub async fn register(
     // FIXME: Return internal server error.
     tx.commit().await.map_err(DatabaseError::from)?;
 
-    Ok(Json(json!({ "username": res.username })).into_response())
+    Ok(axum::response::Json(json!({ "username": res.username })).into_response())
 }
