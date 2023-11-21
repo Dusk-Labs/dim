@@ -30,10 +30,15 @@ pub struct GlobalSettings {
     pub verbose: bool,
     pub secret_key: Option<[u8; 32]>,
     pub enable_hwaccel: bool,
+    pub version: String,
 }
 
 impl Default for GlobalSettings {
     fn default() -> Self {
+        let git_tag = String::from(env!("GIT_TAG")).to_owned();
+        let mut git_sha = String::from(env!("GIT_SHA_256")).to_owned();
+        git_sha.truncate(8);
+        let version = git_tag + " " + git_sha.as_str();
         Self {
             enable_ssl: false,
             port: 8000,
@@ -54,6 +59,7 @@ impl Default for GlobalSettings {
             verbose: false,
             secret_key: None,
             enable_hwaccel: true,
+            version: version.into(),
         }
     }
 }

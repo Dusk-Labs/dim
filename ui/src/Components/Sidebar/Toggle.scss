@@ -6,6 +6,15 @@
     width: 32px;
   }
 
+  .version {
+    display: inline-block;
+    vertical-align: middle;
+    height: 100%;
+    margin-left: 1rem;
+    color: var(--tertiaryTextColor);
+    font-size: 0.8em;
+  }
+
   .toggle {
     position: absolute;
     bottom: 25%;

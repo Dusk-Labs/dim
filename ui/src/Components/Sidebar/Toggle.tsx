@@ -1,4 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+
+import { RootState } from "../../store";
 
 import DimLogo from "assets/DimLogo";
 import AngleLeftIcon from "assets/Icons/AngleLeft";
@@ -12,6 +15,11 @@ interface Props {
 function Toggle(props: Props) {
   const [defaultChecked, setDefaultChecked] = useState(false);
   const [visible, setVisible] = useState(true);
+
+  const version = useSelector((store: RootState) => {
+    const { data } = store.settings.globalSettings;
+    return data.version;
+  });
 
   /*
     disabling animation is mainly intended for on-load layout prep changes
@@ -83,6 +91,7 @@ function Toggle(props: Props) {
   return (
     <section className="sidebarToggleWrapper">
       <DimLogo />
+      <span className="version">{version}</span>
       <div className="toggle" onClick={toggleSidebar}>
         <AngleLeftIcon />
       </div>
