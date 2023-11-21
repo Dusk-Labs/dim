@@ -1,5 +1,3 @@
-#![deny(warnings)]
-
 use std::future::IntoFuture;
 use std::net::SocketAddr;
 
@@ -7,13 +5,17 @@ pub mod routes;
 pub mod tree;
 
 pub use axum;
-use axum::extract::{ConnectInfo, State};
+use axum::extract::ConnectInfo;
+use axum::extract::DefaultBodyLimit;
+use axum::extract::State;
 use axum::response::Response;
-use axum::routing::{get, post, delete};
+use axum::routing::delete;
+use axum::routing::get;
+use axum::routing::patch;
+use axum::routing::post;
 use axum::Router;
 
 use dim_core::core::EventTx;
-use dim_core::routes::dashboard;
 use dim_core::stream_tracking::StreamTracking;
 use dim_database::DbConnection;
 
@@ -73,33 +75,52 @@ fn auth_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
         )
 }
 
-fn media_routes(AppState { conn, event_tx, .. }: AppState) -> Router<AppState> {
-    Router::new().route_service(
-        "/api/v1/media/*path",
-        warp::service({
-            dim_core::routes::media::filters::get_media_by_id(conn.clone())
-                .or(dim_core::routes::media::filters::get_media_files(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::media::filters::update_media_by_id(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::media::filters::delete_media_by_id(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::media::filters::tmdb_search(conn.clone()))
-                .or(dim_core::routes::media::filters::map_progress(conn.clone()))
-                .or(dim_core::routes::media::filters::get_mediafile_tree(
-                    conn.clone(),
-                ))
-                .or(
-                    dim_core::routes::rematch_media::filters::rematch_media_by_id(
-                        conn.clone(),
-                        event_tx.clone(),
-                    ),
-                )
-        }),
-    )
+fn dashboard_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/dashboard",
+            get(routes::dashboard::dashboard).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/dashboard/banner",
+            get(routes::dashboard::banners).with_state(conn.clone()),
+        )
+}
+
+fn media_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/media/:id",
+            get(routes::media::get_media_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/:id/files",
+            get(routes::media::get_media_files).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/:id/tree",
+            get(routes::media::get_mediafile_tree).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/:id",
+            patch(routes::media::update_media_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/:id",
+            delete(routes::media::delete_media_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/tmdb_search",
+            get(routes::media::tmdb_search).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/:id/progress",
+            post(routes::media::map_progress).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/media/:id/match",
+            patch(routes::media::rematch_media_by_id).with_state(conn.clone()),
+        )
 }
 
 fn stream_routes(
@@ -149,46 +170,108 @@ fn stream_routes(
     )
 }
 
+fn episode_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/episode/:id",
+            patch(routes::tv::patch_episode_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/episode/:id",
+            delete(routes::tv::delete_episode_by_id).with_state(conn.clone()),
+        )
+}
+
 fn season_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
-    Router::new().route_service(
-        "/api/v1/season/*path",
-        warp::service({
-            dim_core::routes::tv::filters::patch_episode_by_id(conn.clone())
-                .or(dim_core::routes::tv::filters::delete_season_by_id(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::tv::filters::get_season_episodes(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::tv::filters::patch_episode_by_id(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::tv::filters::delete_episode_by_id(
-                    conn.clone(),
-                ))
-        }),
-    )
+    Router::new()
+        .route(
+            "/api/v1/season/:id",
+            get(routes::tv::get_season_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/season/:id",
+            patch(routes::tv::patch_season_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/season/:id",
+            delete(routes::tv::delete_season_by_id).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/season/:id/episodes",
+            get(routes::tv::get_season_episodes).with_state(conn.clone()),
+        )
+}
+
+fn tv_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/tv/:id/season",
+            get(routes::tv::get_tv_seasons).with_state(conn.clone()),
+        )
+}
+
+fn filebrowser_routes(AppState { .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/filebrowser/",
+            get(routes::filebrowser::get_directory_structure),
+        )
+        .route(
+            "/api/v1/filebrowser/*path",
+            get(routes::filebrowser::get_directory_structure),
+        )
+}
+
+fn mediafile_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/mediafile/:id",
+            get(routes::mediafile::get_mediafile_info).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/mediafile/match",
+            patch(routes::mediafile::rematch_mediafile).with_state(conn.clone()),
+        )
 }
 
 fn settings_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
-    Router::new().route_service(
-        "/api/v1/user/settings",
-        warp::service({
-            dim_core::routes::settings::filters::get_user_settings(conn.clone())
-                .or(dim_core::routes::settings::filters::get_user_settings(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::settings::filters::post_user_settings(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::settings::filters::get_global_settings(
-                    conn.clone(),
-                ))
-                .or(dim_core::routes::settings::filters::set_global_settings(
-                    conn.clone(),
-                ))
-        }),
-    )
+    Router::new()
+        .route(
+            "/api/v1/user/settings",
+            get(routes::settings::get_user_settings).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/user/settings",
+            post(routes::settings::post_user_settings).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/host/settings",
+            get(routes::settings::http_get_global_settings).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/host/settings",
+            post(routes::settings::http_set_global_settings).with_state(conn.clone()),
+        )
+}
+
+fn user_routes(AppState { conn, .. }: AppState) -> Router<AppState> {
+    Router::new()
+        .route(
+            "/api/v1/user/password",
+            patch(routes::user::change_password).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/user/delete",
+            delete(routes::user::delete).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/user/username",
+            patch(routes::user::change_username).with_state(conn.clone()),
+        )
+        .route(
+            "/api/v1/user/avatar",
+            post(routes::user::upload_avatar).with_state(conn.clone()),
+        ).layer(DefaultBodyLimit::max(5_000_000))
 }
 
 pub async fn start_webserver(
@@ -265,77 +348,31 @@ pub async fn start_webserver(
             "/api/v1/auth/token/:token",
             delete(routes::auth::delete_token).with_state(conn.clone()),
         )
+        .merge(dashboard_routes(app.clone()))
+        .merge(episode_routes(app.clone()))
+        .merge(library_routes(app.clone()))
+        .merge(media_routes(app.clone()))
+        .merge(mediafile_routes(app.clone()))
+        .merge(season_routes(app.clone()))
+        .merge(tv_routes(app.clone()))
+        .merge(filebrowser_routes(app.clone()))
+        .merge(user_routes(app.clone()))
+        .route(
+            "/api/v1/search",
+            get(routes::search::search).with_state(conn.clone()),
+        )
+        .merge(settings_routes(app.clone()))
         .route_layer(axum::middleware::from_fn_with_state(
             conn.clone(),
             verify_cookie_token,
         ))
         // --- End of routes authenticated by Axum middleware ---
         .merge(auth_routes(app.clone()))
-        .merge(library_routes(app.clone()))
-        .route_service("/api/v1/dashboard", warp!(dashboard::filters::dashboard))
-        .route_service(
-            "/api/v1/dashboard/banner",
-            warp!(dashboard::filters::banners),
-        )
-        .route_service(
-            "/api/v1/search",
-            warp!(dim_core::routes::general::filters::search),
-        )
-        .route_service(
-            "/api/v1/filebrowser/",
-            warp!(dim_core::routes::general::filters::get_directory_structure),
-        )
-        .route_service(
-            "/api/v1/filebrowser/*path",
-            warp!(dim_core::routes::general::filters::get_directory_structure),
-        )
         .route_service(
             "/images/*path",
             warp!(dim_core::routes::statik::filters::get_image),
         )
-        .merge(media_routes(app.clone()))
         .merge(stream_routes(app.clone()))
-        .route_service(
-            "/api/v1/mediafile/*path",
-            warp::service({
-                dim_core::routes::mediafile::filters::get_mediafile_info(conn.clone()).or(
-                    dim_core::routes::mediafile::filters::rematch_mediafile(conn.clone()),
-                )
-            }),
-        )
-        .route_service(
-            "/api/v1/tv/*path",
-            warp!(dim_core::routes::tv::filters::get_tv_seasons),
-        )
-        .merge(season_routes(app.clone()))
-        .route_service(
-            "/api/v1/episode/*path",
-            warp::service({
-                dim_core::routes::tv::filters::patch_episode_by_id(conn.clone()).or(
-                    dim_core::routes::tv::filters::delete_episode_by_id(conn.clone()),
-                )
-            }),
-        )
-        .merge(settings_routes(app.clone()))
-        .route_service(
-            "/api/v1/host/settings",
-            warp::service({
-                dim_core::routes::settings::filters::get_global_settings(conn.clone()).or(
-                    dim_core::routes::settings::filters::set_global_settings(conn.clone()),
-                )
-            }),
-        )
-        .route_service(
-            "/api/v1/user/*path",
-            warp::service({
-                dim_core::routes::user::filters::change_password(conn.clone())
-                    .or(dim_core::routes::user::filters::delete(conn.clone()))
-                    .or(dim_core::routes::user::filters::change_username(
-                        conn.clone(),
-                    ))
-                    .or(dim_core::routes::user::filters::upload_avatar(conn.clone()))
-            }),
-        )
         .route_service(
             "/",
             warp::service(dim_core::routes::statik::filters::react_routes()),

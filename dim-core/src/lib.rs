@@ -28,7 +28,6 @@ use tracing_subscriber::EnvFilter;
 
 /// Various utilities
 pub mod utils;
-pub(crate) use utils::json;
 
 /// Module contains our core initialization logic.
 pub mod core;

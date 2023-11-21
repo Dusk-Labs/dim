@@ -151,7 +151,7 @@ export const changePassword =
     };
 
     try {
-      const res = await fetch("/api/v1/auth/password", config);
+      const res = await fetch("/api/v1/user/password", config);
 
       if (res.status !== 200) {
         dispatch(
@@ -222,7 +222,7 @@ export const delAccount = (password) => async (dispatch, getState) => {
 
 export const checkAdminExists = () => async (dispatch) => {
   try {
-    const res = await fetch("/api/v1/host/admin_exists");
+    const res = await fetch("/api/v1/auth/admin_exists");
 
     if (res.status !== 200) {
       return dispatch({

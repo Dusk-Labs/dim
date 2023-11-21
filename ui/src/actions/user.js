@@ -71,7 +71,7 @@ export const changeUsername =
     };
 
     try {
-      const res = await fetch("/api/v1/auth/username", config);
+      const res = await fetch("/api/v1/user/username", config);
 
       if (res.status !== 200) {
         dispatch({

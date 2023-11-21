@@ -1,137 +1,29 @@
-use crate::core::DbConnection;
-use crate::errors;
-use crate::json;
+use axum::response::IntoResponse;
+use axum::response::Json;
+use axum::response::Response;
+use axum::extract::State;
+use axum::Extension;
 
 use dim_database::episode::Episode;
-use dim_database::genre::*;
+use dim_database::genre::Genre;
 use dim_database::library::MediaType;
 use dim_database::media::Media;
 use dim_database::mediafile::MediaFile;
 use dim_database::progress::Progress;
-
 use dim_database::user::User;
+use dim_database::DatabaseError;
+use dim_database::DbConnection;
+
+use super::auth::AuthError;
+
+use dim_utils::json;
 use serde_json::Value;
 
-use warp::reply;
-
-pub mod filters {
-    use dim_database::DbConnection;
-
-    use dim_database::user::User;
-    use warp::reject;
-    use warp::Filter;
-
-    use crate::routes::global_filters::with_auth;
-
-    use super::super::global_filters::with_state;
-
-    pub fn dashboard(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "dashboard")
-            .and(warp::get())
-            .and(with_auth(conn.clone()))
-            .and(with_state::<DbConnection>(conn))
-            .and_then(|user: User, conn: DbConnection| async move {
-                super::dashboard(conn, user, tokio::runtime::Handle::current())
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
-
-    pub fn banners(
-        conn: DbConnection,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "dashboard" / "banner")
-            .and(warp::get())
-            .and(with_auth(conn.clone()))
-            .and(with_state::<DbConnection>(conn))
-            .and_then(|user: User, conn: DbConnection| async move {
-                super::banners(conn, user)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
-}
-
-pub async fn dashboard(
-    conn: DbConnection,
-    user: User,
-    _rt: tokio::runtime::Handle,
-) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.read().begin().await?;
-
-    let mut top_rated = Vec::new();
-    for media in Media::get_top_rated(&mut tx, 10).await? {
-        let item = match sqlx::query!(
-            "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
-            WHERE _tblmedia.id = ?",
-            media
-        ).fetch_one(&mut tx).await {
-            Ok(x) => x,
-            Err(_) => continue,
-        };
-
-        top_rated.push(json!({
-            "id": media,
-            "poster_path": item.local_path,
-            "name": item.name
-        }));
-    }
-
-    let mut recently_added = Vec::new();
-    for media in Media::get_recently_added(&mut tx, 10).await? {
-        let item = match sqlx::query!(
-            "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
-            WHERE _tblmedia.id = ?",
-            media
-        ).fetch_one(&mut tx).await {
-            Ok(x) => x,
-            Err(_) => continue,
-        };
-
-        recently_added.push(json!({
-            "id": media,
-            "poster_path": item.local_path,
-            "name": item.name
-        }));
-    }
-
-    let mut continue_watching = Vec::new();
-    for media in Progress::get_continue_watching(&mut tx, user.id, 10).await? {
-        let item = match sqlx::query!(
-            "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
-            WHERE _tblmedia.id = ?",
-            media
-        ).fetch_one(&mut tx).await {
-            Ok(x) => x,
-            Err(_) => continue,
-        };
-
-        continue_watching.push(json!({
-            "id": media,
-            "poster_path": item.local_path,
-            "name": item.name
-        }));
-    }
-
-    let continue_watching = if !continue_watching.is_empty() {
-        Some(json!({
-            "CONTINUE WATCHING": continue_watching,
-        }))
-    } else {
-        None
-    };
-
-    Ok(reply::json(&json!({
-        ..?continue_watching,
-        "TOP RATED": top_rated,
-        "FRESHLY ADDED": recently_added,
-    })))
-}
-
-pub async fn banners(conn: DbConnection, user: User) -> Result<impl warp::Reply, errors::DimError> {
-    let mut tx = conn.read().begin().await?;
+pub async fn banners(
+    Extension(user): Extension<User>,
+    State(conn): State<DbConnection>,
+) -> Result<Response, AuthError> {
+    let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let mut banners = Vec::new();
     for media in Media::get_random_with(&mut tx, 10).await? {
         if let Ok(x) = match media.media_type {
@@ -143,14 +35,14 @@ pub async fn banners(conn: DbConnection, user: User) -> Result<impl warp::Reply,
         }
     }
 
-    Ok(reply::json(&banners.iter().take(3).collect::<Vec<_>>()))
+    Ok(Json(&banners.iter().take(3).collect::<Vec<_>>()).into_response())
 }
 
 async fn banner_for_movie(
     conn: &mut dim_database::Transaction<'_>,
     user: &User,
     media: &Media,
-) -> Result<Value, errors::DimError> {
+) -> Result<Value, AuthError> {
     let progress = Progress::get_for_media_user(&mut *conn, user.id, media.id)
         .await
         .map(|x| x.delta)
@@ -196,7 +88,7 @@ async fn banner_for_show(
     conn: &mut dim_database::Transaction<'_>,
     user: &User,
     media: &Media,
-) -> Result<Value, errors::DimError> {
+) -> Result<Value, AuthError> {
     let episode = if let Ok(Some(ep)) =
         Episode::get_last_watched_episode(&mut *conn, media.id, user.id).await
     {
@@ -259,4 +151,78 @@ async fn banner_for_show(
                                     x.library_id)
         })).collect::<Vec<_>>(),
     }))
+}
+
+pub async fn dashboard(
+    Extension(user): Extension<User>,
+    State(conn): State<DbConnection>,
+) -> Result<Response, AuthError> {
+    let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
+    let mut top_rated = Vec::new();
+    for media in Media::get_top_rated(&mut tx, 10).await? {
+        let item = match sqlx::query!(
+            "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
+            WHERE _tblmedia.id = ?",
+            media
+        ).fetch_one(&mut tx).await {
+            Ok(x) => x,
+            Err(_) => continue,
+        };
+
+        top_rated.push(json!({
+            "id": media,
+            "poster_path": item.local_path,
+            "name": item.name
+        }));
+    }
+
+    let mut recently_added = Vec::new();
+    for media in Media::get_recently_added(&mut tx, 10).await? {
+        let item = match sqlx::query!(
+            "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
+            WHERE _tblmedia.id = ?",
+            media
+        ).fetch_one(&mut tx).await {
+            Ok(x) => x,
+            Err(_) => continue,
+        };
+
+        recently_added.push(json!({
+            "id": media,
+            "poster_path": item.local_path,
+            "name": item.name
+        }));
+    }
+
+    let mut continue_watching = Vec::new();
+    for media in Progress::get_continue_watching(&mut tx, user.id, 10).await? {
+        let item = match sqlx::query!(
+            "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
+            WHERE _tblmedia.id = ?",
+            media
+        ).fetch_one(&mut tx).await {
+            Ok(x) => x,
+            Err(_) => continue,
+        };
+
+        continue_watching.push(json!({
+            "id": media,
+            "poster_path": item.local_path,
+            "name": item.name
+        }));
+    }
+
+    let continue_watching = if !continue_watching.is_empty() {
+        Some(json!({
+            "CONTINUE WATCHING": continue_watching,
+        }))
+    } else {
+        None
+    };
+
+    Ok(Json(&json!({
+        ..?continue_watching,
+        "TOP RATED": top_rated,
+        "FRESHLY ADDED": recently_added,
+    })).into_response())
 }
