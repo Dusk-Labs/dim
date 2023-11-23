@@ -84,7 +84,7 @@ function Register(props) {
           credentials={[username, pass, invite]}
           error={[setUsernameErr, setPassErr, setInviteErr]}
         />
-        <Link to="/login">I have an account</Link>
+        {auth.admin_exists && <Link to="/login">I have an account</Link>}
       </footer>
     </div>
   );
