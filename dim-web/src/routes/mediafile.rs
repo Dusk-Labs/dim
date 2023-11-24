@@ -1,3 +1,4 @@
+use crate::AppState;
 use axum::response::IntoResponse;
 use axum::response::Json;
 use axum::response::Response;
@@ -13,7 +14,6 @@ use dim_core::scanner::WorkUnit;
 use super::media::MOVIES_PROVIDER;
 use super::media::TV_PROVIDER;
 
-use dim_database::DbConnection;
 use dim_database::DatabaseError;
 use dim_database::library::MediaType;
 use dim_database::mediafile::MediaFile;
@@ -85,7 +85,7 @@ pub struct RouteArgs {
 /// # Arguments
 /// * `id` - id of the mediafile we want info about
 pub async fn get_mediafile_info(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, Error> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
@@ -113,7 +113,7 @@ pub async fn get_mediafile_info(
 /// * `mediafiles` - ids of the orphan mediafiles we want to rematch
 /// * `tmdb_id` - the tmdb id of the proper metadata we want to fetch for the media
 pub async fn rematch_mediafile(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Json(route_args): Json<RouteArgs>,
 ) -> Result<impl IntoResponse, Error> {
     if route_args.mediafiles.is_empty() {

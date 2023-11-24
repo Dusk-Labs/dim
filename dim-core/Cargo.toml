@@ -9,10 +9,6 @@ license.workspace = true
 [features]
 vaapi = ["nightfall/vaapi"]
 
-# the build script usually will enable this if `yarn` is installed.
-# If enabled explicitly, the build script will panic if something went wrong.
-embed_ui = []
-
 [dependencies]
 # git dependencies
 nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4", default-features = false, features = [
@@ -36,11 +32,11 @@ serde_derive = "^1.0.125"
 serde_json = "^1.0.64"
 
 async-trait = "0.1.50"
+axum = { version = "0.6.20" }
 cfg-if = "1.0.0"
 chrono = { version = "0.4.19", features = ["serde"] }
 dia-i18n = "0.10.0"
 displaydoc = "0.2.3"
-dominant_color = "0.3.0"
 futures = "0.3.14"
 fuzzy-matcher = "0.3.7"
 http = "^0.2.3"
@@ -77,7 +73,6 @@ tracing-subscriber = { version = "^0.3.10", features = [
 ] }
 url = "2.2.2"
 uuid = { version = "1.2.2", features = ["v4"] }
-warp = { version = "0.3.3", features = ["tls", "tokio-rustls"] }
 xmlwriter = "0.1.0"
 xtra = { version = "0.5.1", features = ["tokio", "with-tokio-1"] }
 

@@ -1,11 +1,11 @@
+use crate::AppState;
 use axum::extract::State;
 use dim_core::errors::DimError;
-use dim_database::DbConnection;
 
 use crate::DimErrorWrapper;
 
 pub async fn verify_cookie_token<B>(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     mut req: axum::http::Request<B>,
     next: axum::middleware::Next<B>,
 ) -> Result<axum::response::Response, DimErrorWrapper> {
