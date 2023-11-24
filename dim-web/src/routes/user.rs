@@ -1,4 +1,5 @@
 //! This module contains all docs and APIs related to users and user metadata.
+use crate::AppState;
 use axum::response::IntoResponse;
 use axum::response::Response;
 use axum::extract::Json;
@@ -7,7 +8,6 @@ use axum::extract::multipart::Field;
 use axum::extract::State;
 use axum::Extension;
 
-use dim_database::DbConnection;
 use dim_database::DatabaseError;
 use dim_database::asset::Asset;
 use dim_database::asset::InsertableAsset;
@@ -89,7 +89,7 @@ pub struct ChangePasswordParams {
 /// [`InvalidCredentials`]: AuthError::InvalidCredentials
 pub async fn change_password(
     Extension(user): Extension<User>,
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Json(params): Json<ChangePasswordParams>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
@@ -145,7 +145,7 @@ pub struct DeleteParams {
 /// [`InvalidCredentials`]: AuthError::InvalidCredentials
 pub async fn delete(
     Extension(user): Extension<User>,
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Json(params): Json<DeleteParams>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
@@ -193,7 +193,7 @@ pub struct ChangeUsernameParams {
 /// [`UsernameNotAvailable`]: AuthError::UsernameNotAvailable
 pub async fn change_username(
     Extension(user): Extension<User>,
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Json(params): Json<ChangeUsernameParams>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
@@ -232,7 +232,7 @@ pub async fn change_username(
 /// [`UnsupportedFile`]: AuthError::UnsupportedFile
 pub async fn upload_avatar(
     Extension(user): Extension<User>,
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     mut multipart: Multipart,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;

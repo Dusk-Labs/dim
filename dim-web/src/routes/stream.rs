@@ -1,15 +1,22 @@
-use crate::core::DbConnection;
-use crate::core::StateManager;
-use crate::errors;
-use crate::stream_tracking::ContentType;
-use crate::stream_tracking::StreamTracking;
-use crate::stream_tracking::VirtualManifest;
-use crate::streaming::ffprobe::FFPStream;
-use crate::streaming::ffprobe::FFProbeCtx;
-use crate::streaming::get_avc1_tag;
-use crate::streaming::get_qualities;
-use crate::streaming::level_to_tag;
-use crate::utils::quality_to_label;
+use axum::Extension;
+use axum::extract::Path;
+use axum::extract::Query;
+use axum::extract::State;
+use axum::response::IntoResponse;
+use axum::response::Json;
+use axum::response::Response;
+use crate::AppState;
+use dim_core::core::StateManager;
+use dim_core::errors;
+use dim_core::stream_tracking::ContentType;
+use dim_core::stream_tracking::StreamTracking;
+use dim_core::stream_tracking::VirtualManifest;
+use dim_core::streaming::ffprobe::FFPStream;
+use dim_core::streaming::ffprobe::FFProbeCtx;
+use dim_core::streaming::get_avc1_tag;
+use dim_core::streaming::get_qualities;
+use dim_core::streaming::level_to_tag;
+use dim_core::utils::quality_to_label;
 
 use dim_database::mediafile::MediaFile;
 use dim_database::user::DefaultVideoQuality;
@@ -20,7 +27,7 @@ use nightfall::error::NightfallError;
 use nightfall::profiles::*;
 
 use std::future::Future;
-use std::path::Path;
+use std::path;
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -29,276 +36,39 @@ use futures::StreamExt;
 
 use tokio::fs::File;
 
+use serde::Deserialize;
 use serde_json::json;
 
 use uuid::Uuid;
-use warp::http::status::StatusCode;
-use warp::reply;
+use http::header;
+use http::StatusCode;
 
-pub mod filters {
-    use warp::reject;
-    use warp::reply::Reply;
-    use warp::Filter;
 
-    use crate::core::DbConnection;
-    use crate::core::StateManager;
-    use crate::errors::StreamingErrors;
-    use crate::stream_tracking::StreamTracking;
-
-    use dim_database::user::User;
-    use uuid::Uuid;
-
-    use super::super::global_filters::with_auth;
-    use super::super::global_filters::with_state;
-    use serde::Deserialize;
-
-    pub fn return_virtual_manifest(
-        conn: DbConnection,
-        state: StateManager,
-        stream_tracking: StreamTracking,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        #[derive(Deserialize)]
-        struct QueryArgs {
-            gid: Option<String>,
-            #[serde(default)]
-            force_ass: bool,
-        }
-
-        warp::path!("api" / "v1" / "stream" / i64 / "manifest")
-            .and(warp::get())
-            .and(warp::query::query::<QueryArgs>())
-            .and(with_auth(conn.clone()))
-            .and(with_state::<DbConnection>(conn))
-            .and(with_state::<StateManager>(state))
-            .and(with_state::<StreamTracking>(stream_tracking))
-            .and_then(
-                |id: i64,
-                 QueryArgs { gid, force_ass }: QueryArgs,
-                 auth: User,
-                 conn: DbConnection,
-                 state: StateManager,
-                 stream_tracking: StreamTracking| async move {
-                    let gid = gid.and_then(|x| Uuid::parse_str(x.as_str()).ok());
-
-                    dim_utils::warp_unwrap!(
-                        super::return_virtual_manifest(
-                            state,
-                            stream_tracking,
-                            auth,
-                            conn,
-                            id,
-                            gid,
-                            force_ass
-                        )
-                        .await
-                    )
-                },
-            )
-    }
-
-    pub fn return_manifest(
-        conn: DbConnection,
-        state: StateManager,
-        stream_tracking: StreamTracking,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        #[derive(Deserialize)]
-        struct QueryArgs {
-            start_num: Option<u64>,
-            should_kill: Option<bool>,
-            includes: Option<String>,
-        }
-
-        warp::path!("api" / "v1" / "stream" / String / "manifest.mpd")
-            .and(warp::get())
-            .and(warp::query::query::<QueryArgs>())
-            .and(with_auth(conn.clone()))
-            .and(with_state::<DbConnection>(conn))
-            .and(with_state::<StateManager>(state))
-            .and(with_state::<StreamTracking>(stream_tracking))
-            .and_then(
-                |id: String,
-                 QueryArgs {
-                     start_num,
-                     should_kill,
-                     includes,
-                 }: QueryArgs,
-                 auth: User,
-                 conn: DbConnection,
-                 state: StateManager,
-                 stream_tracking: StreamTracking| async move {
-                    let gid = match Uuid::parse_str(id.as_str()) {
-                        Ok(x) => x,
-                        Err(_) => return Err(reject::custom(StreamingErrors::GidParseError)),
-                    };
-
-                    super::return_manifest(
-                        state,
-                        stream_tracking,
-                        auth,
-                        conn,
-                        gid,
-                        start_num,
-                        should_kill,
-                        includes,
-                    )
-                    .await
-                    .map_or_else(|x| Ok(x.into_response()), |e| Ok(e.into_response()))
-                },
-            )
-    }
-
-    pub fn get_init(
-        state: StateManager,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        #[derive(Deserialize)]
-        struct QueryArgs {
-            start_num: Option<u32>,
-        }
-
-        warp::path!("api" / "v1" / "stream" / String / "data" / "init.mp4")
-            .and(warp::get())
-            .and(warp::query::query::<QueryArgs>())
-            .and(with_state::<StateManager>(state))
-            .and_then(
-                |id: String, QueryArgs { start_num }: QueryArgs, state: StateManager| async move {
-                    super::get_init(state, id, start_num)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
-    }
-
-    pub fn get_chunk(
-        state: StateManager,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "stream" / String / "data" / ..)
-            .and(warp::get())
-            .and(warp::filters::path::tail())
-            .and(with_state::<StateManager>(state))
-            .and_then(
-                |id: String, chunk: warp::filters::path::Tail, state: StateManager| async move {
-                    super::get_chunk(state, id, chunk.as_str().into())
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
-    }
-
-    pub fn get_subtitle(
-        state: StateManager,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "stream" / String / "data" / "stream.vtt")
-            .and(warp::get())
-            .and(with_state::<StateManager>(state))
-            .and_then(|id: String, state: StateManager| async move {
-                super::get_subtitle(state, id)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
-
-    pub fn get_subtitle_ass(
-        state: StateManager,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "stream" / String / "data" / "stream.ass")
-            .and(warp::get())
-            .and(with_state::<StateManager>(state))
-            .and_then(|id: String, state: StateManager| async move {
-                super::get_subtitle_ass(state, id)
-                    .await
-                    .map_err(|e| reject::custom(e))
-            })
-    }
-
-    pub fn should_client_hard_seek(
-        state: StateManager,
-        stream_tracking: StreamTracking,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "stream" / String / "state" / "should_hard_seek" / u32)
-            .and(warp::get())
-            .and(with_state(state))
-            .and(with_state(stream_tracking))
-            .and_then(
-                |id: String,
-                 chunk_num: u32,
-                 state: StateManager,
-                 stream_tracking: StreamTracking| async move {
-                    let gid = match Uuid::parse_str(id.as_str()) {
-                        Ok(x) => x,
-                        Err(_) => return Err(reject::custom(StreamingErrors::GidParseError)),
-                    };
-                    super::should_client_hard_seek(state, stream_tracking, gid, chunk_num)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
-    }
-
-    pub fn session_get_stderr(
-        state: StateManager,
-        stream_tracking: StreamTracking,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "stream" / String / "state" / "get_stderr")
-            .and(warp::get())
-            .and(with_state(state))
-            .and(with_state(stream_tracking))
-            .and_then(
-                |id: String, state: StateManager, stream_tracking: StreamTracking| async move {
-                    let gid = match Uuid::parse_str(id.as_str()) {
-                        Ok(x) => x,
-                        Err(_) => return Err(reject::custom(StreamingErrors::GidParseError)),
-                    };
-
-                    super::session_get_stderr(state, stream_tracking, gid)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
-    }
-
-    pub fn kill_session(
-        state: StateManager,
-        stream_tracking: StreamTracking,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("api" / "v1" / "stream" / String / "state" / "kill")
-            .and(warp::get())
-            .and(with_state(state))
-            .and(with_state(stream_tracking))
-            .and_then(
-                |id: String, state: StateManager, stream_tracking: StreamTracking| async move {
-                    let gid = match Uuid::parse_str(id.as_str()) {
-                        Ok(x) => x,
-                        Err(_) => return Err(reject::custom(StreamingErrors::GidParseError)),
-                    };
-
-                    super::kill_session(state, stream_tracking, gid)
-                        .await
-                        .map_err(|e| reject::custom(e))
-                },
-            )
-    }
+#[derive(Deserialize)]
+pub struct VirtualManifestParams {
+    gid: Option<String>,
+    #[serde(default)]
+    force_ass: bool,
 }
 
 /// Method mapped to `GET /api/v1/stream/<id>/manifest?<gid>` returns or creates a virtual
 /// manifest.
 pub async fn return_virtual_manifest(
-    state: StateManager,
-    stream_tracking: StreamTracking,
-    auth: User,
-    conn: DbConnection,
-    id: i64,
-    gid: Option<Uuid>,
-    force_ass: bool,
-) -> Result<impl warp::Reply, errors::StreamingErrors> {
+    State(AppState { conn, state, stream_tracking, .. }): State<AppState>,
+    Path(id): Path<i64>,
+    Query(params): Query<VirtualManifestParams>,
+    Extension(user): Extension<User>,
+) -> Result<impl IntoResponse, errors::StreamingErrors> {
+    let gid = params.gid.and_then(|x| Uuid::parse_str(x.as_str()).ok());
     if let Some(gid) = gid {
-        return Ok(reply::json(&json!({
+        return Ok(Json(&json!({
             "tracks": stream_tracking.get_for_gid(&gid).await,
             "gid": gid.as_hyphenated().to_string(),
-        })));
+        })).into_response());
     }
 
     let mut tx = conn.read().begin().await?;
-    let user_prefs = auth.prefs;
+    let user_prefs = user.prefs;
 
     let gid = uuid::Uuid::new_v4();
 
@@ -310,11 +80,11 @@ pub async fn return_virtual_manifest(
 
     // FIXME: When `fs::try_exists` gets stabilized we should use that as it will allow us to
     // detect if the user lacks permissions to access the file, etc.
-    if !Path::new(&target_file).exists() {
+    if !path::Path::new(&target_file).exists() {
         return Err(errors::StreamingErrors::FileDoesNotExist);
     }
 
-    let info = FFProbeCtx::new(crate::streaming::FFPROBE_BIN.as_ref())
+    let info = FFProbeCtx::new(dim_core::streaming::FFPROBE_BIN.as_ref())
         .get_meta(target_file)
         .await
         .map_err(|_| errors::StreamingErrors::FFProbeCtxFailed)?;
@@ -340,14 +110,14 @@ pub async fn return_virtual_manifest(
     )
     .await?;
     create_audio(&info, &media, &stream_tracking, &gid, &state).await?;
-    create_subtitles(&info, &media, &stream_tracking, &gid, &state, force_ass).await?;
+    create_subtitles(&info, &media, &stream_tracking, &gid, &state, params.force_ass).await?;
 
     stream_tracking.generate_sids(&gid).await;
 
-    Ok(reply::json(&json!({
+    Ok(Json(&json!({
         "tracks": stream_tracking.get_for_gid(&gid).await,
         "gid": gid.as_hyphenated().to_string(),
-    })))
+    })).into_response())
 }
 
 pub async fn try_create_dstream(
@@ -481,7 +251,7 @@ pub async fn create_video(
             ..Default::default()
         };
 
-        let global_prefs = super::settings::get_global_settings();
+        let global_prefs = dim_core::routes::settings::get_global_settings();
 
         let profile_chain = get_profile_for(StreamType::Video, &ctx);
         let profile_chain = if !global_prefs.enable_hwaccel {
@@ -574,11 +344,11 @@ pub async fn create_audio(
         let audio_lang = stream
             .get_language()
             .as_deref()
-            .and_then(crate::utils::lang_from_iso639)
+            .and_then(dim_core::utils::lang_from_iso639)
             .unwrap_or("Unknown");
 
-        let audio_codec = crate::utils::codec_pretty(stream.get_codec());
-        let audio_ch = crate::utils::channels_pretty(stream.channels.unwrap_or(2));
+        let audio_codec = dim_core::utils::codec_pretty(stream.get_codec());
+        let audio_ch = dim_core::utils::channels_pretty(stream.channels.unwrap_or(2));
 
         let label = format!("{} ({} {})", audio_lang, audio_codec, audio_ch);
 
@@ -638,7 +408,7 @@ pub async fn create_subtitles(
         let lang = stream
             .get_language()
             .as_deref()
-            .and_then(crate::utils::lang_from_iso639)
+            .and_then(dim_core::utils::lang_from_iso639)
             .unwrap_or("Unknown")
             .to_string();
 
@@ -671,6 +441,13 @@ pub async fn create_subtitles(
     Ok(())
 }
 
+#[derive(Deserialize)]
+pub struct ManifestParams {
+    start_num: Option<u64>,
+    should_kill: Option<bool>,
+    includes: Option<String>,
+}
+
 /// Method mapped to `/api/v1/stream/<gid>/manifest.mpd` compiles a virtual manifest into a
 /// mpeg-dash manifest.
 ///
@@ -680,16 +457,15 @@ pub async fn create_subtitles(
 /// manifest.
 /// * `includes` - ids of streams to include, comma separated.
 pub async fn return_manifest(
-    state: StateManager,
-    stream_tracking: StreamTracking,
-    _auth: User,
-    _conn: DbConnection,
-    gid: Uuid,
-    start_num: Option<u64>,
-    should_kill: Option<bool>,
-    includes: Option<String>,
-) -> Result<impl warp::Reply, errors::StreamingErrors> {
-    if should_kill.unwrap_or(true) {
+    State(AppState { state, stream_tracking, .. }): State<AppState>,
+    Path(gid): Path<String>,
+    Query(params): Query<ManifestParams>,
+) -> Result<impl IntoResponse, errors::StreamingErrors> {
+    let gid = match Uuid::parse_str(gid.as_str()) {
+        Ok(x) => x,
+        Err(_) => return Err(errors::StreamingErrors::GidParseError),
+    };
+    if params.should_kill.unwrap_or(true) {
         let ids = stream_tracking
             .get_for_gid(&gid)
             .await
@@ -700,28 +476,24 @@ pub async fn return_manifest(
         stream_tracking.kill(&state, &gid, ids, true).await;
     }
 
-    let manifest = if let Some(includes) = includes {
+    let manifest = if let Some(includes) = params.includes {
         let includes = includes
             .split(",")
             .map(ToString::to_string)
             .collect::<Vec<_>>();
 
         stream_tracking
-            .compile_only(&gid, start_num.unwrap_or(0), includes)
+            .compile_only(&gid, params.start_num.unwrap_or(0), includes)
             .await
             .unwrap()
     } else {
         stream_tracking
-            .compile(&gid, start_num.unwrap_or(0))
+            .compile(&gid, params.start_num.unwrap_or(0))
             .await
             .unwrap()
     };
 
-    Ok(warp::reply::with_header(
-        manifest,
-        "Content-Type",
-        "application/dash+xml",
-    ))
+    Ok(([(header::CONTENT_TYPE, "application/dash+xml")], manifest))
 }
 
 /// Repeatedly invoke a nightfall routine until a timeout occurs waiting for a chunk to be "ready".
@@ -756,17 +528,22 @@ where
     }
 }
 
+#[derive(Deserialize)]
+pub struct InitParams {
+    start_num: Option<u32>,
+}
+
 /// Method mapped to `/api/v1/stream/<id>/data/init.mp4` returns the init chunk of the stream `id`.
 ///
 /// # Query args
 /// * `start_num` - first chunk index
 pub async fn get_init(
-    state: StateManager,
-    id: String,
-    start_num: Option<u32>,
-) -> Result<impl warp::Reply, errors::StreamingErrors> {
+    State(AppState { state, .. }): State<AppState>,
+    Path(id): Path<String>,
+    Query(params): Query<InitParams>
+) -> Result<impl IntoResponse, errors::StreamingErrors> {
     let path: String = timeout_segment(
-        || state.chunk_init_request(id.clone(), start_num.unwrap_or(0)),
+        || state.chunk_init_request(id.clone(), params.start_num.unwrap_or(0)),
         Duration::from_millis(100),
         100,
     )
@@ -777,10 +554,10 @@ pub async fn get_init(
 
 /// Method mapped to `/api/v1/stream/<id>/data/<chunk..>` returns a chunk for stream `id`.
 pub async fn get_chunk(
-    state: StateManager,
-    id: String,
-    chunk: PathBuf,
-) -> Result<impl warp::Reply, errors::StreamingErrors> {
+    State(AppState { state, .. }): State<AppState>,
+    Path(id): Path<String>,
+    Path(chunk): Path<PathBuf>,
+) -> Result<impl IntoResponse, errors::StreamingErrors> {
     let extension = chunk
         .extension()
         .ok_or(errors::StreamingErrors::InvalidRequest)?
@@ -819,9 +596,9 @@ pub async fn get_chunk(
 /// # Arguments
 /// * `id` - id of the underlying stream (Must be a subtitle stream of non-bitmap format).
 pub async fn get_subtitle(
-    state: StateManager,
-    id: String,
-) -> Result<impl warp::Reply, errors::StreamingErrors> {
+    State(AppState { state, .. }): State<AppState>,
+    Path(id): Path<String>,
+) -> Result<impl IntoResponse, errors::StreamingErrors> {
     let path: String = timeout_segment(
         || state.get_sub(id.clone(), "stream".into()),
         Duration::from_millis(100),
@@ -838,9 +615,9 @@ pub async fn get_subtitle(
 /// # Arguments
 /// * `id` - id of the underlying stream (Must be a subtitle stream of non-bitmap format).
 pub async fn get_subtitle_ass(
-    state: StateManager,
-    id: String,
-) -> Result<impl warp::Reply, errors::StreamingErrors> {
+    State(AppState { state, .. }): State<AppState>,
+    Path(id): Path<String>,
+) -> Result<impl IntoResponse, errors::StreamingErrors> {
     let path: String = timeout_segment(
         || async {
             if state.has_started(id.clone()).await.unwrap_or(false) {
@@ -865,11 +642,14 @@ pub async fn get_subtitle_ass(
 /// client should hard seek in order to play the video at `chunk_num`. This is really only useful
 /// on web platforms.
 pub async fn should_client_hard_seek(
-    state: StateManager,
-    stream_tracking: StreamTracking,
-    gid: Uuid,
-    chunk_num: u32,
-) -> Result<impl warp::Reply, errors::StreamingErrors> {
+    State(AppState { state, stream_tracking, .. }): State<AppState>,
+    Path(gid): Path<String>,
+    Path(chunk_num): Path<u32>,
+) -> Result<impl IntoResponse, errors::StreamingErrors> {
+    let gid = match Uuid::parse_str(gid.as_str()) {
+        Ok(x) => x,
+        Err(_) => return Err(errors::StreamingErrors::GidParseError),
+    };
     let ids = stream_tracking.get_for_gid(&gid).await;
 
     let mut should_client_hard_seek = false;
@@ -878,33 +658,39 @@ pub async fn should_client_hard_seek(
         should_client_hard_seek |= state.should_hard_seek(manifest.id, chunk_num).await?;
     }
 
-    Ok(reply::json(&json!({
+    Ok(Json(&json!({
         "should_client_seek": should_client_hard_seek,
-    })))
+    })).into_response())
 }
 
 /// Method mapped to `/api/v1/stream/<gid>/state/get_stderr` attempts to fetch and return the
 /// stderr logs of all ffmpeg streams for `gid`.
 pub async fn session_get_stderr(
-    state: StateManager,
-    stream_tracking: StreamTracking,
-    gid: Uuid,
-) -> Result<impl warp::Reply, errors::StreamingErrors> {
-    Ok(reply::json(&json!({
+    State(AppState { state, stream_tracking, .. }): State<AppState>,
+    Path(gid): Path<String>,
+) -> Result<impl IntoResponse, errors::StreamingErrors> {
+    let gid = match Uuid::parse_str(gid.as_str()) {
+        Ok(x) => x,
+        Err(_) => return Err(errors::StreamingErrors::GidParseError),
+    };
+    Ok(Json(&json!({
     "errors": stream::iter(stream_tracking
         .get_for_gid(&gid)
         .await)
         .filter_map(|x| async { state.get_stderr(x.id).await.ok() })
         .collect::<Vec<_>>().await,
-    })))
+    })).into_response())
 }
 
 /// Method mapped to `/api/v1/stream/<gid>/state/kill` will kill all streams for `gid`.
 pub async fn kill_session(
-    state: StateManager,
-    stream_tracking: StreamTracking,
-    gid: Uuid,
-) -> Result<impl warp::Reply, errors::StreamingErrors> {
+    State(AppState { state, stream_tracking, .. }): State<AppState>,
+    Path(gid): Path<String>,
+) -> Result<impl IntoResponse, errors::StreamingErrors> {
+    let gid = match Uuid::parse_str(gid.as_str()) {
+        Ok(x) => x,
+        Err(_) => return Err(errors::StreamingErrors::GidParseError),
+    };
     for manifest in stream_tracking.get_for_gid(&gid).await {
         let _ = state.die(manifest.id).await;
     }
@@ -913,8 +699,7 @@ pub async fn kill_session(
 }
 
 use tokio::io::AsyncReadExt;
-use warp::http::response::Response;
-use warp::hyper::body::Body;
+use axum::body::Body;
 
 async fn reply_with_file(file: String, header: (&str, &str)) -> Response<Body> {
     if let Ok(mut file) = File::open(file).await {

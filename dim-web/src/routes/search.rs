@@ -1,3 +1,4 @@
+use crate::AppState;
 use axum::response::IntoResponse;
 use axum::response::Json;
 use axum::response::Response;
@@ -5,7 +6,6 @@ use axum::extract::Query;
 use axum::extract::State;
 
 use dim_database::DatabaseError;
-use dim_database::DbConnection;
 use dim_database::genre::*;
 
 use http::StatusCode;
@@ -54,7 +54,7 @@ pub struct SearchArgs {
 }
 
 pub async fn search(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Query(search_args): Query<SearchArgs>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;

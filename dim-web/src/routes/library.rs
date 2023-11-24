@@ -13,7 +13,7 @@ use dim_database::compact_mediafile::CompactMediafile;
 use dim_database::library::{InsertableLibrary, Library, MediaType};
 use dim_database::media::Media;
 use dim_database::mediafile::MediaFile;
-use dim_database::DbConnection;
+
 use dim_extern_api::tmdb::TMDBMetadataProvider;
 
 use fuzzy_matcher::skim::SkimMatcherV2;
@@ -181,7 +181,7 @@ pub async fn library_get_one(State(state): State<AppState>, Path(id): Path<i64>)
 /// Method mapped to `GET /api/v1/library/<id>/media` returns all the movies/tv shows that belong
 /// to the library with the id supplied. Method can only be accessed by authenticated users.
 ///
-pub async fn library_get_media(State(conn): State<DbConnection>, Path(id): Path<i64>) -> Response {
+pub async fn library_get_media(State(AppState { conn, .. }): State<AppState>, Path(id): Path<i64>) -> Response {
     let mut result = HashMap::new();
     let mut tx = match conn.read().begin().await {
         Ok(tx) => tx,
@@ -237,7 +237,7 @@ pub async fn library_get_media(State(conn): State<DbConnection>, Path(id): Path<
 /// to be displayed in the library pages.
 ///
 pub async fn library_get_unmatched(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Path(id): Path<i64>,
     Query(search): Query<Option<String>>,
 ) -> Response {

@@ -1,9 +1,9 @@
+use crate::AppState;
 use axum::response::IntoResponse;
 use axum::extract::Json;
 use axum::extract::Path;
 use axum::extract::State;
 
-use dim_database::DbConnection;
 use dim_database::DatabaseError;
 use dim_database::episode::{Episode, UpdateEpisode};
 use dim_database::season::{Season, UpdateSeason};
@@ -20,7 +20,7 @@ use super::auth::AuthError;
 /// # Arguments
 /// * `id` - id of the tv show we want info about
 pub async fn get_tv_seasons(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
@@ -32,7 +32,7 @@ pub async fn get_tv_seasons(
 /// # Arguments
 /// * `id` - id of the season we want info about
 pub async fn get_season_by_id(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
@@ -49,7 +49,7 @@ pub async fn get_season_by_id(
 /// This route additionally requires you to pass in a json object by the format of
 /// `dim_database::season::UpdateSeason`.
 pub async fn patch_season_by_id(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Path(id): Path<i64>,
     Json(season): Json<UpdateSeason>,
 ) -> Result<impl IntoResponse, AuthError> {
@@ -67,7 +67,7 @@ pub async fn patch_season_by_id(
 /// # Arguments
 /// * `id` - id of the episode.
 pub async fn get_season_episodes(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
@@ -97,7 +97,7 @@ pub async fn get_season_episodes(
 /// # Arguments
 /// * `id` - id of the season.
 pub async fn delete_season_by_id(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
@@ -118,7 +118,7 @@ pub async fn delete_season_by_id(
 /// This route additionally requires you to pass in a json object by the format of
 /// `dim_database::episode::UpdateEpisode`.
 pub async fn patch_episode_by_id(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Path(id): Path<i64>,
     Json(episode): Json<UpdateEpisode>,
 ) -> Result<impl IntoResponse, AuthError> {
@@ -136,7 +136,7 @@ pub async fn patch_episode_by_id(
 /// # Arguments
 /// * `id` - id an episode to delete
 pub async fn delete_episode_by_id(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;

@@ -110,12 +110,6 @@ pub type WsMessage = axum::extract::ws::Message;
 #[derive(Debug)]
 pub struct WsMessageError;
 
-impl From<warp::Error> for WsMessageError {
-    fn from(_: warp::Error) -> Self {
-        Self
-    }
-}
-
 impl From<axum::Error> for WsMessageError {
     fn from(_: axum::Error) -> Self {
         Self
@@ -189,46 +183,6 @@ pub async fn handle_websocket_session(
             }
         }
     }
-}
-
-pub fn from_warp_message(inner: warp::ws::Message) -> Result<WsMessage, ()> {
-    if inner.is_binary() {
-        Ok(WsMessage::Binary(inner.as_bytes().into()))
-    } else if inner.is_text() {
-        Ok(WsMessage::Text(
-            String::from_utf8_lossy(inner.as_bytes()).to_string(),
-        ))
-    } else if inner.is_ping() {
-        Ok(WsMessage::Ping(inner.as_bytes().into()))
-    } else if inner.is_pong() {
-        Ok(WsMessage::Pong(inner.as_bytes().into()))
-    } else if inner.is_close() {
-        let fr = inner
-            .close_frame()
-            .map(|(code, reason)| axum::extract::ws::CloseFrame {
-                code: axum::extract::ws::CloseCode::from(code),
-                reason: std::borrow::Cow::Owned(reason.to_owned()),
-            });
-        Ok(WsMessage::Close(fr))
-    } else {
-        Err(())
-    }
-}
-
-pub fn from_tungstenite_message(inner: WsMessage) -> Result<warp::ws::Message, WsMessageError> {
-    use axum::extract::ws::Message;
-    use warp::ws;
-
-    let m = match inner {
-        Message::Text(st) => ws::Message::text(st),
-        Message::Binary(bin) => ws::Message::binary(bin),
-        Message::Ping(v) => ws::Message::ping(v),
-        Message::Pong(v) => ws::Message::pong(v),
-        Message::Close(Some(frame)) => ws::Message::close_with(frame.code, frame.reason),
-        Message::Close(None) => ws::Message::close(),
-    };
-
-    Ok(m)
 }
 
 pub type EventSocketTx<A = SocketAddr, M = String> = mpsc::Sender<CtrlEvent<A, M>>;
