@@ -3,6 +3,10 @@ name = "dim-web"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+# the build script usually will enable this if `yarn` is installed.
+# If enabled explicitly, the build script will panic if something went wrong.
+embed_ui = []
 
 [dependencies]
 dim-database = { path = "../dim-database" }
@@ -19,9 +23,11 @@ axum = { version = "0.6.20", features = ["ws", "http2", "macros", "multipart"] }
 cfg-if = "1.0.0"
 chrono = { version = "0.4.19", features = ["serde"] }
 displaydoc = "0.2.3"
+dominant_color = "0.3.0"
 futures = "0.3.14"
 fuzzy-matcher = "0.3.7"
 http = "^0.2.3"
+image = "0.24.3"
 once_cell = "1.8.0"
 percent-encoding = "2.1.0"
 rust-embed = "^5.9.0"
@@ -43,7 +49,6 @@ tracing-subscriber = { version = "^0.3.10", features = [
     "json",
 ] }
 uuid = { version = "1.2.2", features = ["v4"] }
-warp = { version = "0.3.3", features = ["tls", "tokio-rustls"] }
 hyper = "0.14.25"
 tower = { version = "0.4.13", features = ["tokio", "util"] }
 dim-extern-api = { version = "0.4.0-dev", path = "../dim-extern-api" }

@@ -1,5 +1,11 @@
-use axum::response::{IntoResponse, Response, Json};
-use axum::{extract, Extension};
+use crate::AppState;
+use axum::response::IntoResponse;
+use axum::response::Response;
+use axum::extract::Json;
+use axum::extract::Path;
+use axum::extract::Query;
+use axum::extract::State;
+use axum::Extension;
 
 use chrono::Datelike;
 
@@ -11,7 +17,6 @@ use dim_core::scanner::MediaMatcher;
 use dim_core::scanner::WorkUnit;
 
 use dim_database::DatabaseError;
-use dim_database::DbConnection;
 use dim_database::compact_mediafile::CompactMediafile;
 use dim_database::episode::Episode;
 use dim_database::genre::Genre;
@@ -34,7 +39,8 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use once_cell::sync::Lazy;
-use serde::{Serialize, Deserialize};
+use serde::Serialize;
+use serde::Deserialize;
 
 use tracing::error;
 use tracing::info;
@@ -114,9 +120,9 @@ pub const TV_PROVIDER: Lazy<Arc<dyn ExternalQueryIntoShow>> =
 /// # Additional types
 /// [`MediaType`](`dim_database::library::MediaType`)
 pub async fn get_media_by_id(
-    extract::Path(id): extract::Path<i64>,
+    Path(id): Path<i64>,
     Extension(user): Extension<User>,
-    extract::State(conn): extract::State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
 ) -> Result<Response, Error> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let media = Media::get(&mut tx, id).await?;
@@ -277,7 +283,7 @@ pub async fn get_media_by_id(
     };
 
     // FIXME: Remove the duration tag once the UI transitioned to using duration_pretty
-    Ok(Json(&json!({
+    Ok(axum::response::Json(&json!({
         "id": media.id,
         "library_id": media.library_id,
         "name": media.name,
@@ -298,8 +304,8 @@ pub async fn get_media_by_id(
 }
 
 pub async fn get_media_files(
-    extract::Path(id): extract::Path<i64>,
-    extract::State(conn): extract::State<DbConnection>,
+    Path(id): Path<i64>,
+    State(AppState { conn, .. }): State<AppState>,
 ) -> Result<Response, Error> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let media_type = Media::media_mediatype(&mut tx, id).await?;
@@ -309,7 +315,7 @@ pub async fn get_media_files(
         MediaType::Episode | MediaType::Movie => MediaFile::get_of_media(&mut tx, id).await?,
     };
 
-    Ok(Json(json!(&mediafiles)).into_response())
+    Ok(axum::response::Json(json!(&mediafiles)).into_response())
 }
 
 /// # GET `/api/v1/media/<id>/tree`
@@ -318,8 +324,8 @@ pub async fn get_media_files(
 /// # Authentication
 /// Method requires standard authentication.
 pub async fn get_mediafile_tree(
-    extract::Path(id): extract::Path<i64>,
-    extract::State(conn): extract::State<DbConnection>,
+    Path(id): Path<i64>,
+    State(AppState { conn, .. }): State<AppState>,
 ) -> Result<Response, Error> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let media_type = Media::media_mediatype(&mut tx, id).await?;
@@ -371,7 +377,7 @@ pub async fn get_mediafile_tree(
         _ => unreachable!(),
     };
 
-    Ok(Json(json!(&TreeResponse {
+    Ok(axum::response::Json(json!(&TreeResponse {
         files: entries,
         count,
     })).into_response())
@@ -386,9 +392,9 @@ pub async fn get_mediafile_tree(
 /// * `data` - the info that we changed about the media entry
 /// * `_user` - Auth middleware
 pub async fn update_media_by_id(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Path(id): extract::Path<i64>,
-    extract::Json(data): extract::Json<UpdateMedia>,
+    State(AppState { conn, .. }): State<AppState>,
+    Path(id): Path<i64>,
+    Json(data): Json<UpdateMedia>,
 ) -> Result<impl IntoResponse, Error> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
@@ -411,8 +417,8 @@ pub async fn update_media_by_id(
 /// * `id` - id of the media we want to delete
 /// * `_user` - auth middleware
 pub async fn delete_media_by_id(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Path(id): extract::Path<i64>,
+    State(AppState { conn, .. }): State<AppState>,
+    Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, Error> {
     let mut lock = conn.writer().lock_owned().await;
     let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
@@ -436,7 +442,7 @@ pub struct TmdbSearchParams {
 /// * `year` - optional parameter specifying the release year of the media we want to look up
 /// * `media_type` - parameter that tells us what media type we are querying, ie movie or tv show
 pub async fn tmdb_search(
-    extract::Query(params): extract::Query<TmdbSearchParams>,
+    Query(params): Query<TmdbSearchParams>,
 ) -> Result<Response, Error> {
     let Ok(media_type) = params.media_type.to_lowercase().try_into() else {
         return Err(Error::InvalidMediaType);
@@ -473,7 +479,7 @@ pub async fn tmdb_search(
         })
         .collect::<Vec<_>>();
 
-    Ok(Json(json!(&resp)).into_response())
+    Ok(axum::response::Json(json!(&resp)).into_response())
 }
 
 #[derive(Deserialize)]
@@ -490,9 +496,9 @@ pub struct ProgressParams {
 /// # Query params
 /// * `offset` - offset in seconds
 pub async fn map_progress(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Path(id): extract::Path<i64>,
-    extract::Query(params): extract::Query<ProgressParams>,
+    State(AppState { conn, .. }): State<AppState>,
+    Path(id): Path<i64>,
+    Query(params): Query<ProgressParams>,
     Extension(user): Extension<User>,
 ) -> Result<impl IntoResponse, Error> {
     let mut lock = conn.writer().lock_owned().await;
@@ -516,9 +522,9 @@ pub struct RematchMediaParams {
 ///
 /// TODO: Add ability to specify overrides like episode and season ranges.
 pub async fn rematch_media_by_id(
-    extract::State(conn): extract::State<DbConnection>,
-    extract::Path(id): extract::Path<i64>,
-    extract::Json(params): extract::Json<RematchMediaParams>,
+    State(AppState { conn, .. }): State<AppState>,
+    Path(id): Path<i64>,
+    Json(params): Json<RematchMediaParams>,
 ) -> Result<impl IntoResponse, Error> {
     let Ok(media_type) = params.media_type.to_lowercase().try_into() else {
         return Err(Error::InvalidMediaType);

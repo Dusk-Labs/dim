@@ -19,6 +19,7 @@
 //! [`Unauthenticated`]: crate::errors::DimError::Unauthenticated
 //! [`login`]: fn@login
 
+use crate::AppState;
 use axum::response::IntoResponse;
 use axum::response::Response;
 use axum::extract::Json;
@@ -33,7 +34,6 @@ use dim_database::user::InsertableUser;
 use dim_database::user::Login;
 use dim_database::user::User;
 use dim_database::DatabaseError;
-use dim_database::DbConnection;
 
 use http::StatusCode;
 use serde_json::json;
@@ -108,7 +108,7 @@ impl IntoResponse for AuthError {
 /// [`Unauthorized`]: crate::errors::DimError::Unauthorized
 pub async fn get_all_invites(
     Extension(user): Extension<User>,
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
 ) -> Result<axum::response::Response, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     if user.has_role("owner") {
@@ -186,7 +186,7 @@ pub async fn get_all_invites(
 /// [`Unauthorized`]: crate::errors::DimError::Unauthorized
 pub async fn generate_invite(
     Extension(user): Extension<User>,
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
 ) -> Result<axum::response::Response, AuthError> {
     if !user.has_role("owner") {
         return Err(AuthError::InvalidCredentials);
@@ -226,7 +226,7 @@ pub async fn generate_invite(
 /// [`Unauthorized`]: crate::errors::DimError::Unauthorized
 pub async fn delete_token(
     Extension(user): Extension<User>,
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Path(token): Path<String>,
 ) -> Result<impl IntoResponse, AuthError> {
     if !user.has_role("owner") {
@@ -279,7 +279,7 @@ pub async fn delete_token(
 #[axum::debug_handler]
 pub async fn whoami(
     Extension(user): Extension<User>,
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
 ) -> Result<Response, AuthError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
 
@@ -344,7 +344,7 @@ impl IntoResponse for LoginError {
 /// [`Login`]: dim_database::user::Login
 #[axum::debug_handler]
 pub async fn login(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Json(new_login): Json<Login>,
 ) -> Result<Response, LoginError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
@@ -364,7 +364,7 @@ pub async fn login(
     Err(LoginError::InvalidCredentials)
 }
 
-pub async fn admin_exists(conn: State<DbConnection>) -> Result<Response, LoginError> {
+pub async fn admin_exists(State(AppState { conn, .. }): State<AppState>) -> Result<Response, LoginError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let exists = dbg!(User::get_all(&mut tx).await.map_err(LoginError::Database)?).is_empty();
     let value = json!({
@@ -428,7 +428,7 @@ impl IntoResponse for RegisterError {
 /// [`Login`]: dim_database::user::Login
 #[axum::debug_handler]
 pub async fn register(
-    State(conn): State<DbConnection>,
+    State(AppState { conn, .. }): State<AppState>,
     Json(new_user): Json<Login>,
 ) -> Result<Response, RegisterError> {
     // FIXME: Return INTERNAL SERVER ERROR maybe with a traceback?

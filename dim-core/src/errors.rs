@@ -1,9 +1,10 @@
+use axum::response::IntoResponse;
+use axum::response::Response;
 use dim_database::DatabaseError;
 use displaydoc::Display;
 use thiserror::Error;
 
 use serde::Serialize;
-use serde_json::json;
 
 use nightfall::error::NightfallError;
 
@@ -91,44 +92,39 @@ impl From<std::io::Error> for DimError {
     }
 }
 
-impl warp::reject::Reject for DimError {}
-
-impl warp::Reply for DimError {
-    fn into_response(self) -> warp::reply::Response {
-        let status = match self {
+impl IntoResponse for DimError {
+    fn into_response(self) -> Response {
+        match self {
             Self::LibraryNotFound
             | Self::NoneError
             | Self::NotFoundError
-            | Self::ExternalSearchError(_) => StatusCode::NOT_FOUND,
+            | Self::ExternalSearchError(_) => {
+                (StatusCode::NOT_FOUND, self.to_string()).into_response()
+            },
             Self::StreamingError(_)
             | Self::DatabaseError { .. }
             | Self::UnknownError
             | Self::IOError
             | Self::InternalServerError
             | Self::UploadFailed
-            | Self::ScannerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            | Self::ScannerError(_) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response()
+            },
             Self::Unauthenticated
             | Self::Unauthorized
             | Self::InvalidCredentials
             | Self::CookieError(_)
             | Self::NoToken
-            | Self::UserNotFound => StatusCode::UNAUTHORIZED,
-            Self::UsernameNotAvailable => StatusCode::BAD_REQUEST,
+            | Self::UserNotFound => {
+                (StatusCode::UNAUTHORIZED, self.to_string()).into_response()
+            },
+            Self::UsernameNotAvailable => {
+                (StatusCode::BAD_REQUEST, self.to_string()).into_response()
+            },
             Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {
-                StatusCode::NOT_ACCEPTABLE
+                (StatusCode::NOT_ACCEPTABLE, self.to_string()).into_response()
             }
-        };
-
-        let resp = json!({
-            "error": json!(&self)["error"],
-            "messsage": self.to_string(),
-        });
-
-        warp::http::Response::builder()
-            .status(status)
-            .header("ContentType", "application/json")
-            .body(serde_json::to_string(&resp).unwrap().into())
-            .unwrap()
+        }
     }
 }
 
@@ -173,31 +169,24 @@ impl From<NightfallError> for StreamingErrors {
     }
 }
 
-impl warp::reject::Reject for StreamingErrors {}
-
-impl warp::Reply for StreamingErrors {
-    fn into_response(self) -> warp::reply::Response {
-        let status = match self {
-            Self::OtherNightfall(NightfallError::ChunkNotDone) => StatusCode::PROCESSING,
-            Self::NoMediaFileFound(_) | Self::FileDoesNotExist => StatusCode::NOT_FOUND,
-            _ => StatusCode::INTERNAL_SERVER_ERROR,
-        };
-
-        let resp = json!({
-            "error": json!(&self)["error"],
-            "messsage": self.to_string(),
-        });
-
-        warp::http::Response::builder()
-            .status(status)
-            .header("ContentType", "application/json")
-            .body(serde_json::to_string(&resp).unwrap().into())
-            .unwrap()
-    }
-}
-
 impl From<std::io::Error> for StreamingErrors {
     fn from(_: std::io::Error) -> Self {
         Self::ProcFailed
+    }
+}
+
+impl IntoResponse for StreamingErrors {
+    fn into_response(self) -> Response {
+        match self {
+            Self::OtherNightfall(NightfallError::ChunkNotDone) => {
+                (StatusCode::PROCESSING, self.to_string()).into_response()
+            }
+            Self::NoMediaFileFound(_) | Self::FileDoesNotExist => {
+                (StatusCode::NOT_FOUND, self.to_string()).into_response()
+            }
+            _ => {
+                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response()
+            }
+        }
     }
 }
