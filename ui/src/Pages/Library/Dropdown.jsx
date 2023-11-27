@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 
 import Delete from "./Actions/Delete";
@@ -10,6 +11,8 @@ import "./Dropdown.scss";
 function Dropdown() {
   const dropdownRef = useRef(null);
   const params = useParams();
+
+  const user = useSelector((store) => store.user);
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
@@ -43,13 +46,15 @@ function Dropdown() {
         <div />
         <div />
       </div>
-      <div className={`dropDownContent visible-${dropdownVisible}`}>
-        <Delete id={params.id} />
-        <button className="rename">
-          Rename library
-          <EditIcon />
-        </button>
-      </div>
+      {user.info.roles?.includes("owner") && (
+        <div className={`dropDownContent visible-${dropdownVisible}`}>
+          <Delete id={params.id} />
+          <button className="rename">
+            Rename library
+            <EditIcon />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
