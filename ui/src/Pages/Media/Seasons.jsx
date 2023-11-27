@@ -15,7 +15,10 @@ function MediaSeasons(props) {
   const [season, setSeason] = useState();
   const [prevID, setPrevID] = useState();
 
-  const { data: seasons } = useGetMediaSeasonsQuery(id);
+  let { data: seasons } = useGetMediaSeasonsQuery(id);
+  seasons = seasons?.slice().sort((a, b) => {
+    return a.season_number - b.season_number;
+  });
 
   useEffect(() => {
     if (!seasons) return;
