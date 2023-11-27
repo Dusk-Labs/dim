@@ -29,7 +29,10 @@ impl Season {
     ) -> Result<Vec<Self>, DatabaseError> {
         Ok(sqlx::query_as!(
             Self,
-            r#"SELECT id as "id!", season_number, tvshowid, added, poster as "poster?" FROM season WHERE tvshowid = ?"#,
+            r#"SELECT id as "id!", season_number, tvshowid, added, poster as "poster?"
+            FROM season
+            WHERE tvshowid = ?
+            ORDER BY season_number ASC"#,
             tv_id
         )
         .fetch_all(&mut *conn)

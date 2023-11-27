@@ -15,10 +15,7 @@ function MediaSeasons(props) {
   const [season, setSeason] = useState();
   const [prevID, setPrevID] = useState();
 
-  let { data: seasons } = useGetMediaSeasonsQuery(id);
-  seasons = seasons?.slice().sort((a, b) => {
-    return a.season_number - b.season_number;
-  });
+  const { data: seasons } = useGetMediaSeasonsQuery(id);
 
   useEffect(() => {
     if (!seasons) return;
@@ -35,10 +32,10 @@ function MediaSeasons(props) {
         <section>
           <h2>Seasons</h2>
           <div className={`seasons ${season && "selected"}`}>
-            {seasons.map(({ id, season_number, poster }, i) => (
+            {seasons.map(({ id, season_number, poster }) => (
               <div
                 className={`season ${id === season && "active"}`}
-                key={i}
+                key={id}
                 onClick={() => setSeason(id)}
               >
                 <CardImage src={poster} />
