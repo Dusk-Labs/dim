@@ -252,7 +252,7 @@ pub struct UnmatchedArgs {
     search: Option<String>,
 }
 
-/// Method mapped to `GET` /api/v1/library/<id>/unmatched` returns a list of all unmatched medias
+/// Method mapped to `GET /api/v1/library/<id>/unmatched` returns a list of all unmatched medias
 /// to be displayed in the library pages.
 ///
 pub async fn library_get_unmatched(
