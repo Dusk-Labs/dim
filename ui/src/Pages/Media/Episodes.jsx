@@ -27,9 +27,9 @@ function MediaEpisodes(props) {
       {episodes.length === 0 && <p className="desc">Empty</p>}
       {episodes.length > 0 && (
         <div className="episodes" ref={episodesDiv}>
-          {episodes.map((ep, i) => (
+          {episodes.map((ep) => (
             <SelectMediaFile
-              key={i}
+              key={ep.id}
               title={`Episode ${ep.episode}`}
               mediaID={ep.id}
             >

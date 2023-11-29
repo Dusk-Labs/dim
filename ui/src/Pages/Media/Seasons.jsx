@@ -32,10 +32,10 @@ function MediaSeasons(props) {
         <section>
           <h2>Seasons</h2>
           <div className={`seasons ${season && "selected"}`}>
-            {seasons.map(({ id, season_number, poster }, i) => (
+            {seasons.map(({ id, season_number, poster }) => (
               <div
                 className={`season ${id === season && "active"}`}
-                key={i}
+                key={id}
                 onClick={() => setSeason(id)}
               >
                 <CardImage src={poster} />
