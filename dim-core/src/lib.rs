@@ -2,9 +2,9 @@
 //! It uses Diesel as the ORM and rocket for the http/s server
 //!
 //! The project is split up into several crates:
-//! * [`database`](database) - Holds all the database models including some frequently used db operations
+//! * [`database`](dim-database) - Holds all the database models including some frequently used db operations
 //! * [`routes`](routes) - All of the routes that we expose over http are stored in there
-//! * [`scanners`](scanners) - The filesystem scanner and daemon code is located here
+//! * [`scanners`](scanner) - The filesystem scanner and daemon code is located here
 //! ffmpeg that is used by several parts of dim
 //!
 //! # Building
