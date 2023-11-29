@@ -5,7 +5,8 @@ use axum::extract::Json;
 use axum::extract::State;
 use axum::Extension;
 
-use dim_core::routes::settings::{GlobalSettings, get_global_settings, set_global_settings};
+use dim_core::routes::settings;
+use dim_core::routes::settings::{GlobalSettings, set_global_settings};
 use dim_database::DatabaseError;
 use dim_database::user::UpdateableUser;
 use dim_database::user::User;
@@ -39,6 +40,16 @@ pub async fn post_user_settings(
     drop(lock);
 
     Ok(axum::response::Json(&new_settings).into_response())
+}
+
+fn get_global_settings() -> GlobalSettings {
+    let mut global_settings: GlobalSettings = settings::get_global_settings();
+    let git_tag = String::from(env!("GIT_TAG")).to_owned();
+    let mut git_sha = String::from(env!("GIT_SHA_256")).to_owned();
+    git_sha.truncate(8);
+    let version = git_tag + " " + git_sha.as_str();
+    global_settings.version = version;
+    global_settings
 }
 
 // TODO: Hide secret key.

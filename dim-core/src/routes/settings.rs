@@ -30,6 +30,7 @@ pub struct GlobalSettings {
     pub verbose: bool,
     pub secret_key: Option<[u8; 32]>,
     pub enable_hwaccel: bool,
+    pub version: String,
 }
 
 impl Default for GlobalSettings {
@@ -54,6 +55,7 @@ impl Default for GlobalSettings {
             verbose: false,
             secret_key: None,
             enable_hwaccel: true,
+            version: String::new(),
         }
     }
 }
