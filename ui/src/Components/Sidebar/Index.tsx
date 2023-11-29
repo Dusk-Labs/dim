@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import { useAppDispatch } from "hooks/store";
-import { fetchUserSettings } from "actions/settings.js";
+import { fetchGlobalSettings, fetchUserSettings } from "actions/settings.js";
 import { fetchLibraries } from "actions/library.js";
 
 import Profile from "./Profile/Index";
@@ -20,6 +20,7 @@ function Sidebar() {
   useEffect(() => {
     dispatch(fetchLibraries());
     dispatch(fetchUserSettings());
+    dispatch(fetchGlobalSettings());
   }, [dispatch]);
 
   return (

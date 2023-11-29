@@ -53,7 +53,7 @@ const deleteAccount = {
 
 const initialState = {
   token: null,
-  admin_exists: false,
+  admin_exists: null,
   login,
   register,
   createNewInvite,

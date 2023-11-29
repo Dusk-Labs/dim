@@ -157,7 +157,7 @@ impl Season {
 }
 
 /// Struct representing a insertable season
-/// Its exactly the same as [`Season`](Season) except it misses the tvshowid field and the id
+/// Its exactly the same as [`Season`] except it misses the tvshowid field and the id
 /// field.
 #[derive(Clone, Serialize, Deserialize, Default)]
 pub struct InsertableSeason {

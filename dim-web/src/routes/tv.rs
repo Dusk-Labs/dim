@@ -27,7 +27,7 @@ pub async fn get_tv_seasons(
     Ok(axum::response::Json(json!(&Season::get_all(&mut tx, id).await?)).into_response())
 }
 
-/// Method mapped to `GET /api/v1/season/<id>` returns info about the season by <id>
+/// Method mapped to `GET /api/v1/season/<id>` returns info about the season by `id`
 ///
 /// # Arguments
 /// * `id` - id of the season we want info about

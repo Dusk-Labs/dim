@@ -25,7 +25,7 @@ function DelAccountBtn() {
     (async () => {
       if (deleteAccount.deleted && !deleteAccount.error) {
         await dispatch(logout());
-        history.push("/login");
+        window.location.href = "/";
       }
     })();
   }, [deleteAccount, dispatch, history]);

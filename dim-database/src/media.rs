@@ -43,13 +43,13 @@ impl PartialEq for Media {
 
 impl Media {
     /// Method returns all Media objects associated with a Library. Its exactly the same as
-    /// [`Library::get`](Library::get) except it takes in a Library object instead of a id.
-    /// [`Library::get`](Library::get) is a intermediary to this function, as it calls this
+    /// [`Library::get`](dim-database::library::Library::get) except it takes in a Library object instead of a id.
+    /// [`Library::get`](dim-database::library::Library::get) is a intermediary to this function, as it calls this
     /// function.
     ///
     /// # Arguments
     /// * `conn` - mutable reference to a sqlx transaction.
-    /// * `library_id` - a [`Library`](Library) id.
+    /// * `library_id` - a [`Library`](dim-database::library::Library) id.
     pub async fn get_all(
         conn: &mut crate::Transaction<'_>,
         library_id: i64,

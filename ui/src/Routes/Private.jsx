@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Route, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateAuthToken } from "../actions/auth.js";
+import { checkAdminExists, updateAuthToken } from "../actions/auth.js";
 import { fetchUser } from "../actions/user.js";
 
 function PrivateRoute(props) {
@@ -21,7 +21,7 @@ function PrivateRoute(props) {
     ?.split("=")[1];
 
   const { logged_in, error } = auth.login;
-  const { token } = auth;
+  const { token, admin_exists } = auth;
 
   useEffect(() => {
     if (tokenInCookie && !token) {
@@ -40,9 +40,18 @@ function PrivateRoute(props) {
     }
 
     if (!token && !tokenInCookie) {
-      history.push("/login");
+      switch (admin_exists) {
+        case true:
+          history.push("/login");
+          return;
+        case false:
+          history.push("/register");
+          return;
+        default:
+          return;
+      }
     }
-  }, [error, history, logged_in, token, tokenInCookie, dispatch]);
+  }, [error, history, logged_in, token, tokenInCookie, admin_exists, dispatch]);
 
   // auto logout when logged out in another tab
   useEffect(() => {
@@ -88,6 +97,7 @@ function PrivateRoute(props) {
   }, [history.location.pathname]);
 
   useEffect(() => {
+    dispatch(checkAdminExists());
     dispatch(fetchUser());
   }, [dispatch]);
 

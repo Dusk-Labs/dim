@@ -7,7 +7,6 @@
     "dashjs": "=4.1.0",
     "fuse.js": "^6.6.2",
     "jassub": "^1.7.1",
-    "sass": "^1.67.0",
     "react": "^17.0.2",
     "react-collapse": "^5.1.1",
     "react-dom": "^17.0.1",
@@ -19,6 +18,7 @@
     "react-scripts": "^5.0.1",
     "redux": "^4.0.5",
     "reselect": "^4.0.0",
+    "sass": "^1.67.0",
     "typescript": "^4.4.4",
     "web-vitals": "^1.0.1"
   },
@@ -44,6 +44,7 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",

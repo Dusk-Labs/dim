@@ -22,6 +22,7 @@ use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
 use http::StatusCode;
 use serde::Serialize;
+use serde::Deserialize;
 
 use crate::error::DimErrorWrapper;
 use crate::AppState;
@@ -246,13 +247,18 @@ pub async fn library_get_media(State(AppState { conn, .. }): State<AppState>, Pa
     Json(result).into_response()
 }
 
-/// Method mapped to `GET` /api/v1/library/<id>/unmatched` returns a list of all unmatched medias
+#[derive(Deserialize)]
+pub struct UnmatchedArgs {
+    search: Option<String>,
+}
+
+/// Method mapped to `GET /api/v1/library/<id>/unmatched` returns a list of all unmatched medias
 /// to be displayed in the library pages.
 ///
 pub async fn library_get_unmatched(
     State(AppState { conn, .. }): State<AppState>,
     Path(id): Path<i64>,
-    Query(search): Query<Option<String>>,
+    Query(params): Query<UnmatchedArgs>,
 ) -> Response {
     let mut tx = match conn.read().begin().await {
         Ok(tx) => tx,
@@ -277,7 +283,7 @@ pub async fn library_get_unmatched(
     // we want to pre-sort to ensure our tree is somewhat ordered.
     files.sort_by(|a, b| a.target_file.cmp(&b.target_file));
 
-    if let Some(search) = search {
+    if let Some(search) = params.search {
         let matcher = SkimMatcherV2::default();
 
         let mut matched_files = files

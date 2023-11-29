@@ -2,7 +2,7 @@
 //!
 //! # Request Authentication and Authorization
 //! Most API endpoints require a valid JWT authentication token. If no such token is supplied, the
-//! API will return [`Unauthenticated`]. Authentication tokens can be obtained by logging in with
+//! API will return [`AuthError`]. Authentication tokens can be obtained by logging in with
 //! the [`login`] method. Authentication tokens must be passed to the server through a
 //! `Authroization` header.
 //!
@@ -16,7 +16,7 @@
 //! By default tokens expire after exactly two weeks, once the tokens expire the client must renew
 //! them. At the moment renewing the token is only possible by logging in again.
 //!
-//! [`Unauthenticated`]: crate::errors::DimError::Unauthenticated
+//! [`AuthError`]
 //! [`login`]: fn@login
 
 use crate::AppState;
@@ -103,9 +103,9 @@ impl IntoResponse for AuthError {
 /// ```
 ///
 /// # Errors
-/// * [`Unauthorized`] - Returned if the authentication token lacks `owner` permissions
+/// * [`AuthError`] - Returned if the authentication token lacks `owner` permissions
 ///
-/// [`Unauthorized`]: crate::errors::DimError::Unauthorized
+/// [`AuthError`]
 pub async fn get_all_invites(
     Extension(user): Extension<User>,
     State(AppState { conn, .. }): State<AppState>,
@@ -181,9 +181,9 @@ pub async fn get_all_invites(
 /// ```
 ///
 /// # Errors
-/// * [`Unauthorized`] - Returned if the authentication token lacks `owner` permissions
+/// * [`AuthError`] - Returned if the authentication token lacks `owner` permissions
 ///
-/// [`Unauthorized`]: crate::errors::DimError::Unauthorized
+/// [`AuthError`]
 pub async fn generate_invite(
     Extension(user): Extension<User>,
     State(AppState { conn, .. }): State<AppState>,
@@ -221,9 +221,9 @@ pub async fn generate_invite(
 /// If the token was successfully deleted, this route will return `200 0K`.
 ///
 /// # Errors
-/// * [`Unauthorized`] - Returned if the authentication token lacks `owner` permissions
+/// * [`AuthError`] - Returned if the authentication token lacks `owner` permissions
 ///
-/// [`Unauthorized`]: crate::errors::DimError::Unauthorized
+/// [`AuthError`]
 pub async fn delete_token(
     Extension(user): Extension<User>,
     State(AppState { conn, .. }): State<AppState>,
@@ -338,9 +338,9 @@ impl IntoResponse for LoginError {
 /// ```
 ///
 /// # Errors
-/// * [`InvalidCredentials`] - The provided username or password is incorrect.
+/// * [`LoginError`] - The provided username or password is incorrect.
 ///
-/// [`InvalidCredentials`]: crate::errors::DimError::InvalidCredentials
+/// [`LoginError`]
 /// [`Login`]: dim_database::user::Login
 #[axum::debug_handler]
 pub async fn login(
@@ -421,10 +421,10 @@ impl IntoResponse for RegisterError {
 /// ```
 ///
 /// # Errors
-/// * [`NoToken`] - Either the request doesnt contain an invite token, or the invite token is
+/// * [`RegisterError`] - Either the request doesnt contain an invite token, or the invite token is
 /// invalid.
 ///
-/// [`NoToken`]: crate::errors::DimError::NoToken
+/// [`RegisterError`]
 /// [`Login`]: dim_database::user::Login
 #[axum::debug_handler]
 pub async fn register(
