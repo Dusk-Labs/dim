@@ -444,15 +444,15 @@ impl TMDBMetadataProvider {
     }
 }
 
-// -- TMDBMetadataProviderRef<T>
+// -- MetadataProviderOf<T>
 
-/// Used to key [TMDBMetadataProviderRef] to search for TV shows, compliments [Movies].
+/// Used to key [`MetadataProviderOf`] to search for TV shows, compliments [Movies].
 pub struct TvShows;
 
-/// Used to key [TMDBMetadataProviderRef] to search for movies, compliments [TvShows].
+/// Used to key [`MetadataProviderOf`] to search for movies, compliments [TvShows].
 pub struct Movies;
 
-/// An instance of [TMDBMetadataProvider] with a generic parameter to infer the [MediaType] for searches.
+/// An instance of [`TMDBMetadataProvider`] with a generic parameter to infer the [`MediaType`](dim-database::library::MediaType) for searches.
 pub struct MetadataProviderOf<K>
 where
     K: sealed::AssocMediaTypeConst + Send + Sync + 'static,

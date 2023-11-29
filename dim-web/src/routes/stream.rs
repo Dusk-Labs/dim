@@ -555,8 +555,7 @@ pub async fn get_init(
 /// Method mapped to `/api/v1/stream/<id>/data/<chunk..>` returns a chunk for stream `id`.
 pub async fn get_chunk(
     State(AppState { state, .. }): State<AppState>,
-    Path(id): Path<String>,
-    Path(chunk): Path<PathBuf>,
+    Path((id, chunk)): Path<(String, PathBuf)>,
 ) -> Result<impl IntoResponse, errors::StreamingErrors> {
     let extension = chunk
         .extension()
@@ -643,8 +642,7 @@ pub async fn get_subtitle_ass(
 /// on web platforms.
 pub async fn should_client_hard_seek(
     State(AppState { state, stream_tracking, .. }): State<AppState>,
-    Path(gid): Path<String>,
-    Path(chunk_num): Path<u32>,
+    Path((gid, chunk_num)): Path<(String, u32)>,
 ) -> Result<impl IntoResponse, errors::StreamingErrors> {
     let gid = match Uuid::parse_str(gid.as_str()) {
         Ok(x) => x,
