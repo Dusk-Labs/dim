@@ -13,9 +13,9 @@ use std::iter::repeat;
 pub struct MediaFile {
     /// Unique identifier of a mediafile.
     pub id: i64,
-    /// Foreign key linking this entry to the media table or [`Media`](Media) struct
+    /// Foreign key linking this entry to the media table or [`Media`] struct
     pub media_id: Option<i64>,
-    /// Library foreign key linking this entry to the library table or [`Library`](Library) struct
+    /// Library foreign key linking this entry to the library table or [`Library`](dim-database::library::Library) struct
     pub library_id: i64,
     /// String representing the file path of the file we target. This should be a real path on the
     /// filesystem.
@@ -243,7 +243,7 @@ impl MediaFile {
     }
 }
 
-/// Same as [`MediaFile`](MediaFile) except its missing the id field.
+/// Same as [`MediaFile`] except its missing the id field.
 #[derive(Clone, Serialize, Debug, Default)]
 pub struct InsertableMediaFile {
     pub media_id: Option<i64>,
@@ -322,7 +322,7 @@ impl InsertableMediaFile {
     }
 }
 
-/// Same as [`MediaFile`](MediaFile) except its missing the id and library_id fields. Everything is
+/// Same as [`MediaFile`] except its missing the id and library_id fields. Everything is
 /// optional too.
 #[derive(Clone, Default, Deserialize, PartialEq, Debug)]
 pub struct UpdateMediaFile {

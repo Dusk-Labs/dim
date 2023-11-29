@@ -15,6 +15,7 @@ import Library from "./Library";
 function Libraries() {
   const dispatch = useDispatch();
 
+  const user = useSelector((store) => store.user);
   const libraries = useSelector((store) => store.library.fetch_libraries);
   const ws = useWebSocket();
 
@@ -63,9 +64,11 @@ function Libraries() {
     <section className="libraries">
       <header>
         <h4>Libraries</h4>
-        <NewLibraryModal>
-          <button className="openNewLibrary">+</button>
-        </NewLibraryModal>
+        {user.info.roles?.includes("owner") && (
+          <NewLibraryModal>
+            <button className="openNewLibrary">+</button>
+          </NewLibraryModal>
+        )}
       </header>
       <div className="list">{libs}</div>
     </section>

@@ -19,8 +19,9 @@ interface Props {
 }
 
 function Banner({ data, isError, isFetching }: Props) {
-  const { libraries } = useAppSelector((store) => ({
+  const { libraries, user } = useAppSelector((store) => ({
     libraries: store.library.fetch_libraries,
+    user: store.user,
   }));
 
   if (isFetching || isError) {
@@ -39,9 +40,11 @@ function Banner({ data, isError, isFetching }: Props) {
               Populate the folders they are pointing to with media or add
               another library with existing media
             </p>
-            <NewLibraryModal>
-              <button>Add another library</button>
-            </NewLibraryModal>
+            {user.info.roles?.includes("owner") && (
+              <NewLibraryModal>
+                <button>Add another library</button>
+              </NewLibraryModal>
+            )}
           </div>
         </div>
       );
@@ -56,9 +59,11 @@ function Banner({ data, isError, isFetching }: Props) {
               You will be able to see all the media from your libraries here,
               organized for quick and easy access.
             </p>
-            <NewLibraryModal>
-              <button>Add library</button>
-            </NewLibraryModal>
+            {user.info.roles?.includes("owner") && (
+              <NewLibraryModal>
+                <button>Add library</button>
+              </NewLibraryModal>
+            )}
           </div>
         </div>
       );
