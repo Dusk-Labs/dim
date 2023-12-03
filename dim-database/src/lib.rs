@@ -1,11 +1,10 @@
 // FIXME: We have a shim in dim/utils but we cant depend on dim because itd be a circular dep.
 #![deny(warnings)]
 
-use crate::utils::ffpath;
-
 use std::str::FromStr;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
+use std::sync::Mutex;
 
 use sqlx::ConnectOptions;
 use tracing::{info, instrument};
@@ -43,6 +42,7 @@ pub type Transaction<'tx> = sqlx::Transaction<'tx, sqlx::Sqlite>;
 
 lazy_static::lazy_static! {
     static ref MIGRATIONS_FLAG: AtomicBool = AtomicBool::new(false);
+    static ref DB_PATH: Mutex<String> = Default::default();
 }
 
 static __GLOBAL: OnceCell<DbConnection> = OnceCell::new();
@@ -55,6 +55,10 @@ const MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("./migrations/");
 async fn run_migrations(conn: &crate::DbConnection) -> Result<(), sqlx::migrate::MigrateError> {
     let mut lock = conn.writer().lock_owned().await;
     MIGRATOR.run(&mut *lock).await
+}
+
+pub fn set_db_path(db_path: String){
+    *DB_PATH.lock().unwrap() = db_path;
 }
 
 /// Function which returns a Result<T, E> where T is a new connection session or E is a connection
@@ -157,13 +161,13 @@ pub async fn get_conn_logged() -> sqlx::Result<DbConnection> {
 async fn internal_get_conn() -> sqlx::Result<DbConnection> {
     let rw_only = sqlx::sqlite::SqliteConnectOptions::new()
         .create_if_missing(true)
-        .filename(ffpath("config/dim.db"))
+        .filename(DB_PATH.lock().unwrap().as_str())
         .connect()
         .await?;
 
     let rd_only = sqlx::pool::PoolOptions::new()
         .connect_with(
-            sqlx::sqlite::SqliteConnectOptions::from_str(ffpath("config/dim.db"))?
+            sqlx::sqlite::SqliteConnectOptions::from_str(DB_PATH.lock().unwrap().as_str())?
                 .read_only(true)
                 .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
                 .create_if_missing(true),
