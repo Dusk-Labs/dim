@@ -22,6 +22,7 @@ pub struct GlobalSettings {
     pub ssl_cert: Option<String>,
 
     pub db_path: String,
+    pub logs_dir: String,
     pub cache_dir: String,
     pub metadata_dir: String,
     pub quiet_boot: bool,
@@ -51,6 +52,7 @@ impl Default for GlobalSettings {
                 }
             },
             db_path: ffpath("config/dim.db"),
+            logs_dir: "./logs".to_string(),
             metadata_dir: ffpath("config/metadata"),
             quiet_boot: false,
             disable_auth: false,

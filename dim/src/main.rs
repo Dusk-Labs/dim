@@ -53,7 +53,7 @@ fn main() {
         .set(global_settings.metadata_dir.clone())
         .expect("Failed to set METADATA_PATH");
 
-    dim::setup_logging(global_settings.verbose);
+    dim::setup_logging(&global_settings.logs_dir, global_settings.verbose);
 
     {
         let failed = streaming::ffcheck()

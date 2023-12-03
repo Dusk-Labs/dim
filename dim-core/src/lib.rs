@@ -58,14 +58,14 @@ pub use routes::settings::set_global_settings;
 pub use routes::settings::GlobalSettings;
 
 /// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.
-pub fn setup_logging(_debug: bool) {
-    let _ = create_dir_all("logs");
+pub fn setup_logging(logs_dir: &String,_debug: bool) {
+    let _ = create_dir_all(&logs_dir);
 
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "info,tower_http=trace");
     }
 
-    let log_appender = tracing_appender::rolling::daily("./logs", "dim-log.log");
+    let log_appender = tracing_appender::rolling::daily(&logs_dir, "dim-log.log");
     let (non_blocking_file, _guard) = tracing_appender::non_blocking(log_appender);
 
     let subscriber = tracing_subscriber::registry()
