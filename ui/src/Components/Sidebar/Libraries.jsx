@@ -55,7 +55,7 @@ function Libraries() {
 
   // FETCH_LIBRARIES_OK
   if (fetched && !error && items.length > 0) {
-    libs = items.map((props, i) => <Library {...props} key={i} />);
+    libs = items.map((props) => <Library {...props} key={props.id} />);
   }
 
   if (libraries.items.length === 0) return null;
