@@ -196,12 +196,12 @@ export default function libraryReducer(state = initialState, action) {
     case SCAN_START:
       return {
         ...state,
-        scanning: [...scanning, action.id],
+        scanning: [...state.scanning, action.id],
       };
     case SCAN_STOP:
       return {
         ...state,
-        scanning: scanning.filter((id) => id !== action.id),
+        scanning: state.scanning.filter((id) => id !== action.id),
       };
     default:
       return state;
