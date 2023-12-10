@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-
 use std::future::IntoFuture;
 use std::hash::Hash;
 use std::net::SocketAddr;
@@ -48,7 +47,7 @@ where
     }
 }
 
-async fn ctrl_event_processor<A, T>(mut rx: mpsc::UnboundedReceiver<CtrlEvent<A, T>>)
+async fn ctrl_event_processor<A, T>(mut rx: mpsc::Receiver<CtrlEvent<A, T>>)
 where
     A: Hash + Eq + Clone,
     T: ToOwned<Owned = String> + Send,
@@ -56,12 +55,14 @@ where
     let mut peers = HashMap::new();
     let mut discard = vec![];
 
-    while let Some(ev) = rx.recv().await {
+    loop {
         for addr in &discard {
             let _ = peers.remove(addr);
         }
 
         discard.clear();
+
+        let Some(ev) = rx.recv().await else { break };
 
         match ev {
             CtrlEvent::Track { addr, sink, auth } => {
@@ -141,7 +142,7 @@ pub async fn handle_websocket_session(
                                 addr,
                                 sink: Box::pin(sink),
                                 auth: Box::new(u),
-                            });
+                            }).await;
 
                             let _ = socket_tx.send(CtrlEvent::SendTo {
                                 addr,
@@ -150,7 +151,7 @@ pub async fn handle_websocket_session(
                                     event_type: dim_events::PushEventType::EventAuthOk,
                                 }
                                 .to_string(),
-                            });
+                            }).await;
 
                             break 'auth_loop;
                         }
@@ -165,7 +166,7 @@ pub async fn handle_websocket_session(
                     event_type: dim_events::PushEventType::EventAuthErr,
                 }
                 .to_string(),
-            });
+            }).await;
         }
     }
 
@@ -177,14 +178,14 @@ pub async fn handle_websocket_session(
             }
 
             None = stream.next() => {
-                let _ = socket_tx.send(CtrlEvent::Forget { addr });
+                let _ = socket_tx.send(CtrlEvent::Forget { addr }).await;
                 break;
             }
         }
     }
 }
 
-pub type EventSocketTx<A = SocketAddr, M = String> = mpsc::UnboundedSender<CtrlEvent<A, M>>;
+pub type EventSocketTx<A = SocketAddr, M = String> = mpsc::Sender<CtrlEvent<A, M>>;
 
 #[derive(Debug)]
 #[must_use]
@@ -238,6 +239,7 @@ where
 
 pub fn event_repeater<S, T, A, M>(
     source: S,
+    capacity: usize,
 ) -> EventRepeater<
     impl Future<Output = ()> + Send + 'static,
     impl Future<Output = ()> + Send + 'static,
@@ -249,7 +251,7 @@ where
     A: Hash + Eq + Clone + Send + Sync + 'static,
     M: ToOwned<Owned = String> + Send + Sync + 'static,
 {
-    let (tx, rx) = mpsc::unbounded_channel::<CtrlEvent<A, M>>();
+    let (tx, rx) = mpsc::channel::<CtrlEvent<A, M>>(capacity);
 
     let ctrl_event_processor_fut = ctrl_event_processor::<A, M>(rx);
 
@@ -257,7 +259,9 @@ where
     let stream_forward = async move {
         tokio::pin!(source);
         while let Some(t) = source.next().await {
-            let _ = stream_forward_tx.send(t.into_ctrl_event());
+            if stream_forward_tx.send(t.into_ctrl_event()).await.is_err() {
+                break;
+            };
         }
     };
 
