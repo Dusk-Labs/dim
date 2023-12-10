@@ -330,7 +330,6 @@ pub async fn start_webserver(
 
     let event_repeater = routes::websocket::event_repeater(
         tokio_stream::wrappers::UnboundedReceiverStream::new(event_rx),
-        1024,
     );
 
     let socket_tx = event_repeater.sender();
