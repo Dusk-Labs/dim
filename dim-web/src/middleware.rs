@@ -1,15 +1,36 @@
 use crate::AppState;
+use axum::body::Body;
+use axum::http::Request;
 use axum::extract::State;
+use axum_extra::extract::cookie::Cookie;
 use dim_core::errors::DimError;
 
 use crate::DimErrorWrapper;
 
-pub async fn verify_cookie_token<B>(
+pub fn get_cookie_token_value(
+    request: &Request<Body>,
+) -> Option<String> {
+    request
+        .headers()
+        .get_all("Cookie")
+        .iter()
+        .filter_map(|cookie| {
+            cookie
+                .to_str()
+                .ok()
+                .and_then(|cookie| cookie.parse::<Cookie>().ok())
+        })
+        .find_map(|cookie| {
+            (cookie.name() == "token").then(move || cookie.value().to_owned())
+        })
+}
+
+pub async fn verify_cookie_token(
     State(AppState { conn, .. }): State<AppState>,
-    mut req: axum::http::Request<B>,
-    next: axum::middleware::Next<B>,
+    mut req: axum::http::Request<Body>,
+    next: axum::middleware::Next<Body>,
 ) -> Result<axum::response::Response, DimErrorWrapper> {
-    match req.headers().get(axum::http::header::AUTHORIZATION) {
+    match get_cookie_token_value(&req) {
         Some(token) => {
             let mut tx = match conn.read().begin().await {
                 Ok(tx) => tx,
@@ -19,7 +40,7 @@ pub async fn verify_cookie_token<B>(
                     }))
                 }
             };
-            let id = dim_database::user::Login::verify_cookie(token.to_str().unwrap().to_string())
+            let id = dim_database::user::Login::verify_cookie(token)
                 .map_err(|e| DimError::CookieError(e))
                 .map_err(|e| DimErrorWrapper(e))?;
 

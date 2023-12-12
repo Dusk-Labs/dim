@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Dim{% endblock %}
+
+{% block content %}
+<form class="auth-form" method="POST">
+  <header>
+    <h2>Welcome back</h2>
+    <h3>Authenticate and continue to your media</h3>
+  </header>
+  <div class="fields">
+    <label for="username">Username</label>
+    <input required autofocus type="text" name="username" minlength="3" maxlength="30">
+
+    <label for="password">Password</label>
+    <input required type="password" name="password" minlength="8">
+  </div>
+  <footer>
+    <button>Login</button>
+    <a href="/register">Create a new account</a>
+  </footer>
+</form>
+{% endblock %}

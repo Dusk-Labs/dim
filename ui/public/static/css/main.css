@@ -1,11 +1,8 @@
 :root {
   --borderRadius: 10px;
-  --hoverCardWidth: 500px;
-  --accentColor: #f7931e;
-  --accentLighterColor: #dd9745;
+  --accentColor: oklch(76.5% 0.19 69.5);
   --accentTextColor: #1a1a1a;
-  --criticalColor: #e91619;
-  --criticalLighterColor: #b72426;
+  --criticalColor: oklch(59.26% 0.27 28.11);
   --criticalTextColor: #fff;
   --primaryTextColor: #000;
   --secondaryTextColor: #222;
@@ -55,8 +52,8 @@
 }
 
 html,
-body,
-#root {
+body {
+  height: 100%;
   min-height: 100dvh;
 }
 
@@ -68,39 +65,39 @@ body {
   scrollbar-width: thin;
   scroll-behavior: smooth;
   font-family: "Roboto Regular", Helvetica, Arial;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: background 100ms ease-in-out;
 }
 
 @font-face {
   font-family: "Roboto Regular";
-  src: url("../fonts/roboto_regular.ttf");
-  font-display: swap;
+  src: url("fonts/Roboto-Regular.woff");
+  font-display: fallback;
 }
 
 @font-face {
   font-family: "Roboto Bold";
-  src: url("../fonts/roboto_bold.ttf");
-  font-display: swap;
+  src: url("fonts/Roboto-Bold.woff");
+  font-display: fallback;
 }
 
 @font-face {
   font-family: "Roboto Condensed Regular";
-  src: url("../fonts/roboto_condensed_regular.ttf");
-  font-display: swap;
+  src: url("fonts/RobotoCondensed-Regular.woff");
+  font-display: fallback;
 }
 
 ::-webkit-scrollbar {
-  height: 5px;
-  width: 5px;
-
   &-track {
     background: #333333;
-    border-radius: 10px;
+    border-radius: var(--borderRadius);
   }
 
   &-thumb {
     background: var(--accentColor);
-    border-radius: 10px;
+    border-radius: var(--borderRadius);
   }
 
   &-corner {
@@ -108,47 +105,156 @@ body {
   }
 }
 
-input[type="range"] {
-  -webkit-appearance: none;
-  background: transparent;
+button {
+  outline: none;
+  border: none;
+  cursor: pointer;
+}
 
-  &:focus {
-    outline: none;
+input {
+  font-family: "Roboto Regular", Arial;
+  transition: background 0.3s ease-in-out;
+  background: var(--tertiaryColor);
+  outline: none;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  color: var(--primaryTextColor);
+  width: 100%;
+  min-height: 40px;
+
+  &:focus,
+  &:hover {
+    background: var(--quaternaryColor);
+  }
+}
+
+a {
+  text-decoration: none;
+  color: var(--primaryTextColor);
+  outline: none;
+}
+
+img {
+  background: var(--secondaryColor);
+
+  &:-moz-loading {
+    visibility: hidden;
+  }
+}
+
+.auth-form {
+  display: grid;
+  gap: 2em;
+  grid-template-areas: "gap-top" "title" "fields" "actions" "gap-bottom";
+  grid-template-rows: minmax(0, 0.5fr) auto auto auto minmax(0, 1fr);
+  align-items: center;
+  width: 100%;
+  max-width: 550px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 0 2em;
+  color: var(--primaryTextColor);
+
+  & header {
+    grid-area: title;
+    margin-bottom: 1em;
+
+    &:before {
+      content: "";
+      display: block;
+      width: 4em;
+      height: 4em;
+      background-color: var(--primaryTextColor);
+      margin-bottom: 2em;
+      -webkit-mask:  url("icons/logo.svg") no-repeat 50% 50% / contain;
+      mask: url("icons/logo.svg") no-repeat 50% 50% / contain;
+    }
+
+    & h2 {
+      font-size: 2em;
+      font-family: "Roboto Bold", Arial;
+    }
+
+    & h3 {
+      font-size: 1.2em;
+      margin-top: 1em;
+      color: var(--tertiaryTextColor);
+    }
   }
 
-  &::-webkit-slider-thumb {
-    height: 16px;
-    width: 16px;
-    -webkit-appearance: none;
-    margin-top: -4px;
-    border-radius: 10px;
-    background: #eee;
-    border: none;
-    cursor: pointer;
+  & .fields {
+    grid-area: fields;
+
+    & label {
+      display: flex;
+      align-items: center;
+      font-family: "Roboto Condensed Regular", Arial;
+      color: var(--secondaryTextColor);
+
+      &[for="username"]:before, &[for="password"]:before {
+        content: "";
+        display: block;
+        margin-right: 0.5em;
+        width: 1.2em;
+        height: 0.8em;
+        background-color: var(--primaryTextColor);
+        -webkit-mask: none no-repeat 50% 50% / contain;
+        mask: none no-repeat 50% 50% / contain;
+      }
+
+      &[for="username"]:before {
+        -webkit-mask-image: url("icons/user.svg");
+        mask-image: url("icons/user.svg");
+      }
+
+      &[for="password"]:before {
+        -webkit-mask-image: url("icons/key.svg");
+        mask-image: url("icons/key.svg");
+      }
+    }
+
+    & input {
+      margin-top: 10px;
+    }
+
+    & input[name="username"] {
+      margin-bottom: 2em;
+    }
   }
 
-  &::-moz-range-thumb {
-    border: none;
-    height: 16px;
-    width: 16px;
-    border-radius: 10px;
-    background: #eee;
-    cursor: pointer;
-  }
+  & footer {
+    grid-area: actions;
+    margin-top: 1em;
 
-  &::-webkit-slider-runnable-track {
-    border-radius: 10px;
-    width: 100%;
-    height: 8.4px;
-    cursor: pointer;
-    background: var(--accentColor);
-  }
+    & a {
+      color: var(--tertiaryTextColor);
 
-  &::-moz-range-track {
-    width: 100%;
-    height: 8.4px;
-    cursor: pointer;
-    background: var(--accentColor);
-    border-radius: 10px;
+      &:hover {
+        color: var(--primaryTextColor);
+        text-decoration: underline;
+      }
+
+      &:last-child {
+        margin-top: 0.5em;
+      }
+    }
+
+    & button {
+      margin-bottom: 1em;
+      padding: 10px 20px;
+      width: 100%;
+      font-family: "Roboto Bold", Arial;
+      font-size: 1.1em;
+      background: var(--accentColor);
+      color: var(--primaryTextColor);
+      border-radius: 5px;
+      transition: 0.2s ease-in-out;
+      transition-property: background, opacity;
+
+      &:hover {
+        background: color-mix(in oklch, var(--accentColor), black 10%);
+      }
+    }
   }
 }

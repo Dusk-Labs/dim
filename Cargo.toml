@@ -18,3 +18,4 @@ license = "AGPL-3.0-only"
 
 [profile.dev]
 codegen-units = 16
+incremental = true

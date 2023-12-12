@@ -298,20 +298,40 @@ fn user_routes() -> Router<AppState> {
 fn static_routes() -> Router<AppState> {
     Router::new()
         .route(
-            "/",
-            get(routes::statik::react_routes),
-        )
-        .route(
-            "/*path",
-            get(routes::statik::react_routes),
-        )
-        .route(
             "/static/*path",
             get(routes::statik::dist_static),
         )
         .route(
             "/images/*path",
             get(routes::statik::get_image),
+        )
+}
+
+fn public_html_routes() -> Router<AppState> {
+    Router::new()
+        .route(
+            "/login",
+            get(routes::html::login),
+        )
+        .route(
+            "/login",
+            post(routes::html::handle_login),
+        )
+        // .route(
+        //     "/logout",
+        //     get(routes::html::handle_logout),
+        // )
+        .route(
+            "/register",
+            get(routes::html::register),
+        )
+}
+
+fn html_routes() -> Router<AppState> {
+    Router::new()
+        .route(
+            "/",
+            get(routes::html::index),
         )
 }
 
@@ -383,6 +403,7 @@ pub async fn start_webserver(
         )
         .merge(settings_routes())
         .merge(stream_routes())
+        .merge(html_routes())
         .route_layer(axum::middleware::from_fn_with_state(
             app.clone(),
             verify_cookie_token,
@@ -390,6 +411,7 @@ pub async fn start_webserver(
         // --- End of routes authenticated by Axum middleware ---
         .merge(public_auth_routes())
         .merge(static_routes())
+        .merge(public_html_routes())
         .route("/ws", get(ws_handler))
         .with_state(app)
         .layer(tower_http::trace::TraceLayer::new_for_http())
