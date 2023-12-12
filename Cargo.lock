@@ -1027,7 +1027,7 @@ dependencies = [
  "rand",
  "reqwest",
  "rusqlite",
- "rust-embed",
+ "rust-embed 5.9.0",
  "serde",
  "serde_derive",
  "serde_json",
@@ -1126,13 +1126,14 @@ dependencies = [
  "dominant_color",
  "futures",
  "fuzzy-matcher",
+ "hex",
  "http 0.2.9",
  "hyper",
  "image",
  "nightfall",
  "once_cell",
  "percent-encoding",
- "rust-embed",
+ "rust-embed 8.1.0",
  "serde",
  "serde_derive",
  "serde_json",
@@ -2798,8 +2799,19 @@ version = "5.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2fe1fe6aac5d6bb9e1ffd81002340363272a7648234ec7bdfac5ee202cb65523"
 dependencies = [
- "rust-embed-impl",
- "rust-embed-utils",
+ "rust-embed-impl 5.9.0",
+ "rust-embed-utils 5.1.0",
+ "walkdir",
+]
+
+[[package]]
+name = "rust-embed"
+version = "8.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "810294a8a4a0853d4118e3b94bb079905f2107c7fe979d8f0faae98765eb6378"
+dependencies = [
+ "rust-embed-impl 8.1.0",
+ "rust-embed-utils 8.1.0",
  "walkdir",
 ]
 
@@ -2811,8 +2823,21 @@ checksum = "3ed91c41c42ef7bf687384439c312e75e0da9c149b0390889b94de3c7d9d9e66"
 dependencies = [
  "proc-macro2",
  "quote",
- "rust-embed-utils",
+ "rust-embed-utils 5.1.0",
  "syn 1.0.109",
+ "walkdir",
+]
+
+[[package]]
+name = "rust-embed-impl"
+version = "8.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bfc144a1273124a67b8c1d7cd19f5695d1878b31569c0512f6086f0f4676604e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "rust-embed-utils 8.1.0",
+ "syn 2.0.39",
  "walkdir",
 ]
 
@@ -2822,6 +2847,16 @@ version = "5.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a512219132473ab0a77b52077059f1c47ce4af7fbdc94503e9862a34422876d"
 dependencies = [
+ "walkdir",
+]
+
+[[package]]
+name = "rust-embed-utils"
+version = "8.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "816ccd4875431253d6bb54b804bcff4369cbde9bae33defde25fdf6c2ef91d40"
+dependencies = [
+ "sha2",
  "walkdir",
 ]
 

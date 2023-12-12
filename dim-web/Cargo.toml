@@ -27,11 +27,12 @@ displaydoc = "0.2.3"
 dominant_color = "0.3.0"
 futures = "0.3.14"
 fuzzy-matcher = "0.3.7"
+hex = "0.4.3"
 http = "^0.2.3"
 image = "0.24.3"
 once_cell = "1.8.0"
 percent-encoding = "2.1.0"
-rust-embed = "^5.9.0"
+rust-embed = "8.1.0"
 serde = { version = "^1.0.125", default-features = false, features = [
     "derive",
     "std",

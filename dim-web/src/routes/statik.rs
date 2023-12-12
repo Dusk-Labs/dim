@@ -1,10 +1,12 @@
 use crate::AppState;
 use axum::body;
+use axum::body::Empty;
 use axum::body::Full;
 use axum::extract::State;
 use axum::extract::Path;
 use axum::extract::Query;
 use axum::http::Uri;
+use axum::http::Request;
 use axum::response::Html;
 use axum::response::IntoResponse;
 use axum::response::Response;
@@ -13,6 +15,7 @@ use dim_core::errors;
 use dim_core::fetcher::insert_into_queue;
 use dim_database::asset;
 
+use http::header;
 use http::StatusCode;
 use rust_embed::RustEmbed;
 
@@ -48,7 +51,7 @@ cfg_if::cfg_if! {
 
 pub async fn react_routes() -> Result<impl IntoResponse, errors::DimError> {
     if let Some(x) = Asset::get("/index.html") {
-        Ok(Html(x.into_owned()).into_response())
+        Ok(Html(x.data.into_owned()).into_response())
     } else {
         Err(errors::DimError::NotFoundError)
     }
@@ -130,11 +133,24 @@ pub async fn get_image(
     Err(errors::DimError::NotFoundError)
 }
 
-pub async fn dist_static(
+pub async fn dist_static<T>(
     uri: Uri,
+    req: Request<T>,
 ) -> Result<impl IntoResponse, errors::DimError> {
     let path = PathBuf::from(uri.path());
-    if let Some(y) = Asset::get(path.to_str().unwrap()) {
+    if let Some(content) = Asset::get(path.to_str().unwrap()) {
+        let hash = hex::encode(content.metadata.sha256_hash());
+        if req
+          .headers()
+          .get(header::IF_NONE_MATCH)
+          .map(|etag| etag.to_str().unwrap_or("000000").eq(&hash))
+          .unwrap_or(false)
+        {
+            return Ok(Response::builder()
+                .status(StatusCode::NOT_MODIFIED)
+                .body(body::boxed(Empty::new()))
+                .unwrap());
+        }
         let mime = match path.extension().and_then(|x| x.to_str()) {
             Some("js") => "application/javascript",
             Some("map") => "application/json",
@@ -153,7 +169,8 @@ pub async fn dist_static(
         Ok(Response::builder()
             .status(StatusCode::OK)
             .header("Content-Type", mime)
-            .body(body::boxed(Full::from(y.into_owned())))
+            .header(header::ETAG, hash)
+            .body(body::boxed(Full::from(content.data.into_owned())))
             .unwrap())
     } else {
         Err(errors::DimError::NotFoundError)
