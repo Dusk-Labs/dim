@@ -192,7 +192,7 @@ img {
       font-family: "Roboto Condensed Regular", Arial;
       color: var(--secondaryTextColor);
 
-      &[for="username"]:before, &[for="password"]:before {
+      &[for]:before {
         content: "";
         display: block;
         margin-right: 0.5em;
@@ -208,7 +208,7 @@ img {
         mask-image: url("icons/user.svg");
       }
 
-      &[for="password"]:before {
+      &[for="password"]:before, &[for="invite_token"]:before {
         -webkit-mask-image: url("icons/key.svg");
         mask-image: url("icons/key.svg");
       }
@@ -216,10 +216,11 @@ img {
 
     & input {
       margin-top: 10px;
+      margin-bottom: 2em;
     }
 
-    & input[name="username"] {
-      margin-bottom: 2em;
+    & input:last-child {
+      margin-bottom: unset;
     }
   }
 
@@ -252,7 +253,7 @@ img {
       transition: 0.2s ease-in-out;
       transition-property: background, opacity;
 
-      &:hover {
+      &:hover, &:focus {
         background: color-mix(in oklch, var(--accentColor), black 10%);
       }
     }

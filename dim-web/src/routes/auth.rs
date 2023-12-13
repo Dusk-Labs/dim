@@ -33,6 +33,7 @@ use dim_database::user::verify;
 use dim_database::user::InsertableUser;
 use dim_database::user::Login;
 use dim_database::user::User;
+use dim_database::DbConnection;
 use dim_database::DatabaseError;
 
 use http::StatusCode;
@@ -364,11 +365,16 @@ pub async fn login(
     Err(LoginError::InvalidCredentials)
 }
 
-pub async fn admin_exists(State(AppState { conn, .. }): State<AppState>) -> Result<Response, LoginError> {
+pub async fn is_admin_exists(conn: DbConnection) -> Result<bool, LoginError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
-    let exists = dbg!(User::get_all(&mut tx).await.map_err(LoginError::Database)?).is_empty();
+    let exists = User::get_all(&mut tx).await.map_err(LoginError::Database)?.is_empty();
+    Ok(!exists)
+}
+
+pub async fn admin_exists(State(AppState { conn, .. }): State<AppState>) -> Result<Response, LoginError> {
+    let exists = is_admin_exists(conn).await.unwrap_or(false);
     let value = json!({
-        "exists": !exists
+        "exists": exists
     });
     Ok(axum::response::Json(value).into_response())
 }

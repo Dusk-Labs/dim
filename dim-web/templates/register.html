@@ -1,7 +1,34 @@
 {% extends "base.html" %}
 
-{% block title %}Dim - Register{% endblock %}
+{% block title %}Register - Dim{% endblock %}
 
 {% block content %}
-Register page
+<form class="auth-form" method="POST">
+  <header>
+    <h2>Welcome to Dim</h2>
+    {% if admin_exists %}
+    <h3>A media manager fueled by dark forces</h3>
+    {% else %}
+    <h3>You are making an admin account</h3>
+    {% endif %}
+  </header>
+  <div class="fields">
+    <label for="username">Username</label>
+    <input required autofocus type="text" name="username" minlength="3" maxlength="30">
+
+    <label for="password">Password</label>
+    <input required type="password" name="password" minlength="8">
+
+    {% if admin_exists %}
+    <label for="invite_token">Invite token</label>
+    <input required type="text" name="invite_token" minlength="36" maxlength="36">
+    {% endif %}
+  </div>
+  <footer>
+    <button>Register</button>
+    {% if admin_exists %}
+    <a href="/login">I have an account</a>
+    {% endif %}
+  </footer>
+</form>
 {% endblock %}

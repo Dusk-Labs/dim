@@ -317,10 +317,10 @@ fn public_html_routes() -> Router<AppState> {
             "/login",
             post(routes::html::handle_login),
         )
-        // .route(
-        //     "/logout",
-        //     get(routes::html::handle_logout),
-        // )
+        .route(
+            "/logout",
+            get(routes::html::handle_logout),
+        )
         .route(
             "/register",
             get(routes::html::register),

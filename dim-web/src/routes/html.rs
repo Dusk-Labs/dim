@@ -1,4 +1,5 @@
 use crate::AppState;
+use crate::routes::auth;
 use askama::Template;
 use axum::body;
 use axum::body::Empty;
@@ -29,6 +30,7 @@ pub async fn index() -> impl IntoResponse {
 pub struct LoginTemplate {}
 
 pub async fn login(
+    State(AppState { conn, .. }): State<AppState>,
     request: Request<Body>,
 ) -> impl IntoResponse {
     match get_cookie_token_value(&request) {
@@ -42,7 +44,15 @@ pub async fn login(
         },
         _ => {}
     }
-    Html(LoginTemplate {}.render().unwrap()).into_response()
+    if auth::is_admin_exists(conn).await.unwrap_or(false) {
+        Html(LoginTemplate {}.render().unwrap()).into_response()
+    } else {
+        Response::builder()
+            .status(StatusCode::SEE_OTHER)
+            .header("Location", "/register")
+            .body(body::boxed(Empty::new()))
+            .unwrap()
+    }
 }
 
 #[derive(Deserialize)]
@@ -67,6 +77,7 @@ pub async fn handle_login(
                                 return Response::builder()
                                     .status(StatusCode::SEE_OTHER)
                                     .header("Location", "/")
+                                    // Set token cookie max age to 1 year
                                     .header(
                                         "Set-Cookie",
                                         format!(
@@ -96,8 +107,26 @@ pub async fn handle_login(
 
 #[derive(Template)]
 #[template(path = "register.html")]
-pub struct RegisterTemplate {}
+pub struct RegisterTemplate {
+    admin_exists: bool,
+}
 
-pub async fn register() -> impl IntoResponse {
-    RegisterTemplate {}
+pub async fn register(
+    State(AppState { conn, .. }): State<AppState>,
+) -> impl IntoResponse {
+    RegisterTemplate {
+        admin_exists: auth::is_admin_exists(conn).await.unwrap_or(false)
+    }
+}
+
+pub async fn handle_logout() -> impl IntoResponse {
+    Response::builder()
+        .status(StatusCode::SEE_OTHER)
+        .header("Location", "/login")
+        .header(
+            "Set-Cookie",
+            "token=TO_BE_DELETED; Path=/; Max-Age=-1; SameSite=Strict; HttpOnly"
+        )
+        .body(body::boxed(Empty::new()))
+        .unwrap()
 }
