@@ -4,7 +4,7 @@ macro_rules! opt_update {
         {
             if let Some(x) = $self.as_ref() {
                 ::sqlx::query!($query, x, $constraint)
-                    .execute(&mut *$conn)
+                    .execute($conn.as_mut())
                     .await?;
             }
         }

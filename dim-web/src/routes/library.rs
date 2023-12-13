@@ -227,7 +227,7 @@ pub async fn library_get_media(State(AppState { conn, .. }): State<AppState>, Pa
         WHERE library_id = ? AND NOT media_type = "episode""#,
         id
     )
-    .fetch_all(&mut tx)
+    .fetch_all(tx.as_mut())
     .await
     {
         Ok(res) => res,

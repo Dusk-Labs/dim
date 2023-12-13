@@ -35,7 +35,7 @@ impl Progress {
             uid,
             timestamp
         )
-        .execute(&mut *conn)
+        .execute(conn.as_mut())
         .await?
         .rows_affected() as usize)
     }
@@ -53,7 +53,7 @@ impl Progress {
             uid,
             mid
         )
-        .fetch_optional(&mut *conn)
+        .fetch_optional(conn.as_mut())
         .await?
         .unwrap_or(Self {
             id: Default::default(),
@@ -73,10 +73,9 @@ impl Progress {
                 WHERE progress.user_id = ?",
             uid
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?
-        .total
-        .unwrap_or_default())
+        .total)
     }
 
     pub async fn get_total_for_media(
@@ -114,7 +113,7 @@ impl Progress {
         )
         .bind(uid)
         .bind(id)
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?;
 
         Ok((record.delta, record.duration))
@@ -141,7 +140,7 @@ impl Progress {
         )
         .bind(tv_id)
         .bind(uid)
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?
         .total)
     }
@@ -169,7 +168,7 @@ impl Progress {
         )
         .bind(uid)
         .bind(count)
-        .fetch_all(&mut *conn)
+        .fetch_all(conn.as_mut())
         .await?)
     }
 }
