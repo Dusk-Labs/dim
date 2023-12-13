@@ -16,7 +16,7 @@ impl Asset {
     ) -> Result<Self, DatabaseError> {
         Ok(
             sqlx::query_as!(Asset, "SELECT * FROM assets WHERE id = ?", id)
-                .fetch_one(&mut *conn)
+                .fetch_one(conn.as_mut())
                 .await?,
         )
     }
@@ -32,7 +32,7 @@ impl Asset {
                 WHERE users.id = ?"#,
             uid
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?)
     }
 
@@ -47,7 +47,7 @@ impl Asset {
             media_id,
             self.id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?
         .id)
     }
@@ -63,7 +63,7 @@ impl Asset {
             media_id,
             self.id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?
         .id)
     }
@@ -77,7 +77,7 @@ impl Asset {
             r#"SELECT remote_url as "remote_url!" FROM assets WHERE Local_path = ?"#,
             cleaned_path
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?
         .remote_url)
     }
@@ -109,7 +109,7 @@ impl InsertableAsset {
 
         if let Ok(x) =
             sqlx::query_as_unchecked!(Asset, "SELECT * FROM assets WHERE remote_url = ?", url)
-                .fetch_one(&mut *conn)
+                .fetch_one(conn.as_mut())
                 .await
         {
             return Ok(x);
@@ -122,7 +122,7 @@ impl InsertableAsset {
             self.local_path,
             self.file_ext
         )
-        .execute(&mut *conn)
+        .execute(conn.as_mut())
         .await?;
 
         // NOTE: asset is guaranteed to be in the table if we get here
@@ -131,7 +131,7 @@ impl InsertableAsset {
             r#"SELECT id as "id!", remote_url, local_path, file_ext FROM assets WHERE remote_url = ?"#,
             url
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?;
 
         Ok(result)
@@ -148,7 +148,7 @@ impl InsertableAsset {
             self.local_path,
             self.file_ext
         )
-        .execute(&mut *conn)
+        .execute(conn.as_mut())
         .await?
         .last_insert_rowid();
 
@@ -157,7 +157,7 @@ impl InsertableAsset {
             r#"SELECT id as "id!", remote_url, local_path, file_ext FROM assets WHERE id = ?"#,
             id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?;
 
         Ok(result)

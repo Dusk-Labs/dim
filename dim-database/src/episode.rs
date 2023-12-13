@@ -45,7 +45,7 @@ impl Episode {
             ORDER BY episode_ ASC"#,
             season_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?;
 
         let ep = Media::get(conn, wrapper.id).await?;
@@ -67,7 +67,7 @@ impl Episode {
             LIMIT 1"#,
             tv_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?;
 
         let ep = Media::get(conn, wrapper.id).await?;
@@ -95,11 +95,11 @@ impl Episode {
                 ORDER BY season.season_number, episode.episode_"#,
             tv_show_id
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(conn.as_mut())
         .await?;
 
         for wrapper in wrappers {
-            if let Ok(episode) = Media::get(&mut *conn, wrapper.id as i64).await {
+            if let Ok(episode) = Media::get(conn, wrapper.id as i64).await {
                 episodes.push(wrapper.into_episode(episode))
             }
         }
@@ -122,13 +122,13 @@ impl Episode {
             r#"SELECT id as "id!", episode_, seasonid FROM episode WHERE seasonid = ?"#,
             season_id
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(conn.as_mut())
         .await?;
 
         let mut episodes = vec![];
 
         for wrapper in wrappers {
-            if let Ok(episode) = Media::get(&mut *conn, wrapper.id as i64).await {
+            if let Ok(episode) = Media::get(conn, wrapper.id as i64).await {
                 episodes.push(wrapper.into_episode(episode))
             }
         }
@@ -160,7 +160,7 @@ impl Episode {
             season_num,
             ep_num
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?;
 
         let ep = Media::get(conn, wrapper.id as i64).await?;
@@ -178,7 +178,7 @@ impl Episode {
             WHERE episode.id = ?"#,
             episode_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?;
 
         let ep = Media::get(conn, wrapper.id as i64).await?;
@@ -202,7 +202,7 @@ impl Episode {
             WHERE episode.id = ?",
             episode_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?;
 
         Ok((result.season, result.episode))
@@ -217,7 +217,7 @@ impl Episode {
             WHERE season.id = ?",
             self.seasonid
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?;
 
         Ok(record.season_number)
@@ -228,7 +228,7 @@ impl Episode {
         &self,
         conn: &mut crate::Transaction<'_>,
     ) -> Result<Episode, DatabaseError> {
-        let season_number = self.get_season_number(&mut *conn).await?;
+        let season_number = self.get_season_number(conn).await?;
 
         let record = sqlx::query_as!(
             EpisodeWrapper,
@@ -248,7 +248,7 @@ impl Episode {
             season_number,
             season_number
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?;
 
         let ep = Media::get(conn, record.id as i64).await?;
@@ -261,7 +261,7 @@ impl Episode {
         &self,
         conn: &mut crate::Transaction<'_>,
     ) -> Result<Episode, DatabaseError> {
-        let season_number = self.get_season_number(&mut *conn).await?;
+        let season_number = self.get_season_number(conn).await?;
 
         let record = sqlx::query_as!(
             EpisodeWrapper,
@@ -281,7 +281,7 @@ impl Episode {
             season_number,
             season_number
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(conn.as_mut())
         .await?;
 
         let ep = Media::get(conn, record.id as i64).await?;
@@ -307,7 +307,7 @@ impl Episode {
         )
         .bind(uid)
         .bind(tvid)
-        .fetch_optional(&mut *conn)
+        .fetch_optional(conn.as_mut())
         .await?;
 
         let result = if let Some(r) = result {
@@ -328,7 +328,7 @@ impl Episode {
             "SELECT episode.seasonid FROM episode WHERE episode.id = ?",
             episodeid
         )
-        .fetch_one(&mut *tx)
+        .fetch_one(tx.as_mut())
         .await?
         .seasonid)
     }
@@ -364,14 +364,14 @@ impl InsertableEpisode {
             self.seasonid,
             self.episode
         )
-        .fetch_optional(&mut *conn)
+        .fetch_optional(conn.as_mut())
         .await?
         {
             return Ok(r.id);
         }
 
         // NOTE: use insert blind here just in case we have conflicts between episode names.
-        let media_id = self.media.insert_blind(&mut *conn).await?;
+        let media_id = self.media.insert_blind(conn).await?;
         let result = sqlx::query!(
             "INSERT INTO episode (id, episode_, seasonid)
             VALUES ($1, $2, $3)",
@@ -379,7 +379,7 @@ impl InsertableEpisode {
             self.episode,
             self.seasonid
         )
-        .execute(&mut *conn)
+        .execute(conn.as_mut())
         .await?
         .last_insert_rowid();
 
@@ -417,7 +417,7 @@ impl UpdateEpisode {
         conn: &mut crate::Transaction<'_>,
         id: i64,
     ) -> Result<usize, DatabaseError> {
-        self.media.update(&mut *conn, id).await?;
+        self.media.update(conn, id).await?;
 
         crate::opt_update!(conn,
             "UPDATE episode SET seasonid = ? WHERE id = ?" => (self.seasonid, id),
