@@ -9,13 +9,17 @@ use axum::extract::Form;
 use axum::extract::State;
 use axum::response::Html;
 use axum::response::IntoResponse;
+use axum::response::Redirect;
 use axum::response::Response;
+use axum_flash::Flash;
+use axum_flash::IncomingFlashes;
 use dim_database::user::User;
 use dim_database::user::Login;
 use dim_database::user::verify;
 use crate::middleware::get_cookie_token_value;
 use serde::Deserialize;
 use http::StatusCode;
+
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -27,31 +31,42 @@ pub async fn index() -> impl IntoResponse {
 
 #[derive(Template)]
 #[template(path = "login.html")]
-pub struct LoginTemplate {}
+pub struct LoginTemplate {
+    flashes: Vec<(String, String)>,
+}
 
 pub async fn login(
     State(AppState { conn, .. }): State<AppState>,
+    flashes: IncomingFlashes,
     request: Request<Body>,
-) -> impl IntoResponse {
+) -> (IncomingFlashes, impl IntoResponse) {
+    let mut flashes_for_template = Vec::new();
+    for (level, text) in flashes.clone().iter() {
+        let level_string = format!("{:?}", level);
+        flashes_for_template.push((level_string, text.to_owned()));
+    }
     match get_cookie_token_value(&request) {
         Some(_) => {
             // If there is a token cookie, redirect to dashboard
-            return Response::builder()
-                .status(StatusCode::SEE_OTHER)
-                .header("Location", "/")
-                .body(body::boxed(Empty::new()))
-                .unwrap()
+            return (
+                flashes,
+                Redirect::to("/").into_response()
+            )
         },
         _ => {}
     }
     if auth::is_admin_exists(conn).await.unwrap_or(false) {
-        Html(LoginTemplate {}.render().unwrap()).into_response()
+        (
+            flashes,
+            Html(LoginTemplate {
+                flashes: flashes_for_template
+            }.render().unwrap()).into_response()
+        )
     } else {
-        Response::builder()
-            .status(StatusCode::SEE_OTHER)
-            .header("Location", "/register")
-            .body(body::boxed(Empty::new()))
-            .unwrap()
+        (
+            flashes,
+            Redirect::to("/register").into_response()
+        )
     }
 }
 
@@ -63,6 +78,7 @@ pub struct LoginForm {
 
 pub async fn handle_login(
     State(AppState { conn, .. }): State<AppState>,
+    flash: Flash,
     Form(form): Form<LoginForm>,
 ) -> impl IntoResponse {
     match conn.read().begin().await {
@@ -98,11 +114,13 @@ pub async fn handle_login(
         _ => {}
     };
 
-    Response::builder()
-        .status(StatusCode::SEE_OTHER)
-        .header("Location", "/login")
-        .body(body::boxed(Empty::new()))
-        .unwrap()
+
+    let message = flash.error("The provided username or password is incorrect.");
+    println!("Login message: {:?}", message);
+    (
+        message,
+        Redirect::to("/login").into_response()
+    ).into_response()
 }
 
 #[derive(Template)]

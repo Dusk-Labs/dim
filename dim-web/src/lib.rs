@@ -7,6 +7,7 @@ pub mod tree;
 pub use axum;
 use axum::extract::ConnectInfo;
 use axum::extract::DefaultBodyLimit;
+use axum::extract::FromRef;
 use axum::extract::State;
 use axum::response::Response;
 use axum::routing::delete;
@@ -14,6 +15,7 @@ use axum::routing::get;
 use axum::routing::patch;
 use axum::routing::post;
 use axum::Router;
+use axum_flash::Key;
 
 use dim_core::core::EventTx;
 use dim_core::stream_tracking::StreamTracking;
@@ -36,6 +38,13 @@ pub struct AppState {
     event_tx: EventTx,
     state: StateManager,
     stream_tracking: StreamTracking,
+    flash_config: axum_flash::Config,
+}
+
+impl FromRef<AppState> for axum_flash::Config {
+    fn from_ref(state: &AppState) -> axum_flash::Config {
+        state.flash_config.clone()
+    }
 }
 
 fn library_routes() -> Router<AppState> {
@@ -298,6 +307,14 @@ fn user_routes() -> Router<AppState> {
 fn static_routes() -> Router<AppState> {
     Router::new()
         .route(
+            "/",
+            get(routes::statik::react_routes),
+        )
+        .route(
+            "/*path",
+            get(routes::statik::react_routes),
+        )
+        .route(
             "/static/*path",
             get(routes::statik::dist_static),
         )
@@ -384,6 +401,9 @@ pub async fn start_webserver(
         event_tx: event_tx.clone(),
         state,
         stream_tracking,
+        flash_config: axum_flash::Config::new(
+            Key::generate()
+        ).use_secure_cookies(false),
     };
 
     let router = Router::new()
@@ -403,7 +423,7 @@ pub async fn start_webserver(
         )
         .merge(settings_routes())
         .merge(stream_routes())
-        .merge(html_routes())
+        // .merge(html_routes())
         .route_layer(axum::middleware::from_fn_with_state(
             app.clone(),
             verify_cookie_token,

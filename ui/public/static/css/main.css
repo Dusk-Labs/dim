@@ -186,6 +186,19 @@ img {
   & .fields {
     grid-area: fields;
 
+    & .flash {
+      margin-bottom: 2em;
+      border-radius: var(--borderRadius);
+      padding: 1em;
+      text-align: center;
+      border: 2px solid;
+
+      &.error {
+        border-color: var(--criticalColor);
+        color: var(--criticalTextColor);
+      }
+    }
+
     & label {
       display: flex;
       align-items: center;

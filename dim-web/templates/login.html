@@ -9,6 +9,13 @@
     <h3>Authenticate and continue to your media</h3>
   </header>
   <div class="fields">
+
+    {% for (level, message) in flashes %}
+    <div class="flash {{ level|lower }}">
+      {{- message -}}
+    </div>
+    {% endfor %}
+
     <label for="username">Username</label>
     <input required autofocus type="text" name="username" minlength="3" maxlength="30">
 

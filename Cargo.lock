@@ -379,6 +379,28 @@ dependencies = [
 
 [[package]]
 name = "axum-extra"
+version = "0.7.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a93e433be9382c737320af3924f7d5fc6f89c155cf2bf88949d8f5126fab283f"
+dependencies = [
+ "axum 0.6.20",
+ "axum-core 0.3.4",
+ "bytes 1.5.0",
+ "cookie 0.17.0",
+ "futures-util",
+ "http 0.2.9",
+ "http-body 0.4.5",
+ "mime",
+ "pin-project-lite",
+ "serde",
+ "tokio",
+ "tower",
+ "tower-layer",
+ "tower-service",
+]
+
+[[package]]
+name = "axum-extra"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "523ae92256049a3b02d3bb4df80152386cd97ddba0c8c5077619bdc8c4b1859b"
@@ -386,7 +408,7 @@ dependencies = [
  "axum 0.7.2",
  "axum-core 0.4.1",
  "bytes 1.5.0",
- "cookie",
+ "cookie 0.18.0",
  "futures-util",
  "http 1.0.0",
  "http-body 1.0.0",
@@ -395,6 +417,24 @@ dependencies = [
  "pin-project-lite",
  "serde",
  "tower",
+ "tower-layer",
+ "tower-service",
+]
+
+[[package]]
+name = "axum-flash"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "919d104c8fdd083e19a9ba8b579b1c10ecea38c131a65acdea052a6af561d397"
+dependencies = [
+ "async-trait",
+ "axum-core 0.3.4",
+ "axum-extra 0.7.7",
+ "base64 0.21.5",
+ "cookie 0.17.0",
+ "http 0.2.9",
+ "serde",
+ "serde_json",
  "tower-layer",
  "tower-service",
 ]
@@ -702,6 +742,22 @@ dependencies = [
 
 [[package]]
 name = "cookie"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7efb37c3e1ccb1ff97164ad95ac1606e8ccd35b3fa0a7d99a304c7f4a428cc24"
+dependencies = [
+ "base64 0.21.5",
+ "hmac",
+ "percent-encoding",
+ "rand",
+ "sha2",
+ "subtle",
+ "time 0.3.30",
+ "version_check",
+]
+
+[[package]]
+name = "cookie"
 version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3cd91cf61412820176e137621345ee43b3f4423e589e7ae4e50d601d93e35ef8"
@@ -959,6 +1015,7 @@ checksum = "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292"
 dependencies = [
  "block-buffer",
  "crypto-common",
+ "subtle",
 ]
 
 [[package]]
@@ -1114,7 +1171,8 @@ dependencies = [
  "askama",
  "askama_axum",
  "axum 0.6.20",
- "axum-extra",
+ "axum-extra 0.9.0",
+ "axum-flash",
  "cfg-if",
  "chrono",
  "dim-core",
@@ -1628,6 +1686,15 @@ name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
+
+[[package]]
+name = "hmac"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c49c37c09c17a53d937dfbb742eb3a961d65a994e6bcdcf37e7399d0cc8ab5e"
+dependencies = [
+ "digest",
+]
 
 [[package]]
 name = "http"
