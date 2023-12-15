@@ -342,13 +342,9 @@ fn public_html_routes() -> Router<AppState> {
             "/register",
             get(routes::html::register),
         )
-}
-
-fn html_routes() -> Router<AppState> {
-    Router::new()
         .route(
-            "/",
-            get(routes::html::index),
+            "/register",
+            post(routes::html::handle_register),
         )
 }
 

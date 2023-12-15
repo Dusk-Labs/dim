@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Error - Dim{% endblock %}
+
+{% block content %}
+<div class="auth-form">
+  <header>
+    <h2>Oops!</h2>
+    <h3>Something unexpected happened</h3>
+  </header>
+  <div class="fields">
+    <div class="flash error">
+      {{- message -}}
+    </div>
+  </div>
+</div>
+{% endblock %}
