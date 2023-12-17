@@ -5,6 +5,7 @@ use axum::body;
 use axum::body::Empty;
 use axum::body::Body;
 use axum::http::Request;
+use axum::Extension;
 use axum::extract::Form;
 use axum::extract::State;
 use axum::response::Html;
@@ -15,6 +16,8 @@ use axum_flash::Flash;
 use axum_flash::IncomingFlashes;
 use crate::error::DimHtmlErrorWrapper;
 use dim_core::errors::DimError;
+use dim_database::asset::Asset;
+use dim_database::library::Library;
 use dim_database::user::InsertableUser;
 use dim_database::user::User;
 use dim_database::user::Login;
@@ -26,10 +29,33 @@ use http::StatusCode;
 
 #[derive(Template)]
 #[template(path = "index.html")]
-pub struct IndexTemplate {}
+pub struct IndexTemplate {
+    username: String,
+    avatar: String,
+    libraries: Vec<Library>
+}
 
-pub async fn index() -> impl IntoResponse {
-    IndexTemplate {}
+pub async fn index(
+    Extension(user): Extension<User>,
+    State(AppState { conn, .. }): State<AppState>,
+) -> Result<impl IntoResponse, DimHtmlErrorWrapper> {
+    let mut tx = conn.read().begin().await.map_err(|err| {
+        DimHtmlErrorWrapper(DimError::DatabaseError {
+            description: err.to_string(),
+        })
+    })?;
+    let libraries = Library::get_all(&mut tx).await;
+    let avatar = match Asset::get_of_user(&mut tx, user.id).await.ok().map(|x| format!("/images/{}", x.local_path)) {
+        Some(res) => res,
+        None => "".to_string(),
+    };
+    Ok(
+        IndexTemplate {
+            username: user.username,
+            avatar,
+            libraries,
+        }
+    )
 }
 
 #[derive(Template)]

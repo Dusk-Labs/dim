@@ -307,10 +307,6 @@ fn user_routes() -> Router<AppState> {
 fn static_routes() -> Router<AppState> {
     Router::new()
         .route(
-            "/",
-            get(routes::statik::react_routes),
-        )
-        .route(
             "/*path",
             get(routes::statik::react_routes),
         )
@@ -345,6 +341,14 @@ fn public_html_routes() -> Router<AppState> {
         .route(
             "/register",
             post(routes::html::handle_register),
+        )
+}
+
+fn html_routes() -> Router<AppState> {
+    Router::new()
+        .route(
+            "/",
+            get(routes::html::index),
         )
 }
 
@@ -419,7 +423,7 @@ pub async fn start_webserver(
         )
         .merge(settings_routes())
         .merge(stream_routes())
-        // .merge(html_routes())
+        .merge(html_routes())
         .route_layer(axum::middleware::from_fn_with_state(
             app.clone(),
             verify_cookie_token,

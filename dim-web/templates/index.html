@@ -1,7 +1,48 @@
 {% extends "base.html" %}
 
-{% block title %}Dim - Dashboard{% endblock %}
+{% block title %}Dashboard - Dim{% endblock %}
 
 {% block content %}
-Dashboard
+<div id="root">
+  <header>
+    <h1>
+      <span class="hidden">Dim </span>
+      <span class="version">v0.0.0 e9b4665a</span>
+    </h1>
+    <nav>
+      <ul>
+        <li><a href="#" class="search">Search</a></li>
+      </ul>
+      <ul>
+        <li><a href="#" class="home active">Dashboard</a></li>
+        {% for library in libraries %}
+        <li>
+          <a href="#" class="{{library.media_type}}">
+            {{- library.name -}}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      <ul>
+        <li><a href="#" class="settings">Settings</a></li>
+      </ul>
+    </nav>
+    <ul class="user">
+      <li>
+        <a href="#">
+          {% if !avatar.is_empty() %}
+          <picture>
+            <img src="{{ avatar }}" alt="" />
+          </picture>
+          {% endif %}
+          {{- username -}}
+        </a>
+      </li>
+      <li><a href="/logout" class="logout">Logout</a></li>
+    </ul>
+  </header>
+  <main>
+    <h2>Dashboard</h2>
+  </main>
+</div>
 {% endblock %}

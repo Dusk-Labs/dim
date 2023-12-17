@@ -5,11 +5,11 @@
 {% block content %}
 <form class="auth-form" method="POST">
   <header>
-    <h2>Welcome to Dim</h2>
+    <h2>Sign up</h2>
     {% if admin_exists %}
-    <h3>A media manager fueled by dark forces</h3>
+    <h3>Welcome to Dim. A media manager fueled by dark forces.</h3>
     {% else %}
-    <h3>You are making an admin account</h3>
+    <h3>Welcome to Dim. You are making an admin account.</h3>
     {% endif %}
   </header>
   <div class="fields">
@@ -34,7 +34,7 @@
   <footer>
     <button>Register</button>
     {% if admin_exists %}
-    <a href="/login">I have an account</a>
+    Already have an account? <a href="/login">Sign in here</a>
     {% endif %}
   </footer>
 </form>
