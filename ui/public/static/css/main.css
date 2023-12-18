@@ -298,12 +298,12 @@ nav ul {
     grid-template-rows: auto auto 1fr;
     grid-template-areas: "logo" "nav" "user";
     padding: 2rem 3rem;
+    gap: 2rem;
 
     & h1 {
       grid-area: logo;
       position: relative;
       display: inline-block;
-      margin-bottom: 2rem;
 
       &::before {
         content: "";
@@ -442,8 +442,32 @@ nav ul {
       }
     }
   }
+}
 
-  & main {
-    padding: 2rem;
+main {
+  padding: 2rem 0 2rem 2rem;
+
+  & h2 {
+    font-family: "Roboto Regular";
+    font-size: 2.25rem;
+  }
+}
+
+.horizontally-scrollable {
+  position: relative;
+  overflow-x: auto;
+  min-height: calc((150px * 1.5) + (1.25rem * 4));
+
+  & ul {
+    position: absolute;
+    list-style: none;
+    display: inline-grid;
+    grid-auto-flow: column;
+    gap: 2rem;
+  }
+  & img {
+    width: 150px;
+    height: auto;
+    aspect-ratio: 1000 / 1500 auto;
   }
 }

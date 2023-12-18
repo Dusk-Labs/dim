@@ -6,8 +6,7 @@
 <div id="root">
   <header>
     <h1>
-      <span class="hidden">Dim </span>
-      <span class="version">v0.0.0 e9b4665a</span>
+      <span class="hidden">Dim</span> <span class="version">v0.0.0 e9b4665a</span>
     </h1>
     <nav>
       <ul>
@@ -32,7 +31,7 @@
         <a href="#">
           {% if !avatar.is_empty() %}
           <picture>
-            <img src="{{ avatar }}" alt="" />
+            <img src="{{ avatar }}" alt="" width="100" height="100" />
           </picture>
           {% endif %}
           {{- username -}}
@@ -41,8 +40,62 @@
       <li><a href="/logout" class="logout">Logout</a></li>
     </ul>
   </header>
+
   <main>
-    <h2>Dashboard</h2>
+    {% for library in libraries %}
+    <section>
+      <h2>Recently Added {{~ library.name -}}</h2>
+      <div class="horizontally-scrollable">
+        <ul>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+          <li>
+            <img width="1000" height="1500" alt="" />
+          </li>
+        </ul>
+      </div>
+    </section>
+    {% endfor %}
   </main>
 </div>
 {% endblock %}
