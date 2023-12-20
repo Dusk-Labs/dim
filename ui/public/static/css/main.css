@@ -1,4 +1,24 @@
 :root {
+  /*
+  @link https://utopia.fyi/type/calculator?c=320,20,1.125,1440,24,1.2,5,4,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l&g=s,l,xl,12
+  */
+  --fontSize-4: clamp(0.7231rem, 0.7971rem + -0.0821vw, 0.7806rem);
+  --fontSize-3: clamp(0.8681rem, 0.881rem + -0.0143vw, 0.8781rem);
+  --fontSize-2: clamp(0.9875rem, 0.972rem + 0.0777vw, 1.0419rem);
+  --fontSize-1: clamp(1.1113rem, 1.0716rem + 0.1982vw, 1.25rem);
+  --fontSize0: clamp(1.25rem, 1.1786rem + 0.3571vw, 1.5rem);
+  --fontSize1: clamp(1.4063rem, 1.2938rem + 0.5625vw, 1.8rem);
+  --fontSize2: clamp(1.5819rem, 1.4167rem + 0.8259vw, 2.16rem);
+
+  /*
+  @link https://utopia.fyi/space/calculator?c=320,20,1.2,1240,24,1.25,5,2,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l&g=s,l,xl,12
+  */
+  --space-s-m: clamp(1.25rem, 0.9022rem + 1.7391vw, 2.25rem);
+  --space-m-l: clamp(1.875rem, 1.4837rem + 1.9565vw, 3rem);
+
+  --animationDuration: 150ms;
+  --lineHeight: 1.5;
+  --gap: var(--space-s-m);
   --borderRadius: 10px;
   --accentColor: oklch(76.5% 0.19 69.5);
   --accentTextColor: #1a1a1a;
@@ -14,16 +34,6 @@
   --quinaryColor: #bbb;
   --senaryColor: #aaa;
   --septenaryColor: #999;
-  --bannerPrimaryColor: #2a2a2a;
-  --bannerSecondaryColor: #3a3a3a;
-  --bannerPrimaryTextColor: #fff;
-  --bannerSecondaryTextColor: #ddd;
-  --bannerTertiaryTextColor: #ccc;
-  --bannerBottomBorderColor: #3a3a3a;
-  --bannerOverlayShadow: #1a1a1add;
-  --modalPrimaryColor: #eee;
-  --modalSecondaryColor: #ddd;
-  --modalTertiaryColor: #ccc;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,9 +48,6 @@
     --quinaryColor: #5a5a5a;
     --senaryColor: #6a6a6a;
     --septenaryColor: #7a7a7a;
-    --modalPrimaryColor: #2a2a2a;
-    --modalSecondaryColor: #3a3a3a;
-    --modalTertiaryColor: #4a4a4a;
   }
 }
 
@@ -51,6 +58,10 @@
   font-weight: normal;
 }
 
+*::before, *::after {
+  box-sizing: border-box;
+}
+
 html,
 body {
   height: 100%;
@@ -58,6 +69,7 @@ body {
 }
 
 body {
+  line-height: var(--lineHeight);
   -webkit-font-smoothing: antialiased;
   background: var(--primaryColor);
   color: var(--primaryTextColor);
@@ -65,10 +77,11 @@ body {
   scrollbar-width: thin;
   scroll-behavior: smooth;
   font-family: "Roboto Regular", Helvetica, Arial;
+  font-size: var(--fontSize-2);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background 100ms ease-in-out;
+  transition: background var(--animationDuration) ease-in-out;
 }
 
 @font-face {
@@ -137,10 +150,6 @@ a {
 
 img {
   background: var(--secondaryColor);
-
-  &:-moz-loading {
-    visibility: hidden;
-  }
 }
 
 h1, h2 {
@@ -157,7 +166,7 @@ nav ul {
 
 .auth-form {
   display: grid;
-  gap: 2rem;
+  gap: var(--gap);
   grid-template-areas: "gap-top" "title" "fields" "actions" "gap-bottom";
   grid-template-rows: minmax(0, 0.5fr) auto auto auto minmax(0, 1fr);
   align-items: center;
@@ -165,12 +174,12 @@ nav ul {
   max-width: 600px;
   min-height: 100%;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 var(--gap);
   color: var(--primaryTextColor);
 
   & header {
     grid-area: title;
-    margin-bottom: 1rem;
+    margin-bottom: calc(var(--gap) / 2);
     text-align: center;
 
     &:before {
@@ -179,18 +188,18 @@ nav ul {
       width: 100%;
       height: 64px;
       background-color: var(--primaryTextColor);
-      margin-bottom: 4rem;
+      margin-bottom: var(--space-m-l);
       -webkit-mask: url("icons/logo.svg") no-repeat 50% 50% / contain;
       mask: url("icons/logo.svg") no-repeat 50% 50% / contain;
     }
 
     & h2 {
-      font-size: 2rem;
+      font-size: var(--fontSize2);
     }
 
     & h3 {
-      font-size: 1.2rem;
-      margin-top: 1rem;
+      font-size: var(--fontSize-1);
+      margin-top: calc(var(--gap) / 2);
       color: var(--tertiaryTextColor);
     }
   }
@@ -199,9 +208,9 @@ nav ul {
     grid-area: fields;
 
     & .flash {
-      margin-bottom: 2rem;
+      margin-bottom: var(--gap);
       border-radius: var(--borderRadius);
-      padding: 1rem;
+      padding: calc(var(--gap) / 2);
       text-align: center;
       border: 2px solid;
 
@@ -241,7 +250,7 @@ nav ul {
 
     & input {
       margin-top: 10px;
-      margin-bottom: 2rem;
+      margin-bottom: var(--gap);
     }
 
     & input:last-child {
@@ -251,11 +260,12 @@ nav ul {
 
   & footer {
     grid-area: actions;
-    margin-top: 2rem;
+    margin-top: var(--gap);
     text-align: center;
 
     & a {
       color: var(--accentColor);
+      white-space: nowrap;
 
       &:hover {
         color: color-mix(in oklch, var(--accentColor), black 10%);
@@ -264,13 +274,13 @@ nav ul {
     }
 
     & button {
-      margin-bottom: 2rem;
+      margin-bottom: var(--gap);
       padding: 10px 20px;
       width: 100%;
       font-family: "Roboto Bold", Arial;
-      font-size: 1.1rem;
+      font-size: var(--fontSize-1);
       background: var(--accentColor);
-      color: var(--primaryTextColor);
+      color: var(--accentTextColor);
       border-radius: 5px;
       transition: 0.2s ease-in-out;
       transition-property: background, opacity;
@@ -297,8 +307,14 @@ nav ul {
     display: grid;
     grid-template-rows: auto auto 1fr;
     grid-template-areas: "logo" "nav" "user";
-    padding: 2rem 3rem;
-    gap: 2rem;
+    padding: var(--gap) calc(var(--gap) * 1.5);
+    gap: var(--gap);
+    position: sticky;
+    align-self: start;
+    top: 0;
+    height: 100%;
+    max-height: min(100%, 100dvh);
+    overflow-y: scroll;
 
     & h1 {
       grid-area: logo;
@@ -310,19 +326,24 @@ nav ul {
         display: inline-block;
         width: 64px;
         height: 64px;
-        margin-right: 1rem;
+        margin-right: calc(var(--gap) / 2);
         vertical-align: middle;
         background-color: var(--primaryTextColor);
         -webkit-mask: url("icons/logo.svg") no-repeat 50% 50% / contain;
         mask: url("icons/logo.svg") no-repeat 50% 50% / contain;
+        transition: background-color var(--animationDuration) ease-in-out;
+      }
+
+      &:hover::before {
+        background-color: var(--secondaryTextColor);
       }
 
       & span.version {
         display: inline-block;
-        font-size: 0.8rem;
+        font-size: var(--fontSize-4);
         opacity: 0;
         color: var(--tertiaryTextColor);
-        transition: opacity 100ms ease-in-out;
+        transition: opacity var(--animationDuration) ease-in-out;
       }
 
       &:hover span.version {
@@ -344,30 +365,23 @@ nav ul {
         height: inherit;
         object-fit: contain;
         transform-origin: 50%;
-        transform: scale(0.78);
+        transform: scale(0.85);
+        transition: transform var(--animationDuration) ease-in-out;
       }
+    }
 
-      &::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        display: block;
-        width: inherit;
-        height: inherit;
-        background: url("icons/logo-mask.svg") no-repeat 50% 50% / contain;
-        mix-blend-mode: screen;
-      }
+    & a:hover picture img {
+      transform: scale(0.90);
     }
 
     & nav {
       grid-area: nav;
       display: grid;
       grid-template-rows: auto;
-      gap: 2rem;
+      gap: var(--gap);
 
       & li {
-        font-size: 1.25rem;
+        font-size: var(--fontSize-1);
         margin: 0.5rem 0;
       }
 
@@ -445,29 +459,145 @@ nav ul {
 }
 
 main {
-  padding: 2rem 0 2rem 2rem;
+  position: relative;
+  display: grid;
+  grid-template-columns:
+    [full-start] var(--gap)
+    [content-start] auto [content-end]
+    var(--gap) [full-end];
+  padding: var(--gap) 0;
+  row-gap: var(--gap);
+
+  &:has(.horizontally-scrollable)::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: var(--gap);
+    height: 100%;
+    background: linear-gradient(90deg, var(--primaryColor) 50%, transparent);
+    z-index: 1;
+  }
+
+  & > * {
+    grid-column: content;
+  }
+
+  & .horizontally-scrollable {
+    grid-column: full;
+  }
 
   & h2 {
-    font-family: "Roboto Regular";
-    font-size: 2.25rem;
+    font-family: "Roboto Bold";
+    font-size: var(--fontSize-1);
+    margin-bottom: calc(var(--gap) * -1);
   }
 }
 
 .horizontally-scrollable {
+  --posterWidth: 200px;
+  --posterHeightMultiple: 1.5;
+  --metaDataLines: 2;
   position: relative;
   overflow-x: auto;
-  min-height: calc((150px * 1.5) + (1.25rem * 4));
+  overflow-y: hidden;
+  height: calc((var(--posterWidth) * var(--posterHeightMultiple)) + (var(--lineHeight) * (1em * var(--metaDataLines))) + 1rem);
+  scrollbar-width: none;
+
+  &.tv {
+    --metaDataLines: 3;
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   & ul {
     position: absolute;
     list-style: none;
     display: inline-grid;
     grid-auto-flow: column;
-    gap: 2rem;
+    gap: var(--gap);
+    padding: 0 var(--gap);
+  }
+  & li {
+    width: var(--posterWidth);
+    font-size: var(--fontSize-3);
+
+    & .separator {
+      vertical-align: top;
+    }
+
+    & .media_title, & .media_season a, & .media_episode a {
+      display: inline;
+      color: var(--tertiaryTextColor);
+
+      &:hover {
+        color: var(--primaryTextColor);
+      }
+    }
+
+    & .media_title {
+      display: block;
+    }
+
+    & a {
+      position: relative;
+      display: block;
+      overflow-x: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      width: inherit;
+      height: auto;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      &:has(img) {
+        display: block;
+        border-radius: var(--borderRadius);
+        border: 2px solid transparent;
+        margin-bottom: calc(var(--gap) / 2);
+        transition: opacity var(--animationDuration) ease-in-out, border-color var(--animationDuration) ease-in-out;
+
+        &::before, &::after {
+          content: "";
+          display: block;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          transition: inherit;
+          pointer-events: none;
+        }
+
+        &::before, &::after {
+          opacity: 0;
+        }
+
+        &:hover {
+          border-color: var(--accentColor);
+
+          &::before {
+            background-color: var(--primaryColor);
+            opacity: 0.7;
+          }
+
+          &::after {
+            opacity: 1;
+            background-color: var(--accentColor);
+            -webkit-mask: url("icons/play.svg") no-repeat 50% 50%;
+            mask: url("icons/play.svg") no-repeat 50% 50%;
+          }
+        }
+      }
+    }
   }
   & img {
-    width: 150px;
+    display: block;
+    width: inherit;
     height: auto;
-    aspect-ratio: 1000 / 1500 auto;
+    aspect-ratio: 1 / 1.5 auto;
   }
 }
