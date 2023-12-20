@@ -52,31 +52,35 @@
             <a href="#" aria-label="Last Week Tonight with John Oliver, Season 10 Episode 21, December 17, 2023: Elon Musk">
               <img src="http://plex.lan/photo/:/transcode?width=240&height=360&minSize=1&upscale=1&url=%2Flibrary%2Fmetadata%2F19191%2Fthumb%2F1702970869%3FX-Plex-Token%3DTZLPRkLbLGSqnxvySqnc&X-Plex-Token=TZLPRkLbLGSqnxvySqnc" width="1000" height="1500" alt="" />
             </a>
-            <a href="#" class="media_series_title" title="Last Week Tonight with John Oliver">
-              Last Week Tonight with John Oliver
-            </a>
-            <a href="#" class="media_title" title="December 17, 2023: Elon Musk">
-              December 17, 2023: Elon Musk
-            </a>
-            <span class="media_season">
-              <a href="#" title="Season 10">S10</a>
-            </span>
-            <span class="separator">&CenterDot;</span>
-            <span class="media_episode">
-              <a href="#" title="Episode 21">E21</a>
-            </span>
+            <div class="media_metadata">
+              <a href="#" title="Last Week Tonight with John Oliver">
+                Last Week Tonight with John Oliver
+              </a>
+              <a href="#" title="December 17, 2023: Elon Musk">
+                December 17, 2023: Elon Musk
+              </a>
+              <span>
+                <a href="#" title="Season 10">S10</a>
+              </span>
+              &CenterDot;
+              <span>
+                <a href="#" title="Episode 21">E21</a>
+              </span>
+            </div>
           </li>
         {% else %}
           <li>
             <a href="#" aria-label="Good Night Oppy, 2022">
-              <img src="http://plex.lan/photo/:/transcode?width=480&height=720&minSize=1&upscale=1&url=%2Flibrary%2Fmetadata%2F27113%2Fthumb%2F1702721579%3FX-Plex-Token%3DTZLPRkLbLGSqnxvySqnc&X-Plex-Token=TZLPRkLbLGSqnxvySqnc" width="1000" height="1500" alt="" />
+              <img src="http://plex.lan/photo/:/transcode?width=480&height=720&minSize=1&upscale=1&url=%2Flibrary%2Fmetadata%2F27113%2Fthumb%2F1702721579%3FX-Plex-Token%3DTZLPRkLbLGSqnxvySqnc&X-Plex-Token=TZLPRkLbLGSqnxvySqnc" width="1000" height="1500" loading="lazy" alt="" />
             </a>
-            <a href="#" class="media_series_title" title="Good Night Oppy">
-              Good Night Oppy
-            </a>
-            <a href="#" class="media_title" title="2022">
-              2022
-            </a>
+            <div class="media_metadata">
+              <a href="#" title="Good Night Oppy">
+                Good Night Oppy
+              </a>
+              <span title="2022">
+                2022
+              </span>
+            </div>
           </li>
         {% endif %}
         {% endfor -%}

@@ -76,30 +76,12 @@ body {
   scrollbar-color: var(--accentColor) #333333;
   scrollbar-width: thin;
   scroll-behavior: smooth;
-  font-family: "Roboto Regular", Helvetica, Arial;
+  font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: var(--fontSize-2);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background var(--animationDuration) ease-in-out;
-}
-
-@font-face {
-  font-family: "Roboto Regular";
-  src: url("fonts/Roboto-Regular.woff");
-  font-display: fallback;
-}
-
-@font-face {
-  font-family: "Roboto Bold";
-  src: url("fonts/Roboto-Bold.woff");
-  font-display: fallback;
-}
-
-@font-face {
-  font-family: "Roboto Condensed Regular";
-  src: url("fonts/RobotoCondensed-Regular.woff");
-  font-display: fallback;
 }
 
 ::-webkit-scrollbar {
@@ -125,7 +107,6 @@ button {
 }
 
 input {
-  font-family: "Roboto Regular", Arial;
   transition: background 0.3s ease-in-out;
   background: var(--tertiaryColor);
   outline: none;
@@ -133,6 +114,7 @@ input {
   border-radius: 5px;
   padding: 10px 20px;
   color: var(--primaryTextColor);
+  font-size: var(--fontSize-3);
   width: 100%;
   min-height: 40px;
 
@@ -146,14 +128,15 @@ a {
   text-decoration: none;
   color: var(--primaryTextColor);
   outline: none;
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.25ch;
+  }
 }
 
 img {
   background: var(--secondaryColor);
-}
-
-h1, h2 {
-  font-family: "Roboto Bold", Arial;
 }
 
 nav ul {
@@ -162,6 +145,10 @@ nav ul {
 
 .hidden {
   display: none;
+}
+
+h1, h2, h3 {
+  font-weight: 600;
 }
 
 .auth-form {
@@ -198,6 +185,7 @@ nav ul {
     }
 
     & h3 {
+      font-weight: 400;
       font-size: var(--fontSize-1);
       margin-top: calc(var(--gap) / 2);
       color: var(--tertiaryTextColor);
@@ -223,7 +211,6 @@ nav ul {
     & label {
       display: flex;
       align-items: center;
-      font-family: "Roboto Condensed Regular", Arial;
       color: var(--secondaryTextColor);
 
       &[for]:before {
@@ -269,15 +256,14 @@ nav ul {
 
       &:hover {
         color: color-mix(in oklch, var(--accentColor), black 10%);
-        text-decoration: underline;
       }
     }
 
     & button {
+      font-weight: 600;
       margin-bottom: var(--gap);
       padding: 10px 20px;
       width: 100%;
-      font-family: "Roboto Bold", Arial;
       font-size: var(--fontSize-1);
       background: var(--accentColor);
       color: var(--accentTextColor);
@@ -285,8 +271,13 @@ nav ul {
       transition: 0.2s ease-in-out;
       transition-property: background, opacity;
 
-      &:hover, &:focus {
+      &:hover {
         background: color-mix(in oklch, var(--accentColor), black 10%);
+      }
+
+      &:focus {
+        outline: 2px solid color-mix(in oklch, var(--accentColor), black 10%);
+        outline-offset: 2px;
       }
     }
   }
@@ -340,6 +331,7 @@ nav ul {
 
       & span.version {
         display: inline-block;
+        font-weight: 600;
         font-size: var(--fontSize-4);
         opacity: 0;
         color: var(--tertiaryTextColor);
@@ -405,6 +397,7 @@ nav ul {
 
         &:hover {
           color: var(--secondaryTextColor);
+          text-decoration: none;
 
           &::before {
             background-color: var(--secondaryTextColor);
@@ -467,6 +460,7 @@ main {
     var(--gap) [full-end];
   padding: var(--gap) 0;
   row-gap: var(--gap);
+  align-self: self-start;
 
   &:has(.horizontally-scrollable)::before {
     content: "";
@@ -487,14 +481,17 @@ main {
   }
 
   & h2 {
-    font-family: "Roboto Bold";
     font-size: var(--fontSize-1);
     margin-bottom: calc(var(--gap) * -1);
+  }
+
+  &:has(.horizontally-scrollable) h2 {
+    padding: 0 calc(var(--borderRadius) / 2);
   }
 }
 
 .horizontally-scrollable {
-  --posterWidth: 200px;
+  --posterWidth: 185px;
   --posterHeightMultiple: 1.5;
   --metaDataLines: 2;
   position: relative;
@@ -522,26 +519,39 @@ main {
   & li {
     width: var(--posterWidth);
     font-size: var(--fontSize-3);
+    line-height: 1.65;
+    padding: 2px;
 
-    & .separator {
-      vertical-align: top;
-    }
-
-    & .media_title, & .media_season a, & .media_episode a {
-      display: inline;
+    & .media_metadata {
+      font-weight: 500;
+      padding: 0 calc(var(--borderRadius) / 2);
       color: var(--tertiaryTextColor);
 
-      &:hover {
+      & > *:first-child {
         color: var(--primaryTextColor);
       }
-    }
 
-    & .media_title {
-      display: block;
+      & a {
+        display: block;
+        color: inherit;
+
+        &:hover {
+          color: var(--primaryTextColor);
+        }
+      }
+
+      & span {
+        font-weight: inherit;
+
+        & a {
+          display: inline;
+        }
+      }
     }
 
     & a {
       position: relative;
+      font-weight: inherit;
       display: block;
       overflow-x: hidden;
       white-space: nowrap;
@@ -549,16 +559,14 @@ main {
       width: inherit;
       height: auto;
 
-      &:hover {
-        text-decoration: underline;
-      }
-
       &:has(img) {
         display: block;
         border-radius: var(--borderRadius);
-        border: 2px solid transparent;
+        outline: 2px solid transparent;
         margin-bottom: calc(var(--gap) / 2);
-        transition: opacity var(--animationDuration) ease-in-out, border-color var(--animationDuration) ease-in-out;
+        transition:
+          opacity var(--animationDuration) ease-in-out,
+          outline-color var(--animationDuration) ease-in-out;
 
         &::before, &::after {
           content: "";
@@ -577,11 +585,11 @@ main {
         }
 
         &:hover {
-          border-color: var(--accentColor);
+          outline-color: var(--accentColor);
 
           &::before {
             background-color: var(--primaryColor);
-            opacity: 0.7;
+            opacity: 0.65;
           }
 
           &::after {
