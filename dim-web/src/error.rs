@@ -49,7 +49,7 @@ impl IntoResponse for DimErrorWrapper {
 
         let resp = serde_json::json!({
             "error": serde_json::json!(&self.0)["error"],
-            "messsage": self.0.to_string(),
+            "message": self.0.to_string(),
         });
         (status, serde_json::to_string(&resp).unwrap()).into_response()
     }
