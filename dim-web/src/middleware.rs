@@ -2,7 +2,10 @@ use crate::AppState;
 use axum::body::Body;
 use axum::http::Request;
 use axum::extract::State;
+use axum::response::Redirect;
+use axum::response::IntoResponse;
 use axum_extra::extract::cookie::Cookie;
+use axum_flash::Flash;
 use dim_core::errors::DimError;
 use dim_database::user::UserID;
 
@@ -28,34 +31,93 @@ pub fn get_cookie_token_value(
 
 pub async fn verify_token(
     State(AppState { conn, .. }): State<AppState>,
+    flash: Flash,
     mut req: axum::http::Request<Body>,
     next: axum::middleware::Next<Body>,
 ) -> Result<axum::response::Response, DimErrorWrapper> {
+    let is_html_request: bool = if let Some(accept_str) = req.headers().get(axum::http::header::ACCEPT) {
+        accept_str.to_str().unwrap().contains("text/html")
+    } else {
+        false
+    };
     let id: UserID;
     if let Some(token) = get_cookie_token_value(&req) {
-        id = dim_database::user::Login::verify_cookie(token)
-            .map_err(|e| DimError::CookieError(e))
-            .map_err(|e| DimErrorWrapper(e))?;
+        id = match dim_database::user::Login::verify_cookie(token) {
+            Ok(id) => id,
+            Err(e) => {
+                let error = DimError::CookieError(e);
+                if is_html_request {
+                    return Ok(
+                        (
+                            flash.error(error.to_string()),
+                            Redirect::to("/login").into_response()
+                        ).into_response()
+                    );
+                }
+                return Err(DimErrorWrapper(error));
+            }
+        };
     } else if let Some(token) = req.headers().get(axum::http::header::AUTHORIZATION) {
-        id = dim_database::user::Login::verify_cookie(token.to_str().unwrap().to_string())
-            .map_err(|e| DimError::CookieError(e))
-            .map_err(|e| DimErrorWrapper(e))?;
+        id = match dim_database::user::Login::verify_cookie(token.to_str().unwrap().to_string()) {
+            Ok(id) => id,
+            Err(e) => {
+                let error = DimError::CookieError(e);
+                if is_html_request {
+                    return Ok(
+                        (
+                            flash.error(error.to_string()),
+                            Redirect::to("/login").into_response()
+                        ).into_response()
+                    );
+                }
+                return Err(DimErrorWrapper(error));
+            }
+        };
     } else {
-        return Err(DimErrorWrapper(DimError::NoToken));
+        let error = DimError::NoToken;
+        if is_html_request {
+            return Ok(
+                (
+                    flash.error(error.to_string()),
+                    Redirect::to("/login").into_response()
+                ).into_response()
+            );
+        }
+        return Err(DimErrorWrapper(error));
     }
 
     let mut tx = match conn.read().begin().await {
         Ok(tx) => tx,
         Err(_) => {
-            return Err(DimErrorWrapper(DimError::DatabaseError {
+            let error = DimError::DatabaseError {
                 description: String::from("Failed to start transaction"),
-            }))
+            };
+            if is_html_request {
+                return Ok(
+                    (
+                        flash.error(error.to_string()),
+                        Redirect::to("/login").into_response()
+                    ).into_response()
+                );
+            }
+            return Err(DimErrorWrapper(error))
         }
     };
-    let current_user = dim_database::user::User::get_by_id(&mut tx, id)
-        .await
-        .map_err(|_| DimError::UserNotFound)
-        .map_err(|e| DimErrorWrapper(e))?;
+    let current_user = match dim_database::user::User::get_by_id(&mut tx, id).await {
+        Ok(current_user) => current_user,
+        Err(_) => {
+            let error = DimError::UserNotFound;
+            if is_html_request {
+                return Ok(
+                    (
+                        flash.error(error.to_string()),
+                        Redirect::to("/login").into_response()
+                    ).into_response()
+                );
+            }
+            return Err(DimErrorWrapper(error));
+        }
+    };
 
     req.extensions_mut().insert(current_user);
     Ok(next.run(req).await)
