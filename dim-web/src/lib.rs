@@ -29,7 +29,7 @@ pub mod error;
 pub use error::DimErrorWrapper;
 
 pub mod middleware;
-pub use middleware::verify_cookie_token;
+pub use middleware::verify_token;
 
 #[derive(Debug, Clone)]
 pub struct AppState {
@@ -426,7 +426,7 @@ pub async fn start_webserver(
         .merge(html_routes())
         .route_layer(axum::middleware::from_fn_with_state(
             app.clone(),
-            verify_cookie_token,
+            verify_token,
         ))
         // --- End of routes authenticated by Axum middleware ---
         .merge(public_auth_routes())
