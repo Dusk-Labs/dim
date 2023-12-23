@@ -566,11 +566,25 @@ horizontally-scrollable {
     justify-content: start;
   }
   & li {
+    position: relative;
     width: var(--posterWidth);
     font-size: var(--fontSize-3);
     line-height: 1.65;
     padding: 2px;
     scroll-snap-align: start end;
+
+    & span.new {
+      position: absolute;
+      bottom: 5px;
+      right: calc(var(--borderRadius) / 2);
+      background: var(--accentColor);
+      padding: 0 6px;
+      border-radius: calc(var(--borderRadius) / 2);
+      color: var(--accentTextColor);
+      font-weight: 900;
+      font-size: var(--fontSize-4);
+      line-height: 1.5;
+    }
 
     & .media_metadata {
       font-weight: 500;
