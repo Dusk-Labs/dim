@@ -2,6 +2,10 @@
 
 {% block title %}Dashboard - Dim{% endblock %}
 
+{% block head %}
+    <script async type="text/javascript" src="/static/js/main.js"></script>
+{% endblock %}
+
 {% block content %}
 <div id="root">
   <header>
@@ -44,7 +48,7 @@
   <main>
     {% for library in libraries %}
     <h2>Recently Added in {{~ library.name -}}</h2>
-    <div class="horizontally-scrollable {{ library.media_type }}">
+    <horizontally-scrollable>
       <ul>
         {% for s in 0..15 -%}
         {% if "{:?}"|format(library.media_type)|lower == "tv" %}
@@ -61,9 +65,7 @@
               </a>
               <span>
                 <a href="#" title="Season 10">S10</a>
-              </span>
-              &CenterDot;
-              <span>
+                &CenterDot;
                 <a href="#" title="Episode 21">E21</a>
               </span>
             </div>
@@ -85,7 +87,7 @@
         {% endif %}
         {% endfor -%}
       </ul>
-    </div>
+    </horizontally-scrollable>
     {% endfor %}
   </main>
 </div>

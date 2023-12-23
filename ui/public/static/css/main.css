@@ -292,7 +292,7 @@ h1, h2, h3 {
 #root {
   display: grid;
   grid-template-columns: 300px auto;
-  min-height: 100%;
+  min-height: inherit;
 
   & header {
     display: grid;
@@ -462,7 +462,7 @@ main {
   row-gap: var(--gap);
   align-self: self-start;
 
-  &:has(.horizontally-scrollable)::before {
+  &:has(horizontally-scrollable)::before {
     content: "";
     display: inline-block;
     position: absolute;
@@ -476,7 +476,7 @@ main {
     grid-column: content;
   }
 
-  & .horizontally-scrollable {
+  & horizontally-scrollable {
     grid-column: full;
   }
 
@@ -485,27 +485,72 @@ main {
     margin-bottom: calc(var(--gap) * -1);
   }
 
-  &:has(.horizontally-scrollable) h2 {
+  &:has(horizontally-scrollable) h2 {
     padding: 0 calc(var(--borderRadius) / 2);
   }
 }
 
-.horizontally-scrollable {
+horizontally-scrollable:defined {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  & ul {
+    overflow-x: scroll;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+horizontally-scrollable {
   --posterWidth: 185px;
   --posterHeightMultiple: 1.5;
   --metaDataLines: 2;
   position: relative;
   overflow-x: auto;
-  overflow-y: hidden;
   height: calc((var(--posterWidth) * var(--posterHeightMultiple)) + (var(--lineHeight) * (1em * var(--metaDataLines))) + 1rem);
-  scrollbar-width: none;
 
-  &.tv {
-    --metaDataLines: 3;
+  & .navigation {
+    --iconSize: 24px;
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: calc((var(--iconSize) * 2) + (var(--gap) / 2));
+    min-height: 2rem;
+    right: var(--gap);
+    top: calc(var(--gap) * -1);
+    overflow: hidden;
+
+    & button {
+      width: var(--iconSize);
+      height: var(--iconSize);
+      background-color: var(--primaryTextColor);
+      opacity: 1;
+      -webkit-mask: url("icons/arrow-up.svg") no-repeat 50% 50%;
+      mask: url("icons/arrow-up.svg") no-repeat 50% 50%;
+      transform: rotate(-90deg);
+      text-indent: -200vw;
+      transition: opacity var(--animationDuration) ease-in-out;
+
+      &:disabled {
+        cursor: auto;
+        opacity: 0.25;
+      }
+
+      &:last-child {
+        transform: rotate(90deg);
+      }
+    }
   }
 
-  &::-webkit-scrollbar {
-    display: none;
+  &:has(.media_metadata :nth-child(3)) {
+    --metaDataLines: 3;
   }
 
   & ul {
@@ -515,12 +560,17 @@ main {
     grid-auto-flow: column;
     gap: var(--gap);
     padding: 0 var(--gap);
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scroll-padding: var(--gap);
+    justify-content: start;
   }
   & li {
     width: var(--posterWidth);
     font-size: var(--fontSize-3);
     line-height: 1.65;
     padding: 2px;
+    scroll-snap-align: start end;
 
     & .media_metadata {
       font-weight: 500;

@@ -152,7 +152,7 @@ pub async fn dist_static<T>(
                 .unwrap());
         }
         let mime = match path.extension().and_then(|x| x.to_str()) {
-            Some("js") => "application/javascript",
+            Some("js") => "text/javascript",
             Some("map") => "application/json",
             Some("css") => "text/css",
             Some("woff") => "font/woff",
