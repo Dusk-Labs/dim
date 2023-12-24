@@ -65,10 +65,11 @@ pub struct ImageParams {
     attach_accents: bool,
 }
 
-pub async fn get_image(
+pub async fn get_image<T>(
     State(AppState { conn, .. }): State<AppState>,
     Path(path): Path<String>,
     Query(params): Query<ImageParams>,
+    req: Request<T>,
 ) -> Result<impl IntoResponse, errors::DimError> {
     let meta_path = dim_core::core::METADATA_PATH.get().unwrap();
     let mut file_path = PathBuf::from(&meta_path);
@@ -84,6 +85,18 @@ pub async fn get_image(
         tokio::fs::read(file_path).await.ok()
     };
     */
+
+    if req
+      .headers()
+      .get(header::IF_NONE_MATCH)
+      .map(|etag| etag.to_str().unwrap_or("000000").eq(&path))
+      .unwrap_or(false)
+    {
+        return Ok(Response::builder()
+            .status(StatusCode::NOT_MODIFIED)
+            .body(body::boxed(Empty::new()))
+            .unwrap());
+    }
 
     let mut tx = conn.read().begin().await?;
     // FIXME (val): return not yet available error here as a hint that in the future this URL will
@@ -121,13 +134,14 @@ pub async fn get_image(
     if let Some(data) = image {
         let mut resp = Response::builder()
             .status(StatusCode::OK)
-            .header("ContentType", "image/jpeg");
+            .header("ContentType", "image/jpeg")
+            .header(header::ETAG, path);
 
         if let Some(accents) = accents {
             resp = resp.header("X-IMAGE-ACCENTS", accents);
         }
 
-        return Ok(resp.body(body::boxed(Full::from(data))).map_err(|_| errors::DimError::NotFoundError));
+        return resp.body(body::boxed(Full::from(data))).map_err(|_| errors::DimError::NotFoundError);
     }
 
     Err(errors::DimError::NotFoundError)
