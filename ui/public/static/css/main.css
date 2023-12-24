@@ -648,6 +648,11 @@ horizontally-scrollable {
           opacity: 0;
         }
 
+        &::after {
+          -webkit-mask: url("icons/play.svg") no-repeat 50% 50%;
+          mask: url("icons/play.svg") no-repeat 50% 50%;
+        }
+
         &:hover {
           outline-color: var(--accentColor);
 
@@ -659,8 +664,6 @@ horizontally-scrollable {
           &::after {
             opacity: 1;
             background-color: var(--accentColor);
-            -webkit-mask: url("icons/play.svg") no-repeat 50% 50%;
-            mask: url("icons/play.svg") no-repeat 50% 50%;
           }
         }
       }

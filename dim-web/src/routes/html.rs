@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::AppState;
 use crate::routes::auth;
 use askama::Template;
@@ -18,6 +19,8 @@ use crate::error::DimHtmlErrorWrapper;
 use dim_core::errors::DimError;
 use dim_database::asset::Asset;
 use dim_database::library::Library;
+use dim_database::library::MediaType;
+use dim_database::progress::Progress;
 use dim_database::user::InsertableUser;
 use dim_database::user::User;
 use dim_database::user::Login;
@@ -27,12 +30,40 @@ use serde::Deserialize;
 use http::StatusCode;
 
 
+pub struct RecentMedia {
+    /// unique id.
+    pub id: i64,
+    /// id of the library that this media objects belongs to.
+    pub library_id: i64,
+    /// name of the TV show
+    pub name: String,
+    /// name of the episode
+    pub episode_name: String,
+    /// Year in which this tv show was released/aired.
+    pub year: i64,
+    /// Date when this media object was created and inserted into the database. Used by several
+    /// routes to return sorted lists of medias, based on when they were scanned and inserted into
+    /// the db.
+    pub added: Option<String>,
+    /// Path to the media poster.
+    pub poster_path: String,
+    /// Path to the backdrop for this media object.
+    pub backdrop_path: String,
+    /// Season number of episode
+    pub season: i64,
+    /// Episode number of episode
+    pub episode: i64,
+    /// new if this media hasn't been watched yet
+    pub progress: i64,
+}
+
 #[derive(Template)]
 #[template(path = "index.html")]
 pub struct IndexTemplate {
     username: String,
     avatar: String,
-    libraries: Vec<Library>
+    libraries: Vec<Library>,
+    media_by_library: HashMap<i64, Vec<RecentMedia>>,
 }
 
 pub async fn index(
@@ -49,11 +80,105 @@ pub async fn index(
         Some(res) => res,
         None => "".to_string(),
     };
+    let mut media_by_library = HashMap::<i64, Vec<RecentMedia>>::new();
+    for library in &libraries {
+        match library.media_type {
+            MediaType::Movie => {
+                let mut media = sqlx::query_as!(
+                    RecentMedia,
+                    r#"
+                        SELECT
+                            media.id,
+                            media.library_id,
+                            media.name,
+                            "" AS episode_name,
+                            media.year AS "year!",
+                            media.added,
+                            media.poster_path AS "poster_path!",
+                            media.backdrop_path,
+                            0 AS "season!",
+                            0 AS "episode!",
+                            0 AS "progress!"
+                        FROM media
+                            JOIN library ON library.id = media.library_id
+                            JOIN mediafile ON mediafile.media_id = media.id
+                        WHERE library.id = ?
+                        ORDER BY media.added DESC
+                        LIMIT 10;
+                    "#,
+                    library.id
+                )
+                .fetch_all(&mut tx)
+                .await
+                .map_err(|error| {
+                    DimHtmlErrorWrapper(DimError::DatabaseError {
+                        description: error.to_string(),
+                    })
+                })?;
+                for m in &mut media {
+                    let progress = Progress::get_for_media_user(&mut tx, user.id, m.id)
+                        .await
+                        .map(|x| x.delta)
+                        .unwrap_or(0);
+                    println!("ID: {:?} {:?}", m.id, progress);
+                    m.progress = progress;
+                }
+                media_by_library.insert(library.id, media);
+            },
+            MediaType::Tv => {
+                let mut media = sqlx::query_as!(
+                    RecentMedia,
+                    r#"
+                        SELECT
+                            media.id,
+                            media.library_id,
+                            media_show.name,
+                            media.name AS episode_name,
+                            media_show.year AS "year!",
+                            media.added,
+                            media_show.poster_path AS "poster_path!",
+                            media.backdrop_path,
+                            mediafile.season AS "season!",
+                            mediafile.episode AS "episode!",
+                            0 AS "progress!"
+                        FROM media
+                            JOIN library ON library.id = media.library_id
+                            JOIN mediafile ON mediafile.media_id = media.id
+                            JOIN episode ON episode.id = media.id
+                            JOIN season ON season.id = episode.seasonid
+                            JOIN media media_show ON media_show.id = season.tvshowid
+                        WHERE library.id = ?
+                        ORDER BY media.added DESC
+                        LIMIT 10;
+                    "#,
+                    library.id
+                )
+                .fetch_all(&mut tx)
+                .await
+                .map_err(|error| {
+                    DimHtmlErrorWrapper(DimError::DatabaseError {
+                        description: error.to_string(),
+                    })
+                })?;
+                for m in &mut media {
+                    let progress = Progress::get_for_media_user(&mut tx, user.id, m.id)
+                        .await
+                        .map(|x| x.delta)
+                        .unwrap_or(0);
+                    println!("ID: {:?} {:?}", m.id, progress);
+                    m.progress = progress;
+                }
+                media_by_library.insert(library.id, media);
+            }
+            _ => {}
+        };
+    }
     Ok(
         IndexTemplate {
             username: user.username,
             avatar,
             libraries,
+            media_by_library,
         }
     )
 }

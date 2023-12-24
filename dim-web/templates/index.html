@@ -50,44 +50,50 @@
     <h2>Recently Added in {{~ library.name -}}</h2>
     <horizontally-scrollable>
       <ul>
-        {% for s in 0..15 -%}
-        {% if "{:?}"|format(library.media_type)|lower == "tv" %}
-          <li>
-            <a href="#" aria-label="Last Week Tonight with John Oliver, Season 10 Episode 21, December 17, 2023: Elon Musk">
-              <img src="http://plex.lan/photo/:/transcode?width=240&height=360&minSize=1&upscale=1&url=%2Flibrary%2Fmetadata%2F19191%2Fthumb%2F1702970869%3FX-Plex-Token%3DTZLPRkLbLGSqnxvySqnc&X-Plex-Token=TZLPRkLbLGSqnxvySqnc" width="1000" height="1500" alt="" />
-            </a>
-            <span class="new">NEW</span>
-            <div class="media_metadata">
-              <a href="#" title="Last Week Tonight with John Oliver">
-                Last Week Tonight with John Oliver
-              </a>
-              <a href="#" title="December 17, 2023: Elon Musk">
-                December 17, 2023: Elon Musk
-              </a>
-              <span>
-                <a href="#" title="Season 10">S10</a>
-                &CenterDot;
-                <a href="#" title="Episode 21">E21</a>
-              </span>
-            </div>
-          </li>
-        {% else %}
-          <li>
-            <a href="#" aria-label="Good Night Oppy, 2022">
-              <img src="http://plex.lan/photo/:/transcode?width=480&height=720&minSize=1&upscale=1&url=%2Flibrary%2Fmetadata%2F27113%2Fthumb%2F1702721579%3FX-Plex-Token%3DTZLPRkLbLGSqnxvySqnc&X-Plex-Token=TZLPRkLbLGSqnxvySqnc" width="1000" height="1500" loading="lazy" alt="" />
-            </a>
-            <span class="new">NEW</span>
-            <div class="media_metadata">
-              <a href="#" title="Good Night Oppy">
-                Good Night Oppy
-              </a>
-              <span title="2022">
-                2022
-              </span>
-            </div>
-          </li>
-        {% endif %}
-        {% endfor -%}
+        {% for media_items in media_by_library.get(library.id) %}
+          {% for media in media_items %}
+            {% if "{:?}"|format(library.media_type)|lower == "tv" %}
+              <li>
+                <a href="/play/{{ media.id }}" aria-label="{{ media.name }}, Season {{ media.season }} Episode {{ media.episode }}, {{ media.episode_name }}">
+                  <img src="/{{ media.poster_path }}" width="1000" height="1500" loading="lazy" alt="" />
+                </a>
+                {% if media.progress == 0 %}
+                <span class="new">NEW</span>
+                {% endif %}
+                <div class="media_metadata">
+                  <a href="#" title="{{ media.name }}">
+                    {{ media.name }}
+                  </a>
+                  <a href="#" title="{{ media.episode_name }}">
+                    {{ media.episode_name }}
+                  </a>
+                  <span>
+                    <a href="#" title="Season {{ media.season }}">S{{ media.season }}</a>
+                    &CenterDot;
+                    <a href="#" title="Episode {{ media.episode }}">E{{ media.episode }}</a>
+                  </span>
+                </div>
+              </li>
+            {% else %}
+              <li>
+                <a href="/play/{{ media.id }}" aria-label="{{ media.name }}, {{ media.year }}">
+                  <img src="/{{ media.poster_path }}" width="1000" height="1500" loading="lazy" alt="" />
+                </a>
+                {% if media.progress == 0 %}
+                <span class="new">NEW</span>
+                {% endif %}
+                <div class="media_metadata">
+                  <a href="#" title="{{ media.name }}">
+                    {{ media.name }}
+                  </a>
+                  <span title="{{ media.year }}">
+                    {{ media.year }}
+                  </span>
+                </div>
+              </li>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
       </ul>
     </horizontally-scrollable>
     {% endfor %}
