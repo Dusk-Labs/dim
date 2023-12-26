@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Dim{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/static/js/controls.css">
+    <script async type="text/javascript" src="/static/js/main.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- <a href="/">Back</a> -->
+<dim-video-player>
+  <div data-shaka-player-container>
+    <video data-shaka-player playsinline controls>
+      <!-- <source src="/media/master_withthumbs.m3u8" type="application/vnd.apple.mpegurl"> -->
+      <source src="/api/v1/stream/{{ gid }}/manifest.mpd?start_num=0&should_kill=false" type="application/dash+xml">
+    </video>
+  </div>
+</dim-video-player>
+{% endblock %}

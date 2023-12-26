@@ -1,6 +1,8 @@
+use std::path;
 use std::collections::HashMap;
 use crate::AppState;
 use crate::routes::auth;
+use crate::routes::stream;
 use askama::Template;
 use axum::body;
 use axum::body::Empty;
@@ -8,6 +10,8 @@ use axum::body::Body;
 use axum::http::Request;
 use axum::Extension;
 use axum::extract::Form;
+use axum::extract::Path;
+use axum::extract::Query;
 use axum::extract::State;
 use axum::response::Html;
 use axum::response::IntoResponse;
@@ -15,12 +19,14 @@ use axum::response::Redirect;
 use axum::response::Response;
 use axum_flash::Flash;
 use axum_flash::IncomingFlashes;
+use dim_core::streaming::ffprobe::FFProbeCtx;
 use crate::error::DimHtmlErrorWrapper;
+use dim_core::errors::StreamingErrors;
 use dim_core::errors::DimError;
 use dim_database::asset::Asset;
 use dim_database::library::Library;
 use dim_database::library::MediaType;
-use dim_database::progress::Progress;
+use dim_database::mediafile::MediaFile;
 use dim_database::user::InsertableUser;
 use dim_database::user::User;
 use dim_database::user::Login;
@@ -28,8 +34,10 @@ use dim_database::user::verify;
 use crate::middleware::get_cookie_token_value;
 use serde::Deserialize;
 use http::StatusCode;
+use uuid::Uuid;
 
 
+#[derive(sqlx::FromRow)]
 pub struct RecentMedia {
     /// unique id.
     pub id: i64,
@@ -53,8 +61,12 @@ pub struct RecentMedia {
     pub season: i64,
     /// Episode number of episode
     pub episode: i64,
-    /// new if this media hasn't been watched yet
+    /// amount of time into media that has been watched
     pub progress: i64,
+    /// duration of media
+    pub duration: i64,
+    /// mediafile id
+    pub file_id: i64,
 }
 
 #[derive(Template)]
@@ -84,30 +96,33 @@ pub async fn index(
     for library in &libraries {
         match library.media_type {
             MediaType::Movie => {
-                let mut media = sqlx::query_as!(
-                    RecentMedia,
+                let media = sqlx::query_as::<_, RecentMedia>(
                     r#"
                         SELECT
                             media.id,
                             media.library_id,
                             media.name,
                             "" AS episode_name,
-                            media.year AS "year!",
+                            media.year AS "year",
                             media.added,
-                            media.poster_path AS "poster_path!",
+                            media.poster_path AS "poster_path",
                             media.backdrop_path,
-                            0 AS "season!",
-                            0 AS "episode!",
-                            0 AS "progress!"
+                            0 AS "season",
+                            0 AS "episode",
+                            COALESCE(progress.delta, 0) AS "progress",
+                            mediafile.duration AS "duration",
+                            mediafile.id AS "file_id"
                         FROM media
                             JOIN library ON library.id = media.library_id
-                            JOIN mediafile ON mediafile.media_id = media.id
+                            INNER JOIN mediafile ON mediafile.media_id = media.id
+                            LEFT JOIN progress ON (progress.media_id = media.id AND progress.user_id = ?)
                         WHERE library.id = ?
                         ORDER BY media.added DESC
                         LIMIT 10;
-                    "#,
-                    library.id
+                    "#
                 )
+                .bind(user.id)
+                .bind(library.id)
                 .fetch_all(&mut tx)
                 .await
                 .map_err(|error| {
@@ -115,44 +130,39 @@ pub async fn index(
                         description: error.to_string(),
                     })
                 })?;
-                for m in &mut media {
-                    let progress = Progress::get_for_media_user(&mut tx, user.id, m.id)
-                        .await
-                        .map(|x| x.delta)
-                        .unwrap_or(0);
-                    println!("ID: {:?} {:?}", m.id, progress);
-                    m.progress = progress;
-                }
                 media_by_library.insert(library.id, media);
             },
             MediaType::Tv => {
-                let mut media = sqlx::query_as!(
-                    RecentMedia,
+                let media = sqlx::query_as::<_, RecentMedia>(
                     r#"
                         SELECT
                             media.id,
                             media.library_id,
                             media_show.name,
                             media.name AS episode_name,
-                            media_show.year AS "year!",
+                            media_show.year AS "year",
                             media.added,
-                            media_show.poster_path AS "poster_path!",
+                            media_show.poster_path AS "poster_path",
                             media.backdrop_path,
-                            mediafile.season AS "season!",
-                            mediafile.episode AS "episode!",
-                            0 AS "progress!"
+                            mediafile.season AS "season",
+                            mediafile.episode AS "episode",
+                            COALESCE(progress.delta, 0) AS "progress",
+                            mediafile.duration AS "duration",
+                            mediafile.id AS "file_id"
                         FROM media
                             JOIN library ON library.id = media.library_id
-                            JOIN mediafile ON mediafile.media_id = media.id
+                            INNER JOIN mediafile ON mediafile.media_id = media.id
                             JOIN episode ON episode.id = media.id
                             JOIN season ON season.id = episode.seasonid
                             JOIN media media_show ON media_show.id = season.tvshowid
+                            LEFT JOIN progress ON (progress.media_id = media.id AND progress.user_id = ?)
                         WHERE library.id = ?
                         ORDER BY media.added DESC
                         LIMIT 10;
-                    "#,
-                    library.id
+                    "#
                 )
+                .bind(user.id)
+                .bind(library.id)
                 .fetch_all(&mut tx)
                 .await
                 .map_err(|error| {
@@ -160,14 +170,6 @@ pub async fn index(
                         description: error.to_string(),
                     })
                 })?;
-                for m in &mut media {
-                    let progress = Progress::get_for_media_user(&mut tx, user.id, m.id)
-                        .await
-                        .map(|x| x.delta)
-                        .unwrap_or(0);
-                    println!("ID: {:?} {:?}", m.id, progress);
-                    m.progress = progress;
-                }
                 media_by_library.insert(library.id, media);
             }
             _ => {}
@@ -179,6 +181,73 @@ pub async fn index(
             avatar,
             libraries,
             media_by_library,
+        }
+    )
+}
+
+#[derive(Template)]
+#[template(path = "play.html")]
+pub struct PlayTemplate {
+    gid: Uuid,
+}
+
+pub async fn play(
+    Extension(user): Extension<User>,
+    State(AppState { conn, state, stream_tracking, .. }): State<AppState>,
+    Path(id): Path<i64>,
+    Query(params): Query<stream::VirtualManifestParams>,
+) -> Result<impl IntoResponse, DimHtmlErrorWrapper> {
+    let mut tx = conn.read().begin().await.map_err(|err| {
+        DimHtmlErrorWrapper(DimError::DatabaseError {
+            description: err.to_string(),
+        })
+    })?;
+    let user_prefs = user.prefs;
+    let gid = Uuid::new_v4();
+    let media = MediaFile::get_one(&mut tx, id)
+        .await
+        .map_err(|e| DimHtmlErrorWrapper(DimError::StreamingError(StreamingErrors::NoMediaFileFound(e.to_string()))))?;
+
+    let target_file = media.target_file.clone();
+
+    // FIXME: When `fs::try_exists` gets stabilized we should use that as it will allow us to
+    // detect if the user lacks permissions to access the file, etc.
+    if !path::Path::new(&target_file).exists() {
+        return Err(DimHtmlErrorWrapper(DimError::StreamingError(StreamingErrors::FileDoesNotExist)));
+    }
+
+    let info = FFProbeCtx::new(dim_core::streaming::FFPROBE_BIN.as_ref())
+        .get_meta(target_file)
+        .await
+        .map_err(|_| DimHtmlErrorWrapper(DimError::StreamingError(StreamingErrors::FFProbeCtxFailed)))?;
+
+    let mut ms = info
+        .get_ms()
+        .ok_or(DimHtmlErrorWrapper(DimError::StreamingError(StreamingErrors::FileIsCorrupt)))?
+        .to_string();
+
+    ms.truncate(4);
+
+    let should_stream_default =
+        stream::try_create_dstream(&info, &media, &stream_tracking, &gid, &state, &user_prefs).await?;
+
+    stream::create_video(
+        &info,
+        &media,
+        &stream_tracking,
+        &gid,
+        &state,
+        &user_prefs,
+        should_stream_default,
+    )
+    .await?;
+    stream::create_audio(&info, &media, &stream_tracking, &gid, &state).await?;
+    stream::create_subtitles(&info, &media, &stream_tracking, &gid, &state, params.force_ass).await?;
+
+    stream_tracking.generate_sids(&gid).await;
+    Ok(
+        PlayTemplate {
+            gid
         }
     )
 }

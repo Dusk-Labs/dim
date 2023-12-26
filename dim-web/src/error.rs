@@ -3,6 +3,7 @@ use axum::response::Html;
 use axum::response::IntoResponse;
 use axum::response::Response;
 use dim_core::errors::DimError;
+use dim_core::errors::StreamingErrors;
 use dim_database::DatabaseError;
 use http::StatusCode;
 
@@ -62,6 +63,12 @@ pub struct DimHtmlErrorWrapper(pub(crate) DimError);
 impl From<DimError> for DimHtmlErrorWrapper {
     fn from(value: DimError) -> Self {
         Self(value)
+    }
+}
+
+impl From<StreamingErrors> for DimHtmlErrorWrapper {
+    fn from(value: StreamingErrors) -> Self {
+        Self(DimError::StreamingError(value))
     }
 }
 

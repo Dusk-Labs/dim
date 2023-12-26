@@ -54,13 +54,13 @@
           {% for media in media_items %}
             {% if "{:?}"|format(library.media_type)|lower == "tv" %}
               <li>
-                <a href="/play/{{ media.id }}" aria-label="{{ media.name }}, Season {{ media.season }} Episode {{ media.episode }}, {{ media.episode_name }}">
+                <a href="/play/{{ media.file_id }}" aria-label="{{ media.name }}, Season {{ media.season }} Episode {{ media.episode }}, {{ media.episode_name }}">
                   <img src="/{{ media.poster_path }}" width="1000" height="1500" loading="lazy" alt="" />
                 </a>
-                {% if media.progress == 0 %}
-                <span class="new">NEW</span>
-                {% endif %}
                 <div class="media_metadata">
+                  {% if media.progress == 0 %}
+                  <span class="new">NEW</span>
+                  {% endif %}
                   <a href="#" title="{{ media.name }}">
                     {{ media.name }}
                   </a>
@@ -76,13 +76,13 @@
               </li>
             {% else %}
               <li>
-                <a href="/play/{{ media.id }}" aria-label="{{ media.name }}, {{ media.year }}">
+                <a href="/play/{{ media.file_id }}" aria-label="{{ media.name }}, {{ media.year }}">
                   <img src="/{{ media.poster_path }}" width="1000" height="1500" loading="lazy" alt="" />
                 </a>
-                {% if media.progress == 0 %}
-                <span class="new">NEW</span>
-                {% endif %}
                 <div class="media_metadata">
+                  {% if media.progress == 0 %}
+                  <span class="new">NEW</span>
+                  {% endif %}
                   <a href="#" title="{{ media.name }}">
                     {{ media.name }}
                   </a>

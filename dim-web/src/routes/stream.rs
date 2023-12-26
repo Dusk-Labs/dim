@@ -48,7 +48,7 @@ use http::StatusCode;
 pub struct VirtualManifestParams {
     gid: Option<String>,
     #[serde(default)]
-    force_ass: bool,
+    pub force_ass: bool,
 }
 
 /// Method mapped to `GET /api/v1/stream/<id>/manifest?<gid>` returns or creates a virtual

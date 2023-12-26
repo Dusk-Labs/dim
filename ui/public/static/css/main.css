@@ -81,7 +81,6 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background var(--animationDuration) ease-in-out;
 }
 
 ::-webkit-scrollbar {
@@ -106,7 +105,7 @@ button {
   cursor: pointer;
 }
 
-input {
+input:not([type="range"]) {
   transition: background 0.3s ease-in-out;
   background: var(--tertiaryColor);
   outline: none;
@@ -143,12 +142,12 @@ nav ul {
   list-style: none;
 }
 
-.hidden {
-  display: none;
-}
-
 h1, h2, h3 {
   font-weight: 600;
+}
+
+.hidden {
+  display: none;
 }
 
 .auth-form {
@@ -513,7 +512,11 @@ horizontally-scrollable {
   --metaDataLines: 2;
   position: relative;
   overflow-x: auto;
-  height: calc((var(--posterWidth) * var(--posterHeightMultiple)) + (var(--lineHeight) * (1em * var(--metaDataLines))) + 1rem);
+  height: calc(
+    (var(--posterWidth) * var(--posterHeightMultiple)) +
+    ((1rem * var(--lineHeight)) * var(--metaDataLines)) +
+    var(--borderRadius)
+  );
 
   & .navigation {
     --iconSize: 24px;
@@ -549,7 +552,7 @@ horizontally-scrollable {
     }
   }
 
-  &:has(.media_metadata :nth-child(3)) {
+  &:has(.media_metadata span :nth-child(2)) {
     --metaDataLines: 3;
   }
 
@@ -560,7 +563,6 @@ horizontally-scrollable {
     grid-auto-flow: column;
     gap: var(--gap);
     padding: 0 var(--gap);
-    scroll-behavior: smooth;
     scroll-snap-type: x mandatory;
     scroll-padding: var(--gap);
     justify-content: start;
@@ -571,27 +573,15 @@ horizontally-scrollable {
     font-size: var(--fontSize-3);
     line-height: 1.65;
     padding: 2px;
-    scroll-snap-align: start end;
-
-    & span.new {
-      position: absolute;
-      bottom: 5px;
-      right: calc(var(--borderRadius) / 2);
-      background: var(--accentColor);
-      padding: 0 6px;
-      border-radius: calc(var(--borderRadius) / 2);
-      color: var(--accentTextColor);
-      font-weight: 900;
-      font-size: var(--fontSize-4);
-      line-height: 1.5;
-    }
+    scroll-snap-align: start;
 
     & .media_metadata {
+      position: relative;
       font-weight: 500;
       padding: 0 calc(var(--borderRadius) / 2);
       color: var(--tertiaryTextColor);
 
-      & > *:first-child {
+      & > a:first-of-type {
         color: var(--primaryTextColor);
       }
 
@@ -613,6 +603,18 @@ horizontally-scrollable {
       }
     }
 
+    & span.new {
+      position: absolute;
+      bottom: 1px;
+      right: calc(var(--borderRadius) / 2);
+      background: var(--accentColor);
+      padding: 0 6px;
+      border-radius: calc(var(--borderRadius) / 2);
+      color: var(--accentTextColor);
+      font-weight: 900;
+      font-size: var(--fontSize-4);
+    }
+
     & a {
       position: relative;
       font-weight: inherit;
@@ -626,8 +628,8 @@ horizontally-scrollable {
       &:has(img) {
         display: block;
         border-radius: var(--borderRadius);
+        margin-bottom: var(--borderRadius);
         outline: 2px solid transparent;
-        margin-bottom: calc(var(--gap) / 2);
         transition:
           opacity var(--animationDuration) ease-in-out,
           outline-color var(--animationDuration) ease-in-out;
@@ -673,6 +675,41 @@ horizontally-scrollable {
     display: block;
     width: inherit;
     height: auto;
-    aspect-ratio: 1 / 1.5 auto;
+    aspect-ratio: 1 / var(--posterHeightMultiple) auto;
   }
+}
+
+progress {
+  appearance: none;
+  border: none;
+  width: 100%;
+  height: calc(var(--borderRadius) / 2);
+  margin: 0 calc(var(--borderRadius) / 4);
+  background-color: var(--tertiaryColor);
+  border-radius: var(--borderRadius);
+
+  &::-webkit-progress {
+    &-bar {
+      background-color: var(--tertiaryColor);
+      border-radius: var(--borderRadius);
+    }
+
+    &-value {
+      background-color: var(--accentColor);
+      border-radius: var(--borderRadius);
+    }
+  }
+
+  &::-moz-progress-bar {
+    background-color: var(--tertiaryColor);
+    border-radius: var(--borderRadius);
+  }
+}
+
+video {
+  background-color: black;
+  aspect-ratio: auto 16 / 9;
+  margin: 0 auto;
+  width: 100%;
+  height: 100dvh;
 }

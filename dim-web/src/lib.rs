@@ -350,6 +350,10 @@ fn html_routes() -> Router<AppState> {
             "/",
             get(routes::html::index),
         )
+        .route(
+            "/play/:id",
+            get(routes::html::play),
+        )
 }
 
 pub async fn start_webserver(
