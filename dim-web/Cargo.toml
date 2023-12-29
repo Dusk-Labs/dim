@@ -20,6 +20,7 @@ nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4"
 ] }
 
 axum = { version = "0.6.20", features = ["ws", "http2", "macros", "multipart"] }
+axum-extra = { version = "0.9.0", features = ["cookie"] }
 cfg-if = "1.0.0"
 chrono = { version = "0.4.19", features = ["serde"] }
 displaydoc = "0.2.3"
