@@ -3,7 +3,7 @@ mod types;
 
 use async_trait::async_trait;
 
-use libsqlite3_sys::sqlite3;
+use libsqlite3_sys::{sqlite3, sqlite3_wal_hook};
 use rusqlite::hooks::Action;
 use rusqlite::Connection;
 use sqlx::SqliteConnection;
@@ -162,22 +162,6 @@ impl ReactorCore {
     }
 
     fn wal_commit_hook_raw<F: FnMut() + Send + 'static>(sqlite: *mut sqlite3, hook: F) {
-        // Unfortunately libsqlite3-sys doesnt expose this.
-        extern "C" {
-            pub fn sqlite3_wal_hook(
-                arg1: *mut sqlite3,
-                arg2: Option<
-                    unsafe extern "C" fn(
-                        arg1: *mut c_void,
-                        arg2: *mut sqlite3,
-                        arg3: *const c_char,
-                        arg4: c_int,
-                    ) -> c_int,
-                >,
-                arg3: *mut c_void,
-            ) -> *mut c_void;
-        }
-
         unsafe extern "C" fn call_boxed_closure<F: FnMut()>(
             p_arg: *mut c_void,
             _: *mut sqlite3,

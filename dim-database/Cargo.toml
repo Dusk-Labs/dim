@@ -17,7 +17,7 @@ tracing = "0.1.29"
 ring = "^0.16.11"
 uuid = { version = "0.8.1", features = ["v4"] }
 cfg-if = "1.0.0"
-sqlx = { version = "0.5", features = ["runtime-tokio-rustls", "sqlite"] }
+sqlx = { version = "0.7.3", features = ["runtime-tokio-rustls", "sqlite"] }
 once_cell = "1.8.0"
 tokio = "1.20.4"
 base64 = "0.13.0"
@@ -29,5 +29,9 @@ displaydoc = "0.2.3"
 tokio = { version = "1", default-features = false, features = ["rt", "macros"] }
 
 [build-dependencies]
-sqlx = { version = "0.5", features = ["runtime-tokio-rustls"] }
-tokio = "1.20.4"
+sqlx = { version = "0.7.3", features = ["runtime-tokio-rustls", "sqlite"] }
+tokio = { version = "1", default-features = false, features = [
+  "rt",
+  "rt-multi-thread",
+  "macros",
+] }

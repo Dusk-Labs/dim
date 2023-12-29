@@ -45,7 +45,7 @@ impl Episode {
             ORDER BY episode_ ASC"#,
             season_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?;
 
         let ep = Media::get(conn, wrapper.id).await?;
@@ -67,7 +67,7 @@ impl Episode {
             LIMIT 1"#,
             tv_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?;
 
         let ep = Media::get(conn, wrapper.id).await?;
@@ -95,7 +95,7 @@ impl Episode {
                 ORDER BY season.season_number, episode.episode_"#,
             tv_show_id
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut **conn)
         .await?;
 
         for wrapper in wrappers {
@@ -122,7 +122,7 @@ impl Episode {
             r#"SELECT id as "id!", episode_, seasonid FROM episode WHERE seasonid = ?"#,
             season_id
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut **conn)
         .await?;
 
         let mut episodes = vec![];
@@ -160,7 +160,7 @@ impl Episode {
             season_num,
             ep_num
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?;
 
         let ep = Media::get(conn, wrapper.id as i64).await?;
@@ -178,7 +178,7 @@ impl Episode {
             WHERE episode.id = ?"#,
             episode_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?;
 
         let ep = Media::get(conn, wrapper.id as i64).await?;
@@ -202,7 +202,7 @@ impl Episode {
             WHERE episode.id = ?",
             episode_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?;
 
         Ok((result.season, result.episode))
@@ -217,7 +217,7 @@ impl Episode {
             WHERE season.id = ?",
             self.seasonid
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?;
 
         Ok(record.season_number)
@@ -248,7 +248,7 @@ impl Episode {
             season_number,
             season_number
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?;
 
         let ep = Media::get(conn, record.id as i64).await?;
@@ -281,7 +281,7 @@ impl Episode {
             season_number,
             season_number
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?;
 
         let ep = Media::get(conn, record.id as i64).await?;
@@ -307,7 +307,7 @@ impl Episode {
         )
         .bind(uid)
         .bind(tvid)
-        .fetch_optional(&mut *conn)
+        .fetch_optional(&mut **conn)
         .await?;
 
         let result = if let Some(r) = result {
@@ -328,7 +328,7 @@ impl Episode {
             "SELECT episode.seasonid FROM episode WHERE episode.id = ?",
             episodeid
         )
-        .fetch_one(&mut *tx)
+        .fetch_one(&mut **tx)
         .await?
         .seasonid)
     }
@@ -364,7 +364,7 @@ impl InsertableEpisode {
             self.seasonid,
             self.episode
         )
-        .fetch_optional(&mut *conn)
+        .fetch_optional(&mut **conn)
         .await?
         {
             return Ok(r.id);
@@ -379,7 +379,7 @@ impl InsertableEpisode {
             self.episode,
             self.seasonid
         )
-        .execute(&mut *conn)
+        .execute(&mut **conn)
         .await?
         .last_insert_rowid();
 

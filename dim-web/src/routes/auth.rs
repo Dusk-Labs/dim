@@ -20,11 +20,11 @@
 //! [`login`]: fn@login
 
 use crate::AppState;
-use axum::response::IntoResponse;
-use axum::response::Response;
 use axum::extract::Json;
 use axum::extract::Path;
 use axum::extract::State;
+use axum::response::IntoResponse;
+use axum::response::Response;
 use axum::Extension;
 
 use dim_database::asset::Asset;
@@ -35,9 +35,9 @@ use dim_database::user::Login;
 use dim_database::user::User;
 use dim_database::DatabaseError;
 
+use displaydoc::Display;
 use http::StatusCode;
 use serde_json::json;
-use displaydoc::Display;
 use thiserror::Error;
 
 #[derive(Debug, Display, Error)]
@@ -129,7 +129,7 @@ pub async fn get_all_invites(
                 WHERE invites.id NOT IN (SELECT users.claimed_invite FROM users)
                 ORDER BY created ASC"#
         )
-        .fetch_all(&mut tx)
+        .fetch_all(&mut *tx)
         .await
         .unwrap_or_default();
 
@@ -140,7 +140,7 @@ pub async fn get_all_invites(
             FROM  invites
             INNER JOIN users ON users.claimed_invite = invites.id"#
             )
-            .fetch_all(&mut tx)
+            .fetch_all(&mut *tx)
             .await
             .unwrap_or_default(),
         );
@@ -150,7 +150,6 @@ pub async fn get_all_invites(
 
     Err(AuthError::InvalidCredentials)
 }
-
 
 /// # POST `/api/v1/auth/new_invite`
 /// Method will generate and return a new invite token.
@@ -193,7 +192,9 @@ pub async fn generate_invite(
     }
 
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
 
     let token = Login::new_invite(&mut tx).await?;
 
@@ -201,7 +202,6 @@ pub async fn generate_invite(
 
     Ok(axum::response::Json(json!({ "token": token })).into_response())
 }
-
 
 /// # DELETE `/api/v1/auth/token/:token`
 /// Method will revoke the supplied token.
@@ -234,13 +234,14 @@ pub async fn delete_token(
     }
 
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
     Login::delete_token(&mut tx, token).await?;
     tx.commit().await.map_err(DatabaseError::from)?;
 
     Ok(StatusCode::OK)
 }
-
 
 /// # GET `/api/v1/user`
 /// Method returns metadata about the currently logged in user.
@@ -364,7 +365,9 @@ pub async fn login(
     Err(LoginError::InvalidCredentials)
 }
 
-pub async fn admin_exists(State(AppState { conn, .. }): State<AppState>) -> Result<Response, LoginError> {
+pub async fn admin_exists(
+    State(AppState { conn, .. }): State<AppState>,
+) -> Result<Response, LoginError> {
     let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
     let exists = dbg!(User::get_all(&mut tx).await.map_err(LoginError::Database)?).is_empty();
     let value = json!({

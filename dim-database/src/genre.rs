@@ -35,7 +35,7 @@ impl Genre {
             "SELECT * FROM genre WHERE UPPER(genre.name) LIKE ?",
             query
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?)
     }
 
@@ -55,7 +55,7 @@ impl Genre {
                 WHERE genre_media.media_id = ?"#,
             media_id
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut **conn)
         .await?)
     }
 
@@ -75,7 +75,7 @@ impl Genre {
             WHERE id = ?",
             genre_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?)
     }
 
@@ -89,7 +89,7 @@ impl Genre {
         id: i64,
     ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM genre WHERE id = ?", id)
-            .execute(&mut *conn)
+            .execute(&mut **conn)
             .await?
             .rows_affected() as usize)
     }
@@ -103,7 +103,7 @@ impl Genre {
             "DELETE FROM genre_media WHERE genre_media.media_id = ?",
             media_id
         )
-        .execute(&mut *conn)
+        .execute(&mut **conn)
         .await?
         .rows_affected() as usize)
     }
@@ -129,14 +129,14 @@ impl InsertableGenre {
             WHERE UPPER(genre.name) LIKE ?",
             name
         )
-        .fetch_optional(&mut *conn)
+        .fetch_optional(&mut **conn)
         .await?
         {
             return Ok(record.id);
         }
 
         let id = sqlx::query!(r#"INSERT INTO genre (name) VALUES ($1)"#, self.name)
-            .execute(&mut *conn)
+            .execute(&mut **conn)
             .await?
             .last_insert_rowid();
 
@@ -162,7 +162,7 @@ impl InsertableGenreMedia {
             self.genre_id,
             self.media_id
         )
-        .execute(&mut *conn)
+        .execute(&mut **conn)
         .await;
     }
 
@@ -185,7 +185,7 @@ impl InsertableGenreMedia {
             media_id,
             genre_id
         )
-        .fetch_optional(&mut *conn)
+        .fetch_optional(&mut **conn)
         .await?
         {
             return Ok(r.id);
@@ -197,7 +197,7 @@ impl InsertableGenreMedia {
             genre_id,
             media_id
         )
-        .execute(&mut *conn)
+        .execute(&mut **conn)
         .await?
         .last_insert_rowid();
 

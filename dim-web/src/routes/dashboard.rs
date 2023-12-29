@@ -1,8 +1,8 @@
 use crate::AppState;
+use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::response::Json;
 use axum::response::Response;
-use axum::extract::State;
 use axum::Extension;
 
 use dim_database::episode::Episode;
@@ -164,7 +164,7 @@ pub async fn dashboard(
             "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?",
             media
-        ).fetch_one(&mut tx).await {
+        ).fetch_one(&mut *tx).await {
             Ok(x) => x,
             Err(_) => continue,
         };
@@ -182,7 +182,7 @@ pub async fn dashboard(
             "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?",
             media
-        ).fetch_one(&mut tx).await {
+        ).fetch_one(&mut *tx).await {
             Ok(x) => x,
             Err(_) => continue,
         };
@@ -200,7 +200,7 @@ pub async fn dashboard(
             "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?",
             media
-        ).fetch_one(&mut tx).await {
+        ).fetch_one(&mut *tx).await {
             Ok(x) => x,
             Err(_) => continue,
         };
@@ -224,5 +224,6 @@ pub async fn dashboard(
         ..?continue_watching,
         "TOP RATED": top_rated,
         "FRESHLY ADDED": recently_added,
-    })).into_response())
+    }))
+    .into_response())
 }

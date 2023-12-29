@@ -35,7 +35,7 @@ impl Season {
             ORDER BY season_number ASC"#,
             tv_id
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut **conn)
         .await?)
     }
 
@@ -58,7 +58,7 @@ impl Season {
             tv_id,
             season_num
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?)
     }
 
@@ -78,7 +78,7 @@ impl Season {
             tv_id,
             season_num
         )
-        .execute(&mut *conn)
+        .execute(&mut **conn)
         .await?
         .rows_affected() as usize)
     }
@@ -89,7 +89,7 @@ impl Season {
     ) -> Result<usize, DatabaseError> {
         Ok(
             sqlx::query!("DELETE FROM _tblseason where id = ?", season_id)
-                .execute(&mut *conn)
+                .execute(&mut **conn)
                 .await?
                 .rows_affected() as usize,
         )
@@ -112,7 +112,7 @@ impl Season {
             ORDER BY season_number ASC"#,
             tv_id,
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?)
     }
 
@@ -126,7 +126,7 @@ impl Season {
             FROM season WHERE id = ?"#,
             season_id,
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?)
     }
 
@@ -136,7 +136,7 @@ impl Season {
     ) -> Result<i64, DatabaseError> {
         Ok(
             sqlx::query!("SELECT tvshowid FROM season WHERE id = ?", season_id)
-                .fetch_one(&mut *conn)
+                .fetch_one(&mut **conn)
                 .await?
                 .tvshowid,
         )
@@ -150,7 +150,7 @@ impl Season {
             "SELECT COUNT(episode.id) AS count FROM episode WHERE episode.seasonid = ?",
             season_id
         )
-        .fetch_one(&mut *tx)
+        .fetch_one(&mut **tx)
         .await?
         .count as _)
     }
@@ -188,7 +188,7 @@ impl InsertableSeason {
             self.poster,
             id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?
         .id)
     }

@@ -83,7 +83,7 @@ impl Library {
     /// must query for them separately.
     pub async fn get_all(conn: &mut crate::Transaction<'_>) -> Vec<Self> {
         sqlx::query!(r#"SELECT id, name, media_type as "media_type: MediaType", hidden as "hidden: bool" FROM library WHERE NOT hidden"#)
-            .fetch_all(&mut *conn)
+            .fetch_all(&mut **conn)
             .await
             .unwrap_or_default()
             .into_iter()
@@ -106,7 +106,7 @@ impl Library {
             WHERE library_id = ?",
             id
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut **conn)
         .await?)
     }
 
@@ -125,7 +125,7 @@ impl Library {
             WHERE id = ?"#,
             lib_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?;
 
         let locations = sqlx::query_scalar!(
@@ -133,7 +133,7 @@ impl Library {
             WHERE library_id = ?"#,
             lib_id
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut **conn)
         .await?;
 
         Ok(Self {
@@ -155,7 +155,7 @@ impl Library {
         id_to_del: i64,
     ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM library WHERE id = ?", id_to_del)
-            .execute(&mut *conn)
+            .execute(&mut **conn)
             .await?
             .rows_affected() as usize)
     }
@@ -166,7 +166,7 @@ impl Library {
     ) -> Result<usize, DatabaseError> {
         Ok(
             sqlx::query!("UPDATE library SET hidden = 1 WHERE id = ?", id)
-                .execute(&mut *conn)
+                .execute(&mut **conn)
                 .await?
                 .rows_affected() as usize,
         )
@@ -180,7 +180,7 @@ impl Library {
             "SELECT COUNT(id) as size FROM _tblmedia WHERE library_id = ?",
             id
         )
-        .fetch_one(&mut *tx)
+        .fetch_one(&mut **tx)
         .await?
         .size as usize)
     }
@@ -205,7 +205,7 @@ impl InsertableLibrary {
             self.name,
             self.media_type
         )
-        .execute(&mut *conn)
+        .execute(&mut **conn)
         .await?
         .last_insert_rowid();
 
@@ -216,7 +216,7 @@ impl InsertableLibrary {
                 location,
                 lib_id
             )
-            .execute(&mut *conn)
+            .execute(&mut **conn)
             .await?;
         }
 
