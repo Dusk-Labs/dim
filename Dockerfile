@@ -15,10 +15,8 @@ RUN apt update && \
     apt install -y --no-install-recommends wget unzip tar ca-certificates xz-utils
 
 RUN if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then \
-    wget https://github.com/Dusk-Labs/ffmpeg-static/releases/download/ffmpeg-all-0.0.1/ffmpeg && \
-    wget https://github.com/Dusk-Labs/ffmpeg-static/releases/download/ffmpeg-all-0.0.1/ffprobe && \
-    ls -la . && \
-    pwd \
+    wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz && \
+    tar --strip-components 1 -xf ffmpeg-release-amd64-static.tar.xz \
     ; fi
     
 RUN if [ "${TARGETPLATFORM}" = "linux/arm64" ]; then \

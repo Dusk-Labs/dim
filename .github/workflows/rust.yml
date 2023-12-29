@@ -32,21 +32,11 @@ jobs:
           override: true
           components: cargo
 
-      - name: Download ffmpeg artifact
-        uses: dsaltares/fetch-gh-release-asset@master
-        with:
-          repo: "Dusk-Labs/ffmpeg-static"
-          version: "tags/ffmpeg-all-0.0.1"
-          file: "ffmpeg"
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Download ffprobe artifact
-        uses: dsaltares/fetch-gh-release-asset@master
-        with:
-          repo: "Dusk-Labs/ffmpeg-static"
-          version: "tags/ffmpeg-all-0.0.1"
-          file: "ffprobe"
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download static ffmpeg/ffprobe
+        run: |
+          curl -OL https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+          tar --strip-components 1 -xf ffmpeg-release-amd64-static.tar.xz --wildcards '*ffmpeg'
+          tar --strip-components 1 -xf ffmpeg-release-amd64-static.tar.xz --wildcards '*ffprobe'
 
       - name: Create release dir
         run: |
