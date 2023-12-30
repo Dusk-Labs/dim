@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT COALESCE(mediafile.duration, 0) as \"duration!: i64\" FROM mediafile\n            WHERE mediafile.media_id = ?\n            ORDER BY mediafile.duration DESC\n            LIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "duration!: i64",
+        "ordinal": 0,
+        "type_info": "Int"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "98426d37599ddbd4a4843195eff78fc4cf46d6625259bf56760da2bee42f6474"
+}

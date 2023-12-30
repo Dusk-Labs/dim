@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id as \"id!\", episode_, seasonid FROM episode WHERE seasonid = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id!",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "episode_",
+        "ordinal": 1,
+        "type_info": "Int64"
+      },
+      {
+        "name": "seasonid",
+        "ordinal": 2,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "d8ffbee7c8c1646d1647d75fc09eb32dd60df9a80d710283c098769ea7517b4d"
+}

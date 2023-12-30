@@ -1,0 +1,38 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id as \"id!\", remote_url, local_path, file_ext FROM assets WHERE remote_url = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id!",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "remote_url",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "local_path",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "file_ext",
+        "ordinal": 3,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "d010c95249447c9f665798fafbbef56274688ca63d593b7eb885e2595d53ffb1"
+}

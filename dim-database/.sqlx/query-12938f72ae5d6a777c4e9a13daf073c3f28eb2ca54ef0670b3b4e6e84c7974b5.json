@@ -1,0 +1,74 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT media.id, media.library_id, media.name, description, rating as \"rating: _\", year, added, poster_path as \"poster_path?\", backdrop_path as \"backdrop_path?\", media.media_type as \"media_type: _\"\n                FROM media\n                JOIN library ON media.library_id = library.id\n                WHERE NOT media.media_type = \"episode\" AND NOT library.hidden\n                GROUP BY media.id\n                ORDER BY RANDOM()\n                LIMIT ?\n                ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "library_id",
+        "ordinal": 1,
+        "type_info": "Int64"
+      },
+      {
+        "name": "name",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "description",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "rating: _",
+        "ordinal": 4,
+        "type_info": "Float"
+      },
+      {
+        "name": "year",
+        "ordinal": 5,
+        "type_info": "Int64"
+      },
+      {
+        "name": "added",
+        "ordinal": 6,
+        "type_info": "Text"
+      },
+      {
+        "name": "poster_path?",
+        "ordinal": 7,
+        "type_info": "Text"
+      },
+      {
+        "name": "backdrop_path?",
+        "ordinal": 8,
+        "type_info": "Text"
+      },
+      {
+        "name": "media_type: _",
+        "ordinal": 9,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "12938f72ae5d6a777c4e9a13daf073c3f28eb2ca54ef0670b3b4e6e84c7974b5"
+}

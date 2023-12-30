@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO _tblmedia (id, library_id, name, description, rating, year, added, poster, backdrop, media_type)\n            VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10)\n            ON CONFLICT(id) DO UPDATE SET\n            id = excluded.id,\n            library_id = excluded.library_id,\n            name = excluded.name,\n            description = excluded.description,\n            rating = excluded.rating,\n            year = excluded.year,\n            added = excluded.added,\n            poster = excluded.poster,\n            backdrop = excluded.backdrop,\n            media_type = excluded.media_type\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 10
+    },
+    "nullable": []
+  },
+  "hash": "84f809c9b56f510dde0cbc459ba231017864f024f32d048664baf189aaf888a0"
+}

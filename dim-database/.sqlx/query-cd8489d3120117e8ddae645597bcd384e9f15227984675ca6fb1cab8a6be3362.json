@@ -1,0 +1,44 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id as \"id: UserID\", username, roles as \"roles: Roles\", prefs as \"prefs: UserSettings\", picture from users\n                WHERE username = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id: UserID",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "username",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "roles: Roles",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "prefs: UserSettings",
+        "ordinal": 3,
+        "type_info": "Blob"
+      },
+      {
+        "name": "picture",
+        "ordinal": 4,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "cd8489d3120117e8ddae645597bcd384e9f15227984675ca6fb1cab8a6be3362"
+}

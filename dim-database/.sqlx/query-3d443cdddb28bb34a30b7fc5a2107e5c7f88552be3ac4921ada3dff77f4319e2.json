@@ -1,0 +1,44 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id, user_id as \"user_id: UserID\", delta, media_id, populated FROM progress\n            WHERE user_id = ?\n            AND media_id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "user_id: UserID",
+        "ordinal": 1,
+        "type_info": "Int64"
+      },
+      {
+        "name": "delta",
+        "ordinal": 2,
+        "type_info": "Int64"
+      },
+      {
+        "name": "media_id",
+        "ordinal": 3,
+        "type_info": "Int64"
+      },
+      {
+        "name": "populated",
+        "ordinal": 4,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "3d443cdddb28bb34a30b7fc5a2107e5c7f88552be3ac4921ada3dff77f4319e2"
+}

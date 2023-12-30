@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT media.media_type as \"media_type: _\" FROM media WHERE media.id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "media_type: _",
+        "ordinal": 0,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "cd13d43180dbbc68e7548ccad09f7000ed71ead756660d74369134b9f9108129"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO assets (remote_url, local_path, file_ext)\n                VALUES ($1, $2, $3)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "69a96de8b39bed8578f879d8f70e440e76f91c111563fb8442c1ba553da8a690"
+}

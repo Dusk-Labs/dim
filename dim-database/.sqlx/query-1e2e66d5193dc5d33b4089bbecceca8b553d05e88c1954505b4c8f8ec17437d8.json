@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT _tblmedia.id\n                FROM _tblmedia\n                JOIN library ON library.id = _tblmedia.library_id\n                WHERE NOT _tblmedia.media_type = \"episode\" AND NOT library.hidden\n                ORDER BY rating DESC\n                LIMIT ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "1e2e66d5193dc5d33b4089bbecceca8b553d05e88c1954505b4c8f8ec17437d8"
+}

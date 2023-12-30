@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM _tblseason where id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "356eede8766a49f8c06747cd8208debbc2f4fd2bdb9d0b3aa2694b75e2ef7991"
+}

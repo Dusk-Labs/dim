@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT MAX(COALESCE(mediafile.duration, 0)) as \"duration!: i64\" FROM mediafile\n            WHERE mediafile.media_id = ?\n            GROUP BY mediafile.media_id\n            LIMIT 1",
+  "describe": {
+    "columns": [
+      {
+        "name": "duration!: i64",
+        "ordinal": 0,
+        "type_info": "Int"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "01d43bd9e19a2b5110eb7cbe30a36a59965df787984f6138d594e6636c15d654"
+}

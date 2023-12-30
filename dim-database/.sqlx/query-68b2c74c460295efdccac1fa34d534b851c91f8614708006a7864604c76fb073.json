@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM invites\n                WHERE id NOT IN (\n                    SELECT claimed_invite FROM users\n                ) AND id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "68b2c74c460295efdccac1fa34d534b851c91f8614708006a7864604c76fb073"
+}

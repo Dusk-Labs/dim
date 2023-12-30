@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT genre.id as \"id!\", genre.name FROM genre\n                INNER JOIN genre_media ON genre_media.genre_id = genre.id\n                WHERE genre_media.media_id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id!",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "name",
+        "ordinal": 1,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "ab0fdd68a2d74674ebba6dcd3d538cf49e40e3b26bc78b4ac039f6f601277024"
+}

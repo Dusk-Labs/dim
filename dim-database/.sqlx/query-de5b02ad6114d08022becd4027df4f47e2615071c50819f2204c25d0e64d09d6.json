@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT tvshowid FROM season WHERE id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "tvshowid",
+        "ordinal": 0,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "de5b02ad6114d08022becd4027df4f47e2615071c50819f2204c25d0e64d09d6"
+}

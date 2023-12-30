@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM _tblmedia WHERE library_id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "637b15f238bf7293fe0e465085cb087c70ea9edab7fedff1a9c034db8f4cae1d"
+}

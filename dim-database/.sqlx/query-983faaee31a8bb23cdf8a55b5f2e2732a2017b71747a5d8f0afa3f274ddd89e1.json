@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT into indexed_paths(location, library_id)\n                VALUES ($1, $2)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "983faaee31a8bb23cdf8a55b5f2e2732a2017b71747a5d8f0afa3f274ddd89e1"
+}

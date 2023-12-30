@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT OR REPLACE INTO progress (delta, media_id, user_id, populated)\n            VALUES ($1, $2, $3, $4)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "b4f8df7f91aa0aa23474b809d6f7e8635bcc937d6175dda3a49a2c26091b3ee2"
+}

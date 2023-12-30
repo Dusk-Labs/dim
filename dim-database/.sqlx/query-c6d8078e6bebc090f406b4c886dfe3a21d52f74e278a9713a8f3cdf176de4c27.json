@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id FROM invites\n                          WHERE id NOT IN (\n                              SELECT claimed_invite FROM users\n                          )\n                          AND id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c6d8078e6bebc090f406b4c886dfe3a21d52f74e278a9713a8f3cdf176de4c27"
+}

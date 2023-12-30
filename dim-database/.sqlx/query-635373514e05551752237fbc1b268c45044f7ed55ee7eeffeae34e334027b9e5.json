@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT episode.seasonid FROM episode WHERE episode.id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "seasonid",
+        "ordinal": 0,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "635373514e05551752237fbc1b268c45044f7ed55ee7eeffeae34e334027b9e5"
+}

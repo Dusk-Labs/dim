@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT episode.id as \"id!\", episode.seasonid, episode.episode_ FROM episode\n            INNER JOIN season ON season.id = episode.seasonid\n            WHERE season.tvshowid = (\n                SELECT _tblseason.tvshowid FROM _tblseason\n                WHERE _tblseason.id = ?\n            ) AND ((\n                episode.episode_ < ? AND\n                season.season_number = ?\n            ) OR season.season_number < ?)\n            ORDER BY season.season_number DESC, episode.episode_ DESC\n            LIMIT 1",
+  "describe": {
+    "columns": [
+      {
+        "name": "id!",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "seasonid",
+        "ordinal": 1,
+        "type_info": "Int64"
+      },
+      {
+        "name": "episode_",
+        "ordinal": 2,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": [
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "99cd8953587b83af11dba299a3d78fcfb6a9d908899e203b530c81a2af9eb6c5"
+}

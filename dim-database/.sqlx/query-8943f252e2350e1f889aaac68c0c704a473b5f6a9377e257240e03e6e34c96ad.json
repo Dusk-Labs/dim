@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE users SET picture = $1 WHERE users.id = ?2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "8943f252e2350e1f889aaac68c0c704a473b5f6a9377e257240e03e6e34c96ad"
+}

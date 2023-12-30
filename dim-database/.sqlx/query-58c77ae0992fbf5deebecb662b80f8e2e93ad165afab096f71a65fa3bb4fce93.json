@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT season.season_number FROM season\n            WHERE season.id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "season_number",
+        "ordinal": 0,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "58c77ae0992fbf5deebecb662b80f8e2e93ad165afab096f71a65fa3bb4fce93"
+}
