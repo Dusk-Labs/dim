@@ -1,0 +1,74 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id, library_id, name, description, rating as \"rating: _\", year, added, poster_path, backdrop_path, media_type as \"media_type: _\" FROM media WHERE id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "library_id",
+        "ordinal": 1,
+        "type_info": "Int64"
+      },
+      {
+        "name": "name",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "description",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "rating: _",
+        "ordinal": 4,
+        "type_info": "Float"
+      },
+      {
+        "name": "year",
+        "ordinal": 5,
+        "type_info": "Int64"
+      },
+      {
+        "name": "added",
+        "ordinal": 6,
+        "type_info": "Text"
+      },
+      {
+        "name": "poster_path",
+        "ordinal": 7,
+        "type_info": "Text"
+      },
+      {
+        "name": "backdrop_path",
+        "ordinal": 8,
+        "type_info": "Text"
+      },
+      {
+        "name": "media_type: _",
+        "ordinal": 9,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "a047e10255c58eb2e36ace6a48bfff0cc5ac9cd601a6500b1dc62b35e4d6139d"
+}

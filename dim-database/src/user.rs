@@ -194,7 +194,7 @@ impl User {
             sqlx::query!(
                 r#"SELECT id as "id: UserID", username, roles as "roles: Roles", prefs as "prefs: UserSettings", picture FROM users"#
             )
-            .fetch_all(&mut *conn)
+            .fetch_all(&mut **conn)
             .await?
             .into_iter()
             .map(|user| Self {
@@ -217,7 +217,7 @@ impl User {
                 WHERE id = ?"#,
             uid
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await
         .map(|u| Self {
             id: u.id,
@@ -237,7 +237,7 @@ impl User {
                 WHERE username = ?"#,
             username
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await
         .map(|u| Self {
             id: u.id,
@@ -264,7 +264,7 @@ impl User {
             uname,
             hash,
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?;
 
         Ok(Self {
@@ -285,7 +285,7 @@ impl User {
         conn: &mut crate::Transaction<'_>,
     ) -> Result<String, DatabaseError> {
         let pass = sqlx::query!("SELECT password FROM users WHERE id = ?", self.id,)
-            .fetch_one(&mut *conn)
+            .fetch_one(&mut **conn)
             .await
             .map(|r| r.password)?;
 
@@ -302,7 +302,7 @@ impl User {
         uid: UserID,
     ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM users WHERE id = ?", uid)
-            .execute(&mut *conn)
+            .execute(&mut **conn)
             .await?
             .rows_affected() as usize)
     }
@@ -324,7 +324,7 @@ impl User {
             hash,
             self.username
         )
-        .execute(&mut *conn)
+        .execute(&mut **conn)
         .await?
         .rows_affected() as usize)
     }
@@ -339,7 +339,7 @@ impl User {
             new_username,
             old_username
         )
-        .execute(&mut *conn)
+        .execute(&mut **conn)
         .await?
         .rows_affected() as usize)
     }
@@ -354,7 +354,7 @@ impl User {
             asset_id,
             uid
         )
-        .execute(&mut *conn)
+        .execute(&mut **conn)
         .await?
         .rows_affected() as usize)
     }
@@ -399,7 +399,7 @@ impl InsertableUser {
             prefs,
             claimed_invite,
             roles
-        ).fetch_one(&mut *conn)
+        ).fetch_one(&mut **conn)
         .await?;
         Ok(user)
     }
@@ -422,7 +422,7 @@ impl UpdateableUser {
                 prefs,
                 user
             )
-            .execute(&mut *conn)
+            .execute(&mut **conn)
             .await?
             .rows_affected() as usize);
         }
@@ -457,7 +457,7 @@ impl Login {
                           AND id = ?",
             tok
         )
-        .fetch_optional(&mut *conn)
+        .fetch_optional(&mut **conn)
         .await?
         .is_some())
     }
@@ -468,7 +468,7 @@ impl Login {
     ) -> Result<usize, DatabaseError> {
         if let Some(tok) = &self.invite_token {
             Ok(sqlx::query!("DELETE FROM invites WHERE id = ?", tok)
-                .execute(&mut *conn)
+                .execute(&mut **conn)
                 .await?
                 .rows_affected() as usize)
         } else {
@@ -487,7 +487,7 @@ impl Login {
             token,
             ts
         )
-        .execute(&mut *conn)
+        .execute(&mut **conn)
         .await?;
 
         Ok(token)
@@ -497,7 +497,7 @@ impl Login {
         conn: &mut crate::Transaction<'_>,
     ) -> Result<Vec<String>, DatabaseError> {
         Ok(sqlx::query!("SELECT id from invites")
-            .fetch_all(&mut *conn)
+            .fetch_all(&mut **conn)
             .await?
             .into_iter()
             .map(|t| t.id)
@@ -515,7 +515,7 @@ impl Login {
                 ) AND id = ?",
             token
         )
-        .execute(&mut *conn)
+        .execute(&mut **conn)
         .await?
         .rows_affected() as usize)
     }

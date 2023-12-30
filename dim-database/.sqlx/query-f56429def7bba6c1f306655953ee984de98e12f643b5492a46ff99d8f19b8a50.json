@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM genre_media WHERE genre_media.media_id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "f56429def7bba6c1f306655953ee984de98e12f643b5492a46ff99d8f19b8a50"
+}

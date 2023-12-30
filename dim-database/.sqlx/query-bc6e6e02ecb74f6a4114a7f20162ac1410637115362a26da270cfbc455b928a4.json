@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO _tblmedia (library_id, name, description, rating, year, added, poster, backdrop, media_type)\n            VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 9
+    },
+    "nullable": []
+  },
+  "hash": "bc6e6e02ecb74f6a4114a7f20162ac1410637115362a26da270cfbc455b928a4"
+}

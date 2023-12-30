@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM season where tvshowid = ? AND season_number = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "2c3a21ab89145ff1a1d435730f86998def0f1a1c61ac6d89fb043941e0de5000"
+}

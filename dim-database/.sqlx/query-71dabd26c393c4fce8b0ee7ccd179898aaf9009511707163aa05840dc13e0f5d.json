@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM genre WHERE UPPER(genre.name) LIKE ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "name",
+        "ordinal": 1,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "71dabd26c393c4fce8b0ee7ccd179898aaf9009511707163aa05840dc13e0f5d"
+}

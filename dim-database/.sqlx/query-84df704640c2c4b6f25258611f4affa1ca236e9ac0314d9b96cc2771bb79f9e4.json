@@ -1,0 +1,38 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id, raw_name as name, duration, target_file FROM mediafile\n               WHERE mediafile.media_id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "duration",
+        "ordinal": 2,
+        "type_info": "Int64"
+      },
+      {
+        "name": "target_file",
+        "ordinal": 3,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "84df704640c2c4b6f25258611f4affa1ca236e9ac0314d9b96cc2771bb79f9e4"
+}

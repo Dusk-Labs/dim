@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE mediafile SET container = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "3535d7b48ae9befe8361e717cdcb69700e4ef74f7df316f0352459d494a41c1d"
+}

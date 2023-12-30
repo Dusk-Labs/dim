@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM invites WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "3aee5429152d1713edfd93c8e2b63fd172ad2b74ff64a7cf7d102deaed46ff4f"
+}

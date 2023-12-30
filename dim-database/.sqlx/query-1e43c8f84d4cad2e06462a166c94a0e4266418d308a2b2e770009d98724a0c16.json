@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT remote_url as \"remote_url!\" FROM assets WHERE Local_path = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "remote_url!",
+        "ordinal": 0,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "1e43c8f84d4cad2e06462a166c94a0e4266418d308a2b2e770009d98724a0c16"
+}

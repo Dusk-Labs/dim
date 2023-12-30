@@ -1,0 +1,122 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM mediafile WHERE target_file = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "media_id",
+        "ordinal": 1,
+        "type_info": "Int64"
+      },
+      {
+        "name": "library_id",
+        "ordinal": 2,
+        "type_info": "Int64"
+      },
+      {
+        "name": "target_file",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "raw_name",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "raw_year",
+        "ordinal": 5,
+        "type_info": "Int64"
+      },
+      {
+        "name": "quality",
+        "ordinal": 6,
+        "type_info": "Text"
+      },
+      {
+        "name": "codec",
+        "ordinal": 7,
+        "type_info": "Text"
+      },
+      {
+        "name": "container",
+        "ordinal": 8,
+        "type_info": "Text"
+      },
+      {
+        "name": "audio",
+        "ordinal": 9,
+        "type_info": "Text"
+      },
+      {
+        "name": "original_resolution",
+        "ordinal": 10,
+        "type_info": "Text"
+      },
+      {
+        "name": "duration",
+        "ordinal": 11,
+        "type_info": "Int64"
+      },
+      {
+        "name": "episode",
+        "ordinal": 12,
+        "type_info": "Int64"
+      },
+      {
+        "name": "season",
+        "ordinal": 13,
+        "type_info": "Int64"
+      },
+      {
+        "name": "corrupt",
+        "ordinal": 14,
+        "type_info": "Bool"
+      },
+      {
+        "name": "channels",
+        "ordinal": 15,
+        "type_info": "Int64"
+      },
+      {
+        "name": "profile",
+        "ordinal": 16,
+        "type_info": "Text"
+      },
+      {
+        "name": "audio_language",
+        "ordinal": 17,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "df3791c5f0e203e5bf59bd05ca33e5b394d86ffca086236d252966421d2b91c5"
+}

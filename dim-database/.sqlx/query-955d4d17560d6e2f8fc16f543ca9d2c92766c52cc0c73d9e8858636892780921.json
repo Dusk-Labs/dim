@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE _tblmedia SET description = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "955d4d17560d6e2f8fc16f543ca9d2c92766c52cc0c73d9e8858636892780921"
+}

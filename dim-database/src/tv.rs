@@ -25,7 +25,7 @@ impl TVShow {
             WHERE _tblmedia.id = ?"#,
         )
         .bind(id)
-        .fetch_one(&mut *tx)
+        .fetch_one(&mut **tx)
         .await?
         .count)
     }

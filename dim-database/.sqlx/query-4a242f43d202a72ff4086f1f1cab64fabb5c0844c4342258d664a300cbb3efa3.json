@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE mediafile SET raw_year = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "4a242f43d202a72ff4086f1f1cab64fabb5c0844c4342258d664a300cbb3efa3"
+}

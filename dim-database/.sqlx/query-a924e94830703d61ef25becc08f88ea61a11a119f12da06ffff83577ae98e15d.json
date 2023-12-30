@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT COUNT(id) as size FROM _tblmedia WHERE library_id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "size",
+        "ordinal": 0,
+        "type_info": "Int"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "a924e94830703d61ef25becc08f88ea61a11a119f12da06ffff83577ae98e15d"
+}

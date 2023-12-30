@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO genre_media (genre_id, media_id) VALUES ($1, $2)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "4875a00d16485c590d9d9f611a84f3b36ec81ba3d47ac725c5467b942b137f8a"
+}

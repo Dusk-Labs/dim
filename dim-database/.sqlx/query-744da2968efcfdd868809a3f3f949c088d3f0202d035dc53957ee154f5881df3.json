@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO _tblmedia (library_id, name, description, rating, year, added, poster, backdrop, media_type)\n            VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9)\n            RETURNING id\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 9
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "744da2968efcfdd868809a3f3f949c088d3f0202d035dc53957ee154f5881df3"
+}

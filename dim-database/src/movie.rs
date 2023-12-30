@@ -13,7 +13,7 @@ impl Movie {
             "SELECT COUNT(*) AS count FROM mediafile WHERE media_id = ?",
             id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?
         .count as _)
     }

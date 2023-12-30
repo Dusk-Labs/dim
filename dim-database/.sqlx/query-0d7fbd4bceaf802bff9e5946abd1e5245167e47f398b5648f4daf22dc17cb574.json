@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM _tblmedia WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "0d7fbd4bceaf802bff9e5946abd1e5245167e47f398b5648f4daf22dc17cb574"
+}

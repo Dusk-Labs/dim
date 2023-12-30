@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO _tblseason (season_number, added, poster, tvshowid)\n            VALUES ($1, $2, $3, $4)\n            ON CONFLICT DO UPDATE\n            SET poster = $3\n            RETURNING id as \"id!: i64\"",
+  "describe": {
+    "columns": [
+      {
+        "name": "id!: i64",
+        "ordinal": 0,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "4fadd21a3341632aef99c826b1e81dfe6f73cf5bd3b68053ab4731d692751fa5"
+}

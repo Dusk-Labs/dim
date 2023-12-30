@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE _tblmedia SET poster = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "617bd032b97bb56d68efa9bbe4b00e4ea9ca9cf4b01b3ae682079dfd8ca8d6ca"
+}

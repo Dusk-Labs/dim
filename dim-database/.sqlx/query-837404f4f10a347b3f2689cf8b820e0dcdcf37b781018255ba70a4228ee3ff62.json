@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO media_posters (media_id, asset_id)\n                VALUES ($1, $2) RETURNING id as \"id!: i64\"",
+  "describe": {
+    "columns": [
+      {
+        "name": "id!: i64",
+        "ordinal": 0,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "837404f4f10a347b3f2689cf8b820e0dcdcf37b781018255ba70a4228ee3ff62"
+}

@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT genre.id FROM genre\n            JOIN genre_media\n            WHERE genre_media.media_id = ?\n            AND genre_media.genre_id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "a4d9d60292991f4225c7d62929600b6acf89c87b340e5b663100287835e00be0"
+}

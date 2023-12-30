@@ -74,7 +74,7 @@ impl MediaFile {
             "SELECT * FROM mediafile WHERE library_id = ?",
             library_id
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut **conn)
         .await?)
     }
 
@@ -93,7 +93,7 @@ impl MediaFile {
             "SELECT * FROM mediafile WHERE library_id = ? AND media_id IS NULL",
             library_id
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut **conn)
         .await?)
     }
 
@@ -113,7 +113,7 @@ impl MediaFile {
                 WHERE media.id = ?",
             media_id
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut **conn)
         .await?)
     }
 
@@ -132,7 +132,7 @@ impl MediaFile {
                 GROUP BY mediafile.id",
             id
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut **conn)
         .await?)
     }
 
@@ -147,7 +147,7 @@ impl MediaFile {
     ) -> Result<Self, DatabaseError> {
         Ok(
             sqlx::query_as!(MediaFile, "SELECT * FROM mediafile WHERE id = ?", id)
-                .fetch_one(&mut *conn)
+                .fetch_one(&mut **conn)
                 .await?,
         )
     }
@@ -166,7 +166,7 @@ impl MediaFile {
 
         Ok(sqlx::query_as::<_, MediaFile>(&query)
             .bind_all(ids)
-            .fetch_all(&mut *conn)
+            .fetch_all(&mut **conn)
             .await?)
     }
 
@@ -178,7 +178,7 @@ impl MediaFile {
     /// * `file` - string slice containing our filepath
     pub async fn exists_by_file(conn: &mut crate::Transaction<'_>, file: &str) -> bool {
         sqlx::query!("SELECT id FROM mediafile WHERE target_file = ?", file)
-            .fetch_one(&mut *conn)
+            .fetch_one(&mut **conn)
             .await
             .is_ok()
     }
@@ -192,7 +192,7 @@ impl MediaFile {
             r#"SELECT * FROM mediafile WHERE target_file = ?"#,
             file
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?)
     }
 
@@ -208,7 +208,7 @@ impl MediaFile {
             LIMIT 1"#,
             media_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?
         .duration)
     }
@@ -223,7 +223,7 @@ impl MediaFile {
         id: i64,
     ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM mediafile WHERE id = ?", id)
-            .execute(&mut *conn)
+            .execute(&mut **conn)
             .await?
             .rows_affected() as usize)
     }
@@ -236,7 +236,7 @@ impl MediaFile {
     ) -> Result<usize, DatabaseError> {
         Ok(
             sqlx::query!("DELETE FROM mediafile WHERE library_id = ?", lib_id)
-                .execute(&mut *conn)
+                .execute(&mut **conn)
                 .await?
                 .rows_affected() as usize,
         )
@@ -279,7 +279,7 @@ impl InsertableMediaFile {
         let result: Option<i64> =
             sqlx::query_scalar("SELECT 1 FROM mediafile WHERE target_file = ?")
                 .bind(&self.target_file)
-                .fetch_optional(&mut *conn)
+                .fetch_optional(&mut **conn)
                 .await?;
 
         Ok(result == Some(1))
@@ -314,7 +314,7 @@ impl InsertableMediaFile {
             self.profile,
             self.audio_language
         )
-        .execute(&mut *conn)
+        .execute(&mut **conn)
         .await?
         .last_insert_rowid();
 

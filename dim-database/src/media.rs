@@ -59,7 +59,7 @@ impl Media {
                 r#"SELECT id, library_id, name, description, rating as "rating: _", year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE library_id = ? AND NOT media_type = "episode""#,
                 library_id
             )
-            .fetch_all(&mut *conn)
+            .fetch_all(&mut **conn)
             .await?)
     }
 
@@ -74,7 +74,7 @@ impl Media {
                 r#"SELECT id, library_id, name, description, rating as "rating: _", year, added, poster_path, backdrop_path, media_type as "media_type: _" FROM media WHERE id = ?"#,
                 id
             )
-            .fetch_one(&mut *conn)
+            .fetch_one(&mut **conn)
             .await?)
     }
 
@@ -95,7 +95,7 @@ impl Media {
                 library_id,
                 name,
             )
-            .fetch_one(&mut *conn)
+            .fetch_one(&mut **conn)
             .await?)
     }
 
@@ -110,7 +110,7 @@ impl Media {
                 INNER JOIN mediafile ON mediafile.media_id = media.id
                 WHERE mediafile.id = ?"#,
                 mediafile_id
-            ).fetch_one(&mut *conn).await?)
+            ).fetch_one(&mut **conn).await?)
     }
 
     /// Method returns the top rated medias
@@ -127,7 +127,7 @@ impl Media {
                 LIMIT ?"#,
             limit
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut **conn)
         .await?)
     }
 
@@ -145,7 +145,7 @@ impl Media {
                 LIMIT ?"#,
             limit
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut **conn)
         .await?)
     }
 
@@ -164,7 +164,7 @@ impl Media {
                 LIMIT ?
                 "#,
                 limit
-        ).fetch_all(&mut *conn).await?)
+        ).fetch_all(&mut **conn).await?)
     }
 
     pub async fn get_search(
@@ -184,7 +184,7 @@ impl Media {
                 "#,
                 query,
                 limit
-        ).fetch_all(&mut *conn).await?)
+        ).fetch_all(&mut **conn).await?)
     }
 
     pub async fn get_of_genre(
@@ -201,7 +201,7 @@ impl Media {
                 AND genre_media.genre_id = ?
                 "#,
                 genre_id,
-        ).fetch_all(&mut *conn).await?)
+        ).fetch_all(&mut **conn).await?)
     }
 
     pub async fn get_of_year(
@@ -217,7 +217,7 @@ impl Media {
                 AND year = ?
                 "#,
                 year,
-        ).fetch_all(&mut *conn).await?)
+        ).fetch_all(&mut **conn).await?)
     }
 
     pub async fn get_first_duration(&self, conn: &mut crate::Transaction<'_>) -> i64 {
@@ -230,7 +230,7 @@ impl Media {
         "#,
             self.id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await
         .map(|x| x.duration)
         .unwrap_or(0)
@@ -242,7 +242,7 @@ impl Media {
     ) -> Result<Option<i64>, DatabaseError> {
         Ok(
             sqlx::query!(r#"SELECT id FROM _tblmedia where name = ?"#, name)
-                .fetch_optional(&mut *tx)
+                .fetch_optional(&mut **tx)
                 .await?
                 .map(|x| x.id),
         )
@@ -256,7 +256,7 @@ impl Media {
             r#"SELECT media.media_type as "media_type: _" FROM media WHERE media.id = ?"#,
             id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut **conn)
         .await?)
     }
 
@@ -268,7 +268,7 @@ impl Media {
             r#"UPDATE mediafile SET media_id = NULL WHERE media_id = ? RETURNING id AS "id: i64""#,
             id
         )
-        .fetch_all(&mut *conn)
+        .fetch_all(&mut **conn)
         .await?)
     }
 
@@ -282,7 +282,7 @@ impl Media {
         id: i64,
     ) -> Result<usize, DatabaseError> {
         Ok(sqlx::query!("DELETE FROM _tblmedia WHERE id = ?", id)
-            .execute(&mut *conn)
+            .execute(&mut **conn)
             .await?
             .rows_affected() as usize)
     }
@@ -295,7 +295,7 @@ impl Media {
     ) -> Result<usize, DatabaseError> {
         Ok(
             sqlx::query!("DELETE FROM _tblmedia WHERE library_id = ?", library_id)
-                .execute(&mut *conn)
+                .execute(&mut **conn)
                 .await?
                 .rows_affected() as usize,
         )
@@ -313,7 +313,7 @@ impl Media {
             r#"SELECT library_id, media_type AS "media_type: _" FROM _tblmedia WHERE id = ?"#,
         )
         .bind(id)
-        .fetch_one(&mut *tx)
+        .fetch_one(&mut **tx)
         .await?)
     }
 }
@@ -360,7 +360,7 @@ impl InsertableMedia {
             self.poster,
             self.backdrop,
             self.media_type
-        ).fetch_one(&mut *conn).await?.id;
+        ).fetch_one(&mut **conn).await?.id;
 
         Ok(id)
     }
@@ -400,7 +400,7 @@ impl InsertableMedia {
             self.poster,
             self.backdrop,
             self.media_type
-        ).execute(&mut *conn).await?;
+        ).execute(&mut **conn).await?;
 
         Ok(id)
     }
@@ -424,7 +424,7 @@ impl InsertableMedia {
             self.poster,
             self.backdrop,
             self.media_type
-        ).execute(&mut *conn).await?.last_insert_rowid())
+        ).execute(&mut **conn).await?.last_insert_rowid())
     }
 
     /// Lazily inserts the media object passed in with the following behavior.

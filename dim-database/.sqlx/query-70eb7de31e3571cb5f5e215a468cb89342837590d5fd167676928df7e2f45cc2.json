@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT episode.id as \"id!\", episode.episode_, episode.seasonid  FROM episode\n            INNER JOIN season ON season.id = episode.seasonid\n            WHERE season.tvshowid = ?\n            AND season.season_number = ?\n            AND episode.episode_ = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id!",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "episode_",
+        "ordinal": 1,
+        "type_info": "Int64"
+      },
+      {
+        "name": "seasonid",
+        "ordinal": 2,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": [
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "70eb7de31e3571cb5f5e215a468cb89342837590d5fd167676928df7e2f45cc2"
+}

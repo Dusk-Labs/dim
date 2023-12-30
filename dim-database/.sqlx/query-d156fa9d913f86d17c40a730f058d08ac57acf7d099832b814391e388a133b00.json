@@ -1,0 +1,44 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id as \"id!\", season_number ,\n                    tvshowid , added, poster as \"poster?\"\n               FROM season WHERE id = ? AND season_number = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id!",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "season_number",
+        "ordinal": 1,
+        "type_info": "Int64"
+      },
+      {
+        "name": "tvshowid",
+        "ordinal": 2,
+        "type_info": "Int64"
+      },
+      {
+        "name": "added",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "poster?",
+        "ordinal": 4,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "d156fa9d913f86d17c40a730f058d08ac57acf7d099832b814391e388a133b00"
+}

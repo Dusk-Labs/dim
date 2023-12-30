@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT COALESCE(SUM(progress.delta), 0) as total FROM progress\n                WHERE progress.user_id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "total",
+        "ordinal": 0,
+        "type_info": "Int"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "77d5cfdee31f100ccc902b9c83164995c4a7774d69d02f5ca70b34faf0d3702f"
+}

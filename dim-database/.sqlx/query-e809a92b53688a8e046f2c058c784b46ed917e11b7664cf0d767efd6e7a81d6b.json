@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE _tblseason SET tvshowid = $1 WHERE id = ?2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "e809a92b53688a8e046f2c058c784b46ed917e11b7664cf0d767efd6e7a81d6b"
+}

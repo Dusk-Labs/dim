@@ -1,17 +1,17 @@
 use crate::AppState;
+use axum::extract::Query;
+use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::response::Json;
 use axum::response::Response;
-use axum::extract::Query;
-use axum::extract::State;
 
-use dim_database::DatabaseError;
 use dim_database::genre::*;
+use dim_database::DatabaseError;
 
 use http::StatusCode;
 
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 use serde_json::json;
 use serde_json::Value;
 
@@ -31,9 +31,7 @@ pub enum AuthError {
 impl IntoResponse for AuthError {
     fn into_response(self) -> Response {
         match self {
-            Self::NotFoundError => {
-                (StatusCode::NOT_FOUND, self.to_string()).into_response()
-            }
+            Self::NotFoundError => (StatusCode::NOT_FOUND, self.to_string()).into_response(),
             Self::InvalidCredentials => {
                 (StatusCode::UNAUTHORIZED, self.to_string()).into_response()
             }
@@ -68,20 +66,20 @@ pub async fn search(
             .join(" ");
 
         if let Ok(x) = search_by_name(&mut tx, &query_string, 15).await {
-            return Ok(Json(x).into_response())
+            return Ok(Json(x).into_response());
         }
     }
 
     if let Some(x) = search_args.genre {
         let genre_id = Genre::get_by_name(&mut tx, x).await?.id;
         if let Ok(x) = search_by_genre(&mut tx, genre_id).await {
-            return Ok(Json(x).into_response())
+            return Ok(Json(x).into_response());
         }
     }
 
     if let Some(x) = search_args.year {
         if let Ok(x) = search_by_release_year(&mut tx, x as i64).await {
-            return Ok(Json(x).into_response())
+            return Ok(Json(x).into_response());
         }
     }
 
@@ -111,7 +109,7 @@ async fn search_by_name(
         query,
         limit
     )
-    .fetch_all(conn)
+    .fetch_all(&mut **conn)
     .await
     .map_err(DatabaseError::from)?;
 
@@ -141,7 +139,7 @@ async fn search_by_genre(
                 "#,
         genre_id,
     )
-    .fetch_all(conn)
+    .fetch_all(&mut **conn)
     .await
     .map_err(DatabaseError::from)?;
 
@@ -170,7 +168,7 @@ async fn search_by_release_year(
                 "#,
         year,
     )
-    .fetch_all(conn)
+    .fetch_all(&mut **conn)
     .await
     .map_err(DatabaseError::from)?;
 

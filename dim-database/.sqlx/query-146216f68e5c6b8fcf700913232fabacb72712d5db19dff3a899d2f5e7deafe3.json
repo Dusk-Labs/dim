@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE _tblmedia SET backdrop = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "146216f68e5c6b8fcf700913232fabacb72712d5db19dff3a899d2f5e7deafe3"
+}

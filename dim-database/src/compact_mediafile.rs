@@ -53,7 +53,7 @@ impl CompactMediafile {
                WHERE library_id = ? AND media_id IS NULL"#,
             library_id
         )
-        .fetch_all(tx)
+        .fetch_all(&mut **tx)
         .await?
         .into_iter()
         .map(Into::into)
@@ -71,7 +71,7 @@ impl CompactMediafile {
                WHERE mediafile.media_id = ?"#,
             media_id
         )
-        .fetch_all(tx)
+        .fetch_all(&mut **tx)
         .await?
         .into_iter()
         .map(Into::into)
@@ -93,7 +93,7 @@ impl CompactMediafile {
              ",
             tv_id
         )
-        .fetch_all(&mut *tx)
+        .fetch_all(&mut **tx)
         .await?
         .into_iter()
         .map(Into::into)

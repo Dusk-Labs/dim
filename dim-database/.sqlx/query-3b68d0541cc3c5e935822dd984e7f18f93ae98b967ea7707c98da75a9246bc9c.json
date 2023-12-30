@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT INTO mediafile (media_id, library_id, target_file, raw_name, raw_year, quality,\n            codec, container, audio, original_resolution, duration, episode, season, corrupt, channels, profile, audio_language)\n            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 17
+    },
+    "nullable": []
+  },
+  "hash": "3b68d0541cc3c5e935822dd984e7f18f93ae98b967ea7707c98da75a9246bc9c"
+}

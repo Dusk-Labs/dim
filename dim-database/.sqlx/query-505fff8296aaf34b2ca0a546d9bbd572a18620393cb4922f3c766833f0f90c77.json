@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE _tblseason SET poster = $1 WHERE id = ?2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "505fff8296aaf34b2ca0a546d9bbd572a18620393cb4922f3c766833f0f90c77"
+}

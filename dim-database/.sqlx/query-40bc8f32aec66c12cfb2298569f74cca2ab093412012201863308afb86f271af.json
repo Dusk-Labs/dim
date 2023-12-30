@@ -1,0 +1,38 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id, name, media_type as \"media_type: MediaType\", hidden as \"hidden: bool\" FROM library\n            WHERE id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "media_type: MediaType",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "hidden: bool",
+        "ordinal": 3,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "40bc8f32aec66c12cfb2298569f74cca2ab093412012201863308afb86f271af"
+}

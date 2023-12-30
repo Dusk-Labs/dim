@@ -1,0 +1,38 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT mediafile.id, raw_name as name, duration, target_file FROM mediafile\n             INNER JOIN episode ON mediafile.media_id = episode.id\n             INNER JOIN _tblseason ON episode.seasonid = _tblseason.id\n             WHERE _tblseason.tvshowid = ?\n             GROUP BY episode.id\n             ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "duration",
+        "ordinal": 2,
+        "type_info": "Int64"
+      },
+      {
+        "name": "target_file",
+        "ordinal": 3,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "84700a8c6a4d09e5e48438ad43f20eb136dc584a758b488e047308b770a9b19e"
+}

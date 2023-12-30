@@ -1,0 +1,44 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO users (username, password, prefs, claimed_invite, roles) VALUES ($1, $2, $3, $4, $5) returning id as \"id: UserID\",username,roles as \"roles: Roles\",prefs as \"prefs: UserSettings\",picture",
+  "describe": {
+    "columns": [
+      {
+        "name": "id: UserID",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "username",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "roles: Roles",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "prefs: UserSettings",
+        "ordinal": 3,
+        "type_info": "Blob"
+      },
+      {
+        "name": "picture",
+        "ordinal": 4,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "be9c23d6f1aea1e5054b529460cdd7fcbc87856a53439e1556cf32412e51eab2"
+}
