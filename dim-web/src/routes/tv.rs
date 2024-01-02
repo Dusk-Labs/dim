@@ -86,7 +86,7 @@ pub async fn get_season_episodes(
         LEFT JOIN assets ON assets.id = _tblmedia.backdrop
         WHERE episode.seasonid = ?"#,
         id
-    ).fetch_all(&mut tx).await.unwrap_or_default();
+    ).fetch_all(tx.as_mut()).await.unwrap_or_default();
 
     Ok(axum::response::Json(json!(&result)).into_response())
 }

@@ -164,7 +164,7 @@ pub async fn dashboard(
             "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?",
             media
-        ).fetch_one(&mut tx).await {
+        ).fetch_one(tx.as_mut()).await {
             Ok(x) => x,
             Err(_) => continue,
         };
@@ -182,7 +182,7 @@ pub async fn dashboard(
             "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?",
             media
-        ).fetch_one(&mut tx).await {
+        ).fetch_one(tx.as_mut()).await {
             Ok(x) => x,
             Err(_) => continue,
         };
@@ -200,7 +200,7 @@ pub async fn dashboard(
             "SELECT _tblmedia.name, assets.local_path FROM _tblmedia LEFT JOIN assets ON assets.id = _tblmedia.poster
             WHERE _tblmedia.id = ?",
             media
-        ).fetch_one(&mut tx).await {
+        ).fetch_one(tx.as_mut()).await {
             Ok(x) => x,
             Err(_) => continue,
         };
