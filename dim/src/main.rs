@@ -33,6 +33,8 @@ fn main() {
     // never panics because we set a default value to metadata_dir
     let _ = std::fs::create_dir_all(global_settings.metadata_dir.clone());
 
+    dim_database::set_db_path(global_settings.db_path.clone());
+
     // set our jwt secret key
     let settings_clone = global_settings.clone();
     let secret_key = global_settings.secret_key.unwrap_or_else(move || {
@@ -51,7 +53,7 @@ fn main() {
         .set(global_settings.metadata_dir.clone())
         .expect("Failed to set METADATA_PATH");
 
-    dim::setup_logging(global_settings.verbose);
+    dim::setup_logging(&global_settings.logs_dir, global_settings.verbose);
 
     {
         let failed = streaming::ffcheck()
