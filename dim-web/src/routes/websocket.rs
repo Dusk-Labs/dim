@@ -142,7 +142,7 @@ pub async fn handle_websocket_session(
                                 addr,
                                 sink: Box::pin(sink),
                                 auth: Box::new(u),
-                            });
+                            }).await;
 
                             let _ = socket_tx.send(CtrlEvent::SendTo {
                                 addr,
@@ -151,7 +151,7 @@ pub async fn handle_websocket_session(
                                     event_type: dim_events::PushEventType::EventAuthOk,
                                 }
                                 .to_string(),
-                            });
+                            }).await;
 
                             break 'auth_loop;
                         }
@@ -166,7 +166,7 @@ pub async fn handle_websocket_session(
                     event_type: dim_events::PushEventType::EventAuthErr,
                 }
                 .to_string(),
-            });
+            }).await;
         }
     }
 
@@ -178,7 +178,7 @@ pub async fn handle_websocket_session(
             }
 
             None = stream.next() => {
-                let _ = socket_tx.send(CtrlEvent::Forget { addr });
+                let _ = socket_tx.send(CtrlEvent::Forget { addr }).await;
                 break;
             }
         }
