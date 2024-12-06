@@ -2,11 +2,11 @@ use crate::AppState;
 use axum::body;
 use axum::body::Empty;
 use axum::body::Full;
-use axum::extract::State;
 use axum::extract::Path;
 use axum::extract::Query;
-use axum::http::Uri;
+use axum::extract::State;
 use axum::http::Request;
+use axum::http::Uri;
 use axum::response::Html;
 use axum::response::IntoResponse;
 use axum::response::Response;
@@ -33,12 +33,12 @@ cfg_if::cfg_if! {
         pub(self) struct Asset;
     } else {
         use rust_embed::Filenames;
-        use std::borrow::Cow;
+        use rust_embed::EmbeddedFile;
 
         pub(self) struct Asset;
 
         impl RustEmbed for Asset {
-            fn get(_: &str) -> Option<Cow<'static, [u8]>> {
+            fn get(_: &str) -> Option<EmbeddedFile> {
                 None
             }
 
@@ -87,10 +87,10 @@ pub async fn get_image<T>(
     */
 
     if req
-      .headers()
-      .get(header::IF_NONE_MATCH)
-      .map(|etag| etag.to_str().unwrap_or("000000").eq(&path))
-      .unwrap_or(false)
+        .headers()
+        .get(header::IF_NONE_MATCH)
+        .map(|etag| etag.to_str().unwrap_or("000000").eq(&path))
+        .unwrap_or(false)
     {
         return Ok(Response::builder()
             .status(StatusCode::NOT_MODIFIED)
@@ -141,7 +141,9 @@ pub async fn get_image<T>(
             resp = resp.header("X-IMAGE-ACCENTS", accents);
         }
 
-        return resp.body(body::boxed(Full::from(data))).map_err(|_| errors::DimError::NotFoundError);
+        return resp
+            .body(body::boxed(Full::from(data)))
+            .map_err(|_| errors::DimError::NotFoundError);
     }
 
     Err(errors::DimError::NotFoundError)
@@ -155,10 +157,10 @@ pub async fn dist_static<T>(
     if let Some(content) = Asset::get(path.to_str().unwrap()) {
         let hash = hex::encode(content.metadata.sha256_hash());
         if req
-          .headers()
-          .get(header::IF_NONE_MATCH)
-          .map(|etag| etag.to_str().unwrap_or("000000").eq(&hash))
-          .unwrap_or(false)
+            .headers()
+            .get(header::IF_NONE_MATCH)
+            .map(|etag| etag.to_str().unwrap_or("000000").eq(&hash))
+            .unwrap_or(false)
         {
             return Ok(Response::builder()
                 .status(StatusCode::NOT_MODIFIED)

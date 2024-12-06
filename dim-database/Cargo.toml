@@ -29,5 +29,5 @@ displaydoc = "0.2.3"
 tokio = { version = "1", default-features = false, features = ["rt", "macros"] }
 
 [build-dependencies]
-sqlx = { version = "0.5", features = ["runtime-tokio-rustls"] }
-tokio = "1.20.4"
+sqlx = { version = "0.5", features = ["runtime-tokio-rustls", "sqlite"] }
+tokio = { version = "1.20.4", default-features = false, features = ["rt", "macros"] }
