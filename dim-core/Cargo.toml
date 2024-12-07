@@ -11,7 +11,7 @@ vaapi = ["nightfall/vaapi"]
 
 [dependencies]
 # git dependencies
-nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4", default-features = false, features = [
+nightfall = { path = "../../nightfall", default-features = false, features = [
     "cuda",
     "ssa_transmux",
 ] }
