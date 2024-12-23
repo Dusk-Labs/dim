@@ -34,8 +34,7 @@ pub enum DimError {
     Unauthenticated,
     /// Invalid Media type supplied.
     InvalidMediaType,
-    /// An error in the streaming module has occured
-    #[error(transparent)]
+    /// An error in the streaming module has occured: {0}
     StreamingError(#[from] StreamingErrors),
     /// User has no permission to access this route.
     Unauthorized,
@@ -100,7 +99,7 @@ impl IntoResponse for DimError {
             | Self::NotFoundError
             | Self::ExternalSearchError(_) => {
                 (StatusCode::NOT_FOUND, self.to_string()).into_response()
-            },
+            }
             Self::StreamingError(_)
             | Self::DatabaseError { .. }
             | Self::UnknownError
@@ -109,18 +108,16 @@ impl IntoResponse for DimError {
             | Self::UploadFailed
             | Self::ScannerError(_) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response()
-            },
+            }
             Self::Unauthenticated
             | Self::Unauthorized
             | Self::InvalidCredentials
             | Self::CookieError(_)
             | Self::NoToken
-            | Self::UserNotFound => {
-                (StatusCode::UNAUTHORIZED, self.to_string()).into_response()
-            },
+            | Self::UserNotFound => (StatusCode::UNAUTHORIZED, self.to_string()).into_response(),
             Self::UsernameNotAvailable => {
                 (StatusCode::BAD_REQUEST, self.to_string()).into_response()
-            },
+            }
             Self::UnsupportedFile | Self::InvalidMediaType | Self::MissingFieldInBody { .. } => {
                 (StatusCode::NOT_ACCEPTABLE, self.to_string()).into_response()
             }
@@ -184,9 +181,7 @@ impl IntoResponse for StreamingErrors {
             Self::NoMediaFileFound(_) | Self::FileDoesNotExist => {
                 (StatusCode::NOT_FOUND, self.to_string()).into_response()
             }
-            _ => {
-                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response()
-            }
+            _ => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response(),
         }
     }
 }

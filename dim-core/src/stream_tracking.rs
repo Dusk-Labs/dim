@@ -40,6 +40,7 @@ pub struct VirtualManifest {
     pub mime: String,
     pub codecs: String,
     pub bandwidth: u64,
+    pub channels: i64,
     #[serde(flatten)]
     pub args: HashMap<String, String>,
     pub duration: Option<i32>,
@@ -69,6 +70,7 @@ impl VirtualManifest {
             mime: String::new(),
             codecs: String::new(),
             bandwidth: 0,
+            channels: 2,
             args: Default::default(),
             duration: None,
             label: String::new(),
@@ -99,6 +101,11 @@ impl VirtualManifest {
 
     pub fn set_bandwidth(mut self, bandwidth: u64) -> Self {
         self.bandwidth = bandwidth;
+        self
+    }
+
+    pub fn set_channels(mut self, channels: i64) -> Self {
+        self.channels = channels;
         self
     }
 
@@ -166,6 +173,20 @@ impl VirtualManifest {
         let init = format!("{}?start_num={}", self.init_seg.clone().unwrap(), start_num);
         let chunk_path = self.chunk_path.clone();
 
+        // mark the default video track
+        if matches!(self.content_type, ContentType::Video) && self.is_default {
+            w.start_element("Label");
+            w.set_preserve_whitespaces(true);
+            w.write_text("Direct Play");
+            w.end_element();
+            w.set_preserve_whitespaces(false);
+
+            w.start_element("Role");
+            w.write_attribute("schemeIdUri", "urn:mpeg:dash:role:2011");
+            w.write_attribute("value", "main");
+            w.end_element();
+        }
+
         // write representations
         w.start_element("Representation");
         w.write_attribute("id", &self.id);
@@ -184,15 +205,7 @@ impl VirtualManifest {
                 "schemeIdUri",
                 "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
             );
-            w.write_attribute("value", "2"); // FIXME: At some point we need to stop hardcoding 2ch audio
-            w.end_element();
-        }
-
-        // mark the default video track
-        if matches!(self.content_type, ContentType::Audio | ContentType::Video) && self.is_default {
-            w.start_element("Role");
-            w.write_attribute("schemeIdUri", "urn:mpeg:dash:role:2011");
-            w.write_attribute("value", "main");
+            w.write_attribute("value", &self.channels);
             w.end_element();
         }
 
@@ -214,7 +227,7 @@ impl VirtualManifest {
     }
 
     fn compile_sub(&self, w: &mut XmlWriter) {
-        w.start_element("AdapationSet");
+        w.start_element("AdaptationSet");
         w.write_attribute("mimeType", &self.mime);
         w.write_attribute("id", &self.set_id);
 
@@ -325,6 +338,35 @@ impl StreamTracking {
         for track in manifests {
             track.compile(&mut w, start_num);
         }
+
+        w.start_element("AdaptationSet");
+        w.write_attribute("mimeType", "image/jpeg");
+        w.write_attribute("contentType", "image");
+        w.write_attribute("id", "5");
+
+        w.start_element("BaseURL");
+        w.write_text("/static/thumbnails/tmp/");
+        w.end_element();
+
+        w.start_element("SegmentTemplate");
+        w.write_attribute("media", "$Number%08d$.jpg");
+        w.write_attribute("duration", "96");
+        w.end_element();
+
+        w.start_element("Representation");
+        w.write_attribute("bandwidth", "7000");
+        w.write_attribute("id", "thumbnails_high");
+        w.write_attribute("width", "2560");
+        w.write_attribute("height", "1080");
+
+        w.start_element("EssentialProperty");
+        w.write_attribute("schemeIdUri", "http://dashif.org/thumbnail_tile");
+        w.write_attribute("value", "8x6");
+        w.end_element();
+
+        w.end_element();
+
+        w.end_element();
 
         Some(w.end_document())
     }

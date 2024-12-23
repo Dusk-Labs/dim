@@ -105,9 +105,9 @@ pub fn level_to_tag(level: i64) -> Option<Avc1Level> {
     AVC1_LEVELS.iter().find(|&x| x.level == level).cloned()
 }
 
-pub fn get_avc1_tag(width: u64, height: u64, bitrate: u64, framerate: u64) -> Avc1Level {
+pub fn get_avc1_tag(width: u64, height: u64, bitrate: u64, framerate: f64) -> Avc1Level {
     let macro_blocks = (width as f64 / 16.0) * (height as f64 / 16.0);
-    let blocks_per_sec = macro_blocks * framerate as f64;
+    let blocks_per_sec = macro_blocks * framerate;
 
     let mut avc1_levels = AVC1_LEVELS.iter().filter(|&x| {
         x.max_bitrate > bitrate

@@ -1,41 +1,37 @@
-use std::path;
-use std::collections::HashMap;
-use crate::AppState;
+use crate::error::DimHtmlErrorWrapper;
+use crate::middleware::get_cookie_token_value;
 use crate::routes::auth;
-use crate::routes::stream;
+use crate::AppState;
 use askama::Template;
 use axum::body;
-use axum::body::Empty;
 use axum::body::Body;
-use axum::http::Request;
-use axum::Extension;
+use axum::body::Empty;
 use axum::extract::Form;
 use axum::extract::Path;
-use axum::extract::Query;
 use axum::extract::State;
+use axum::http::Request;
 use axum::response::Html;
 use axum::response::IntoResponse;
 use axum::response::Redirect;
 use axum::response::Response;
+use axum::Extension;
 use axum_flash::Flash;
 use axum_flash::IncomingFlashes;
-use dim_core::streaming::ffprobe::FFProbeCtx;
-use crate::error::DimHtmlErrorWrapper;
-use dim_core::errors::StreamingErrors;
 use dim_core::errors::DimError;
+use dim_core::errors::StreamingErrors;
+use dim_core::streaming::ffprobe::FFProbeCtx;
 use dim_database::asset::Asset;
 use dim_database::library::Library;
 use dim_database::library::MediaType;
 use dim_database::mediafile::MediaFile;
-use dim_database::user::InsertableUser;
-use dim_database::user::User;
-use dim_database::user::Login;
 use dim_database::user::verify;
-use crate::middleware::get_cookie_token_value;
-use serde::Deserialize;
+use dim_database::user::InsertableUser;
+use dim_database::user::Login;
+use dim_database::user::User;
 use http::StatusCode;
-use uuid::Uuid;
-
+use serde::Deserialize;
+use std::collections::HashMap;
+use std::path;
 
 #[derive(sqlx::FromRow)]
 pub struct RecentMedia {
@@ -88,7 +84,11 @@ pub async fn index(
         })
     })?;
     let libraries = Library::get_all(&mut tx).await;
-    let avatar = match Asset::get_of_user(&mut tx, user.id).await.ok().map(|x| format!("/images/{}", x.local_path)) {
+    let avatar = match Asset::get_of_user(&mut tx, user.id)
+        .await
+        .ok()
+        .map(|x| format!("/images/{}", x.local_path))
+    {
         Some(res) => res,
         None => "".to_string(),
     };
@@ -131,7 +131,7 @@ pub async fn index(
                     })
                 })?;
                 media_by_library.insert(library.id, media);
-            },
+            }
             MediaType::Tv => {
                 let media = sqlx::query_as::<_, RecentMedia>(
                     r#"
@@ -175,81 +175,67 @@ pub async fn index(
             _ => {}
         };
     }
-    Ok(
-        IndexTemplate {
-            username: user.username,
-            avatar,
-            libraries,
-            media_by_library,
-        }
-    )
+    Ok(IndexTemplate {
+        username: user.username,
+        avatar,
+        libraries,
+        media_by_library,
+    })
 }
 
 #[derive(Template)]
 #[template(path = "play.html")]
 pub struct PlayTemplate {
-    gid: Uuid,
+    id: i64,
+    media_configurations: String,
 }
 
 pub async fn play(
-    Extension(user): Extension<User>,
-    State(AppState { conn, state, stream_tracking, .. }): State<AppState>,
+    State(AppState { conn, .. }): State<AppState>,
     Path(id): Path<i64>,
-    Query(params): Query<stream::VirtualManifestParams>,
 ) -> Result<impl IntoResponse, DimHtmlErrorWrapper> {
     let mut tx = conn.read().begin().await.map_err(|err| {
         DimHtmlErrorWrapper(DimError::DatabaseError {
             description: err.to_string(),
         })
     })?;
-    let user_prefs = user.prefs;
-    let gid = Uuid::new_v4();
-    let media = MediaFile::get_one(&mut tx, id)
-        .await
-        .map_err(|e| DimHtmlErrorWrapper(DimError::StreamingError(StreamingErrors::NoMediaFileFound(e.to_string()))))?;
+    let media = MediaFile::get_one(&mut tx, id).await.map_err(|e| {
+        DimHtmlErrorWrapper(DimError::StreamingError(StreamingErrors::NoMediaFileFound(
+            e.to_string(),
+        )))
+    })?;
 
     let target_file = media.target_file.clone();
 
     // FIXME: When `fs::try_exists` gets stabilized we should use that as it will allow us to
     // detect if the user lacks permissions to access the file, etc.
     if !path::Path::new(&target_file).exists() {
-        return Err(DimHtmlErrorWrapper(DimError::StreamingError(StreamingErrors::FileDoesNotExist)));
+        return Err(DimHtmlErrorWrapper(DimError::StreamingError(
+            StreamingErrors::FileDoesNotExist,
+        )));
     }
 
     let info = FFProbeCtx::new(dim_core::streaming::FFPROBE_BIN.as_ref())
         .get_meta(target_file)
         .await
-        .map_err(|_| DimHtmlErrorWrapper(DimError::StreamingError(StreamingErrors::FFProbeCtxFailed)))?;
+        .map_err(|_| {
+            DimHtmlErrorWrapper(DimError::StreamingError(StreamingErrors::FFProbeCtxFailed))
+        })?;
 
     let mut ms = info
         .get_ms()
-        .ok_or(DimHtmlErrorWrapper(DimError::StreamingError(StreamingErrors::FileIsCorrupt)))?
+        .ok_or(DimHtmlErrorWrapper(DimError::StreamingError(
+            StreamingErrors::FileIsCorrupt,
+        )))?
         .to_string();
 
     ms.truncate(4);
 
-    let should_stream_default =
-        stream::try_create_dstream(&info, &media, &stream_tracking, &gid, &state, &user_prefs).await?;
-
-    stream::create_video(
-        &info,
-        &media,
-        &stream_tracking,
-        &gid,
-        &state,
-        &user_prefs,
-        should_stream_default,
-    )
-    .await?;
-    stream::create_audio(&info, &media, &stream_tracking, &gid, &state).await?;
-    stream::create_subtitles(&info, &media, &stream_tracking, &gid, &state, params.force_ass).await?;
-
-    stream_tracking.generate_sids(&gid).await;
-    Ok(
-        PlayTemplate {
-            gid
-        }
-    )
+    Ok(PlayTemplate {
+        id,
+        media_configurations: serde_json::to_string(&info.get_media_configurations())
+            .expect("failed to serialize Vec of MediaConfiguration"),
+    })
 }
 
 #[derive(Template)]
@@ -271,25 +257,24 @@ pub async fn login(
     match get_cookie_token_value(&request) {
         Some(_) => {
             // If there is a token cookie, redirect to dashboard
-            return (
-                flashes,
-                Redirect::to("/").into_response()
-            )
-        },
+            return (flashes, Redirect::to("/").into_response());
+        }
         _ => {}
     }
     if auth::is_admin_exists(conn).await.unwrap_or(false) {
         (
             flashes,
-            Html(LoginTemplate {
-                flashes: flashes_for_template
-            }.render().unwrap()).into_response()
+            Html(
+                LoginTemplate {
+                    flashes: flashes_for_template,
+                }
+                .render()
+                .unwrap(),
+            )
+            .into_response(),
         )
     } else {
-        (
-            flashes,
-            Redirect::to("/register").into_response()
-        )
+        (flashes, Redirect::to("/register").into_response())
     }
 }
 
@@ -322,30 +307,23 @@ pub async fn handle_login(
     if verify(user.username, pass, form.password) {
         let token = Login::create_cookie(user.id);
 
-        return Ok(
-            Response::builder()
-                .status(StatusCode::SEE_OTHER)
-                .header("Location", "/")
-                // Set token cookie max age to 1 year
-                .header(
-                    "Set-Cookie",
-                    format!(
-                        "token={}; Path=/; Max-Age={}; SameSite=Strict; HttpOnly",
-                        token,
-                        31536000)
-                )
-                .body(body::boxed(Empty::new()))
-                .unwrap()
-        );
+        return Ok(Response::builder()
+            .status(StatusCode::SEE_OTHER)
+            .header("Location", "/")
+            // Set token cookie max age to 1 year
+            .header(
+                "Set-Cookie",
+                format!(
+                    "token={}; Path=/; Max-Age={}; SameSite=Strict; HttpOnly",
+                    token, 31536000
+                ),
+            )
+            .body(body::boxed(Empty::new()))
+            .unwrap());
     }
 
     let message = flash.error("The provided username or password is incorrect.");
-    Ok(
-        (
-            message,
-            Redirect::to("/login").into_response()
-        ).into_response()
-    )
+    Ok((message, Redirect::to("/login").into_response()).into_response())
 }
 
 #[derive(Template)]
@@ -366,10 +344,15 @@ pub async fn register(
     }
     (
         flashes,
-        Html(RegisterTemplate {
-            admin_exists: auth::is_admin_exists(conn).await.unwrap_or(false),
-            flashes: flashes_for_template,
-        }.render().unwrap()).into_response()
+        Html(
+            RegisterTemplate {
+                admin_exists: auth::is_admin_exists(conn).await.unwrap_or(false),
+                flashes: flashes_for_template,
+            }
+            .render()
+            .unwrap(),
+        )
+        .into_response(),
     )
 }
 
@@ -384,23 +367,28 @@ pub async fn handle_register(
             description: err.to_string(),
         })
     })?;
-    let users_empty = User::get_all(&mut tx).await.map_err(|err| {
-        DimHtmlErrorWrapper(DimError::DatabaseError {
-            description: err.to_string(),
-        })
-    })?.is_empty();
+    let users_empty = User::get_all(&mut tx)
+        .await
+        .map_err(|err| {
+            DimHtmlErrorWrapper(DimError::DatabaseError {
+                description: err.to_string(),
+            })
+        })?
+        .is_empty();
 
-    if !users_empty && (new_user.invite_token.is_none() || !new_user.invite_token_valid(&mut tx).await.map_err(|err| {
-        DimHtmlErrorWrapper(DimError::DatabaseError {
-            description: err.to_string(),
-        })
-    })?) {
-        return Ok(
-            (
-                flash.error(DimError::NoToken.to_string()),
-                Redirect::to("/register").into_response()
-            ).into_response()
-        );
+    if !users_empty
+        && (new_user.invite_token.is_none()
+            || !new_user.invite_token_valid(&mut tx).await.map_err(|err| {
+                DimHtmlErrorWrapper(DimError::DatabaseError {
+                    description: err.to_string(),
+                })
+            })?)
+    {
+        return Ok((
+            flash.error(DimError::NoToken.to_string()),
+            Redirect::to("/register").into_response(),
+        )
+            .into_response());
     }
 
     let roles = dim_database::user::Roles(if !users_empty {
@@ -419,12 +407,11 @@ pub async fn handle_register(
         match new_user.invite_token {
             Some(token) => token,
             None => {
-                return Ok(
-                    (
-                        flash.error(DimError::NoToken.to_string()),
-                        Redirect::to("/register").into_response()
-                    ).into_response()
-                );
+                return Ok((
+                    flash.error(DimError::NoToken.to_string()),
+                    Redirect::to("/register").into_response(),
+                )
+                    .into_response());
             }
         }
     };
@@ -450,12 +437,14 @@ pub async fn handle_register(
         })
     })?;
 
-    Ok(
-        (
-            flash.info(format!("Please login with your newly created user: {}.", res.username)),
-            Redirect::to("/login").into_response()
-        ).into_response()
+    Ok((
+        flash.info(format!(
+            "Please login with your newly created user: {}.",
+            res.username
+        )),
+        Redirect::to("/login").into_response(),
     )
+        .into_response())
 }
 
 pub async fn handle_logout() -> impl IntoResponse {
@@ -464,7 +453,7 @@ pub async fn handle_logout() -> impl IntoResponse {
         .header("Location", "/login")
         .header(
             "Set-Cookie",
-            "token=TO_BE_DELETED; Path=/; Max-Age=-1; SameSite=Strict; HttpOnly"
+            "token=TO_BE_DELETED; Path=/; Max-Age=-1; SameSite=Strict; HttpOnly",
         )
         .body(body::boxed(Empty::new()))
         .unwrap()

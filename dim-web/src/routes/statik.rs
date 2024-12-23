@@ -169,11 +169,13 @@ pub async fn dist_static<T>(
         }
         let mime = match path.extension().and_then(|x| x.to_str()) {
             Some("js") => "text/javascript",
+            Some("mjs") => "text/javascript",
             Some("map") => "application/json",
             Some("css") => "text/css",
             Some("woff") => "font/woff",
             Some("woff2") => "font/woff2",
             Some("png") => "image/png",
+            Some("jpg") => "image/jpeg",
             Some("svg") => "image/svg+xml",
             Some("ttf") => "font/ttf",
             Some("json") => "application/json",

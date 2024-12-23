@@ -1,3 +1,5 @@
+use nightfall::profiles::SideDataList;
+use serde::de;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::VecDeque;
 use std::process::Stdio;
@@ -19,6 +21,36 @@ pub struct FFPStream {
     corrupt: bool,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MediaConfiguration {
+    pub stream_index: i64,
+    #[serde(rename = "type")]
+    pub media_type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub video: Option<VideoConfiguration>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub audio: Option<AudioConfiguration>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct VideoConfiguration {
+    #[serde(rename = "contentType")]
+    pub content_type: String,
+    pub width: i64,
+    pub height: i64,
+    pub bitrate: i64,
+    pub framerate: f64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AudioConfiguration {
+    #[serde(rename = "contentType")]
+    pub content_type: String,
+    pub channels: i64,
+    pub bitrate: i64,
+    pub sameplerate: i64,
+}
+
 impl Default for FFPStream {
     fn default() -> Self {
         Self {
@@ -27,6 +59,19 @@ impl Default for FFPStream {
             format: Default::default(),
         }
     }
+}
+
+fn deserialize_fraction_string<'de, D>(deserializer: D) -> Result<Option<f64>, D::Error>
+where
+    D: de::Deserializer<'de>,
+{
+    let s: &str = de::Deserialize::deserialize(deserializer)?;
+    if let Some((numerator_s, divisor_s)) = s.split_once("/") {
+        let numerator: f64 = numerator_s.parse().unwrap();
+        let divisor: f64 = divisor_s.parse().unwrap();
+        return Ok(Some(numerator / divisor));
+    }
+    Err(de::Error::custom("Expected a string such as '24000/1001'"))
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -44,6 +89,10 @@ pub struct Stream {
     pub is_avc: Option<String>,
     pub has_b_frames: Option<u64>,
     pub pix_fmt: Option<String>,
+    #[serde(deserialize_with = "deserialize_fraction_string")]
+    pub r_frame_rate: Option<f64>,
+    #[serde(deserialize_with = "deserialize_fraction_string")]
+    pub avg_frame_rate: Option<f64>,
     pub level: Option<i64>,
     pub tags: Option<Tags>,
     pub sample_rate: Option<String>,
@@ -55,6 +104,7 @@ pub struct Stream {
     pub color_range: Option<String>,
     pub color_space: Option<String>,
     pub disposition: Option<Disposition>,
+    pub side_data_list: Option<Vec<SideDataList>>,
 }
 
 impl Stream {
@@ -62,8 +112,30 @@ impl Stream {
         self.tags.as_ref()?.bps_eng.as_ref()?.parse::<u64>().ok()
     }
 
-    pub fn get_codec(&self) -> &str {
-        &self.codec_name
+    pub fn get_codec(&self) -> String {
+        match self.codec_name.as_str() {
+            "h264" => format!("avc1.6400{:x}", self.level.unwrap_or(40)),
+            "av1" => "av01.0.01M.08".into(),
+            "aac" => "mp4a.40.2".into(),
+            "ac3" => "ac-3".into(),
+            "eac3" => "ec-3".into(),
+            "dts" => "dtsh".into(),
+            "truehd" => "mlpa".into(),
+            "vp8" => "vp8".into(),
+            "vp9" => "vp09.00.10.08".into(),
+            "hevc" => {
+                if let Some(side_data_list) = &self.side_data_list {
+                    format!(
+                        "dvh1.{:02}.{:02}",
+                        side_data_list[0].dv_profile.unwrap_or(5),
+                        side_data_list[0].dv_level.unwrap_or(6)
+                    )
+                } else {
+                    "hvc1.2.4.L153.B0".into()
+                }
+            }
+            _ => "Unknown".into(),
+        }
     }
 
     pub fn get_language(&self) -> Option<String> {
@@ -88,6 +160,7 @@ impl From<Stream> for nightfall::profiles::InputCtx {
                 .unwrap_or_default(),
             bframes: stream.has_b_frames,
             audio_channels: stream.channels.unwrap_or(2) as u64,
+            side_data_list: stream.side_data_list,
             ..Default::default()
         }
     }
@@ -261,6 +334,53 @@ impl FFPStream {
             .iter()
             .filter(|x| x.codec_type == *codec_type)
             .collect()
+    }
+
+    pub fn get_media_configurations(&self) -> Vec<MediaConfiguration> {
+        self.streams
+            .iter()
+            .filter(|stream| stream.codec_type == "audio" || stream.codec_type == "video")
+            .map(|stream| {
+                let mut m = MediaConfiguration {
+                    stream_index: stream.index,
+                    media_type: "media-source".into(),
+                    video: None,
+                    audio: None,
+                };
+                if stream.codec_type == "video" {
+                    m.video = Some(VideoConfiguration {
+                        content_type: format!("video/mp4;codecs={}", stream.get_codec()).into(),
+                        width: stream.width.unwrap_or(1920),
+                        height: stream.height.unwrap_or(1080),
+                        bitrate: stream
+                            .clone()
+                            .bit_rate
+                            .unwrap_or("1000".into())
+                            .parse::<i64>()
+                            .unwrap_or(1000),
+                        framerate: stream.avg_frame_rate.unwrap_or(24 as f64),
+                    })
+                } else {
+                    m.audio = Some(AudioConfiguration {
+                        content_type: format!("audio/mp4;codecs={}", stream.get_codec()).into(),
+                        channels: stream.channels.unwrap_or(2),
+                        bitrate: stream
+                            .clone()
+                            .bit_rate
+                            .unwrap_or("1000".into())
+                            .parse::<i64>()
+                            .unwrap_or(1000),
+                        sameplerate: stream
+                            .clone()
+                            .sample_rate
+                            .unwrap_or("24000".into())
+                            .parse::<i64>()
+                            .unwrap_or(24000),
+                    })
+                }
+                m
+            })
+            .collect::<Vec<MediaConfiguration>>()
     }
 }
 

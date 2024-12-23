@@ -115,9 +115,15 @@ impl IntoResponse for DimHtmlErrorWrapper {
 
         (
             status,
-            Html(ErrorTemplate {
-                message: self.0.to_string(),
-            }.render().unwrap()).into_response()
-        ).into_response()
+            Html(
+                ErrorTemplate {
+                    message: self.0.to_string(),
+                }
+                .render()
+                .unwrap(),
+            )
+            .into_response(),
+        )
+            .into_response()
     }
 }
