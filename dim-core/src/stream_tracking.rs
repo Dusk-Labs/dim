@@ -15,6 +15,7 @@ pub enum ContentType {
     Video,
     Audio,
     Subtitle,
+    Thumbnail,
 }
 
 impl std::fmt::Display for ContentType {
@@ -26,6 +27,7 @@ impl std::fmt::Display for ContentType {
                 ContentType::Audio => "audio",
                 ContentType::Subtitle => "subtitle",
                 ContentType::Video => "video",
+                ContentType::Thumbnail => "thumbnail",
             }
         )
     }
@@ -153,6 +155,7 @@ impl VirtualManifest {
     pub fn compile(&self, w: &mut XmlWriter, start_num: u64) {
         match self.content_type {
             ContentType::Subtitle => self.compile_sub(w),
+            ContentType::Thumbnail => self.compile_thumbnails(w),
             _ => self.compile_av(w, start_num),
         }
     }
@@ -249,6 +252,33 @@ impl VirtualManifest {
         w.end_element();
         w.end_element();
     }
+
+    fn compile_thumbnails(&self, w: &mut XmlWriter) {
+        w.start_element("AdaptationSet");
+        w.write_attribute("mimeType", &self.mime);
+        w.write_attribute("contentType", "image");
+        w.write_attribute("id", &self.set_id);
+
+        w.start_element("SegmentTemplate");
+        w.write_attribute("media", &format!("{}/$Number%010d$.jpg", &self.chunk_path));
+        w.write_attribute("duration", "96"); // 8x6 thumbnail grid with an image for every 2 seconds
+        w.end_element();
+
+        w.start_element("Representation");
+        w.write_attribute("id", "thumbnails_high");
+        for (k, v) in self.args.iter() {
+            w.write_attribute(k, v);
+        }
+
+        w.start_element("EssentialProperty");
+        w.write_attribute("schemeIdUri", "http://dashif.org/thumbnail_tile");
+        w.write_attribute("value", "8x6");
+        w.end_element();
+
+        w.end_element();
+
+        w.end_element();
+    }
 }
 
 #[derive(Debug)]
@@ -338,35 +368,6 @@ impl StreamTracking {
         for track in manifests {
             track.compile(&mut w, start_num);
         }
-
-        w.start_element("AdaptationSet");
-        w.write_attribute("mimeType", "image/jpeg");
-        w.write_attribute("contentType", "image");
-        w.write_attribute("id", "5");
-
-        w.start_element("BaseURL");
-        w.write_text("/static/thumbnails/tmp/");
-        w.end_element();
-
-        w.start_element("SegmentTemplate");
-        w.write_attribute("media", "$Number%08d$.jpg");
-        w.write_attribute("duration", "96");
-        w.end_element();
-
-        w.start_element("Representation");
-        w.write_attribute("bandwidth", "7000");
-        w.write_attribute("id", "thumbnails_high");
-        w.write_attribute("width", "2560");
-        w.write_attribute("height", "1080");
-
-        w.start_element("EssentialProperty");
-        w.write_attribute("schemeIdUri", "http://dashif.org/thumbnail_tile");
-        w.write_attribute("value", "8x6");
-        w.end_element();
-
-        w.end_element();
-
-        w.end_element();
 
         Some(w.end_document())
     }

@@ -158,6 +158,8 @@ pub async fn return_virtual_manifest(
     )
     .await?;
 
+    create_thumbnails(&info, &media, &stream_tracking, &gid, &state).await?;
+
     stream_tracking.generate_sids(&gid).await;
 
     Ok(Json(&json!({
@@ -532,6 +534,58 @@ pub async fn create_subtitles(
     Ok(())
 }
 
+pub async fn create_thumbnails(
+    info: &FFPStream,
+    media: &MediaFile,
+    stream_tracking: &StreamTracking,
+    gid: &Uuid,
+    state: &StateManager,
+) -> Result<(), errors::StreamingErrors> {
+    let video_stream = info
+        .get_primary("video")
+        .cloned()
+        .ok_or(errors::StreamingErrors::FileIsCorrupt)?;
+
+    let ctx = ProfileContext {
+        file: media.target_file.clone(),
+        input_ctx: video_stream.clone().into(),
+        output_ctx: OutputCtx {
+            codec: "jpg".into(),
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+
+    let profile_chain = get_profile_for(StreamType::Thumbnail, &ctx);
+    let thumbnail = state.create(profile_chain, ctx).await?;
+
+    let chunk_path = format!("{}/data/", thumbnail.clone());
+    let aspect_ratio: f64 = if let Some(dar) = video_stream.display_aspect_ratio {
+        if let Some((w, h)) = dar.split_once(":") {
+            let width = w.parse::<f64>().expect("Must be i64 value");
+            let height = h.parse::<f64>().expect("Must be i64 value");
+            width / height
+        } else {
+            video_stream.width.clone().unwrap() as f64 / video_stream.height.clone().unwrap() as f64
+        }
+    } else {
+        video_stream.width.clone().unwrap() as f64 / video_stream.height.clone().unwrap() as f64
+    };
+
+    let virtual_manifest =
+        VirtualManifest::new(thumbnail.clone(), chunk_path, None, ContentType::Thumbnail)
+            .set_mime("image/jpeg")
+            .set_args([
+                ("bandwidth", 7000),
+                ("width", 320 * 8), // 320 * 8 images along X axis
+                ("height", (320 as f64 / aspect_ratio) as i64 * 6), // 6 images along Y axis
+            ]);
+
+    stream_tracking.insert(&gid, virtual_manifest).await;
+
+    Ok(())
+}
+
 #[derive(Deserialize)]
 pub struct ManifestParams {
     start_num: Option<u64>,
@@ -658,30 +712,49 @@ pub async fn get_chunk(
         .to_string_lossy()
         .into_owned();
 
-    // Chunks will always be m4s or mp4
-    if extension.as_str() != "m4s" {
+    // Chunks will always be m4s or jpg
+    if extension.as_str() != "m4s" && extension.as_str() != "jpg" {
         return Err(errors::StreamingErrors::InvalidRequest);
     }
 
-    // Parse the chunk filename into a u64, we unwrap_or because sometimes it can be a init chunk,
-    // if its a init chunk we assume a chunk index of 0 because we are fetching the first few
-    // chunks.
-    let chunk_num = chunk
-        .file_stem()
-        .ok_or(errors::StreamingErrors::InvalidRequest)?
-        .to_string_lossy()
-        .into_owned()
-        .parse::<u32>()
-        .unwrap_or(0);
+    let (path, content_type) = match extension.as_str() {
+        "jpg" => {
+            let path: String = timeout_segment(
+                || {
+                    state.get_thumbnail(
+                        id.clone(),
+                        chunk.file_name().unwrap().to_string_lossy().into_owned(),
+                    )
+                },
+                Duration::from_millis(100),
+                200,
+            )
+            .await?;
+            (path, "image/jpeg")
+        }
+        _ => {
+            // Parse the chunk filename into a u64, we unwrap_or because sometimes it can be a init chunk,
+            // if its a init chunk we assume a chunk index of 0 because we are fetching the first few
+            // chunks.
+            let chunk_num = chunk
+                .file_stem()
+                .ok_or(errors::StreamingErrors::InvalidRequest)?
+                .to_string_lossy()
+                .into_owned()
+                .parse::<u32>()
+                .unwrap_or(0);
 
-    let path: String = timeout_segment(
-        || state.chunk_request(id.clone(), chunk_num),
-        Duration::from_millis(100),
-        100,
-    )
-    .await?;
+            let path: String = timeout_segment(
+                || state.chunk_request(id.clone(), chunk_num),
+                Duration::from_millis(100),
+                100,
+            )
+            .await?;
+            (path, "video/mp4")
+        }
+    };
 
-    Ok(reply_with_file(path, ("Content-Type", "video/mp4")).await)
+    Ok(reply_with_file(path, ("Content-Type", content_type)).await)
 }
 
 /// Method mapped to `/api/v1/stream/<id>/data/stream.vtt` attempts to transcode the underlying
