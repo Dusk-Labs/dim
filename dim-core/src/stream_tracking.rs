@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::Write;
 use std::sync::Arc;
 
 use crate::core::StateManager;
@@ -152,15 +153,52 @@ impl VirtualManifest {
         self
     }
 
-    pub fn compile(&self, w: &mut XmlWriter, start_num: u64) {
+    pub fn compile_dash(&self, w: &mut XmlWriter, start_num: u64) {
         match self.content_type {
-            ContentType::Subtitle => self.compile_sub(w),
-            ContentType::Thumbnail => self.compile_thumbnails(w),
-            _ => self.compile_av(w, start_num),
+            ContentType::Subtitle => self.compile_dash_sub(w),
+            ContentType::Thumbnail => self.compile_dash_thumbnails(w),
+            _ => self.compile_dash_av(w, start_num),
         }
     }
 
-    fn compile_av(&self, w: &mut XmlWriter, start_num: u64) {
+    pub fn compile_hls(&self, w: &mut String, start_num: u64) {
+        match self.content_type {
+            ContentType::Subtitle => {
+                // self.compile_hls_sub(w)
+            }
+            ContentType::Thumbnail => {
+                // self.compile_hls_thumbnails(w)
+            }
+            _ => self.compile_hls_av(w, start_num),
+        }
+    }
+
+    fn compile_hls_av(&self, w: &mut String, _start_num: u64) {
+        match self.content_type {
+            ContentType::Video => {
+                let width = self.args.get("width").unwrap();
+                let height = self.args.get("height").unwrap();
+                let resolution = format!("{}x{}", width, height);
+                writeln!(
+                    w,
+                    "#EXT-X-STREAM-INF:BANDWIDTH={},RESOLUTION={},CODECS=\"{}\"",
+                    &self.bandwidth, resolution, &self.codecs
+                )
+                .unwrap();
+            }
+            _ => {
+                writeln!(
+                    w,
+                    "#EXT-X-STREAM-INF:BANDWIDTH={},CODECS=\"{}\"",
+                    &self.bandwidth, &self.codecs
+                )
+                .unwrap();
+            }
+        }
+        writeln!(w, "/api/v1/stream/{}/data/playlist.m3u8", &self.id).unwrap();
+    }
+
+    fn compile_dash_av(&self, w: &mut XmlWriter, start_num: u64) {
         if matches!(self.content_type, ContentType::Audio | ContentType::Video) {
             // Each audio stream must be in a separate adaptation set otherwise theyre treated as
             // different bitrates of the same track rather than separate tracks.
@@ -229,7 +267,7 @@ impl VirtualManifest {
         }
     }
 
-    fn compile_sub(&self, w: &mut XmlWriter) {
+    fn compile_dash_sub(&self, w: &mut XmlWriter) {
         w.start_element("AdaptationSet");
         w.write_attribute("mimeType", &self.mime);
         w.write_attribute("id", &self.set_id);
@@ -253,7 +291,7 @@ impl VirtualManifest {
         w.end_element();
     }
 
-    fn compile_thumbnails(&self, w: &mut XmlWriter) {
+    fn compile_dash_thumbnails(&self, w: &mut XmlWriter) {
         w.start_element("AdaptationSet");
         w.write_attribute("mimeType", &self.mime);
         w.write_attribute("contentType", "image");
@@ -341,7 +379,7 @@ impl StreamTracking {
         Some(())
     }
 
-    pub async fn compile(&self, gid: &Uuid, start_num: u64) -> Option<String> {
+    pub async fn compile_dash(&self, gid: &Uuid, start_num: u64) -> Option<String> {
         let lock = self.streaming_sessions.read().await;
         let manifests = lock.get(gid)?;
         let duration = ts_to_xml(manifests.first().and_then(|x| x.duration)? as u64);
@@ -366,19 +404,54 @@ impl StreamTracking {
         w.end_element();
 
         for track in manifests {
-            track.compile(&mut w, start_num);
+            track.compile_dash(&mut w, start_num);
         }
 
         Some(w.end_document())
     }
 
-    pub async fn compile_only(
+    pub async fn compile_dash_only(
         &self,
         gid: &Uuid,
         start_num: u64,
         _filter: Vec<String>,
     ) -> Option<String> {
-        self.compile(gid, start_num).await
+        self.compile_dash(gid, start_num).await
+    }
+
+    pub async fn compile_hls(&self, gid: &Uuid, start_num: u64) -> Option<String> {
+        let lock = self.streaming_sessions.read().await;
+        let manifests = lock.get(gid)?;
+        // let target_duration = manifests
+        //     .first()
+        //     .and_then(|x| Some(x.target_duration as u64))?;
+
+        let mut w = String::new();
+        writeln!(w, "#EXTM3U").unwrap();
+        // writeln!(w, "#EXT-X-VERSION:7").unwrap();
+        // writeln!(
+        //     w,
+        //     "#EXT-X-START:TIME-OFFSET={}",
+        //     start_num * target_duration
+        // )
+        // .unwrap();
+        // writeln!(w, "#EXT-X-PLAYLIST-TYPE:VOD").unwrap();
+        // writeln!(w, "#EXT-X-TARGETDURATION:{}", target_duration).unwrap();
+
+        for track in manifests {
+            track.compile_hls(&mut w, start_num);
+        }
+
+        Some(w)
+    }
+
+    pub async fn compile_hls_only(
+        &self,
+        gid: &Uuid,
+        start_num: u64,
+        _filter: Vec<String>,
+    ) -> Option<String> {
+        self.compile_hls(gid, start_num).await
     }
 }
 

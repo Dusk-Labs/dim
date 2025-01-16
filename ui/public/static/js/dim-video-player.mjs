@@ -71,11 +71,10 @@ class DimVideoPlayer extends HTMLElement {
     let sourceDash = document.createElement("source");
     sourceDash.type = "application/dash+xml";
     sourceDash.src = manifestDashUrl;
-    this.manifestUrl = manifestDashUrl;
-    // const manifestHlsUrl = `/api/v1/stream/${gid}/manifest.m3u8`;
-    // let sourceHls = document.createElement("source");
-    // sourceHls.type = "application/vnd.apple.mpegurl";
-    // sourceHls.src = manifestHlsUrl;
+    const manifestHlsUrl = `/api/v1/stream/${gid}/manifest.m3u8`;
+    let sourceHls = document.createElement("source");
+    sourceHls.type = "application/vnd.apple.mpegurl";
+    sourceHls.src = manifestHlsUrl;
     this.video = document.createElement("video");
     this.video.dataset.shakaPlayer = "";
     this.video.setAttribute("playsinline", "");

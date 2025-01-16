@@ -158,7 +158,7 @@ pub async fn return_virtual_manifest(
     )
     .await?;
 
-    create_thumbnails(&info, &media, &stream_tracking, &gid, &state).await?;
+    // create_thumbnails(&info, &media, &stream_tracking, &gid, &state).await?;
 
     stream_tracking.generate_sids(&gid).await;
 
@@ -238,7 +238,6 @@ pub async fn try_create_dstream(
                     ("height", video_stream.height.clone().unwrap()),
                 ])
                 .set_is_default(!should_stream_default)
-                .set_target_duration(5)
                 .set_label(label);
 
         stream_tracking.insert(&gid, video_virtual_manifest).await;
@@ -601,7 +600,7 @@ pub struct ManifestParams {
 /// * `should_kill` - indicates whether we should clean old streams up while compiling the
 /// manifest.
 /// * `includes` - ids of streams to include, comma separated.
-pub async fn return_manifest(
+pub async fn return_dash_manifest(
     State(AppState {
         state,
         stream_tracking,
@@ -632,17 +631,72 @@ pub async fn return_manifest(
             .collect::<Vec<_>>();
 
         stream_tracking
-            .compile_only(&gid, params.start_num.unwrap_or(0), includes)
+            .compile_dash_only(&gid, params.start_num.unwrap_or(0), includes)
             .await
             .unwrap()
     } else {
         stream_tracking
-            .compile(&gid, params.start_num.unwrap_or(0))
+            .compile_dash(&gid, params.start_num.unwrap_or(0))
             .await
             .unwrap()
     };
 
     Ok(([(header::CONTENT_TYPE, "application/dash+xml")], manifest))
+}
+
+/// Method mapped to `/api/v1/stream/<gid>/manifest.m3u8` compiles a virtual manifest into
+/// an HLS manifest.
+///
+/// # Query args
+/// * `start_num` - first chunk number
+/// * `should_kill` - indicates whether we should clean old streams up while compiling the
+/// manifest.
+/// * `includes` - ids of streams to include, comma separated.
+pub async fn return_hls_manifest(
+    State(AppState {
+        state,
+        stream_tracking,
+        ..
+    }): State<AppState>,
+    Path(gid): Path<String>,
+    Query(params): Query<ManifestParams>,
+) -> Result<impl IntoResponse, errors::StreamingErrors> {
+    let gid = match Uuid::parse_str(gid.as_str()) {
+        Ok(x) => x,
+        Err(_) => return Err(errors::StreamingErrors::GidParseError),
+    };
+    if params.should_kill.unwrap_or(false) {
+        let ids = stream_tracking
+            .get_for_gid(&gid)
+            .await
+            .into_iter()
+            .filter(|x| !matches!(x.content_type, ContentType::Video | ContentType::Audio))
+            .map(|x| x.id)
+            .collect::<Vec<_>>();
+        stream_tracking.kill(&state, &gid, ids, true).await;
+    }
+
+    let manifest = if let Some(includes) = params.includes {
+        let includes = includes
+            .split(",")
+            .map(ToString::to_string)
+            .collect::<Vec<_>>();
+
+        stream_tracking
+            .compile_hls_only(&gid, params.start_num.unwrap_or(0), includes)
+            .await
+            .unwrap()
+    } else {
+        stream_tracking
+            .compile_hls(&gid, params.start_num.unwrap_or(0))
+            .await
+            .unwrap()
+    };
+
+    Ok((
+        [(header::CONTENT_TYPE, "application/vnd.apple.mpegurl")],
+        manifest,
+    ))
 }
 
 /// Repeatedly invoke a nightfall routine until a timeout occurs waiting for a chunk to be "ready".
@@ -680,6 +734,25 @@ where
 #[derive(Deserialize)]
 pub struct InitParams {
     start_num: Option<u32>,
+}
+
+/// Method mapped to `/api/v1/stream/<id>/data/playlist.m3u8` returns the EXTM3U of the stream `id`.
+///
+/// # Query args
+/// * `start_num` - first chunk index
+pub async fn get_hls_playlist(
+    State(AppState { state, .. }): State<AppState>,
+    Path(id): Path<String>,
+    Query(params): Query<InitParams>,
+) -> Result<impl IntoResponse, errors::StreamingErrors> {
+    let path: String = timeout_segment(
+        || state.hls_playlist_request(id.clone(), params.start_num.unwrap_or(0)),
+        Duration::from_millis(100),
+        100,
+    )
+    .await?;
+
+    Ok(reply_with_file(path, ("Content-Type", "application/vnd.apple.mpegurl")).await)
 }
 
 /// Method mapped to `/api/v1/stream/<id>/data/init.mp4` returns the init chunk of the stream `id`.

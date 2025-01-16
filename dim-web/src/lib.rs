@@ -49,22 +49,13 @@ impl FromRef<AppState> for axum_flash::Config {
 
 fn library_routes() -> Router<AppState> {
     Router::new()
-        .route(
-            "/api/v1/library",
-            get(routes::library::library_get_all),
-        )
-        .route(
-            "/api/v1/library",
-            post(routes::library::library_post),
-        )
+        .route("/api/v1/library", get(routes::library::library_get_all))
+        .route("/api/v1/library", post(routes::library::library_post))
         .route(
             "/api/v1/library/:id/media",
             get(routes::library::library_get_media),
         )
-        .route(
-            "/api/v1/library/:id",
-            get(routes::library::library_get_one),
-        )
+        .route("/api/v1/library/:id", get(routes::library::library_get_one))
         .route(
             "/api/v1/library/:id",
             delete(routes::library::library_delete),
@@ -77,85 +68,58 @@ fn library_routes() -> Router<AppState> {
 
 fn auth_routes() -> Router<AppState> {
     Router::new()
-        .route(
-            "/api/v1/auth/whoami",
-            get(routes::auth::whoami)
-        )
-        .route(
-            "/api/v1/auth/invites",
-            get(routes::auth::get_all_invites)
-        )
+        .route("/api/v1/auth/whoami", get(routes::auth::whoami))
+        .route("/api/v1/auth/invites", get(routes::auth::get_all_invites))
         .route(
             "/api/v1/auth/new_invite",
-            post(routes::auth::generate_invite)
+            post(routes::auth::generate_invite),
         )
         .route(
             "/api/v1/auth/token/:token",
-            delete(routes::auth::delete_token)
+            delete(routes::auth::delete_token),
         )
 }
 
 fn public_auth_routes() -> Router<AppState> {
     Router::new()
-        .route(
-            "/api/v1/auth/login",
-            post(routes::auth::login),
-        )
-        .route(
-            "/api/v1/auth/register",
-            post(routes::auth::register),
-        )
-        .route(
-            "/api/v1/auth/admin_exists",
-            get(routes::auth::admin_exists),
-        )
+        .route("/api/v1/auth/login", post(routes::auth::login))
+        .route("/api/v1/auth/register", post(routes::auth::register))
+        .route("/api/v1/auth/admin_exists", get(routes::auth::admin_exists))
 }
 
 fn dashboard_routes() -> Router<AppState> {
     Router::new()
-        .route(
-            "/api/v1/dashboard",
-            get(routes::dashboard::dashboard),
-        )
-        .route(
-            "/api/v1/dashboard/banner",
-            get(routes::dashboard::banners),
-        )
+        .route("/api/v1/dashboard", get(routes::dashboard::dashboard))
+        .route("/api/v1/dashboard/banner", get(routes::dashboard::banners))
 }
 
 fn media_routes() -> Router<AppState> {
     Router::new()
-        .route(
-            "/api/v1/media/:id",
-            get(routes::media::get_media_by_id)
-        )
+        .route("/api/v1/media/:id", get(routes::media::get_media_by_id))
         .route(
             "/api/v1/media/:id/files",
-            get(routes::media::get_media_files)
+            get(routes::media::get_media_files),
         )
         .route(
             "/api/v1/media/:id/tree",
-            get(routes::media::get_mediafile_tree)
+            get(routes::media::get_mediafile_tree),
         )
         .route(
             "/api/v1/media/:id",
-            patch(routes::media::update_media_by_id)
+            patch(routes::media::update_media_by_id),
         )
         .route(
             "/api/v1/media/:id",
-            delete(routes::media::delete_media_by_id)
+            delete(routes::media::delete_media_by_id),
         )
-        .route(
-            "/api/v1/media/tmdb_search",
-            get(routes::media::tmdb_search)
-        )
+        .route("/api/v1/media/tmdb_search", get(routes::media::tmdb_search))
         .route(
             "/api/v1/media/:id/progress",
-            post(routes::media::map_progress)
+            post(routes::media::map_progress),
         )
         .route(
             "/api/v1/media/:id/match",
-            patch(routes::media::rematch_media_by_id)
+            patch(routes::media::rematch_media_by_id),
         )
 }
 
@@ -163,39 +127,47 @@ fn stream_routes() -> Router<AppState> {
     Router::new()
         .route(
             "/api/v1/stream/:id/manifest",
-            get(routes::stream::return_virtual_manifest)
+            get(routes::stream::return_virtual_manifest),
         )
         .route(
             "/api/v1/stream/:gid/manifest.mpd",
-            get(routes::stream::return_manifest)
+            get(routes::stream::return_dash_manifest),
+        )
+        .route(
+            "/api/v1/stream/:gid/manifest.m3u8",
+            get(routes::stream::return_hls_manifest),
+        )
+        .route(
+            "/api/v1/stream/:id/data/playlist.m3u8",
+            get(routes::stream::get_hls_playlist),
         )
         .route(
             "/api/v1/stream/:id/data/init.mp4",
-            get(routes::stream::get_init)
+            get(routes::stream::get_init),
         )
         .route(
             "/api/v1/stream/:gid/state/should_hard_seek/:chunk_num",
-            get(routes::stream::should_client_hard_seek)
+            get(routes::stream::should_client_hard_seek),
         )
         .route(
             "/api/v1/stream/:gid/state/get_stderr",
-            get(routes::stream::session_get_stderr)
+            get(routes::stream::session_get_stderr),
         )
         .route(
             "/api/v1/stream/:gid/state/kill_session",
-            get(routes::stream::kill_session)
+            get(routes::stream::kill_session),
         )
         .route(
             "/api/v1/stream/:id/data/stream.vtt",
-            get(routes::stream::get_subtitle)
+            get(routes::stream::get_subtitle),
         )
         .route(
             "/api/v1/stream/:id/data/stream.ass",
-            get(routes::stream::get_subtitle_ass)
+            get(routes::stream::get_subtitle_ass),
         )
         .route(
             "/api/v1/stream/:id/data/*chunk",
-            get(routes::stream::get_chunk)
+            get(routes::stream::get_chunk),
         )
 }
 
@@ -213,14 +185,8 @@ fn episode_routes() -> Router<AppState> {
 
 fn season_routes() -> Router<AppState> {
     Router::new()
-        .route(
-            "/api/v1/season/:id",
-            get(routes::tv::get_season_by_id),
-        )
-        .route(
-            "/api/v1/season/:id",
-            patch(routes::tv::patch_season_by_id),
-        )
+        .route("/api/v1/season/:id", get(routes::tv::get_season_by_id))
+        .route("/api/v1/season/:id", patch(routes::tv::patch_season_by_id))
         .route(
             "/api/v1/season/:id",
             delete(routes::tv::delete_season_by_id),
@@ -232,11 +198,7 @@ fn season_routes() -> Router<AppState> {
 }
 
 fn tv_routes() -> Router<AppState> {
-    Router::new()
-        .route(
-            "/api/v1/tv/:id/season",
-            get(routes::tv::get_tv_seasons),
-        )
+    Router::new().route("/api/v1/tv/:id/season", get(routes::tv::get_tv_seasons))
 }
 
 fn filebrowser_routes() -> Router<AppState> {
@@ -289,71 +251,35 @@ fn user_routes() -> Router<AppState> {
             "/api/v1/user/password",
             patch(routes::user::change_password),
         )
-        .route(
-            "/api/v1/user/delete",
-            delete(routes::user::delete),
-        )
+        .route("/api/v1/user/delete", delete(routes::user::delete))
         .route(
             "/api/v1/user/username",
             patch(routes::user::change_username),
         )
-        .route(
-            "/api/v1/user/avatar",
-            post(routes::user::upload_avatar),
-        )
+        .route("/api/v1/user/avatar", post(routes::user::upload_avatar))
         .layer(DefaultBodyLimit::max(5_000_000))
 }
 
 fn static_routes() -> Router<AppState> {
     Router::new()
-        .route(
-            "/*path",
-            get(routes::statik::react_routes),
-        )
-        .route(
-            "/static/*path",
-            get(routes::statik::dist_static),
-        )
-        .route(
-            "/images/*path",
-            get(routes::statik::get_image),
-        )
+        .route("/*path", get(routes::statik::react_routes))
+        .route("/static/*path", get(routes::statik::dist_static))
+        .route("/images/*path", get(routes::statik::get_image))
 }
 
 fn public_html_routes() -> Router<AppState> {
     Router::new()
-        .route(
-            "/login",
-            get(routes::html::login),
-        )
-        .route(
-            "/login",
-            post(routes::html::handle_login),
-        )
-        .route(
-            "/logout",
-            get(routes::html::handle_logout),
-        )
-        .route(
-            "/register",
-            get(routes::html::register),
-        )
-        .route(
-            "/register",
-            post(routes::html::handle_register),
-        )
+        .route("/login", get(routes::html::login))
+        .route("/login", post(routes::html::handle_login))
+        .route("/logout", get(routes::html::handle_logout))
+        .route("/register", get(routes::html::register))
+        .route("/register", post(routes::html::handle_register))
 }
 
 fn html_routes() -> Router<AppState> {
     Router::new()
-        .route(
-            "/",
-            get(routes::html::index),
-        )
-        .route(
-            "/play/:id",
-            get(routes::html::play),
-        )
+        .route("/", get(routes::html::index))
+        .route("/play/:id", get(routes::html::play))
 }
 
 pub async fn start_webserver(
@@ -405,9 +331,7 @@ pub async fn start_webserver(
         event_tx: event_tx.clone(),
         state,
         stream_tracking,
-        flash_config: axum_flash::Config::new(
-            Key::generate()
-        ).use_secure_cookies(false),
+        flash_config: axum_flash::Config::new(Key::generate()).use_secure_cookies(false),
     };
 
     let router = Router::new()
@@ -421,10 +345,7 @@ pub async fn start_webserver(
         .merge(tv_routes())
         .merge(filebrowser_routes())
         .merge(user_routes())
-        .route(
-            "/api/v1/search",
-            get(routes::search::search),
-        )
+        .route("/api/v1/search", get(routes::search::search))
         .merge(settings_routes())
         .merge(stream_routes())
         .merge(html_routes())
