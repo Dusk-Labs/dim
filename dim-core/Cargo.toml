@@ -90,3 +90,6 @@ criterion = { version = "0.3", features = ["async_tokio"] }
 [[bench]]
 name = "movie_scanner"
 harness = false
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(bench)'] }
