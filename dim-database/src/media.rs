@@ -325,7 +325,7 @@ impl Into<super::tv::TVShow> for Media {
 }
 
 /// Struct which represents a insertable media object. It is usually used only by the scanners to
-/// insert new media objects. It is the same as [`Media`](Media) except it doesnt have the
+/// insert new media objects. It is the same as [`Media`] except it doesnt have the
 /// [`id`](Media::id) field.
 #[derive(Clone, Default, Debug)]
 pub struct InsertableMedia {
@@ -466,7 +466,7 @@ impl InsertableMedia {
 }
 
 /// Struct which is used when we need to update information about a media object. Same as
-/// [`InsertableMedia`](InsertableMedia) except `library_id` cannot be changed and everything field
+/// [`InsertableMedia`] except `library_id` cannot be changed and everything field
 /// is a `Option<T>`.
 #[derive(Clone, Default, Deserialize, Debug)]
 pub struct UpdateMedia {

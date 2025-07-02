@@ -73,6 +73,7 @@ pub struct Library {
     pub media_type: MediaType,
     /// Is library hidden?
     pub hidden: bool,
+    pub season_id: i64,
 }
 
 impl Library {
@@ -93,6 +94,7 @@ impl Library {
                 media_type: x.media_type,
                 hidden: x.hidden,
                 locations: vec![],
+                season_id: 0,
             })
             .collect()
     }
@@ -142,6 +144,7 @@ impl Library {
             media_type: library.media_type,
             hidden: library.hidden,
             locations,
+            season_id: 0,
         })
     }
 
@@ -186,7 +189,7 @@ impl Library {
     }
 }
 
-/// InsertableLibrary struct, same as [`Library`](Library) but without the id field.
+/// InsertableLibrary struct, same as [`Library`] but without the id field.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct InsertableLibrary {
     pub name: String,
