@@ -28,4 +28,4 @@ function Rescan() {
   );
 }
 
-export default Rescan; 
+export default Rescan;

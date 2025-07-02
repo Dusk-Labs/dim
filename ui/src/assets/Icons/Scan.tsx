@@ -10,4 +10,4 @@ const ScanIcon = () => (
   </svg>
 );
 
-export default ScanIcon; 
+export default ScanIcon;
