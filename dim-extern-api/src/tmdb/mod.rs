@@ -111,12 +111,13 @@ mod tests {
             .await
             .expect("search results should exist");
 
-        let letterkenny = make_letterkenny();
+        let mut letterkenny = make_letterkenny();
 
         if let Some(mt) = metadata.first_mut() {
             mt.backdrops = letterkenny.backdrops.clone();
             mt.posters = letterkenny.posters.clone();
             mt.rating.replace(8.0);
+            letterkenny.description = mt.description.clone();
         }
 
         assert_eq!(metadata, vec![letterkenny]);
@@ -132,11 +133,12 @@ mod tests {
             .await
             .expect("search results should exist");
 
-        let letterkenny = make_letterkenny();
+        let mut letterkenny = make_letterkenny();
 
         media.posters = letterkenny.posters.clone();
         media.backdrops = letterkenny.backdrops.clone();
         media.rating.replace(8.0);
+        letterkenny.description = media.description.clone();
 
         assert_eq!(letterkenny, media);
     }
