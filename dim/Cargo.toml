@@ -15,7 +15,7 @@ xtra = { version = "0.5.1", features = ["tokio", "with-tokio-1"] }
 fdlimit = "0.2.1"
 
 # git dependencies
-nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4", default-features = false, features = [
+nightfall = { git = "https://github.com/nushankodikara/nightfall", tag = "0.3.12-rc4", default-features = false, features = [
     "cuda",
     "ssa_transmux",
 ] }

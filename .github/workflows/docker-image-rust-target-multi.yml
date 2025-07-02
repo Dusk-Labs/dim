@@ -71,6 +71,8 @@ jobs:
         run: rustup target add armv7-unknown-linux-gnueabihf
       - name: smoke test
         run: rustc --version
+      - name: update dependencies
+        run: cargo update
       - name: compile armhf
         run: cargo build --target=armv7-unknown-linux-gnueabihf --release
       - name: check path
@@ -119,6 +121,8 @@ jobs:
         run: rustup target add aarch64-unknown-linux-gnu
       - name: smoke test
         run: rustc --version            
+      - name: update dependencies
+        run: cargo update
       - name: compile aarch64
         run: cargo build --target=aarch64-unknown-linux-gnu --release
       - name: check path
@@ -161,6 +165,8 @@ jobs:
         run: rustup target add x86_64-unknown-linux-gnu
       - name: smoke test
         run: rustc --version
+      - name: update dependencies
+        run: cargo update
       - name: compile amd64
         run: cargo build --features vaapi --target=x86_64-unknown-linux-gnu --release
       - name: check path
