@@ -3,7 +3,8 @@ name: Build Dim Bin and Dockerize
 on:
   push:
     branches: [ 'master', 'docker-build' ]
-    tags: 'v*' 
+    tags: 
+      - 'v*' 
   workflow_dispatch:
 
 env:
@@ -14,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3        
+        uses: actions/checkout@v4        
       - name: Build UI 
         uses: actions/setup-node@v3
         with:
@@ -28,7 +29,7 @@ jobs:
         env:
             NODE_OPTIONS: --openssl-legacy-provider
       - name: upload ui artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ui
           path: ui/build
@@ -49,13 +50,13 @@ jobs:
       - name: install runtime
         run: apt update && apt install -y pkg-config gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libc6-armhf-cross libc6-dev-armhf-cross tar ca-certificates
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Download webui
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ui
           path: ui/build
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             .cargo/bin
@@ -75,7 +76,7 @@ jobs:
       - name: check path
         run: ls -al target/
       - name: upload armhf artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: armhf-bin
           path: target/armv7-unknown-linux-gnueabihf/release/dim
@@ -97,13 +98,13 @@ jobs:
       - name: install runtime
         run: apt update && apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-arm64-cross libc6-dev-arm64-cross libssl-dev:arm64
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Download webui
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ui
           path: ui/build
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             .cargo/bin
@@ -123,7 +124,7 @@ jobs:
       - name: check path
         run: ls -al target/
       - name: upload aarch64 artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: aarch64-bin
           path: target/aarch64-unknown-linux-gnu/release/dim
@@ -139,13 +140,13 @@ jobs:
       - name: install runtime
         run: apt update && apt install -y gcc-x86-64-linux-gnu g++-x86-64-linux-gnu libc6-dev libssl-dev libva-dev libva-drm2 libva2
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Download webui
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ui
           path: ui/build
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             .cargo/bin
@@ -165,7 +166,7 @@ jobs:
       - name: check path
         run: ls -al target/
       - name: upload amd64 artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: amd64-bin
           path: target/x86_64-unknown-linux-gnu/release/dim
@@ -179,19 +180,19 @@ jobs:
       packages: write
     steps:
       - name: fetch repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Download armhf dim artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: armhf-bin
           path: bin/armhf-bin
-      - name: Download armhf dim artifacts
-        uses: actions/download-artifact@v3
+      - name: Download aarch64 dim artifacts
+        uses: actions/download-artifact@v4
         with:
           name: aarch64-bin
           path: bin/aarch64-bin
       - name: Download amd64 dim artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: amd64-bin
           path: bin/amd64-bin
