@@ -19,7 +19,7 @@ jobs:
       - uses: docker/metadata-action@v3
         id: meta
         with:
-          images: ghcr.io/dusk-labs/dim
+          images: ghcr.io/nushankodikara/dim
       - uses: docker/login-action@v1
         with:
           registry: ghcr.io
@@ -30,7 +30,7 @@ jobs:
           push: true
           context: .
           platforms: linux/amd64
-          tags: ghcr.io/dusk-labs/dim:dev
+          tags: ghcr.io/nushankodikara/dim:dev
           labels: ${{ steps.meta.outputs.labels }}
           cache-to: type=gha,mode=max
           cache-from: type=gha

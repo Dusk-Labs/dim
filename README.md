@@ -34,17 +34,17 @@ In this example, the path `/media` on the host is made available at the same pat
 This name "media" is arbitrary and you can choose whatever you like.
 
 ```
-docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media:ro ghcr.io/dusk-labs/dim:dev
+docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media:ro ghcr.io/nushankodikara/dim:dev
 ```
-Mutiarch image resides at `ghcr.io/dusk-labs/dim:master`
+Mutiarch image resides at `ghcr.io/nushankodikara/dim:master`
 
 To use hardware acceleration, mount the relevant device:
 
 ```
-docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media:ro --device=/dev/dri/renderD128 ghcr.io/dusk-labs/dim:dev
+docker run -d -p 8000:8000/tcp -v $HOME/.config/dim:/opt/dim/config -v /media:/media:ro --device=/dev/dri/renderD128 ghcr.io/nushankodikara/dim:dev
 ```
 
-Refer to [docker-compose-template.yaml](https://github.com/Dusk-Labs/dim/blob/master/docker-compose-template.yml) to run dim using Docker Compose.
+Refer to [docker-compose-template.yaml](https://github.com/nushankodikara/dim/blob/master/docker-compose-template.yml) to run dim using Docker Compose.
 
 ## Running from source
 
@@ -65,7 +65,7 @@ To run from source, you'll first need to install the following dependencies on y
 Once the dependencies are installed, clone the repository and build the project:
 
 ```
-git clone https://github.com/Dusk-Labs/dim
+git clone https://github.com/nushankodikara/dim
 yarn --cwd ui/ && yarn --cwd ui/ build
 mkdir utils && ln -nfs $(which ffmpeg) utils/ffmpeg && ln -nfs $(which ffprobe) utils/ffprobe
 ```
