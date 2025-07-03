@@ -49,11 +49,13 @@ ARG DATABASE_URL="sqlite://dim_dev.db"
 # Sometimes we may need to quickly build a test image
 ARG RUST_BUILD=release
 RUN if [ "$RUST_BUILD" = "debug" ]; then \
+        cargo update && \
         cargo build --features vaapi && \
         mv ./target/debug/dim ./target/dim \
     ; fi
 
 RUN if [ "$RUST_BUILD" = "release" ]; then \
+        cargo update && \
         cargo build --features vaapi --release && \
         mv ./target/release/dim ./target/dim \
     ; fi

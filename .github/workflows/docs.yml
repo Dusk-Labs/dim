@@ -19,7 +19,7 @@ jobs:
     steps:
       - run: sudo apt-get update
       - run: sudo apt-get install -y libva-dev libva-drm2 libva2 sqlite3
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -27,6 +27,9 @@ jobs:
           toolchain: stable
           override: true
           components: cargo
+
+      - name: Update Dependencies
+        run: cargo update
 
       - name: Build Docs
         uses: actions-rs/cargo@v1

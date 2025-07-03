@@ -14,7 +14,7 @@ dim-utils = { path = "../dim-utils" }
 dim-events = { path = "../dim-events" }
 dim-core = { path = "../dim-core" }
 
-nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4", default-features = false, features = [
+nightfall = { git = "https://github.com/nushankodikara/nightfall", tag = "0.3.12-rc4", default-features = false, features = [
     "cuda",
     "ssa_transmux",
 ] }

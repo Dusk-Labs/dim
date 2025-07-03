@@ -61,6 +61,10 @@ fn library_routes() -> Router<AppState> {
             delete(routes::library::library_delete),
         )
         .route(
+            "/api/v1/library/:id/scan",
+            post(routes::library::library_scan),
+        )
+        .route(
             "/api/v1/library/:id/unmatched",
             get(routes::library::library_get_unmatched),
         )

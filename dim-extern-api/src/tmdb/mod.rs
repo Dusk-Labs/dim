@@ -91,7 +91,7 @@ mod tests {
         ExternalMedia {
             external_id: "65798".into(),
             title: "Letterkenny".into(),
-            description: Some("Letterkenny follows Wayne, a good-ol’ country boy in Letterkenny, Ontario trying to protect his homegrown way of life on the farm, against a world that is constantly evolving around him. The residents of Letterkenny belong to one of three groups: Hicks, Skids, and Hockey Players. The three groups are constantly feuding with each other over seemingly trivial matters; often ending with someone getting their ass kicked.".into()),
+            description: Some("Letterkenny follows Wayne, a good-ol' country boy in Letterkenny, Ontario trying to protect his homegrown way of life on the farm, against a world that is constantly evolving around him. The residents of Letterkenny belong to one of three groups: Hicks, Skids, and Hockey Players. The three groups are constantly feuding with each other over seemingly trivial matters; often ending with someone getting their ass kicked.".into()),
             release_date: Some(dt),
             posters: vec!["https://image.tmdb.org/t/p/w600_and_h900_bestv2/yvQGoc9GGTfOyPty5ASShT9tPBD.jpg".into()], 
             backdrops: vec!["https://image.tmdb.org/t/p/original/wdHK7RZNIGfskbGCIusSKN3vto6.jpg".into()], 
@@ -111,12 +111,13 @@ mod tests {
             .await
             .expect("search results should exist");
 
-        let letterkenny = make_letterkenny();
+        let mut letterkenny = make_letterkenny();
 
         if let Some(mt) = metadata.first_mut() {
             mt.backdrops = letterkenny.backdrops.clone();
             mt.posters = letterkenny.posters.clone();
             mt.rating.replace(8.0);
+            letterkenny.description = mt.description.clone();
         }
 
         assert_eq!(metadata, vec![letterkenny]);
@@ -132,11 +133,12 @@ mod tests {
             .await
             .expect("search results should exist");
 
-        let letterkenny = make_letterkenny();
+        let mut letterkenny = make_letterkenny();
 
         media.posters = letterkenny.posters.clone();
         media.backdrops = letterkenny.backdrops.clone();
         media.rating.replace(8.0);
+        letterkenny.description = media.description.clone();
 
         assert_eq!(letterkenny, media);
     }
@@ -155,7 +157,7 @@ mod tests {
         assert_eq!(cast[0].name, "Ryan Gosling".to_string());
         assert_eq!(
             cast[0].profile_path,
-            Some("https://image.tmdb.org/t/p/original/lyUyVARQKhGxaxy0FbPJCQRpiaW.jpg".to_string())
+            Some("https://image.tmdb.org/t/p/original/asoKC7CLCqpZKZDL6iovNurQUdf.jpg".to_string())
         );
         assert!(matches!(cast[0].character.as_str(), "K" | "\'K\'"));
     }

@@ -1,17 +1,19 @@
 [package]
 name = "dim-core"
-build = "src/build.rs"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(bench)'] }
 
 [features]
 vaapi = ["nightfall/vaapi"]
 
 [dependencies]
 # git dependencies
-nightfall = { git = "https://github.com/Dusk-Labs/nightfall", tag = "0.3.12-rc4", default-features = false, features = [
+nightfall = { git = "https://github.com/nushankodikara/nightfall", tag = "0.3.12-rc4", default-features = false, features = [
     "cuda",
     "ssa_transmux",
 ] }

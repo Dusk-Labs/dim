@@ -192,6 +192,54 @@ pub async fn library_get_one(State(state): State<AppState>, Path(id): Path<i64>)
     Json(lib).into_response()
 }
 
+/// Method mapped to `POST /api/v1/library/<id>/scan`, it rescans the library with the supplied id.
+pub async fn library_scan(
+    Extension(user): Extension<User>,
+    State(state): State<AppState>,
+    Path(id): Path<i64>,
+) -> Response {
+    if !user.has_role("owner") {
+        return (
+            StatusCode::UNAUTHORIZED,
+            "User account is not allowed to scan a library.".to_string(),
+        )
+            .into_response();
+    }
+    let library = {
+        let mut tx = match state.conn.read().begin().await {
+            Ok(tx) => tx,
+            Err(err) => {
+                tracing::error!(?err, "Error getting connection");
+                return (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response();
+            }
+        };
+
+        match Library::get_one(&mut tx, id).await {
+            Ok(library) => library,
+            Err(err) => {
+                tracing::error!(?err, "Error getting library");
+                return (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response();
+            }
+        }
+    };
+
+    let tx_clone = state.event_tx.clone();
+
+    const TMDB_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
+    let provider = TMDBMetadataProvider::new(TMDB_KEY);
+
+    let provider = match library.media_type {
+        MediaType::Movie => Arc::new(provider.movies()) as Arc<_>,
+        MediaType::Tv => Arc::new(provider.tv_shows()) as Arc<_>,
+        _ => unreachable!(),
+    };
+
+    let mut conn = state.conn.clone();
+    tokio::spawn(async move { dim_core::scanner::start(&mut conn, id, tx_clone, provider).await });
+
+    StatusCode::OK.into_response()
+}
+
 /// Method mapped to `GET /api/v1/library/<id>/media` returns all the movies/tv shows that belong
 /// to the library with the id supplied. Method can only be accessed by authenticated users.
 ///

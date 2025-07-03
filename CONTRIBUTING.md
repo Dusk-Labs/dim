@@ -6,8 +6,8 @@ come in many forms. You could:
   2. Ask for improved documentation as an [issue].
   3. Contribute code via [pull requests].
 
-[issue]: https://github.com/Dusk-Labs/dim/issues
-[pull_requests]: https://github.com/Dusk-Labs/dim/pulls
+[issue]: https://github.com/nushankodikara/dim/issues
+[pull_requests]: https://github.com/nushankodikara/dim/pulls
 
 All pull requests are code reviewed and tested by the CI. Note that unless you
 explicitly state otherwise, any contribution intentionally submitted for

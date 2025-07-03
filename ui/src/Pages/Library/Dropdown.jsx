@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 
 import Delete from "./Actions/Delete";
+import Rescan from "./Actions/Rescan";
 
 import EditIcon from "../../assets/Icons/Edit";
 
@@ -49,6 +50,7 @@ function Dropdown() {
       {user.info.roles?.includes("owner") && (
         <div className={`dropDownContent visible-${dropdownVisible}`}>
           <Delete id={params.id} />
+          <Rescan />
           <button className="rename">
             Rename library
             <EditIcon />

@@ -2,7 +2,7 @@ version: "3.8"
 services:
   dim:
     container_name: dim
-    image: ghcr.io/dusk-labs/dim:dev
+    image: ghcr.io/nushankodikara/dim:dev
     restart: unless-stopped
     ports:
       - 8000:8000
