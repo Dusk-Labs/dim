@@ -286,7 +286,7 @@ pub async fn start_custom(
 
     MediaFile::delete_by_lib_id(&mut db_tx, library_id)
         .await
-        .map_err(|e| Error::DatabaseError(e.into()))?;
+        .map_err(|e| Error::LibraryNotFound(e))?;
 
     db_tx
         .commit()
