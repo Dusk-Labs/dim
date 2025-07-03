@@ -279,6 +279,20 @@ pub async fn start_custom(
         _ => unimplemented!(),
     };
 
+    let mut lock = conn.writer().lock_owned().await;
+    let mut db_tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(|e| Error::DatabaseError(e.into()))?;
+
+    MediaFile::delete_by_lib_id(&mut db_tx, library_id)
+        .await
+        .map_err(|e| Error::DatabaseError(e.into()))?;
+
+    db_tx
+        .commit()
+        .await
+        .map_err(|e| Error::DatabaseError(e.into()))?;
+
     let now = Instant::now();
     let workunits = insert_mediafiles(conn, library_id, dirs).await?;
     let workunits_size = workunits.len();
