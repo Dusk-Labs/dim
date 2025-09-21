@@ -1,5 +1,4 @@
 #![allow(unstable_name_collisions)]
-
 #![allow(unused_imports)]
 
 use crate::inspect::ResultExt;

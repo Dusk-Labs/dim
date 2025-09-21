@@ -138,20 +138,24 @@ pub async fn handle_websocket_session(
                         if let Ok(u) =
                             dim_database::user::User::get_by_id(&mut sql_tx, token_data).await
                         {
-                            let _ = socket_tx.send(CtrlEvent::Track {
-                                addr,
-                                sink: Box::pin(sink),
-                                auth: Box::new(u),
-                            }).await;
+                            let _ = socket_tx
+                                .send(CtrlEvent::Track {
+                                    addr,
+                                    sink: Box::pin(sink),
+                                    auth: Box::new(u),
+                                })
+                                .await;
 
-                            let _ = socket_tx.send(CtrlEvent::SendTo {
-                                addr,
-                                message: dim_events::Message {
-                                    id: -1,
-                                    event_type: dim_events::PushEventType::EventAuthOk,
-                                }
-                                .to_string(),
-                            }).await;
+                            let _ = socket_tx
+                                .send(CtrlEvent::SendTo {
+                                    addr,
+                                    message: dim_events::Message {
+                                        id: -1,
+                                        event_type: dim_events::PushEventType::EventAuthOk,
+                                    }
+                                    .to_string(),
+                                })
+                                .await;
 
                             break 'auth_loop;
                         }
@@ -159,14 +163,16 @@ pub async fn handle_websocket_session(
                 }
             }
 
-            let _ = socket_tx.send(CtrlEvent::SendTo {
-                addr,
-                message: dim_events::Message {
-                    id: -1,
-                    event_type: dim_events::PushEventType::EventAuthErr,
-                }
-                .to_string(),
-            }).await;
+            let _ = socket_tx
+                .send(CtrlEvent::SendTo {
+                    addr,
+                    message: dim_events::Message {
+                        id: -1,
+                        event_type: dim_events::PushEventType::EventAuthErr,
+                    }
+                    .to_string(),
+                })
+                .await;
         }
     }
 

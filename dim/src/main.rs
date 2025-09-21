@@ -121,7 +121,7 @@ fn main() {
             dim::core::run_scanners(event_tx.clone()).await;
         }
 
-      tracing::info!("Launching Dim");
+        tracing::info!("Launching Dim");
 
         let address = std::net::SocketAddr::new(
             std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0)),

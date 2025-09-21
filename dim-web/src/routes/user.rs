@@ -1,23 +1,23 @@
 //! This module contains all docs and APIs related to users and user metadata.
 use crate::AppState;
-use axum::response::IntoResponse;
-use axum::response::Response;
+use axum::extract::multipart::Field;
 use axum::extract::Json;
 use axum::extract::Multipart;
-use axum::extract::multipart::Field;
 use axum::extract::State;
+use axum::response::IntoResponse;
+use axum::response::Response;
 use axum::Extension;
 
-use dim_database::DatabaseError;
 use dim_database::asset::Asset;
 use dim_database::asset::InsertableAsset;
 use dim_database::user::User;
+use dim_database::DatabaseError;
 
+use displaydoc::Display;
 use http::StatusCode;
 use serde::Deserialize;
-use uuid::Uuid;
-use displaydoc::Display;
 use thiserror::Error;
+use uuid::Uuid;
 
 #[derive(Debug, Display, Error)]
 pub enum AuthError {
@@ -39,9 +39,7 @@ impl IntoResponse for AuthError {
             Self::UsernameNotAvailable => {
                 (StatusCode::BAD_REQUEST, self.to_string()).into_response()
             }
-            Self::UnsupportedFile => {
-                (StatusCode::NOT_ACCEPTABLE, self.to_string()).into_response()
-            }
+            Self::UnsupportedFile => (StatusCode::NOT_ACCEPTABLE, self.to_string()).into_response(),
             Self::InvalidCredentials => {
                 (StatusCode::UNAUTHORIZED, self.to_string()).into_response()
             }
@@ -51,7 +49,6 @@ impl IntoResponse for AuthError {
         }
     }
 }
-
 
 #[derive(Deserialize)]
 pub struct ChangePasswordParams {
@@ -93,7 +90,9 @@ pub async fn change_password(
     Json(params): Json<ChangePasswordParams>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
 
     let user = User::authenticate(&mut tx, user.username, params.old_password)
         .await
@@ -149,7 +148,9 @@ pub async fn delete(
     Json(params): Json<DeleteParams>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
 
     let user = User::authenticate(&mut tx, user.username, params.password)
         .await
@@ -197,7 +198,9 @@ pub async fn change_username(
     Json(params): Json<ChangeUsernameParams>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
     if User::get(&mut tx, &params.new_username).await.is_ok() {
         return Err(AuthError::UsernameNotAvailable);
     }
@@ -236,7 +239,9 @@ pub async fn upload_avatar(
     mut multipart: Multipart,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
 
     let mut asset: Option<Asset> = None;
 
@@ -254,7 +259,7 @@ pub async fn upload_avatar(
 
             Ok(StatusCode::OK)
         }
-        None => Err(AuthError::UploadFailed)
+        None => Err(AuthError::UploadFailed),
     }
 }
 
@@ -273,10 +278,7 @@ pub async fn process_part(
         _ => return Err(AuthError::UnsupportedFile),
     };
 
-    let contents = p
-        .bytes()
-        .await
-        .map_err(|_| AuthError::UploadFailed)?;
+    let contents = p.bytes().await.map_err(|_| AuthError::UploadFailed)?;
 
     let local_file = format!("{}.{}", Uuid::new_v4().to_string(), file_ext);
     let local_path = format!(

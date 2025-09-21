@@ -1,12 +1,12 @@
 use crate::AppState;
-use axum::response::IntoResponse;
 use axum::extract::Json;
 use axum::extract::Path;
 use axum::extract::State;
+use axum::response::IntoResponse;
 
-use dim_database::DatabaseError;
 use dim_database::episode::{Episode, UpdateEpisode};
 use dim_database::season::{Season, UpdateSeason};
+use dim_database::DatabaseError;
 
 use http::StatusCode;
 
@@ -70,7 +70,9 @@ pub async fn patch_season_by_id(
     Json(season): Json<UpdateSeason>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
     season.update(&mut tx, id).await?;
     tx.commit().await.map_err(DatabaseError::from)?;
 
@@ -117,7 +119,9 @@ pub async fn delete_season_by_id(
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
     Season::delete_by_id(&mut tx, id).await?;
     tx.commit().await.map_err(DatabaseError::from)?;
     Ok(StatusCode::OK)
@@ -139,7 +143,9 @@ pub async fn patch_episode_by_id(
     Json(episode): Json<UpdateEpisode>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
     episode.update(&mut tx, id).await?;
     tx.commit().await.map_err(DatabaseError::from)?;
 
@@ -156,7 +162,9 @@ pub async fn delete_episode_by_id(
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
     Episode::delete(&mut tx, id).await?;
     tx.commit().await.map_err(DatabaseError::from)?;
 

@@ -1,22 +1,21 @@
 use crate::AppState;
-use axum::response::IntoResponse;
-use axum::response::Response;
 use axum::extract::Json;
 use axum::extract::Path;
 use axum::extract::Query;
 use axum::extract::State;
+use axum::response::IntoResponse;
+use axum::response::Response;
 use axum::Extension;
 
 use chrono::Datelike;
 
-use dim_core::tree;
 use dim_core::scanner::movie;
 use dim_core::scanner::parse_filenames;
 use dim_core::scanner::tv_show;
 use dim_core::scanner::MediaMatcher;
 use dim_core::scanner::WorkUnit;
+use dim_core::tree;
 
-use dim_database::DatabaseError;
 use dim_database::compact_mediafile::CompactMediafile;
 use dim_database::episode::Episode;
 use dim_database::genre::Genre;
@@ -26,6 +25,7 @@ use dim_database::media::UpdateMedia;
 use dim_database::mediafile::MediaFile;
 use dim_database::progress::Progress;
 use dim_database::user::User;
+use dim_database::DatabaseError;
 
 use dim_extern_api::tmdb::TMDBMetadataProvider;
 use dim_extern_api::ExternalQueryIntoShow;
@@ -39,8 +39,8 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use once_cell::sync::Lazy;
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 
 use tracing::error;
 use tracing::info;
@@ -65,9 +65,7 @@ pub enum Error {
 impl IntoResponse for Error {
     fn into_response(self) -> Response {
         match self {
-            Self::NotFoundError => {
-                (StatusCode::NOT_FOUND, self.to_string()).into_response()
-            }
+            Self::NotFoundError => (StatusCode::NOT_FOUND, self.to_string()).into_response(),
             Self::ExternalSearchError(_) => {
                 (StatusCode::NOT_FOUND, self.to_string()).into_response()
             }
@@ -300,7 +298,8 @@ pub async fn get_media_by_id(
         ..?next_episode_id,
         ..?season_episode_tag,
         ..?progress
-    })).into_response())
+    }))
+    .into_response())
 }
 
 pub async fn get_media_files(
@@ -380,7 +379,8 @@ pub async fn get_mediafile_tree(
     Ok(axum::response::Json(json!(&TreeResponse {
         files: entries,
         count,
-    })).into_response())
+    }))
+    .into_response())
 }
 
 /// Method mapped to `PATCH /api/v1/media/<id>` is used to edit information about a media entry
@@ -397,7 +397,9 @@ pub async fn update_media_by_id(
     Json(data): Json<UpdateMedia>,
 ) -> Result<impl IntoResponse, Error> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
     let status = if data.update(&mut tx, id).await.is_ok() {
         StatusCode::NO_CONTENT
     } else {
@@ -421,7 +423,9 @@ pub async fn delete_media_by_id(
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, Error> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
     Media::delete(&mut tx, id).await?;
     tx.commit().await.map_err(DatabaseError::from)?;
     Ok(StatusCode::OK)
@@ -441,9 +445,7 @@ pub struct TmdbSearchParams {
 /// * `query` - the query we want to send to tmdb, ie movie title, tv show title
 /// * `year` - optional parameter specifying the release year of the media we want to look up
 /// * `media_type` - parameter that tells us what media type we are querying, ie movie or tv show
-pub async fn tmdb_search(
-    Query(params): Query<TmdbSearchParams>,
-) -> Result<Response, Error> {
+pub async fn tmdb_search(Query(params): Query<TmdbSearchParams>) -> Result<Response, Error> {
     let Ok(media_type) = params.media_type.to_lowercase().try_into() else {
         return Err(Error::InvalidMediaType);
     };
@@ -502,7 +504,9 @@ pub async fn map_progress(
     Extension(user): Extension<User>,
 ) -> Result<impl IntoResponse, Error> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
     Progress::set(&mut tx, params.offset, user.id, id).await?;
     tx.commit().await.map_err(DatabaseError::from)?;
     Ok(StatusCode::OK)
@@ -554,18 +558,25 @@ pub async fn rematch_media_by_id(
 
     info!(?media_type, mediafiles = ?&mediafile_ids, "Rematching media");
 
-    provider.search_by_id(&params.external_id).await.map_err(|e| {
-        error!(?e, "Failed to search for tmdb_id when rematching.");
-        Error::ExternalSearchError(e.to_string())
-    })?;
+    provider
+        .search_by_id(&params.external_id)
+        .await
+        .map_err(|e| {
+            error!(?e, "Failed to search for tmdb_id when rematching.");
+            Error::ExternalSearchError(e.to_string())
+        })?;
 
     drop(tx);
 
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
 
     for mediafile in mediafiles {
-        let Some((_, metadata)) = parse_filenames(IntoIterator::into_iter([&mediafile.target_file])).pop() else {
+        let Some((_, metadata)) =
+            parse_filenames(IntoIterator::into_iter([&mediafile.target_file])).pop()
+        else {
             continue;
         };
 

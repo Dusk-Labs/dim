@@ -1,8 +1,8 @@
 use crate::AppState;
+use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::response::Json;
 use axum::response::Response;
-use axum::extract::State;
 use axum::Extension;
 
 use dim_database::episode::Episode;
@@ -224,5 +224,6 @@ pub async fn dashboard(
         ..?continue_watching,
         "TOP RATED": top_rated,
         "FRESHLY ADDED": recently_added,
-    })).into_response())
+    }))
+    .into_response())
 }
