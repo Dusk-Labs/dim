@@ -38,7 +38,7 @@ pub struct AppState {
 fn library_routes(_app: AppState) -> Router<AppState> {
     Router::new()
         .route(
-            "api/v1/library",
+            "/api/v1/library",
             post(routes::library::library_post).get(routes::library::library_get_all),
         )
         .route(
@@ -138,7 +138,6 @@ fn stream_routes(
 
 fn season_routes(_app: AppState) -> Router<AppState> {
     Router::new()
-        .route("/api/v1/season/*path", get(routes::tv::get_seasons))
         .route(
             "/api/v1/season/:id",
             get(routes::tv::get_season_by_id)
