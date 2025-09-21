@@ -1,5 +1,7 @@
 #![allow(unstable_name_collisions)]
 
+#![allow(unused_imports)]
+
 use super::movie::asset_from_url;
 use super::MediaMatcher;
 use super::Metadata;

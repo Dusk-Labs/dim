@@ -3,9 +3,9 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use axum::Extension;
 use axum::extract::{Path, Query, State};
 use axum::response::{IntoResponse, Response};
+use axum::Extension;
 use axum::Json;
 
 use dim_core::errors::DimError;
@@ -15,17 +15,14 @@ use dim_database::library::{InsertableLibrary, Library, MediaType};
 use dim_database::media::Media;
 use dim_database::mediafile::MediaFile;
 use dim_database::user::User;
-use dim_database::DbConnection;
+
 use dim_extern_api::tmdb::TMDBMetadataProvider;
 
 use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
 use http::StatusCode;
-use serde::Serialize;
 use serde::Deserialize;
-
-use crate::error::DimErrorWrapper;
-use crate::AppState;
+use serde::Serialize;
 
 use crate::error::DimErrorWrapper;
 use crate::AppState;
@@ -43,7 +40,8 @@ pub async fn library_post(
         return (
             StatusCode::UNAUTHORIZED,
             "User account is not allowed to add a library.".to_string(),
-        ).into_response();
+        )
+            .into_response();
     }
     let mut lock = state.conn.writer().lock_owned().await;
 
@@ -198,7 +196,10 @@ pub async fn library_get_one(State(state): State<AppState>, Path(id): Path<i64>)
 /// Method mapped to `GET /api/v1/library/<id>/media` returns all the movies/tv shows that belong
 /// to the library with the id supplied. Method can only be accessed by authenticated users.
 ///
-pub async fn library_get_media(State(AppState { conn, .. }): State<AppState>, Path(id): Path<i64>) -> Response {
+pub async fn library_get_media(
+    State(AppState { conn, .. }): State<AppState>,
+    Path(id): Path<i64>,
+) -> Response {
     let mut result = HashMap::new();
     let mut tx = match conn.read().begin().await {
         Ok(tx) => tx,

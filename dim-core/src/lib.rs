@@ -43,6 +43,8 @@ pub mod reactor;
 pub mod routes;
 /// New generation scanner infrastructure.
 pub mod scanner;
+/// Global settings management.
+pub mod settings;
 /// Contains the fairing which tracks streams across rest api
 pub mod stream_tracking;
 /// Contains all the logic needed for streaming and on-the-fly transcoding.
@@ -52,10 +54,10 @@ mod tests;
 /// Tree-like structure for representing directories of files.
 pub mod tree;
 
-pub use routes::settings::get_global_settings;
-pub use routes::settings::init_global_settings;
-pub use routes::settings::set_global_settings;
-pub use routes::settings::GlobalSettings;
+pub use settings::get_global_settings;
+pub use settings::init_global_settings;
+pub use settings::set_global_settings;
+pub use settings::GlobalSettings;
 
 /// Function builds a logger drain that drains to a json file located in logs/ and also to stdout.
 pub fn setup_logging(_debug: bool) {

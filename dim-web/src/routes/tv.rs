@@ -39,6 +39,22 @@ pub async fn get_season_by_id(
     Ok(axum::response::Json(json!(&Season::get_by_id(&mut tx, id).await?)).into_response())
 }
 
+/// Method mapped to `GET /api/v1/season/*path` - general season endpoint
+///
+/// This is a wildcard catch-all for season endpoints
+pub async fn get_seasons(
+    State(AppState { conn, .. }): State<AppState>,
+    Path(path): Path<String>,
+) -> Result<impl IntoResponse, AuthError> {
+    // For now, parse the path to extract season ID if it's a simple ID
+    if let Ok(id) = path.parse::<i64>() {
+        let mut tx = conn.read().begin().await.map_err(DatabaseError::from)?;
+        Ok(axum::response::Json(json!(&Season::get_by_id(&mut tx, id).await?)).into_response())
+    } else {
+        Err(AuthError::BadRequest("Invalid season path".to_string()))
+    }
+}
+
 /// Method mapped to `PATCH /api/v1/season/<id>` allows you to patch in info about
 /// the season.
 ///

@@ -1,2 +1,0 @@
-[env]
-CARGO_TARGET_DIR = { value = "target", relative = true }

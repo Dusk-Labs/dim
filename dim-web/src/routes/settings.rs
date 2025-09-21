@@ -1,19 +1,18 @@
 use crate::AppState;
-use axum::response::IntoResponse;
-use axum::response::Response;
 use axum::extract::Json;
 use axum::extract::State;
+use axum::response::IntoResponse;
+use axum::response::Response;
 use axum::Extension;
 
-use dim_core::routes::settings;
-use dim_core::routes::settings::{GlobalSettings, set_global_settings};
-use dim_database::DatabaseError;
+use dim_core::settings;
+use dim_core::settings::{set_global_settings, GlobalSettings};
 use dim_database::user::UpdateableUser;
 use dim_database::user::User;
 use dim_database::user::UserSettings;
+use dim_database::DatabaseError;
 
 use super::auth::AuthError;
-
 
 pub async fn get_user_settings(
     Extension(user): Extension<User>,
@@ -29,7 +28,9 @@ pub async fn post_user_settings(
     Json(new_settings): Json<UserSettings>,
 ) -> Result<Response, AuthError> {
     let mut lock = conn.writer().lock_owned().await;
-    let mut tx = dim_database::write_tx(&mut lock).await.map_err(DatabaseError::from)?;
+    let mut tx = dim_database::write_tx(&mut lock)
+        .await
+        .map_err(DatabaseError::from)?;
     let update_user = UpdateableUser {
         prefs: Some(new_settings.clone()),
     };
