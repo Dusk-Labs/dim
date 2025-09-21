@@ -13,7 +13,6 @@ use once_cell::sync::OnceCell;
 use serde::Deserialize;
 use serde::Serialize;
 
-
 #[derive(Serialize, Deserialize, Clone)]
 pub struct GlobalSettings {
     pub enable_ssl: bool,
@@ -49,18 +48,27 @@ impl Default for GlobalSettings {
                     }
                 }
             },
-            metadata_dir: ffpath("config/metadata"),
+            metadata_dir: {
+                cfg_if::cfg_if! {
+                    if #[cfg(target_family = "unix")] {
+                        "/opt/dim/metadata".into()
+                    } else {
+                        "./metadata".into()
+                    }
+                }
+            },
             quiet_boot: false,
             disable_auth: false,
             verbose: false,
             secret_key: None,
-            enable_hwaccel: true,
+            enable_hwaccel: false,
             version: String::new(),
         }
     }
 }
 
-static GLOBAL_SETTINGS: Lazy<Mutex<GlobalSettings>> = Lazy::new(|| Default::default());
+static GLOBAL_SETTINGS: Lazy<Mutex<GlobalSettings>> =
+    Lazy::new(|| Mutex::new(GlobalSettings::default()));
 static SETTINGS_PATH: OnceCell<String> = OnceCell::new();
 
 pub fn get_global_settings() -> GlobalSettings {
@@ -72,21 +80,17 @@ pub fn init_global_settings(path: Option<String>) -> Result<(), Box<dyn Error>> 
     let path = path.unwrap_or(ffpath("config/config.toml"));
     let _ = SETTINGS_PATH.set(path.clone());
     let mut content = String::new();
-
     OpenOptions::new()
         .write(true)
         .create(true)
         .read(true)
         .open(path)?
         .read_to_string(&mut content)?;
-
     {
         let mut lock = GLOBAL_SETTINGS.lock().unwrap();
         *lock = toml::from_str(&content).unwrap_or_default();
     }
-
     let _ = set_global_settings(get_global_settings());
-
     Ok(())
 }
 
@@ -95,16 +99,13 @@ pub fn set_global_settings(settings: GlobalSettings) -> Result<(), Box<dyn Error
         .get()
         .cloned()
         .unwrap_or(ffpath("config/config.toml"));
-
     {
         let mut lock = GLOBAL_SETTINGS.lock().unwrap();
         *lock = settings;
     }
-
     let settings = get_global_settings();
     File::create(path)?
         .write(toml::to_string_pretty(&settings).unwrap().as_ref())
         .unwrap();
-
     Ok(())
 }

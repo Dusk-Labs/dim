@@ -15,8 +15,6 @@ lazy_static::lazy_static! {
         cfg_if! {
             if #[cfg(test)] {
                 "/usr/bin/ffprobe"
-            } else if #[cfg(bench)] {
-                "/usr/bin/ffprobe"
             } else {
                 Box::leak(ffpath("utils/ffprobe").into_boxed_str())
             }

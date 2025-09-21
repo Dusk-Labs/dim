@@ -4,8 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-# the build script usually will enable this if `yarn` is installed.
-# If enabled explicitly, the build script will panic if something went wrong.
+default = []
 embed_ui = []
 
 [dependencies]

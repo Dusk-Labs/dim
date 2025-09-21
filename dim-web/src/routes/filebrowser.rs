@@ -1,6 +1,6 @@
+use axum::extract::Path;
 use axum::response::IntoResponse;
 use axum::response::Response;
-use axum::extract::Path;
 
 use http::StatusCode;
 
@@ -33,9 +33,7 @@ impl IntoResponse for AuthError {
             Self::InvalidCredentials => {
                 (StatusCode::UNAUTHORIZED, self.to_string()).into_response()
             }
-            Self::IOError => {
-                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response()
-            }
+            Self::IOError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response(),
         }
     }
 }
@@ -88,14 +86,13 @@ pub async fn get_directory_structure(
             };
             path
         }
-        None => {
-            PathBuf::from(path_prefix)
-        }
+        None => PathBuf::from(path_prefix),
     };
 
     Ok(axum::response::Json(
         &spawn_blocking(|| enumerate_directory(path))
             .await
             .unwrap()?,
-    ).into_response())
+    )
+    .into_response())
 }

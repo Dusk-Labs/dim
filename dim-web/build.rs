@@ -9,11 +9,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     let db_file = format!("{out_dir}/dim_dev.db");
     println!("cargo:rustc-env=DATABASE_URL=sqlite://{db_file}");
 
-    let git_tag_output = Command::new("git").args(&["describe", "--abbrev=0"]).output().unwrap();
+    let git_tag_output = Command::new("git")
+        .args(&["describe", "--abbrev=0"])
+        .output()
+        .unwrap();
     let git_tag = String::from_utf8(git_tag_output.stdout).unwrap();
     println!("cargo:rustc-env=GIT_TAG={}", git_tag);
 
-    let git_sha_256_output = Command::new("git").args(&["rev-parse", "HEAD"]).output().unwrap();
+    let git_sha_256_output = Command::new("git")
+        .args(&["rev-parse", "HEAD"])
+        .output()
+        .unwrap();
     let git_sha_256 = String::from_utf8(git_sha_256_output.stdout).unwrap();
     println!("cargo:rustc-env=GIT_SHA_256={}", git_sha_256);
 

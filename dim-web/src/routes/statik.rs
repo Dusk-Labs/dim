@@ -1,15 +1,15 @@
 use crate::AppState;
 use axum::body;
 use axum::body::Full;
-use axum::extract::State;
 use axum::extract::Path;
 use axum::extract::Query;
+use axum::extract::State;
 use axum::http::Uri;
 use axum::response::Html;
 use axum::response::IntoResponse;
 use axum::response::Response;
 
-use dim_core::errors;
+use crate::error::DimErrorWrapper;
 use dim_core::fetcher::insert_into_queue;
 use dim_database::asset;
 
@@ -46,11 +46,11 @@ cfg_if::cfg_if! {
     }
 }
 
-pub async fn react_routes() -> Result<impl IntoResponse, errors::DimError> {
+pub async fn react_routes() -> Result<impl IntoResponse, DimErrorWrapper> {
     if let Some(x) = Asset::get("/index.html") {
         Ok(Html(x.into_owned()).into_response())
     } else {
-        Err(errors::DimError::NotFoundError)
+        Err(dim_core::errors::DimError::NotFoundError.into())
     }
 }
 
@@ -66,7 +66,7 @@ pub async fn get_image(
     State(AppState { conn, .. }): State<AppState>,
     Path(path): Path<String>,
     Query(params): Query<ImageParams>,
-) -> Result<impl IntoResponse, errors::DimError> {
+) -> Result<impl IntoResponse, DimErrorWrapper> {
     let meta_path = dim_core::core::METADATA_PATH.get().unwrap();
     let mut file_path = PathBuf::from(&meta_path);
     file_path.push(path.as_str());
@@ -90,7 +90,7 @@ pub async fn get_image(
             insert_into_queue(x, path.as_str().into(), true).await;
         }
 
-        return Err(errors::DimError::NotFoundError);
+        return Err(dim_core::errors::DimError::NotFoundError.into());
     }
 
     let image = tokio::fs::read(file_path).await.ok();
@@ -124,15 +124,13 @@ pub async fn get_image(
             resp = resp.header("X-IMAGE-ACCENTS", accents);
         }
 
-        return Ok(resp.body(body::boxed(Full::from(data))).map_err(|_| errors::DimError::NotFoundError));
+        return Ok(resp.body(body::boxed(Full::from(data))).unwrap());
     }
 
-    Err(errors::DimError::NotFoundError)
+    Err(dim_core::errors::DimError::NotFoundError.into())
 }
 
-pub async fn dist_static(
-    uri: Uri,
-) -> Result<impl IntoResponse, errors::DimError> {
+pub async fn dist_static(uri: Uri) -> Result<impl IntoResponse, DimErrorWrapper> {
     let path = PathBuf::from(uri.path());
     if let Some(y) = Asset::get(path.to_str().unwrap()) {
         let mime = match path.extension().and_then(|x| x.to_str()) {
@@ -145,7 +143,7 @@ pub async fn dist_static(
             Some("json") => "application/json",
             Some("wasm") => "application/wasm",
             Some("data") => "application/octet-stream",
-            _ => return Err(errors::DimError::NotFoundError),
+            _ => return Err(dim_core::errors::DimError::NotFoundError.into()),
         };
 
         Ok(Response::builder()
@@ -154,6 +152,6 @@ pub async fn dist_static(
             .body(body::boxed(Full::from(y.into_owned())))
             .unwrap())
     } else {
-        Err(errors::DimError::NotFoundError)
+        Err(dim_core::errors::DimError::NotFoundError.into())
     }
 }

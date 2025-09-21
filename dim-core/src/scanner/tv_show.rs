@@ -1,4 +1,5 @@
 #![allow(unstable_name_collisions)]
+#![allow(unused_imports)]
 
 use super::movie::asset_from_url;
 use super::MediaMatcher;
@@ -367,7 +368,10 @@ impl TvMatcher {
                     };
 
                     let Ok(seasons) = provider.seasons_for_id(&first.external_id).await else {
-                        info!(?meta, "Failed to find season match with the current metadata set.");
+                        info!(
+                            ?meta,
+                            "Failed to find season match with the current metadata set."
+                        );
                         continue;
                     };
 
@@ -375,14 +379,19 @@ impl TvMatcher {
                     // marking this file as an extra and put it in season 0
                     let Some(season) = seasons
                         .into_iter()
-                        .find(|x| x.season_number as i64 == meta.season.unwrap_or(0)) else {
-                        info!(?meta, "Provider didnt return our desired season with current metadata.");
+                        .find(|x| x.season_number as i64 == meta.season.unwrap_or(0))
+                    else {
+                        info!(
+                            ?meta,
+                            "Provider didnt return our desired season with current metadata."
+                        );
                         continue;
                     };
 
                     let Ok(episodes) = provider
                         .episodes_for_season(&first.external_id, meta.season.unwrap_or(0) as _)
-                        .await else {
+                        .await
+                    else {
                         // FIXME: We might want to propagate this error.
                         info!(?meta, "Failed to fetch episodes with current metadata set.");
                         continue;
@@ -390,7 +399,8 @@ impl TvMatcher {
 
                     let Some(episode) = episodes
                         .into_iter()
-                        .find(|x| x.episode_number as i64 == meta.episode.unwrap_or(0)) else {
+                        .find(|x| x.episode_number as i64 == meta.episode.unwrap_or(0))
+                    else {
                         info!(
                             ?meta,
                             "Provider didnt return our desired episode with current metadata."
@@ -467,7 +477,10 @@ impl MediaMatcher for TvMatcher {
 
         for meta in metadata {
             let Ok(seasons) = provider.seasons_for_id(external_id).await else {
-                info!(?meta, "Failed to find season match with the current metadata set.");
+                info!(
+                    ?meta,
+                    "Failed to find season match with the current metadata set."
+                );
                 continue;
             };
 
@@ -475,35 +488,45 @@ impl MediaMatcher for TvMatcher {
             // marking this file as an extra and put it in season 0
             let Some(season) = seasons
                 .into_iter()
-                .find(|x| x.season_number as i64 == meta.season.unwrap_or(0)) else {
-                    info!(?meta, "Provider didnt return our desired season with current metadata.");
-                    continue;
-                };
+                .find(|x| x.season_number as i64 == meta.season.unwrap_or(0))
+            else {
+                info!(
+                    ?meta,
+                    "Provider didnt return our desired season with current metadata."
+                );
+                continue;
+            };
 
             let Ok(episodes) = provider
                 .episodes_for_season(external_id, meta.season.unwrap_or(0) as _)
-                .await else {
-                    // FIXME: We might want to propagate this error.
-                    info!(?meta, "Failed to fetch episodes with current metadata set.");
-                    continue;
-                };
+                .await
+            else {
+                // FIXME: We might want to propagate this error.
+                info!(?meta, "Failed to fetch episodes with current metadata set.");
+                continue;
+            };
 
             let Some(episode) = episodes
                 .into_iter()
-                .find(|x| x.episode_number as i64 == meta.episode.unwrap_or(0)) else {
-                    info!(
-                        ?meta,
-                        "Provider didnt return our desired episode with current metadata."
-                    );
-                    continue
-                };
+                .find(|x| x.episode_number as i64 == meta.episode.unwrap_or(0))
+            else {
+                info!(
+                    ?meta,
+                    "Provider didnt return our desired episode with current metadata."
+                );
+                continue;
+            };
 
             season_result = Some(season);
             episode_result = Some(episode);
         }
 
-        let Some(season_result) = season_result else { return Err(Error::SeasonNotFound.into()); };
-        let Some(episode_result) = episode_result else { return Err(Error::EpisodeNotFound.into()); };
+        let Some(season_result) = season_result else {
+            return Err(Error::SeasonNotFound.into());
+        };
+        let Some(episode_result) = episode_result else {
+            return Err(Error::EpisodeNotFound.into());
+        };
 
         self.match_to_result(tx, file, (provided, season_result, episode_result))
             .await
