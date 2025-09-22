@@ -8,7 +8,6 @@ use super::WorkUnit;
 use dim_extern_api::ExternalEpisode;
 use dim_extern_api::ExternalMedia;
 
-use crate::inspect::ResultExt;
 use dim_extern_api::ExternalQueryIntoShow;
 use dim_extern_api::ExternalQueryShow;
 use dim_extern_api::ExternalSeason;

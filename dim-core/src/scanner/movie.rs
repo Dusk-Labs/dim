@@ -1,7 +1,6 @@
 #![allow(unstable_name_collisions)]
 #![allow(unused_imports)]
 
-use crate::inspect::ResultExt;
 use crate::scanner::format_path;
 use dim_extern_api::ExternalMedia;
 use dim_extern_api::ExternalQueryIntoShow;
