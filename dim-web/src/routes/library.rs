@@ -72,8 +72,9 @@ pub async fn library_post(
 
     let tx_clone = state.event_tx.clone();
 
-    const TMDB_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
-    let provider = TMDBMetadataProvider::new(TMDB_KEY);
+    let provider = TMDBMetadataProvider::new(
+        &dim_core::settings::get_global_settings().tmdb_api_key,
+    );
 
     let provider = match new_library.media_type {
         MediaType::Movie => Arc::new(provider.movies()) as Arc<_>,

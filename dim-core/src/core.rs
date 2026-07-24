@@ -38,7 +38,9 @@ pub async fn run_scanners(tx: EventTx) {
                 let tx_clone = tx.clone();
                 let media_type = lib.media_type;
 
-                let provider = TMDBMetadataProvider::new("38c372f5bc572c8aadde7a802638534e");
+                let provider = TMDBMetadataProvider::new(
+                    &crate::settings::get_global_settings().tmdb_api_key,
+                );
 
                 let provider = match media_type {
                     MediaType::Movie => Arc::new(provider.movies()) as Arc<_>,
