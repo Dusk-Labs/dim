@@ -82,11 +82,18 @@ impl IntoResponse for Error {
     }
 }
 
-pub const API_KEY: &str = "38c372f5bc572c8aadde7a802638534e";
-pub const MOVIES_PROVIDER: Lazy<Arc<dyn ExternalQueryIntoShow>> =
-    Lazy::new(|| Arc::new(TMDBMetadataProvider::new(&API_KEY).movies()));
-pub const TV_PROVIDER: Lazy<Arc<dyn ExternalQueryIntoShow>> =
-    Lazy::new(|| Arc::new(TMDBMetadataProvider::new(&API_KEY).tv_shows()));
+pub static MOVIES_PROVIDER: Lazy<Arc<dyn ExternalQueryIntoShow>> = Lazy::new(|| {
+    Arc::new(
+        TMDBMetadataProvider::new(&dim_core::settings::get_global_settings().tmdb_api_key)
+            .movies(),
+    )
+});
+pub static TV_PROVIDER: Lazy<Arc<dyn ExternalQueryIntoShow>> = Lazy::new(|| {
+    Arc::new(
+        TMDBMetadataProvider::new(&dim_core::settings::get_global_settings().tmdb_api_key)
+            .tv_shows(),
+    )
+});
 
 /// Method mapped to `GET /api/v1/media/<id>` returns info about a media based on the id queried.
 /// This method can only be accessed by authenticated users.

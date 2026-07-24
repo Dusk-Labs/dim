@@ -30,6 +30,8 @@ pub struct GlobalSettings {
     pub secret_key: Option<[u8; 32]>,
     pub enable_hwaccel: bool,
     pub version: String,
+
+    pub tmdb_api_key: String,
 }
 
 impl Default for GlobalSettings {
@@ -63,6 +65,7 @@ impl Default for GlobalSettings {
             secret_key: None,
             enable_hwaccel: false,
             version: String::new(),
+            tmdb_api_key: "38c372f5bc572c8aadde7a802638534e".into(),
         }
     }
 }
